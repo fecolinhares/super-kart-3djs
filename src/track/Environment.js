@@ -114,6 +114,7 @@ export class Environment {
     this.buildProps(scene);
     this.buildCrowd(scene);
     this.buildGrandstand(scene);
+    this.buildRoadsideCrowd(scene, track);
     this.buildFlags(scene);
     this.buildBalloons(scene);
   }
@@ -600,6 +601,56 @@ export class Environment {
       board.rotation.y = m.ry;
       scene.add(board);
     }
+  }
+
+  /**
+   * Spectator line along the start straight (both sides of the road, just
+   * outside the ribbon) — the finish frame finally shows a living crowd.
+   */
+  buildRoadsideCrowd(scene, track) {
+    if (!track || !track.path) return;
+    const path = track.path;
+    const halfW = CONFIG.track.roadWidth / 2;
+    const N = 14; // spectators per file
+    const ROWS = [2.0, 3.4]; // two rows per side
+    const total = N * ROWS.length * 2;
+    const crowdColors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
+    const bodies = new THREE.InstancedMesh(new THREE.BoxGeometry(0.75, 0.95, 0.75), toonMaterial(0xffffff, {}), total);
+    const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.32, 8, 6), toonMaterial(0xf4f6f8, {}), total);
+    const dummy = new THREE.Object3D();
+    const headD = new THREE.Object3D();
+    const col = new THREE.Color();
+    const p = new THREE.Vector3();
+    const tan = new THREE.Vector3();
+    const nrm = new THREE.Vector3();
+    let idx = 0;
+    for (let side = -1; side <= 1; side += 2) {
+      for (const rowOff of ROWS) {
+        for (let i = 0; i < N; i++) {
+          const t = (0.945 + (i / N) * 0.11) % 1; // wraps around the start line
+          path.getPointAt(t, p);
+          path.getTangentAt(t, tan);
+          nrm.set(-tan.z, 0, tan.x).normalize();
+          dummy.position.set(p.x + nrm.x * (side * (halfW + rowOff)), p.y + 0.85, p.z + nrm.z * (side * (halfW + rowOff)));
+          dummy.scale.set(1, 0.9 + Math.random() * 0.4, 1);
+          dummy.updateMatrix();
+          bodies.setMatrixAt(idx, dummy.matrix);
+          col.setHex(crowdColors[(Math.random() * crowdColors.length) | 0]);
+          bodies.setColorAt(idx, col);
+          headD.position.set(dummy.position.x, dummy.position.y + 0.95, dummy.position.z);
+          headD.scale.set(1, 1, 1);
+          headD.updateMatrix();
+          heads.setMatrixAt(idx, headD.matrix);
+          idx++;
+        }
+      }
+    }
+    bodies.instanceMatrix.needsUpdate = true;
+    if (bodies.instanceColor) bodies.instanceColor.needsUpdate = true;
+    heads.instanceMatrix.needsUpdate = true;
+    scene.add(bodies, heads);
+    // Reuse the crowd-bounce animation for the roadside line too.
+    (this.crowdMeshes = this.crowdMeshes || []).push(bodies);
   }
 
   buildFlags(scene) {
