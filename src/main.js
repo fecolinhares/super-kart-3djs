@@ -145,6 +145,13 @@ function setPlayerColor(color) {
 
 /** Drift mini-boost drama: SFX + golden spark burst on release (all karts). */
 function wireMiniBoost(kart) {
+  kart._onTrick = () => {
+    // Trick landing boost — sparkle burst + pop (mostly for the player).
+    if (kart.isPlayer) {
+      audio.play('driftReleaseMiniBoost', { volume: 0.7 });
+      particles.emit('sparkle', kart.group.position, { count: 16, speed: 5, size: 0.3 });
+    }
+  };
   kart._onLand = () => {
     // Soft thump on touchdown — mostly for the player (AI landings are quiet).
     if (kart.isPlayer) audio.play('landing', { volume: 0.5 });

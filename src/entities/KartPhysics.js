@@ -149,6 +149,12 @@ function updateLap(kart, near) {
   kart._lastProgress = p;
 }
 
+/** Local 2D heading unit vector from a kart's state heading (no THREE alloc). */
+function heading2d(kart) {
+  const h = kart.state.heading;
+  return { x: Math.sin(h), z: Math.cos(h) };
+}
+
 export class KartPhysics {
   /**
    * Advance one kart by dt seconds.
@@ -157,7 +163,7 @@ export class KartPhysics {
    * @param {number} dt    — seconds
    * @param {object} track — { path, startLine, getRoadWidthAt? }
    */
-  static step(kart, input, dt, track) {
+  static step(kart, input, dt, track, raceManager) {
     if (!track || !track.path || dt <= 0) return;
     const s = kart.state;
     const P = CONFIG.physics;
@@ -222,6 +228,32 @@ export class KartPhysics {
     if (kart._scaleMs > 0 && kart._scaleTarget < 1) {
       target *= kart._scaleTarget;
     }
+    // Slipstream/drafting (MK8 core comeback): a kart riding in the wake of
+    // another (same heading, behind by ~1-3m, lateral < 2.2m) gets a +8% top
+    // speed ramp. Disabled while boosting or spinning.
+    s.draft = false;
+    if (!s.boost && !s.spinOut && !kart.finished && raceManager && raceManager.karts) {
+      const heading = heading2d(kart);
+      for (const other of raceManager.karts) {
+        if (other === kart || other.finished) continue;
+        const op = other.state.position;
+        const dx = op.x - s.position.x;
+        const dz = op.z - s.position.z;
+        // same heading (dot > 0.95) and the other kart is AHEAD on that heading
+        const dot = heading.x * dx + heading.z * dz;
+        if (dot < 1.0) continue; // must be ahead (and roughly in front)
+        const dist = Math.hypot(dx, dz);
+        if (dist > 4.0 || dist < 0.6) continue;
+        // lateral offset: perpendicular distance to the leader's line
+        const px = heading.z * dx - heading.x * dz;
+        if (Math.abs(px) > 2.2) continue;
+        // leader must be moving (so drafting means catching up)
+        if (other.state.speed < 2) continue;
+        s.draft = true;
+        target *= 1.08;
+        break;
+      }
+    }
     s.offRoad = Math.abs(near.lateralDist) > halfW;
     if (s.offRoad) target *= T.offRoadMaxSpeedFactor;
     if (s.spinOut) target = 0;
@@ -271,6 +303,19 @@ export class KartPhysics {
 
     // ---- height / gravity -----------------------------------------------------
     const groundY = near.groundY + kart.rideHeight;
+    // Trick ramp launch (audit F3: air physics existed but nothing set vY>0).
+    if (track.ramps && track.ramps.length && s.position.y <= groundY + 0.06) {
+      for (const r of track.ramps) {
+        const dx = r.point.x - s.position.x;
+        const dz = r.point.z - s.position.z;
+        if (dx * dx + dz * dz < 7.3) {
+          s.vY = 5.4; // launch off the ramp
+          s.position.y += 0.02; // leave the ground this frame
+          s.onRamp = true;
+          break;
+        }
+      }
+    }
     if (s.position.y > groundY + 0.06) {
       // airborne
       s.vY += P.gravity * dt;
@@ -290,6 +335,7 @@ export class KartPhysics {
       s.position.y = groundY;
       s.vY = 0;
       kart._airTime = 0;
+      s.onRamp = false;
       // squash rolling off a fast drop
       if (groundY < kart._prevY - 0.16) {
         kart._scaleTarget = 0.94;

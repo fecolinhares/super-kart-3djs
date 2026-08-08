@@ -13,6 +13,7 @@
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import * as Materials from '../render/Materials.js';
+import { PowerUpType } from './PowerUp.js';
 import { KartPhysics } from './KartPhysics.js';
 
 const OUTLINE = 0x1b2a41;
@@ -86,6 +87,7 @@ export class Kart {
     this._bounce = 0;
     this._bounceTimer = 0;
     this._startDir = new THREE.Vector3(0, 0, 1);
+    this._trickArmed = false;
 
     this._controls = { steer: 0, throttle: false, brake: false, drift: false, useItem: false };
     this._steerTarget = 0;
@@ -585,6 +587,7 @@ export class Kart {
   /** Banana: spin-out. No-op while invincible. */
   hitBanana() {
     if (this.invincible) return;
+    if (this._blockWithHeldItem()) return; // hold a shell/banana → absorb
     this._spinMs = 1500;
     this._spinDir = Math.random() < 0.5 ? -1 : 1;
     this.state.speed *= 0.3;
@@ -595,6 +598,7 @@ export class Kart {
   /** Shell: heavier crash — spin-out + hop + lateral shove. */
   hitShell() {
     if (this.invincible) return;
+    if (this._blockWithHeldItem()) return; // MK8 item-hold blocking pillar
     this._spinMs = 2100;
     this._spinDir = Math.random() < 0.5 ? -1 : 1;
     this.state.speed *= 0.12;
@@ -602,6 +606,15 @@ export class Kart {
     this._nudgeVel.set(Math.random() - 0.5, 0, Math.random() - 0.5).normalize().multiplyScalar(5);
     this._scaleTarget = 0.9;
     this._scaleMs = Math.max(this._scaleMs, 380);
+  }
+
+  /** Holding a shell/banana behind blocks an incoming hit (MK8 pillar).
+   *  Consumes the held item. Returns true when the hit was absorbed. */
+  _blockWithHeldItem() {
+    if (!this.heldItem) return false;
+    if (this.heldItem !== PowerUpType.SHELL && this.heldItem !== PowerUpType.BANANA && this.heldItem !== PowerUpType.RED_SHELL) return false;
+    this.heldItem = null;
+    return true;
   }
 
   /** Invincibility (ref-counted so star + item invincibility can overlap). */
@@ -667,6 +680,15 @@ export class Kart {
     this._t += dt;
     const s = this.state;
     this._tickEffects(dt);
+    // Trick (MK8 pillar): pressing throttle mid-air arms a trick; landing
+    // with it armed grants a mini-boost (the air system is now reachable
+    // via the trick ramps).
+    if (this._airTime > 0.35 && this._controls.throttle) this._trickArmed = true;
+    if (this._trickArmed && this._airTime <= 0.02 && !this.state.spinOut) {
+      this._trickArmed = false;
+      this.applyBoost(320);
+      this._onTrick?.();
+    }
 
     if (ctx.track) {
       if (ctx.track.startLine && ctx.track.startLine.direction) {
@@ -678,7 +700,7 @@ export class Kart {
         this._steerTarget,
         Math.min(1, 9 * dt)
       );
-      KartPhysics.step(this, this._controls, dt, ctx.track);
+      KartPhysics.step(this, this._controls, dt, ctx.track, ctx.raceManager);
     }
     s.finished = this.finished;
 

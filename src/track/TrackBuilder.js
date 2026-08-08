@@ -477,6 +477,9 @@ export function buildTrack(scene) {
   const turbo = buildTurboPads(path, length);
   group.add(turbo.mesh);
 
+  const ramps = buildRamps(path, length);
+  for (const r of ramps) group.add(r.mesh);
+
   const startLine = { position: startPos.clone(), direction: startDir.clone(), width: getRoadWidthAt() };
   const gantry = buildGantry(startLine);
   group.add(gantry.group);
@@ -499,5 +502,32 @@ export function buildTrack(scene) {
     waypoints.push(path.getPointAt(i / WAY_COUNT).clone());
   }
 
-  return { group, path, waypoints, startLine, length, startLights: gantry.startLights, turboPads: { ts: turbo.ts, points: turbo.points } };
+  return { group, path, waypoints, startLine, length, startLights: gantry.startLights, turboPads: { ts: turbo.ts, points: turbo.points }, ramps };
+}
+
+/**
+ * Trick ramps on two straights — the air system (vY/gravity/_airTime) was
+ * dead code with nothing ever setting vY > 0. A ramp launches the kart;
+ * pressing throttle mid-air arms a trick → landing mini-boost (MK8 pillar).
+ */
+function buildRamps(path, length) {
+  const ramps = [];
+  const mat = new THREE.MeshStandardMaterial({ color: 0xb5651d, roughness: 0.65, metalness: 0.05 });
+  const tan = new THREE.Vector3();
+  const p = new THREE.Vector3();
+  for (const t of [0.16, 0.56]) {
+    path.getPointAt(t, p);
+    path.getTangentAt(t, tan);
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(4.6, 0.45, CONFIG.track.roadWidth * 0.78),
+      mat
+    );
+    mesh.position.set(p.x, p.y + 0.22, p.z);
+    mesh.rotation.y = Math.atan2(tan.x, tan.z);
+    mesh.rotation.x = 0.3; // slope up along travel direction
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    ramps.push({ t, point: p.clone(), dir: tan.clone(), mesh });
+  }
+  return ramps;
 }

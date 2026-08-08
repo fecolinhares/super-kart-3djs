@@ -21,6 +21,7 @@ export const PowerUpType = Object.freeze({
   BANANA: 'banana',
   STAR: 'star',
   LIGHTNING: 'lightning',
+  BLUE_SHELL: 'blue_shell',
 });
 
 /** Roll weights — must sum to 1.0 (default / mid-pack). */
@@ -46,12 +47,13 @@ const ROLL_LEADER = [
   { type: PowerUpType.LIGHTNING, weight: 0.03 },
 ];
 const ROLL_BACK = [
-  { type: PowerUpType.MUSHROOM, weight: 0.26 },
-  { type: PowerUpType.SHELL, weight: 0.14 },
+  { type: PowerUpType.MUSHROOM, weight: 0.24 },
+  { type: PowerUpType.SHELL, weight: 0.13 },
   { type: PowerUpType.RED_SHELL, weight: 0.10 },
-  { type: PowerUpType.BANANA, weight: 0.12 },
-  { type: PowerUpType.STAR, weight: 0.22 },
-  { type: PowerUpType.LIGHTNING, weight: 0.16 },
+  { type: PowerUpType.BANANA, weight: 0.11 },
+  { type: PowerUpType.STAR, weight: 0.20 },
+  { type: PowerUpType.LIGHTNING, weight: 0.14 },
+  { type: PowerUpType.BLUE_SHELL, weight: 0.08 }, // targeted anti-leader weapon
 ];
 
 /**
@@ -160,6 +162,20 @@ export function useItem(kart, ctx = {}) {
       break;
     }
 
+    case PowerUpType.BLUE_SHELL: {
+      // Spiny-style: homes in on the RACE LEADER (position 1). Un-dodgeable
+      // pressure valve for tail-enders (MK8 blue-shell pillar).
+      let leader = null;
+      for (const k of ctx.karts || []) {
+        if (k.finished) continue;
+        if (!leader || k.position < leader.position) leader = k;
+      }
+      const proj = new ShellProjectile(kart, { homing: true, targetKart: leader, blue: true, ...ctx });
+      ctx.raceManager?.addActiveItem?.(proj);
+      audio?.play?.('redShell');
+      break;
+    }
+
     case PowerUpType.BANANA: {
       const banana = new Banana(kart, ctx);
       ctx.raceManager?.addActiveItem?.(banana);
@@ -253,7 +269,7 @@ export class ShellProjectile {
     this._offAccum = 0;
 
     const opos = kartPosition(ownerKart);
-    const color = this.homing ? 0xff3b3b : 0x43d64b;
+    const color = this.homing ? (opts.blue ? 0x1f3fc8 : 0xff3b3b) : 0x43d64b;
     this.mesh = buildShellMesh(color);
     this.mesh.position.set(
       opos.x + this.dir.x * 1.5,
