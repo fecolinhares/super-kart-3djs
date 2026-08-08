@@ -740,6 +740,16 @@ export class Environment {
     // String of small triangular flags over a section of the road.
     const flagMat = toonMaterial(0xffd166, {});
     const flagMat2 = toonMaterial(0x2ec4ff, {});
+    // Support poles at both ends — the rope must not float in mid-air
+    // (auditor HIGH: pennant string had no posts, read as a disconnected
+    // floating line).
+    const postGeo = new THREE.CylinderGeometry(0.06, 0.09, 9, 6);
+    const postMat = toonMaterial(0x8b7a5c, {});
+    for (const px of [-11, 23]) {
+      const post = new THREE.Mesh(postGeo, postMat);
+      post.position.set(px, 4.5, -58);
+      scene.add(post);
+    }
     const rope = new THREE.Mesh(
       new THREE.CylinderGeometry(0.03, 0.03, 34, 5),
       toonMaterial(0x8b7a5c, {})

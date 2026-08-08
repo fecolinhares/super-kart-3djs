@@ -293,7 +293,7 @@ function buildGantry(startLine) {
   for (let i = -1; i <= 1; i++) {
     const lamp = new THREE.Mesh(lampGeo, lampMat);
     lamp.position.copy(startLine.position).addScaledVector(nrm, i * 1.1);
-    lamp.position.y = 7.7;
+    lamp.position.y = 5.68; // mounted ON the beam (top face 5.4+0.25) — was 7.7 (floating 2.3m above!)
     group.add(lamp);
     startLights.push(lamp);
   }
