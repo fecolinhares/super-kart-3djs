@@ -624,9 +624,17 @@ export class Environment {
     if (!track || !track.path) return;
     const path = track.path;
     const halfW = CONFIG.track.roadWidth / 2;
-    const N = 14; // spectators per file
+    // Spectator segments along the track (t0..t1 wraps at 1.0): the start
+    // straight, the back straight, and after turn 1 — so ANY race frame has
+    // cheering people beside the road, not just the grid.
+    const SEGMENTS = [
+      { t0: 0.945, t1: 0.055, n: 14 },
+      { t0: 0.45, t1: 0.56, n: 10 },
+      { t0: 0.19, t1: 0.25, n: 8 },
+    ];
     const ROWS = [1.3, 2.7]; // two rows per side, tight to the road edge
-    const total = N * ROWS.length * 2;
+    const segN = SEGMENTS.reduce((a, s) => a + s.n, 0);
+    const total = segN * ROWS.length * 2;
     const crowdColors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
     const bodies = new THREE.InstancedMesh(new THREE.BoxGeometry(1.0, 1.2, 1.0), toonMaterial(0xffffff, {}), total);
     const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.42, 8, 6), toonMaterial(0xf4f6f8, {}), total);
@@ -643,33 +651,35 @@ export class Environment {
     const tan = new THREE.Vector3();
     const nrm = new THREE.Vector3();
     let idx = 0;
-    for (let side = -1; side <= 1; side += 2) {
-      for (const rowOff of ROWS) {
-        for (let i = 0; i < N; i++) {
-          const t = (0.945 + (i / N) * 0.11) % 1; // wraps around the start line
-          path.getPointAt(t, p);
-          path.getTangentAt(t, tan);
-          nrm.set(-tan.z, 0, tan.x).normalize();
-          dummy.position.set(p.x + nrm.x * (side * (halfW + rowOff)), p.y + 1.0, p.z + nrm.z * (side * (halfW + rowOff)));
-          dummy.scale.set(1, 0.9 + Math.random() * 0.4, 1);
-          dummy.updateMatrix();
-          bodies.setMatrixAt(idx, dummy.matrix);
-          col.setHex(crowdColors[(Math.random() * crowdColors.length) | 0]);
-          bodies.setColorAt(idx, col);
-          headD.position.set(dummy.position.x, dummy.position.y + 1.15, dummy.position.z);
-          headD.scale.set(1, 1, 1);
-          headD.updateMatrix();
-          heads.setMatrixAt(idx, headD.matrix);
-          // Arms raised outward (cheering silhouette).
-          armD.position.set(dummy.position.x - 0.55, dummy.position.y + 0.95, dummy.position.z);
-          armD.rotation.set(0, 0, -0.9);
-          armD.updateMatrix();
-          armsL.setMatrixAt(idx, armD.matrix);
-          armD.position.set(dummy.position.x + 0.55, dummy.position.y + 0.95, dummy.position.z);
-          armD.rotation.set(0, 0, 0.9);
-          armD.updateMatrix();
-          armsR.setMatrixAt(idx, armD.matrix);
-          idx++;
+    for (const seg of SEGMENTS) {
+      for (let side = -1; side <= 1; side += 2) {
+        for (const rowOff of ROWS) {
+          for (let i = 0; i < seg.n; i++) {
+            const t = (seg.t0 + (i / seg.n) * (seg.t1 - seg.t0)) % 1;
+            path.getPointAt(t, p);
+            path.getTangentAt(t, tan);
+            nrm.set(-tan.z, 0, tan.x).normalize();
+            dummy.position.set(p.x + nrm.x * (side * (halfW + rowOff)), p.y + 1.0, p.z + nrm.z * (side * (halfW + rowOff)));
+            dummy.scale.set(1, 0.9 + Math.random() * 0.4, 1);
+            dummy.updateMatrix();
+            bodies.setMatrixAt(idx, dummy.matrix);
+            col.setHex(crowdColors[(Math.random() * crowdColors.length) | 0]);
+            bodies.setColorAt(idx, col);
+            headD.position.set(dummy.position.x, dummy.position.y + 1.15, dummy.position.z);
+            headD.scale.set(1, 1, 1);
+            headD.updateMatrix();
+            heads.setMatrixAt(idx, headD.matrix);
+            // Arms raised outward (cheering silhouette).
+            armD.position.set(dummy.position.x - 0.55, dummy.position.y + 0.95, dummy.position.z);
+            armD.rotation.set(0, 0, -0.9);
+            armD.updateMatrix();
+            armsL.setMatrixAt(idx, armD.matrix);
+            armD.position.set(dummy.position.x + 0.55, dummy.position.y + 0.95, dummy.position.z);
+            armD.rotation.set(0, 0, 0.9);
+            armD.updateMatrix();
+            armsR.setMatrixAt(idx, armD.matrix);
+            idx++;
+          }
         }
       }
     }
