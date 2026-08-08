@@ -105,26 +105,40 @@ let _bannerCheckerTex = null;
 let _skyTex = null;
 let _turboPadTex = null;
 
-/** Grass: two-tone green noise dots, tileable. */
+/** Grass: layered green noise + blade strokes + soft patches, tileable. */
 export function grassTexture() {
   if (_grassTex) return _grassTex;
   _grassTex = canvasTexture(
-    128,
+    256,
     (ctx, s) => {
       ctx.fillStyle = '#3faf4e';
       ctx.fillRect(0, 0, s, s);
-      for (let i = 0; i < 900; i++) {
+      // base two-tone speckle
+      for (let i = 0; i < 2600; i++) {
         const x = Math.random() * s;
         const y = Math.random() * s;
         ctx.fillStyle = Math.random() > 0.5 ? '#47bb57' : '#379c45';
         ctx.fillRect(x, y, 2, 2);
       }
+      // individual grass blades (short strokes, slight color variation)
+      for (let i = 0; i < 320; i++) {
+        const x = Math.random() * s;
+        const y = Math.random() * s;
+        const len = 4 + Math.random() * 7;
+        const a = Math.random() * Math.PI;
+        ctx.strokeStyle = Math.random() > 0.5 ? '#4cc25e' : '#2f8f43';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + Math.cos(a) * len, y + Math.sin(a) * len);
+        ctx.stroke();
+      }
       // soft darker patches
-      ctx.globalAlpha = 0.12;
-      for (let i = 0; i < 6; i++) {
+      ctx.globalAlpha = 0.14;
+      for (let i = 0; i < 7; i++) {
         ctx.fillStyle = '#2f8f43';
         ctx.beginPath();
-        ctx.arc(Math.random() * s, Math.random() * s, 14 + Math.random() * 22, 0, Math.PI * 2);
+        ctx.arc(Math.random() * s, Math.random() * s, 16 + Math.random() * 26, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.globalAlpha = 1;
@@ -134,15 +148,16 @@ export function grassTexture() {
   return _grassTex;
 }
 
-/** Asphalt: dark blue-grey with fine speckle + tire wear tracks, tileable. */
+/** Asphalt: dark blue-grey with fine speckle + tire wear + cracks, tileable. */
 export function roadTexture() {
   if (_roadTex) return _roadTex;
   _roadTex = canvasTexture(
-    128,
+    256,
     (ctx, s) => {
       ctx.fillStyle = '#5a6b7d';
       ctx.fillRect(0, 0, s, s);
-      for (let i = 0; i < 500; i++) {
+      // dense speckle (stone feel)
+      for (let i = 0; i < 2200; i++) {
         ctx.fillStyle = Math.random() > 0.5 ? '#52626f' : '#64768a';
         ctx.fillRect(Math.random() * s, Math.random() * s, 2, 2);
       }
@@ -155,11 +170,26 @@ export function roadTexture() {
       ctx.fillStyle = '#2f3844';
       ctx.fillRect(0, Math.floor(s * 0.34), s, 3);
       ctx.fillRect(0, Math.floor(s * 0.72), s, 3);
+      // subtle cracks (short dark jagged strokes)
+      ctx.globalAlpha = 0.16;
+      ctx.strokeStyle = '#2f3844';
+      ctx.lineWidth = 1.4;
+      for (let i = 0; i < 40; i++) {
+        const x = Math.random() * s;
+        const y = Math.random() * s;
+        const len = 6 + Math.random() * 16;
+        const a = Math.random() * Math.PI * 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + Math.cos(a) * len * 0.5, y + Math.sin(a) * len * 0.5);
+        ctx.lineTo(x + Math.cos(a + 0.4) * len, y + Math.sin(a + 0.4) * len);
+        ctx.stroke();
+      }
       ctx.globalAlpha = 1;
       // subtle white wear flecks
       ctx.globalAlpha = 0.1;
       ctx.fillStyle = '#ffffff';
-      for (let i = 0; i < 24; i++) {
+      for (let i = 0; i < 40; i++) {
         ctx.fillRect(Math.random() * s, Math.floor(s * 0.28) + Math.random() * 6, 3, 1);
       }
       ctx.globalAlpha = 1;

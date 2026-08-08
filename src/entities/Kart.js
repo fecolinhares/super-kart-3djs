@@ -191,7 +191,7 @@ export class Kart {
     const body = this._mat(color);
     // Car paint: glossy PBR for the body shell (the MK8 painted-plastic cue).
     // Needs scene.environment (set in main.js) to show reflections.
-    const carPaint = new THREE.MeshStandardMaterial({ color, roughness: 0.32, metalness: 0.05 });
+    const carPaint = new THREE.MeshPhysicalMaterial({ color, roughness: 0.28, metalness: 0.05, clearcoat: 0.9, clearcoatRoughness: 0.2, envMapIntensity: 0.9 });
     const bodyDark = this._mat(new THREE.Color(color).multiplyScalar(0.82).getHex());
     // keep refs so the player can repaint (setBodyColor)
     this._bodyMat = body;
@@ -217,7 +217,7 @@ export class Kart {
     // Rounded hood (sphere squashed) — breaks the flat box silhouette so the
     // kart reads as a molded body, not a crate (MK8-style).
     const hood = this._mesh(
-      new THREE.SphereGeometry(0.42, 18, 12),
+      new THREE.SphereGeometry(0.42, 28, 18),
       carPaint,
       0, KC.wheelRadius + 0.34, 0.3
     );
@@ -246,7 +246,7 @@ export class Kart {
     // Rounded tail (sphere squashed at the rear) — the chase camera mostly
     // sees the back, so the silhouette must read molded from behind too.
     const tail = this._mesh(
-      new THREE.SphereGeometry(0.4, 18, 12),
+      new THREE.SphereGeometry(0.4, 28, 18),
       carPaint, // back is what the player watches — glossy there too
       0, KC.wheelRadius + 0.3, -0.55
     );
@@ -255,8 +255,8 @@ export class Kart {
 
     // nose cone (rounded tip pointing forward — classic kart nose)
     const noseCone = this._mesh(
-      new THREE.ConeGeometry(0.3, 0.8, 10),
-      bodyDark,
+      new THREE.ConeGeometry(0.3, 0.8, 16),
+      carPaint,
       0, KC.wheelRadius + 0.24, 1.0,
       { rx: Math.PI / 2 }
     );
@@ -350,7 +350,7 @@ export class Kart {
 
     // exhaust pipes (+ orange tips) — chrome via metalness (MK8 material
     // separation: painted plastic vs matte rubber vs shiny metal).
-    const chrome = new THREE.MeshStandardMaterial({ color: 0x9aa5b3, metalness: 0.85, roughness: 0.25 });
+    const chrome = new THREE.MeshPhysicalMaterial({ color: 0x9aa5b3, metalness: 1.0, roughness: 0.18, envMapIntensity: 1.1 });
     for (const s of [-1, 1]) {
       this._mesh(
         new THREE.CylinderGeometry(0.06, 0.06, 0.26, 10),
@@ -370,9 +370,9 @@ export class Kart {
     const wy = wR;
     const wz = KC.chassisLength / 2 - 0.18;
     const wx = KC.chassisWidth / 2 + 0.18;
-    const tireGeo = new THREE.CylinderGeometry(wR, wR, wW, 16);
-    const hubGeo = new THREE.CylinderGeometry(0.13, 0.13, wW + 0.02, 12);
-    const rimGeo = new THREE.TorusGeometry(wR - 0.03, 0.022, 6, 18);
+    const tireGeo = new THREE.CylinderGeometry(wR, wR, wW, 24);
+    const hubGeo = new THREE.CylinderGeometry(0.13, 0.13, wW + 0.02, 16);
+    const rimGeo = new THREE.TorusGeometry(wR - 0.03, 0.022, 10, 26);
     for (const sx of [-1, 1]) {
       for (const sz of [-1, 1]) {
         const root = new THREE.Group();
