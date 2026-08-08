@@ -22,9 +22,9 @@ export class TouchControls {
     this.root = document.createElement('div');
     this.root.className = 'sk3d-touch sk3d-hidden';
     this.root.innerHTML = `
-      <button type="button" class="sk3d-touch-btn sk3d-touch-left" aria-label="Steer left">◀</button>
-      <button type="button" class="sk3d-touch-btn sk3d-touch-right" aria-label="Steer right">▶</button>
-      <button type="button" class="sk3d-touch-btn sk3d-touch-item" aria-label="Use item">🎁</button>`;
+      <button type="button" class="sk3d-touch-btn sk3d-touch-left" aria-label="Steer left"><span class="sk3d-touch-arrow">◀</span><span class="sk3d-touch-label">LEFT</span></button>
+      <button type="button" class="sk3d-touch-btn sk3d-touch-right" aria-label="Steer right"><span class="sk3d-touch-arrow">▶</span><span class="sk3d-touch-label">RIGHT</span></button>
+      <button type="button" class="sk3d-touch-btn sk3d-touch-item" aria-label="Use item"><span class="sk3d-touch-arrow">🎁</span><span class="sk3d-touch-label">ITEM</span></button>`;
 
     this.leftBtn = this.root.querySelector('.sk3d-touch-left');
     this.rightBtn = this.root.querySelector('.sk3d-touch-right');

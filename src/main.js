@@ -46,7 +46,7 @@ let playerKart = null;
 let aiKarts = [];
 let aiControllers = [];
 let countdownT = 0;
-let countdownIndex = 0;
+let countdownIndex = -1; // -1 so the first mark (3) actually fires
 
 // Boot lands on the title menu (menu overlay + orbit camera).
 setState(STATES.MENU);
@@ -214,22 +214,24 @@ function startRace() {
     setTimeout(() => audio.play('victory'), 400);
     setState(STATES.FINISHED);
   };
+  playerKart.position = CONFIG.game.numKarts; // starts last on the grid
   menu.hide();
   hud.show();
   hud.reset();
   if (isTouchMode()) touch.show();
   audio.startMusic();
   countdownT = 0;
-  countdownIndex = 0;
+  countdownIndex = -1;
   setState(STATES.COUNTDOWN);
 }
 
 function restartRace() {
   raceManager.restart();
+  if (playerKart) playerKart.position = CONFIG.game.numKarts;
   hud.reset();
   hud.show();
   countdownT = 0;
-  countdownIndex = 0;
+  countdownIndex = -1;
   setState(STATES.COUNTDOWN);
 }
 
@@ -348,6 +350,7 @@ loop.start((dt, t) => {
       setState(STATES.RACE);
       hud.countdown(null); // clear
     }
+    hud.update(raceManager, playerKart); // live rank during countdown too
     updateCamera(dt, t);
   }
 
