@@ -453,6 +453,16 @@ export class HUD {
       const cls = pos === 1 ? ' sk3d-position-1' : pos === 2 ? ' sk3d-position-2' : pos === 3 ? ' sk3d-position-3' : '';
       this.positionEl.className = `sk3d-chip sk3d-position${cls}`;
       this.positionEl.textContent = text;
+      // Position change feedback (audit UX-v3 F2: overtakes were invisible):
+      // pop the chip; report the direction so main can play the SFX.
+      if (pos !== this._pos) {
+        const dir = typeof this._pos === 'number' ? (pos < this._pos ? 'up' : 'down') : null;
+        this._pos = pos;
+        this.positionEl.classList.remove('sk3d-position-pop');
+        void this.positionEl.offsetWidth;
+        this.positionEl.classList.add('sk3d-position-pop');
+        if (dir) this._onPositionChange?.(dir);
+      }
     }
 
     // Lap counter + per-lap progress bar (progress01 from player.state).

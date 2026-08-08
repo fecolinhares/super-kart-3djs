@@ -83,6 +83,10 @@ const particles = new ParticleSystem(scene);
 const skids = new SkidMarks(scene);
 const raceManager = new RaceManager(scene, camera);
 const hud = new HUD(track);
+hud._onPositionChange = (dir) => {
+  // Overtake/loss feedback (audit UX-v3 F2): subtle blips, player only.
+  audio.play(dir === 'up' ? 'posUp' : 'posDown', { volume: 0.5 });
+};
 const menu = new Menu({ onStart: startRace, onColor: setPlayerColor, onSound: (n) => audio.play(n) });
 const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressItem(), onPause: togglePause, onDrift: (b) => { touchDrift = b; } });
 
@@ -399,7 +403,9 @@ function waveBanner(t) {
     pos.setZ(i, Math.sin(x * freq + t * speed) * amp + Math.sin(x * freq * 2.1 - t * speed * 0.7) * amp * 0.35);
   }
   pos.needsUpdate = true;
-  banner.geometry.computeVertexNormals();
+  // NOTE: no computeVertexNormals() — the banner is MeshBasicMaterial
+  // (unlit), so normals are never consumed; recomputing them every frame
+  // was pure CPU churn on the main thread (audit UX-v3 F3).
 }
 
 function updateCamera(dt, t) {

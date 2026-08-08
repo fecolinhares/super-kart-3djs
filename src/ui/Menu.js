@@ -13,10 +13,10 @@ const CONTROL_ROWS = [
   ['Steer', '← → or A / D', '◀ ▶ buttons'],
   ['Accelerate', '↑ or W', 'Auto'],
   ['Brake / Reverse', '↓ or S', '—'],
-  ['Drift', 'Shift (hold)', '—'],
+  ['Drift', 'Shift (hold)', '🧲 DRIFT button'],
   ['Use item', 'Space', '🎁 button'],
   ['Restart', 'R', '—'],
-  ['Pause', 'P / Esc', '—'],
+  ['Pause', 'P / Esc', '⏸ button'],
 ];
 
 /** 0xff5a5f -> "#ff5a5f" */

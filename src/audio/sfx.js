@@ -425,6 +425,20 @@ export function renderSfx(ctx, out, name, opts = {}) {
       break;
     }
 
+    case 'posDown': {
+      // Descending two-tone blip (lost a place).
+      osc(ctx, target, { type: 'square', freq: 520 * rate, glideTo: 300 * rate, dur: 0.12, vol: v(0.3), at, attack: 0.003 });
+      osc(ctx, target, { type: 'square', freq: 300 * rate, glideTo: 180 * rate, dur: 0.12, vol: v(0.28), at: at + 0.1, attack: 0.003 });
+      break;
+    }
+
+    case 'posUp': {
+      // Ascending two-tone blip (overtook someone).
+      osc(ctx, target, { type: 'square', freq: 380 * rate, glideTo: 560 * rate, dur: 0.1, vol: v(0.3), at, attack: 0.003 });
+      osc(ctx, target, { type: 'square', freq: 620 * rate, glideTo: 820 * rate, dur: 0.12, vol: v(0.28), at: at + 0.08, attack: 0.003 });
+      break;
+    }
+
     case 'landing': {
       // Soft impact thump when a kart touches down (audit UX-F3).
       osc(ctx, target, { type: 'sine', freq: 110 * rate, glideTo: 55 * rate, dur: 0.16, vol: v(0.5), at, attack: 0.003 });
