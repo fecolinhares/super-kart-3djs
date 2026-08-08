@@ -320,9 +320,14 @@ function buildFinishLine(startLine) {
   const w = getRoadWidthAt() + 1;
   const geo = new THREE.PlaneGeometry(w, 1.6);
   const mat = new THREE.MeshBasicMaterial({ map: finishLineTexture(), side: THREE.DoubleSide });
+  // polygonOffset wins the depth test against the road ribbon at grazing
+  // angles (classic decal technique — plain y-offset z-fights).
+  mat.polygonOffset = true;
+  mat.polygonOffsetFactor = -2;
+  mat.polygonOffsetUnits = -2;
   const mesh = new THREE.Mesh(geo, mat);
   mesh.position.copy(startLine.position);
-  mesh.position.y += 0.02;
+  mesh.position.y += 0.21; // road ribbon sits at y+0.18; sit just above it
   mesh.lookAt(
     startLine.position.x + startLine.direction.x,
     startLine.position.y,
@@ -363,7 +368,7 @@ function buildDirectionArrows(path) {
   const mesh = new THREE.InstancedMesh(geo, mat, spots.length);
   for (let i = 0; i < spots.length; i++) {
     const s = spots[i];
-    dummy.position.set(s.x, s.y + 0.05, s.z);
+    dummy.position.set(s.x, s.y + 0.21, s.z); // road ribbon sits at y+0.18
     dummy.lookAt(s.x + s.tx, s.y, s.z + s.tz);
     dummy.updateMatrix();
     mesh.setMatrixAt(i, dummy.matrix);
