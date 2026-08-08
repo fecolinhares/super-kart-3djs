@@ -11,7 +11,7 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { toonMaterial, cartoonOutline, roadTexture, grassTexture, checkerTexture, bannerCheckerTexture, turboPadTexture, arrowTexture } from '../render/Materials.js';
+import { toonMaterial, cartoonOutline, roadTexture, grassTexture, checkerTexture, bannerCheckerTexture, turboPadTexture, arrowTexture, finishLineTexture } from '../render/Materials.js';
 
 // Control points forming the closed loop (X, Y=elevation, Z).
 const CONTROL_POINTS = [
@@ -311,9 +311,29 @@ function buildGantry(startLine) {
 }
 
 /**
- * Painted direction chevrons at the sharpest corners (curvature > threshold),
- * so the road reads "race track" and not a plain strip.
+ * Checkered finish line PAINTED on the asphalt under the gantry.
+ * A flat plane with explicit yaw (like the banner): lookAt faces the
+ * direction, rotateX(-PI/2) lays it flat — this time it reads as painted,
+ * not as a loose floating slab (the old decal had the wrong orientation).
  */
+function buildFinishLine(startLine) {
+  const w = getRoadWidthAt() + 1;
+  const geo = new THREE.PlaneGeometry(w, 1.6);
+  const mat = new THREE.MeshBasicMaterial({ map: finishLineTexture(), side: THREE.DoubleSide });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.copy(startLine.position);
+  mesh.position.y += 0.02;
+  mesh.lookAt(
+    startLine.position.x + startLine.direction.x,
+    startLine.position.y,
+    startLine.position.z + startLine.direction.z
+  );
+  mesh.rotateX(-Math.PI / 2);
+  return mesh;
+}
+
+/** Direction arrow painted on the road at sharp corners (curvature > threshold),
+ *  so the road reads "race track" and not a plain strip. */
 function buildDirectionArrows(path) {
   const SAMPLES = 160;
   const tan = new THREE.Vector3();
@@ -401,6 +421,10 @@ export function buildTrack(scene) {
   const gantry = buildGantry(startLine);
   group.add(gantry.group);
   startLine.banner = gantry.banner; // main.js waves it like fabric
+
+  // Checkered finish line painted on the asphalt (proper yaw this time —
+  // reads as paint, not a floating slab).
+  group.add(buildFinishLine(startLine));
 
   // Finish checkered strip on the road itself at startT.
   // REMOVED — the painted decal read as a floating board in the middle of

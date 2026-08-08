@@ -252,6 +252,26 @@ export function arrowTexture() {
   return _arrowTex;
 }
 
+/** Finish-line painted on the asphalt: classic 8x2 checker band. */
+let _finishTex = null;
+export function finishLineTexture() {
+  if (_finishTex) return _finishTex;
+  _finishTex = canvasTexture(
+    128,
+    (ctx, s) => {
+      const cw = s / 8;
+      const ch = s / 2;
+      for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 2; j++) {
+          ctx.fillStyle = (i + j) % 2 === 0 ? '#ffffff' : '#1b2a41';
+          ctx.fillRect(i * cw, j * ch, cw, ch);
+        }
+      }
+    }
+  );
+  return _finishTex;
+}
+
 /** Sky gradient dome texture. */
 export function skyTexture() {
   if (_skyTex) return _skyTex;
