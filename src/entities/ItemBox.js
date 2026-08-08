@@ -47,18 +47,33 @@ function questionTexture() {
   canvas.height = size;
   const g = canvas.getContext('2d');
 
-  g.fillStyle = '#ffffff';
+  // Clean white-cream base with a whisper of warmth (MK8 pickup panel).
+  const grad = g.createLinearGradient(0, 0, 0, size);
+  grad.addColorStop(0, '#ffffff');
+  grad.addColorStop(1, '#fbf3de');
+  g.fillStyle = grad;
   g.fillRect(0, 0, size, size);
-  // soft inner border
-  g.strokeStyle = '#dbe7f2';
-  g.lineWidth = 8;
-  g.strokeRect(4, 4, size - 8, size - 8);
-  // big red '?'
-  g.fillStyle = '#1b2a41';
-  g.font = '900 86px "Baloo 2", "Nunito", Arial, sans-serif';
+  // Rounded inner border (cream highlight on cream) — reads as a panel.
+  g.strokeStyle = '#fffdf4';
+  g.lineWidth = 10;
+  g.strokeRect(8, 8, size - 16, size - 16);
+  g.strokeStyle = '#e0c98f';
+  g.lineWidth = 2;
+  g.strokeRect(13, 13, size - 26, size - 26);
+  // Big red '?' with a white halo (the unmistakable pickup glyph).
   g.textAlign = 'center';
   g.textBaseline = 'middle';
-  g.fillText('?', size / 2, size / 2 + 6);
+  g.font = '900 88px "Baloo 2", "Nunito", Arial, sans-serif';
+  g.lineWidth = 14;
+  g.strokeStyle = '#ffffff';
+  g.strokeText('?', size / 2, size / 2 + 4);
+  g.fillStyle = '#e53e3e';
+  g.fillText('?', size / 2, size / 2 + 4);
+  // Tiny highlight dot on the '?' for gloss.
+  g.fillStyle = 'rgba(255,255,255,0.55)';
+  g.beginPath();
+  g.arc(size * 0.44, size * 0.34, 7, 0, Math.PI * 2);
+  g.fill();
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -119,57 +134,58 @@ export class ItemBox {
     mesh.castShadow = true;
     // Dark cartoon outline (inverted hull) so the box pops from the road.
     const outline = new THREE.Mesh(
-      new THREE.BoxGeometry(this.size * 1.07, this.size * 1.07, this.size * 1.07),
+      new THREE.BoxGeometry(this.size * 1.045, this.size * 1.045, this.size * 1.045),
       new THREE.MeshBasicMaterial({ color: 0x1b2a41, side: THREE.BackSide })
     );
     mesh.add(outline);
     // Golden light beam under the box — makes pickups readable at a glance.
     const beam = new THREE.Mesh(
-      new THREE.CylinderGeometry(this.size * 0.42, this.size * 0.75, this.size * 2.6, 12, 1, true),
+      new THREE.CylinderGeometry(this.size * 0.5, this.size * 0.85, this.size * 2.6, 12, 1, true),
       new THREE.MeshBasicMaterial({
         color: 0xffd166,
         transparent: true,
-        opacity: 0.42,
+        opacity: 0.45,
         side: THREE.DoubleSide,
         depthWrite: false,
       })
     );
     beam.position.set(this.base.x, this.base.y - this.size * 1.35, this.base.z);
     this.beam = beam;
-    // Orbiting arrows: "grab me → you get an item". Original identity
-    // (inspired by the genre's pickup boxes, not a copy of any of them).
-    this.arrows = new THREE.Group();
-    this.arrows.position.set(this.base.x, this.base.y, this.base.z);
-    const arrowGeo = new THREE.ConeGeometry(0.18, 0.44, 4);
-    const arrowMat = new THREE.MeshBasicMaterial({ color: 0xff2d55 });
-    for (let i = 0; i < 4; i++) {
-      const a = (i / 4) * Math.PI * 2;
-      const arrow = new THREE.Mesh(arrowGeo, arrowMat);
-      arrow.position.set(Math.cos(a) * this.size * 1.15, 0.45, Math.sin(a) * this.size * 1.15);
-      arrow.rotation.z = -Math.PI / 2;
-      arrow.rotation.y = -a;
-      arrow.scale.setScalar(1.3);
-      this.arrows.add(arrow);
-    }
+    // Glowing golden ring around the box (MK8 pickup readability — replaces
+    // the old orbiting arrow cones which read as sketchy placeholders).
+    this.ring = new THREE.Group();
+    this.ring.position.set(this.base.x, this.base.y, this.base.z);
+    const ringGeo = new THREE.TorusGeometry(this.size * 1.0, 0.09, 10, 32);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0xffd166,
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false,
+    });
+    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+    ringMesh.rotation.x = Math.PI / 2;
+    this.ring.add(ringMesh);
+    this.ringMesh = ringMesh;
     return mesh;
   }
 
   _makeMaterial() {
     const tex = questionTexture();
+    if (tex) {
+      // Unlit pickup panel: the toon gradient + warm scene light was tinting
+      // the white-cream texture mustard (seen repeatedly in QA). A magic
+      // pickup box reads as self-lit, so MeshBasicMaterial shows the exact
+      // MK8-style colors: white panel, bold red '?'.
+      return new THREE.MeshBasicMaterial({ map: tex, color: 0xffffff });
+    }
     const opts = {
-      color: 0xffb703, // amber cube (inverted vs the classic yellow '?' box)
+      color: 0xffb703,
       emissive: 0xff8f00,
-      emissiveIntensity: 0.55,
+      emissiveIntensity: 0.3,
     };
-    if (tex) opts.map = tex;
     if (_toonFactory && _toonResolved) {
       const mat = _toonFactory(0xffb703, opts);
-      if (mat && typeof mat.dispose === 'function') {
-        // The shared factory now forwards opts.map, but keep this safety net
-        // so the '?' texture always shows even if the factory is older.
-        if (opts.map) mat.map = opts.map;
-        return mat;
-      }
+      if (mat && typeof mat.dispose === 'function') return mat;
     }
     return new THREE.MeshToonMaterial(opts);
   }
@@ -189,7 +205,7 @@ export class ItemBox {
     this.active = true;
     this.mesh.visible = true;
     if (this.beam) this.beam.visible = true;
-    if (this.arrows) this.arrows.visible = true;
+    if (this.ring) this.ring.visible = true;
     this.respawnTimer = 0;
   }
 
@@ -211,17 +227,31 @@ export class ItemBox {
       return;
     }
 
-    const bob = Math.sin(this.bobPhase) * 0.14;
+    const bob = Math.sin(this.bobPhase) * 0.18;
     this.mesh.position.y = this.base.y + bob;
-    this.mesh.rotation.y = this.base.yaw + Math.sin(this.wobble) * 0.12;
+    // Continuous slow spin (MK8 pickup box) + a little wobble.
+    this.mesh.rotation.y = this.base.yaw + Math.sin(this.wobble) * 0.1 + this.bobPhase * 0.55;
     if (this.beam) {
       this.beam.position.y = this.base.y - this.size * 1.35 + bob;
-      const pulse = 0.18 + Math.sin(this.bobPhase * 1.3) * 0.06;
+      const pulse = 0.3 + Math.sin(this.bobPhase * 1.3) * 0.1;
       this.beam.material.opacity = pulse;
     }
-    if (this.arrows) {
-      this.arrows.position.y = this.base.y + bob;
-      this.arrows.rotation.y += dt * 1.8;
+    if (this.ring) {
+      this.ring.position.y = this.base.y + bob;
+      this.ring.rotation.y += dt * 1.2;
+      this.ringMesh.material.opacity = 0.65 + Math.sin(this.bobPhase * 1.7) * 0.25;
+      this.ringMesh.scale.setScalar(1 + Math.sin(this.bobPhase * 1.7) * 0.06);
+    }
+    // Golden sparkles rising from the box (pickup aura — the missing "alive"
+    // cue the vision critic kept flagging). Cheap: ~5 sparks every 0.18s.
+    this._sparkAcc = (this._sparkAcc || 0) + dt;
+    if (this._sparkAcc >= 0.18) {
+      this._sparkAcc = 0;
+      raceManager?.particles?.emit?.('sparkle', {
+        x: this.mesh.position.x + (Math.random() - 0.5) * this.size * 0.8,
+        y: this.mesh.position.y - this.size * 0.4,
+        z: this.mesh.position.z + (Math.random() - 0.5) * this.size * 0.8,
+      }, { count: 5, speed: 2.2, size: 0.2, color: 0xffd166, gravity: -1.5 });
     }
 
     const list = karts || [];
@@ -244,7 +274,7 @@ export class ItemBox {
     this.active = false;
     this.mesh.visible = false;
     if (this.beam) this.beam.visible = false;
-    if (this.arrows) this.arrows.visible = false;
+    if (this.ring) this.ring.visible = false;
     this.respawnTimer = CONFIG.game.itemBoxRespawnMs ?? CONFIG.items.itemBoxRespawnMs ?? 6000;
   }
 }
