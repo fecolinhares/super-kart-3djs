@@ -60,11 +60,15 @@ function questionTexture() {
   g.strokeStyle = '#e0c98f';
   g.lineWidth = 2;
   g.strokeRect(13, 13, size - 26, size - 26);
-  // Big red '?' with a white halo (the unmistakable pickup glyph).
+  // Big red '?' with a white halo + dark outline (the unmistakable pickup glyph,
+  // readable even in compressed frames).
   g.textAlign = 'center';
   g.textBaseline = 'middle';
-  g.font = '900 88px "Baloo 2", "Nunito", Arial, sans-serif';
-  g.lineWidth = 14;
+  g.font = '900 96px "Baloo 2", "Nunito", Arial, sans-serif';
+  g.lineWidth = 6;
+  g.strokeStyle = '#b02a2a';
+  g.strokeText('?', size / 2, size / 2 + 4);
+  g.lineWidth = 16;
   g.strokeStyle = '#ffffff';
   g.strokeText('?', size / 2, size / 2 + 4);
   g.fillStyle = '#e53e3e';
