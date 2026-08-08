@@ -435,6 +435,15 @@ export class Environment {
       bal.scale.set(1, 1.15, 1);
       bal.position.y = 2.6;
       g.add(bal);
+      // Vertical contrasting stripe + side panels — the classic balloon
+      // silhouette (reads as "hot-air balloon", not a floating sphere).
+      const stripe = new THREE.Mesh(
+        new THREE.TorusGeometry(2.5, 0.35, 8, 18),
+        toonMaterial(0xf4f6f8, {})
+      );
+      stripe.scale.set(1, 1.18, 1);
+      stripe.position.y = 2.7;
+      g.add(stripe);
       const basket = new THREE.Mesh(
         new THREE.CylinderGeometry(0.7, 0.9, 1.1, 8),
         toonMaterial(0xb07a4f, {})
