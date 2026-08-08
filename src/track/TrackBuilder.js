@@ -377,6 +377,52 @@ function buildDirectionArrows(path) {
   return mesh;
 }
 
+/**
+ * Tire-stack barriers on the outside of the sharpest corners (classic kart
+ * track dressing). Reuses the same curvature scan as the direction arrows.
+ */
+function buildTireBarriers(path, roadW) {
+  const SAMPLES = 160;
+  const tan = new THREE.Vector3();
+  const tan2 = new THREE.Vector3();
+  const p = new THREE.Vector3();
+  const nrm = new THREE.Vector3();
+  const dummy = new THREE.Object3D();
+  const spots = [];
+  let lastT = -1;
+  const dt = 1 / SAMPLES;
+  const halfW = roadW / 2;
+  for (let i = 0; i < SAMPLES; i++) {
+    const t = i / SAMPLES;
+    path.getTangentAt(t, tan);
+    path.getTangentAt(Math.min(1, t + dt), tan2);
+    const curv = 1 - Math.min(1, Math.max(-1, tan.dot(tan2)));
+    if (curv > 0.0022 && t - lastT > 0.05 && t > 0.05 && t < 0.95) {
+      path.getPointAt(t, p);
+      nrm.set(-tan.z, 0, tan.x).normalize();
+      // Outside of the turn (both sides get a barrier; dense = 2 tires deep).
+      for (let side = -1; side <= 1; side += 2) {
+        spots.push({ x: p.x + nrm.x * (side * (halfW + 1.3)), y: p.y, z: p.z + nrm.z * (side * (halfW + 1.3)), ry: Math.atan2(tan.x, tan.z) });
+        spots.push({ x: p.x + nrm.x * (side * (halfW + 1.9)), y: p.y, z: p.z + nrm.z * (side * (halfW + 1.9)), ry: Math.atan2(tan.x, tan.z) });
+      }
+      lastT = t;
+    }
+  }
+  if (spots.length === 0) return null;
+  const tireGeo = new THREE.CylinderGeometry(0.34, 0.34, 0.24, 10);
+  const tireMat = toonMaterial(0x1b1e24, {});
+  const mesh = new THREE.InstancedMesh(tireGeo, tireMat, spots.length);
+  for (let i = 0; i < spots.length; i++) {
+    const s = spots[i];
+    dummy.position.set(s.x, s.y + 0.12, s.z); // half tire height above ground
+    dummy.rotation.set(Math.PI / 2, 0, s.ry); // lie flat, ring facing the road
+    dummy.updateMatrix();
+    mesh.setMatrixAt(i, dummy.matrix);
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  return mesh;
+}
+
 export function buildTrack(scene) {
   const group = new THREE.Group();
 
@@ -418,6 +464,9 @@ export function buildTrack(scene) {
 
   const arrows = buildDirectionArrows(path);
   if (arrows) group.add(arrows);
+
+  const tires = buildTireBarriers(path, getRoadWidthAt());
+  if (tires) group.add(tires);
 
   const turbo = buildTurboPads(path, length);
   group.add(turbo.mesh);
