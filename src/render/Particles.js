@@ -99,6 +99,11 @@ const TYPES = {
     system: 'normal', count: 5, speed: 1.6, size: 0.45, life: 0.9,
     drag: 1.6, grav: 1.4, grow: 1.8, spread: 0.9, color: 0xb08d5a,
   },
+  sparkle: {
+    // tiny bright star burst (mini-boost release, finish line) — additive
+    system: 'additive', count: 8, speed: 3.0, size: 0.16, life: 0.55,
+    drag: 2.0, grav: -0.8, grow: 0.6, spread: 1.6, color: 0xffe066,
+  },
 };
 
 const _randDir = new THREE.Vector3();
