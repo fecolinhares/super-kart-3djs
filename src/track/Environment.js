@@ -781,14 +781,17 @@ export class Environment {
       f.rotation.z = Math.sin(t * 5 + i * 0.7) * 0.28;
     }
     // Crowd cheer bounce (subtle Y wave across the grandstands).
+    // NOTE: never rebuild the instance matrix from position/quaternion here —
+    // the dummy's position is (0,0,0) so recomposing would zero every figure's
+    // X/Z and rotation (all spectators teleported to world origin). Adjust the
+    // Y element directly instead.
     for (const spec of this.crowdMeshes || []) {
       const base = spec.userData.baseY;
       if (!base) continue;
       const dummy = (spec.userData._dummy = spec.userData._dummy || new THREE.Object3D());
       for (let i = 0; i < spec.count; i++) {
         spec.getMatrixAt(i, dummy.matrix);
-        dummy.position.y = base[i] + Math.sin(t * 3.2 + i * 0.9) * 0.18;
-        dummy.updateMatrix();
+        dummy.matrix.elements[13] = base[i] + Math.sin(t * 3.2 + i * 0.9) * 0.18;
         spec.setMatrixAt(i, dummy.matrix);
       }
       spec.instanceMatrix.needsUpdate = true;
