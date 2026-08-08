@@ -226,7 +226,7 @@ function buildGantry(startLine) {
   );
   banner.material.map = bannerCheckerTexture();
   banner.position.copy(startLine.position);
-  banner.position.y = 6.2; // hangs just under the beam — no floating gap
+  banner.position.y = 5.5; // hangs BELOW the beam (6.8) — top touches its underside
   banner.lookAt(startLine.position.clone().add(startLine.direction));
   group.add(banner);
 
@@ -290,9 +290,11 @@ export function buildTrack(scene) {
   ribbon.receiveShadow = true;
   group.add(ribbon);
 
-  const curbL = buildCurbs(path, length, -1);
-  const curbR = buildCurbs(path, length, 1);
-  group.add(curbL, curbR);
+  // Kerbs disabled (visual clutter) — the brown shoulders already delimit
+  // the road edge. Re-enable by uncommenting:
+  // const curbL = buildCurbs(path, length, -1);
+  // const curbR = buildCurbs(path, length, 1);
+  // group.add(curbL, curbR);
 
   const dashes = buildLaneDashes(path, length);
   group.add(dashes);

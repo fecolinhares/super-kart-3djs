@@ -261,7 +261,7 @@ function waveBanner(t) {
   const banner = track?.startLine?.banner;
   if (!banner || !banner.geometry?.attributes?.position) return;
   const pos = banner.geometry.attributes.position;
-  const amp = 0.16;
+  const amp = 0.22;
   const freq = 0.55;
   const speed = 2.4;
   for (let i = 0; i < pos.count; i++) {

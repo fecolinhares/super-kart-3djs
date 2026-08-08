@@ -316,11 +316,13 @@ export class Kart {
         spin.add(tilt);
         tilt.add(new THREE.Mesh(tireGeo, tire));
         tilt.add(new THREE.Mesh(hubGeo, hub));
+        // Rim (torus) is a DIRECT child of spin, rotated so its axis is X —
+        // concentric with the tilted tire. As a child of tilt it kept its Z
+        // axis and rolled sideways like a spinning coin.
         const rim = new THREE.Mesh(rimGeo, hub);
-        // Torus lies in the XY plane; the tilt already orients it with the
-        // wheel — no extra rotation (that made the rim spin oddly).
+        rim.rotation.y = Math.PI / 2;
         rim.castShadow = false;
-        tilt.add(rim);
+        spin.add(rim);
         this._wheels = this._wheels || [];
         this._wheels.push({ root, spin, isFront: sz > 0 });
       }
