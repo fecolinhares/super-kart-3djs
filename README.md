@@ -94,6 +94,8 @@ npm run preview    # serve the production build
 - [GDD.md](docs/GDD.md) — game design document (vision, mechanics, track, items, balance)
 - [ART-BIBLE.md](docs/ART-BIBLE.md) — visual identity: palette, materials, motion, HUD rules
 - [ITEMS-REFERENCE.md](docs/reference/ITEMS-REFERENCE.md) — power-up reference
+- [QA-TEST-PLAN.md](docs/QA-TEST-PLAN.md) — automated test matrix + regression notes
+- [RELEASE-NOTES.md](docs/RELEASE-NOTES.md) — v0.1.0 release notes
 
 ## 🤝 Contributing
 
