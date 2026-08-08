@@ -209,20 +209,35 @@ export class Kart {
     );
     this._outline(chassis);
 
-    // nose wedge + front bumper (rounded via cylinder)
-    const nose = this._mesh(
-      new THREE.BoxGeometry(0.36, 0.26, 0.9),
-      bodyDark,
-      0, KC.wheelRadius + 0.14, 0.72
+    // Rounded hood (sphere squashed) — breaks the flat box silhouette so the
+    // kart reads as a molded body, not a crate (MK8-style).
+    const hood = this._mesh(
+      new THREE.SphereGeometry(0.42, 18, 12),
+      body,
+      0, KC.wheelRadius + 0.34, 0.3
     );
-    this._outline(nose);
+    hood.scale.set(1.2, 0.62, 1.35);
+    this._outline(hood);
+
+    // nose cone (rounded tip pointing forward — classic kart nose)
+    const noseCone = this._mesh(
+      new THREE.ConeGeometry(0.3, 0.8, 10),
+      bodyDark,
+      0, KC.wheelRadius + 0.24, 1.0,
+      { rx: Math.PI / 2 }
+    );
+    this._outline(noseCone);
+
+    // front bumper (rounded via cylinder)
     this._mesh(
       new THREE.CylinderGeometry(0.17, 0.2, KC.chassisWidth * 0.96, 14),
       dark,
       0, 0.42, 1.02,
       { rx: Math.PI / 2 }
     );
-    this._mesh(new THREE.BoxGeometry(0.3, 0.2, 0.06), dark, 0, 0.5, 1.1);
+    // headlights
+    this._mesh(new THREE.SphereGeometry(0.075, 10, 8), white, -0.2, 0.46, 1.02);
+    this._mesh(new THREE.SphereGeometry(0.075, 10, 8), white, 0.2, 0.46, 1.02);
 
     // cockpit + windshield + seat
     const cockpit = this._mesh(
@@ -344,6 +359,9 @@ export class Kart {
     // ---- driver (chibi: round head, big eyes, kart-color helmet) -------------
     const drv = new THREE.Group();
     drv.position.set(0, 0, 0);
+    // Slightly oversized chibi driver (MK8 proportions: the racer is a big
+    // part of the kart silhouette, not a dot behind the wheel).
+    drv.scale.set(1.18, 1.18, 1.18);
     this.group.add(drv);
 
     // torso + arms reaching to the wheel (raised so the driver is visible
