@@ -6,7 +6,8 @@
 
 ## Game vision
 
-Cartoon arcade kart racer in the style of modern kart classics (Mario Kart 8 /
+Cartoon arcade kart racer in the style of the genre's classics — **Mario
+Kart**, **Sonic & All-Stars Racing** and **Crash Nitro Kart** (Mario Kart 8 /
 Crash Team Racing visual language): vibrant saturated colors, smooth
 toon-shaded materials with subtle rim highlights, low-poly-but-clean geometry
 with no jaggies, juicy juice everywhere (particles, screen shake, squash &

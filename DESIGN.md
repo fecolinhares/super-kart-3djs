@@ -2,8 +2,9 @@
 
 > The **AAA quality bar** this project holds itself to. The visual QA critic
 > scores every capture against the categories below and rejects anything under
-> ~9.5/10 per category. Reference standard: modern cartoon racers (Mario Kart
-> 8 Deluxe, Crash Team Racing Nitro-Fueled) — saturated, clean, juicy, but
+> ~9.5/10 per category. Reference standard: the classic arcade kart-racer
+> trio — **Mario Kart** (8 Deluxe), **Sonic & All-Stars Racing** and
+> **Crash Nitro Kart** — saturated, clean, juicy, but
 > browser-renderable.
 
 ## Palette (cartoon, saturated, no mud)

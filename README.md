@@ -2,7 +2,8 @@
 
 > A cartoon arcade kart racer with **AAA-grade visuals**, power-ups and
 > procedural audio — built on Three.js and playable right in the browser
-> with **keyboard or touch**.
+> with **keyboard or touch**. Inspired by the genre's legends: **Mario Kart**,
+> **Sonic & All-Stars Racing** and **Crash Nitro Kart**.
 
 <p align="center">
   <a href="https://fecolinhares.github.io/super-kart-3djs/"><img src="https://img.shields.io/badge/play%20now-%23FFD166?style=for-the-badge&logo=githubpages&logoColor=white" alt="Play now"></a>
@@ -21,7 +22,8 @@
 
 ## 🏁 What is this?
 
-A fast, juicy **cartoon kart racer** in the spirit of the genre's best: drift
+A fast, juicy **cartoon kart racer** in the spirit of the genre's legends —
+**Mario Kart**, **Sonic & All-Stars Racing** and **Crash Nitro Kart**: drift
 around banked curves, smash **item boxes** and use the power-up you get —
 mushroom boost, homing shell, banana trap, invincibility star or the dreaded
 lightning bolt — to fight your way from 6th to 1st across **3 laps**.

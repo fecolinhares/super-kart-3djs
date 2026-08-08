@@ -3,6 +3,11 @@
 > Design reference for the power-up arsenal (the kart-racer equivalent of the
 > gem reference in Match-3D.js). Each item is synthesized in `src/entities/PowerUp.js`
 > and rendered as simple cartoon meshes — no external assets.
+>
+> The item set follows the arcade-kart-racer tradition made famous by
+> **Mario Kart**, **Sonic & All-Stars Racing** and **Crash Nitro Kart**:
+> a speed boost, straight and homing projectiles, a trap, an invincibility
+> star and a shrink bolt.
 
 ## Item table
 
