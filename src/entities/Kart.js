@@ -291,6 +291,15 @@ export class Kart {
     plateBack.position.set(0, KC.wheelRadius + 0.68, -0.9);
     plateBack.rotation.x = 0.12;
     this.group.add(plateBack);
+    // Dark frame around the rear plate — the white plate pops from any kart
+    // body color in the pack.
+    const plateFrame = new THREE.Mesh(
+      new THREE.BoxGeometry(0.56, 0.54, 0.05),
+      new THREE.MeshBasicMaterial({ color: 0x1b2a41 })
+    );
+    plateFrame.position.set(0, KC.wheelRadius + 0.68, -0.935);
+    plateFrame.rotation.x = 0.12;
+    this.group.add(plateFrame);
 
     // hood racing stripes
     this._mesh(new THREE.BoxGeometry(0.05, 0.03, 0.7), white, -0.17, 0.835, 0.12, { cast: false });
