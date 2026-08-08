@@ -72,8 +72,11 @@ export class Environment {
 
     // --- palms & props ---------------------------------------------------
     this.buildPalms(scene);
+    this.buildForest(scene);
     this.buildProps(scene);
     this.buildCrowd(scene);
+    this.buildGrandstand(scene);
+    this.buildDistanceMarks(scene);
     this.buildFlags(scene);
     this.buildBalloons(scene);
   }
@@ -224,6 +227,55 @@ export class Environment {
       nut.position.set(0, 0.35, 0);
       top.add(nut);
     }
+  }
+
+  buildForest(scene) {
+    // Round cartoon trees (trunk + sphere canopy) in clusters — cheap density.
+    const trunkGeo = new THREE.CylinderGeometry(0.22, 0.3, 2.4, 7);
+    const trunkMat = toonMaterial(0x8a5a33, {});
+    const canopyGeo = new THREE.SphereGeometry(1.5, 9, 7);
+    const canopyMat = toonMaterial(0x2fa84f, {});
+    const canopyMatDark = toonMaterial(0x279142, {});
+
+    const trunks = new THREE.InstancedMesh(trunkGeo, trunkMat, 44);
+    const canopies = new THREE.InstancedMesh(canopyGeo, canopyMat, 44);
+    const dummy = new THREE.Object3D();
+    for (let i = 0; i < 44; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 34 + Math.random() * 150;
+      const x = Math.cos(a) * r;
+      const z = Math.sin(a) * r;
+      const h = smoothH(x, z) * 0.5 - 0.5;
+      const s = 0.8 + Math.random() * 0.9;
+      dummy.position.set(x, h + 1.2 * s, z);
+      dummy.scale.setScalar(s);
+      dummy.updateMatrix();
+      trunks.setMatrixAt(i, dummy.matrix);
+      dummy.position.set(x, h + (2.4 + 1.4) * s, z);
+      dummy.scale.set(1, 0.85 + Math.random() * 0.3, 1);
+      dummy.updateMatrix();
+      canopies.setMatrixAt(i, dummy.matrix);
+    }
+    trunks.instanceMatrix.needsUpdate = true;
+    canopies.instanceMatrix.needsUpdate = true;
+    scene.add(trunks);
+    scene.add(canopies);
+
+    // Second, smaller darker canopy layer for depth variation.
+    const canopies2 = new THREE.InstancedMesh(canopyGeo, canopyMatDark, 30);
+    for (let i = 0; i < 30; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 60 + Math.random() * 140;
+      const x = Math.cos(a) * r;
+      const z = Math.sin(a) * r;
+      const h = smoothH(x, z) * 0.5 - 0.5;
+      dummy.position.set(x, h + 2.2, z);
+      dummy.scale.set(1.4 + Math.random() * 0.8, 1.2, 1.4 + Math.random() * 0.8);
+      dummy.updateMatrix();
+      canopies2.setMatrixAt(i, dummy.matrix);
+    }
+    canopies2.instanceMatrix.needsUpdate = true;
+    scene.add(canopies2);
   }
 
   buildProps(scene) {
@@ -400,6 +452,100 @@ export class Environment {
       im.instanceMatrix.needsUpdate = true;
       if (im.instanceColor) im.instanceColor.needsUpdate = true;
       scene.add(im);
+    }
+  }
+
+  buildGrandstand(scene) {
+    // Big grandstand with striped awning near a curve — crowd anchor.
+    const grandstandSpots = [
+      { x: -8, z: -66, ry: -0.3 },
+      { x: 50, z: 44, ry: 2.2 },
+    ];
+    const crowdColors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
+    for (const gs of grandstandSpots) {
+      const grp = new THREE.Group();
+      // steps (3 tiers)
+      const stepMat = toonMaterial(0xdfe6ee, {});
+      const tier = new THREE.InstancedMesh(new THREE.BoxGeometry(16, 0.8, 2.4), stepMat, 3);
+      const dummy = new THREE.Object3D();
+      for (let i = 0; i < 3; i++) {
+        dummy.position.set(0, 1.0 + i * 1.1, -i * 2.2);
+        dummy.updateMatrix();
+        tier.setMatrixAt(i, dummy.matrix);
+      }
+      tier.instanceMatrix.needsUpdate = true;
+      grp.add(tier);
+      // spectators on each tier (instanced colorful boxes)
+      const spec = new THREE.InstancedMesh(new THREE.BoxGeometry(0.7, 0.9, 0.7), toonMaterial(0xffffff, {}), 36);
+      const col = new THREE.Color();
+      let sIdx = 0;
+      for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 12; j++) {
+          dummy.position.set(-8.2 + j * 1.4, 1.6 + i * 1.1, -i * 2.2 + 0.3);
+          dummy.scale.set(1, 0.9 + Math.random() * 0.4, 1);
+          dummy.updateMatrix();
+          spec.setMatrixAt(sIdx, dummy.matrix);
+          col.setHex(crowdColors[Math.floor(Math.random() * crowdColors.length)]);
+          spec.setColorAt(sIdx, col);
+          sIdx++;
+        }
+      }
+      spec.instanceMatrix.needsUpdate = true;
+      if (spec.instanceColor) spec.instanceColor.needsUpdate = true;
+      grp.add(spec);
+      // striped awning
+      const awning = new THREE.Mesh(
+        new THREE.BoxGeometry(18, 0.25, 5.4),
+        toonMaterial(0xff5a5f, {})
+      );
+      awning.position.set(0, 4.4, -3.2);
+      awning.rotation.x = 0.16;
+      grp.add(awning);
+      // awning stripes (white bars)
+      const barGeo = new THREE.BoxGeometry(1.1, 0.3, 5.5);
+      const barMat = toonMaterial(0xffffff, {});
+      for (let i = -7; i <= 7; i += 2) {
+        const bar = new THREE.Mesh(barGeo, barMat);
+        bar.position.set(i * 1.1, 4.42, -3.2);
+        bar.rotation.x = 0.16;
+        grp.add(bar);
+      }
+      // support posts
+      const postGeo = new THREE.CylinderGeometry(0.14, 0.14, 4.4, 6);
+      const postMat = toonMaterial(0x8b7a5c, {});
+      for (const side of [-1, 1]) {
+        const post = new THREE.Mesh(postGeo, postMat);
+        post.position.set(side * 8, 2.2, -3.4);
+        grp.add(post);
+      }
+      grp.position.set(gs.x, smoothH(gs.x, gs.z) * 0.5 - 0.5, gs.z);
+      grp.rotation.y = gs.ry;
+      scene.add(grp);
+    }
+  }
+
+  buildDistanceMarks(scene) {
+    // 100m/200m distance posts along the far stretches (cheap racing flavor).
+    const marks = [
+      { x: -30, z: -52, ry: 0.5 },
+      { x: 30, z: -60, ry: -0.4 },
+      { x: 62, z: -20, ry: 1.5 },
+      { x: 46, z: 56, ry: 2.0 },
+      { x: -40, z: 52, ry: -2.0 },
+    ];
+    const postMat = toonMaterial(0x8b7a5c, {});
+    for (const m of marks) {
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 1.6, 6), postMat);
+      post.position.set(m.x, smoothH(m.x, m.z) * 0.5 - 0.5 + 0.8, m.z);
+      post.rotation.y = m.ry;
+      scene.add(post);
+      const board = new THREE.Mesh(
+        new THREE.BoxGeometry(0.9, 0.5, 0.08),
+        toonMaterial(0xffd166, {})
+      );
+      board.position.set(m.x, smoothH(m.x, m.z) * 0.5 - 0.5 + 1.35, m.z);
+      board.rotation.y = m.ry;
+      scene.add(board);
     }
   }
 

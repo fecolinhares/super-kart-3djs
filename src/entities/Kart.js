@@ -25,8 +25,9 @@ export class Kart {
    * @param {THREE.Vector3} opts.startPosition
    * @param {number} opts.startHeading  — radians
    */
-  constructor({ color = 0xff5a5f, isPlayer = false, startPosition, startHeading = 0 }) {
+  constructor({ color = 0xff5a5f, isPlayer = false, number = 1, startPosition, startHeading = 0 }) {
     this.isPlayer = isPlayer;
+    this.number = number;
     this.group = new THREE.Group();
     this.group.name = isPlayer ? 'kart-player' : 'kart-ai';
 
@@ -219,6 +220,39 @@ export class Kart {
     this._outline(cockpit);
     this._mesh(new THREE.BoxGeometry(0.64, 0.2, 0.04), glass, 0, 1.04, 0.3, { rx: -0.28, cast: false });
     this._mesh(new THREE.BoxGeometry(0.5, 0.44, 0.07), bodyDark, 0, 0.98, -0.44);
+
+    // Race number plate on the nose (kart identity).
+    const numCanvas = document.createElement('canvas');
+    numCanvas.width = 128;
+    numCanvas.height = 128;
+    const nctx = numCanvas.getContext('2d');
+    nctx.fillStyle = '#ffffff';
+    nctx.fillRect(0, 0, 128, 128);
+    nctx.fillStyle = '#1b2a41';
+    nctx.font = 'bold 80px sans-serif';
+    nctx.textAlign = 'center';
+    nctx.textBaseline = 'middle';
+    nctx.fillText(String(this.number), 64, 68);
+    const numTex = new THREE.CanvasTexture(numCanvas);
+    numTex.colorSpace = THREE.SRGBColorSpace;
+    const plate = new THREE.Mesh(
+      new THREE.BoxGeometry(0.36, 0.36, 0.07),
+      new THREE.MeshToonMaterial({ color: 0xffffff })
+    );
+    plate.material.map = numTex;
+    plate.position.set(0, KC.wheelRadius + 0.5, 0.72);
+    plate.rotation.x = -0.2;
+    this.group.add(plate);
+
+    // Rear number plate (visible from the chase camera).
+    const plateBack = new THREE.Mesh(
+      new THREE.BoxGeometry(0.42, 0.4, 0.06),
+      new THREE.MeshToonMaterial({ color: 0xffffff })
+    );
+    plateBack.material.map = numTex;
+    plateBack.position.set(0, KC.wheelRadius + 0.62, -0.9);
+    plateBack.rotation.x = 0.12;
+    this.group.add(plateBack);
 
     // hood racing stripes
     this._mesh(new THREE.BoxGeometry(0.05, 0.03, 0.7), white, -0.17, 0.835, 0.12, { cast: false });

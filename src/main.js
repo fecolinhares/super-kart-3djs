@@ -92,6 +92,7 @@ function buildKarts() {
   playerKart = new Kart({
     color: playerColor,
     isPlayer: true,
+    number: 1,
     startPosition: playerPos.position,
     startHeading: playerPos.heading,
   });
@@ -99,6 +100,7 @@ function buildKarts() {
 
   aiKarts = [];
   aiControllers = [];
+  let aiNum = 2;
   for (let i = 0; i < CONFIG.game.numKarts; i++) {
     if (!DEMO && i === playerSlot) continue;
     if (DEMO && i === 1) continue; // slot 1 reserved for player visual
@@ -106,6 +108,7 @@ function buildKarts() {
     const kart = new Kart({
       color: colors[i],
       isPlayer: false,
+      number: aiNum++,
       startPosition: slot.position,
       startHeading: slot.heading,
     });
