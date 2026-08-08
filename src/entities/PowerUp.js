@@ -181,6 +181,8 @@ export function useItem(kart, ctx = {}) {
       for (const other of karts) {
         if (other === kart || other.finished) continue;
         other.applyScale?.(CONFIG.items.lightningScale, CONFIG.items.lightningDurationMs);
+        // Electric burst on each victim (art-bible: drama on hit).
+        ctx.particles?.emit?.('lightning', kartPosition(other), { count: 18, speed: 7.5, size: 0.34 });
       }
       audio?.play?.('lightning');
       break;

@@ -11,7 +11,7 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { toonMaterial, cartoonOutline, roadTexture, grassTexture, checkerTexture, bannerCheckerTexture, turboPadTexture } from '../render/Materials.js';
+import { toonMaterial, cartoonOutline, roadTexture, grassTexture, checkerTexture, bannerCheckerTexture, turboPadTexture, arrowTexture } from '../render/Materials.js';
 
 // Control points forming the closed loop (X, Y=elevation, Z).
 const CONTROL_POINTS = [
@@ -310,6 +310,48 @@ function buildGantry(startLine) {
   return { group, startLights, banner };
 }
 
+/**
+ * Painted direction chevrons at the sharpest corners (curvature > threshold),
+ * so the road reads "race track" and not a plain strip.
+ */
+function buildDirectionArrows(path) {
+  const SAMPLES = 160;
+  const tan = new THREE.Vector3();
+  const tan2 = new THREE.Vector3();
+  const p = new THREE.Vector3();
+  const dummy = new THREE.Object3D();
+  const spots = [];
+  let lastT = -1;
+  const dt = 1 / SAMPLES;
+  for (let i = 0; i < SAMPLES; i++) {
+    const t = i / SAMPLES;
+    path.getTangentAt(t, tan);
+    path.getTangentAt(Math.min(1, t + dt), tan2);
+    const curv = 1 - Math.min(1, Math.max(-1, tan.dot(tan2))); // 0 = straight
+    if (curv > 0.035 && t - lastT > 0.045) {
+      // Skip the very first straight segment (start grid) — keep it clean.
+      if (t > 0.05 && t < 0.95) {
+        path.getPointAt(t, p);
+        spots.push({ x: p.x, y: p.y, z: p.z, tx: tan.x, tz: tan.z });
+        lastT = t;
+      }
+    }
+  }
+  if (spots.length === 0) return null;
+  const geo = new THREE.PlaneGeometry(1.7, 1.7);
+  const mat = new THREE.MeshBasicMaterial({ map: arrowTexture(), transparent: true, side: THREE.DoubleSide, depthWrite: false });
+  const mesh = new THREE.InstancedMesh(geo, mat, spots.length);
+  for (let i = 0; i < spots.length; i++) {
+    const s = spots[i];
+    dummy.position.set(s.x, s.y + 0.05, s.z);
+    dummy.lookAt(s.x + s.tx, s.y, s.z + s.tz);
+    dummy.updateMatrix();
+    mesh.setMatrixAt(i, dummy.matrix);
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  return mesh;
+}
+
 export function buildTrack(scene) {
   const group = new THREE.Group();
 
@@ -348,6 +390,9 @@ export function buildTrack(scene) {
 
   const dashes = buildLaneDashes(path, length);
   group.add(dashes);
+
+  const arrows = buildDirectionArrows(path);
+  if (arrows) group.add(arrows);
 
   const turbo = buildTurboPads(path, length);
   group.add(turbo.mesh);

@@ -220,6 +220,38 @@ export function bannerCheckerTexture() {
   return _bannerCheckerTex;
 }
 
+/** Direction arrow painted on the road at sharp corners (white chevron on
+ *  a transparent card, so MeshBasicMaterial reads it unlit over asphalt). */
+let _arrowTex = null;
+export function arrowTexture() {
+  if (_arrowTex) return _arrowTex;
+  _arrowTex = canvasTexture(
+    128,
+    (ctx, s) => {
+      ctx.clearRect(0, 0, s, s);
+      ctx.translate(s / 2, s / 2);
+      // Two chevrons pointing "up" the road direction.
+      ctx.strokeStyle = '#f4f6f8';
+      ctx.lineWidth = 16;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-34, 16);
+      ctx.lineTo(0, -26);
+      ctx.lineTo(34, 16);
+      ctx.moveTo(-18, 40);
+      ctx.lineTo(0, 0);
+      ctx.lineTo(18, 40);
+      ctx.stroke();
+      // Thin amber outline for pop.
+      ctx.strokeStyle = '#ffd166';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+  );
+  return _arrowTex;
+}
+
 /** Sky gradient dome texture. */
 export function skyTexture() {
   if (_skyTex) return _skyTex;
