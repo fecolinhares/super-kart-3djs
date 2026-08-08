@@ -860,7 +860,7 @@
 
 .sk3d-touch-pause {
   position: absolute;
-  top: 12px;
+  top: 84px; /* below the position/lap chips row (was 12px — overlapped them) */
   left: 12px;
   width: 52px;
   height: 52px;

@@ -56,6 +56,7 @@ let countdownT = 0;
 let countdownIndex = -1;
 let offroadT = 0.55; // off-road gravel SFX accumulator (feedback audit)
 let lastHeldItem = null;
+let lastLap = 0;
 let turboParticleAcc = 0; // accumulator: burst once per 0.1s while turbo-boosting
 
 // Boot lands on the title menu (menu overlay + orbit camera).
@@ -292,6 +293,7 @@ function restartRace() {
   audio.clearEngineLoops(); // restart engine sounds from scratch (no echo/doubling)
   raceManager.restart();
   skids.clear();
+  lastLap = 0;
   if (playerKart) playerKart.position = CONFIG.game.numKarts;
   hud.reset();
   hud.show();
@@ -476,6 +478,11 @@ loop.start((dt, t) => {
       hud.update(raceManager, playerKart, raceManager.karts);
       // Drift charge meter (white → yellow → orange; only while drifting).
       hud.setDriftCharge(playerKart.state.driftCharge, playerKart.state.drifting);
+      // Lap fanfare — completing a lap was completely silent (dead 'lap' SFX).
+      if (playerKart.state.lap > lastLap) {
+        lastLap = playerKart.state.lap;
+        audio.play('lap');
+      }
       // Toast the item the player just picked up — ICON first, then name.
       if (playerKart.heldItem && playerKart.heldItem !== lastHeldItem) {
         lastHeldItem = playerKart.heldItem;

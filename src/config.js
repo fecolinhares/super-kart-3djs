@@ -73,7 +73,7 @@ export const CONFIG = {
     shellSpeed: 34,
     shellHomingTurnRate: 3.2,
     bananaRadius: 0.7,
-    starDurationMs: 7000,
+    starDurationMs: 4000,
     lightningDurationMs: 4500,
     lightningScale: 0.55,
     mushroomBoostMs: 2200,

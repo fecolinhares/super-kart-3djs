@@ -207,6 +207,11 @@ export class KartPhysics {
 
     // ---- speed -------------------------------------------------------------
     let target = (s.boost || s.turboBoostMs > 0) ? P.boostSpeed : (kart.cruiseSpeed || P.maxSpeed);
+    // Lightning: victims are shrunk AND slowed (was cosmetic — scale only
+    // touched the visual _scaleTarget; gameplay had no teeth).
+    if (kart._scaleMs > 0 && kart._scaleTarget < 1) {
+      target *= kart._scaleTarget;
+    }
     s.offRoad = Math.abs(near.lateralDist) > halfW;
     if (s.offRoad) target *= T.offRoadMaxSpeedFactor;
     if (s.spinOut) target = 0;
