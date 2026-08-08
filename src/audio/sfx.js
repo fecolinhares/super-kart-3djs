@@ -443,6 +443,17 @@ export function renderSfx(ctx, out, name, opts = {}) {
       break;
     }
 
+    case 'pickup': {
+      // Happy rising arpeggio (C-E-G-C) — the "you got an item" fanfare.
+      const notes = [523.25, 659.25, 783.99, 1046.5];
+      let tt = at;
+      for (const n of notes) {
+        chime(ctx, target, { freq: n * rate, dur: 0.22, vol: v(0.4), at: tt, partials: [1, 2, 3, 5] });
+        tt += 0.055;
+      }
+      break;
+    }
+
     case 'lap': {
       // Rising chime run announcing a completed lap.
       const notes = [N.C5, N.E5, N.G5, N.C6, N.E6];

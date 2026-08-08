@@ -479,6 +479,7 @@ loop.start((dt, t) => {
       // Toast the item the player just picked up — ICON first, then name.
       if (playerKart.heldItem && playerKart.heldItem !== lastHeldItem) {
         lastHeldItem = playerKart.heldItem;
+        audio.play('pickup'); // item fanfare (was silent — UX gap)
         // Keys match PowerUpType VALUES (lowercase): mushroom, shell, red_shell…
         const ITEMS = {
           mushroom: ['🍄', 'Mushroom'],
