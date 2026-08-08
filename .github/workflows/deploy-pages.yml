@@ -50,6 +50,8 @@ jobs:
       - name: Setup Pages
         if: github.repository_visibility == 'public'
         uses: actions/configure-pages@v5
+        with:
+          enablement: true # cria/habilita o site Pages em modo GitHub Actions
 
       - name: Upload artifact
         if: github.repository_visibility == 'public'
