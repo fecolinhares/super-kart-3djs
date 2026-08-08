@@ -37,9 +37,9 @@ export function getRoadWidthAt() {
 // Deterministic smooth pseudo-noise for terrain (no external libs).
 function smoothH(x, z) {
   return (
-    Math.sin(x * 0.08) * Math.cos(z * 0.1) * 0.28 +
-    Math.sin(x * 0.31 + 1.7) * Math.cos(z * 0.23) * 0.14 +
-    Math.sin(x * 0.045 + z * 0.06) * 0.25
+    Math.sin(x * 0.08) * Math.cos(z * 0.1) * 0.18 +
+    Math.sin(x * 0.31 + 1.7) * Math.cos(z * 0.23) * 0.09 +
+    Math.sin(x * 0.045 + z * 0.06) * 0.15
   );
 }
 
@@ -113,7 +113,7 @@ function buildTerrain() {
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i);
     const z = pos.getZ(i);
-    pos.setY(i, smoothH(x, z) * 0.5 - 0.5);
+    pos.setY(i, smoothH(x, z) * 0.5 - 0.25);
   }
   geo.computeVertexNormals();
   const mat = toonMaterial(0xffffff, {});
@@ -225,7 +225,7 @@ function buildGantry(startLine) {
   );
   banner.material.map = bannerCheckerTexture();
   banner.position.copy(startLine.position);
-  banner.position.y = 6.0;
+  banner.position.y = 6.65; // hangs just under the beam (7.2) — no floating gap
   banner.lookAt(startLine.position.clone().add(startLine.direction));
   group.add(banner);
 

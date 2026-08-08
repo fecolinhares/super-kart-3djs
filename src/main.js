@@ -28,11 +28,15 @@ import { TouchControls } from './ui/TouchControls.js';
 const container = document.getElementById('app');
 const { scene, camera, renderer } = createScene(container);
 
+const DEMO = new URLSearchParams(location.search).has('demo');
+const TEST = new URLSearchParams(location.search).has('test'); // fast no-postfx mode for gameplay testing
+
 const env = new Environment();
 const track = buildTrack(scene);
 env.buildEnvironment(scene, track); // track passed so props avoid the road
 
 const postfx = new PostFX(renderer, scene, camera);
+if (TEST) postfx.enabled = false; // software GL runs ~30x faster without bloom
 const audio = new AudioManager();
 const particles = new ParticleSystem(scene);
 const raceManager = new RaceManager(scene, camera);
@@ -40,18 +44,18 @@ const hud = new HUD();
 const menu = new Menu({ onStart: startRace, onColor: setPlayerColor });
 const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressItem() });
 
-const DEMO = new URLSearchParams(location.search).has('demo');
 let playerColor = CONFIG.kart.playerColors[0];
 let playerKart = null;
 let aiKarts = [];
 let aiControllers = [];
 let countdownT = 0;
 let countdownIndex = -1; // -1 so the first mark (3) actually fires
+let lastHeldItem = null;
 
 // Boot lands on the title menu (menu overlay + orbit camera).
 setState(STATES.MENU);
 menu.show();
-if (DEMO) startRace(); // demo autopilot for QA: jump straight into the race
+if (DEMO || TEST) startRace(); // demo autopilot / fast test mode jump straight in
 
 // ---------------------------------------------------------------------------
 // Karts
@@ -180,7 +184,7 @@ window.addEventListener('touchstart', () => audio.init(), { passive: true });
 // Race lifecycle
 // ---------------------------------------------------------------------------
 const COUNTDOWN_MARKS = [3, 2, 1, 0]; // 0 === GO
-const COUNTDOWN_STEP = 0.6; // seconds of game-time per number (snappier start)
+const COUNTDOWN_STEP = TEST ? 0.25 : 0.6; // snappier start; test mode even faster
 
 // Start-light animation on the gantry (countdown 3-2-1 → green on GO).
 const LAMP_RED = 0xff3b30;
@@ -229,6 +233,7 @@ function startRace() {
 }
 
 function restartRace() {
+  audio.clearEngineLoops(); // restart engine sounds from scratch (no echo/doubling)
   raceManager.restart();
   if (playerKart) playerKart.position = CONFIG.game.numKarts;
   hud.reset();
@@ -385,6 +390,14 @@ loop.start((dt, t) => {
       for (const ctrl of aiControllers) ctrl.update(dt);
       raceManager.update(dt);
       hud.update(raceManager, playerKart);
+      // Toast the item the player just picked up (clear identification).
+      if (playerKart.heldItem && playerKart.heldItem !== lastHeldItem) {
+        lastHeldItem = playerKart.heldItem;
+        const names = { MUSHROOM: 'Mushroom', SHELL: 'Green Shell', RED_SHELL: 'Red Shell', BANANA: 'Banana', STAR: 'Star', LIGHTNING: 'Lightning' };
+        hud.showMessage(`Got: ${names[playerKart.heldItem] || playerKart.heldItem}!`);
+      } else if (!playerKart.heldItem) {
+        lastHeldItem = null;
+      }
       // Continuous engine loops (pitch follows speed).
       const pSpeed01 = Math.min(1, Math.abs(playerKart.state.speed) / CONFIG.physics.maxSpeed);
       audio.setEngineLoop('player', pSpeed01);

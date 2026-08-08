@@ -54,7 +54,7 @@ function questionTexture() {
   g.lineWidth = 8;
   g.strokeRect(4, 4, size - 8, size - 8);
   // big red '?'
-  g.fillStyle = '#ff3b4e';
+  g.fillStyle = '#1b2a41';
   g.font = '900 86px "Baloo 2", "Nunito", Arial, sans-serif';
   g.textAlign = 'center';
   g.textBaseline = 'middle';
@@ -117,6 +117,12 @@ export class ItemBox {
     mesh.position.set(this.base.x, this.base.y, this.base.z);
     mesh.rotation.y = this.base.yaw;
     mesh.castShadow = true;
+    // Dark cartoon outline (inverted hull) so the box pops from the road.
+    const outline = new THREE.Mesh(
+      new THREE.BoxGeometry(this.size * 1.07, this.size * 1.07, this.size * 1.07),
+      new THREE.MeshBasicMaterial({ color: 0x1b2a41, side: THREE.BackSide })
+    );
+    mesh.add(outline);
     // Golden light beam under the box — makes pickups readable at a glance.
     const beam = new THREE.Mesh(
       new THREE.CylinderGeometry(this.size * 0.42, this.size * 0.75, this.size * 2.6, 12, 1, true),
@@ -130,19 +136,34 @@ export class ItemBox {
     );
     beam.position.set(this.base.x, this.base.y - this.size * 1.35, this.base.z);
     this.beam = beam;
+    // Orbiting arrows: "grab me → you get an item". Original identity
+    // (inspired by the genre's pickup boxes, not a copy of any of them).
+    this.arrows = new THREE.Group();
+    this.arrows.position.set(this.base.x, this.base.y, this.base.z);
+    const arrowGeo = new THREE.ConeGeometry(0.14, 0.34, 4);
+    const arrowMat = new THREE.MeshBasicMaterial({ color: 0xff5a5f });
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * Math.PI * 2;
+      const arrow = new THREE.Mesh(arrowGeo, arrowMat);
+      arrow.position.set(Math.cos(a) * this.size * 0.95, 0, Math.sin(a) * this.size * 0.95);
+      arrow.rotation.z = -Math.PI / 2;
+      arrow.rotation.y = -a;
+      arrow.scale.setScalar(0.7);
+      this.arrows.add(arrow);
+    }
     return mesh;
   }
 
   _makeMaterial() {
     const tex = questionTexture();
     const opts = {
-      color: 0xffffff,
-      emissive: 0xffd166, // golden glow — visible from far away
-      emissiveIntensity: 0.5,
+      color: 0xffb703, // amber cube (inverted vs the classic yellow '?' box)
+      emissive: 0xff8f00,
+      emissiveIntensity: 0.45,
     };
     if (tex) opts.map = tex;
     if (_toonFactory && _toonResolved) {
-      const mat = _toonFactory(0xffffff, opts);
+      const mat = _toonFactory(0xffb703, opts);
       if (mat && typeof mat.dispose === 'function') return mat;
     }
     return new THREE.MeshToonMaterial(opts);
@@ -163,6 +184,7 @@ export class ItemBox {
     this.active = true;
     this.mesh.visible = true;
     if (this.beam) this.beam.visible = true;
+    if (this.arrows) this.arrows.visible = true;
     this.respawnTimer = 0;
   }
 
@@ -192,6 +214,10 @@ export class ItemBox {
       const pulse = 0.18 + Math.sin(this.bobPhase * 1.3) * 0.06;
       this.beam.material.opacity = pulse;
     }
+    if (this.arrows) {
+      this.arrows.position.y = this.base.y + bob;
+      this.arrows.rotation.y += dt * 1.8;
+    }
 
     const list = karts || [];
     const r = CONFIG.items.pickupRadius;
@@ -213,6 +239,7 @@ export class ItemBox {
     this.active = false;
     this.mesh.visible = false;
     if (this.beam) this.beam.visible = false;
+    if (this.arrows) this.arrows.visible = false;
     this.respawnTimer = CONFIG.game.itemBoxRespawnMs ?? CONFIG.items.itemBoxRespawnMs ?? 6000;
   }
 }

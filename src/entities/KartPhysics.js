@@ -183,7 +183,9 @@ export class KartPhysics {
       s.heading -= steerEff * rate * dt;
       // gentle pull toward the path tangent (forgiving handling, helps AI)
       const tanAngle = Math.atan2(tan.x, tan.z);
-      const pull = s.drifting ? 0.2 : 0.45;
+      // Off-road: weaken the pull so the player can steer BACK to the track
+      // (a strong pull keeps the kart running parallel in the grass forever).
+      const pull = s.offRoad ? 0.1 : s.drifting ? 0.2 : 0.45;
       s.heading = dampAngle(s.heading, tanAngle, pull, dt);
       updateDrift(kart, input, dt, speedAbs);
     }

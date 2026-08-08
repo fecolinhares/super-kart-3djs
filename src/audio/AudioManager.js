@@ -195,11 +195,14 @@ export class AudioManager {
         loop.base.stop();
         loop.oct.stop();
         loop.lfo.stop();
+        loop.noise?.stop();
       } catch { /* already stopped */ }
       loop.base.disconnect();
       loop.oct.disconnect();
       loop.flt.disconnect();
       loop.gain.disconnect();
+      loop.noise?.disconnect();
+      loop.nBand?.disconnect();
       this._engineLoops.delete(kartId);
     }
   }
@@ -220,13 +223,25 @@ export class AudioManager {
     oct.type = 'square';
     const flt = ctx.createBiquadFilter();
     flt.type = 'lowpass';
-    flt.Q.value = 0.9;
+    flt.Q.value = 1.2;
     const gain = ctx.createGain();
+    // Combustion noise: white noise through a bandpass in the motor band.
+    const noise = ctx.createBufferSource();
+    noise.buffer = this._noiseBuffer();
+    noise.loop = true;
+    const nBand = ctx.createBiquadFilter();
+    nBand.type = 'bandpass';
+    nBand.Q.value = 0.7;
+    const nGain = ctx.createGain();
+    nGain.gain.value = 0.06; // subtle — makes it sound like an engine, not a synth
+    noise.connect(nBand);
+    nBand.connect(nGain);
+    nGain.connect(gain);
     // Small detune LFO for engine roughness.
     const lfo = ctx.createOscillator();
-    lfo.frequency.value = 26;
+    lfo.frequency.value = 22;
     const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 6; // cents of detune wobble
+    lfoGain.gain.value = 4; // cents of detune wobble
     lfo.connect(lfoGain);
     lfoGain.connect(base.detune);
     base.connect(flt);
@@ -235,10 +250,28 @@ export class AudioManager {
     gain.connect(this._master);
     base.start();
     oct.start();
+    noise.start();
     lfo.start();
-    const loop = { base, oct, flt, gain, lfo, speed01: 0 };
+    const loop = { base, oct, flt, gain, lfo, noise, nBand, speed01: 0 };
     this._updateEngineLoop(loop, speed01);
     return loop;
+  }
+
+  _noiseBuffer() {
+    if (this._noiseBuf) return this._noiseBuf;
+    const ctx = this._ctx;
+    const len = ctx.sampleRate * 1.0;
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    let sum = 0;
+    for (let i = 0; i < len; i++) {
+      data[i] = Math.random() * 2 - 1;
+      sum += data[i];
+    }
+    const mean = sum / len;
+    for (let i = 0; i < len; i++) data[i] -= mean; // DC block
+    this._noiseBuf = buf;
+    return buf;
   }
 
   _updateEngineLoop(loop, speed01) {
@@ -246,9 +279,10 @@ export class AudioManager {
     const tc = 0.06; // smooth updates, no zipper noise
     const baseFreq = 55 + speed01 * 150;
     loop.base.frequency.setTargetAtTime(baseFreq, t, tc);
-    loop.oct.frequency.setTargetAtTime(baseFreq * 2, t, tc);
-    loop.flt.frequency.setTargetAtTime(280 + speed01 * 1400, t, tc);
-    loop.gain.gain.setTargetAtTime(this._engineVolume * (0.35 + speed01 * 0.65), t, tc);
+    loop.oct.frequency.setTargetAtTime(baseFreq * 2.02, t, tc);
+    loop.flt.frequency.setTargetAtTime(300 + speed01 * 1500, t, tc);
+    loop.nBand.frequency.setTargetAtTime(220 + speed01 * 900, t, tc);
+    loop.gain.gain.setTargetAtTime(this._engineVolume * (0.28 + speed01 * 0.6), t, tc);
     loop.speed01 = speed01;
   }
 

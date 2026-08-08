@@ -20,6 +20,16 @@ const ITEM_ICONS = {
   LIGHTNING: '⚡',
 };
 
+/** PowerUpType -> readable name shown under the icon. */
+const ITEM_NAMES = {
+  MUSHROOM: 'Mushroom',
+  SHELL: 'Green Shell',
+  RED_SHELL: 'Red Shell',
+  BANANA: 'Banana',
+  STAR: 'Star',
+  LIGHTNING: 'Lightning',
+};
+
 /** km/h at the top of the gauge: ~42 m/s * 2.4 ≈ 100 km/h. */
 const MAX_KMH = Math.round(CONFIG.physics.maxSpeed * 2.4);
 const ARC_RADIUS = 60;
@@ -187,7 +197,8 @@ export class HUD {
     slot.className = 'sk3d-chip sk3d-item-slot';
     slot.innerHTML = `
       <span class="sk3d-item-label">ITEM</span>
-      <span class="sk3d-item-icon sk3d-item-empty">?</span>`;
+      <span class="sk3d-item-icon sk3d-item-empty">?</span>
+      <span class="sk3d-item-name"></span>`;
     return slot;
   }
 
@@ -266,14 +277,17 @@ export class HUD {
     this.itemType = itemType || null;
 
     const icon = this.itemIconEl;
+    const nameEl = this.root.querySelector('.sk3d-item-name');
     if (this.itemType && ITEM_ICONS[this.itemType]) {
       icon.textContent = ITEM_ICONS[this.itemType];
       icon.classList.toggle('sk3d-item-red', this.itemType === 'RED_SHELL');
       icon.classList.remove('sk3d-item-empty');
+      if (nameEl) nameEl.textContent = ITEM_NAMES[this.itemType] || this.itemType;
     } else {
       icon.textContent = '?';
       icon.classList.remove('sk3d-item-red');
       icon.classList.add('sk3d-item-empty');
+      if (nameEl) nameEl.textContent = '';
     }
     // Pop whenever the icon changes.
     icon.classList.remove('sk3d-item-pop');

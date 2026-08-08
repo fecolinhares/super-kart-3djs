@@ -317,7 +317,8 @@ export class Kart {
         tilt.add(new THREE.Mesh(tireGeo, tire));
         tilt.add(new THREE.Mesh(hubGeo, hub));
         const rim = new THREE.Mesh(rimGeo, hub);
-        rim.rotation.y = Math.PI / 2;
+        // Torus lies in the XY plane; the tilt already orients it with the
+        // wheel — no extra rotation (that made the rim spin oddly).
         rim.castShadow = false;
         tilt.add(rim);
         this._wheels = this._wheels || [];
@@ -397,6 +398,43 @@ export class Kart {
   /** Convenience read of the latest input (used by power-ups / AI tooling). */
   get input() {
     return this._controls;
+  }
+
+  /** Full reset for race restart — position, heading, timers, progress. */
+  restart() {
+    const s = this.state;
+    if (this.startPosition) s.position.copy(this.startPosition);
+    if (typeof this.startHeading === 'number') s.heading = this.startHeading;
+    s.speed = 0;
+    s.lap = 0;
+    s.progress01 = 0;
+    s.drifting = false;
+    s.driftCharge = 0;
+    s.boost = false;
+    s.offRoad = false;
+    s.spinOut = false;
+    s.finished = false;
+    s.vY = 0;
+    this.finished = false;
+    this.totalTime = null;
+    this.position = 0;
+    this.heldItem = null;
+    this.invincible = false;
+    this.starred = false;
+    this._boostMs = 0;
+    this._starMs = 0;
+    this._invMs = 0;
+    this._spinMs = 0;
+    this._scaleMs = 0;
+    this._scaleTarget = 1;
+    this._latVel = 0;
+    this._nudgeVel.set(0, 0, 0);
+    this._lastProgress = 0; // avoids a phantom lap on restart
+    this._controls = { steer: 0, throttle: false, brake: false, drift: false, useItem: false };
+    this._steerTarget = 0;
+    this.group.position.copy(s.position);
+    this.group.rotation.set(0, s.heading, 0);
+    this.group.scale.set(1, 1, 1);
   }
 
   get progress01() {

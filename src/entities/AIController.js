@@ -103,30 +103,31 @@ export class AIController {
     const tl = Math.hypot(toTargetX, toTargetZ) || 1;
     const err = signedAngle(heading, { x: toTargetX / tl, y: toTargetZ / tl });
 
-    // signedAngle(a,b) = h(a) - h(b); turning toward the target means adding
-    // (h_target - h_kart) = -err to the heading. Positive steer is assumed to
-    // increase heading (turn left). Flip the sign if your physics is mirrored.
-    const steer = THREE.MathUtils.clamp(-err / STEER_FULL_AT, -1, 1);
+    // signedAngle(a,b) = h(a) - h(b). With the current physics, positive
+    // steer DECREASES heading (turns right). Target right of kart → err > 0
+    // → positive steer. (Was -err before the steering-sign fix.)
+    const steer = THREE.MathUtils.clamp(err / STEER_FULL_AT, -1, 1);
 
     let throttle = 1;
     let brake = 0;
     let drift = false;
     const absErr = Math.abs(err);
+    // NOTE: never set brake for slow-down — in this physics brake = reverse.
+    // Slowing is handled by easing the throttle; the path-pull turns the kart.
     if (absErr > 0.9) {
-      // Hairpin: brake hard.
-      throttle = 0.35;
-      brake = 0.7;
+      // Hairpin: crawl while the damp-pull rotates us toward the path.
+      throttle = 0.3;
     } else if (absErr > 0.5) {
       // Soft corner: lift a bit.
       throttle = 0.8;
-      brake = 0.1;
     }
 
     const speed = st.speed ?? 0;
     if (speed < -0.5) {
-      // Reversing (after a collision) — get back to forward motion.
-      throttle = 0.15;
-      brake = 0.9;
+      // Reversing (after a collision) — throttle FORWARD to exit reverse.
+      // (brake would accelerate backwards toward reverseSpeed in this physics.)
+      throttle = 1;
+      brake = 0;
     }
 
     // Rubber-band vs the player: speed up when behind, ease off when ahead.

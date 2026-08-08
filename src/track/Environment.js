@@ -11,9 +11,9 @@ import { toonMaterial, cartoonOutline, skyTexture } from '../render/Materials.js
 // Mirrors TrackBuilder.smoothH so props sit at the same terrain height.
 function smoothH(x, z) {
   return (
-    Math.sin(x * 0.08) * Math.cos(z * 0.1) * 0.28 +
-    Math.sin(x * 0.31 + 1.7) * Math.cos(z * 0.23) * 0.14 +
-    Math.sin(x * 0.045 + z * 0.06) * 0.25
+    Math.sin(x * 0.08) * Math.cos(z * 0.1) * 0.18 +
+    Math.sin(x * 0.31 + 1.7) * Math.cos(z * 0.23) * 0.09 +
+    Math.sin(x * 0.045 + z * 0.06) * 0.15
   );
 }
 
@@ -247,14 +247,14 @@ export class Environment {
       for (let i = 0; i < leafCount; i++) {
         const a = (i / leafCount) * Math.PI * 2 + Math.random() * 0.3;
         const leaf = new THREE.Mesh(
-          new THREE.ConeGeometry(0.16, 3.1, 6),
+          new THREE.ConeGeometry(0.17, 2.4, 6),
           i % 2 === 0 ? leafMat : leafMatDark
         );
-        leaf.position.set(0, 0.3, 0);
+        leaf.position.set(0, 0.2, 0);
         leaf.rotation.z = Math.PI / 2; // lay the cone sideways
         leaf.rotation.y = a;
-        leaf.rotation.x = 0.9; // droop the frond downward
-        leaf.translateX(1.35); // push outward from the crown
+        leaf.rotation.x = 0.95; // droop the frond downward
+        leaf.translateX(1.05); // push outward from the crown (kept short = connected)
         leaf.castShadow = true;
         top.add(leaf);
       }
@@ -270,7 +270,7 @@ export class Environment {
 
   buildForest(scene) {
     // Round cartoon trees (trunk + sphere canopy) in clusters — cheap density.
-    const trunkGeo = new THREE.CylinderGeometry(0.22, 0.3, 2.4, 7);
+    const trunkGeo = new THREE.CylinderGeometry(0.24, 0.34, 3.0, 7);
     const trunkMat = toonMaterial(0x8a5a33, {});
     const canopyGeo = new THREE.SphereGeometry(1.5, 9, 7);
     const canopyMat = toonMaterial(0x2fa84f, {});
@@ -281,14 +281,15 @@ export class Environment {
     const dummy = new THREE.Object3D();
     for (let i = 0; i < 44; i++) {
       const { x, z } = this._randomOutside(34, 184);
-      const h = smoothH(x, z) * 0.5 - 0.5;
+      const h = smoothH(x, z) * 0.5 - 0.25;
       const s = 0.8 + Math.random() * 0.9;
-      dummy.position.set(x, h + 1.2 * s, z);
+      // trunk sits ON the ground, canopy overlaps the trunk top (connected)
+      dummy.position.set(x, h + 1.5 * s, z);
       dummy.scale.setScalar(s);
       dummy.updateMatrix();
       trunks.setMatrixAt(i, dummy.matrix);
-      dummy.position.set(x, h + (2.4 + 1.4) * s, z);
-      dummy.scale.set(1, 0.85 + Math.random() * 0.3, 1);
+      dummy.position.set(x, h + 2.6 * s, z);
+      dummy.scale.set(1, 0.9 + Math.random() * 0.2, 1);
       dummy.updateMatrix();
       canopies.setMatrixAt(i, dummy.matrix);
     }
@@ -301,8 +302,8 @@ export class Environment {
     const canopies2 = new THREE.InstancedMesh(canopyGeo, canopyMatDark, 30);
     for (let i = 0; i < 30; i++) {
       const { x, z } = this._randomOutside(60, 200);
-      const h = smoothH(x, z) * 0.5 - 0.5;
-      dummy.position.set(x, h + 2.2, z);
+      const h = smoothH(x, z) * 0.5 - 0.25;
+      dummy.position.set(x, h + 2.4, z);
       dummy.scale.set(1.4 + Math.random() * 0.8, 1.2, 1.4 + Math.random() * 0.8);
       dummy.updateMatrix();
       canopies2.setMatrixAt(i, dummy.matrix);
@@ -319,7 +320,7 @@ export class Environment {
     const dummy = new THREE.Object3D();
     for (let i = 0; i < 26; i++) {
       const { x, z } = this._randomOutside(30, 190);
-      dummy.position.set(x, smoothH(x, z) * 0.5 - 0.5 + 0.35, z);
+      dummy.position.set(x, smoothH(x, z) * 0.5 - 0.25 + 0.35, z);
       dummy.scale.setScalar(0.5 + Math.random() * 1.4);
       dummy.rotation.set(Math.random() * 0.6, Math.random() * Math.PI, Math.random() * 0.6);
       dummy.updateMatrix();
@@ -334,7 +335,7 @@ export class Environment {
     const bushes = new THREE.InstancedMesh(bushGeo, bushMat, 34);
     for (let i = 0; i < 34; i++) {
       const { x, z } = this._randomOutside(25, 165);
-      dummy.position.set(x, smoothH(x, z) * 0.5 - 0.5 + 0.5, z);
+      dummy.position.set(x, smoothH(x, z) * 0.5 - 0.25 + 0.5, z);
       dummy.scale.set(1, 0.75 + Math.random() * 0.4, 1);
       dummy.rotation.y = Math.random() * Math.PI;
       dummy.updateMatrix();
@@ -362,7 +363,7 @@ export class Environment {
         bz = z + off * 0.7;
         if (!this._onTrack(bx, bz, 6)) break;
       }
-      dummy.position.set(bx, smoothH(bx, bz) * 0.5 - 0.5 + 0.55, bz);
+      dummy.position.set(bx, smoothH(bx, bz) * 0.5 - 0.25 + 0.55, bz);
       dummy.scale.set(1.2, 0.9 + Math.random() * 0.5, 1.2);
       dummy.rotation.y = Math.random() * Math.PI;
       dummy.updateMatrix();
@@ -406,7 +407,7 @@ export class Environment {
     for (const s of spots) {
       if (this._onTrack(s.x, s.z, 8)) continue; // keep billboards off the road
       const board = new THREE.Mesh(boardGeo, boardMat);
-      board.position.set(s.x, smoothH(s.x, s.z) * 0.5 - 0.5 + 1.5, s.z);
+      board.position.set(s.x, smoothH(s.x, s.z) * 0.5 - 0.25 + 1.5, s.z);
       board.rotation.y = s.ry;
       board.castShadow = true;
       scene.add(board);
@@ -416,7 +417,7 @@ export class Environment {
           new THREE.CylinderGeometry(0.09, 0.09, 1.5, 6),
           toonMaterial(0x8b7a5c, {})
         );
-        leg.position.set(s.x + side * 2.0, smoothH(s.x, s.z) * 0.5 - 0.5 + 0.75, s.z);
+        leg.position.set(s.x + side * 2.0, smoothH(s.x, s.z) * 0.5 - 0.25 + 0.75, s.z);
         scene.add(leg);
       }
     }
@@ -474,11 +475,15 @@ export class Environment {
       const dummy = new THREE.Object3D();
       const col = new THREE.Color();
       for (let i = 0; i < area.n; i++) {
-        dummy.position.set(
-          area.x + (Math.random() - 0.5) * 14,
-          0.55 + Math.random() * 0.3,
-          area.z + (Math.random() - 0.5) * 10
-        );
+        // Retry placement until the spectator block is off the track.
+        let px = 0;
+        let pz = 0;
+        for (let attempt = 0; attempt < 5; attempt++) {
+          px = area.x + (Math.random() - 0.5) * 14;
+          pz = area.z + (Math.random() - 0.5) * 10;
+          if (!this._onTrack(px, pz, 5)) break;
+        }
+        dummy.position.set(px, 0.55 + Math.random() * 0.3, pz);
         dummy.scale.set(1, 0.9 + Math.random() * 0.5, 1);
         dummy.updateMatrix();
         im.setMatrixAt(i, dummy.matrix);
@@ -555,7 +560,7 @@ export class Environment {
         post.position.set(side * 8, 2.2, -3.4);
         grp.add(post);
       }
-      grp.position.set(gs.x, smoothH(gs.x, gs.z) * 0.5 - 0.5, gs.z);
+      grp.position.set(gs.x, smoothH(gs.x, gs.z) * 0.5 - 0.25, gs.z);
       grp.rotation.y = gs.ry;
       scene.add(grp);
     }
@@ -574,14 +579,14 @@ export class Environment {
     for (const m of marks) {
       if (this._onTrack(m.x, m.z, 8)) continue; // distance marks off the road
       const post = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 1.6, 6), postMat);
-      post.position.set(m.x, smoothH(m.x, m.z) * 0.5 - 0.5 + 0.8, m.z);
+      post.position.set(m.x, smoothH(m.x, m.z) * 0.5 - 0.25 + 0.8, m.z);
       post.rotation.y = m.ry;
       scene.add(post);
       const board = new THREE.Mesh(
         new THREE.BoxGeometry(0.9, 0.5, 0.08),
         toonMaterial(0xffd166, {})
       );
-      board.position.set(m.x, smoothH(m.x, m.z) * 0.5 - 0.5 + 1.35, m.z);
+      board.position.set(m.x, smoothH(m.x, m.z) * 0.5 - 0.25 + 1.35, m.z);
       board.rotation.y = m.ry;
       scene.add(board);
     }

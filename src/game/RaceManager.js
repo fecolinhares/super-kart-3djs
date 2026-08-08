@@ -68,6 +68,7 @@ export class RaceManager {
       for (const box of this.itemBoxes) {
         if (box.mesh) this.scene.add(box.mesh);
         if (box.beam) this.scene.add(box.beam);
+        if (box.arrows) this.scene.add(box.arrows);
       }
     }
 

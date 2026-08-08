@@ -54,7 +54,7 @@ export const CONFIG = {
   items: {
     boxRadius: 1.0,
     boxBobSpeed: 2.0,
-    pickupRadius: 1.9,
+    pickupRadius: 2.8, // generous — at 43 m/s the kart crosses 2.1m per 0.05s frame
     shellSpeed: 34,
     shellHomingTurnRate: 3.2,
     bananaRadius: 0.7,
