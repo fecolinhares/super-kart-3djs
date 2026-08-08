@@ -273,6 +273,7 @@ function waveBanner(t) {
 }
 
 function updateCamera(dt, t) {
+  if (window.__freezeCam) return; // QA hook: freeze the chase camera
   if (DEMO) {
     // Cinematic autopilot: chase the player kart with a swaying side offset
     // so QA frames show karts, road and environment up close.

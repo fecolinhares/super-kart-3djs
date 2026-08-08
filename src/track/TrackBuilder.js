@@ -195,7 +195,7 @@ function buildGantry(startLine) {
   const roadW = getRoadWidthAt();
   const nrm = new THREE.Vector3(-startLine.direction.z, 0, startLine.direction.x).normalize();
 
-  const pillarGeo = new THREE.CylinderGeometry(0.28, 0.36, 7.2, 10);
+  const pillarGeo = new THREE.CylinderGeometry(0.28, 0.36, 5.8, 10);
   const pillarMat = toonMaterial(0xff5a5f, {});
   const beamGeo = new THREE.BoxGeometry(roadW + 5, 0.5, 0.7);
   const beamMat = toonMaterial(0x2ec4ff, {});
@@ -205,7 +205,7 @@ function buildGantry(startLine) {
     pillar.position
       .copy(startLine.position)
       .addScaledVector(nrm, side * (roadW / 2 + 1.6));
-    pillar.position.y = 3.3;
+    pillar.position.y = 2.6;
     pillar.castShadow = true;
     group.add(pillar);
     cartoonOutline(pillar, 0x1b2a41, 0.03);
@@ -213,20 +213,21 @@ function buildGantry(startLine) {
 
   const beam = new THREE.Mesh(beamGeo, beamMat);
   beam.position.copy(startLine.position);
-  beam.position.y = 6.8;
+  beam.position.y = 5.4; // lowered so the banner sits in the driver's view
   beam.lookAt(startLine.position.clone().add(startLine.direction));
   group.add(beam);
   cartoonOutline(beam, 0x1b2a41, 0.02);
 
   // Checkered banner hanging from the beam, with a bold FINISH word.
   // Segmented width so main.js can wave it like fabric (not a rigid board).
+  // MeshBasicMaterial: the toon gradient was washing the checker pattern out.
   const banner = new THREE.Mesh(
     new THREE.PlaneGeometry(roadW + 2, 2.1, 14, 1),
-    new THREE.MeshToonMaterial({ color: 0xffffff })
+    new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })
   );
   banner.material.map = bannerCheckerTexture();
   banner.position.copy(startLine.position);
-  banner.position.y = 5.5; // hangs BELOW the beam (6.8) — top touches its underside
+  banner.position.y = 4.3; // top touches beam underside (5.4 - 0.25); IN VIEW
   banner.lookAt(startLine.position.clone().add(startLine.direction));
   group.add(banner);
 
@@ -305,18 +306,9 @@ export function buildTrack(scene) {
   startLine.banner = gantry.banner; // main.js waves it like fabric
 
   // Finish checkered strip on the road itself at startT.
-  // Flat box: +Z axis (roadW) spans across the road via lookAt(nrm).
-  // Basic material = unlit decal, always readable on the asphalt.
-  const checker = new THREE.Mesh(
-    new THREE.BoxGeometry(3.2, 0.06, getRoadWidthAt() - 1.2),
-    new THREE.MeshBasicMaterial({ color: 0xffffff })
-  );
-  checker.material.map = checkerTexture();
-  const nrm = new THREE.Vector3(-startDir.z, 0, startDir.x).normalize();
-  checker.position.copy(startPos).addScaledVector(nrm, 1.2);
-  checker.position.y = startPos.y + 0.21; // above asphalt (p.y + 0.18) — RELATIVE to track elevation!
-  checker.lookAt(startPos.clone().add(nrm));
-  group.add(checker);
+  // REMOVED — the painted decal read as a floating board in the middle of
+  // the track. The hanging gantry banner is the finish marker now.
+  // const checker = new THREE.Mesh(...)
 
   scene.add(group);
 
