@@ -490,10 +490,15 @@ export class Environment {
       // spectators on each tier: body block (bright color) + white head ball
       const spec = new THREE.InstancedMesh(new THREE.BoxGeometry(0.85, 0.95, 0.8), toonMaterial(0xffffff, {}), 36);
       const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.34, 8, 6), toonMaterial(0xf4f6f8, {}), 36);
+      // Raised arms (cheering people, not blocks with heads).
+      const armGeo = new THREE.CylinderGeometry(0.055, 0.055, 0.6, 6);
+      const armsL = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), 36);
+      const armsR = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), 36);
       const col = new THREE.Color();
       let sIdx = 0;
       const baseY = new Array(36);
       const headDummy = new THREE.Object3D();
+      const armDummy = new THREE.Object3D();
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 12; j++) {
           dummy.position.set(-8.2 + j * 1.5, 1.6 + i * 1.15, -i * 2.2 + 0.3);
@@ -507,13 +512,24 @@ export class Environment {
           headDummy.scale.set(1, 1, 1);
           headDummy.updateMatrix();
           heads.setMatrixAt(sIdx, headDummy.matrix);
+          // Arms raised outward (cheering silhouette).
+          armDummy.position.set(dummy.position.x - 0.46, dummy.position.y + 0.72, dummy.position.z);
+          armDummy.rotation.set(0, 0, -0.9);
+          armDummy.updateMatrix();
+          armsL.setMatrixAt(sIdx, armDummy.matrix);
+          armDummy.position.set(dummy.position.x + 0.46, dummy.position.y + 0.72, dummy.position.z);
+          armDummy.rotation.set(0, 0, 0.9);
+          armDummy.updateMatrix();
+          armsR.setMatrixAt(sIdx, armDummy.matrix);
           sIdx++;
         }
       }
       spec.instanceMatrix.needsUpdate = true;
       if (spec.instanceColor) spec.instanceColor.needsUpdate = true;
       spec.userData.baseY = baseY;
-      grp.add(spec, heads);
+      armsL.instanceMatrix.needsUpdate = true;
+      armsR.instanceMatrix.needsUpdate = true;
+      grp.add(spec, heads, armsL, armsR);
       (this.crowdMeshes = this.crowdMeshes || []).push(spec);
       // striped awning
       const awning = new THREE.Mesh(

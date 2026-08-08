@@ -219,6 +219,16 @@ export class Kart {
     hood.scale.set(1.2, 0.62, 1.35);
     this._outline(hood);
 
+    // Rounded tail (sphere squashed at the rear) — the chase camera mostly
+    // sees the back, so the silhouette must read molded from behind too.
+    const tail = this._mesh(
+      new THREE.SphereGeometry(0.4, 18, 12),
+      bodyDark,
+      0, KC.wheelRadius + 0.3, -0.55
+    );
+    tail.scale.set(1.2, 0.62, 0.9);
+    this._outline(tail);
+
     // nose cone (rounded tip pointing forward — classic kart nose)
     const noseCone = this._mesh(
       new THREE.ConeGeometry(0.3, 0.8, 10),
