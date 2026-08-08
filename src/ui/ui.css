@@ -857,6 +857,25 @@
   letter-spacing: 0.06em;
 }
 
+.sk3d-touch-pause {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 52px;
+  height: 52px;
+  font-size: 1.5rem;
+  color: var(--sk3d-cream);
+  background: rgba(27, 42, 65, 0.85);
+  border: 3px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  cursor: pointer;
+}
+
 /* ---------- touch controls ---------- */
 
 .sk3d-touch {

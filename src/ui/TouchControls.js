@@ -13,10 +13,12 @@ export class TouchControls {
    * @param {object} opts
    * @param {(v: number) => void} [opts.onSteer] called with -1 | 0 | +1
    * @param {() => void} [opts.onItem]          called when the item button is pressed
+   * @param {() => void} [opts.onPause]         called when the pause button is pressed
    */
-  constructor({ onSteer, onItem } = {}) {
+  constructor({ onSteer, onItem, onPause } = {}) {
     this.onSteer = typeof onSteer === 'function' ? onSteer : () => {};
     this.onItem = typeof onItem === 'function' ? onItem : () => {};
+    this.onPause = typeof onPause === 'function' ? onPause : () => {};
     this.steerValue = 0;
 
     this.root = document.createElement('div');
@@ -24,11 +26,14 @@ export class TouchControls {
     this.root.innerHTML = `
       <button type="button" class="sk3d-touch-btn sk3d-touch-left" aria-label="Steer left"><span class="sk3d-touch-arrow">◀</span><span class="sk3d-touch-label">LEFT</span></button>
       <button type="button" class="sk3d-touch-btn sk3d-touch-right" aria-label="Steer right"><span class="sk3d-touch-arrow">▶</span><span class="sk3d-touch-label">RIGHT</span></button>
-      <button type="button" class="sk3d-touch-btn sk3d-touch-item" aria-label="Use item"><span class="sk3d-touch-arrow">🎁</span><span class="sk3d-touch-label">ITEM</span></button>`;
+      <button type="button" class="sk3d-touch-btn sk3d-touch-item" aria-label="Use item"><span class="sk3d-touch-arrow">🎁</span><span class="sk3d-touch-label">ITEM</span></button>
+      <button type="button" class="sk3d-touch-pause" aria-label="Pause"><span>⏸</span></button>`;
 
     this.leftBtn = this.root.querySelector('.sk3d-touch-left');
     this.rightBtn = this.root.querySelector('.sk3d-touch-right');
     this.itemBtn = this.root.querySelector('.sk3d-touch-item');
+    this.pauseBtn = this.root.querySelector('.sk3d-touch-pause');
+    this.pauseBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); this.onPause(); });
 
     this.bindSteer(this.leftBtn, -1);
     this.bindSteer(this.rightBtn, 1);

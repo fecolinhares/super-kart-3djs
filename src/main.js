@@ -42,7 +42,7 @@ const particles = new ParticleSystem(scene);
 const raceManager = new RaceManager(scene, camera);
 const hud = new HUD(track);
 const menu = new Menu({ onStart: startRace, onColor: setPlayerColor, onSound: (n) => audio.play(n) });
-const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressItem() });
+const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressItem(), onPause: togglePause });
 
 // Default player color matches their character's identity color; the menu
 // picker can override it (setPlayerColor → setBodyColor).
@@ -207,9 +207,7 @@ window.addEventListener('keydown', (e) => {
     else if (getState() === STATES.PAUSED) restartRace();
   }
   if (e.code === 'KeyP' || e.code === 'Escape') {
-    const st = getState();
-    if (st === STATES.RACE) { setState(STATES.PAUSED); audio.suspend?.(); hud.showPause(true); }
-    else if (st === STATES.PAUSED) { setState(STATES.RACE); audio.resume?.(); hud.showPause(false); }
+    togglePause();
   }
 });
 window.addEventListener('keyup', (e) => keys.delete(e.code));
@@ -271,6 +269,13 @@ function startRace() {
   countdownT = 0;
   countdownIndex = -1;
   setState(STATES.COUNTDOWN);
+}
+
+/** Toggle pause from keyboard or the mobile pause button. */
+function togglePause() {
+  const st = getState();
+  if (st === STATES.RACE) { setState(STATES.PAUSED); audio.suspend?.(); hud.showPause(true); }
+  else if (st === STATES.PAUSED) { setState(STATES.RACE); audio.resume?.(); hud.showPause(false); }
 }
 
 function restartRace() {
