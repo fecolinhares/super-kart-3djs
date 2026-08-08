@@ -18,6 +18,7 @@ import { Kart } from './entities/Kart.js';
 import { AIController } from './entities/AIController.js';
 import { createItemBoxes } from './entities/ItemBox.js';
 import { ParticleSystem } from './render/Particles.js';
+import { SkidMarks } from './effects/SkidMarks.js';
 import { Menu } from './ui/Menu.js';
 import { HUD } from './ui/HUD.js';
 import { TouchControls } from './ui/TouchControls.js';
@@ -39,6 +40,7 @@ const postfx = new PostFX(renderer, scene, camera);
 if (TEST) postfx.enabled = false; // software GL runs ~30x faster without bloom
 const audio = new AudioManager();
 const particles = new ParticleSystem(scene);
+const skids = new SkidMarks(scene);
 const raceManager = new RaceManager(scene, camera);
 const hud = new HUD(track);
 const menu = new Menu({ onStart: startRace, onColor: setPlayerColor, onSound: (n) => audio.play(n) });
@@ -281,6 +283,7 @@ function togglePause() {
 function restartRace() {
   audio.clearEngineLoops(); // restart engine sounds from scratch (no echo/doubling)
   raceManager.restart();
+  skids.clear();
   if (playerKart) playerKart.position = CONFIG.game.numKarts;
   hud.reset();
   hud.show();
@@ -297,6 +300,8 @@ const camPos = new THREE.Vector3();
 const lookTarget = new THREE.Vector3();
 const _fwd = new THREE.Vector3();
 const _side = new THREE.Vector3();
+const _fwd2 = new THREE.Vector3(); // skid-mark scratch
+const _pos2 = new THREE.Vector3(); // skid-mark scratch
 
 let baseFov = CONFIG.camera.fov;
 let shakeTimer = 0;
@@ -490,6 +495,22 @@ loop.start((dt, t) => {
       const s01 = Math.min(1, Math.abs(aiKarts[i].state.speed) / CONFIG.physics.maxSpeed);
       audio.setEngineLoop('ai' + i, s01 * 0.35); // AI engines quieter
     }
+    // Tire skid marks: both rears while drifting (player + AI).
+    for (let i = 0; i < raceManager.karts.length; i++) {
+      const k = raceManager.karts[i];
+      if (!k || !k.state) continue;
+      if (k.state.drifting && Math.abs(k.state.speed) > 8) {
+        const acc = (k.skidAcc = (k.skidAcc || 0) + dt);
+        if (acc >= 0.14) {
+          k.skidAcc = 0;
+          const h = k.state.heading;
+          const fwd = _fwd2.set(Math.sin(h), 0, Math.cos(h));
+          const pos = _pos2.copy(k.state.position).addScaledVector(fwd, -0.95);
+          pos.y = k.state.position.y; // ground level
+          skids.leave(pos, h);
+        }
+      }
+    }
     if (playerKart.state.boost > 0) {
       particles.emit('boost', playerKart.state.position, { color: 0xffa63d });
     }
@@ -523,6 +544,7 @@ loop.start((dt, t) => {
   }
 
   particles.update(dt);
+  skids.update(dt);
   postfx.render(dt);
 });
 
