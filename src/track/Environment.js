@@ -785,16 +785,17 @@ export class Environment {
         lastT = t;
         path.getPointAt(t, p);
         nrm.set(-tan.z, 0, tan.x).normalize();
-        // Two signs per corner: inside + outside edge.
+        // Two signs per corner: inside + outside edge (bigger + closer —
+        // auditor: signs were too small to read at race distance).
         for (const side of [-1, 1]) {
-          const px = p.x + nrm.x * (side * (halfW + 3.2));
-          const pz = p.z + nrm.z * (side * (halfW + 3.2));
-          const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 1.5, 6), poleMat);
-          pole.position.set(px, p.y + 0.75, pz);
+          const px = p.x + nrm.x * (side * (halfW + 2.2));
+          const pz = p.z + nrm.z * (side * (halfW + 2.2));
+          const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 2.2, 6), poleMat);
+          pole.position.set(px, p.y + 1.1, pz);
           scene.add(pole);
-          const panel = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.68), signMat);
-          panel.position.set(px, p.y + 1.75, pz);
-          panel.lookAt(p.x, p.y + 1.75, p.z); // face the track
+          const panel = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.05), signMat);
+          panel.position.set(px, p.y + 2.5, pz);
+          panel.lookAt(p.x, p.y + 2.5, p.z); // face the track
           panel.rotation.z = 0;
           scene.add(panel);
           made++;

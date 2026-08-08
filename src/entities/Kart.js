@@ -188,10 +188,14 @@ export class Kart {
     this.group.add(blob);
 
     const body = this._mat(color);
+    // Car paint: glossy PBR for the body shell (the MK8 painted-plastic cue).
+    // Needs scene.environment (set in main.js) to show reflections.
+    const carPaint = new THREE.MeshStandardMaterial({ color, roughness: 0.32, metalness: 0.05 });
     const bodyDark = this._mat(new THREE.Color(color).multiplyScalar(0.82).getHex());
     // keep refs so the player can repaint (setBodyColor)
     this._bodyMat = body;
     this._bodyDarkMat = bodyDark;
+    this._carPaintMat = carPaint;
     const dark = this._mat(0x2a2f3a);
     const tire = this._mat(0x232830);
     const hub = this._mat(0xdfe6ee);
@@ -204,7 +208,7 @@ export class Kart {
     // ---- chassis ------------------------------------------------------------
     const chassis = this._mesh(
       new THREE.BoxGeometry(KC.chassisLength * 0.92, 0.34, KC.chassisWidth),
-      body,
+      carPaint, // glossy painted plastic (MK8 material separation)
       0, KC.wheelRadius + 0.3, 0
     );
     this._outline(chassis);
@@ -213,7 +217,7 @@ export class Kart {
     // kart reads as a molded body, not a crate (MK8-style).
     const hood = this._mesh(
       new THREE.SphereGeometry(0.42, 18, 12),
-      body,
+      carPaint,
       0, KC.wheelRadius + 0.34, 0.3
     );
     hood.scale.set(1.2, 0.62, 1.35);
@@ -262,7 +266,7 @@ export class Kart {
     // cockpit + windshield + seat
     const cockpit = this._mesh(
       new THREE.BoxGeometry(0.78, 0.26, 0.62),
-      body,
+      carPaint,
       0, KC.wheelRadius + 0.62, -0.12
     );
     this._outline(cockpit);
@@ -471,6 +475,7 @@ export class Kart {
     if (!this._bodyMat) return;
     this._bodyMat.color.setHex(color);
     this._bodyDarkMat.color.setHex(new THREE.Color(color).multiplyScalar(0.82).getHex());
+    if (this._carPaintMat) this._carPaintMat.color.setHex(color);
     // helmet matches body color too (chibi driver)
     if (this._helmetMat) this._helmetMat.color.setHex(color);
   }

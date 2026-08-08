@@ -5,6 +5,7 @@
  * keyboard input and the ?demo cinematic autopilot used by visual QA.
  */
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { CONFIG } from './config.js';
 import { createScene } from './render/SceneManager.js';
 import { GameLoop } from './game/GameLoop.js';
@@ -35,6 +36,11 @@ const TEST = new URLSearchParams(location.search).has('test'); // fast no-postfx
 const env = new Environment();
 const track = buildTrack(scene);
 env.buildEnvironment(scene, track); // track passed so props avoid the road
+// Image-based lighting: chrome + car-paint need an env map or metalness
+// renders BLACK. RoomEnvironment = cheap procedural studio env (no HDR).
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+pmrem.dispose();
 
 const postfx = new PostFX(renderer, scene, camera);
 if (TEST) postfx.enabled = false; // software GL runs ~30x faster without bloom
