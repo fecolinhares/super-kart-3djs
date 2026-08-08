@@ -283,10 +283,13 @@ export class RaceManager {
   // Items
   // -------------------------------------------------------------------------
 
-  /** Roll a weighted PowerUpType and hand it to the kart. */
+  /** Roll a weighted PowerUpType and hand it to the kart. The roll is
+   *  position-aware: leaders get defensive items, tail-enders get comebacks. */
   pickupItem(kart) {
     if (!kart || kart.heldItem) return null;
-    const type = rollPowerUpType();
+    const n = this.karts.length || 6;
+    const pos01 = n > 1 ? Math.max(0, Math.min(1, (kart.position - 1) / (n - 1))) : 0.5;
+    const type = rollPowerUpType(pos01);
     kart.heldItem = type;
     this.audio?.play?.('itemPickup');
     return type;

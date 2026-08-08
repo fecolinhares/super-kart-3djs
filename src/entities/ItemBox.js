@@ -250,14 +250,19 @@ export class ItemBox {
 }
 
 /**
- * Place ~10 item boxes along the track, alternating sides of the road.
+ * Place item boxes along the track: a side-by-side PAIR just before the
+ * first corner (the genre's classic), then singles alternating sides.
  * Deterministic jitter keeps spacing organic without RNG.
  */
-export function createItemBoxes(track, count = BOX_COUNT) {
+export function createItemBoxes(track, count = 12) {
   const boxes = [];
+  // Start pair: two boxes across the road right before turn 1.
+  boxes.push(new ItemBox(track, 0.055, 1));
+  boxes.push(new ItemBox(track, 0.085, -1));
   const jitter = [0.0, 0.016, -0.024, 0.031, -0.018, 0.022, -0.027, 0.014, -0.02, 0.026];
-  for (let i = 0; i < count; i++) {
-    const t = 0.06 + (i / count) * 0.92 + jitter[i % jitter.length];
+  const rest = Math.max(0, count - 2);
+  for (let i = 0; i < rest; i++) {
+    const t = 0.14 + (i / rest) * 0.82 + jitter[i % jitter.length];
     const side = i % 2 === 0 ? 1 : -1;
     boxes.push(new ItemBox(track, Math.min(Math.max(t, 0.001), 0.999), side));
   }

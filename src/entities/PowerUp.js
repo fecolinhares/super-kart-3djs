@@ -23,7 +23,7 @@ export const PowerUpType = Object.freeze({
   LIGHTNING: 'lightning',
 });
 
-/** Roll weights — must sum to 1.0. */
+/** Roll weights — must sum to 1.0 (default / mid-pack). */
 export const ITEM_WEIGHTS = Object.freeze([
   { type: PowerUpType.MUSHROOM, weight: 0.30 },
   { type: PowerUpType.SHELL, weight: 0.22 },
@@ -33,12 +33,37 @@ export const ITEM_WEIGHTS = Object.freeze([
   { type: PowerUpType.LIGHTNING, weight: 0.07 },
 ]);
 
-/** Weighted random PowerUpType (MUSHROOM 30%, SHELL 22%, RED_SHELL 18%,
- *  BANANA 15%, STAR 8%, LIGHTNING 7%). */
-export function rollPowerUpType() {
+/**
+ * Position-aware item roll (genre rubber-band): the leader gets defensive
+ * items, the tail gets comeback items. `position01` = placement: 0 = 1st.
+ */
+const ROLL_LEADER = [
+  { type: PowerUpType.MUSHROOM, weight: 0.14 },
+  { type: PowerUpType.SHELL, weight: 0.30 },
+  { type: PowerUpType.RED_SHELL, weight: 0.28 },
+  { type: PowerUpType.BANANA, weight: 0.20 },
+  { type: PowerUpType.STAR, weight: 0.05 },
+  { type: PowerUpType.LIGHTNING, weight: 0.03 },
+];
+const ROLL_BACK = [
+  { type: PowerUpType.MUSHROOM, weight: 0.26 },
+  { type: PowerUpType.SHELL, weight: 0.14 },
+  { type: PowerUpType.RED_SHELL, weight: 0.10 },
+  { type: PowerUpType.BANANA, weight: 0.12 },
+  { type: PowerUpType.STAR, weight: 0.22 },
+  { type: PowerUpType.LIGHTNING, weight: 0.16 },
+];
+
+/**
+ * Weighted random PowerUpType. Default (mid-pack): MUSHROOM 30%, SHELL 22%,
+ * RED_SHELL 18%, BANANA 15%, STAR 8%, LIGHTNING 7%.
+ * @param {number} [position01=0.5] 0 = leader, 1 = last.
+ */
+export function rollPowerUpType(position01 = 0.5) {
+  const table = position01 < 0.33 ? ROLL_LEADER : position01 > 0.66 ? ROLL_BACK : ITEM_WEIGHTS;
   const r = Math.random();
   let acc = 0;
-  for (const entry of ITEM_WEIGHTS) {
+  for (const entry of table) {
     acc += entry.weight;
     if (r < acc) return entry.type;
   }
