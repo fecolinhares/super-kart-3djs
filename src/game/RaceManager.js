@@ -81,8 +81,10 @@ export class RaceManager {
   /** Begin a fresh race (countdown first). */
   start() {
     this.elapsed = 0;
-    this.phase = 'countdown';
-    this.countdown = COUNTDOWN_SECONDS;
+    // The visual 3-2-1-GO countdown is driven by main.js (GameState COUNTDOWN).
+    // Going straight to 'race' avoids a SECOND hidden countdown here — which
+    // made karts sit still for another ~3s game-time after GO.
+    this.phase = 'race';
     this.raceOver = false;
     this.finishOrder = [];
     this.playerFinished = false;

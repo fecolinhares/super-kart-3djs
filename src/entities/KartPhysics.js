@@ -178,10 +178,12 @@ export class KartPhysics {
       if (kart._airTime > 0.05) rate *= P.airControl * 0.4; // reduced control airborne
       const steerSign = s.speed < 0 ? -1 : 1;
       const steerEff = input.steer * steerSign * (speedAbs > 0.25 ? 1 : 0.3);
-      s.heading += steerEff * rate * dt;
+      // NOTE: heading += would turn LEFT on positive steer (Three.js right-hand
+      // rule: forward +Z, right = -X). Invert so +steer = right turn.
+      s.heading -= steerEff * rate * dt;
       // gentle pull toward the path tangent (forgiving handling, helps AI)
       const tanAngle = Math.atan2(tan.x, tan.z);
-      const pull = s.drifting ? 0.25 : 0.7;
+      const pull = s.drifting ? 0.2 : 0.45;
       s.heading = dampAngle(s.heading, tanAngle, pull, dt);
       updateDrift(kart, input, dt, speedAbs);
     }

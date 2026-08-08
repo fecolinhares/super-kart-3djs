@@ -286,6 +286,11 @@ export class HUD {
    * @param {number|string} n 3|2|1 or 'GO'
    */
   countdown(n) {
+    if (n === null || n === undefined) {
+      // clear signal — just hide, never render "null"
+      this.countdownEl.classList.add('sk3d-hidden');
+      return;
+    }
     const go = n === 'GO';
     this.countdownEl.textContent = go ? 'GO!' : String(n);
     this.countdownEl.classList.toggle('sk3d-countdown-go', go);

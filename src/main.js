@@ -180,7 +180,7 @@ window.addEventListener('touchstart', () => audio.init(), { passive: true });
 // Race lifecycle
 // ---------------------------------------------------------------------------
 const COUNTDOWN_MARKS = [3, 2, 1, 0]; // 0 === GO
-const COUNTDOWN_STEP = 0.8; // seconds of game-time per number
+const COUNTDOWN_STEP = 0.6; // seconds of game-time per number (snappier start)
 
 // Start-light animation on the gantry (countdown 3-2-1 → green on GO).
 const LAMP_RED = 0xff3b30;
@@ -385,6 +385,13 @@ loop.start((dt, t) => {
       for (const ctrl of aiControllers) ctrl.update(dt);
       raceManager.update(dt);
       hud.update(raceManager, playerKart);
+      // Continuous engine loops (pitch follows speed).
+      const pSpeed01 = Math.min(1, Math.abs(playerKart.state.speed) / CONFIG.physics.maxSpeed);
+      audio.setEngineLoop('player', pSpeed01);
+      for (let i = 0; i < aiKarts.length; i++) {
+        const s01 = Math.min(1, Math.abs(aiKarts[i].state.speed) / CONFIG.physics.maxSpeed);
+        audio.setEngineLoop('ai' + i, s01 * 0.35); // AI engines quieter
+      }
       if (playerKart.state.boost > 0) {
         particles.emit('boost', playerKart.state.position, { color: 0xffa63d });
       }
