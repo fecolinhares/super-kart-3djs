@@ -95,6 +95,10 @@ const TYPES = {
     system: 'normal', count: 8, speed: 2.6, size: 0.30, life: 0.5,
     drag: 2.0, grav: 2.5, grow: 1.2, spread: 1.2, color: 0xc9b28a,
   },
+  dust: {
+    system: 'normal', count: 5, speed: 1.6, size: 0.45, life: 0.9,
+    drag: 1.6, grav: 1.4, grow: 1.8, spread: 0.9, color: 0xb08d5a,
+  },
 };
 
 const _randDir = new THREE.Vector3();

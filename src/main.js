@@ -545,6 +545,18 @@ loop.start((dt, t) => {
     if (playerKart.state.offRoad && playerKart.state.speed > 2) {
       offroadT += dt;
       if (offroadT >= 0.55) { offroadT = 0; audio.play('offroad', { volume: 0.5 }); }
+      // Dust puffs kicking up from the rear wheels (dirt surface cue).
+      this._dustAcc = (this._dustAcc || 0) + dt;
+      if (this._dustAcc >= 0.12) {
+        this._dustAcc = 0;
+        const h = playerKart.state.heading;
+        const back = _fwd2.set(Math.sin(h), 0, Math.cos(h)).multiplyScalar(-1.1);
+        particles.emit('dust', {
+          x: playerKart.state.position.x + back.x,
+          y: playerKart.state.position.y + 0.25,
+          z: playerKart.state.position.z + back.z,
+        }, { count: 6, speed: 1.4, size: 0.4, color: 0xb08d5a, gravity: -1.2, spread: 0.8 });
+      }
     } else {
       offroadT = 0.55; // ready to fire immediately when leaving the road
     }
