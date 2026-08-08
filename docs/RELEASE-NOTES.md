@@ -7,41 +7,58 @@
 A complete cartoon arcade kart racer, 100% procedural (zero external assets):
 
 - **6 named characters** with distinct suits/helmets/stats: Turbo, Comet, Bolt,
-  Daisy, King, Pip.
-- **Full item arsenal** with position-aware rubber-band: Mushroom, Green Shell,
-  Red Shell (homing), Banana, Star (invincible + rainbow trail), Lightning
-  (shrink + electric burst on victims).
-- **Drift mini-boost** with charge-colored sparks and a satisfying release SFX
-  (`driftReleaseMiniBoost`, player + AI with stereo pan).
+  Daisy, King, Pip. Driver stats are APPLIED: speed/accel/handling shape each
+  AI rival's cruise speed, throttle eagerness and steering authority.
+- **Full item arsenal** with position-aware rubber-band: Mushroom, Green Shell
+  (follows the racing line — MK8 behavior), Red Shell (homing), Banana,
+  Star (invincible + rainbow trail), Lightning (shrink + slow + electric burst),
+  **Blue Shell** (Spiny-style: homes in on the race leader — the tail-ender's
+  anti-leader pressure valve). Holding a shell/banana behind **blocks an
+  incoming hit** (MK8 item-hold pillar).
+- **Slipstream drafting**: ride in a rival's wake (~2.5m, +8% top speed) — the
+  core non-item comeback tool.
+- **Trick ramps**: 2 launch ramps on straights; press throttle mid-air to arm
+  a trick → landing mini-boost (the air system is now reachable).
+- **Drift mini-boost** charge-scaled (300–750ms by charge) with charge-colored
+  sparks and a satisfying release SFX (`driftReleaseMiniBoost`, player + AI
+  with stereo pan). Charge-scaled drama: bigger charge = louder pop + more
+  sparks.
 - **Turbo pads** (2 clusters × 4 chevrons) for speed bursts.
-- **Track dressing**: painted checkered finish line on the asphalt, white
+- **Track dressing**: painted checkered finish line on the asphalt, big
   direction chevrons at the sharpest corners, tire-stack barriers (3 high),
-  yellow lane dashes.
-- **AA-grade models**: MK8-style item boxes (white panel, bold red '?',
-  spinning + bobbing, golden ring + beam + sparkles), molded karts (rounded
-  hood/tail + nose cone + headlights, oversized chibi driver), 2.5D painted
-  spectator crowd (7 color variants, raised arms, cheering bounce) on 3 track
-  segments + grandstands, hot-air balloons with classic stripes, wildflowers.
-- **Gameplay feedback**: drift charge meter in the HUD (white → yellow →
-  orange, with a tick at the mini-boost release point), speed-based camera FOV
-  (+5° at top speed, +6° on boost), tire skid marks while drifting, confetti
-  burst when crossing the line.
-- **Quality of life**: Pause (P/Esc or ⏸ button on mobile) with overlay +
-  audio suspend, "Race Again" button on the finish screen (or R).
-- **Race-event atmosphere**: 3 grandstands (108 spectators) + a 56-figure
-  roadside crowd lining the start straight, all cheering (bounce animation).
+  yellow lane dashes, **corner warning signs** (pole + arrow panel),
+  **100m/200m distance boards**, **roadside light poles on straights**,
+  textured dirt shoulders.
+- **AAA material pipeline**: karts use MeshPhysicalMaterial clearcoat (real
+  painted-plastic reflections from a procedural sunny-sky IBL environment),
+  chrome metalness exhausts, denser geometry (28-segment hood/tail, 24-seg
+  tires, rear spoiler wing + struts, hood/rear specular highlights). 256px
+  asphalt with cracks/grime, 256px grass with blade strokes, sky dome with
+  painted sun + haze.
+- **MK8-style item boxes** (white panel, bold red '?', spinning + bobbing,
+  golden ring + beam + sparkles), molded karts + oversized chibi driver,
+  2.5D painted spectator crowd on 6 track segments + grandstands,
+  hot-air balloons, wildflowers.
+- **Gameplay feedback**: drift charge meter, speed-based camera FOV, skid
+  marks, confetti at the line, **position-change chip pop + posUp/posDown
+  SFX** (overtakes are audible), lap fanfare, item pickup fanfare, landing
+  thump, drift tire screech, mini-boost sparkle bursts.
+- **Quality of life**: Pause (P/Esc or ⏸ button on mobile, tap-to-resume),
+  "Race Again" + **"Menu"** buttons on the finish screen, touch **DRIFT
+  button** (hold-to-drift on mobile).
 - **Live minimap**, lap progress bar, medal rank, polished speedometer + item slot.
-- **5 AI rivals** with rubber-band throttle and item usage (never brake — brake = reverse).
+- **5 AI rivals** with real rubber-band (cruiseSpeed override → true top-speed
+  comeback), per-driver stats, corner-lift throttle, item usage.
 - **Finish cruise mode**: after the line, AI drives the player at 60% while music swells.
-- **Audio 100% procedural WebAudio**: engine loops (pitch = speed), 26+ SFX
-  (UI clicks, off-road rumble, mini-boost, lightning), 3 music tracks, auto-pause
-  on tab hidden.
-- **Mobile**: touch controls (multi-touch), AudioContext resume on first gesture.
+- **Audio 100% procedural WebAudio**: engine loops (pitch = speed), 32+ SFX,
+  3 music tracks, auto-pause on tab hidden.
+- **Mobile**: touch controls (multi-touch, drift button), AudioContext resume
+  on first gesture.
 
 ## QA
-- Smoke, steering, item pickup, restart, toast — all automated ✅
-- Vision critic: overall frame 7/10, finish banner 10/10, checkered finish line
-  9/10 (close-up), grandstand event feel 9/10, HUD 7.5/10.
+- Smoke, steering, item pickup, restart, pause, shell-hit — all automated ✅
+- Vision critic (strict, vs MK8 bar): overall 7/10 polished arcade racer,
+  gloss/clearcoat visible up close, kerbs/dashes/boxes/spectators 9/10.
 - See `docs/QA-TEST-PLAN.md`.
 
 ## Known issues
