@@ -453,6 +453,13 @@
   stroke-width: 3;
 }
 
+.sk3d-minimap-cone {
+  fill: #ffffff;
+  stroke: var(--sk3d-ink);
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+
 .sk3d-minimap-dot-ai {
   stroke: rgba(255, 255, 255, 0.65);
   stroke-width: 1.5;

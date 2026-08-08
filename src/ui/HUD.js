@@ -377,6 +377,13 @@ export class HUD {
     }
     mm.dotsGroup.append(dot);
     mm.dots.set(kart, dot);
+    // Player gets a direction cone (points along state.heading) so the map
+    // reads "where am I going", not just "where am I".
+    if (isPlayer) {
+      const cone = svgEl('path', { d: 'M 0 -8 L 6 4 L 0 0 L -6 4 Z', class: 'sk3d-minimap-cone' });
+      mm.dotsGroup.append(cone);
+      mm.playerCone = cone;
+    }
     return dot;
   }
 
@@ -408,6 +415,12 @@ export class HUD {
       // Race leader dot is slightly larger.
       const r = kart.position === 1 ? DOT_R_LEADER : DOT_R;
       if (dot.getAttribute('r') !== String(r)) dot.setAttribute('r', String(r));
+      // Player direction cone: rotate to state.heading (world Z maps to SVG Y).
+      if (kart.isPlayer && mm.playerCone) {
+        const hDeg = ((kart.state.heading || 0) * 180) / Math.PI;
+        const deg = 180 - hDeg;
+        mm.playerCone.setAttribute('transform', `translate(${cx.toFixed(1)},${cy.toFixed(1)}) rotate(${deg.toFixed(1)})`);
+      }
     }
   }
 
