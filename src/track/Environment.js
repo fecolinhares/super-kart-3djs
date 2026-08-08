@@ -594,12 +594,29 @@ export class Environment {
   buildDistanceMarks(scene) {
     // 100m/200m distance posts along the far stretches (cheap racing flavor).
     const marks = [
-      { x: -30, z: -52, ry: 0.5 },
-      { x: 30, z: -60, ry: -0.4 },
-      { x: 62, z: -20, ry: 1.5 },
-      { x: 46, z: 56, ry: 2.0 },
-      { x: -40, z: 52, ry: -2.0 },
+      { x: -30, z: -52, ry: 0.5, label: '100' },
+      { x: 30, z: -60, ry: -0.4, label: '200' },
+      { x: 62, z: -20, ry: 1.5, label: '100' },
+      { x: 46, z: 56, ry: 2.0, label: '200' },
+      { x: -40, z: 52, ry: -2.0, label: '100' },
     ];
+    // Distance board texture: amber panel with a bold dark label (the old
+    // boards were plain amber boxes — user flagged them as unreadable yellow
+    // cubes).
+    if (!this._distTex) {
+      const c = document.createElement('canvas');
+      c.width = 128;
+      c.height = 64;
+      const g = c.getContext('2d');
+      g.fillStyle = '#ffd166';
+      g.fillRect(0, 0, 128, 64);
+      g.strokeStyle = '#1b2a41';
+      g.lineWidth = 6;
+      g.strokeRect(4, 4, 120, 56);
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      this._distTexBase = tex;
+    }
     const postMat = toonMaterial(0x8b7a5c, {});
     for (const m of marks) {
       if (this._onTrack(m.x, m.z, 8)) continue; // distance marks off the road
@@ -607,9 +624,27 @@ export class Environment {
       post.position.set(m.x, smoothH(m.x, m.z) * 0.5 - 0.25 + 0.8, m.z);
       post.rotation.y = m.ry;
       scene.add(post);
+      // Per-label texture (cache by label).
+      const key = 'dist_' + m.label;
+      if (!this._distTexes) this._distTexes = {};
+      if (!this._distTexes[key]) {
+        const c = document.createElement('canvas');
+        c.width = 128;
+        c.height = 64;
+        const g = c.getContext('2d');
+        g.drawImage(this._distTexBase.image, 0, 0);
+        g.fillStyle = '#1b2a41';
+        g.font = 'bold 42px sans-serif';
+        g.textAlign = 'center';
+        g.textBaseline = 'middle';
+        g.fillText(m.label + 'm', 64, 34);
+        const tex = new THREE.CanvasTexture(c);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        this._distTexes[key] = tex;
+      }
       const board = new THREE.Mesh(
         new THREE.BoxGeometry(0.9, 0.5, 0.08),
-        toonMaterial(0xffd166, {})
+        new THREE.MeshBasicMaterial({ map: this._distTexes[key], color: 0xffffff })
       );
       board.position.set(m.x, smoothH(m.x, m.z) * 0.5 - 0.25 + 1.35, m.z);
       board.rotation.y = m.ry;

@@ -290,7 +290,38 @@ export class ShellProjectile {
     m.position.z += this.dir.y * this.speed * dt;
     m.rotation.y = Math.atan2(this.dir.x, this.dir.y);
 
-    // Collision with karts.
+    // Green shell follows the racing line (MK8 behavior): steer toward the
+    // nearest centerline tangent so it hugs the track instead of flying off
+    // in a straight line and dying in the off-track culling — the classic
+    // "shell does nothing" bug.
+    if (!this.homing && this.centerline && this.centerline.length) {
+      const cl = this.centerline;
+      const n = cl.length;
+      let best = this._nearIdx;
+      let bestD = Infinity;
+      for (let i = this._nearIdx - 6; i <= this._nearIdx + 6; i++) {
+        const j = ((i % n) + n) % n;
+        const q = cl[j];
+        const ddx = q.x - m.position.x;
+        const ddz = q.z - m.position.z;
+        const d = ddx * ddx + ddz * ddz;
+        if (d < bestD) { bestD = d; best = j; }
+      }
+      this._nearIdx = best;
+      const p0 = cl[best];
+      const p1 = cl[(best + 1) % n];
+      const tdx = p1.x - p0.x;
+      const tdz = p1.z - p0.z;
+      const tl = Math.hypot(tdx, tdz) || 1;
+      const desired = { x: tdx / tl, y: tdz / tl };
+      const err = signedAngle(this.dir, desired);
+      const maxTurn = 2.4 * dt; // gentle — hugs wide corners without snaking
+      const delta = THREE.MathUtils.clamp(-err, -maxTurn, maxTurn);
+      this._rotateDir(delta);
+    }
+
+    // Collision with karts (radius 2.0 — a shell that passes near a kart
+    // counts; 1.0 required near-perfect aim and felt like it "did nothing").
     const list = karts || [];
     for (const k of list) {
       if (k === this.owner && this.age < 0.5) continue; // spawn grace
@@ -298,7 +329,7 @@ export class ShellProjectile {
       const p = kartPosition(k);
       const dx = p.x - m.position.x;
       const dz = p.z - m.position.z;
-      if (dx * dx + dz * dz < 1.0) {
+      if (dx * dx + dz * dz < 4.0) {
         this._hit(k, p);
         return;
       }
