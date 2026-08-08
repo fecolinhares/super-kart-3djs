@@ -329,6 +329,10 @@ export class HUD {
       svgEl('circle', { cx: c, cy: c, r: c - 1, class: 'sk3d-minimap-bg' }),
       svgEl('circle', { cx: c, cy: c, r: c - 3, class: 'sk3d-minimap-ring' })
     );
+    // Glow underlay makes the route readable at a glance (art-bible: minimap
+    // must communicate position, not just look decorative).
+    const glowPath = svgEl('path', { d: polyline, class: 'sk3d-minimap-track-glow' });
+    svg.append(glowPath);
     const trackPath = svgEl('path', { d: polyline, class: 'sk3d-minimap-track' });
     trackPath.setAttribute('stroke', 'url(#sk3d-minimap-track-grad)');
     svg.append(trackPath);

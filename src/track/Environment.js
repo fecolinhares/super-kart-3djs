@@ -520,10 +520,12 @@ export class Environment {
       const spec = new THREE.InstancedMesh(new THREE.BoxGeometry(0.7, 0.9, 0.7), toonMaterial(0xffffff, {}), 36);
       const col = new THREE.Color();
       let sIdx = 0;
+      const baseY = new Array(36);
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 12; j++) {
           dummy.position.set(-8.2 + j * 1.4, 1.6 + i * 1.1, -i * 2.2 + 0.3);
           dummy.scale.set(1, 0.9 + Math.random() * 0.4, 1);
+          baseY[sIdx] = dummy.position.y;
           dummy.updateMatrix();
           spec.setMatrixAt(sIdx, dummy.matrix);
           col.setHex(crowdColors[Math.floor(Math.random() * crowdColors.length)]);
@@ -533,7 +535,9 @@ export class Environment {
       }
       spec.instanceMatrix.needsUpdate = true;
       if (spec.instanceColor) spec.instanceColor.needsUpdate = true;
+      spec.userData.baseY = baseY;
       grp.add(spec);
+      (this.crowdMeshes = this.crowdMeshes || []).push(spec);
       // striped awning
       const awning = new THREE.Mesh(
         new THREE.BoxGeometry(18, 0.25, 5.4),
@@ -636,6 +640,19 @@ export class Environment {
     for (let i = 0; i < this.flagMeshes.length; i++) {
       const f = this.flagMeshes[i];
       f.rotation.z = Math.sin(t * 5 + i * 0.7) * 0.28;
+    }
+    // Crowd cheer bounce (subtle Y wave across the grandstands).
+    for (const spec of this.crowdMeshes || []) {
+      const base = spec.userData.baseY;
+      if (!base) continue;
+      const dummy = (spec.userData._dummy = spec.userData._dummy || new THREE.Object3D());
+      for (let i = 0; i < spec.count; i++) {
+        spec.getMatrixAt(i, dummy.matrix);
+        dummy.position.y = base[i] + Math.sin(t * 3.2 + i * 0.9) * 0.12;
+        dummy.updateMatrix();
+        spec.setMatrixAt(i, dummy.matrix);
+      }
+      spec.instanceMatrix.needsUpdate = true;
     }
   }
 }

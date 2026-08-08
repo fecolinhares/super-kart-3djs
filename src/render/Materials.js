@@ -195,7 +195,7 @@ export function checkerTexture() {
 export function bannerCheckerTexture() {
   if (_bannerCheckerTex) return _bannerCheckerTex;
   _bannerCheckerTex = canvasTexture(
-    256,
+    512,
     (ctx, s) => {
       const cw = s / 8;
       const ch = s / 2;
@@ -206,14 +206,15 @@ export function bannerCheckerTexture() {
         }
       }
       // Bold FINISH word across the middle of the banner, on a solid band
-      // so it stays readable over the checker pattern.
+      // so it stays readable over the checker pattern. 512px canvas keeps
+      // the glyphs crisp even from the chase camera.
       ctx.fillStyle = '#1b2a41';
-      ctx.fillRect(0, s * 0.32, s, s * 0.36);
+      ctx.fillRect(0, s * 0.28, s, s * 0.44);
       ctx.fillStyle = '#ffffff';
-      ctx.font = '900 60px "Baloo 2", "Nunito", Arial, sans-serif';
+      ctx.font = '900 118px "Baloo 2", "Nunito", Arial, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('FINISH', s / 2, s / 2 + 3);
+      ctx.fillText('FINISH', s / 2, s / 2 + 4);
     }
   );
   return _bannerCheckerTex;
