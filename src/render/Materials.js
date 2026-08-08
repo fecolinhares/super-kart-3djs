@@ -290,34 +290,27 @@ export function skyTexture() {
   return _skyTex;
 }
 
-/** Turbo pad: bright yellow base with white zebra chevron stripes (reads as
- *  a speed-up pad from the chase camera, no lighting needed). */
+/** Turbo pad: bright amber base with three bold white chevrons ">>>" pointing
+ *  along the track direction (reads as a speed-up pad instantly). */
 export function turboPadTexture() {
   if (_turboPadTex) return _turboPadTex;
   _turboPadTex = canvasTexture(
-    128,
+    256,
     (ctx, s) => {
-      ctx.fillStyle = '#ffd166';
+      ctx.fillStyle = '#ffc233';
       ctx.fillRect(0, 0, s, s);
-      // white diagonal stripes (zebra/chevron)
-      ctx.fillStyle = '#ffffff';
-      const stripeW = 20;
-      for (let i = -s; i < s * 2; i += 32) {
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = s * 0.09;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      for (let i = 0; i < 3; i++) {
+        const cx = s * 0.5;
+        const cy = s * (0.26 + i * 0.24);
+        const half = s * 0.16;
         ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i + stripeW, 0);
-        ctx.lineTo(i + stripeW - s, s);
-        ctx.lineTo(i - s, s);
-        ctx.closePath();
-        ctx.fill();
-      }
-      // thin amber divider lines between stripes for contrast
-      ctx.strokeStyle = '#f0a530';
-      ctx.lineWidth = 3;
-      for (let i = -s; i < s * 2; i += 32) {
-        ctx.beginPath();
-        ctx.moveTo(i + stripeW + 2, 0);
-        ctx.lineTo(i + stripeW + 2 - s, s);
+        ctx.moveTo(cx - half, cy - half);
+        ctx.lineTo(cx + half, cy);
+        ctx.lineTo(cx - half, cy + half);
         ctx.stroke();
       }
     }
