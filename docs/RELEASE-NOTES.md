@@ -19,9 +19,10 @@ A complete cartoon arcade kart racer, 100% procedural (zero external assets):
   yellow lane dashes.
 - **Gameplay feedback**: drift charge meter in the HUD (white → yellow →
   orange, with a tick at the mini-boost release point), speed-based camera FOV
-  (+5° at top speed, +6° on boost).
-- **Quality of life**: Pause (P/Esc) with overlay + audio suspend, "Race Again"
-  button on the finish screen (or R).
+  (+5° at top speed, +6° on boost), tire skid marks while drifting, confetti
+  burst when crossing the line.
+- **Quality of life**: Pause (P/Esc or ⏸ button on mobile) with overlay +
+  audio suspend, "Race Again" button on the finish screen (or R).
 - **Race-event atmosphere**: 3 grandstands (108 spectators) + a 56-figure
   roadside crowd lining the start straight, all cheering (bounce animation).
 - **Live minimap**, lap progress bar, medal rank, polished speedometer + item slot.

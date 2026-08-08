@@ -253,6 +253,14 @@ function startRace() {
   });
   raceManager.onPlayerFinish = (place, time) => {
     hud.showFinish(place, time);
+    // Celebration burst as the player crosses the line (art-bible: reward juice).
+    if (playerKart && playerKart.state) {
+      const p = playerKart.state.position.clone();
+      p.y += 1.2;
+      particles.emit('confetti', p, { count: 80 });
+      particles.emit('confetti', p, { count: 60, color: 0xffd166 });
+      particles.emit('sparkle', p, { count: 40, speed: 4, size: 0.3, color: 0xffffff });
+    }
     // Cruise mode (genre standard): the kart keeps driving automatically at
     // reduced speed, engine hums quietly and the music swells over the SFX.
     playerKart.cruiseSpeed = CONFIG.physics.maxSpeed * 0.6;
