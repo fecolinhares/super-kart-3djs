@@ -114,6 +114,7 @@ export class HUD {
       </div>
       <div class="sk3d-hud-bottom"></div>
       <div class="sk3d-countdown sk3d-hidden">3</div>
+      <div class="sk3d-pause sk3d-hidden">⏸ PAUSED<div class="sk3d-pause-hint">Press P to resume</div></div>
       <div class="sk3d-finish sk3d-hidden">
         <div class="sk3d-finish-card">
           <div class="sk3d-finish-trophy" aria-hidden="true">🏆</div>
@@ -574,10 +575,17 @@ export class HUD {
     this.driftFillEl.style.boxShadow = `0 0 8px ${color}`;
   }
 
+  /** Toggle the pause overlay. */
+  showPause(show) {
+    const el = this.root.querySelector('.sk3d-pause');
+    if (el) el.classList.toggle('sk3d-hidden', !show);
+  }
+
   /** Clear all HUD state back to defaults. */
   reset() {
     clearTimeout(this.countdownTimer);
     clearTimeout(this.toastTimer);
+    this.showPause(false);
 
     this._pos = null;
     this._lapText = null;

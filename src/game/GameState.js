@@ -12,6 +12,7 @@ export const STATES = {
   MENU: 'menu',
   COUNTDOWN: 'countdown',
   RACE: 'race',
+  PAUSED: 'paused',
   FINISHED: 'finished',
 };
 

@@ -787,6 +787,34 @@
   animation: sk3d-toast-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
+/* --- pause overlay --- */
+
+.sk3d-pause {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--sk3d-font);
+  font-weight: 800;
+  font-size: 3rem;
+  color: var(--sk3d-cream);
+  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.4), 0 16px 30px rgba(0, 0, 0, 0.35);
+  background: rgba(20, 26, 40, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.sk3d-pause-hint {
+  font-size: 1rem;
+  font-weight: 700;
+  opacity: 0.85;
+  letter-spacing: 0.06em;
+}
+
 /* ---------- touch controls ---------- */
 
 .sk3d-touch {

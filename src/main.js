@@ -204,6 +204,12 @@ window.addEventListener('keydown', (e) => {
   }
   if (e.code === 'KeyR') {
     if (getState() === STATES.FINISHED || getState() === STATES.RACE) restartRace();
+    else if (getState() === STATES.PAUSED) restartRace();
+  }
+  if (e.code === 'KeyP' || e.code === 'Escape') {
+    const st = getState();
+    if (st === STATES.RACE) { setState(STATES.PAUSED); audio.suspend?.(); hud.showPause(true); }
+    else if (st === STATES.PAUSED) { setState(STATES.RACE); audio.resume?.(); hud.showPause(false); }
   }
 });
 window.addEventListener('keyup', (e) => keys.delete(e.code));

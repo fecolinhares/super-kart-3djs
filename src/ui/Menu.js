@@ -16,6 +16,7 @@ const CONTROL_ROWS = [
   ['Drift', 'Shift (hold)', '—'],
   ['Use item', 'Space', '🎁 button'],
   ['Restart', 'R', '—'],
+  ['Pause', 'P / Esc', '—'],
 ];
 
 /** 0xff5a5f -> "#ff5a5f" */
