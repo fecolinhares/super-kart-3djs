@@ -597,11 +597,11 @@ export class Environment {
     const path = track.path;
     const halfW = CONFIG.track.roadWidth / 2;
     const N = 14; // spectators per file
-    const ROWS = [2.0, 3.4]; // two rows per side
+    const ROWS = [1.3, 2.7]; // two rows per side, tight to the road edge
     const total = N * ROWS.length * 2;
     const crowdColors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
-    const bodies = new THREE.InstancedMesh(new THREE.BoxGeometry(0.75, 0.95, 0.75), toonMaterial(0xffffff, {}), total);
-    const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.32, 8, 6), toonMaterial(0xf4f6f8, {}), total);
+    const bodies = new THREE.InstancedMesh(new THREE.BoxGeometry(1.0, 1.2, 1.0), toonMaterial(0xffffff, {}), total);
+    const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.42, 8, 6), toonMaterial(0xf4f6f8, {}), total);
     // Raised arms (one instanced mesh per side) — the crowd reads as cheering
     // people, not stacked cubes with heads.
     const armGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.55, 6);
@@ -622,22 +622,22 @@ export class Environment {
           path.getPointAt(t, p);
           path.getTangentAt(t, tan);
           nrm.set(-tan.z, 0, tan.x).normalize();
-          dummy.position.set(p.x + nrm.x * (side * (halfW + rowOff)), p.y + 0.85, p.z + nrm.z * (side * (halfW + rowOff)));
+          dummy.position.set(p.x + nrm.x * (side * (halfW + rowOff)), p.y + 1.0, p.z + nrm.z * (side * (halfW + rowOff)));
           dummy.scale.set(1, 0.9 + Math.random() * 0.4, 1);
           dummy.updateMatrix();
           bodies.setMatrixAt(idx, dummy.matrix);
           col.setHex(crowdColors[(Math.random() * crowdColors.length) | 0]);
           bodies.setColorAt(idx, col);
-          headD.position.set(dummy.position.x, dummy.position.y + 0.95, dummy.position.z);
+          headD.position.set(dummy.position.x, dummy.position.y + 1.15, dummy.position.z);
           headD.scale.set(1, 1, 1);
           headD.updateMatrix();
           heads.setMatrixAt(idx, headD.matrix);
           // Arms raised outward (cheering silhouette).
-          armD.position.set(dummy.position.x - 0.42, dummy.position.y + 0.72, dummy.position.z);
+          armD.position.set(dummy.position.x - 0.55, dummy.position.y + 0.95, dummy.position.z);
           armD.rotation.set(0, 0, -0.9);
           armD.updateMatrix();
           armsL.setMatrixAt(idx, armD.matrix);
-          armD.position.set(dummy.position.x + 0.42, dummy.position.y + 0.72, dummy.position.z);
+          armD.position.set(dummy.position.x + 0.55, dummy.position.y + 0.95, dummy.position.z);
           armD.rotation.set(0, 0, 0.9);
           armD.updateMatrix();
           armsR.setMatrixAt(idx, armD.matrix);
