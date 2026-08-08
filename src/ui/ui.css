@@ -568,6 +568,16 @@
   transition: width 0.05s linear;
 }
 
+.sk3d-drift-tick {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: 75%; /* mini-boost release threshold (config.physics.driftReleaseBoost) */
+  width: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
 .sk3d-drift-label {
   position: absolute;
   right: 6px;
@@ -758,6 +768,31 @@
   font-size: 1rem;
   color: var(--sk3d-ink);
   opacity: 0.65;
+}
+
+.sk3d-finish-btn {
+  margin-top: 18px;
+  font-family: var(--sk3d-font);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #fff;
+  background: var(--sk3d-ink);
+  border: none;
+  border-radius: 999px;
+  padding: 12px 30px;
+  cursor: pointer;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.45);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.sk3d-finish-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 rgba(0, 0, 0, 0.45);
+}
+
+.sk3d-finish-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
 }
 
 /* --- toast --- */

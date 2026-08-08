@@ -120,7 +120,8 @@ export class HUD {
           <div class="sk3d-finish-trophy" aria-hidden="true">🏆</div>
           <div class="sk3d-finish-title">FINISHED <span class="sk3d-finish-place">1st</span>!</div>
           <div class="sk3d-finish-time">0:00.0</div>
-          <div class="sk3d-finish-hint">Press R to restart</div>
+          <button type="button" class="sk3d-finish-btn">Race Again</button>
+          <div class="sk3d-finish-hint">or press R</div>
         </div>
       </div>
       <div class="sk3d-toast sk3d-hidden" role="status"></div>`;
@@ -138,7 +139,8 @@ export class HUD {
     // visible while the player is actually drifting.
     const drift = document.createElement('div');
     drift.className = 'sk3d-drift-meter sk3d-hidden';
-    drift.innerHTML = '<div class="sk3d-drift-fill"></div><span class="sk3d-drift-label">DRIFT</span>';
+    // Tick at the mini-boost release threshold (75%) so the player knows when to let go.
+    drift.innerHTML = '<div class="sk3d-drift-fill"></div><div class="sk3d-drift-tick"></div><span class="sk3d-drift-label">DRIFT</span>';
     bottom.append(drift);
     this.driftMeterEl = drift;
     this.driftFillEl = drift.querySelector('.sk3d-drift-fill');
@@ -153,6 +155,8 @@ export class HUD {
     this.finishEl = this.root.querySelector('.sk3d-finish');
     this.finishCardEl = this.root.querySelector('.sk3d-finish-card');
     this.finishPlaceEl = this.root.querySelector('.sk3d-finish-place');
+    this.finishBtnEl = this.root.querySelector('.sk3d-finish-btn');
+    this.finishBtnEl.addEventListener('click', () => window.__sk3d?.restartRace?.());
     this.finishTimeEl = this.root.querySelector('.sk3d-finish-time');
     this.toastEl = this.root.querySelector('.sk3d-toast');
 
