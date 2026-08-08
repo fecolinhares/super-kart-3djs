@@ -498,13 +498,13 @@ export class Environment {
   buildGrandstand(scene) {
     // Big grandstand with striped awning near a curve — crowd anchor.
     const grandstandSpots = [
-      { x: -48, z: 9, ry: -0.5 },   // beside the start straight (visible in grid frame)
-      { x: -8, z: -66, ry: -0.3 },
-      { x: 50, z: 44, ry: 2.2 },
+      { x: -50, z: -14, ry: 1.5 },  // beside the start straight, IN FRONT of the grid camera
+      { x: -10, z: -72, ry: -0.3 },
+      { x: 56, z: 50, ry: 2.2 },
     ];
     const crowdColors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
     for (const gs of grandstandSpots) {
-      if (this._onTrack(gs.x, gs.z, 10)) continue; // grandstand off the road
+      if (this._onTrack(gs.x, gs.z, 3)) continue; // grandstand off the road (tight margin)
       const grp = new THREE.Group();
       // steps (3 tiers)
       const stepMat = toonMaterial(0xdfe6ee, {});
@@ -517,27 +517,33 @@ export class Environment {
       }
       tier.instanceMatrix.needsUpdate = true;
       grp.add(tier);
-      // spectators on each tier (instanced colorful boxes)
-      const spec = new THREE.InstancedMesh(new THREE.BoxGeometry(0.7, 0.9, 0.7), toonMaterial(0xffffff, {}), 36);
+      // spectators on each tier: body block (bright color) + white head ball
+      const spec = new THREE.InstancedMesh(new THREE.BoxGeometry(0.85, 0.95, 0.8), toonMaterial(0xffffff, {}), 36);
+      const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.34, 8, 6), toonMaterial(0xf4f6f8, {}), 36);
       const col = new THREE.Color();
       let sIdx = 0;
       const baseY = new Array(36);
+      const headDummy = new THREE.Object3D();
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 12; j++) {
-          dummy.position.set(-8.2 + j * 1.4, 1.6 + i * 1.1, -i * 2.2 + 0.3);
+          dummy.position.set(-8.2 + j * 1.5, 1.6 + i * 1.15, -i * 2.2 + 0.3);
           dummy.scale.set(1, 0.9 + Math.random() * 0.4, 1);
           baseY[sIdx] = dummy.position.y;
           dummy.updateMatrix();
           spec.setMatrixAt(sIdx, dummy.matrix);
           col.setHex(crowdColors[Math.floor(Math.random() * crowdColors.length)]);
           spec.setColorAt(sIdx, col);
+          headDummy.position.set(dummy.position.x, dummy.position.y + 0.95, dummy.position.z);
+          headDummy.scale.set(1, 1, 1);
+          headDummy.updateMatrix();
+          heads.setMatrixAt(sIdx, headDummy.matrix);
           sIdx++;
         }
       }
       spec.instanceMatrix.needsUpdate = true;
       if (spec.instanceColor) spec.instanceColor.needsUpdate = true;
       spec.userData.baseY = baseY;
-      grp.add(spec);
+      grp.add(spec, heads);
       (this.crowdMeshes = this.crowdMeshes || []).push(spec);
       // striped awning
       const awning = new THREE.Mesh(
@@ -649,7 +655,7 @@ export class Environment {
       const dummy = (spec.userData._dummy = spec.userData._dummy || new THREE.Object3D());
       for (let i = 0; i < spec.count; i++) {
         spec.getMatrixAt(i, dummy.matrix);
-        dummy.position.y = base[i] + Math.sin(t * 3.2 + i * 0.9) * 0.12;
+        dummy.position.y = base[i] + Math.sin(t * 3.2 + i * 0.9) * 0.18;
         dummy.updateMatrix();
         spec.setMatrixAt(i, dummy.matrix);
       }

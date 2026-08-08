@@ -342,6 +342,13 @@
   gap: 8px;
 }
 
+.sk3d-hud-right {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-right: -4px; /* tuck closer to the screen edge */
+}
+
 .sk3d-position {
   font-size: 1.15rem;
   min-width: 64px;
@@ -395,9 +402,9 @@
 .sk3d-minimap {
   flex-shrink: 0;
   box-sizing: border-box;
-  width: 120px;
-  height: 120px;
-  padding: 5px;
+  width: 104px;
+  height: 104px;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -961,6 +968,15 @@
   .sk3d-chip {
     padding: 4px 10px;
     font-size: 0.82rem;
+  }
+
+  .sk3d-hud-right {
+    gap: 6px;
+  }
+
+  .sk3d-minimap {
+    width: 96px;
+    height: 96px;
   }
 
   .sk3d-position {

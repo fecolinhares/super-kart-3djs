@@ -108,7 +108,9 @@ export class HUD {
             <span class="sk3d-lap-bar"><span class="sk3d-lap-bar-fill"></span></span>
           </div>
         </div>
-        <div class="sk3d-chip sk3d-time">0:00.0</div>
+        <div class="sk3d-hud-right">
+          <div class="sk3d-chip sk3d-time">0:00.0</div>
+        </div>
       </div>
       <div class="sk3d-hud-bottom"></div>
       <div class="sk3d-countdown sk3d-hidden">3</div>
@@ -157,8 +159,10 @@ export class HUD {
     // Circular minimap — sits between the left chips and the race clock.
     this._mm = this.buildMinimap(track);
     if (this._mm) {
-      const top = this.root.querySelector('.sk3d-hud-top');
-      top.insertBefore(this._mm.wrap, this.timeEl);
+      // Minimap sits in the TOP-RIGHT corner group (left of the timer), so it
+      // never covers the finish gantry / action in screen center.
+      const right = this.root.querySelector('.sk3d-hud-right');
+      right.prepend(this._mm.wrap);
     }
 
     document.body.appendChild(this.root);
