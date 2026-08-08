@@ -455,13 +455,18 @@
 /* --- speedometer --- */
 
 .sk3d-speedo {
-  width: 132px;
+  width: 152px;
+  background: rgba(27, 42, 65, 0.85);
+  border: 3px solid rgba(255, 255, 255, 0.35);
+  border-radius: 16px;
+  padding: 6px 8px 4px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.35), 0 16px 30px rgba(0, 0, 0, 0.3);
 }
 
 .sk3d-speedo-dial {
   position: relative;
-  width: 132px;
-  height: 75px;
+  width: 136px;
+  height: 78px;
 }
 
 .sk3d-speedo-svg {
@@ -510,35 +515,38 @@
 }
 
 .sk3d-speedo-value {
-  font-size: 2rem;
+  font-size: 2.1rem;
   font-weight: 800;
-  color: var(--sk3d-ink);
+  color: var(--sk3d-cream);
   font-variant-numeric: tabular-nums;
   text-shadow:
-    0 2px 0 rgba(255, 253, 247, 0.9),
+    0 2px 0 rgba(0, 0, 0, 0.45),
     0 5px 10px rgba(27, 42, 65, 0.3);
 }
 
 .sk3d-speedo-unit {
-  font-size: 0.58rem;
+  font-size: 0.6rem;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--sk3d-ink);
-  opacity: 0.65;
+  color: var(--sk3d-cream);
+  opacity: 0.75;
 }
 
 /* --- item slot --- */
 
 .sk3d-item-slot {
   position: relative;
-  width: 68px;
-  height: 68px;
+  width: 72px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2.15rem;
-  padding: 4px;
+  background: rgba(27, 42, 65, 0.85);
+  border: 3px solid rgba(255, 255, 255, 0.35);
+  border-radius: 16px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.35), 0 16px 30px rgba(0, 0, 0, 0.3);
 }
 
 .sk3d-item-label {
