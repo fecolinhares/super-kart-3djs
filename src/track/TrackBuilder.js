@@ -147,7 +147,7 @@ function buildCurbs(path, length, side) {
     nrm.set(-tan.z, 0, tan.x).normalize();
     dummy.position.set(
       p.x + nrm.x * side * (roadW / 2 + 0.15),
-      p.y + 0.18 - 0.07, // top flush with the road surface
+      p.y + 0.22, // ribbon sits at y+0.18; curb top flush just above it
       p.z + nrm.z * side * (roadW / 2 + 0.15)
     );
     dummy.lookAt(
@@ -155,7 +155,6 @@ function buildCurbs(path, length, side) {
       p.y,
       p.z + tan.z + nrm.z * side * (roadW / 2 + 0.15)
     );
-    dummy.rotateX(-Math.PI / 2);
     dummy.updateMatrix();
     mesh.setMatrixAt(i, dummy.matrix);
     col.setHex(i % 2 === 0 ? 0xff5a5f : 0xffffff);
@@ -340,7 +339,8 @@ function buildFinishLine(startLine) {
   return mesh;
 }
 
-/** Direction arrow painted on the road at sharp corners (curvature > threshold),
+/**
+ * Painted direction chevrons at the sharpest corners (curvature > threshold),
  *  so the road reads "race track" and not a plain strip. */
 function buildDirectionArrows(path) {
   const SAMPLES = 160;
@@ -457,11 +457,11 @@ export function buildTrack(scene) {
   ribbon.receiveShadow = true;
   group.add(ribbon);
 
-  // Kerbs disabled (visual clutter) — the brown shoulders already delimit
-  // the road edge. Re-enable by uncommenting:
-  // const curbL = buildCurbs(path, length, -1);
-  // const curbR = buildCurbs(path, length, 1);
-  // group.add(curbL, curbR);
+  // Red/white kerbs along both edges (kart-circuit look — was disabled due to
+  // the y+0.11-buried + rotateX bugs; now fixed).
+  const curbL = buildCurbs(path, length, -1);
+  const curbR = buildCurbs(path, length, 1);
+  group.add(curbL, curbR);
 
   const dashes = buildLaneDashes(path, length);
   group.add(dashes);
