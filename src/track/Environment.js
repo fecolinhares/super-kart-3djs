@@ -113,6 +113,7 @@ export class Environment {
     this.buildForest(scene);
     this.buildProps(scene);
     this.buildDistanceMarks(scene); // 100m/200m posts (was dead code — never called)
+    this.buildCornerSigns(scene, track);
     this.buildGrandstand(scene);
     this.buildRoadsideCrowd(scene, track);
     this.buildFlags(scene);
@@ -735,6 +736,73 @@ export class Environment {
     this._figCache = this._figCache || {};
     this._figCache[key] = tex;
     return tex;
+  }
+
+  /**
+   * Corner warning signs (pole + arrow panel) on the outside of the sharpest
+   * corners — real race-track signage, part of the MK8 dressing density bar.
+   */
+  buildCornerSigns(scene, track) {
+    if (!track || !track.path) return;
+    const path = track.path;
+    const halfW = CONFIG.track.roadWidth / 2;
+    // Sign panel texture: white with a bold black directional arrow.
+    const texKey = 'corner_sign';
+    if (!this._signTex) {
+      const c = document.createElement('canvas');
+      c.width = 128;
+      c.height = 96;
+      const g = c.getContext('2d');
+      g.fillStyle = '#ffffff';
+      g.fillRect(0, 0, 128, 96);
+      g.strokeStyle = '#1b2a41';
+      g.lineWidth = 8;
+      g.strokeRect(4, 4, 120, 88);
+      g.fillStyle = '#1b2a41';
+      // bold arrow pointing right (curve direction)
+      g.beginPath();
+      g.moveTo(30, 18); g.lineTo(100, 48); g.lineTo(30, 78); g.lineTo(30, 58); g.lineTo(14, 58); g.lineTo(14, 38); g.lineTo(30, 38);
+      g.closePath();
+      g.fill();
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      this._signTex = tex;
+    }
+    const signMat = new THREE.MeshBasicMaterial({ map: this._signTex, color: 0xffffff, side: THREE.DoubleSide });
+    const poleMat = toonMaterial(0x8b7a5c, {});
+    const tan = new THREE.Vector3();
+    const tan2 = new THREE.Vector3();
+    const p = new THREE.Vector3();
+    const nrm = new THREE.Vector3();
+    let lastT = -1;
+    let made = 0;
+    for (let i = 0; i < 160; i++) {
+      const t = i / 160;
+      path.getTangentAt(t, tan);
+      path.getTangentAt(Math.min(0.999, t + 1 / 160), tan2);
+      const curv = 1 - Math.min(1, Math.max(-1, tan.dot(tan2)));
+      if (curv > 0.0016 && t - lastT > 0.08) {
+        lastT = t;
+        path.getPointAt(t, p);
+        nrm.set(-tan.z, 0, tan.x).normalize();
+        // Two signs per corner: inside + outside edge.
+        for (const side of [-1, 1]) {
+          const px = p.x + nrm.x * (side * (halfW + 3.2));
+          const pz = p.z + nrm.z * (side * (halfW + 3.2));
+          const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 1.5, 6), poleMat);
+          pole.position.set(px, p.y + 0.75, pz);
+          scene.add(pole);
+          const panel = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.68), signMat);
+          panel.position.set(px, p.y + 1.75, pz);
+          panel.lookAt(p.x, p.y + 1.75, p.z); // face the track
+          panel.rotation.z = 0;
+          scene.add(panel);
+          made++;
+        }
+      }
+    }
+    // Track created panels for the cheering/bounce update? no — static props.
+    this._signCount = made;
   }
 
   buildFlags(scene) {
