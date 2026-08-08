@@ -8,6 +8,15 @@ import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { toonMaterial, cartoonOutline, skyTexture } from '../render/Materials.js';
 
+// Mirrors TrackBuilder.smoothH so props sit at the same terrain height.
+function smoothH(x, z) {
+  return (
+    Math.sin(x * 0.08) * Math.cos(z * 0.1) * 0.28 +
+    Math.sin(x * 0.31 + 1.7) * Math.cos(z * 0.23) * 0.14 +
+    Math.sin(x * 0.045 + z * 0.06) * 0.25
+  );
+}
+
 export class Environment {
   constructor() {
     this.clouds = [];
@@ -63,8 +72,10 @@ export class Environment {
 
     // --- palms & props ---------------------------------------------------
     this.buildPalms(scene);
+    this.buildProps(scene);
     this.buildCrowd(scene);
     this.buildFlags(scene);
+    this.buildBalloons(scene);
   }
 
   buildMountains(scene) {
@@ -215,6 +226,128 @@ export class Environment {
     }
   }
 
+  buildProps(scene) {
+    // Rocks: instanced dodecahedrons scattered on the grass.
+    const rockGeo = new THREE.DodecahedronGeometry(0.7, 0);
+    const rockMat = toonMaterial(0xa9a9b8, {});
+    const rocks = new THREE.InstancedMesh(rockGeo, rockMat, 26);
+    const dummy = new THREE.Object3D();
+    for (let i = 0; i < 26; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 30 + Math.random() * 160;
+      dummy.position.set(Math.cos(a) * r, smoothH(Math.cos(a) * r, Math.sin(a) * r) * 0.5 - 0.5 + 0.35, Math.sin(a) * r);
+      dummy.scale.setScalar(0.5 + Math.random() * 1.4);
+      dummy.rotation.set(Math.random() * 0.6, Math.random() * Math.PI, Math.random() * 0.6);
+      dummy.updateMatrix();
+      rocks.setMatrixAt(i, dummy.matrix);
+    }
+    rocks.instanceMatrix.needsUpdate = true;
+    scene.add(rocks);
+
+    // Bushes: two overlapping spheres, darker green.
+    const bushGeo = new THREE.SphereGeometry(0.9, 8, 6);
+    const bushMat = toonMaterial(0x2f8f43, {});
+    const bushes = new THREE.InstancedMesh(bushGeo, bushMat, 34);
+    for (let i = 0; i < 34; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 25 + Math.random() * 140;
+      const x = Math.cos(a) * r;
+      const z = Math.sin(a) * r;
+      dummy.position.set(x, smoothH(x, z) * 0.5 - 0.5 + 0.5, z);
+      dummy.scale.set(1, 0.75 + Math.random() * 0.4, 1);
+      dummy.rotation.y = Math.random() * Math.PI;
+      dummy.updateMatrix();
+      bushes.setMatrixAt(i, dummy.matrix);
+    }
+    bushes.instanceMatrix.needsUpdate = true;
+    scene.add(bushes);
+
+    // Billboards with the game logo along the track.
+    const boardCanvas = document.createElement('canvas');
+    boardCanvas.width = 256;
+    boardCanvas.height = 128;
+    const bctx = boardCanvas.getContext('2d');
+    bctx.fillStyle = '#ffffff';
+    bctx.fillRect(0, 0, 256, 128);
+    bctx.fillStyle = '#2ec4ff';
+    bctx.fillRect(0, 0, 256, 22);
+    bctx.fillStyle = '#ff5a5f';
+    bctx.fillRect(0, 106, 256, 22);
+    bctx.fillStyle = '#1b2a41';
+    bctx.font = 'bold 34px sans-serif';
+    bctx.textAlign = 'center';
+    bctx.fillText('SUPER KART', 128, 72);
+    bctx.font = 'bold 22px sans-serif';
+    bctx.fillStyle = '#ff9f45';
+    bctx.fillText('3D.js', 128, 98);
+    const boardTex = new THREE.CanvasTexture(boardCanvas);
+    boardTex.colorSpace = THREE.SRGBColorSpace;
+
+    const boardMat = new THREE.MeshToonMaterial({ color: 0xffffff });
+    boardMat.map = boardTex;
+    const boardGeo = new THREE.BoxGeometry(4.6, 2.3, 0.35);
+    const spots = [
+      { x: -30, z: -62, ry: 0.6 },
+      { x: 40, z: -58, ry: -0.4 },
+      { x: 62, z: 8, ry: 2.4 },
+      { x: 30, z: 58, ry: 2.0 },
+      { x: -48, z: 46, ry: -2.2 },
+      { x: -66, z: -16, ry: 3.0 },
+    ];
+    for (const s of spots) {
+      const board = new THREE.Mesh(boardGeo, boardMat);
+      board.position.set(s.x, smoothH(s.x, s.z) * 0.5 - 0.5 + 1.5, s.z);
+      board.rotation.y = s.ry;
+      board.castShadow = true;
+      scene.add(board);
+      // legs
+      for (const side of [-1, 1]) {
+        const leg = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.09, 0.09, 1.5, 6),
+          toonMaterial(0x8b7a5c, {})
+        );
+        leg.position.set(s.x + side * 2.0, smoothH(s.x, s.z) * 0.5 - 0.5 + 0.75, s.z);
+        scene.add(leg);
+      }
+    }
+  }
+
+  buildBalloons(scene) {
+    // Hot-air balloons drifting high above — instant cartoon charm.
+    this.balloons = [];
+    const colors = [0xff5a5f, 0xffd166, 0x6cff8f, 0xc86bff];
+    for (let i = 0; i < 4; i++) {
+      const g = new THREE.Group();
+      const bal = new THREE.Mesh(
+        new THREE.SphereGeometry(2.6, 14, 10),
+        toonMaterial(colors[i % colors.length], {})
+      );
+      bal.scale.set(1, 1.15, 1);
+      bal.position.y = 2.6;
+      g.add(bal);
+      const basket = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.7, 0.9, 1.1, 8),
+        toonMaterial(0xb07a4f, {})
+      );
+      basket.position.y = 0;
+      g.add(basket);
+      const rope = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.02, 0.02, 1.4, 4),
+        toonMaterial(0x8b7a5c, {})
+      );
+      rope.position.y = 1.4;
+      g.add(rope);
+      g.position.set(
+        (Math.random() - 0.5) * 340,
+        42 + Math.random() * 30,
+        (Math.random() - 0.5) * 340
+      );
+      g.userData = { baseY: g.position.y, speed: 0.05 + Math.random() * 0.06, phase: Math.random() * 6.28 };
+      scene.add(g);
+      this.balloons.push(g);
+    }
+  }
+
   buildCrowd(scene) {
     // Spectator grandstand clusters: instanced colorful blocks.
     const areas = [
@@ -278,6 +411,11 @@ export class Environment {
       const r = c.userData.radius;
       c.position.x = c.userData.baseX + Math.sin(t * c.userData.speed * 0.1) * r;
       c.position.z += Math.cos(t * c.userData.speed * 0.07) * dt * 1.2;
+    }
+    // Hot-air balloons bob gently.
+    for (const b of this.balloons || []) {
+      b.position.y = b.userData.baseY + Math.sin(t * b.userData.speed + b.userData.phase) * 1.6;
+      b.rotation.y += dt * 0.02;
     }
     // Water shimmer
     for (const w of this.waterMeshes) {

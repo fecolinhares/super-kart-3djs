@@ -344,6 +344,17 @@ loop.start((dt, t) => {
       hud.countdown(mark === 0 ? 'GO' : String(mark));
       audio.play(mark === 0 ? 'go' : 'countdown');
       setStartLights(mark === 0 ? 4 : mark); // 3/2/1 → red lamps, GO → green
+      if (mark === 0 && raceManager.karts.length) {
+        // Start burst: tire smoke at every kart + confetti over the grid.
+        for (const k of raceManager.karts) {
+          if (!k.state) continue;
+          particles.emit('exhaust', k.state.position, { count: 14, color: 0xcfd6e0, speed: 2.6 });
+        }
+        const gridKart = raceManager.karts[Math.floor(raceManager.karts.length / 2)];
+        if (gridKart && gridKart.state) {
+          particles.emit('confetti', gridKart.state.position, { count: 60 });
+        }
+      }
     }
     if (countdownT >= COUNTDOWN_STEP * COUNTDOWN_MARKS.length) {
       raceManager.start();
