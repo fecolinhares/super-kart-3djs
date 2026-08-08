@@ -267,10 +267,10 @@ export class Kart {
     nctx.fillStyle = '#ffffff';
     nctx.fillRect(0, 0, 128, 128);
     nctx.fillStyle = '#1b2a41';
-    nctx.font = 'bold 92px sans-serif';
+    nctx.font = 'bold 104px sans-serif';
     nctx.textAlign = 'center';
     nctx.textBaseline = 'middle';
-    nctx.fillText(String(this.number), 64, 68);
+    nctx.fillText(String(this.number), 64, 70);
     const numTex = new THREE.CanvasTexture(numCanvas);
     numTex.colorSpace = THREE.SRGBColorSpace;
     const plate = new THREE.Mesh(
@@ -284,20 +284,20 @@ export class Kart {
 
     // Rear number plate (visible from the chase camera).
     const plateBack = new THREE.Mesh(
-      new THREE.BoxGeometry(0.52, 0.5, 0.07),
+      new THREE.BoxGeometry(0.6, 0.58, 0.07),
       new THREE.MeshToonMaterial({ color: 0xffffff })
     );
     plateBack.material.map = numTex;
-    plateBack.position.set(0, KC.wheelRadius + 0.68, -0.9);
+    plateBack.position.set(0, KC.wheelRadius + 0.72, -0.9);
     plateBack.rotation.x = 0.12;
     this.group.add(plateBack);
     // Dark frame around the rear plate — the white plate pops from any kart
     // body color in the pack.
     const plateFrame = new THREE.Mesh(
-      new THREE.BoxGeometry(0.56, 0.54, 0.05),
+      new THREE.BoxGeometry(0.64, 0.62, 0.05),
       new THREE.MeshBasicMaterial({ color: 0x1b2a41 })
     );
-    plateFrame.position.set(0, KC.wheelRadius + 0.68, -0.935);
+    plateFrame.position.set(0, KC.wheelRadius + 0.72, -0.935);
     plateFrame.rotation.x = 0.12;
     this.group.add(plateFrame);
 
