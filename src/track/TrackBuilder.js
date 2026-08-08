@@ -129,7 +129,9 @@ function buildCurbs(path, length, side) {
   // Continuous kerbs (no gaps): block length ≈ spacing → solid red/white edge.
   const seg = 1.7;
   const count = Math.floor(length / seg);
-  const geo = new THREE.BoxGeometry(seg, 0.14, 0.42);
+  // Narrow across the road (X=0.42), LONG along the track (Z=1.7): after
+  // lookAt aligns Z with the path, the kerb runs along the edge, not across it.
+  const geo = new THREE.BoxGeometry(0.42, 0.14, seg);
   const mat = toonMaterial(0xffffff, {});
   const mesh = new THREE.InstancedMesh(geo, mat, count);
   mesh.castShadow = true;
