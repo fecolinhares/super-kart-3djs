@@ -137,6 +137,14 @@ export class AIController {
       // NOTE: d is a progress diff in 0..1, so the divisor must be ~1.5 — the
       // old /400 made the whole term ~0.001 (rubber-band numerically dead).
       const factor = THREE.MathUtils.clamp((d * CONFIG.ai.rubberBandFactor) / 1.5, -0.12, 0.3);
+      // Real comeback: throttle alone can't raise TOP SPEED (physics caps at
+      // maxSpeed/boostSpeed), so behind-AIs also get a cruiseSpeed override.
+      if (d > 0.03) {
+        const boost = Math.min(0.22, d * 0.3);
+        kart.cruiseSpeed = CONFIG.physics.maxSpeed * (1 + boost);
+      } else {
+        kart.cruiseSpeed = CONFIG.physics.maxSpeed;
+      }
       throttle = THREE.MathUtils.clamp(throttle * (1 + factor), 0, 1.35);
     }
 

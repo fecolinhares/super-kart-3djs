@@ -512,6 +512,14 @@ loop.start((dt, t) => {
     // cruise the reduced speed naturally lowers pitch + volume).
     const pSpeed01 = Math.min(1, Math.abs(playerKart.state.speed) / CONFIG.physics.maxSpeed);
     audio.setEngineLoop('player', pSpeed01);
+    // Drift tire screech (was dead code — drifting was audibly empty).
+    if (playerKart.state.drifting && Math.abs(playerKart.state.speed) > 8) {
+      this._driftScreechAcc = (this._driftScreechAcc || 0) + dt;
+      if (this._driftScreechAcc >= 0.9) {
+        this._driftScreechAcc = 0;
+        audio.play('drift', { volume: 0.55 });
+      }
+    }
     for (let i = 0; i < aiKarts.length; i++) {
       const s01 = Math.min(1, Math.abs(aiKarts[i].state.speed) / CONFIG.physics.maxSpeed);
       audio.setEngineLoop('ai' + i, s01 * 0.35); // AI engines quieter

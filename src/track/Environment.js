@@ -88,10 +88,10 @@ export class Environment {
     sun.castShadow = true;
     if (CONFIG.render.shadows) {
       sun.shadow.mapSize.set(CONFIG.render.shadowMapSize, CONFIG.render.shadowMapSize);
-      sun.shadow.camera.left = -70;
-      sun.shadow.camera.right = 70;
-      sun.shadow.camera.top = 70;
-      sun.shadow.camera.bottom = -70;
+      sun.shadow.camera.left = -90; // shadow frustum must cover the whole loop
+      sun.shadow.camera.right = 90;
+      sun.shadow.camera.top = 90;
+      sun.shadow.camera.bottom = -90;
       sun.shadow.camera.far = 260;
       sun.shadow.bias = -0.0004;
     }
@@ -112,6 +112,7 @@ export class Environment {
     this.buildPalms(scene);
     this.buildForest(scene);
     this.buildProps(scene);
+    this.buildDistanceMarks(scene); // 100m/200m posts (was dead code — never called)
     this.buildGrandstand(scene);
     this.buildRoadsideCrowd(scene, track);
     this.buildFlags(scene);
