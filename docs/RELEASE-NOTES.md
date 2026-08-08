@@ -42,10 +42,13 @@ A complete cartoon arcade kart racer, 100% procedural (zero external assets):
 - **Gameplay feedback**: drift charge meter, speed-based camera FOV, skid
   marks, confetti at the line, **position-change chip pop + posUp/posDown
   SFX** (overtakes are audible), lap fanfare, item pickup fanfare, landing
-  thump, drift tire screech, mini-boost sparkle bursts.
+  thump, drift tire screech, mini-boost sparkle bursts, **MK8 item roulette**
+  (the slot cycles icons ~0.7s before revealing the pickup).
 - **Quality of life**: Pause (P/Esc or ⏸ button on mobile, tap-to-resume),
   "Race Again" + **"Menu"** buttons on the finish screen, touch **DRIFT
-  button** (hold-to-drift on mobile).
+  button** (hold-to-drift on mobile), **kart color + mute state persisted**
+  (localStorage), **audio mute toggle** on the menu, **rising countdown
+  pitch** 3-2-1, UI hover sounds.
 - **Live minimap**, lap progress bar, medal rank, polished speedometer + item slot.
 - **5 AI rivals** with real rubber-band (cruiseSpeed override → true top-speed
   comeback), per-driver stats, corner-lift throttle, item usage.
