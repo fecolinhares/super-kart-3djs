@@ -30,11 +30,14 @@ export class Menu {
    * @param {() => void} [opts.onStart]   called when "Start Race" is pressed
    * @param {(color: number) => void} [opts.onColor] called when a swatch is picked
    * @param {(name: string) => void} [opts.onSound] played on UI interaction
+   * @param {(muted: boolean) => void} [opts.onToggleMute] called when the sound toggle is pressed
    */
-  constructor({ onStart, onColor, onSound } = {}) {
+  constructor({ onStart, onColor, onSound, onToggleMute } = {}) {
     this.onStart = typeof onStart === 'function' ? onStart : () => {};
     this.onColor = typeof onColor === 'function' ? onColor : () => {};
     this.onSound = typeof onSound === 'function' ? onSound : () => {};
+    this.onToggleMute = typeof onToggleMute === 'function' ? onToggleMute : () => {};
+    this.muted = false;
     this.selectedColor = CONFIG.kart.playerColors[0];
 
     this.root = document.createElement('div');
@@ -47,6 +50,7 @@ export class Menu {
     this.helpToggle = this.root.querySelector('.sk3d-help-toggle');
     this.helpPanel = this.root.querySelector('.sk3d-help-panel');
     this.swatches = Array.from(this.root.querySelectorAll('.sk3d-color-swatch'));
+    this.muteBtn = this.root.querySelector('.sk3d-mute-toggle');
 
     this.bindEvents();
     document.body.appendChild(this.root);
@@ -91,6 +95,7 @@ export class Menu {
           <span class="sk3d-color-label" id="sk3d-color-label">Kart color</span>
           <div class="sk3d-color-swatches" role="radiogroup" aria-labelledby="sk3d-color-label">${swatches}</div>
         </div>
+        <button type="button" class="sk3d-btn sk3d-mute-toggle" aria-pressed="false">🔊 Sound on</button>
         <footer class="sk3d-credit">Made with Three.js — open source</footer>
       </div>`;
   }
@@ -101,6 +106,29 @@ export class Menu {
     for (const swatch of this.swatches) {
       swatch.addEventListener('click', () => { this.onSound('uiClick'); this.selectColor(swatch); });
     }
+    // Hover feedback (audit minor: 'uiHover' recipe existed but was never wired).
+    for (const el of [this.startBtn, this.helpToggle, ...this.swatches]) {
+      el.addEventListener('pointerenter', () => { this.onSound('uiHover'); });
+    }
+    this.muteBtn.addEventListener('click', () => { this.toggleMute(); });
+  }
+
+  /** Flip the audio mute toggle (persisted in localStorage). */
+  toggleMute() {
+    this.muted = !this.muted;
+    this.muteBtn.setAttribute('aria-pressed', String(this.muted));
+    this.muteBtn.textContent = this.muted ? '🔇 Sound off' : '🔊 Sound on';
+    try {
+      localStorage.setItem('sk3d.muted', this.muted ? '1' : '0');
+    } catch { /* private mode */ }
+    this.onToggleMute(this.muted);
+  }
+
+  /** Restore the persisted mute state. */
+  restoreMute() {
+    try {
+      if (localStorage.getItem('sk3d.muted') === '1') this.toggleMute();
+    } catch { /* private mode */ }
   }
 
   toggleHelp() {

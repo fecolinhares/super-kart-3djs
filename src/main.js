@@ -87,7 +87,13 @@ hud._onPositionChange = (dir) => {
   // Overtake/loss feedback (audit UX-v3 F2): subtle blips, player only.
   audio.play(dir === 'up' ? 'posUp' : 'posDown', { volume: 0.5 });
 };
-const menu = new Menu({ onStart: startRace, onColor: setPlayerColor, onSound: (n) => audio.play(n) });
+const menu = new Menu({
+  onStart: startRace,
+  onColor: setPlayerColor,
+  onSound: (n) => audio.play(n),
+  onToggleMute: (muted) => audio.setMasterVolume(muted ? 0 : 1),
+});
+menu.restoreMute(); // persisted mute state (audit minor)
 const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressItem(), onPause: togglePause, onDrift: (b) => { touchDrift = b; } });
 
 // Default player color matches their character's identity color; the menu
@@ -145,7 +151,22 @@ function setPlayerColor(color) {
   if (playerKart) {
     playerKart.setBodyColor(color);
   }
+  // Persist the pick (audit minor: color was lost on refresh).
+  try {
+    localStorage.setItem('sk3d.color', String(color));
+  } catch { /* private mode */ }
 }
+
+// Restore persisted kart color (audit minor).
+(function restoreColor() {
+  try {
+    const saved = localStorage.getItem('sk3d.color');
+    if (saved) {
+      const c = Number(saved);
+      if (Number.isFinite(c)) playerColor = c;
+    }
+  } catch { /* private mode */ }
+})();
 
 /** Drift mini-boost drama: SFX + golden spark burst on release (all karts). */
 function wireMiniBoost(kart) {
@@ -503,7 +524,7 @@ loop.start((dt, t) => {
       countdownIndex = idx;
       const mark = COUNTDOWN_MARKS[idx];
       hud.countdown(mark === 0 ? 'GO' : String(mark));
-      audio.play(mark === 0 ? 'go' : 'countdown');
+      audio.play(mark === 0 ? 'go' : 'countdown', mark < 3 ? { rate: 1 + (3 - mark) * 0.18 } : undefined); // rising pitch 3-2-1 (MK8 tension)
       setStartLights(mark === 0 ? 4 : mark); // 3/2/1 → red lamps, GO → green
       if (mark === 0) {
         // Camera kick on GO (arcade juice: the start feels like a launch).
