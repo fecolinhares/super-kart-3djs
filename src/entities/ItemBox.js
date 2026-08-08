@@ -117,6 +117,19 @@ export class ItemBox {
     mesh.position.set(this.base.x, this.base.y, this.base.z);
     mesh.rotation.y = this.base.yaw;
     mesh.castShadow = true;
+    // Golden light beam under the box — makes pickups readable at a glance.
+    const beam = new THREE.Mesh(
+      new THREE.CylinderGeometry(this.size * 0.42, this.size * 0.75, this.size * 2.6, 12, 1, true),
+      new THREE.MeshBasicMaterial({
+        color: 0xffd166,
+        transparent: true,
+        opacity: 0.22,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      })
+    );
+    beam.position.set(this.base.x, this.base.y - this.size * 1.35, this.base.z);
+    this.beam = beam;
     return mesh;
   }
 
@@ -124,8 +137,8 @@ export class ItemBox {
     const tex = questionTexture();
     const opts = {
       color: 0xffffff,
-      emissive: 0xffffff,
-      emissiveIntensity: 0.12,
+      emissive: 0xffd166, // golden glow — visible from far away
+      emissiveIntensity: 0.5,
     };
     if (tex) opts.map = tex;
     if (_toonFactory && _toonResolved) {
@@ -149,6 +162,7 @@ export class ItemBox {
   reset() {
     this.active = true;
     this.mesh.visible = true;
+    if (this.beam) this.beam.visible = true;
     this.respawnTimer = 0;
   }
 
@@ -173,6 +187,11 @@ export class ItemBox {
     const bob = Math.sin(this.bobPhase) * 0.14;
     this.mesh.position.y = this.base.y + bob;
     this.mesh.rotation.y = this.base.yaw + Math.sin(this.wobble) * 0.12;
+    if (this.beam) {
+      this.beam.position.y = this.base.y - this.size * 1.35 + bob;
+      const pulse = 0.18 + Math.sin(this.bobPhase * 1.3) * 0.06;
+      this.beam.material.opacity = pulse;
+    }
 
     const list = karts || [];
     const r = CONFIG.items.pickupRadius;
@@ -193,6 +212,7 @@ export class ItemBox {
   _consume() {
     this.active = false;
     this.mesh.visible = false;
+    if (this.beam) this.beam.visible = false;
     this.respawnTimer = CONFIG.game.itemBoxRespawnMs ?? CONFIG.items.itemBoxRespawnMs ?? 6000;
   }
 }

@@ -19,9 +19,9 @@ export const CONFIG = {
     reverseSpeed: -12,
     acceleration: 26,
     braking: 40,
-    steerSpeed: 2.6, // rad/s at full speed
-    steerSpeedLow: 4.4, // rad/s when slow (kart games feel)
-    driftSteer: 4.6,
+    steerSpeed: 1.9, // rad/s at full speed (was 2.6 — too jerky)
+    steerSpeedLow: 3.2, // rad/s when slow
+    driftSteer: 3.6,
     driftMinSpeed: 12,
     driftChargeRate: 1.0, // 0..1 per second while drifting
     driftReleaseBoost: 0.75, // mini-boost if charge >= this
@@ -52,9 +52,9 @@ export const CONFIG = {
   },
 
   items: {
-    boxRadius: 0.8,
+    boxRadius: 1.0,
     boxBobSpeed: 2.0,
-    pickupRadius: 1.6,
+    pickupRadius: 1.9,
     shellSpeed: 34,
     shellHomingTurnRate: 3.2,
     bananaRadius: 0.7,

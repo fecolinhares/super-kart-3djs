@@ -62,6 +62,15 @@ export class RaceManager {
     this.itemBoxes =
       itemBoxes && itemBoxes.length ? itemBoxes : track ? createItemBoxes(track) : [];
 
+    // Add item-box meshes (+ golden beams) to the scene — they were never
+    // added before, so pickups were invisible on the track.
+    if (this.scene) {
+      for (const box of this.itemBoxes) {
+        if (box.mesh) this.scene.add(box.mesh);
+        if (box.beam) this.scene.add(box.beam);
+      }
+    }
+
     this.aiControllers = (aiKarts || []).map((k) => new AIController(k, track, this));
 
     // Build the navigation cache for AI + projectile off-track culling.
@@ -138,12 +147,43 @@ export class RaceManager {
     const ctx = { track: this.track, raceManager: this, particles: this.particles };
     for (const kart of this.karts) kart.update?.(dt, ctx);
     for (const ctrl of this.aiControllers) ctrl.update(dt);
+    this._resolveKartCollisions();
 
     if (this.phase === 'race') {
       this._updateStandings();
       this._checkFinishes();
       if (this.elapsed >= CONFIG.game.raceTimeoutMs) this._forceFinish();
       if (this.raceOver) this.phase = 'finished';
+    }
+  }
+
+  /** Push overlapping karts apart (simple circle collision). */
+  _resolveKartCollisions() {
+    const karts = this.karts;
+    const R = 1.55;
+    const R2 = R * R;
+    for (let i = 0; i < karts.length; i++) {
+      const a = karts[i];
+      if (!a.state) continue;
+      for (let j = i + 1; j < karts.length; j++) {
+        const b = karts[j];
+        if (!b.state) continue;
+        const dx = b.state.position.x - a.state.position.x;
+        const dz = b.state.position.z - a.state.position.z;
+        const d2 = dx * dx + dz * dz;
+        if (d2 < R2 && d2 > 0.0001) {
+          const d = Math.sqrt(d2);
+          const overlap = (R - d) / 2;
+          const nx = dx / d;
+          const nz = dz / d;
+          a.state.position.x -= nx * overlap;
+          a.state.position.z -= nz * overlap;
+          b.state.position.x += nx * overlap;
+          b.state.position.z += nz * overlap;
+          a.nudge?.({ x: -nx, y: 0, z: -nz });
+          b.nudge?.({ x: nx, y: 0, z: nz });
+        }
+      }
     }
   }
 

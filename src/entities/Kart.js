@@ -78,6 +78,7 @@ export class Kart {
     this._startDir = new THREE.Vector3(0, 0, 1);
 
     this._controls = { steer: 0, throttle: false, brake: false, drift: false, useItem: false };
+    this._steerTarget = 0;
 
     // particle emitters (local-space offsets, manual world transform — no matrix dependency)
     this._pipeOffset = new THREE.Vector3(0, this.rideHeight + 0.16, -0.94);
@@ -305,14 +306,20 @@ export class Kart {
         const root = new THREE.Group();
         root.position.set(sx * wx, wy, sz * wz);
         this.group.add(root);
-        const spin = new THREE.Group();
+        const spin = new THREE.Group(); // rolls around kart X axis
         root.add(spin);
-        spin.add(new THREE.Mesh(tireGeo, tire));
-        spin.add(new THREE.Mesh(hubGeo, hub));
+        // CylinderGeometry's axis is Y; tilt the wheel so its axle runs
+        // along X (lateral). Without this the tire stood upright and spun
+        // sideways — the "lying wheels rolling laterally" bug.
+        const tilt = new THREE.Group();
+        tilt.rotation.z = Math.PI / 2;
+        spin.add(tilt);
+        tilt.add(new THREE.Mesh(tireGeo, tire));
+        tilt.add(new THREE.Mesh(hubGeo, hub));
         const rim = new THREE.Mesh(rimGeo, hub);
         rim.rotation.y = Math.PI / 2;
         rim.castShadow = false;
-        spin.add(rim);
+        tilt.add(rim);
         this._wheels = this._wheels || [];
         this._wheels.push({ root, spin, isFront: sz > 0 });
       }
@@ -368,7 +375,7 @@ export class Kart {
   // ---- public API -----------------------------------------------------------
 
   setControls({ steer, throttle, brake, drift, useItem } = {}) {
-    if (steer !== undefined) this._controls.steer = THREE.MathUtils.clamp(steer, -1, 1);
+    if (steer !== undefined) this._steerTarget = THREE.MathUtils.clamp(steer, -1, 1);
     if (throttle !== undefined) this._controls.throttle = !!throttle;
     if (brake !== undefined) this._controls.brake = !!brake;
     if (drift !== undefined) this._controls.drift = !!drift;
@@ -512,6 +519,12 @@ export class Kart {
       if (ctx.track.startLine && ctx.track.startLine.direction) {
         this._startDir.set(ctx.track.startLine.direction.x, 0, ctx.track.startLine.direction.z).normalize();
       }
+      // Smooth steering (avoids jerky snap on input / AI corrections).
+      this._controls.steer = THREE.MathUtils.lerp(
+        this._controls.steer,
+        this._steerTarget,
+        Math.min(1, 9 * dt)
+      );
       KartPhysics.step(this, this._controls, dt, ctx.track);
     }
     s.finished = this.finished;

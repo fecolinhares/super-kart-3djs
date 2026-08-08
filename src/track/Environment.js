@@ -20,12 +20,50 @@ function smoothH(x, z) {
 export class Environment {
   constructor() {
     this.clouds = [];
+    this.balloons = [];
     this.waterMeshes = [];
     this.flagMeshes = [];
     this.sun = null;
+    this._track = null;
+    this._trackSamples = null;
   }
 
-  buildEnvironment(scene) {
+  /** True when (x,z) is within margin of the cached track centerline. */
+  _onTrack(x, z, margin = 6) {
+    if (!this._trackSamples) return false;
+    const r = CONFIG.track.roadWidth / 2 + margin;
+    const r2 = r * r;
+    for (const p of this._trackSamples) {
+      const dx = x - p.x;
+      const dz = z - p.z;
+      if (dx * dx + dz * dz < r2) return true;
+    }
+    return false;
+  }
+
+  /** Random point in an annulus that avoids the track (8 tries). */
+  _randomOutside(minR, maxR) {
+    for (let i = 0; i < 8; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const r = minR + Math.random() * (maxR - minR);
+      const x = Math.cos(ang) * r;
+      const z = Math.sin(ang) * r;
+      if (!this._onTrack(x, z, 8)) return { x, z };
+    }
+    const ang = Math.random() * Math.PI * 2;
+    return { x: Math.cos(ang) * 170, z: Math.sin(ang) * 170 };
+  }
+
+  buildEnvironment(scene, track = null) {
+    this._track = track;
+    this._trackSamples = null;
+    if (track && track.path) {
+      // Cache centerline samples for _onTrack checks.
+      this._trackSamples = [];
+      for (let i = 0; i < 60; i++) {
+        this._trackSamples.push(track.path.getPointAt(i / 60));
+      }
+    }
     // --- fog & background ------------------------------------------------
     scene.fog = new THREE.Fog(0xbfe6ff, 70, 430);
 
@@ -192,6 +230,7 @@ export class Environment {
     ];
 
     for (const [x, z] of spots) {
+      if (this._onTrack(x, z, 8)) continue; // never place a palm on the road
       const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.34, 4.2, 7), trunkMat);
       trunk.position.set(x, 2.1, z);
       trunk.rotation.z = (Math.random() - 0.5) * 0.22;
@@ -241,10 +280,7 @@ export class Environment {
     const canopies = new THREE.InstancedMesh(canopyGeo, canopyMat, 44);
     const dummy = new THREE.Object3D();
     for (let i = 0; i < 44; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const r = 34 + Math.random() * 150;
-      const x = Math.cos(a) * r;
-      const z = Math.sin(a) * r;
+      const { x, z } = this._randomOutside(34, 184);
       const h = smoothH(x, z) * 0.5 - 0.5;
       const s = 0.8 + Math.random() * 0.9;
       dummy.position.set(x, h + 1.2 * s, z);
@@ -264,10 +300,7 @@ export class Environment {
     // Second, smaller darker canopy layer for depth variation.
     const canopies2 = new THREE.InstancedMesh(canopyGeo, canopyMatDark, 30);
     for (let i = 0; i < 30; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const r = 60 + Math.random() * 140;
-      const x = Math.cos(a) * r;
-      const z = Math.sin(a) * r;
+      const { x, z } = this._randomOutside(60, 200);
       const h = smoothH(x, z) * 0.5 - 0.5;
       dummy.position.set(x, h + 2.2, z);
       dummy.scale.set(1.4 + Math.random() * 0.8, 1.2, 1.4 + Math.random() * 0.8);
@@ -285,9 +318,8 @@ export class Environment {
     const rocks = new THREE.InstancedMesh(rockGeo, rockMat, 26);
     const dummy = new THREE.Object3D();
     for (let i = 0; i < 26; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const r = 30 + Math.random() * 160;
-      dummy.position.set(Math.cos(a) * r, smoothH(Math.cos(a) * r, Math.sin(a) * r) * 0.5 - 0.5 + 0.35, Math.sin(a) * r);
+      const { x, z } = this._randomOutside(30, 190);
+      dummy.position.set(x, smoothH(x, z) * 0.5 - 0.5 + 0.35, z);
       dummy.scale.setScalar(0.5 + Math.random() * 1.4);
       dummy.rotation.set(Math.random() * 0.6, Math.random() * Math.PI, Math.random() * 0.6);
       dummy.updateMatrix();
@@ -301,10 +333,7 @@ export class Environment {
     const bushMat = toonMaterial(0x2f8f43, {});
     const bushes = new THREE.InstancedMesh(bushGeo, bushMat, 34);
     for (let i = 0; i < 34; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const r = 25 + Math.random() * 140;
-      const x = Math.cos(a) * r;
-      const z = Math.sin(a) * r;
+      const { x, z } = this._randomOutside(25, 165);
       dummy.position.set(x, smoothH(x, z) * 0.5 - 0.5 + 0.5, z);
       dummy.scale.set(1, 0.75 + Math.random() * 0.4, 1);
       dummy.rotation.y = Math.random() * Math.PI;
@@ -324,9 +353,15 @@ export class Environment {
     ];
     for (let i = 0; i < edgeSpots.length; i++) {
       const [x, z] = edgeSpots[i];
-      const off = (i % 2 === 0 ? 1 : -1) * (6.5 + Math.random() * 4);
-      const bx = x + off * 0.7;
-      const bz = z + off * 0.7;
+      // Try growing offsets until the bush clears the road.
+      let bx = x;
+      let bz = z;
+      for (let attempt = 0; attempt < 4; attempt++) {
+        const off = (i % 2 === 0 ? 1 : -1) * (7 + attempt * 9 + Math.random() * 4);
+        bx = x + off * 0.7;
+        bz = z + off * 0.7;
+        if (!this._onTrack(bx, bz, 6)) break;
+      }
       dummy.position.set(bx, smoothH(bx, bz) * 0.5 - 0.5 + 0.55, bz);
       dummy.scale.set(1.2, 0.9 + Math.random() * 0.5, 1.2);
       dummy.rotation.y = Math.random() * Math.PI;
@@ -369,6 +404,7 @@ export class Environment {
       { x: -66, z: -16, ry: 3.0 },
     ];
     for (const s of spots) {
+      if (this._onTrack(s.x, s.z, 8)) continue; // keep billboards off the road
       const board = new THREE.Mesh(boardGeo, boardMat);
       board.position.set(s.x, smoothH(s.x, s.z) * 0.5 - 0.5 + 1.5, s.z);
       board.rotation.y = s.ry;
@@ -463,6 +499,7 @@ export class Environment {
     ];
     const crowdColors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
     for (const gs of grandstandSpots) {
+      if (this._onTrack(gs.x, gs.z, 10)) continue; // grandstand off the road
       const grp = new THREE.Group();
       // steps (3 tiers)
       const stepMat = toonMaterial(0xdfe6ee, {});
@@ -535,6 +572,7 @@ export class Environment {
     ];
     const postMat = toonMaterial(0x8b7a5c, {});
     for (const m of marks) {
+      if (this._onTrack(m.x, m.z, 8)) continue; // distance marks off the road
       const post = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 1.6, 6), postMat);
       post.position.set(m.x, smoothH(m.x, m.z) * 0.5 - 0.5 + 0.8, m.z);
       post.rotation.y = m.ry;

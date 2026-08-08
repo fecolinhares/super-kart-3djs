@@ -29,8 +29,8 @@ const container = document.getElementById('app');
 const { scene, camera, renderer } = createScene(container);
 
 const env = new Environment();
-env.buildEnvironment(scene);
 const track = buildTrack(scene);
+env.buildEnvironment(scene, track); // track passed so props avoid the road
 
 const postfx = new PostFX(renderer, scene, camera);
 const audio = new AudioManager();
