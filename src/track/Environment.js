@@ -112,6 +112,7 @@ export class Environment {
     this.buildPalms(scene);
     this.buildForest(scene);
     this.buildProps(scene);
+    this.buildLightPoles(scene, track);
     this.buildDistanceMarks(scene); // 100m/200m posts (was dead code — never called)
     this.buildCornerSigns(scene, track);
     this.buildGrandstand(scene);
@@ -771,6 +772,47 @@ export class Environment {
     this._figCache = this._figCache || {};
     this._figCache[key] = tex;
     return tex;
+  }
+
+  /**
+   * Periodic roadside light poles along straights (audit V3: mid-straights
+   * read empty — MK8 lines straights with poles/stands/banners).
+   */
+  buildLightPoles(scene, track) {
+    if (!track || !track.path) return;
+    const path = track.path;
+    const halfW = CONFIG.track.roadWidth / 2;
+    const poleMat = toonMaterial(0x7d8a99, {});
+    const headMat = toonMaterial(0xffd166, {});
+    const tan = new THREE.Vector3();
+    const tan2 = new THREE.Vector3();
+    const p = new THREE.Vector3();
+    const nrm = new THREE.Vector3();
+    let made = 0;
+    for (let i = 0; i < 200; i++) {
+      const t = i / 200;
+      path.getTangentAt(t, tan);
+      path.getTangentAt(Math.min(0.999, t + 1 / 200), tan2);
+      const curv = 1 - Math.min(1, Math.max(-1, tan.dot(tan2)));
+      // Straight sections only (curv < 0.0008) → "empty runs" get rhythm.
+      if (curv > 0.0008) continue;
+      if (made % 2 === 0 && i % 4 !== 0) continue; // every 4th sample on straights
+      path.getPointAt(t, p);
+      nrm.set(-tan.z, 0, tan.x).normalize();
+      const side = made % 2 === 0 ? 1 : -1;
+      const px = p.x + nrm.x * (side * (halfW + 3.6));
+      const pz = p.z + nrm.z * (side * (halfW + 3.6));
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.09, 3.4, 6), poleMat);
+      pole.position.set(px, p.y + 1.7, pz);
+      scene.add(pole);
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.14, 0.22), headMat);
+      head.position.set(px, p.y + 3.45, pz);
+      // lamp head faces the track
+      head.lookAt(p.x, p.y + 3.45, p.z);
+      head.rotation.z = 0;
+      scene.add(head);
+      made++;
+    }
   }
 
   /**

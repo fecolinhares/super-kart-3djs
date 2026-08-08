@@ -100,10 +100,46 @@ export function canvasTexture(size, drawFn, opts = {}) {
 // ---------------------------------------------------------------------------
 let _grassTex = null;
 let _roadTex = null;
+let _dirtTex = null;
 let _checkerTex = null;
 let _bannerCheckerTex = null;
 let _skyTex = null;
 let _turboPadTex = null;
+
+/** Dirt shoulder: tan earth with speckle + worn patches (audit V3 — the
+ *  shoulder was a flat untextured ribbon, the loudest "draft" cue left). */
+export function dirtTexture() {
+  if (_dirtTex) return _dirtTex;
+  _dirtTex = canvasTexture(
+    256,
+    (ctx, s) => {
+      ctx.fillStyle = '#d9b98c';
+      ctx.fillRect(0, 0, s, s);
+      for (let i = 0; i < 1800; i++) {
+        ctx.fillStyle = Math.random() > 0.5 ? '#c9a97c' : '#e2c69b';
+        ctx.fillRect(Math.random() * s, Math.random() * s, 2, 2);
+      }
+      // worn darker patches
+      ctx.globalAlpha = 0.16;
+      for (let i = 0; i < 8; i++) {
+        ctx.fillStyle = '#a5845c';
+        ctx.beginPath();
+        ctx.arc(Math.random() * s, Math.random() * s, 14 + Math.random() * 24, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      // scattered pebbles
+      ctx.globalAlpha = 0.35;
+      ctx.fillStyle = '#8f7452';
+      for (let i = 0; i < 120; i++) {
+        ctx.fillRect(Math.random() * s, Math.random() * s, 2, 2);
+      }
+      ctx.globalAlpha = 1;
+    },
+    { repeat: [20, 20] }
+  );
+  return _dirtTex;
+}
 
 /** Grass: layered green noise + blade strokes + soft patches, tileable. */
 export function grassTexture() {
@@ -302,19 +338,45 @@ export function finishLineTexture() {
   return _finishTex;
 }
 
-/** Sky gradient dome texture. */
+/** Sky gradient dome texture: painted sun disc + glow + horizon haze
+ *  (audit V3 — was a bare 2px gradient, read as a placeholder backdrop). */
 export function skyTexture() {
   if (_skyTex) return _skyTex;
   _skyTex = canvasTexture(
-    2,
+    512,
     (ctx, s) => {
       const g = ctx.createLinearGradient(0, 0, 0, s);
-      g.addColorStop(0, '#3fa9e8');
-      g.addColorStop(0.45, '#6fc4f2');
-      g.addColorStop(0.75, '#a8e6ff');
+      g.addColorStop(0, '#2e9be8');
+      g.addColorStop(0.4, '#6fc4f2');
+      g.addColorStop(0.72, '#b8e6ff');
+      g.addColorStop(0.88, '#e8f7ff'); // horizon haze
       g.addColorStop(1, '#d9f4ff');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, s, s);
+      // sun disc + halo (upper third)
+      const sunX = s * 0.3;
+      const sunY = s * 0.2;
+      ctx.globalAlpha = 0.35;
+      ctx.fillStyle = '#fff7cf';
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, s * 0.09, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#fffdf0';
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, s * 0.035, 0, Math.PI * 2);
+      ctx.fill();
+      // a few faint high cloud wisps
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = '#ffffff';
+      for (let i = 0; i < 4; i++) {
+        const cx = Math.random() * s;
+        const cy = s * (0.1 + Math.random() * 0.35);
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, s * (0.06 + Math.random() * 0.05), s * 0.012, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
     }
   );
   return _skyTex;

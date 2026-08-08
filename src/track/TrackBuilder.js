@@ -11,7 +11,7 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { toonMaterial, cartoonOutline, roadTexture, grassTexture, checkerTexture, bannerCheckerTexture, turboPadTexture, arrowTexture, finishLineTexture } from '../render/Materials.js';
+import { toonMaterial, cartoonOutline, roadTexture, dirtTexture, grassTexture, checkerTexture, bannerCheckerTexture, turboPadTexture, arrowTexture, finishLineTexture } from '../render/Materials.js';
 
 // Control points forming the closed loop (X, Y=elevation, Z).
 const CONTROL_POINTS = [
@@ -445,10 +445,11 @@ export function buildTrack(scene) {
   group.add(terrain);
 
   // Dirt shoulders either side of the asphalt (softens the road→grass edge).
+  // Textured now — was a flat tan ribbon (audit V3).
   const shoulder = buildRoadRibbon(path, length, {
     width: getRoadWidthAt() + 3.4,
     yOffset: 0.14,
-    color: 0xd9b98c,
+    texture: dirtTexture,
     repeatU: length * 0.04,
     repeatV: 1,
   });
