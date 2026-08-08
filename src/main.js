@@ -151,7 +151,7 @@ function readKeyboardInput() {
 function pressItem() {
   if (getState() !== STATES.RACE || !playerKart) return;
   if (!playerKart.heldItem) return;
-  raceManager.useHeldItem(playerKart);
+  raceManager.useItem(playerKart);
 }
 
 window.addEventListener('keydown', (e) => {
@@ -176,9 +176,26 @@ window.addEventListener('touchstart', () => audio.init(), { passive: true });
 // ---------------------------------------------------------------------------
 // Race lifecycle
 // ---------------------------------------------------------------------------
-let raceStarted = false;
 const COUNTDOWN_MARKS = [3, 2, 1, 0]; // 0 === GO
 const COUNTDOWN_STEP = 0.8; // seconds of game-time per number
+
+// Start-light animation on the gantry (countdown 3-2-1 → green on GO).
+const LAMP_RED = 0xff3b30;
+const LAMP_GREEN = 0x4ade80;
+const LAMP_OFF = 0x3a4252;
+
+function setStartLights(state) {
+  // state: 0 = all off, 1..3 = n red lamps lit, 4 = all green
+  if (!track.startLights) return;
+  const green = state >= 4;
+  const lit = Math.min(state, 3);
+  track.startLights.forEach((lamp, i) => {
+    const on = i < lit || green;
+    lamp.material.color.setHex(on ? (green ? LAMP_GREEN : LAMP_RED) : LAMP_OFF);
+    lamp.material.emissive.setHex(on ? (green ? LAMP_GREEN : LAMP_RED) : 0x000000);
+    lamp.material.emissiveIntensity = on ? 1.4 : 0;
+  });
+}
 
 function startRace() {
   buildKarts();
@@ -241,9 +258,9 @@ function updateCamera(dt, t) {
       const sway = Math.sin(t * 0.13) * 3.4;
       const desired = st.position
         .clone()
-        .addScaledVector(_fwd, -CONFIG.camera.followDistance - 2.5)
+        .addScaledVector(_fwd, -CONFIG.camera.followDistance - 4.2)
         .addScaledVector(_side, sway);
-      desired.y += CONFIG.camera.followHeight + 1.4 + Math.sin(t * 0.4) * 0.8;
+      desired.y += CONFIG.camera.followHeight + 2.2 + Math.sin(t * 0.4) * 0.8;
       const lerp = 1 - Math.exp(-2.4 * dt);
       camPos.lerp(desired, lerp);
       camera.position.copy(camPos);
@@ -324,6 +341,7 @@ loop.start((dt, t) => {
       const mark = COUNTDOWN_MARKS[idx];
       hud.countdown(mark === 0 ? 'GO' : String(mark));
       audio.play(mark === 0 ? 'go' : 'countdown');
+      setStartLights(mark === 0 ? 4 : mark); // 3/2/1 → red lamps, GO → green
     }
     if (countdownT >= COUNTDOWN_STEP * COUNTDOWN_MARKS.length) {
       raceManager.start();

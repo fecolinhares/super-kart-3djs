@@ -99,6 +99,7 @@ export function canvasTexture(size, drawFn, opts = {}) {
 let _grassTex = null;
 let _roadTex = null;
 let _checkerTex = null;
+let _bannerCheckerTex = null;
 let _skyTex = null;
 
 /** Grass: two-tone green noise dots, tileable. */
@@ -130,7 +131,7 @@ export function grassTexture() {
   return _grassTex;
 }
 
-/** Asphalt: dark blue-grey with fine speckle + subtle wear, tileable. */
+/** Asphalt: dark blue-grey with fine speckle + tire wear tracks, tileable. */
 export function roadTexture() {
   if (_roadTex) return _roadTex;
   _roadTex = canvasTexture(
@@ -142,10 +143,21 @@ export function roadTexture() {
         ctx.fillStyle = Math.random() > 0.5 ? '#52626f' : '#64768a';
         ctx.fillRect(Math.random() * s, Math.random() * s, 2, 2);
       }
-      ctx.globalAlpha = 0.18;
+      // tire wear tracks (two darker ribbons running along the road)
+      ctx.globalAlpha = 0.22;
+      ctx.fillStyle = '#3c4654';
+      ctx.fillRect(0, Math.floor(s * 0.28), s, 5);
+      ctx.fillRect(0, Math.floor(s * 0.66), s, 5);
+      ctx.globalAlpha = 0.12;
+      ctx.fillStyle = '#2f3844';
+      ctx.fillRect(0, Math.floor(s * 0.34), s, 3);
+      ctx.fillRect(0, Math.floor(s * 0.72), s, 3);
+      ctx.globalAlpha = 1;
+      // subtle white wear flecks
+      ctx.globalAlpha = 0.1;
       ctx.fillStyle = '#ffffff';
-      for (let i = 0; i < 4; i++) {
-        ctx.fillRect(Math.random() * s, Math.random() * s, 30, 3);
+      for (let i = 0; i < 24; i++) {
+        ctx.fillRect(Math.random() * s, Math.floor(s * 0.28) + Math.random() * 6, 3, 1);
       }
       ctx.globalAlpha = 1;
     },
@@ -154,22 +166,45 @@ export function roadTexture() {
   return _roadTex;
 }
 
-/** Checkered start line (4x4 squares, red/white). */
+/** Checkered start line (2x8 squares, classic black/white). 2 across the
+ *  short axis (3.2m travel length) x 8 along the road width (7.8m) — the
+ *  box UVs stretch U along X (short) and V along Z (wide), so 2x8 gives
+ *  near-square checker squares on the asphalt. */
 export function checkerTexture() {
   if (_checkerTex) return _checkerTex;
   _checkerTex = canvasTexture(
-    64,
+    128,
     (ctx, s) => {
-      const c = s / 4;
-      for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 4; j++) {
-          ctx.fillStyle = (i + j) % 2 === 0 ? '#ffffff' : '#e63946';
-          ctx.fillRect(i * c, j * c, c, c);
+      const cw = s / 2;
+      const ch = s / 8;
+      for (let i = 0; i < 2; i++) {
+        for (let j = 0; j < 8; j++) {
+          ctx.fillStyle = (i + j) % 2 === 0 ? '#ffffff' : '#1b2a41';
+          ctx.fillRect(i * cw, j * ch, cw, ch);
         }
       }
     }
   );
   return _checkerTex;
+}
+
+/** Gantry banner checker: 8x2 (8 along the wide banner, 2 tall). */
+export function bannerCheckerTexture() {
+  if (_bannerCheckerTex) return _bannerCheckerTex;
+  _bannerCheckerTex = canvasTexture(
+    128,
+    (ctx, s) => {
+      const cw = s / 8;
+      const ch = s / 2;
+      for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 2; j++) {
+          ctx.fillStyle = (i + j) % 2 === 0 ? '#ffffff' : '#1b2a41';
+          ctx.fillRect(i * cw, j * ch, cw, ch);
+        }
+      }
+    }
+  );
+  return _bannerCheckerTex;
 }
 
 /** Sky gradient dome texture. */

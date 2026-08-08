@@ -402,10 +402,10 @@ export function renderSfx(ctx, out, name, opts = {}) {
 
     case 'go': {
       // Bright horn-like two-tone: E5 -> A5, then a sparkle.
-      horn(ctx, target, at, 659.25 * rate, 0.5, v(0.5));
-      horn(ctx, target, at + 0.16, 880 * rate, 0.62, v(0.5));
-      chime(ctx, target, { freq: 1318.51 * rate, dur: 0.5, vol: v(0.12), at: at + 0.2, partials: [1, 2, 3] });
-      noise(ctx, target, { dur: 0.25, vol: v(0.08), at: at + 0.2, filterType: 'highpass', freq: 7000, timeConstant: 0.1 });
+      horn(ctx, target, at, 659.25 * rate, 0.5, v(0.32));
+      horn(ctx, target, at + 0.16, 880 * rate, 0.62, v(0.32));
+      chime(ctx, target, { freq: 1318.51 * rate, dur: 0.5, vol: v(0.1), at: at + 0.2, partials: [1, 2, 3] });
+      noise(ctx, target, { dur: 0.25, vol: v(0.06), at: at + 0.2, filterType: 'highpass', freq: 7000, timeConstant: 0.1 });
       break;
     }
 
@@ -426,12 +426,12 @@ export function renderSfx(ctx, out, name, opts = {}) {
       const notes = [N.C5, N.E5, N.G5, N.C6, N.E6];
       let t = at;
       for (const n of notes) {
-        horn(ctx, target, t, n * rate, 0.22, v(0.5));
+        horn(ctx, target, t, n * rate, 0.22, v(0.34));
         t += 0.11;
       }
-      horn(ctx, target, t, N.G6 * rate, 0.7, v(0.55));
-      chime(ctx, target, { freq: N.C7 * rate, dur: 0.8, vol: v(0.3), at: t, partials: [1, 2, 3, 4, 5] });
-      noise(ctx, target, { dur: 0.6, vol: v(0.1), at: t, filterType: 'highpass', freq: 8000, timeConstant: 0.15 });
+      horn(ctx, target, t, N.G6 * rate, 0.7, v(0.38));
+      chime(ctx, target, { freq: N.C7 * rate, dur: 0.8, vol: v(0.22), at: t, partials: [1, 2, 3, 4, 5] });
+      noise(ctx, target, { dur: 0.6, vol: v(0.08), at: t, filterType: 'highpass', freq: 8000, timeConstant: 0.15 });
       break;
     }
 
@@ -440,19 +440,19 @@ export function renderSfx(ctx, out, name, opts = {}) {
       const notes = [N.C5, N.E5, N.G5, N.C6, N.E6, N.G6];
       let t = at;
       for (const n of notes) {
-        horn(ctx, target, t, n * rate, 0.24, v(0.5));
+        horn(ctx, target, t, n * rate, 0.24, v(0.28));
         t += 0.13;
       }
       for (const n of [N.C5, N.E5, N.G5, N.C6]) {
-        chime(ctx, target, { freq: n * rate, dur: 1.4, vol: v(0.3), at: t, partials: [1, 2, 3, 4] });
+        chime(ctx, target, { freq: n * rate, dur: 1.4, vol: v(0.16), at: t, partials: [1, 2, 3, 4] });
       }
       let s = t + 0.3;
       const sparkle = [N.C7, N.D7, N.C7, N.G6, N.E6, N.G6, N.C7];
       for (const n of sparkle) {
-        chime(ctx, target, { freq: n * rate, dur: 0.35, vol: v(0.22), at: s, partials: [1, 2, 3, 4, 5] });
+        chime(ctx, target, { freq: n * rate, dur: 0.35, vol: v(0.16), at: s, partials: [1, 2, 3, 4, 5] });
         s += 0.07;
       }
-      noise(ctx, target, { dur: 1.2, vol: v(0.1), at: t + 0.4, filterType: 'highpass', freq: 8500, timeConstant: 0.2 });
+      noise(ctx, target, { dur: 1.2, vol: v(0.08), at: t + 0.4, filterType: 'highpass', freq: 8500, timeConstant: 0.2 });
       break;
     }
 

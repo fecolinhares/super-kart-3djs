@@ -156,6 +156,9 @@ export class Kart {
     const KC = CONFIG.kart;
     const body = this._mat(color);
     const bodyDark = this._mat(new THREE.Color(color).multiplyScalar(0.82).getHex());
+    // keep refs so the player can repaint (setBodyColor)
+    this._bodyMat = body;
+    this._bodyDarkMat = bodyDark;
     const dark = this._mat(0x2a2f3a);
     const tire = this._mat(0x232830);
     const hub = this._mat(0xdfe6ee);
@@ -268,43 +271,44 @@ export class Kart {
     drv.position.set(0, 0, 0);
     this.group.add(drv);
 
-    // torso + arms reaching to the wheel
-    this._mesh(new THREE.CapsuleGeometry(0.13, 0.26, 6, 12), white, 0, 0.78, -0.14, { parent: drv });
+    // torso + arms reaching to the wheel (raised so the driver is visible
+    // above the cockpit — the original was hidden behind the seat)
+    this._mesh(new THREE.CapsuleGeometry(0.14, 0.3, 6, 12), white, 0, 0.94, -0.02, { parent: drv });
     for (const s of [-1, 1]) {
       this._mesh(
-        new THREE.CapsuleGeometry(0.045, 0.22, 4, 8),
-        white, s * 0.13, 0.84, 0.04,
+        new THREE.CapsuleGeometry(0.05, 0.24, 4, 8),
+        white, s * 0.15, 0.98, 0.1,
         { parent: drv, rx: 1.15 }
       );
-      this._mesh(new THREE.SphereGeometry(0.045, 10, 8), skin, s * 0.13, 0.72, 0.16, { parent: drv, cast: false });
+      this._mesh(new THREE.SphereGeometry(0.05, 10, 8), skin, s * 0.15, 0.86, 0.2, { parent: drv, cast: false });
     }
     // steering wheel
     const wheel = new THREE.Mesh(
-      new THREE.TorusGeometry(0.085, 0.02, 8, 18),
+      new THREE.TorusGeometry(0.09, 0.022, 8, 18),
       dark
     );
-    wheel.position.set(0, 0.74, 0.2);
+    wheel.position.set(0, 0.9, 0.26);
     wheel.rotation.y = Math.PI;
     wheel.castShadow = false;
     drv.add(wheel);
 
-    // head + face
-    this._mesh(new THREE.SphereGeometry(0.15, 20, 16), skin, 0, 1.0, 0.02, { parent: drv });
+    // head + face (bigger, higher, pushed forward — readable from behind)
+    this._mesh(new THREE.SphereGeometry(0.17, 20, 16), skin, 0, 1.2, 0.1, { parent: drv });
     const helmet = new THREE.Mesh(
-      new THREE.SphereGeometry(0.155, 20, 16),
+      new THREE.SphereGeometry(0.175, 20, 16),
       body
     );
-    helmet.position.set(0, 1.09, -0.1);
-    helmet.scale.set(1, 0.78, 1);
+    helmet.position.set(0, 1.3, -0.02);
+    helmet.scale.set(1, 0.8, 1);
     helmet.castShadow = true;
     drv.add(helmet);
     this._outline(helmet);
-    this._mesh(new THREE.TorusGeometry(0.155, 0.018, 6, 18), bodyDark, 0, 1.0, -0.1, { parent: drv, rx: Math.PI / 2, cast: false });
+    this._mesh(new THREE.TorusGeometry(0.175, 0.02, 6, 18), bodyDark, 0, 1.2, -0.02, { parent: drv, rx: Math.PI / 2, cast: false });
 
     for (const s of [-1, 1]) {
-      this._mesh(new THREE.SphereGeometry(0.035, 10, 8), 0xffffff, s * 0.055, 1.02, 0.165, { parent: drv, cast: false });
-      this._mesh(new THREE.SphereGeometry(0.016, 8, 6), 0x1b2a41, s * 0.055, 1.02, 0.198, { parent: drv, cast: false });
-      this._mesh(new THREE.SphereGeometry(0.005, 6, 4), 0xffffff, s * 0.055 + 0.008, 1.025, 0.208, { parent: drv, cast: false });
+      this._mesh(new THREE.SphereGeometry(0.055, 10, 8), 0xffffff, s * 0.068, 1.24, 0.22, { parent: drv, cast: false });
+      this._mesh(new THREE.SphereGeometry(0.026, 8, 6), 0x1b2a41, s * 0.068, 1.24, 0.26, { parent: drv, cast: false });
+      this._mesh(new THREE.SphereGeometry(0.01, 6, 4), 0xffffff, s * 0.068 + 0.012, 1.245, 0.273, { parent: drv, cast: false });
     }
   }
 
@@ -316,6 +320,18 @@ export class Kart {
     if (brake !== undefined) this._controls.brake = !!brake;
     if (drift !== undefined) this._controls.drift = !!drift;
     if (useItem !== undefined) this._controls.useItem = !!useItem;
+  }
+
+  /**
+   * Repaint the player kart body (menu color picker).
+   * @param {number} color — 0xRRGGBB
+   */
+  setBodyColor(color) {
+    if (!this._bodyMat) return;
+    this._bodyMat.color.setHex(color);
+    this._bodyDarkMat.color.setHex(new THREE.Color(color).multiplyScalar(0.82).getHex());
+    // helmet matches body color too (chibi driver)
+    if (this._helmetMat) this._helmetMat.color.setHex(color);
   }
 
   /** Convenience read of the latest input (used by power-ups / AI tooling). */

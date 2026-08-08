@@ -189,21 +189,29 @@ export class Environment {
       top.position.set(trunk.position.x + Math.sin(trunk.rotation.z) * 2, 4.2, z + Math.sin(trunk.rotation.x) * 2);
       scene.add(top);
 
-      const leafCount = 7;
+      // Fan of fronds: flattened cones radiating from the crown, tilted down.
+      const leafCount = 9;
       for (let i = 0; i < leafCount; i++) {
-        const a = (i / leafCount) * Math.PI * 2;
+        const a = (i / leafCount) * Math.PI * 2 + Math.random() * 0.3;
         const leaf = new THREE.Mesh(
-          new THREE.PlaneGeometry(3.4, 0.55),
+          new THREE.ConeGeometry(0.16, 3.1, 6),
           i % 2 === 0 ? leafMat : leafMatDark
         );
-        leaf.position.set(Math.cos(a) * 1.4, 0.5, Math.sin(a) * 1.4);
-        leaf.rotation.y = -a;
-        leaf.rotation.z = -0.55;
-        leaf.rotation.x = 0.2;
-        leaf.translateX(1.2);
+        leaf.position.set(0, 0.3, 0);
+        leaf.rotation.z = Math.PI / 2; // lay the cone sideways
+        leaf.rotation.y = a;
+        leaf.rotation.x = 0.9; // droop the frond downward
+        leaf.translateX(1.35); // push outward from the crown
         leaf.castShadow = true;
         top.add(leaf);
       }
+      // coconut
+      const nut = new THREE.Mesh(
+        new THREE.SphereGeometry(0.22, 8, 6),
+        toonMaterial(0x8a5a33, {})
+      );
+      nut.position.set(0, 0.35, 0);
+      top.add(nut);
     }
   }
 
