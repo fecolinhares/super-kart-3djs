@@ -112,7 +112,6 @@ export class Environment {
     this.buildPalms(scene);
     this.buildForest(scene);
     this.buildProps(scene);
-    this.buildCrowd(scene);
     this.buildGrandstand(scene);
     this.buildRoadsideCrowd(scene, track);
     this.buildFlags(scene);
@@ -459,42 +458,12 @@ export class Environment {
     }
   }
 
-  buildCrowd(scene) {
-    // Spectator grandstand clusters: instanced colorful blocks.
-    const areas = [
-      { x: -56, z: 34, n: 26 },
-      { x: 40, z: -60, n: 24 },
-      { x: 44, z: 52, n: 22 },
-    ];
-    const colors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
-    const geo = new THREE.BoxGeometry(0.7, 1.1, 0.7);
-    const mat = toonMaterial(0xffffff, {});
-
-    for (const area of areas) {
-      const im = new THREE.InstancedMesh(geo, mat, area.n);
-      const dummy = new THREE.Object3D();
-      const col = new THREE.Color();
-      for (let i = 0; i < area.n; i++) {
-        // Retry placement until the spectator block is off the track.
-        let px = 0;
-        let pz = 0;
-        for (let attempt = 0; attempt < 5; attempt++) {
-          px = area.x + (Math.random() - 0.5) * 14;
-          pz = area.z + (Math.random() - 0.5) * 10;
-          if (!this._onTrack(px, pz, 5)) break;
-        }
-        dummy.position.set(px, 0.55 + Math.random() * 0.3, pz);
-        dummy.scale.set(1, 0.9 + Math.random() * 0.5, 1);
-        dummy.updateMatrix();
-        im.setMatrixAt(i, dummy.matrix);
-        col.setHex(colors[Math.floor(Math.random() * colors.length)]);
-        im.setColorAt(i, col);
-      }
-      im.instanceMatrix.needsUpdate = true;
-      if (im.instanceColor) im.instanceColor.needsUpdate = true;
-      scene.add(im);
-    }
-  }
+  /**
+   * REMOVED buildCrowd: the old "colorful standing blocks" read as loose
+   * placeholder cubes on the grass. Real spectators now come from
+   * buildGrandstand (body+head figures) and buildRoadsideCrowd (start
+   * straight line). Keeping the empty method is a trap — delete it entirely.
+   */
 
   buildGrandstand(scene) {
     // Big grandstand with striped awning near a curve — crowd anchor.
@@ -617,8 +586,14 @@ export class Environment {
     const crowdColors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
     const bodies = new THREE.InstancedMesh(new THREE.BoxGeometry(0.75, 0.95, 0.75), toonMaterial(0xffffff, {}), total);
     const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.32, 8, 6), toonMaterial(0xf4f6f8, {}), total);
+    // Raised arms (one instanced mesh per side) — the crowd reads as cheering
+    // people, not stacked cubes with heads.
+    const armGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.55, 6);
+    const armsL = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), total);
+    const armsR = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), total);
     const dummy = new THREE.Object3D();
     const headD = new THREE.Object3D();
+    const armD = new THREE.Object3D();
     const col = new THREE.Color();
     const p = new THREE.Vector3();
     const tan = new THREE.Vector3();
@@ -641,6 +616,15 @@ export class Environment {
           headD.scale.set(1, 1, 1);
           headD.updateMatrix();
           heads.setMatrixAt(idx, headD.matrix);
+          // Arms raised outward (cheering silhouette).
+          armD.position.set(dummy.position.x - 0.42, dummy.position.y + 0.72, dummy.position.z);
+          armD.rotation.set(0, 0, -0.9);
+          armD.updateMatrix();
+          armsL.setMatrixAt(idx, armD.matrix);
+          armD.position.set(dummy.position.x + 0.42, dummy.position.y + 0.72, dummy.position.z);
+          armD.rotation.set(0, 0, 0.9);
+          armD.updateMatrix();
+          armsR.setMatrixAt(idx, armD.matrix);
           idx++;
         }
       }
@@ -648,7 +632,9 @@ export class Environment {
     bodies.instanceMatrix.needsUpdate = true;
     if (bodies.instanceColor) bodies.instanceColor.needsUpdate = true;
     heads.instanceMatrix.needsUpdate = true;
-    scene.add(bodies, heads);
+    armsL.instanceMatrix.needsUpdate = true;
+    armsR.instanceMatrix.needsUpdate = true;
+    scene.add(bodies, heads, armsL, armsR);
     // Reuse the crowd-bounce animation for the roadside line too.
     (this.crowdMeshes = this.crowdMeshes || []).push(bodies);
   }
