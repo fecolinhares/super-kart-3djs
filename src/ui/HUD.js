@@ -559,9 +559,17 @@ export class HUD {
     this.finishTimeEl.textContent = formatTime(time);
     this.finishEl.classList.remove('sk3d-hidden');
 
+    // Re-trigger the pop animation on the NEXT frame — remove+void+add in the
+    // same tick silently fails on slow/headless frames and the `both` fill
+    // mode leaves the card at scale(0)/opacity 0 (invisible, unclickable).
     this.finishCardEl.classList.remove('sk3d-pop');
-    void this.finishCardEl.offsetWidth;
-    this.finishCardEl.classList.add('sk3d-pop');
+    if (this._finishPopRaf) cancelAnimationFrame(this._finishPopRaf);
+    this._finishPopRaf = requestAnimationFrame(() => {
+      this.finishCardEl.classList.add('sk3d-pop');
+      this._finishPopRaf = 0;
+    });
+    // Safety: if the animation still can't run, the card must remain visible.
+    this.finishCardEl.style.opacity = '1';
   }
 
   /** Transient centered toast message (auto-hides). @param {string} text */
