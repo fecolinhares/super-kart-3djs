@@ -132,6 +132,15 @@ export class HUD {
     this.speedArc = speedo.arc;
     this.speedValueEl = speedo.wrap.querySelector('.sk3d-speedo-value');
     bottom.append(speedo.wrap, this.buildItemSlot());
+    // Drift charge meter: a thin bar under the speedometer that fills while
+    // drifting (white → yellow → orange, matching the spark colors). Only
+    // visible while the player is actually drifting.
+    const drift = document.createElement('div');
+    drift.className = 'sk3d-drift-meter sk3d-hidden';
+    drift.innerHTML = '<div class="sk3d-drift-fill"></div><span class="sk3d-drift-label">DRIFT</span>';
+    bottom.append(drift);
+    this.driftMeterEl = drift;
+    this.driftFillEl = drift.querySelector('.sk3d-drift-fill');
 
     this.positionEl = this.root.querySelector('.sk3d-position');
     this.lapEl = this.root.querySelector('.sk3d-lap');
@@ -548,6 +557,21 @@ export class HUD {
     this.toastTimer = setTimeout(() => {
       this.toastEl.classList.add('sk3d-hidden');
     }, TOAST_MS);
+  }
+
+  /** Show drift charge (0..1) while drifting; hide when not. */
+  setDriftCharge(charge, active) {
+    if (!this.driftMeterEl) return;
+    if (!active) {
+      if (!this.driftMeterEl.classList.contains('sk3d-hidden')) this.driftMeterEl.classList.add('sk3d-hidden');
+      return;
+    }
+    this.driftMeterEl.classList.remove('sk3d-hidden');
+    const pct = Math.max(0, Math.min(1, charge || 0));
+    this.driftFillEl.style.width = `${Math.round(pct * 100)}%`;
+    const color = pct < 0.33 ? '#ffffff' : pct < 0.66 ? '#ffd166' : '#ff9f45';
+    this.driftFillEl.style.background = color;
+    this.driftFillEl.style.boxShadow = `0 0 8px ${color}`;
   }
 
   /** Clear all HUD state back to defaults. */
