@@ -15,7 +15,10 @@ A complete cartoon arcade kart racer, 100% procedural (zero external assets):
   (`driftReleaseMiniBoost`, player + AI with stereo pan).
 - **Turbo pads** (2 clusters × 4 chevrons) for speed bursts.
 - **Track dressing**: painted checkered finish line on the asphalt, white
-  direction chevrons at the sharpest corners, yellow lane dashes.
+  direction chevrons at the sharpest corners, tire-stack barriers (3 high),
+  yellow lane dashes.
+- **Gameplay feedback**: drift charge meter in the HUD (white → yellow →
+  orange), speed-based camera FOV (+5° at top speed, +6° on boost).
 - **Race-event atmosphere**: 3 grandstands (108 spectators) + a 56-figure
   roadside crowd lining the start straight, all cheering (bounce animation).
 - **Live minimap**, lap progress bar, medal rank, polished speedometer + item slot.
