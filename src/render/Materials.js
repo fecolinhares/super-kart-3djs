@@ -103,6 +103,7 @@ let _roadTex = null;
 let _checkerTex = null;
 let _bannerCheckerTex = null;
 let _skyTex = null;
+let _turboPadTex = null;
 
 /** Grass: two-tone green noise dots, tileable. */
 export function grassTexture() {
@@ -234,4 +235,39 @@ export function skyTexture() {
     }
   );
   return _skyTex;
+}
+
+/** Turbo pad: bright yellow base with white zebra chevron stripes (reads as
+ *  a speed-up pad from the chase camera, no lighting needed). */
+export function turboPadTexture() {
+  if (_turboPadTex) return _turboPadTex;
+  _turboPadTex = canvasTexture(
+    128,
+    (ctx, s) => {
+      ctx.fillStyle = '#ffd166';
+      ctx.fillRect(0, 0, s, s);
+      // white diagonal stripes (zebra/chevron)
+      ctx.fillStyle = '#ffffff';
+      const stripeW = 20;
+      for (let i = -s; i < s * 2; i += 32) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i + stripeW, 0);
+        ctx.lineTo(i + stripeW - s, s);
+        ctx.lineTo(i - s, s);
+        ctx.closePath();
+        ctx.fill();
+      }
+      // thin amber divider lines between stripes for contrast
+      ctx.strokeStyle = '#f0a530';
+      ctx.lineWidth = 3;
+      for (let i = -s; i < s * 2; i += 32) {
+        ctx.beginPath();
+        ctx.moveTo(i + stripeW + 2, 0);
+        ctx.lineTo(i + stripeW + 2 - s, s);
+        ctx.stroke();
+      }
+    }
+  );
+  return _turboPadTex;
 }

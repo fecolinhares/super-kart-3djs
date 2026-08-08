@@ -291,13 +291,15 @@ export function renderSfx(ctx, out, name, opts = {}) {
 
     case 'itemPickup': {
       // Sparkle chime arpeggio up: C6-E6-G6-C7 + air shimmer.
+      // Polish: add an attack "pop" + brighter partials + fuller shimmer.
+      osc(ctx, target, { type: 'sine', freq: 200 * rate, glideTo: 800 * rate, dur: 0.09, vol: v(0.35), at, attack: 0.002 });
       const notes = [N.C6, N.E6, N.G6, N.C7];
       let t = at;
       for (const n of notes) {
-        chime(ctx, target, { freq: n * rate, dur: 0.22, vol: v(0.4), at: t, partials: [1, 2, 3, 4] });
-        t += 0.07;
+        chime(ctx, target, { freq: n * rate, dur: 0.24, vol: v(0.5), at: t, partials: [1, 2, 3, 4, 5] });
+        t += 0.06;
       }
-      noise(ctx, target, { dur: 0.3, vol: v(0.1), at: t, filterType: 'highpass', freq: 8000, timeConstant: 0.1 });
+      noise(ctx, target, { dur: 0.45, vol: v(0.16), at: t, filterType: 'highpass', freq: 7500, timeConstant: 0.12 });
       break;
     }
 
@@ -402,10 +404,12 @@ export function renderSfx(ctx, out, name, opts = {}) {
 
     case 'go': {
       // Bright horn-like two-tone: E5 -> A5, then a sparkle.
-      horn(ctx, target, at, 659.25 * rate, 0.5, v(0.32));
-      horn(ctx, target, at + 0.16, 880 * rate, 0.62, v(0.32));
-      chime(ctx, target, { freq: 1318.51 * rate, dur: 0.5, vol: v(0.1), at: at + 0.2, partials: [1, 2, 3] });
-      noise(ctx, target, { dur: 0.25, vol: v(0.06), at: at + 0.2, filterType: 'highpass', freq: 7000, timeConstant: 0.1 });
+      // Polish: add a low kick punch for race-start impact.
+      osc(ctx, target, { type: 'sine', freq: 160 * rate, glideTo: 60 * rate, dur: 0.22, vol: v(0.5), at, attack: 0.002 });
+      horn(ctx, target, at, 659.25 * rate, 0.5, v(0.34));
+      horn(ctx, target, at + 0.16, 880 * rate, 0.62, v(0.34));
+      chime(ctx, target, { freq: 1318.51 * rate, dur: 0.5, vol: v(0.12), at: at + 0.2, partials: [1, 2, 3] });
+      noise(ctx, target, { dur: 0.25, vol: v(0.07), at: at + 0.2, filterType: 'highpass', freq: 7000, timeConstant: 0.1 });
       break;
     }
 

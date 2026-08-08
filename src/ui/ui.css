@@ -354,12 +354,93 @@
 .sk3d-position-3 { background: var(--sk3d-bronze); }
 
 .sk3d-lap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px 8px;
+}
+
+.sk3d-lap-text {
   font-size: 1.05rem;
+  line-height: 1;
+}
+
+.sk3d-lap-bar {
+  width: 76px;
+  height: 7px;
+  display: block;
+  background: rgba(27, 42, 65, 0.16);
+  border: 2px solid var(--sk3d-ink);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.sk3d-lap-bar-fill {
+  display: block;
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--sk3d-green), var(--sk3d-blue));
+  border-radius: 999px;
+  transition: width 0.15s linear;
 }
 
 .sk3d-time {
   font-size: 1.15rem;
   font-variant-numeric: tabular-nums;
+}
+
+/* --- minimap --- */
+
+.sk3d-minimap {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 120px;
+  height: 120px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(27, 42, 65, 0.88);
+  border-color: rgba(255, 253, 247, 0.4);
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.45),
+    0 12px 26px rgba(0, 0, 0, 0.35);
+}
+
+.sk3d-minimap-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sk3d-minimap-bg {
+  fill: rgba(255, 255, 255, 0.06);
+}
+
+.sk3d-minimap-ring {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 1.5;
+}
+
+.sk3d-minimap-track {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sk3d-minimap-dot-player {
+  fill: #ffffff;
+  stroke: var(--sk3d-ink);
+  stroke-width: 2.5;
+}
+
+.sk3d-minimap-dot-ai {
+  stroke: rgba(27, 42, 65, 0.9);
+  stroke-width: 1.5;
 }
 
 .sk3d-hud-bottom {
@@ -429,19 +510,22 @@
 }
 
 .sk3d-speedo-value {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 800;
   color: var(--sk3d-ink);
   font-variant-numeric: tabular-nums;
+  text-shadow:
+    0 2px 0 rgba(255, 253, 247, 0.9),
+    0 5px 10px rgba(27, 42, 65, 0.3);
 }
 
 .sk3d-speedo-unit {
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--sk3d-ink);
-  opacity: 0.6;
+  opacity: 0.65;
 }
 
 /* --- item slot --- */
@@ -518,6 +602,32 @@
     0 6px 0 var(--sk3d-ink),
     0 12px 0 rgba(27, 42, 65, 0.65),
     0 20px 34px rgba(0, 0, 0, 0.4);
+}
+
+/* Colored ring pulsing behind the countdown number (3/2/1/GO). */
+.sk3d-countdown::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.35em;
+  height: 1.35em;
+  margin: -0.675em 0 0 -0.675em;
+  border: 0.085em solid currentColor;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0.5em rgba(255, 209, 102, 0.55),
+    inset 0 0 0.6em rgba(255, 209, 102, 0.22);
+  opacity: 0;
+  pointer-events: none;
+  animation: sk3d-ring-pulse 0.9s ease-out infinite;
+}
+
+.sk3d-countdown-go::before {
+  border-color: var(--sk3d-green);
+  box-shadow:
+    0 0 0.6em rgba(108, 255, 143, 0.6),
+    inset 0 0 0.6em rgba(108, 255, 143, 0.28);
 }
 
 .sk3d-countdown-go {
@@ -706,6 +816,21 @@
   100% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+@keyframes sk3d-ring-pulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.15);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
   }
 }
 

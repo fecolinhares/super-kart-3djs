@@ -39,6 +39,19 @@ const COUNTDOWN_NUMBER_MS = 1200; // safety auto-hide for numbers
 const COUNTDOWN_GO_MS = 900;
 const TOAST_MS = 2400;
 
+/** Rank medals shown beside the ordinal on the position chip. */
+const MEDALS = { 1: '🥇', 2: '🥈', 3: '🥉' };
+
+/** Minimap: number of samples used to flatten the track path into a polyline. */
+const MINIMAP_SAMPLES = 64;
+const MINIMAP_SIZE = 120;
+const MINIMAP_PAD = 9;
+const DOT_R = 4;
+const DOT_R_LEADER = 5.5;
+
+/** Fallback AI dot color if a kart has no readable body material. */
+const DOT_FALLBACK_COLOR = '#ff5a5f';
+
 function svgEl(tag, attrs = {}) {
   const el = document.createElementNS(SVG_NS, tag);
   for (const [key, value] of Object.entries(attrs)) {
@@ -66,8 +79,22 @@ export function formatTime(seconds) {
   return `${m}:${String(sec).padStart(2, '0')}.${tenth}`;
 }
 
+/** Kart body color as a CSS string, read from the live body material. */
+function kartDotColor(kart) {
+  const mat = kart && kart._bodyMat;
+  if (mat && mat.color && typeof mat.color.getStyle === 'function') {
+    return mat.color.getStyle();
+  }
+  return DOT_FALLBACK_COLOR;
+}
+
 export class HUD {
-  constructor() {
+  /**
+   * @param {object|null} [track] Track descriptor from buildTrack() — used to
+   *   render the minimap polyline. Anything with a `path.getPointAt(t)` curve
+   *   works; pass null/undefined to skip the minimap entirely.
+   */
+  constructor(track = null) {
     this.root = document.createElement('div');
     this.root.className = 'sk3d-overlay sk3d-hud sk3d-hidden';
     this.root.setAttribute('aria-live', 'polite');
@@ -76,7 +103,10 @@ export class HUD {
       <div class="sk3d-hud-top">
         <div class="sk3d-hud-left">
           <div class="sk3d-chip sk3d-position">--</div>
-          <div class="sk3d-chip sk3d-lap">Lap 1/${CONFIG.game.totalLaps}</div>
+          <div class="sk3d-chip sk3d-lap">
+            <span class="sk3d-lap-text">LAP 1/${CONFIG.game.totalLaps}</span>
+            <span class="sk3d-lap-bar"><span class="sk3d-lap-bar-fill"></span></span>
+          </div>
         </div>
         <div class="sk3d-chip sk3d-time">0:00.0</div>
       </div>
@@ -103,6 +133,8 @@ export class HUD {
 
     this.positionEl = this.root.querySelector('.sk3d-position');
     this.lapEl = this.root.querySelector('.sk3d-lap');
+    this.lapTextEl = this.root.querySelector('.sk3d-lap-text');
+    this.lapBarFillEl = this.root.querySelector('.sk3d-lap-bar-fill');
     this.timeEl = this.root.querySelector('.sk3d-time');
     this.itemIconEl = this.root.querySelector('.sk3d-item-icon');
     this.countdownEl = this.root.querySelector('.sk3d-countdown');
@@ -118,8 +150,16 @@ export class HUD {
     // Caches so per-frame update() never churns the DOM.
     this._pos = null;
     this._lapText = null;
+    this._lapPct = null;
     this._timeText = null;
     this.itemType = null;
+
+    // Circular minimap — sits between the left chips and the race clock.
+    this._mm = this.buildMinimap(track);
+    if (this._mm) {
+      const top = this.root.querySelector('.sk3d-hud-top');
+      top.insertBefore(this._mm.wrap, this.timeEl);
+    }
 
     document.body.appendChild(this.root);
   }
@@ -147,19 +187,38 @@ export class HUD {
       svgEl('stop', { offset: '55%', style: 'stop-color: var(--sk3d-yellow)' }),
       svgEl('stop', { offset: '100%', style: 'stop-color: var(--sk3d-red)' })
     );
+    // Subtle vertical gradient for the base (empty) arc — darker toward the
+    // needle pivot so the dial reads as recessed.
+    const bgGradient = svgEl('linearGradient', { id: 'sk3d-speedo-bg-grad', x1: '0', y1: '0', x2: '0', y2: '1' });
+    bgGradient.append(
+      svgEl('stop', { offset: '0%', style: 'stop-color: rgba(27, 42, 65, 0.14)' }),
+      svgEl('stop', { offset: '100%', style: 'stop-color: rgba(27, 42, 65, 0.32)' })
+    );
+    // Soft warm glow behind the filled arc.
+    const glowFilter = svgEl('filter', { id: 'sk3d-speedo-glow', x: '-40%', y: '-40%', width: '180%', height: '180%' });
+    glowFilter.append(
+      svgEl('feDropShadow', {
+        dx: '0',
+        dy: '3',
+        stdDeviation: '4',
+        'flood-color': '#ffd166',
+        'flood-opacity': '0.55',
+      })
+    );
     const defs = svgEl('defs', {});
-    defs.append(gradient);
+    defs.append(gradient, bgGradient, glowFilter);
     svg.append(defs);
 
     const arcPath = 'M 10 70 A 60 60 0 0 1 130 70';
     const track = svgEl('path', { d: arcPath, fill: 'none', 'stroke-linecap': 'round' });
-    track.setAttribute('stroke', '#e9e2d0');
+    track.setAttribute('stroke', 'url(#sk3d-speedo-bg-grad)');
     track.setAttribute('stroke-width', '12');
     svg.append(track);
 
     const arc = svgEl('path', { d: arcPath, fill: 'none', 'stroke-linecap': 'round', class: 'sk3d-speedo-arc' });
     arc.setAttribute('stroke', 'url(#sk3d-speedo-grad)');
     arc.setAttribute('stroke-width', '12');
+    arc.setAttribute('filter', 'url(#sk3d-speedo-glow)');
     arc.style.strokeDasharray = String(ARC_LENGTH);
     arc.style.strokeDashoffset = String(ARC_LENGTH);
     svg.append(arc);
@@ -203,6 +262,133 @@ export class HUD {
     return slot;
   }
 
+  /**
+   * Build the circular track minimap (SVG). Samples the track path once into a
+   * closed polyline, then scales it to fit inside a 120px circle.
+   * @param {object|null} track descriptor with a THREE.Curve `path`
+   * @returns {object|null} { wrap, dotsGroup } or null when no usable path
+   */
+  buildMinimap(track) {
+    const path = track && track.path;
+    if (!path || typeof path.getPointAt !== 'function') return null;
+
+    // Flatten the closed loop into N sample points (getPointAt(1) ≈ getPointAt(0)).
+    const samples = [];
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minZ = Infinity;
+    let maxZ = -Infinity;
+    for (let i = 0; i < MINIMAP_SAMPLES; i++) {
+      const p = path.getPointAt(i / MINIMAP_SAMPLES);
+      const x = p.x;
+      const z = p.z;
+      samples.push([x, z]);
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (z < minZ) minZ = z;
+      if (z > maxZ) maxZ = z;
+    }
+    const spanX = maxX - minX;
+    const spanZ = maxZ - minZ;
+    if (!(spanX > 0) || !(spanZ > 0)) return null;
+
+    // Uniform scale (preserves track shape), centered inside the circle.
+    const avail = MINIMAP_SIZE - MINIMAP_PAD * 2;
+    const scale = avail / Math.max(spanX, spanZ);
+    const midX = (minX + maxX) / 2;
+    const midZ = (minZ + maxZ) / 2;
+    const offX = MINIMAP_SIZE / 2 - midX * scale;
+    const offZ = MINIMAP_SIZE / 2 - midZ * scale;
+
+    const pts = samples
+      .map(([x, z]) => `${(offX + x * scale).toFixed(1)},${(offZ + z * scale).toFixed(1)}`)
+      .join(' ');
+    const polyline = `M ${pts} Z`;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'sk3d-chip sk3d-minimap';
+    wrap.title = 'Track map';
+
+    const svg = svgEl('svg', {
+      viewBox: `0 0 ${MINIMAP_SIZE} ${MINIMAP_SIZE}`,
+      class: 'sk3d-minimap-svg',
+      'aria-hidden': 'true',
+    });
+
+    const defs = svgEl('defs', {});
+    const grad = svgEl('linearGradient', { id: 'sk3d-minimap-track-grad', x1: '0', y1: '0', x2: '1', y2: '1' });
+    grad.append(
+      svgEl('stop', { offset: '0%', style: 'stop-color: rgba(46, 196, 255, 0.9)' }),
+      svgEl('stop', { offset: '100%', style: 'stop-color: rgba(255, 209, 102, 0.75)' })
+    );
+    defs.append(grad);
+    svg.append(defs);
+
+    const c = MINIMAP_SIZE / 2;
+    svg.append(
+      svgEl('circle', { cx: c, cy: c, r: c - 1, class: 'sk3d-minimap-bg' }),
+      svgEl('circle', { cx: c, cy: c, r: c - 3, class: 'sk3d-minimap-ring' })
+    );
+    const trackPath = svgEl('path', { d: polyline, class: 'sk3d-minimap-track' });
+    trackPath.setAttribute('stroke', 'url(#sk3d-minimap-track-grad)');
+    svg.append(trackPath);
+
+    const dotsGroup = svgEl('g', { class: 'sk3d-minimap-dots' });
+    svg.append(dotsGroup);
+    wrap.append(svg);
+
+    return { wrap, dotsGroup, scale, offX, offZ, dots: new Map(), kartsRef: null };
+  }
+
+  /** Create the minimap dot for one kart (called once per kart identity). */
+  _addMinimapDot(kart) {
+    const mm = this._mm;
+    const isPlayer = !!kart.isPlayer;
+    const dot = svgEl('circle', {
+      cx: MINIMAP_SIZE / 2,
+      cy: MINIMAP_SIZE / 2,
+      r: String(DOT_R),
+      class: isPlayer ? 'sk3d-minimap-dot-player' : 'sk3d-minimap-dot-ai',
+    });
+    if (!isPlayer) {
+      dot.style.fill = kartDotColor(kart);
+    }
+    mm.dotsGroup.append(dot);
+    mm.dots.set(kart, dot);
+    return dot;
+  }
+
+  /**
+   * Project every kart's world XZ onto the minimap. Dots are created once per
+   * kart identity (cached); only cx/cy/r attributes are touched per frame.
+   * @param {object[]} [karts] raceManager.karts (player first, then AI)
+   */
+  _updateMinimap(karts) {
+    const mm = this._mm;
+    if (!mm || !karts || karts.length === 0) return;
+
+    // Rebuild the dot cache when the karts array is swapped (race restart).
+    if (karts !== mm.kartsRef) {
+      mm.kartsRef = karts;
+      mm.dots.clear();
+      mm.dotsGroup.replaceChildren();
+      for (const kart of karts) this._addMinimapDot(kart);
+    }
+
+    for (const kart of karts) {
+      const dot = mm.dots.get(kart);
+      const p = kart && kart.state && kart.state.position;
+      if (!dot || !p) continue;
+      const cx = mm.offX + p.x * mm.scale;
+      const cy = mm.offZ + p.z * mm.scale;
+      if (dot.getAttribute('cx') !== String(cx)) dot.setAttribute('cx', String(cx));
+      if (dot.getAttribute('cy') !== String(cy)) dot.setAttribute('cy', String(cy));
+      // Race leader dot is slightly larger.
+      const r = kart.position === 1 ? DOT_R_LEADER : DOT_R;
+      if (dot.getAttribute('r') !== String(r)) dot.setAttribute('r', String(r));
+    }
+  }
+
   show() {
     this.root.classList.remove('sk3d-hidden');
   }
@@ -215,26 +401,34 @@ export class HUD {
    * Per-frame update. Reads rank/lap/time/speed/item from the race state.
    * @param {object} raceManager RaceManager instance (elapsed, player, ...)
    * @param {object} player      player Kart (position, lap, state, heldItem)
+   * @param {object[]} [karts]   raceManager.karts — used to render minimap dots
    */
-  update(raceManager, player) {
+  update(raceManager, player, karts) {
     if (this.root.classList.contains('sk3d-hidden')) return;
 
-    // Position pips (ordinal + medal color).
+    // Position pips (medal emoji + ordinal + medal-colored chip).
     const pos = player && typeof player.position === 'number' ? player.position : 0;
     if (pos !== this._pos) {
       this._pos = pos;
-      const text = ordinal(pos);
-      const medal = pos === 1 ? ' sk3d-position-1' : pos === 2 ? ' sk3d-position-2' : pos === 3 ? ' sk3d-position-3' : '';
-      this.positionEl.className = `sk3d-chip sk3d-position${medal}`;
+      const medal = MEDALS[pos] ? `${MEDALS[pos]} ` : '';
+      const text = medal + ordinal(pos);
+      const cls = pos === 1 ? ' sk3d-position-1' : pos === 2 ? ' sk3d-position-2' : pos === 3 ? ' sk3d-position-3' : '';
+      this.positionEl.className = `sk3d-chip sk3d-position${cls}`;
       this.positionEl.textContent = text;
     }
 
-    // Lap counter.
+    // Lap counter + per-lap progress bar (progress01 from player.state).
     const lap = player && typeof player.lap === 'number' ? Math.min(player.lap, CONFIG.game.totalLaps) : 1;
-    const lapText = `Lap ${lap}/${CONFIG.game.totalLaps}`;
+    const lapText = `LAP ${lap}/${CONFIG.game.totalLaps}`;
     if (lapText !== this._lapText) {
       this._lapText = lapText;
-      this.lapEl.textContent = lapText;
+      this.lapTextEl.textContent = lapText;
+    }
+    const prog = player && player.state && typeof player.state.progress01 === 'number' ? player.state.progress01 : 0;
+    const pct = `${(Math.max(0, Math.min(1, prog)) * 100).toFixed(1)}%`;
+    if (pct !== this._lapPct) {
+      this._lapPct = pct;
+      this.lapBarFillEl.style.width = pct;
     }
 
     // Race time (freeze on the player's final time once finished).
@@ -258,6 +452,9 @@ export class HUD {
     // Held item slot.
     const item = player ? player.heldItem : null;
     this.setItem(item);
+
+    // Minimap dots.
+    this._updateMinimap(karts);
   }
 
   /** @param {number} speed kart speed in m/s (may be negative while reversing). */
@@ -352,11 +549,13 @@ export class HUD {
 
     this._pos = null;
     this._lapText = null;
+    this._lapPct = null;
     this._timeText = null;
 
     this.positionEl.className = 'sk3d-chip sk3d-position';
     this.positionEl.textContent = '--';
-    this.lapEl.textContent = `Lap 1/${CONFIG.game.totalLaps}`;
+    this.lapTextEl.textContent = `LAP 1/${CONFIG.game.totalLaps}`;
+    this.lapBarFillEl.style.width = '0%';
     this.timeEl.textContent = '0:00.0';
 
     this.setSpeed(0);

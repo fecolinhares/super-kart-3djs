@@ -11,7 +11,7 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { toonMaterial, cartoonOutline, roadTexture, grassTexture, checkerTexture, bannerCheckerTexture } from '../render/Materials.js';
+import { toonMaterial, cartoonOutline, roadTexture, grassTexture, checkerTexture, bannerCheckerTexture, turboPadTexture } from '../render/Materials.js';
 
 // Control points forming the closed loop (X, Y=elevation, Z).
 const CONTROL_POINTS = [
@@ -190,6 +190,53 @@ function buildLaneDashes(path, length) {
   return mesh;
 }
 
+/**
+ * Turbo pads: bright zebra-striped boost pads laid on the road centerline,
+ * clustered around the t positions in CONFIG.track.turboPadTs (4 pads per
+ * cluster, ~2.8m apart along the path). Wider than lane dashes so they read
+ * as a distinct "drive over me" strip. Returns the instanced mesh plus the
+ * normalized ts and world points KartPhysics uses for boost detection.
+ */
+function buildTurboPads(path, length) {
+  const clusters = CONFIG.track.turboPadTs || [];
+  const perCluster = 4;
+  const spacing = 2.8; // m between pads in a cluster (along the path)
+  const dt = spacing / length;
+  const count = clusters.length * perCluster;
+
+  const geo = new THREE.BoxGeometry(1.2, 0.04, 1.4);
+  // MeshBasicMaterial: unlit so the pad stays bright yellow/white in shadow.
+  const mat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), color: 0xffffff });
+  const mesh = new THREE.InstancedMesh(geo, mat, count);
+
+  const p = new THREE.Vector3();
+  const tan = new THREE.Vector3();
+  const dummy = new THREE.Object3D();
+  const ts = [];
+  const points = [];
+
+  let i = 0;
+  for (const c of clusters) {
+    for (let k = 0; k < perCluster; k++) {
+      // center the cluster on c: offsets -1.5dt..+1.5dt
+      const t = Math.min(0.999, Math.max(0.001, c + (k - (perCluster - 1) / 2) * dt));
+      path.getPointAt(t, p);
+      path.getTangentAt(t, tan);
+      dummy.position.set(p.x, p.y + 0.06, p.z);
+      // NOTE: no rotateX here! lookAt aligns the long axis (Z) with the
+      // path — same convention as buildLaneDashes.
+      dummy.lookAt(p.x + tan.x, p.y, p.z + tan.z);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+      ts.push(t);
+      points.push(p.clone());
+      i++;
+    }
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  return { mesh, ts, points };
+}
+
 function buildGantry(startLine) {
   const group = new THREE.Group();
   const roadW = getRoadWidthAt();
@@ -302,6 +349,9 @@ export function buildTrack(scene) {
   const dashes = buildLaneDashes(path, length);
   group.add(dashes);
 
+  const turbo = buildTurboPads(path, length);
+  group.add(turbo.mesh);
+
   const startLine = { position: startPos.clone(), direction: startDir.clone(), width: getRoadWidthAt() };
   const gantry = buildGantry(startLine);
   group.add(gantry.group);
@@ -320,5 +370,5 @@ export function buildTrack(scene) {
     waypoints.push(path.getPointAt(i / WAY_COUNT).clone());
   }
 
-  return { group, path, waypoints, startLine, length, startLights: gantry.startLights };
+  return { group, path, waypoints, startLine, length, startLights: gantry.startLights, turboPads: { ts: turbo.ts, points: turbo.points } };
 }

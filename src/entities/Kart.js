@@ -20,14 +20,18 @@ const OUTLINE = 0x1b2a41;
 export class Kart {
   /**
    * @param {object} opts
-   * @param {number} opts.color         — kart body color (hex)
+   * @param {number} opts.color         — kart body color (hex); wins over character.color when given
+   * @param {object} opts.character     — identity from CONFIG.kart.characters
+   *   {name, color, suitColor, helmetColor, accentColor, stats}
    * @param {boolean} opts.isPlayer     — player kart?
    * @param {THREE.Vector3} opts.startPosition
    * @param {number} opts.startHeading  — radians
    */
-  constructor({ color = 0xff5a5f, isPlayer = false, number = 1, startPosition, startHeading = 0 }) {
+  constructor({ color, isPlayer = false, number = 1, startPosition, startHeading = 0, character = null }) {
     this.isPlayer = isPlayer;
     this.number = number;
+    this.character = character;
+    this.characterName = character ? character.name : null;
     // Save the grid position/heading — Kart.restart() relies on them to
     // actually reset the race (was missing → restart "continued where it left").
     this.startPosition = startPosition ? startPosition.clone() : new THREE.Vector3();
@@ -43,6 +47,7 @@ export class Kart {
       drifting: false,
       driftCharge: 0,
       boost: false,
+      turboBoostMs: 0, // turbo pad boost timer (ms); KartPhysics sets, _tickEffects drains
       offRoad: false,
       spinOut: false,
       lap: 0,
@@ -100,7 +105,10 @@ export class Kart {
     this._side = new THREE.Vector3();
     this._starColor = new THREE.Color();
 
-    this._buildMesh(color);
+    // Body color: explicit `color` opt wins (menu picker); otherwise the
+    // character's identity color, falling back to the classic default.
+    const bodyColor = color !== undefined ? color : (character ? character.color : 0xff5a5f);
+    this._buildMesh(bodyColor, character);
 
     this.group.position.copy(this.state.position);
     this.group.rotation.y = startHeading;
@@ -158,7 +166,7 @@ export class Kart {
     return m;
   }
 
-  _buildMesh(color) {
+  _buildMesh(color, character) {
     const KC = CONFIG.kart;
 
     // Soft blob shadow under the kart (cartoon contact shadow). depthWrite off
@@ -339,12 +347,14 @@ export class Kart {
     this.group.add(drv);
 
     // torso + arms reaching to the wheel (raised so the driver is visible
-    // above the cockpit — the original was hidden behind the seat)
-    this._mesh(new THREE.CapsuleGeometry(0.14, 0.3, 6, 12), white, 0, 0.94, -0.02, { parent: drv });
+    // above the cockpit — the original was hidden behind the seat).
+    // Racing suit recolored by the character identity (falls back to white).
+    const suit = character ? this._mat(character.suitColor) : white;
+    this._mesh(new THREE.CapsuleGeometry(0.14, 0.3, 6, 12), suit, 0, 0.94, -0.02, { parent: drv });
     for (const s of [-1, 1]) {
       this._mesh(
         new THREE.CapsuleGeometry(0.05, 0.24, 4, 8),
-        white, s * 0.15, 0.98, 0.1,
+        suit, s * 0.15, 0.98, 0.1,
         { parent: drv, rx: 1.15 }
       );
       this._mesh(new THREE.SphereGeometry(0.05, 10, 8), skin, s * 0.15, 0.86, 0.2, { parent: drv, cast: false });
@@ -361,9 +371,13 @@ export class Kart {
 
     // head + face (bigger, higher, pushed forward — readable from behind)
     this._mesh(new THREE.SphereGeometry(0.17, 20, 16), skin, 0, 1.2, 0.1, { parent: drv });
+    // Helmet recolored per character (own material so setBodyColor can still
+    // repaint it alongside the body — classic menu color picker behavior).
+    const helmetMat = character ? this._mat(character.helmetColor) : body;
+    this._helmetMat = helmetMat;
     const helmet = new THREE.Mesh(
       new THREE.SphereGeometry(0.175, 20, 16),
-      body
+      helmetMat
     );
     helmet.position.set(0, 1.3, -0.02);
     helmet.scale.set(1, 0.8, 1);
@@ -371,6 +385,17 @@ export class Kart {
     drv.add(helmet);
     this._outline(helmet);
     this._mesh(new THREE.TorusGeometry(0.175, 0.02, 6, 18), bodyDark, 0, 1.2, -0.02, { parent: drv, rx: Math.PI / 2, cast: false });
+    // Helmet accent stripe — the character's color mark instead of a name
+    // decal (no text): a thin ring around the helmet equator, proud of the
+    // shell so it reads from the chase camera.
+    if (character) {
+      this._mesh(
+        new THREE.TorusGeometry(0.178, 0.02, 6, 24),
+        this._mat(character.accentColor),
+        0, 1.3, -0.02,
+        { parent: drv, rx: Math.PI / 2, cast: false }
+      );
+    }
 
     for (const s of [-1, 1]) {
       this._mesh(new THREE.SphereGeometry(0.055, 10, 8), 0xffffff, s * 0.068, 1.24, 0.22, { parent: drv, cast: false });
@@ -417,6 +442,7 @@ export class Kart {
     s.drifting = false;
     s.driftCharge = 0;
     s.boost = false;
+    s.turboBoostMs = 0;
     s.offRoad = false;
     s.spinOut = false;
     s.finished = false;
@@ -526,6 +552,7 @@ export class Kart {
     this.state.drifting = false;
     this.state.driftCharge = 0;
     this.state.boost = false;
+    this.state.turboBoostMs = 0;
     this.state.offRoad = false;
     this.state.spinOut = false;
     this.state.lap = 0;
@@ -602,6 +629,11 @@ export class Kart {
       }
     }
     s.boost = this._boostMs > 0;
+
+    // Turbo pad boost (set by KartPhysics when crossing a pad).
+    if (s.turboBoostMs > 0) {
+      s.turboBoostMs = Math.max(0, s.turboBoostMs - ms);
+    }
 
     if (this._starMs > 0) {
       this._starMs = Math.max(0, this._starMs - ms);
@@ -681,7 +713,7 @@ export class Kart {
       });
     }
 
-    // drift smoke (rear wheels)
+    // drift smoke (rear wheels) — color tracks charge: white → yellow → orange
     if (s.drifting && speedAbs >= CONFIG.physics.driftMinSpeed) {
       this._driftAcc += dt;
       if (this._driftAcc >= 0.05) {
@@ -690,7 +722,9 @@ export class Kart {
         this._v.copy(this._back).multiplyScalar(0.8);
         this._side.set(Math.cos(h), 0, -Math.sin(h)).multiplyScalar(this._controls.steer * 2.2);
         this._v.add(this._side);
-        particles.emit('drift', this._pv, { velocity: this._v, spread: 0.7, size: 0.3 });
+        const charge = s.driftCharge;
+        const driftColor = charge < 0.33 ? 0xffffff : charge < 0.66 ? 0xffd166 : 0xff9f45;
+        particles.emit('drift', this._pv, { velocity: this._v, spread: 0.7, size: 0.3, color: driftColor });
       }
     }
     this._sideFlip = -this._sideFlip;

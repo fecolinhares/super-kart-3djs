@@ -40,6 +40,18 @@ export const CONFIG = {
     wheelRadius: 0.34,
     wheelWidth: 0.24,
     playerColors: [0xff5a5f, 0x2ec4ff, 0xffd166, 0x6cff8f, 0xc86bff, 0xff9f45],
+    // Roster of 6 drivers — each kart gets a character so karts and their
+    // chibi drivers are visually distinct: body color, racing suit, helmet
+    // and a colored helmet stripe (accent). `stats` describe the archetype
+    // (1-10) and are reserved for future tuning — not yet applied to physics.
+    characters: [
+      { name: 'Turbo', color: 0xff5a5f, suitColor: 0xf4f6f8, helmetColor: 0xff5a5f, accentColor: 0xffd166, stats: { speed: 8, accel: 5, handling: 7 } },
+      { name: 'Comet', color: 0x2ec4ff, suitColor: 0x1b2a41, helmetColor: 0x2ec4ff, accentColor: 0xffffff, stats: { speed: 9, accel: 4, handling: 5 } },
+      { name: 'Bolt', color: 0xffd166, suitColor: 0xff5a5f, helmetColor: 0xffd166, accentColor: 0x1b2a41, stats: { speed: 6, accel: 9, handling: 5 } },
+      { name: 'Daisy', color: 0x6cff8f, suitColor: 0xff9ff0, helmetColor: 0x6cff8f, accentColor: 0xffffff, stats: { speed: 5, accel: 6, handling: 9 } },
+      { name: 'King', color: 0xc86bff, suitColor: 0xffd166, helmetColor: 0xc86bff, accentColor: 0x2ec4ff, stats: { speed: 6, accel: 7, handling: 7 } },
+      { name: 'Pip', color: 0xff9f45, suitColor: 0x2ec4ff, helmetColor: 0xff9f45, accentColor: 0xffd166, stats: { speed: 5, accel: 8, handling: 7 } },
+    ],
   },
 
   track: {
@@ -49,6 +61,9 @@ export const CONFIG = {
     roadEdge: 0.9, // grass margin width
     curveSmoothness: 40, // segments per curve
     offRoadMaxSpeedFactor: 0.45,
+    // Turbo pad cluster centers (normalized path positions). KartPhysics
+    // triggers a boost when a kart's progress01 is within 0.015 of one.
+    turboPadTs: [0.18, 0.72],
   },
 
   items: {

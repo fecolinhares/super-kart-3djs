@@ -40,17 +40,20 @@ if (TEST) postfx.enabled = false; // software GL runs ~30x faster without bloom
 const audio = new AudioManager();
 const particles = new ParticleSystem(scene);
 const raceManager = new RaceManager(scene, camera);
-const hud = new HUD();
+const hud = new HUD(track);
 const menu = new Menu({ onStart: startRace, onColor: setPlayerColor });
 const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressItem() });
 
-let playerColor = CONFIG.kart.playerColors[0];
+// Default player color matches their character's identity color; the menu
+// picker can override it (setPlayerColor → setBodyColor).
+let playerColor = CONFIG.kart.characters[0].color;
 let playerKart = null;
 let aiKarts = [];
 let aiControllers = [];
 let countdownT = 0;
 let countdownIndex = -1; // -1 so the first mark (3) actually fires
 let lastHeldItem = null;
+let turboParticleAcc = 0; // accumulator: burst once per 0.1s while turbo-boosting
 
 // Boot lands on the title menu (menu overlay + orbit camera).
 setState(STATES.MENU);
@@ -96,14 +99,15 @@ function setPlayerColor(color) {
 
 function buildKarts() {
   const slots = buildGridPositions(CONFIG.game.numKarts);
-  const colors = CONFIG.kart.playerColors;
+  const characters = CONFIG.kart.characters; // roster: [0] player, [1..5] AI
 
   // Player in slot 0 (back row center) unless demo.
   const playerSlot = DEMO ? 1 : 0;
   const playerPos = DEMO ? slots[1] : slots[0];
 
   playerKart = new Kart({
-    color: playerColor,
+    color: playerColor, // menu picker wins; defaults to character[0].color
+    character: characters[0],
     isPlayer: true,
     number: 1,
     startPosition: playerPos.position,
@@ -114,17 +118,19 @@ function buildKarts() {
   aiKarts = [];
   aiControllers = [];
   let aiNum = 2;
+  let charIdx = 1; // AI roster: characters[1..5] (player owns characters[0])
   for (let i = 0; i < CONFIG.game.numKarts; i++) {
     if (!DEMO && i === playerSlot) continue;
     if (DEMO && i === 1) continue; // slot 1 reserved for player visual
     const slot = slots[i];
     const kart = new Kart({
-      color: colors[i],
+      character: characters[charIdx % characters.length],
       isPlayer: false,
       number: aiNum++,
       startPosition: slot.position,
       startHeading: slot.heading,
     });
+    charIdx++;
     scene.add(kart.group);
     aiKarts.push(kart);
     const ctrl = new AIController(kart, track, raceManager);
@@ -401,7 +407,7 @@ loop.start((dt, t) => {
       setState(STATES.RACE);
       hud.countdown(null); // clear
     }
-    hud.update(raceManager, playerKart); // live rank during countdown too
+    hud.update(raceManager, playerKart, raceManager.karts); // live rank during countdown too
     updateCamera(dt, t);
   }
 
@@ -421,7 +427,7 @@ loop.start((dt, t) => {
       }
       for (const ctrl of aiControllers) ctrl.update(dt);
       raceManager.update(dt);
-      hud.update(raceManager, playerKart);
+      hud.update(raceManager, playerKart, raceManager.karts);
       // Toast the item the player just picked up — ICON first, then name.
       if (playerKart.heldItem && playerKart.heldItem !== lastHeldItem) {
         lastHeldItem = playerKart.heldItem;
@@ -444,7 +450,7 @@ loop.start((dt, t) => {
       // keep humming quietly while the music swells (genre standard).
       for (const ctrl of aiControllers) ctrl.update(dt);
       raceManager.update(dt);
-      hud.update(raceManager, playerKart);
+      hud.update(raceManager, playerKart, raceManager.karts);
     }
     // Continuous engine loops — race AND cruise (pitch follows speed; in
     // cruise the reduced speed naturally lowers pitch + volume).
@@ -459,6 +465,22 @@ loop.start((dt, t) => {
     }
     if (playerKart.state.drifting) {
       particles.emit('drift', playerKart.state.position, { color: 0xffffff });
+    }
+    // Turbo pad boost: golden spark burst every ~0.1s while active.
+    if (playerKart.state.turboBoostMs > 0) {
+      turboParticleAcc += dt;
+      if (turboParticleAcc >= 0.1) {
+        turboParticleAcc = 0;
+        particles.emit('boost', playerKart.state.position, {
+          color: 0xffd166,
+          count: 14,
+          speed: 6.0,
+          size: 0.3,
+          spread: 1.6,
+        });
+      }
+    } else {
+      turboParticleAcc = 0;
     }
     updateCamera(dt, t);
   }

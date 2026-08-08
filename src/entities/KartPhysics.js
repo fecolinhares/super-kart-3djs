@@ -161,6 +161,18 @@ export class KartPhysics {
     s.progress01 = near.progress01;
     updateLap(kart, near);
 
+    // Turbo pads: within 0.015 of a pad's t (and not already boosting) →
+    // start a 1.2s turbo. Guarded so it only fires once per pass (the
+    // timer outlasts the trigger window while the kart crosses the pad).
+    if (track.turboPads && track.turboPads.ts && !s.boost && s.turboBoostMs <= 0) {
+      for (let i = 0; i < track.turboPads.ts.length; i++) {
+        if (Math.abs(s.progress01 - track.turboPads.ts[i]) <= 0.015) {
+          s.turboBoostMs = 1200;
+          break;
+        }
+      }
+    }
+
     const tan = near.tan;
     const fwd = _fwd.set(Math.sin(s.heading), 0, Math.cos(s.heading));
     const right = _right.set(tan.z, 0, -tan.x);
@@ -191,7 +203,7 @@ export class KartPhysics {
     }
 
     // ---- speed -------------------------------------------------------------
-    let target = s.boost ? P.boostSpeed : (kart.cruiseSpeed || P.maxSpeed);
+    let target = (s.boost || s.turboBoostMs > 0) ? P.boostSpeed : (kart.cruiseSpeed || P.maxSpeed);
     s.offRoad = Math.abs(near.lateralDist) > halfW;
     if (s.offRoad) target *= T.offRoadMaxSpeedFactor;
     if (s.spinOut) target = 0;
