@@ -356,7 +356,9 @@ function updateCamera(dt, t) {
   camPos.lerp(desired, lerp);
   camera.position.copy(camPos);
 
-  const targetFov = baseFov + (st.boost > 0 ? 6 : 0);
+  const speed01 = Math.min(1, Math.abs(st.speed) / CONFIG.physics.maxSpeed);
+  // Speed FOV: wider at high speed + extra punch on boost (arcade feel).
+  const targetFov = baseFov + (st.boost > 0 ? 6 : 0) + speed01 * 5;
   camera.fov += (targetFov - camera.fov) * Math.min(1, dt * 6);
   camera.updateProjectionMatrix();
 
