@@ -432,8 +432,8 @@ loop.start((dt, t) => {
       setStartLights(mark === 0 ? 4 : mark); // 3/2/1 → red lamps, GO → green
       if (mark === 0) {
         // Camera kick on GO (arcade juice: the start feels like a launch).
+        // The 'go' SFX already carries the low-kick punch.
         addShake(0.5, 0.5);
-        audio.play('goBurst');
       }
       if (mark === 0 && raceManager.karts.length) {
         // Start burst: tire smoke at every kart + confetti over the grid.
