@@ -167,8 +167,8 @@ function buildCurbs(path, length, side) {
 }
 
 function buildLaneDashes(path, length) {
-  const count = Math.floor(length / 3.6);
-  const geo = new THREE.BoxGeometry(0.2, 0.04, 2.0);
+  const count = Math.floor(length / 3.0);
+  const geo = new THREE.BoxGeometry(0.3, 0.04, 2.4);
   const mat = toonMaterial(0xffd166, {});
   const mesh = new THREE.InstancedMesh(geo, mat, count);
 
