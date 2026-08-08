@@ -371,6 +371,25 @@ export class Environment {
     roadside.instanceMatrix.needsUpdate = true;
     scene.add(roadside);
 
+    // Wildflowers: tiny bright spheres scattered on the grass (the field reads
+    // alive instead of sparse/repetitive — cheap instanced pop of color).
+    const flowerGeo = new THREE.SphereGeometry(0.16, 6, 5);
+    const flowerMat = toonMaterial(0xffffff, {});
+    const flowers = new THREE.InstancedMesh(flowerGeo, flowerMat, 90);
+    const flowerColors = [0xff5a5f, 0xffd166, 0x2ec4ff, 0xc86bff, 0xffffff];
+    for (let i = 0; i < 90; i++) {
+      const { x, z } = this._randomOutside(18, 200);
+      dummy.position.set(x, smoothH(x, z) * 0.5 - 0.25 + 0.42, z);
+      dummy.scale.set(1, 0.8 + Math.random() * 0.7, 1);
+      dummy.rotation.y = Math.random() * Math.PI;
+      dummy.updateMatrix();
+      flowers.setMatrixAt(i, dummy.matrix);
+      flowers.setColorAt(i, new THREE.Color(flowerColors[(Math.random() * flowerColors.length) | 0]));
+    }
+    flowers.instanceMatrix.needsUpdate = true;
+    if (flowers.instanceColor) flowers.instanceColor.needsUpdate = true;
+    scene.add(flowers);
+
     // Billboards with the game logo along the track.
     const boardCanvas = document.createElement('canvas');
     boardCanvas.width = 256;
@@ -497,10 +516,10 @@ export class Environment {
       tier.instanceMatrix.needsUpdate = true;
       grp.add(tier);
       // spectators on each tier: body block (bright color) + white head ball
-      const spec = new THREE.InstancedMesh(new THREE.BoxGeometry(0.85, 0.95, 0.8), toonMaterial(0xffffff, {}), 36);
-      const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.34, 8, 6), toonMaterial(0xf4f6f8, {}), 36);
+      const spec = new THREE.InstancedMesh(new THREE.BoxGeometry(1.05, 1.2, 1.0), toonMaterial(0xffffff, {}), 36);
+      const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.42, 8, 6), toonMaterial(0xf4f6f8, {}), 36);
       // Raised arms (cheering people, not blocks with heads).
-      const armGeo = new THREE.CylinderGeometry(0.055, 0.055, 0.6, 6);
+      const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.75, 6);
       const armsL = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), 36);
       const armsR = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), 36);
       const col = new THREE.Color();
