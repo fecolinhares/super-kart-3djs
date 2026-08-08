@@ -435,6 +435,7 @@ window.__sk3d = {
   startRace,
   restartRace,
   addShake,
+  updateCamera, // QA hook: can be stubbed to freeze the chase camera
   DEMO,
 };
 

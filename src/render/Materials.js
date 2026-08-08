@@ -45,7 +45,9 @@ export function toonMaterial(color, opts = {}) {
     transparent: !!opts.transparent,
     opacity: opts.opacity ?? 1,
     side: opts.side ?? THREE.FrontSide,
+    map: opts.map || null, // textures (e.g. the '?' box) must actually show
   });
+  if (opts.map) mat.needsUpdate = true;
   return mat;
 }
 
@@ -192,7 +194,7 @@ export function checkerTexture() {
 export function bannerCheckerTexture() {
   if (_bannerCheckerTex) return _bannerCheckerTex;
   _bannerCheckerTex = canvasTexture(
-    128,
+    256,
     (ctx, s) => {
       const cw = s / 8;
       const ch = s / 2;
@@ -202,6 +204,15 @@ export function bannerCheckerTexture() {
           ctx.fillRect(i * cw, j * ch, cw, ch);
         }
       }
+      // Bold FINISH word across the middle of the banner, on a solid band
+      // so it stays readable over the checker pattern.
+      ctx.fillStyle = '#1b2a41';
+      ctx.fillRect(0, s * 0.32, s, s * 0.36);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 60px "Baloo 2", "Nunito", Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('FINISH', s / 2, s / 2 + 3);
     }
   );
   return _bannerCheckerTex;

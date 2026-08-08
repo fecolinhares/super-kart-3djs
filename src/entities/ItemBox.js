@@ -129,7 +129,7 @@ export class ItemBox {
       new THREE.MeshBasicMaterial({
         color: 0xffd166,
         transparent: true,
-        opacity: 0.22,
+        opacity: 0.42,
         side: THREE.DoubleSide,
         depthWrite: false,
       })
@@ -140,15 +140,15 @@ export class ItemBox {
     // (inspired by the genre's pickup boxes, not a copy of any of them).
     this.arrows = new THREE.Group();
     this.arrows.position.set(this.base.x, this.base.y, this.base.z);
-    const arrowGeo = new THREE.ConeGeometry(0.14, 0.34, 4);
-    const arrowMat = new THREE.MeshBasicMaterial({ color: 0xff5a5f });
+    const arrowGeo = new THREE.ConeGeometry(0.18, 0.44, 4);
+    const arrowMat = new THREE.MeshBasicMaterial({ color: 0xff2d55 });
     for (let i = 0; i < 4; i++) {
       const a = (i / 4) * Math.PI * 2;
       const arrow = new THREE.Mesh(arrowGeo, arrowMat);
-      arrow.position.set(Math.cos(a) * this.size * 0.95, 0, Math.sin(a) * this.size * 0.95);
+      arrow.position.set(Math.cos(a) * this.size * 1.15, 0.45, Math.sin(a) * this.size * 1.15);
       arrow.rotation.z = -Math.PI / 2;
       arrow.rotation.y = -a;
-      arrow.scale.setScalar(0.7);
+      arrow.scale.setScalar(1.3);
       this.arrows.add(arrow);
     }
     return mesh;
@@ -159,12 +159,17 @@ export class ItemBox {
     const opts = {
       color: 0xffb703, // amber cube (inverted vs the classic yellow '?' box)
       emissive: 0xff8f00,
-      emissiveIntensity: 0.45,
+      emissiveIntensity: 0.55,
     };
     if (tex) opts.map = tex;
     if (_toonFactory && _toonResolved) {
       const mat = _toonFactory(0xffb703, opts);
-      if (mat && typeof mat.dispose === 'function') return mat;
+      if (mat && typeof mat.dispose === 'function') {
+        // The shared factory now forwards opts.map, but keep this safety net
+        // so the '?' texture always shows even if the factory is older.
+        if (opts.map) mat.map = opts.map;
+        return mat;
+      }
     }
     return new THREE.MeshToonMaterial(opts);
   }

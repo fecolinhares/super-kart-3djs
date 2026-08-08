@@ -127,7 +127,8 @@ function buildTerrain() {
 function buildCurbs(path, length, side) {
   const roadW = getRoadWidthAt();
   const count = Math.floor(length / 3.1);
-  const geo = new THREE.BoxGeometry(0.72, 0.18, 1.0);
+  // Low, long curb blocks (kerb look) — not chunky cubes.
+  const geo = new THREE.BoxGeometry(1.5, 0.14, 0.42);
   const mat = toonMaterial(0xffffff, {});
   const mesh = new THREE.InstancedMesh(geo, mat, count);
   mesh.castShadow = true;
@@ -144,14 +145,14 @@ function buildCurbs(path, length, side) {
     path.getTangentAt(t, tan);
     nrm.set(-tan.z, 0, tan.x).normalize();
     dummy.position.set(
-      p.x + nrm.x * side * (roadW / 2 + 0.5),
-      p.y + 0.09,
-      p.z + nrm.z * side * (roadW / 2 + 0.5)
+      p.x + nrm.x * side * (roadW / 2 + 0.3),
+      p.y + 0.18 - 0.07, // top flush with the road surface
+      p.z + nrm.z * side * (roadW / 2 + 0.3)
     );
     dummy.lookAt(
-      p.x + tan.x + nrm.x * side * (roadW / 2 + 0.5),
+      p.x + tan.x + nrm.x * side * (roadW / 2 + 0.3),
       p.y,
-      p.z + tan.z + nrm.z * side * (roadW / 2 + 0.5)
+      p.z + tan.z + nrm.z * side * (roadW / 2 + 0.3)
     );
     dummy.rotateX(-Math.PI / 2);
     dummy.updateMatrix();
@@ -179,7 +180,8 @@ function buildLaneDashes(path, length) {
     path.getTangentAt(t, tan);
     dummy.position.set(p.x, p.y + 0.06, p.z);
     dummy.lookAt(p.x + tan.x, p.y, p.z + tan.z);
-    dummy.rotateX(-Math.PI / 2);
+    // NOTE: no rotateX here! lookAt already aligns the long axis (Z) with
+    // the path; rotateX(-PI/2) was standing the dashes UP as yellow poles.
     dummy.updateMatrix();
     mesh.setMatrixAt(i, dummy.matrix);
   }
@@ -192,9 +194,9 @@ function buildGantry(startLine) {
   const roadW = getRoadWidthAt();
   const nrm = new THREE.Vector3(-startLine.direction.z, 0, startLine.direction.x).normalize();
 
-  const pillarGeo = new THREE.CylinderGeometry(0.3, 0.38, 8, 10);
+  const pillarGeo = new THREE.CylinderGeometry(0.28, 0.36, 7.2, 10);
   const pillarMat = toonMaterial(0xff5a5f, {});
-  const beamGeo = new THREE.BoxGeometry(roadW + 5, 0.95, 0.8);
+  const beamGeo = new THREE.BoxGeometry(roadW + 5, 0.5, 0.7);
   const beamMat = toonMaterial(0x2ec4ff, {});
 
   for (const side of [-1, 1]) {
@@ -202,7 +204,7 @@ function buildGantry(startLine) {
     pillar.position
       .copy(startLine.position)
       .addScaledVector(nrm, side * (roadW / 2 + 1.6));
-    pillar.position.y = 3.6;
+    pillar.position.y = 3.3;
     pillar.castShadow = true;
     group.add(pillar);
     cartoonOutline(pillar, 0x1b2a41, 0.03);
@@ -210,22 +212,20 @@ function buildGantry(startLine) {
 
   const beam = new THREE.Mesh(beamGeo, beamMat);
   beam.position.copy(startLine.position);
-  beam.position.y = 7.2;
+  beam.position.y = 6.8;
   beam.lookAt(startLine.position.clone().add(startLine.direction));
   group.add(beam);
   cartoonOutline(beam, 0x1b2a41, 0.02);
 
-  // Checkered banner hanging from the beam (lit toon, not unlit basic —
-  // avoids the blown-out glare the basic material caused under bloom).
-  // lookAt aligns +Z with the travel direction (plane faces the racers);
-  // NO extra rotateY — that tipped the banner sideways.
+  // Checkered banner hanging from the beam, with a bold FINISH word.
+  // lookAt aligns +Z with the travel direction (plane faces the racers).
   const banner = new THREE.Mesh(
-    new THREE.PlaneGeometry(roadW + 2, 1.7),
+    new THREE.PlaneGeometry(roadW + 2, 2.1),
     new THREE.MeshToonMaterial({ color: 0xffffff })
   );
   banner.material.map = bannerCheckerTexture();
   banner.position.copy(startLine.position);
-  banner.position.y = 6.65; // hangs just under the beam (7.2) — no floating gap
+  banner.position.y = 6.2; // hangs just under the beam — no floating gap
   banner.lookAt(startLine.position.clone().add(startLine.direction));
   group.add(banner);
 

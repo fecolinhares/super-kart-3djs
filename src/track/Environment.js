@@ -114,7 +114,6 @@ export class Environment {
     this.buildProps(scene);
     this.buildCrowd(scene);
     this.buildGrandstand(scene);
-    this.buildDistanceMarks(scene);
     this.buildFlags(scene);
     this.buildBalloons(scene);
   }
