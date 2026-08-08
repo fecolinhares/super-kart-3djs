@@ -59,6 +59,8 @@ never use brake to slow down in air/grass.
   then 10 singles alternating sides.
 - **Turbo pads**: 2 clusters of 4 yellow chevron pads (t≈0.18 and t≈0.72) —
   touching one gives a 1.2 s speed burst.
+- **Dressing**: painted checkered finish line on the asphalt under the gantry,
+  white direction chevrons at the sharpest corners, yellow lane dashes.
 - **Flow**: gentle S out of the grid → elevation climb → sweeping left →
   downhill right → long right-hander into the finish straight. No flat
   sections longer than ~4 s.
