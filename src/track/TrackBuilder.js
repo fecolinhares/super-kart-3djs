@@ -168,7 +168,7 @@ function buildCurbs(path, length, side) {
 
 function buildLaneDashes(path, length) {
   const count = Math.floor(length / 3.6);
-  const geo = new THREE.BoxGeometry(0.16, 0.04, 1.6);
+  const geo = new THREE.BoxGeometry(0.2, 0.04, 2.0);
   const mat = toonMaterial(0xffd166, {});
   const mesh = new THREE.InstancedMesh(geo, mat, count);
 
@@ -179,7 +179,9 @@ function buildLaneDashes(path, length) {
     const t = i / count;
     path.getPointAt(t, p);
     path.getTangentAt(t, tan);
-    dummy.position.set(p.x, p.y + 0.06, p.z);
+    // Road ribbon sits at y+0.18 — the dashes must sit ABOVE it (y+0.21) or
+    // they're buried inside the asphalt (the classic decal-height pitfall).
+    dummy.position.set(p.x, p.y + 0.21, p.z);
     dummy.lookAt(p.x + tan.x, p.y, p.z + tan.z);
     // NOTE: no rotateX here! lookAt already aligns the long axis (Z) with
     // the path; rotateX(-PI/2) was standing the dashes UP as yellow poles.
@@ -222,7 +224,8 @@ function buildTurboPads(path, length) {
       const t = Math.min(0.999, Math.max(0.001, c + (k - (perCluster - 1) / 2) * dt));
       path.getPointAt(t, p);
       path.getTangentAt(t, tan);
-      dummy.position.set(p.x, p.y + 0.06, p.z);
+      // Road ribbon sits at y+0.18 — pads must sit ABOVE it (y+0.21).
+      dummy.position.set(p.x, p.y + 0.21, p.z);
       // NOTE: no rotateX here! lookAt aligns the long axis (Z) with the
       // path — same convention as buildLaneDashes.
       dummy.lookAt(p.x + tan.x, p.y, p.z + tan.z);
