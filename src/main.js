@@ -98,10 +98,22 @@ function setPlayerColor(color) {
   }
 }
 
+/** Drift mini-boost drama: SFX + golden spark burst on release (all karts). */
+function wireMiniBoost(kart) {
+  kart._onMiniBoost = () => {
+    if (!kart.isPlayer) audio.play('driftReleaseMiniBoost', { volume: 0.45, pan: (kart.group.position.x - playerKart.group.position.x) * 0.02 });
+    else audio.play('driftReleaseMiniBoost', { volume: 0.8 });
+    if (particles) {
+      particles.emit('sparkle', kart.state.position.clone().add(new THREE.Vector3(0, 0.6, 0)), {
+        count: 18, speed: 5.5, size: 0.3, spread: 1.8, color: 0xffd166,
+      });
+    }
+  };
+}
+
 function buildKarts() {
   const slots = buildGridPositions(CONFIG.game.numKarts);
   const characters = CONFIG.kart.characters; // roster: [0] player, [1..5] AI
-
   // Player in slot 0 (back row center) unless demo.
   const playerSlot = DEMO ? 1 : 0;
   const playerPos = DEMO ? slots[1] : slots[0];
@@ -115,6 +127,7 @@ function buildKarts() {
     startHeading: playerPos.heading,
   });
   scene.add(playerKart.group);
+  wireMiniBoost(playerKart);
 
   aiKarts = [];
   aiControllers = [];
@@ -133,6 +146,7 @@ function buildKarts() {
     });
     charIdx++;
     scene.add(kart.group);
+    wireMiniBoost(kart);
     aiKarts.push(kart);
     const ctrl = new AIController(kart, track, raceManager);
     aiControllers.push(ctrl);

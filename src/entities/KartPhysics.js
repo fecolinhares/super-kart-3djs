@@ -119,7 +119,10 @@ function updateDrift(kart, input, dt, speedAbs) {
     if (!s.drifting) { s.drifting = true; s.driftCharge = 0; }
     s.driftCharge = Math.min(1, s.driftCharge + P.driftChargeRate * dt * (1 + Math.abs(input.steer) * 0.6));
   } else if (s.drifting) {
-    if (s.driftCharge >= P.driftReleaseBoost) kart.applyBoost(750); // mini-boost
+    if (s.driftCharge >= P.driftReleaseBoost) {
+      kart.applyBoost(750); // mini-boost
+      kart._onMiniBoost?.(); // drama hook (SFX + spark burst) wired in main.js
+    }
     s.drifting = false;
     s.driftCharge = 0;
   }

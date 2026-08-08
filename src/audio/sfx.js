@@ -304,6 +304,14 @@ export function renderSfx(ctx, out, name, opts = {}) {
       break;
     }
 
+    case 'driftReleaseMiniBoost': {
+      // Satisfying "tick-whoosh" when a charged drift is released.
+      osc(ctx, target, { type: 'square', freq: 320 * rate, glideTo: 980 * rate, dur: 0.14, vol: v(0.3), at, attack: 0.002 });
+      noise(ctx, target, { dur: 0.22, vol: v(0.2), at: at + 0.01, filterType: 'bandpass', freq: 1400, q: 1.2, glideTo: 3400 });
+      chime(ctx, target, { freq: 1568 * rate, dur: 0.25, vol: v(0.18), at: at + 0.06, partials: [1, 2, 3] });
+      break;
+    }
+
     case 'offroad': {
       // Gravel/grass rumble while the kart is on the shoulder.
       noise(ctx, target, { dur: 0.7, vol: v(0.16), at, filterType: 'bandpass', freq: 420, q: 1.1, attack: 0.05, sustain: true, release: 0.15 });
