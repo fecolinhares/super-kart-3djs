@@ -70,13 +70,13 @@ export const CONFIG = {
     boxRadius: 1.0,
     boxBobSpeed: 2.0,
     pickupRadius: 2.8, // generous — at 43 m/s the kart crosses 2.1m per 0.05s frame
-    shellSpeed: 34,
+    shellSpeed: 46,
     shellHomingTurnRate: 3.2,
     bananaRadius: 0.7,
     starDurationMs: 4000,
     lightningDurationMs: 4500,
     lightningScale: 0.55,
-    mushroomBoostMs: 2200,
+    mushroomBoostMs: 1500,
     maxHeldItems: 1,
   },
 

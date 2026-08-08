@@ -291,7 +291,9 @@ export class RaceManager {
     const pos01 = n > 1 ? Math.max(0, Math.min(1, (kart.position - 1) / (n - 1))) : 0.5;
     const type = rollPowerUpType(pos01);
     kart.heldItem = type;
-    this.audio?.play?.('itemPickup');
+    // Player gets the full 'pickup' fanfare from main.js's heldItem change
+    // hook; AI pickups keep a quiet discrete blip (no double chime — audit F2).
+    if (kart !== this.player) this.audio?.play?.('itemPickup');
     return type;
   }
 

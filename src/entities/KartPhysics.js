@@ -227,7 +227,7 @@ export class KartPhysics {
     if (s.spinOut) target = 0;
 
     if (!s.spinOut) {
-      if (input.throttle) s.speed += P.acceleration * dt;
+      if (input.throttle) s.speed += P.acceleration * dt * Math.max(0.15, input.throttle); // AI corner-lift 0.3/0.8 scales accel (audit F3)
       if (input.brake) s.speed -= P.braking * dt;
     }
     const fr = P.friction * (s.offRoad ? 1.8 : 1);
@@ -282,6 +282,7 @@ export class KartPhysics {
         if (kart._airTime > 0.05) {
           kart._scaleTarget = 0.92; // landing squash
           kart._scaleMs = Math.max(kart._scaleMs, 240);
+          kart._onLand?.(); // landing thump hook (audit UX-F3 — touchdown was silent)
         }
         kart._airTime = 0;
       }

@@ -19,8 +19,8 @@ export function getGradientMap() {
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = '#3d4a63'; // shadow band
   ctx.fillRect(0, 0, 2, 1);
-  ctx.fillStyle = '#9fb0cc'; // mid band
-  ctx.fillRect(2, 0, 4, 1);
+  ctx.fillStyle = '#d8dee8'; // mid band — NEUTRAL (was #9fb0cc: cast blue-gray
+  ctx.fillRect(2, 0, 4, 1); //  over every mid-tone, killing saturated paint)
   ctx.fillStyle = '#ffffff'; // lit band
   ctx.fillRect(6, 0, 2, 1);
   const tex = new THREE.CanvasTexture(canvas);

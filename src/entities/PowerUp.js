@@ -180,6 +180,7 @@ export function useItem(kart, ctx = {}) {
       const karts = ctx.karts || [];
       for (const other of karts) {
         if (other === kart || other.finished) continue;
+        if (other.starred || other.invincible) continue; // audit F4: invincible riders are protected
         other.applyScale?.(CONFIG.items.lightningScale, CONFIG.items.lightningDurationMs);
         // Electric burst on each victim (art-bible: drama on hit).
         ctx.particles?.emit?.('lightning', kartPosition(other), { count: 18, speed: 7.5, size: 0.34 });

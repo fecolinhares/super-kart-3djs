@@ -28,6 +28,12 @@ export class AIController {
     this.crashUntil = -1; // manager elapsed time when we may steer again
     this.itemAccum = 0; // item-use accumulator (chance per second)
 
+    // Apply the driver's stats (1-10) as a difficulty curve (audit F2):
+    //   speed    → base cruise speed (0.95-1.05 x maxSpeed)
+    //   accel    → throttle eagerness (0.75-1.0 floor)
+    //   handling → steering authority (0.85-1.15 look-ahead steering gain)
+    const st = kart.character?.stats || { speed: 7, accel: 7, handling: 7 };
+    this.stats = st;
     this._initPath();
   }
 
@@ -106,7 +112,9 @@ export class AIController {
     // signedAngle(a,b) = h(a) - h(b). With the current physics, positive
     // steer DECREASES heading (turns right). Target right of kart → err > 0
     // → positive steer. (Was -err before the steering-sign fix.)
-    const steer = THREE.MathUtils.clamp(err / STEER_FULL_AT, -1, 1);
+    // Handling stat scales steering authority (audit F2 difficulty curve).
+    const hGain = 0.85 + (this.stats?.handling || 7) / 10 * 0.3;
+    const steer = THREE.MathUtils.clamp((err / STEER_FULL_AT) * hGain, -1, 1);
 
     let throttle = 1;
     let brake = 0;
@@ -139,19 +147,23 @@ export class AIController {
       const factor = THREE.MathUtils.clamp((d * CONFIG.ai.rubberBandFactor) / 1.5, -0.12, 0.3);
       // Real comeback: throttle alone can't raise TOP SPEED (physics caps at
       // maxSpeed/boostSpeed), so behind-AIs also get a cruiseSpeed override.
+      // The driver's speed stat scales the whole cruise envelope (F2 curve).
+      const statScale = 0.95 + (this.stats?.speed || 7) / 10 * 0.1;
       if (d > 0.03) {
         const boost = Math.min(0.22, d * 0.3);
-        kart.cruiseSpeed = CONFIG.physics.maxSpeed * (1 + boost);
+        kart.cruiseSpeed = CONFIG.physics.maxSpeed * (1 + boost) * statScale;
       } else {
-        kart.cruiseSpeed = CONFIG.physics.maxSpeed;
+        kart.cruiseSpeed = CONFIG.physics.maxSpeed * statScale;
       }
       throttle = THREE.MathUtils.clamp(throttle * (1 + factor), 0, 1.35);
     }
 
     // Drift style through committed corners (only while racing).
+    // Accel stat raises the throttle floor → eager starters pull away (F2).
+    const aGain = 0.6 + (this.stats?.accel || 7) / 10 * 0.5;
     if (!finished && absErr > 0.55 && speed > CONFIG.physics.driftMinSpeed) {
       drift = true;
-      throttle = Math.max(throttle, 1);
+      throttle = Math.max(throttle * aGain, 1);
     }
 
     kart.setControls?.({ steer, throttle, brake, drift, useItem: false });

@@ -50,7 +50,7 @@ const skids = new SkidMarks(scene);
 const raceManager = new RaceManager(scene, camera);
 const hud = new HUD(track);
 const menu = new Menu({ onStart: startRace, onColor: setPlayerColor, onSound: (n) => audio.play(n) });
-const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressItem(), onPause: togglePause });
+const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressItem(), onPause: togglePause, onDrift: (b) => { touchDrift = b; } });
 
 // Default player color matches their character's identity color; the menu
 // picker can override it (setPlayerColor → setBodyColor).
@@ -111,6 +111,10 @@ function setPlayerColor(color) {
 
 /** Drift mini-boost drama: SFX + golden spark burst on release (all karts). */
 function wireMiniBoost(kart) {
+  kart._onLand = () => {
+    // Soft thump on touchdown — mostly for the player (AI landings are quiet).
+    if (kart.isPlayer) audio.play('landing', { volume: 0.5 });
+  };
   kart._onMiniBoost = (charge01 = 1) => {
     const v = (kart.isPlayer ? 0.8 : 0.45) * (0.5 + charge01 * 0.5);
     audio.play('driftReleaseMiniBoost', { volume: v, pan: (kart.group.position.x - playerKart.group.position.x) * 0.02 });
@@ -176,6 +180,7 @@ function buildKarts() {
 const input = { steer: 0, throttle: 0, brake: false, drift: false };
 const keys = new Set();
 let touchSteer = 0;
+let touchDrift = false;
 
 function setTouchSteer(v) {
   touchSteer = v;
@@ -193,7 +198,7 @@ function readKeyboardInput() {
   input.steer = (right ? 1 : 0) - (left ? 1 : 0);
   input.throttle = up ? 1 : 0;
   input.brake = down;
-  input.drift = keys.has('ShiftLeft') || keys.has('ShiftRight');
+  input.drift = keys.has('ShiftLeft') || keys.has('ShiftRight') || touchDrift;
 }
 
 function pressItem() {
@@ -311,6 +316,18 @@ function restartRace() {
   setState(STATES.COUNTDOWN);
 }
 
+function gotoMenu() {
+  setState(STATES.MENU);
+  hud.hide();
+  menu.show();
+  audio.clearEngineLoops();
+}
+
+// Pause overlay is tappable ("tap to resume" — audit UX-F6).
+hud.root.querySelector('.sk3d-pause')?.addEventListener('click', () => {
+  if (getState() === STATES.PAUSED) togglePause();
+});
+
 // ---------------------------------------------------------------------------
 // Camera
 // ---------------------------------------------------------------------------
@@ -381,15 +398,14 @@ function updateCamera(dt, t) {
   camTarget.copy(st.position).addScaledVector(_fwd, CONFIG.camera.lookAhead);
   camTarget.y += CONFIG.camera.lookHeight;
 
-  const desired = st.position
-    .clone()
+  _camDesired.copy(st.position)
     .addScaledVector(_fwd, -CONFIG.camera.followDistance)
     .addScaledVector(_side, 0)
     .addScaledVector(_fwd, 0);
-  desired.y += CONFIG.camera.followHeight;
+  _camDesired.y += CONFIG.camera.followHeight;
 
   const lerp = 1 - Math.exp(-CONFIG.camera.lerp * dt);
-  camPos.lerp(desired, lerp);
+  camPos.lerp(_camDesired, lerp);
   camera.position.copy(camPos);
 
   const speed01 = Math.min(1, Math.abs(st.speed) / CONFIG.physics.maxSpeed);
@@ -614,6 +630,7 @@ window.__sk3d = {
   particles,
   startRace,
   restartRace,
+  gotoMenu,
   addShake,
   updateCamera, // QA hook: can be stubbed to freeze the chase camera
   DEMO,

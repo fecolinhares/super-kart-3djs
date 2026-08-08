@@ -14,11 +14,13 @@ export class TouchControls {
    * @param {(v: number) => void} [opts.onSteer] called with -1 | 0 | +1
    * @param {() => void} [opts.onItem]          called when the item button is pressed
    * @param {() => void} [opts.onPause]         called when the pause button is pressed
+   * @param {(b: boolean) => void} [opts.onDrift] called on drift button hold/release
    */
-  constructor({ onSteer, onItem, onPause } = {}) {
+  constructor({ onSteer, onItem, onPause, onDrift } = {}) {
     this.onSteer = typeof onSteer === 'function' ? onSteer : () => {};
     this.onItem = typeof onItem === 'function' ? onItem : () => {};
     this.onPause = typeof onPause === 'function' ? onPause : () => {};
+    this.onDrift = typeof onDrift === 'function' ? onDrift : () => {};
     this.steerValue = 0;
 
     this.root = document.createElement('div');
@@ -26,14 +28,22 @@ export class TouchControls {
     this.root.innerHTML = `
       <button type="button" class="sk3d-touch-btn sk3d-touch-left" aria-label="Steer left"><span class="sk3d-touch-arrow">◀</span><span class="sk3d-touch-label">LEFT</span></button>
       <button type="button" class="sk3d-touch-btn sk3d-touch-right" aria-label="Steer right"><span class="sk3d-touch-arrow">▶</span><span class="sk3d-touch-label">RIGHT</span></button>
+      <button type="button" class="sk3d-touch-btn sk3d-touch-drift" aria-label="Drift (hold)"><span class="sk3d-touch-arrow">🧲</span><span class="sk3d-touch-label">DRIFT</span></button>
       <button type="button" class="sk3d-touch-btn sk3d-touch-item" aria-label="Use item"><span class="sk3d-touch-arrow">🎁</span><span class="sk3d-touch-label">ITEM</span></button>
       <button type="button" class="sk3d-touch-pause" aria-label="Pause"><span>⏸</span></button>`;
 
     this.leftBtn = this.root.querySelector('.sk3d-touch-left');
     this.rightBtn = this.root.querySelector('.sk3d-touch-right');
+    this.driftBtn = this.root.querySelector('.sk3d-touch-drift');
     this.itemBtn = this.root.querySelector('.sk3d-touch-item');
     this.pauseBtn = this.root.querySelector('.sk3d-touch-pause');
     this.pauseBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); this.onPause(); });
+    // Drift is hold-to-drift: press = drift on, release = drift off.
+    const setDrift = (b) => (e) => { e.preventDefault(); this.onDrift(b); };
+    this.driftBtn.addEventListener('pointerdown', setDrift(true));
+    this.driftBtn.addEventListener('pointerup', setDrift(false));
+    this.driftBtn.addEventListener('pointerleave', setDrift(false));
+    this.driftBtn.addEventListener('pointercancel', setDrift(false));
 
     this.bindSteer(this.leftBtn, -1);
     this.bindSteer(this.rightBtn, 1);

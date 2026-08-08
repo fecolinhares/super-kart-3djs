@@ -65,6 +65,7 @@ export class Kart {
     // effect flags / timers (ms)
     this.invincible = false;
     this.starred = false;
+    this.cruiseSpeed = undefined; // AI rubber-band override must not leak across restarts (audit F9)
     this._boostMs = 0;
     this._starMs = 0;
     this._invMs = 0;
@@ -461,7 +462,10 @@ export class Kart {
 
   setControls({ steer, throttle, brake, drift, useItem } = {}) {
     if (steer !== undefined) this._steerTarget = THREE.MathUtils.clamp(steer, -1, 1);
-    if (throttle !== undefined) this._controls.throttle = !!throttle;
+    // Throttle stays a FLOAT (AI corner-lift 0.3/0.8, rubber-band easing
+    // 0.88×) — coercing to boolean killed the AI's designed corner behavior
+    // and the "ease off when ahead" half of rubber-banding (audit F3).
+    if (throttle !== undefined) this._controls.throttle = THREE.MathUtils.clamp(throttle, 0, 1);
     if (brake !== undefined) this._controls.brake = !!brake;
     if (drift !== undefined) this._controls.drift = !!drift;
     if (useItem !== undefined) this._controls.useItem = !!useItem;
@@ -496,6 +500,7 @@ export class Kart {
     s.drifting = false;
     s.driftCharge = 0;
     s.boost = false;
+    this.cruiseSpeed = undefined; // audit F9: rubber-band override must not leak
     s.turboBoostMs = 0;
     s.offRoad = false;
     s.spinOut = false;

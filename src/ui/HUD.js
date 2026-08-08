@@ -120,6 +120,7 @@ export class HUD {
           <div class="sk3d-finish-title">FINISHED <span class="sk3d-finish-place">1st</span>!</div>
           <div class="sk3d-finish-time">0:00.0</div>
           <button type="button" class="sk3d-finish-btn">Race Again</button>
+          <button type="button" class="sk3d-menu-btn">Menu</button>
           <div class="sk3d-finish-hint">or press R</div>
         </div>
       </div>
@@ -156,6 +157,8 @@ export class HUD {
     this.finishPlaceEl = this.root.querySelector('.sk3d-finish-place');
     this.finishBtnEl = this.root.querySelector('.sk3d-finish-btn');
     this.finishBtnEl.addEventListener('click', () => window.__sk3d?.restartRace?.());
+    this.menuBtnEl = this.root.querySelector('.sk3d-menu-btn');
+    this.menuBtnEl.addEventListener('click', () => window.__sk3d?.gotoMenu?.());
     this.finishTimeEl = this.root.querySelector('.sk3d-finish-time');
     this.toastEl = this.root.querySelector('.sk3d-toast');
     this.toastEl.setAttribute('aria-live', 'polite'); // toast only (root was too chatty)

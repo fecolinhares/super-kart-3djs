@@ -425,6 +425,13 @@ export function renderSfx(ctx, out, name, opts = {}) {
       break;
     }
 
+    case 'landing': {
+      // Soft impact thump when a kart touches down (audit UX-F3).
+      osc(ctx, target, { type: 'sine', freq: 110 * rate, glideTo: 55 * rate, dur: 0.16, vol: v(0.5), at, attack: 0.003 });
+      noise(ctx, target, { dur: 0.18, vol: v(0.2), at, filterType: 'lowpass', freq: 900, attack: 0.003, timeConstant: 0.06 });
+      break;
+    }
+
     case 'countdown': {
       // Clean beep for the 3-2-1 countdown.
       osc(ctx, target, { type: 'square', freq: 660 * rate, dur: 0.16, vol: v(0.4), at, attack: 0.004, sustain: true, release: 0.05 });
