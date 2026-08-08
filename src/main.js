@@ -5,7 +5,6 @@
  * keyboard input and the ?demo cinematic autopilot used by visual QA.
  */
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { CONFIG } from './config.js';
 import { createScene } from './render/SceneManager.js';
 import { GameLoop } from './game/GameLoop.js';
@@ -36,11 +35,46 @@ const TEST = new URLSearchParams(location.search).has('test'); // fast no-postfx
 const env = new Environment();
 const track = buildTrack(scene);
 env.buildEnvironment(scene, track); // track passed so props avoid the road
-// Image-based lighting: chrome + car-paint need an env map or metalness
-// renders BLACK. RoomEnvironment = cheap procedural studio env (no HDR).
-const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-pmrem.dispose();
+// Image-based lighting: chrome + car paint need an env map or metalness
+// renders BLACK. A procedural SUNNY-SKY env (instead of the grey RoomEnvironment)
+// makes clearcoat/paint reflect vivid sky blue — the console-racer look.
+function buildSkyEnv(renderer) {
+  const envScene = new THREE.Scene();
+  const skyGeo = new THREE.SphereGeometry(50, 32, 16);
+  const skyMat = new THREE.MeshBasicMaterial({ side: THREE.BackSide });
+  const skyCanvas = document.createElement('canvas');
+  skyCanvas.width = 512;
+  skyCanvas.height = 256;
+  const g = skyCanvas.getContext('2d');
+  const grad = g.createLinearGradient(0, 0, 0, 256);
+  grad.addColorStop(0, '#4db4ff');   // deep sky
+  grad.addColorStop(0.55, '#a8dcff'); // mid sky
+  grad.addColorStop(0.78, '#eef7ff'); // horizon haze
+  grad.addColorStop(1, '#c8e9c8');   // ground tint
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 512, 256);
+  // bright sun disc
+  g.fillStyle = '#fff7d6';
+  g.beginPath();
+  g.arc(128, 40, 26, 0, Math.PI * 2);
+  g.fill();
+  // soft sun glow
+  g.globalAlpha = 0.35;
+  g.fillStyle = '#fff3c0';
+  g.beginPath();
+  g.arc(128, 40, 60, 0, Math.PI * 2);
+  g.fill();
+  g.globalAlpha = 1;
+  const tex = new THREE.CanvasTexture(skyCanvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  skyMat.map = tex;
+  envScene.add(new THREE.Mesh(skyGeo, skyMat));
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const envTex = pmrem.fromScene(envScene, 0.04).texture;
+  pmrem.dispose();
+  return envTex;
+}
+scene.environment = buildSkyEnv(renderer);
 
 const postfx = new PostFX(renderer, scene, camera);
 if (TEST) postfx.enabled = false; // software GL runs ~30x faster without bloom
