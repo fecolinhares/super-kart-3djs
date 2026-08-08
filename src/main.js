@@ -103,12 +103,12 @@ function setPlayerColor(color) {
 
 /** Drift mini-boost drama: SFX + golden spark burst on release (all karts). */
 function wireMiniBoost(kart) {
-  kart._onMiniBoost = () => {
-    if (!kart.isPlayer) audio.play('driftReleaseMiniBoost', { volume: 0.45, pan: (kart.group.position.x - playerKart.group.position.x) * 0.02 });
-    else audio.play('driftReleaseMiniBoost', { volume: 0.8 });
+  kart._onMiniBoost = (charge01 = 1) => {
+    const v = (kart.isPlayer ? 0.8 : 0.45) * (0.5 + charge01 * 0.5);
+    audio.play('driftReleaseMiniBoost', { volume: v, pan: (kart.group.position.x - playerKart.group.position.x) * 0.02 });
     if (particles) {
       particles.emit('sparkle', kart.state.position.clone().add(new THREE.Vector3(0, 0.6, 0)), {
-        count: 18, speed: 5.5, size: 0.3, spread: 1.8, color: 0xffd166,
+        count: Math.round(5 + charge01 * 13), speed: 3.0 + charge01 * 2.5, size: 0.22, spread: 1.4 + charge01 * 0.4, color: 0xffd166,
       });
     }
   };

@@ -120,8 +120,15 @@ function updateDrift(kart, input, dt, speedAbs) {
     s.driftCharge = Math.min(1, s.driftCharge + P.driftChargeRate * dt * (1 + Math.abs(input.steer) * 0.6));
   } else if (s.drifting) {
     if (s.driftCharge >= P.driftReleaseBoost) {
-      kart.applyBoost(750); // mini-boost
-      kart._onMiniBoost?.(); // drama hook (SFX + spark burst) wired in main.js
+      // Charge-scaled mini-boost (was a fixed 750ms): full charge = full kick,
+      // partial = short kick — risk/reward on how long you hold the drift.
+      const charge01 = Math.min(1, s.driftCharge);
+      const ms = Math.round(300 + charge01 * 450); // 300..750ms
+      kart.applyBoost(ms);
+      kart._onMiniBoost?.(charge01); // drama hook (SFX + spark burst) wired in main.js
+    } else if (s.driftCharge > 0.15) {
+      // Sub-threshold release: small feedback cue so the release isn't silent.
+      kart._onMiniBoost?.(s.driftCharge * 0.5);
     }
     s.drifting = false;
     s.driftCharge = 0;
@@ -200,7 +207,10 @@ export class KartPhysics {
       const tanAngle = Math.atan2(tan.x, tan.z);
       // Off-road: weaken the pull so the player can steer BACK to the track
       // (a strong pull keeps the kart running parallel in the grass forever).
-      const pull = s.offRoad ? 0.1 : s.drifting ? 0.2 : 0.45;
+      // On-road path pull: reduced from 0.45 → 0.18 (auditor: 0.45 auto-steered
+      // the kart and masked steering feel; 0.18 lets the player hold a racing
+      // line while still recentering after a bump). Off-road 0.1 unchanged.
+      const pull = s.offRoad ? 0.1 : s.drifting ? 0.2 : 0.18;
       s.heading = dampAngle(s.heading, tanAngle, pull, dt);
       updateDrift(kart, input, dt, speedAbs);
     }
