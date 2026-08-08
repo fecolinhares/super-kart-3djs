@@ -150,7 +150,6 @@ export class Environment {
     const cloudMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
       roughness: 1,
-      flatShading: true,
       fog: true,
     });
     const group = new THREE.Group();
@@ -160,7 +159,7 @@ export class Environment {
       for (let p = 0; p < puffs; p++) {
         const s = 5 + Math.random() * 7;
         const puff = new THREE.Mesh(
-          new THREE.SphereGeometry(s, 8, 6),
+          new THREE.SphereGeometry(s, 12, 10), // smooth puffs (no flat facets)
           cloudMat
         );
         puff.position.set(p * s * 0.7 - puffs * s * 0.35, Math.random() * 1.6, (Math.random() - 0.5) * 4);
