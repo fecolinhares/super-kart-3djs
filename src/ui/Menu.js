@@ -28,10 +28,12 @@ export class Menu {
    * @param {object} opts
    * @param {() => void} [opts.onStart]   called when "Start Race" is pressed
    * @param {(color: number) => void} [opts.onColor] called when a swatch is picked
+   * @param {(name: string) => void} [opts.onSound] played on UI interaction
    */
-  constructor({ onStart, onColor } = {}) {
+  constructor({ onStart, onColor, onSound } = {}) {
     this.onStart = typeof onStart === 'function' ? onStart : () => {};
     this.onColor = typeof onColor === 'function' ? onColor : () => {};
+    this.onSound = typeof onSound === 'function' ? onSound : () => {};
     this.selectedColor = CONFIG.kart.playerColors[0];
 
     this.root = document.createElement('div');
@@ -93,10 +95,10 @@ export class Menu {
   }
 
   bindEvents() {
-    this.startBtn.addEventListener('click', () => this.onStart());
-    this.helpToggle.addEventListener('click', () => this.toggleHelp());
+    this.startBtn.addEventListener('click', () => { this.onSound('uiSelect'); this.onStart(); });
+    this.helpToggle.addEventListener('click', () => { this.onSound('uiClick'); this.toggleHelp(); });
     for (const swatch of this.swatches) {
-      swatch.addEventListener('click', () => this.selectColor(swatch));
+      swatch.addEventListener('click', () => { this.onSound('uiClick'); this.selectColor(swatch); });
     }
   }
 

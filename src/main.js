@@ -41,7 +41,7 @@ const audio = new AudioManager();
 const particles = new ParticleSystem(scene);
 const raceManager = new RaceManager(scene, camera);
 const hud = new HUD(track);
-const menu = new Menu({ onStart: startRace, onColor: setPlayerColor });
+const menu = new Menu({ onStart: startRace, onColor: setPlayerColor, onSound: (n) => audio.play(n) });
 const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressItem() });
 
 // Default player color matches their character's identity color; the menu
@@ -51,7 +51,8 @@ let playerKart = null;
 let aiKarts = [];
 let aiControllers = [];
 let countdownT = 0;
-let countdownIndex = -1; // -1 so the first mark (3) actually fires
+let countdownIndex = -1;
+let offroadT = 0.55; // off-road gravel SFX accumulator (feedback audit)
 let lastHeldItem = null;
 let turboParticleAcc = 0; // accumulator: burst once per 0.1s while turbo-boosting
 
@@ -481,6 +482,13 @@ loop.start((dt, t) => {
       }
     } else {
       turboParticleAcc = 0;
+    }
+    // Off-road gravel rumble (feedback audit: surface/danger cue).
+    if (playerKart.state.offRoad && playerKart.state.speed > 2) {
+      offroadT += dt;
+      if (offroadT >= 0.55) { offroadT = 0; audio.play('offroad', { volume: 0.5 }); }
+    } else {
+      offroadT = 0.55; // ready to fire immediately when leaving the road
     }
     updateCamera(dt, t);
   }

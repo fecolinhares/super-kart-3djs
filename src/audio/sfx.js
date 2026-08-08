@@ -289,6 +289,28 @@ export function renderSfx(ctx, out, name, opts = {}) {
       break;
     }
 
+    case 'uiClick': {
+      // Short tactile blip for menu swatches/toggles.
+      osc(ctx, target, { type: 'triangle', freq: 620 * rate, glideTo: 840 * rate, dur: 0.06, vol: v(0.22), at, attack: 0.001 });
+      noise(ctx, target, { dur: 0.03, vol: v(0.08), at, filterType: 'highpass', freq: 5000 });
+      break;
+    }
+
+    case 'uiSelect': {
+      // Confirming two-tone for "Start Race".
+      osc(ctx, target, { type: 'triangle', freq: 523.25 * rate, dur: 0.09, vol: v(0.26), at, attack: 0.001 });
+      osc(ctx, target, { type: 'triangle', freq: 783.99 * rate, dur: 0.16, vol: v(0.26), at: at + 0.07, attack: 0.001 });
+      chime(ctx, target, { freq: 1046.5 * rate, dur: 0.3, vol: v(0.14), at: at + 0.12, partials: [1, 2, 3] });
+      break;
+    }
+
+    case 'offroad': {
+      // Gravel/grass rumble while the kart is on the shoulder.
+      noise(ctx, target, { dur: 0.7, vol: v(0.16), at, filterType: 'bandpass', freq: 420, q: 1.1, attack: 0.05, sustain: true, release: 0.15 });
+      noise(ctx, target, { dur: 0.55, vol: v(0.08), at: at + 0.02, filterType: 'highpass', freq: 3000, attack: 0.06, sustain: true, release: 0.1 });
+      break;
+    }
+
     case 'itemPickup': {
       // Sparkle chime arpeggio up: C6-E6-G6-C7 + air shimmer.
       // Polish: add an attack "pop" + brighter partials + fuller shimmer.
