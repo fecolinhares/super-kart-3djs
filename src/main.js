@@ -443,6 +443,8 @@ loop.start((dt, t) => {
       for (const ctrl of aiControllers) ctrl.update(dt);
       raceManager.update(dt);
       hud.update(raceManager, playerKart, raceManager.karts);
+      // Drift charge meter (white → yellow → orange; only while drifting).
+      hud.setDriftCharge(playerKart.state.driftCharge, playerKart.state.drifting);
       // Toast the item the player just picked up — ICON first, then name.
       if (playerKart.heldItem && playerKart.heldItem !== lastHeldItem) {
         lastHeldItem = playerKart.heldItem;
