@@ -134,7 +134,9 @@ export class AIController {
     const player = this.raceManager && this.raceManager.player;
     if (player && player !== kart) {
       const d = progressScore(player) - progressScore(kart); // >0 → AI behind
-      const factor = THREE.MathUtils.clamp((d * CONFIG.ai.rubberBandFactor) / 400, -0.12, 0.3);
+      // NOTE: d is a progress diff in 0..1, so the divisor must be ~1.5 — the
+      // old /400 made the whole term ~0.001 (rubber-band numerically dead).
+      const factor = THREE.MathUtils.clamp((d * CONFIG.ai.rubberBandFactor) / 1.5, -0.12, 0.3);
       throttle = THREE.MathUtils.clamp(throttle * (1 + factor), 0, 1.35);
     }
 
