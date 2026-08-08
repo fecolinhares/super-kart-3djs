@@ -380,7 +380,7 @@ export class HUD {
     // Player gets a direction cone (points along state.heading) so the map
     // reads "where am I going", not just "where am I".
     if (isPlayer) {
-      const cone = svgEl('path', { d: 'M 0 -8 L 6 4 L 0 0 L -6 4 Z', class: 'sk3d-minimap-cone' });
+      const cone = svgEl('path', { d: 'M 0 -11 L 8 6 L 0 0 L -8 6 Z', class: 'sk3d-minimap-cone' });
       mm.dotsGroup.append(cone);
       mm.playerCone = cone;
     }

@@ -501,7 +501,7 @@ loop.start((dt, t) => {
       if (!k || !k.state) continue;
       if (k.state.drifting && Math.abs(k.state.speed) > 8) {
         const acc = (k.skidAcc = (k.skidAcc || 0) + dt);
-        if (acc >= 0.14) {
+        if (acc >= 0.08) {
           k.skidAcc = 0;
           const h = k.state.heading;
           const fwd = _fwd2.set(Math.sin(h), 0, Math.cos(h));

@@ -8,7 +8,7 @@
 import * as THREE from 'three';
 
 const MARK_W = 0.5;
-const MARK_L = 1.35;
+const MARK_L = 1.8;
 const RIBBON_Y = 0.185; // road ribbon sits at y+0.18; sit just above it
 const START_OPACITY = 0.42;
 const LIFE = 4.5;
