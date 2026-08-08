@@ -9,7 +9,7 @@
 //   - One-shot SFX via renderSfx(), procedural music via MusicEngine,
 //     continuous per-kart engine loops.
 //
-// Contract (docs/ARCHITECTURE.md):
+// Contract (ARCHITECTURE.md):
 //   new AudioManager()
 //   init()                      — first user gesture; builds ctx + master
 //   play(name, opts)            — one-shot SFX; safe no-op before init

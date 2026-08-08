@@ -3,7 +3,7 @@
 // Pure procedural SFX recipes (cartoon racing theme), 100%
 // synthesized with the WebAudio API — no samples, no assets.
 //
-// Contract (docs/ARCHITECTURE.md):
+// Contract (ARCHITECTURE.md):
 //   renderSfx(ctx, out, name, opts)
 //     ctx  — ANY BaseAudioContext (AudioContext in the game,
 //            OfflineAudioContext for QA rendering).

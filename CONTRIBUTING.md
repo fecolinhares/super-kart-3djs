@@ -24,7 +24,7 @@ conventions as its sibling project **Match-3D.js** — keep it consistent.
 - UI copy and docs are **100% English** (the project targets a global audience).
 - Never hardcode secrets, local paths or machine-specific values. Config
   belongs in `src/config.js` (gameplay) or environment variables (build).
-- Public APIs live in `docs/ARCHITECTURE.md` — if you change a module
+- Public APIs live in `ARCHITECTURE.md` — if you change a module
   contract, update the document in the same commit.
 
 ## Quality bar
@@ -33,7 +33,7 @@ This project targets **AAA-grade visuals**. Before opening a PR:
 
 - `npm run build` must pass.
 - New visuals must be verified with a screenshot (desktop + mobile) —
-  see the visual QA loop described in `docs/ARCHITECTURE.md`.
+  see the visual QA loop described in `ARCHITECTURE.md`.
 
 ## Pull requests
 

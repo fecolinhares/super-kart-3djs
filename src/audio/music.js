@@ -5,7 +5,7 @@
 // kick/snare/hat groove and a vinyl texture with crackles — all
 // synthesized live with the WebAudio API.
 //
-// Contract (docs/ARCHITECTURE.md):
+// Contract (ARCHITECTURE.md):
 //   new MusicEngine(ctx, { volume, onEnded })
 //   start(), stop(), next(), setVolume(v)
 //   static renderOffline(ctx, out, trackName, seed, cycles)

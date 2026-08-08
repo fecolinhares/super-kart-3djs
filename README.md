@@ -84,8 +84,9 @@ npm run preview    # serve the production build
 
 ## 🗂️ Docs
 
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) — module contracts, file layout, quality gates
-- [DESIGN.md](docs/DESIGN.md) — visual direction & AAA quality bar
+- [ARCHITECTURE.md](ARCHITECTURE.md) — module contracts, file layout, quality gates
+- [DESIGN.md](DESIGN.md) — visual direction & AAA quality bar
+- [ITEMS-REFERENCE.md](docs/reference/ITEMS-REFERENCE.md) — power-up design reference
 
 ## 🤝 Contributing
 

@@ -53,8 +53,9 @@ src/
     ui.css              — all UI styling (ui agent)
 public/
   favicon.svg, og-image.png
-docs/ screenshots, reference, ARCHITECTURE.md, DESIGN.md
+docs/ screenshots, reference (ITEMS-REFERENCE.md)
 ```
+ARCHITECTURE.md, DESIGN.md live at the repo root (same layout as Match-3D.js).
 
 ## Module contracts
 
