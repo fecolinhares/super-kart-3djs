@@ -57,9 +57,24 @@ never use brake to slow down in air/grass.
   forest, palms, grandstands, crowd blocks, mountains, balloons.
 - **Item placement**: a side-by-side PAIR right before turn 1 (classic),
   then 10 singles alternating sides.
+- **Turbo pads**: 2 clusters of 4 yellow chevron pads (t≈0.18 and t≈0.72) —
+  touching one gives a 1.2 s speed burst.
 - **Flow**: gentle S out of the grid → elevation climb → sweeping left →
   downhill right → long right-hander into the finish straight. No flat
   sections longer than ~4 s.
+
+## 5b. Characters
+
+Six distinct racers (body/suit/helmet colors + stat spread):
+
+| Name | Body | Stats (speed/accel/handling) |
+|---|---|---|
+| Turbo | red | 8 / 5 / 7 |
+| Comet | blue | 9 / 4 / 5 |
+| Bolt | yellow | 6 / 9 / 5 |
+| Daisy | green | 5 / 6 / 9 |
+| King | purple | 6 / 7 / 7 |
+| Pip | orange | 5 / 8 / 7 |
 
 ## 6. Power-ups (position-aware rubber-band)
 
@@ -90,8 +105,9 @@ generously for 43 m/s × 0.05 s frames).
   (smoke + confetti), blob shadows, bloom + vignette, camera shake on hits.
 - **Audio (100% procedural WebAudio)**: engine loop (saw + octave + combustion
   noise, pitch = speed), 19 synthesized SFX, 3 looping music tracks.
-- **HUD**: rank medal, lap counter, timer, speedometer needle, item slot with
-  icon + name, countdown overlay, item toast.
+- **HUD**: rank medal chip, lap counter + progress bar, timer, circular
+  **minimap** (track + kart dots), speedometer needle + digital readout,
+  item slot with icon + name, countdown overlay, item toast.
 
 ## 9. Mobile
 

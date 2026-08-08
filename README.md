@@ -26,7 +26,10 @@ A fast, juicy **cartoon kart racer** in the spirit of the genre's legends —
 **Mario Kart**, **Sonic & All-Stars Racing** and **Crash Nitro Kart**: drift
 around banked curves, smash **item boxes** and use the power-up you get —
 mushroom boost, homing shell, banana trap, invincibility star or the dreaded
-lightning bolt — to fight your way from 6th to 1st across **3 laps**.
+lightning bolt — with **6 named characters** (Turbo, Comet, Bolt, Daisy, King,
+Pip), **turbo pads**, a **live minimap** and AI rivals with rubber-band, to
+fight your way from 6th to 1st across **3 laps**. 100% procedural — zero
+external assets, MIT, built on Three.js.
 
 Every visual layer targets a **AAA** bar: toon-shaded materials with rim
 lighting, saturated palette, post-processing (bloom + color grade + vignette),
