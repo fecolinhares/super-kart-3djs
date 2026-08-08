@@ -397,27 +397,28 @@ function buildTireBarriers(path, roadW) {
     path.getTangentAt(t, tan);
     path.getTangentAt(Math.min(1, t + dt), tan2);
     const curv = 1 - Math.min(1, Math.max(-1, tan.dot(tan2)));
-    if (curv > 0.0022 && t - lastT > 0.05 && t > 0.05 && t < 0.95) {
+    if (curv > 0.0022 && t - lastT > 0.06 && t > 0.05 && t < 0.95) {
       path.getPointAt(t, p);
       nrm.set(-tan.z, 0, tan.x).normalize();
-      // Outside of the turn (both sides get a barrier; dense = 2 tires deep).
+      // A tire STACK (3 tires high) on each side, just off the road.
       for (let side = -1; side <= 1; side += 2) {
-        spots.push({ x: p.x + nrm.x * (side * (halfW + 1.3)), y: p.y, z: p.z + nrm.z * (side * (halfW + 1.3)), ry: Math.atan2(tan.x, tan.z) });
-        spots.push({ x: p.x + nrm.x * (side * (halfW + 1.9)), y: p.y, z: p.z + nrm.z * (side * (halfW + 1.9)), ry: Math.atan2(tan.x, tan.z) });
+        spots.push({ x: p.x + nrm.x * (side * (halfW + 1.1)), y: p.y, z: p.z + nrm.z * (side * (halfW + 1.1)), ry: Math.atan2(tan.x, tan.z) });
       }
       lastT = t;
     }
   }
   if (spots.length === 0) return null;
-  const tireGeo = new THREE.CylinderGeometry(0.34, 0.34, 0.24, 10);
-  const tireMat = toonMaterial(0x1b1e24, {});
-  const mesh = new THREE.InstancedMesh(tireGeo, tireMat, spots.length);
-  for (let i = 0; i < spots.length; i++) {
-    const s = spots[i];
-    dummy.position.set(s.x, s.y + 0.12, s.z); // half tire height above ground
-    dummy.rotation.set(Math.PI / 2, 0, s.ry); // lie flat, ring facing the road
-    dummy.updateMatrix();
-    mesh.setMatrixAt(i, dummy.matrix);
+  const tireGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.3, 12);
+  const tireMat = toonMaterial(0x23272e, {});
+  const mesh = new THREE.InstancedMesh(tireGeo, tireMat, spots.length * 3);
+  let idx = 0;
+  for (const s of spots) {
+    for (let h = 0; h < 3; h++) {
+      dummy.position.set(s.x, s.y + 0.15 + h * 0.3, s.z);
+      dummy.rotation.set(0, s.ry, 0); // standing tire ring facing along the road
+      dummy.updateMatrix();
+      mesh.setMatrixAt(idx++, dummy.matrix);
+    }
   }
   mesh.instanceMatrix.needsUpdate = true;
   return mesh;
