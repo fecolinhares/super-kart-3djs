@@ -262,6 +262,28 @@ export class Environment {
     bushes.instanceMatrix.needsUpdate = true;
     scene.add(bushes);
 
+    // Roadside greenery: dense bushes hugging the track edge (known spots).
+    const roadside = new THREE.InstancedMesh(bushGeo, bushMat, 40);
+    const edgeSpots = [
+      [-58, 14], [-40, -44], [-14, -60], [26, -62], [52, -42], [64, -10],
+      [56, 26], [30, 52], [-6, 60], [-36, 48], [-58, 26], [-24, -30],
+      [8, -44], [44, -20], [18, 24], [-16, 12], [36, 8], [-48, -8],
+      [12, 44], [-30, 36],
+    ];
+    for (let i = 0; i < edgeSpots.length; i++) {
+      const [x, z] = edgeSpots[i];
+      const off = (i % 2 === 0 ? 1 : -1) * (6.5 + Math.random() * 4);
+      const bx = x + off * 0.7;
+      const bz = z + off * 0.7;
+      dummy.position.set(bx, smoothH(bx, bz) * 0.5 - 0.5 + 0.55, bz);
+      dummy.scale.set(1.2, 0.9 + Math.random() * 0.5, 1.2);
+      dummy.rotation.y = Math.random() * Math.PI;
+      dummy.updateMatrix();
+      roadside.setMatrixAt(i, dummy.matrix);
+    }
+    roadside.instanceMatrix.needsUpdate = true;
+    scene.add(roadside);
+
     // Billboards with the game logo along the track.
     const boardCanvas = document.createElement('canvas');
     boardCanvas.width = 256;

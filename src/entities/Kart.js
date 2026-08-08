@@ -154,6 +154,25 @@ export class Kart {
 
   _buildMesh(color) {
     const KC = CONFIG.kart;
+
+    // Soft blob shadow under the kart (cartoon contact shadow). depthWrite off
+    // + polygonOffset so it never z-fights the asphalt.
+    const blob = new THREE.Mesh(
+      new THREE.CircleGeometry(1.15, 18),
+      new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        transparent: true,
+        opacity: 0.3,
+        depthWrite: false,
+        polygonOffset: true,
+        polygonOffsetFactor: -2,
+      })
+    );
+    blob.rotation.x = -Math.PI / 2;
+    blob.position.y = 0.02;
+    blob.renderOrder = 1;
+    this.group.add(blob);
+
     const body = this._mat(color);
     const bodyDark = this._mat(new THREE.Color(color).multiplyScalar(0.82).getHex());
     // keep refs so the player can repaint (setBodyColor)

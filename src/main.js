@@ -348,11 +348,12 @@ loop.start((dt, t) => {
         // Start burst: tire smoke at every kart + confetti over the grid.
         for (const k of raceManager.karts) {
           if (!k.state) continue;
-          particles.emit('exhaust', k.state.position, { count: 14, color: 0xcfd6e0, speed: 2.6 });
+          particles.emit('exhaust', k.state.position, { count: 22, color: 0xcfd6e0, speed: 3.0 });
         }
         const gridKart = raceManager.karts[Math.floor(raceManager.karts.length / 2)];
         if (gridKart && gridKart.state) {
-          particles.emit('confetti', gridKart.state.position, { count: 60 });
+          particles.emit('confetti', gridKart.state.position, { count: 90 });
+          particles.emit('confetti', gridKart.state.position, { count: 70, color: 0xffd166 });
         }
       }
     }
