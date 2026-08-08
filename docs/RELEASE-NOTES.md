@@ -19,8 +19,9 @@ A complete cartoon arcade kart racer, 100% procedural (zero external assets):
   yellow lane dashes.
 - **AA-grade models**: MK8-style item boxes (white panel, bold red '?',
   spinning + bobbing, golden ring + beam + sparkles), molded karts (rounded
-  hood/tail + nose cone + headlights, oversized chibi driver), cheering
-  spectators with raised arms, hot-air balloons with classic stripes.
+  hood/tail + nose cone + headlights, oversized chibi driver), 2.5D painted
+  spectator crowd (7 color variants, raised arms, cheering bounce) on 3 track
+  segments + grandstands, hot-air balloons with classic stripes, wildflowers.
 - **Gameplay feedback**: drift charge meter in the HUD (white → yellow →
   orange, with a tick at the mini-boost release point), speed-based camera FOV
   (+5° at top speed, +6° on boost), tire skid marks while drifting, confetti
