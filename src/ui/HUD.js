@@ -113,7 +113,7 @@ export class HUD {
       </div>
       <div class="sk3d-hud-bottom"></div>
       <div class="sk3d-countdown sk3d-hidden">3</div>
-      <div class="sk3d-pause sk3d-hidden">⏸ PAUSED<div class="sk3d-pause-hint">Press P to resume</div></div>
+      <div class="sk3d-pause sk3d-hidden">⏸ PAUSED<div class="sk3d-pause-hint">Press P / tap to resume</div></div>
       <div class="sk3d-finish sk3d-hidden">
         <div class="sk3d-finish-card">
           <div class="sk3d-finish-trophy" aria-hidden="true">🏆</div>
