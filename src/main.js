@@ -256,6 +256,22 @@ let baseFov = CONFIG.camera.fov;
 let shakeTimer = 0;
 let shakeMag = 0;
 
+/** Wavy fabric animation for the finish-line banner (segmented plane). */
+function waveBanner(t) {
+  const banner = track?.startLine?.banner;
+  if (!banner || !banner.geometry?.attributes?.position) return;
+  const pos = banner.geometry.attributes.position;
+  const amp = 0.16;
+  const freq = 0.55;
+  const speed = 2.4;
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    pos.setZ(i, Math.sin(x * freq + t * speed) * amp + Math.sin(x * freq * 2.1 - t * speed * 0.7) * amp * 0.35);
+  }
+  pos.needsUpdate = true;
+  banner.geometry.computeVertexNormals();
+}
+
 function updateCamera(dt, t) {
   if (DEMO) {
     // Cinematic autopilot: chase the player kart with a swaying side offset
@@ -375,6 +391,7 @@ loop.start((dt, t) => {
   }
 
   if (state === STATES.RACE || state === STATES.FINISHED) {
+    waveBanner(t);
     if (state === STATES.RACE) {
       // Player input
       if (!DEMO) {

@@ -126,9 +126,10 @@ function buildTerrain() {
 
 function buildCurbs(path, length, side) {
   const roadW = getRoadWidthAt();
-  const count = Math.floor(length / 3.1);
-  // Low, long curb blocks (kerb look) — not chunky cubes.
-  const geo = new THREE.BoxGeometry(1.5, 0.14, 0.42);
+  // Continuous kerbs (no gaps): block length ≈ spacing → solid red/white edge.
+  const seg = 1.7;
+  const count = Math.floor(length / seg);
+  const geo = new THREE.BoxGeometry(seg, 0.14, 0.42);
   const mat = toonMaterial(0xffffff, {});
   const mesh = new THREE.InstancedMesh(geo, mat, count);
   mesh.castShadow = true;
@@ -140,19 +141,19 @@ function buildCurbs(path, length, side) {
   const col = new THREE.Color();
 
   for (let i = 0; i < count; i++) {
-    const t = i / count;
+    const t = (i + 0.5) / count; // center each block on its segment → no overlap
     path.getPointAt(t, p);
     path.getTangentAt(t, tan);
     nrm.set(-tan.z, 0, tan.x).normalize();
     dummy.position.set(
-      p.x + nrm.x * side * (roadW / 2 + 0.3),
+      p.x + nrm.x * side * (roadW / 2 + 0.15),
       p.y + 0.18 - 0.07, // top flush with the road surface
-      p.z + nrm.z * side * (roadW / 2 + 0.3)
+      p.z + nrm.z * side * (roadW / 2 + 0.15)
     );
     dummy.lookAt(
-      p.x + tan.x + nrm.x * side * (roadW / 2 + 0.3),
+      p.x + tan.x + nrm.x * side * (roadW / 2 + 0.15),
       p.y,
-      p.z + tan.z + nrm.z * side * (roadW / 2 + 0.3)
+      p.z + tan.z + nrm.z * side * (roadW / 2 + 0.15)
     );
     dummy.rotateX(-Math.PI / 2);
     dummy.updateMatrix();
@@ -218,9 +219,9 @@ function buildGantry(startLine) {
   cartoonOutline(beam, 0x1b2a41, 0.02);
 
   // Checkered banner hanging from the beam, with a bold FINISH word.
-  // lookAt aligns +Z with the travel direction (plane faces the racers).
+  // Segmented width so main.js can wave it like fabric (not a rigid board).
   const banner = new THREE.Mesh(
-    new THREE.PlaneGeometry(roadW + 2, 2.1),
+    new THREE.PlaneGeometry(roadW + 2, 2.1, 14, 1),
     new THREE.MeshToonMaterial({ color: 0xffffff })
   );
   banner.material.map = bannerCheckerTexture();
@@ -256,7 +257,7 @@ function buildGantry(startLine) {
     group.add(flag);
   }
 
-  return { group, startLights };
+  return { group, startLights, banner };
 }
 
 export function buildTrack(scene) {
@@ -299,6 +300,7 @@ export function buildTrack(scene) {
   const startLine = { position: startPos.clone(), direction: startDir.clone(), width: getRoadWidthAt() };
   const gantry = buildGantry(startLine);
   group.add(gantry.group);
+  startLine.banner = gantry.banner; // main.js waves it like fabric
 
   // Finish checkered strip on the road itself at startT.
   // Flat box: +Z axis (roadW) spans across the road via lookAt(nrm).
