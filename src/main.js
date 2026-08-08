@@ -430,6 +430,11 @@ loop.start((dt, t) => {
       hud.countdown(mark === 0 ? 'GO' : String(mark));
       audio.play(mark === 0 ? 'go' : 'countdown');
       setStartLights(mark === 0 ? 4 : mark); // 3/2/1 → red lamps, GO → green
+      if (mark === 0) {
+        // Camera kick on GO (arcade juice: the start feels like a launch).
+        addShake(0.5, 0.5);
+        audio.play('goBurst');
+      }
       if (mark === 0 && raceManager.karts.length) {
         // Start burst: tire smoke at every kart + confetti over the grid.
         for (const k of raceManager.karts) {
