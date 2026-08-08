@@ -92,6 +92,7 @@ npm run preview    # serve the production build
 - [ARCHITECTURE.md](ARCHITECTURE.md) — module contracts, file layout, quality gates
 - [DESIGN.md](DESIGN.md) — visual direction & AAA quality bar
 - [GDD.md](docs/GDD.md) — game design document (vision, mechanics, track, items, balance)
+- [ART-BIBLE.md](docs/ART-BIBLE.md) — visual identity: palette, materials, motion, HUD rules
 - [ITEMS-REFERENCE.md](docs/reference/ITEMS-REFERENCE.md) — power-up reference
 
 ## 🤝 Contributing
