@@ -328,7 +328,7 @@ function buildDirectionArrows(path) {
     path.getTangentAt(t, tan);
     path.getTangentAt(Math.min(1, t + dt), tan2);
     const curv = 1 - Math.min(1, Math.max(-1, tan.dot(tan2))); // 0 = straight
-    if (curv > 0.035 && t - lastT > 0.045) {
+    if (curv > 0.0022 && t - lastT > 0.045) {
       // Skip the very first straight segment (start grid) — keep it clean.
       if (t > 0.05 && t < 0.95) {
         path.getPointAt(t, p);
