@@ -542,6 +542,28 @@ export class HUD {
   }
 
   /**
+   * MK8-style item roulette: cycles random item icons ~0.7s, then reveals the
+   * real item (audit minor — pickups were instant-assign).
+   * @param {string|null} itemType final PowerUpType key
+   */
+  setItemRoulette(itemType) {
+    const icons = Object.values(ITEM_ICONS).filter((s) => s && s !== '?');
+    let tick = 0;
+    if (this._rouletteTimer) clearInterval(this._rouletteTimer);
+    this._rouletteTimer = setInterval(() => {
+      tick++;
+      if (tick > 9) {
+        clearInterval(this._rouletteTimer);
+        this._rouletteTimer = null;
+        this.setItem(itemType); // reveal the real item (with pop)
+        return;
+      }
+      this.itemIconEl.textContent = icons[Math.floor(Math.random() * icons.length)];
+      this.itemIconEl.classList.remove('sk3d-item-red', 'sk3d-item-empty');
+    }, 80);
+  }
+
+  /**
    * Big fullscreen countdown number.
    * @param {number|string} n 3|2|1 or 'GO'
    */

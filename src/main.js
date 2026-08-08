@@ -581,6 +581,7 @@ loop.start((dt, t) => {
       if (playerKart.heldItem && playerKart.heldItem !== lastHeldItem) {
         lastHeldItem = playerKart.heldItem;
         audio.play('pickup'); // item fanfare (was silent — UX gap)
+        hud.setItemRoulette(playerKart.heldItem); // MK8 roulette spin (audit minor)
         // Keys match PowerUpType VALUES (lowercase): mushroom, shell, red_shell…
         const ITEMS = {
           mushroom: ['🍄', 'Mushroom'],
