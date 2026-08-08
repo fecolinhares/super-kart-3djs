@@ -10,24 +10,25 @@ import './ui.css';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-/** PowerUpType -> emoji icon (contract: PowerUpType in PowerUp.js). */
+/** PowerUpType (VALUE) -> emoji icon. Keys are lowercase values: 'shell',
+ *  'red_shell', … — matches kart.heldItem exactly. */
 const ITEM_ICONS = {
-  MUSHROOM: '🍄',
-  SHELL: '🐢',
-  RED_SHELL: '🐢', // styled red via .sk3d-item-red
-  BANANA: '🍌',
-  STAR: '⭐',
-  LIGHTNING: '⚡',
+  mushroom: '🍄',
+  shell: '🐢',
+  red_shell: '🐢', // styled red via .sk3d-item-red
+  banana: '🍌',
+  star: '⭐',
+  lightning: '⚡',
 };
 
-/** PowerUpType -> readable name shown under the icon. */
+/** PowerUpType (VALUE) -> readable name shown under the icon. */
 const ITEM_NAMES = {
-  MUSHROOM: 'Mushroom',
-  SHELL: 'Green Shell',
-  RED_SHELL: 'Red Shell',
-  BANANA: 'Banana',
-  STAR: 'Star',
-  LIGHTNING: 'Lightning',
+  mushroom: 'Mushroom',
+  shell: 'Green Shell',
+  red_shell: 'Red Shell',
+  banana: 'Banana',
+  star: 'Star',
+  lightning: 'Lightning',
 };
 
 /** km/h at the top of the gauge: ~42 m/s * 2.4 ≈ 100 km/h. */
@@ -280,7 +281,7 @@ export class HUD {
     const nameEl = this.root.querySelector('.sk3d-item-name');
     if (this.itemType && ITEM_ICONS[this.itemType]) {
       icon.textContent = ITEM_ICONS[this.itemType];
-      icon.classList.toggle('sk3d-item-red', this.itemType === 'RED_SHELL');
+      icon.classList.toggle('sk3d-item-red', this.itemType === 'red_shell');
       icon.classList.remove('sk3d-item-empty');
       if (nameEl) nameEl.textContent = ITEM_NAMES[this.itemType] || this.itemType;
     } else {

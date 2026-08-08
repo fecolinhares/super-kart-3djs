@@ -226,6 +226,8 @@ function startRace() {
   });
   raceManager.onPlayerFinish = (place, time) => {
     hud.showFinish(place, time);
+    audio.clearEngineLoops(); // stop engine hum at full rev (sounded like a
+                              // screeching acceleration after the finish line)
     audio.play('finish');
     setTimeout(() => audio.play('victory'), 400);
     setState(STATES.FINISHED);
@@ -417,11 +419,20 @@ loop.start((dt, t) => {
       for (const ctrl of aiControllers) ctrl.update(dt);
       raceManager.update(dt);
       hud.update(raceManager, playerKart);
-      // Toast the item the player just picked up (clear identification).
+      // Toast the item the player just picked up — ICON first, then name.
       if (playerKart.heldItem && playerKart.heldItem !== lastHeldItem) {
         lastHeldItem = playerKart.heldItem;
-        const names = { MUSHROOM: 'Mushroom', SHELL: 'Green Shell', RED_SHELL: 'Red Shell', BANANA: 'Banana', STAR: 'Star', LIGHTNING: 'Lightning' };
-        hud.showMessage(`Got: ${names[playerKart.heldItem] || playerKart.heldItem}!`);
+        // Keys match PowerUpType VALUES (lowercase): mushroom, shell, red_shell…
+        const ITEMS = {
+          mushroom: ['🍄', 'Mushroom'],
+          shell: ['🐢', 'Green Shell'],
+          red_shell: ['🐢', 'Red Shell'],
+          banana: ['🍌', 'Banana'],
+          star: ['⭐', 'Star'],
+          lightning: ['⚡', 'Lightning'],
+        };
+        const [icon, name] = ITEMS[playerKart.heldItem] || ['❓', playerKart.heldItem];
+        hud.showMessage(`${icon} ${name}`);
       } else if (!playerKart.heldItem) {
         lastHeldItem = null;
       }

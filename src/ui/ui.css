@@ -599,20 +599,22 @@
 
 .sk3d-toast {
   position: absolute;
-  left: 50%;
-  top: 46%;
-  translate: -50% -50%;
+  /* Above the item slot (bottom-right HUD) — NOT screen-center, so it never
+     blocks the view of the race. */
+  right: 16px;
+  bottom: 150px;
   z-index: 4;
-  max-width: min(86vw, 480px);
+  max-width: min(60vw, 300px);
   font-family: var(--sk3d-font);
   font-weight: 800;
   font-size: 1.3rem;
   text-align: center;
   color: var(--sk3d-cream);
-  background: var(--sk3d-ink);
-  border: 3px solid var(--sk3d-cream);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+  background: rgba(27, 42, 65, 0.85);
+  border: 3px solid rgba(255, 255, 255, 0.35);
   border-radius: 999px;
-  padding: 12px 28px;
+  padding: 10px 22px;
   box-shadow: 0 6px 0 rgba(0, 0, 0, 0.35), 0 16px 30px rgba(0, 0, 0, 0.3);
 }
 
@@ -832,6 +834,15 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 8px;
+  }
+
+  .sk3d-toast {
+    top: 148px;
+    right: 8px;
+    bottom: auto;
+    max-width: min(70vw, 260px);
+    font-size: 1.1rem;
+    padding: 8px 16px;
   }
 
   .sk3d-speedo {
