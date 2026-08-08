@@ -163,7 +163,7 @@ export function useItem(kart, ctx = {}) {
     case PowerUpType.BANANA: {
       const banana = new Banana(kart, ctx);
       ctx.raceManager?.addActiveItem?.(banana);
-      audio?.play?.('useItem');
+      audio?.play?.('banana'); // cartoon boing (was generic 'useItem' blip)
       break;
     }
 

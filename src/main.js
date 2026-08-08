@@ -268,7 +268,8 @@ function startRace() {
     aiControllers.push(new AIController(playerKart, track, raceManager));
     audio.setMusicVolume(1);
     audio.play('finish');
-    setTimeout(() => audio.play('victory'), 400);
+    // Victory fanfare only for podium (was playing for EVERY finish).
+    if (place <= 3) setTimeout(() => audio.play('victory'), 400);
     setState(STATES.FINISHED);
   };
   playerKart.position = CONFIG.game.numKarts; // starts last on the grid
@@ -308,6 +309,8 @@ function restartRace() {
 const camTarget = new THREE.Vector3();
 const camPos = new THREE.Vector3();
 const lookTarget = new THREE.Vector3();
+const _camDesired = new THREE.Vector3(); // camera scratch (no per-frame alloc)
+const _camLook = new THREE.Vector3();    // camera scratch
 const _fwd = new THREE.Vector3();
 const _side = new THREE.Vector3();
 const _fwd2 = new THREE.Vector3(); // skid-mark scratch
@@ -344,17 +347,16 @@ function updateCamera(dt, t) {
       _fwd.set(0, 0, 1).applyQuaternion(group.quaternion);
       _side.set(_fwd.z, 0, -_fwd.x);
       const sway = Math.sin(t * 0.13) * 3.4;
-      const desired = st.position
-        .clone()
+      _camDesired.copy(st.position)
         .addScaledVector(_fwd, -CONFIG.camera.followDistance - 4.2)
         .addScaledVector(_side, sway);
-      desired.y += CONFIG.camera.followHeight + 2.2 + Math.sin(t * 0.4) * 0.8;
+      _camDesired.y += CONFIG.camera.followHeight + 2.2 + Math.sin(t * 0.4) * 0.8;
       const lerp = 1 - Math.exp(-2.4 * dt);
-      camPos.lerp(desired, lerp);
+      camPos.lerp(_camDesired, lerp);
       camera.position.copy(camPos);
-      const look = st.position.clone().addScaledVector(_fwd, 6);
-      look.y += 1.5;
-      lookTarget.lerp(look, Math.min(1, dt * 5));
+      _camLook.copy(st.position).addScaledVector(_fwd, 6);
+      _camLook.y += 1.5;
+      lookTarget.lerp(_camLook, Math.min(1, dt * 5));
       camera.lookAt(lookTarget);
     }
     return;

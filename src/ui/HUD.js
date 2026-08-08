@@ -97,7 +97,6 @@ export class HUD {
   constructor(track = null) {
     this.root = document.createElement('div');
     this.root.className = 'sk3d-overlay sk3d-hud sk3d-hidden';
-    this.root.setAttribute('aria-live', 'polite');
 
     this.root.innerHTML = `
       <div class="sk3d-hud-top">
@@ -159,6 +158,7 @@ export class HUD {
     this.finishBtnEl.addEventListener('click', () => window.__sk3d?.restartRace?.());
     this.finishTimeEl = this.root.querySelector('.sk3d-finish-time');
     this.toastEl = this.root.querySelector('.sk3d-toast');
+    this.toastEl.setAttribute('aria-live', 'polite'); // toast only (root was too chatty)
 
     this.countdownTimer = 0;
     this.toastTimer = 0;
