@@ -498,6 +498,7 @@ export class Environment {
   buildGrandstand(scene) {
     // Big grandstand with striped awning near a curve — crowd anchor.
     const grandstandSpots = [
+      { x: -48, z: 9, ry: -0.5 },   // beside the start straight (visible in grid frame)
       { x: -8, z: -66, ry: -0.3 },
       { x: 50, z: 44, ry: 2.2 },
     ];

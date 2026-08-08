@@ -318,8 +318,8 @@ export class HUD {
     const defs = svgEl('defs', {});
     const grad = svgEl('linearGradient', { id: 'sk3d-minimap-track-grad', x1: '0', y1: '0', x2: '1', y2: '1' });
     grad.append(
-      svgEl('stop', { offset: '0%', style: 'stop-color: rgba(46, 196, 255, 0.9)' }),
-      svgEl('stop', { offset: '100%', style: 'stop-color: rgba(255, 209, 102, 0.75)' })
+      svgEl('stop', { offset: '0%', style: 'stop-color: rgba(255, 255, 255, 0.95)' }),
+      svgEl('stop', { offset: '100%', style: 'stop-color: rgba(255, 209, 102, 0.95)' })
     );
     defs.append(grad);
     svg.append(defs);
