@@ -228,7 +228,9 @@ function buildGantry(startLine) {
   banner.material.map = bannerCheckerTexture();
   banner.position.copy(startLine.position);
   banner.position.y = 4.3; // top touches beam underside (5.4 - 0.25); IN VIEW
-  banner.lookAt(startLine.position.clone().add(startLine.direction));
+  // Explicit yaw (normal +Z aligned with travel direction) — lookAt tilted
+  // the plane ~15°, making the banner read as "strange/floating".
+  banner.rotation.y = Math.atan2(startLine.direction.x, startLine.direction.z);
   group.add(banner);
 
   // Start lights (3 lamps on the beam) — raceManager/main animate them:

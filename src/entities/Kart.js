@@ -28,6 +28,10 @@ export class Kart {
   constructor({ color = 0xff5a5f, isPlayer = false, number = 1, startPosition, startHeading = 0 }) {
     this.isPlayer = isPlayer;
     this.number = number;
+    // Save the grid position/heading — Kart.restart() relies on them to
+    // actually reset the race (was missing → restart "continued where it left").
+    this.startPosition = startPosition ? startPosition.clone() : new THREE.Vector3();
+    this.startHeading = startHeading;
     this.group = new THREE.Group();
     this.group.name = isPlayer ? 'kart-player' : 'kart-ai';
 

@@ -191,7 +191,7 @@ export class KartPhysics {
     }
 
     // ---- speed -------------------------------------------------------------
-    let target = s.boost ? P.boostSpeed : P.maxSpeed;
+    let target = s.boost ? P.boostSpeed : (kart.cruiseSpeed || P.maxSpeed);
     s.offRoad = Math.abs(near.lateralDist) > halfW;
     if (s.offRoad) target *= T.offRoadMaxSpeedFactor;
     if (s.spinOut) target = 0;

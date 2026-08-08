@@ -226,8 +226,11 @@ function startRace() {
   });
   raceManager.onPlayerFinish = (place, time) => {
     hud.showFinish(place, time);
-    audio.clearEngineLoops(); // stop engine hum at full rev (sounded like a
-                              // screeching acceleration after the finish line)
+    // Cruise mode (genre standard): the kart keeps driving automatically at
+    // reduced speed, engine hums quietly and the music swells over the SFX.
+    playerKart.cruiseSpeed = CONFIG.physics.maxSpeed * 0.6;
+    aiControllers.push(new AIController(playerKart, track, raceManager));
+    audio.setMusicVolume(1);
     audio.play('finish');
     setTimeout(() => audio.play('victory'), 400);
     setState(STATES.FINISHED);
@@ -436,19 +439,26 @@ loop.start((dt, t) => {
       } else if (!playerKart.heldItem) {
         lastHeldItem = null;
       }
-      // Continuous engine loops (pitch follows speed).
-      const pSpeed01 = Math.min(1, Math.abs(playerKart.state.speed) / CONFIG.physics.maxSpeed);
-      audio.setEngineLoop('player', pSpeed01);
-      for (let i = 0; i < aiKarts.length; i++) {
-        const s01 = Math.min(1, Math.abs(aiKarts[i].state.speed) / CONFIG.physics.maxSpeed);
-        audio.setEngineLoop('ai' + i, s01 * 0.35); // AI engines quieter
-      }
-      if (playerKart.state.boost > 0) {
-        particles.emit('boost', playerKart.state.position, { color: 0xffa63d });
-      }
-      if (playerKart.state.drifting) {
-        particles.emit('drift', playerKart.state.position, { color: 0xffffff });
-      }
+    } else {
+      // FINISHED — cruise: AI drives the player at reduced speed, engines
+      // keep humming quietly while the music swells (genre standard).
+      for (const ctrl of aiControllers) ctrl.update(dt);
+      raceManager.update(dt);
+      hud.update(raceManager, playerKart);
+    }
+    // Continuous engine loops — race AND cruise (pitch follows speed; in
+    // cruise the reduced speed naturally lowers pitch + volume).
+    const pSpeed01 = Math.min(1, Math.abs(playerKart.state.speed) / CONFIG.physics.maxSpeed);
+    audio.setEngineLoop('player', pSpeed01);
+    for (let i = 0; i < aiKarts.length; i++) {
+      const s01 = Math.min(1, Math.abs(aiKarts[i].state.speed) / CONFIG.physics.maxSpeed);
+      audio.setEngineLoop('ai' + i, s01 * 0.35); // AI engines quieter
+    }
+    if (playerKart.state.boost > 0) {
+      particles.emit('boost', playerKart.state.position, { color: 0xffa63d });
+    }
+    if (playerKart.state.drifting) {
+      particles.emit('drift', playerKart.state.position, { color: 0xffffff });
     }
     updateCamera(dt, t);
   }
