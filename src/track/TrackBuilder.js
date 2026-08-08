@@ -368,7 +368,7 @@ function buildDirectionArrows(path) {
     }
   }
   if (spots.length === 0) return null;
-  const geo = new THREE.PlaneGeometry(1.7, 1.7);
+  const geo = new THREE.PlaneGeometry(3.4, 3.4); // big chevrons (MK8-style corner signage)
   const mat = new THREE.MeshBasicMaterial({ map: arrowTexture(), transparent: true, side: THREE.DoubleSide, depthWrite: false });
   const mesh = new THREE.InstancedMesh(geo, mat, spots.length);
   for (let i = 0; i < spots.length; i++) {

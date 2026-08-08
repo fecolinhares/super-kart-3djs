@@ -227,18 +227,27 @@ export class Kart {
     // painted-body cue: a soft white sky reflection, not a flat surface).
     const gloss = new THREE.Mesh(
       new THREE.SphereGeometry(0.4, 14, 10),
-      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.28, depthWrite: false })
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.45, depthWrite: false })
     );
     gloss.position.set(-0.14, KC.wheelRadius + 0.44, 0.18);
     gloss.scale.set(0.62, 0.22, 0.9);
     gloss.renderOrder = 2;
     this.group.add(gloss);
+    // Second highlight on the rear deck (visible from the chase camera).
+    const glossBack = new THREE.Mesh(
+      new THREE.SphereGeometry(0.4, 14, 10),
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35, depthWrite: false })
+    );
+    glossBack.position.set(0, KC.wheelRadius + 0.42, -0.55);
+    glossBack.scale.set(0.72, 0.2, 0.72);
+    glossBack.renderOrder = 2;
+    this.group.add(glossBack);
 
     // Rounded tail (sphere squashed at the rear) — the chase camera mostly
     // sees the back, so the silhouette must read molded from behind too.
     const tail = this._mesh(
       new THREE.SphereGeometry(0.4, 18, 12),
-      bodyDark,
+      carPaint, // back is what the player watches — glossy there too
       0, KC.wheelRadius + 0.3, -0.55
     );
     tail.scale.set(1.2, 0.62, 0.9);
