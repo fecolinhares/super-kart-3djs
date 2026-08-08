@@ -288,6 +288,12 @@
   transform: scale(1.1);
 }
 
+.sk3d-mute-toggle {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
 .sk3d-credit {
   font-size: 0.82rem;
   font-weight: 700;
