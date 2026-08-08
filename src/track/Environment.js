@@ -628,9 +628,12 @@ export class Environment {
     // straight, the back straight, and after turn 1 — so ANY race frame has
     // cheering people beside the road, not just the grid.
     const SEGMENTS = [
-      { t0: 0.945, t1: 0.055, n: 16 },
-      { t0: 0.45, t1: 0.56, n: 12 },
-      { t0: 0.19, t1: 0.25, n: 10 },
+      { t0: 0.945, t1: 0.055, n: 16 }, // start straight
+      { t0: 0.10, t1: 0.15, n: 8 },    // exit of turn 1
+      { t0: 0.19, t1: 0.25, n: 10 },   // turn 1
+      { t0: 0.30, t1: 0.37, n: 8 },    // climb
+      { t0: 0.45, t1: 0.56, n: 12 },   // back straight
+      { t0: 0.62, t1: 0.68, n: 8 },    // descent
     ];
     const ROWS = [1.35, 2.9]; // two rows per side, tight to the road edge
     const segN = SEGMENTS.reduce((a, s) => a + s.n, 0);
