@@ -57,6 +57,8 @@ let countdownIndex = -1;
 let offroadT = 0.55; // off-road gravel SFX accumulator (feedback audit)
 let lastHeldItem = null;
 let lastLap = 0;
+let driftScreechAcc = 0; // drift tire screech accumulator
+let dustAcc = 0;         // off-road dust accumulator
 let turboParticleAcc = 0; // accumulator: burst once per 0.1s while turbo-boosting
 
 // Boot lands on the title menu (menu overlay + orbit camera).
@@ -516,9 +518,9 @@ loop.start((dt, t) => {
     audio.setEngineLoop('player', pSpeed01);
     // Drift tire screech (was dead code — drifting was audibly empty).
     if (playerKart.state.drifting && Math.abs(playerKart.state.speed) > 8) {
-      this._driftScreechAcc = (this._driftScreechAcc || 0) + dt;
-      if (this._driftScreechAcc >= 0.9) {
-        this._driftScreechAcc = 0;
+      driftScreechAcc += dt;
+      if (driftScreechAcc >= 0.9) {
+        driftScreechAcc = 0;
         audio.play('drift', { volume: 0.55 });
       }
     }
@@ -569,9 +571,9 @@ loop.start((dt, t) => {
       offroadT += dt;
       if (offroadT >= 0.55) { offroadT = 0; audio.play('offroad', { volume: 0.5 }); }
       // Dust puffs kicking up from the rear wheels (dirt surface cue).
-      this._dustAcc = (this._dustAcc || 0) + dt;
-      if (this._dustAcc >= 0.12) {
-        this._dustAcc = 0;
+      dustAcc += dt;
+      if (dustAcc >= 0.12) {
+        dustAcc = 0;
         const h = playerKart.state.heading;
         const back = _fwd2.set(Math.sin(h), 0, Math.cos(h)).multiplyScalar(-1.1);
         particles.emit('dust', {
