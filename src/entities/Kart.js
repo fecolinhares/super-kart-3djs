@@ -191,7 +191,7 @@ export class Kart {
     const body = this._mat(color);
     // Car paint: glossy PBR for the body shell (the MK8 painted-plastic cue).
     // Needs scene.environment (set in main.js) to show reflections.
-    const carPaint = new THREE.MeshPhysicalMaterial({ color, roughness: 0.28, metalness: 0.05, clearcoat: 0.9, clearcoatRoughness: 0.2, envMapIntensity: 0.9 });
+    const carPaint = new THREE.MeshPhysicalMaterial({ color, roughness: 0.24, metalness: 0.05, clearcoat: 1.0, clearcoatRoughness: 0.15, envMapIntensity: 1.6 });
     const bodyDark = this._mat(new THREE.Color(color).multiplyScalar(0.82).getHex());
     // keep refs so the player can repaint (setBodyColor)
     this._bodyMat = body;
@@ -283,6 +283,20 @@ export class Kart {
     this._mesh(new THREE.BoxGeometry(0.64, 0.2, 0.04), glass, 0, 1.04, 0.3, { rx: -0.28, cast: false });
     this._mesh(new THREE.BoxGeometry(0.5, 0.44, 0.07), bodyDark, 0, 0.98, -0.44);
 
+    // Rear wing / spoiler (the MK8/CTR silhouette cue — reads "racer" from
+    // the chase camera, the view players see most).
+    const spoilerBar = new THREE.Mesh(
+      new THREE.BoxGeometry(1.0, 0.06, 0.22),
+      carPaint
+    );
+    spoilerBar.position.set(0, KC.wheelRadius + 0.78, -0.88);
+    this.group.add(spoilerBar);
+    for (const s of [-1, 1]) {
+      const strut = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.2, 0.07), dark);
+      strut.position.set(s * 0.42, KC.wheelRadius + 0.65, -0.88);
+      this.group.add(strut);
+    }
+
     // Race number plate on the nose (kart identity).
     const numCanvas = document.createElement('canvas');
     numCanvas.width = 128;
@@ -350,7 +364,7 @@ export class Kart {
 
     // exhaust pipes (+ orange tips) — chrome via metalness (MK8 material
     // separation: painted plastic vs matte rubber vs shiny metal).
-    const chrome = new THREE.MeshPhysicalMaterial({ color: 0x9aa5b3, metalness: 1.0, roughness: 0.18, envMapIntensity: 1.1 });
+    const chrome = new THREE.MeshPhysicalMaterial({ color: 0x9aa5b3, metalness: 1.0, roughness: 0.18, envMapIntensity: 1.6 });
     for (const s of [-1, 1]) {
       this._mesh(
         new THREE.CylinderGeometry(0.06, 0.06, 0.26, 10),
