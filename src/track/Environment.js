@@ -628,29 +628,31 @@ export class Environment {
     // straight, the back straight, and after turn 1 — so ANY race frame has
     // cheering people beside the road, not just the grid.
     const SEGMENTS = [
-      { t0: 0.945, t1: 0.055, n: 14 },
-      { t0: 0.45, t1: 0.56, n: 10 },
-      { t0: 0.19, t1: 0.25, n: 8 },
+      { t0: 0.945, t1: 0.055, n: 16 },
+      { t0: 0.45, t1: 0.56, n: 12 },
+      { t0: 0.19, t1: 0.25, n: 10 },
     ];
-    const ROWS = [1.3, 2.7]; // two rows per side, tight to the road edge
+    const ROWS = [1.35, 2.9]; // two rows per side, tight to the road edge
     const segN = SEGMENTS.reduce((a, s) => a + s.n, 0);
     const total = segN * ROWS.length * 2;
-    const crowdColors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
-    const bodies = new THREE.InstancedMesh(new THREE.BoxGeometry(1.0, 1.2, 1.0), toonMaterial(0xffffff, {}), total);
-    const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.42, 8, 6), toonMaterial(0xf4f6f8, {}), total);
-    // Raised arms (one instanced mesh per side) — the crowd reads as cheering
-    // people, not stacked cubes with heads.
-    const armGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.55, 6);
-    const armsL = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), total);
-    const armsR = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), total);
+    // 2.5D crowd: each spectator is a painted figure (head + suit + raised
+    // arms) on a canvas plane — like MK8's billboard crowds. A painted person
+    // stays readable at race distance, where 3D blocks collapse into blobs.
+    const FIGURES = [
+      { color: 0xff5a5f, arms: 1 },
+      { color: 0xffd166, arms: 1 },
+      { color: 0x6cff8f, arms: 1 },
+      { color: 0x2ec4ff, arms: 1 },
+      { color: 0xc86bff, arms: 1 },
+      { color: 0xff9f45, arms: 0 },
+      { color: 0xf4f6f8, arms: 1 },
+    ];
+    const figureTextures = FIGURES.map((f) => this._crowdFigureTexture(f.color, f.arms));
+    const perFig = new Array(FIGURES.length).fill(0).map(() => []);
     const dummy = new THREE.Object3D();
-    const headD = new THREE.Object3D();
-    const armD = new THREE.Object3D();
-    const col = new THREE.Color();
     const p = new THREE.Vector3();
     const tan = new THREE.Vector3();
     const nrm = new THREE.Vector3();
-    let idx = 0;
     for (const seg of SEGMENTS) {
       for (let side = -1; side <= 1; side += 2) {
         for (const rowOff of ROWS) {
@@ -659,38 +661,77 @@ export class Environment {
             path.getPointAt(t, p);
             path.getTangentAt(t, tan);
             nrm.set(-tan.z, 0, tan.x).normalize();
-            dummy.position.set(p.x + nrm.x * (side * (halfW + rowOff)), p.y + 1.0, p.z + nrm.z * (side * (halfW + rowOff)));
-            dummy.scale.set(1, 0.9 + Math.random() * 0.4, 1);
+            dummy.position.set(p.x + nrm.x * (side * (halfW + rowOff)), p.y + 0.9, p.z + nrm.z * (side * (halfW + rowOff)));
+            dummy.lookAt(p.x, p.y + 0.9, p.z);
+            dummy.rotation.z = 0;
+            dummy.scale.set(0.9 + Math.random() * 0.3, 0.85 + Math.random() * 0.3, 1);
             dummy.updateMatrix();
-            bodies.setMatrixAt(idx, dummy.matrix);
-            col.setHex(crowdColors[(Math.random() * crowdColors.length) | 0]);
-            bodies.setColorAt(idx, col);
-            headD.position.set(dummy.position.x, dummy.position.y + 1.15, dummy.position.z);
-            headD.scale.set(1, 1, 1);
-            headD.updateMatrix();
-            heads.setMatrixAt(idx, headD.matrix);
-            // Arms raised outward (cheering silhouette).
-            armD.position.set(dummy.position.x - 0.55, dummy.position.y + 0.95, dummy.position.z);
-            armD.rotation.set(0, 0, -0.9);
-            armD.updateMatrix();
-            armsL.setMatrixAt(idx, armD.matrix);
-            armD.position.set(dummy.position.x + 0.55, dummy.position.y + 0.95, dummy.position.z);
-            armD.rotation.set(0, 0, 0.9);
-            armD.updateMatrix();
-            armsR.setMatrixAt(idx, armD.matrix);
-            idx++;
+            const figIdx = (i + (rowOff === ROWS[0] ? 0 : 3) + (side === 1 ? 1 : 0)) % FIGURES.length;
+            perFig[figIdx].push(dummy.matrix.clone());
           }
         }
       }
     }
-    bodies.instanceMatrix.needsUpdate = true;
-    if (bodies.instanceColor) bodies.instanceColor.needsUpdate = true;
-    heads.instanceMatrix.needsUpdate = true;
-    armsL.instanceMatrix.needsUpdate = true;
-    armsR.instanceMatrix.needsUpdate = true;
-    scene.add(bodies, heads, armsL, armsR);
-    // Reuse the crowd-bounce animation for the roadside line too.
-    (this.crowdMeshes = this.crowdMeshes || []).push(bodies);
+    for (let f = 0; f < FIGURES.length; f++) {
+      const list = perFig[f];
+      if (!list.length) continue;
+      const im = new THREE.InstancedMesh(
+        new THREE.PlaneGeometry(1.1, 1.6),
+        toonMaterial(0xffffff, { map: figureTextures[f], transparent: true, side: THREE.DoubleSide, depthWrite: false }),
+        list.length
+      );
+      list.forEach((m, i) => im.setMatrixAt(i, m));
+      im.instanceMatrix.needsUpdate = true;
+      // Record base Y per instance so the crowd-bounce animation (update)
+      // can wave these billboard figures too.
+      im.userData.baseY = list.map((m) => m.elements[13]);
+      scene.add(im);
+      (this.crowdMeshes = this.crowdMeshes || []).push(im);
+    }
+  }
+
+  /** Painted cheering figure (head + suit + raised arms) on a 128x192 canvas. */
+  _crowdFigureTexture(color, arms) {
+    const key = 'fig_' + color.toString(16) + '_' + (arms ? 'a' : 'n');
+    if (this._figCache?.[key]) return this._figCache[key];
+    const w = 128;
+    const h = 192;
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const g = canvas.getContext('2d');
+    g.clearRect(0, 0, w, h);
+    const c = new THREE.Color(color);
+    const css = '#' + c.getHexString();
+    // Legs
+    g.fillStyle = '#2b3242';
+    g.fillRect(52, 138, 10, 44);
+    g.fillRect(66, 138, 10, 44);
+    // Suit body (rounded torso)
+    g.fillStyle = css;
+    g.beginPath();
+    g.roundRect(36, 74, 56, 72, 14);
+    g.fill();
+    // Arms raised (cheering) or hanging
+    g.strokeStyle = css;
+    g.lineWidth = 12;
+    g.lineCap = 'round';
+    if (arms) {
+      g.beginPath(); g.moveTo(42, 88); g.lineTo(14, 44); g.stroke();
+      g.beginPath(); g.moveTo(86, 88); g.lineTo(114, 44); g.stroke();
+    } else {
+      g.beginPath(); g.moveTo(40, 92); g.lineTo(24, 128); g.stroke();
+      g.beginPath(); g.moveTo(88, 92); g.lineTo(104, 128); g.stroke();
+    }
+    // Head (skin) + hair cap hint
+    g.fillStyle = '#ffd9b3';
+    g.beginPath(); g.arc(64, 46, 20, 0, Math.PI * 2); g.fill();
+    // Dark cartoon outline around the whole figure reads at distance.
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    this._figCache = this._figCache || {};
+    this._figCache[key] = tex;
+    return tex;
   }
 
   buildFlags(scene) {
