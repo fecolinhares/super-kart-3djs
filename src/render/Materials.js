@@ -1,0 +1,191 @@
+/**
+ * Super Kart 3D.js — toon materials + procedural canvas textures.
+ * The cartoon look is built here: 3-step gradient-map toon shading,
+ * crisp dark outlines (inverted hull) and procedural textures.
+ */
+import * as THREE from 'three';
+
+let _gradientMap = null;
+
+/**
+ * 3-step toon gradient map (8x1, NearestFilter) shared by all toon materials.
+ * U axis = light intensity → dark / mid / light bands = classic cel shading.
+ */
+export function getGradientMap() {
+  if (_gradientMap) return _gradientMap;
+  const canvas = document.createElement('canvas');
+  canvas.width = 8;
+  canvas.height = 1;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#3d4a63'; // shadow band
+  ctx.fillRect(0, 0, 2, 1);
+  ctx.fillStyle = '#9fb0cc'; // mid band
+  ctx.fillRect(2, 0, 4, 1);
+  ctx.fillStyle = '#ffffff'; // lit band
+  ctx.fillRect(6, 0, 2, 1);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.minFilter = THREE.NearestFilter;
+  tex.magFilter = THREE.NearestFilter;
+  tex.generateMipmaps = false;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  _gradientMap = tex;
+  return tex;
+}
+
+/**
+ * Toon material with the shared gradient map.
+ * opts: { emissive, emissiveIntensity, transparent, opacity, side }
+ */
+export function toonMaterial(color, opts = {}) {
+  const mat = new THREE.MeshToonMaterial({
+    color,
+    gradientMap: getGradientMap(),
+    emissive: opts.emissive || 0x000000,
+    emissiveIntensity: opts.emissiveIntensity ?? 0,
+    transparent: !!opts.transparent,
+    opacity: opts.opacity ?? 1,
+    side: opts.side ?? THREE.FrontSide,
+  });
+  return mat;
+}
+
+const _outlineTmp = new THREE.Mesh();
+
+/**
+ * Adds a crisp dark cartoon outline to a mesh by cloning it as an
+ * inverted-hull BackSide mesh (scaled slightly along normals). The outline
+ * mesh is added to the same parent so it moves with the object.
+ * Returns the outline mesh (store it if you need to toggle visibility).
+ */
+export function cartoonOutline(mesh, color = 0x1b2a41, thickness = 0.045) {
+  const outlineMat = new THREE.MeshToonMaterial({
+    color,
+    side: THREE.BackSide,
+  });
+  const outline = new THREE.Mesh(mesh.geometry, outlineMat);
+  outline.scale.set(
+    1 + thickness,
+    1 + thickness,
+    1 + thickness
+  );
+  outline.renderOrder = -1;
+  mesh.add(outline);
+  return outline;
+}
+
+/**
+ * Procedural canvas texture helper.
+ * drawFn(ctx, size) draws the pattern; returns a CanvasTexture.
+ * opts: { repeat, wrap } — repeat = [x, y] tile counts.
+ */
+export function canvasTexture(size, drawFn, opts = {}) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  drawFn(ctx, size);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  if (opts.repeat) {
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(opts.repeat[0], opts.repeat[1]);
+  }
+  return tex;
+}
+
+// ---------------------------------------------------------------------------
+// Shared procedural textures (cached, created lazily)
+// ---------------------------------------------------------------------------
+let _grassTex = null;
+let _roadTex = null;
+let _checkerTex = null;
+let _skyTex = null;
+
+/** Grass: two-tone green noise dots, tileable. */
+export function grassTexture() {
+  if (_grassTex) return _grassTex;
+  _grassTex = canvasTexture(
+    128,
+    (ctx, s) => {
+      ctx.fillStyle = '#3faf4e';
+      ctx.fillRect(0, 0, s, s);
+      for (let i = 0; i < 900; i++) {
+        const x = Math.random() * s;
+        const y = Math.random() * s;
+        ctx.fillStyle = Math.random() > 0.5 ? '#47bb57' : '#379c45';
+        ctx.fillRect(x, y, 2, 2);
+      }
+      // soft darker patches
+      ctx.globalAlpha = 0.12;
+      for (let i = 0; i < 6; i++) {
+        ctx.fillStyle = '#2f8f43';
+        ctx.beginPath();
+        ctx.arc(Math.random() * s, Math.random() * s, 14 + Math.random() * 22, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    },
+    { repeat: [30, 30] }
+  );
+  return _grassTex;
+}
+
+/** Asphalt: dark blue-grey with fine speckle + subtle wear, tileable. */
+export function roadTexture() {
+  if (_roadTex) return _roadTex;
+  _roadTex = canvasTexture(
+    128,
+    (ctx, s) => {
+      ctx.fillStyle = '#5a6b7d';
+      ctx.fillRect(0, 0, s, s);
+      for (let i = 0; i < 500; i++) {
+        ctx.fillStyle = Math.random() > 0.5 ? '#52626f' : '#64768a';
+        ctx.fillRect(Math.random() * s, Math.random() * s, 2, 2);
+      }
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = '#ffffff';
+      for (let i = 0; i < 4; i++) {
+        ctx.fillRect(Math.random() * s, Math.random() * s, 30, 3);
+      }
+      ctx.globalAlpha = 1;
+    },
+    { repeat: [4, 4] }
+  );
+  return _roadTex;
+}
+
+/** Checkered start line (4x4 squares, red/white). */
+export function checkerTexture() {
+  if (_checkerTex) return _checkerTex;
+  _checkerTex = canvasTexture(
+    64,
+    (ctx, s) => {
+      const c = s / 4;
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+          ctx.fillStyle = (i + j) % 2 === 0 ? '#ffffff' : '#e63946';
+          ctx.fillRect(i * c, j * c, c, c);
+        }
+      }
+    }
+  );
+  return _checkerTex;
+}
+
+/** Sky gradient dome texture. */
+export function skyTexture() {
+  if (_skyTex) return _skyTex;
+  _skyTex = canvasTexture(
+    2,
+    (ctx, s) => {
+      const g = ctx.createLinearGradient(0, 0, 0, s);
+      g.addColorStop(0, '#3fa9e8');
+      g.addColorStop(0.45, '#6fc4f2');
+      g.addColorStop(0.75, '#a8e6ff');
+      g.addColorStop(1, '#d9f4ff');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, s, s);
+    }
+  );
+  return _skyTex;
+}

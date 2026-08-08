@@ -1,0 +1,877 @@
+/* ============================================================
+ * Super Kart 3D.js — UI stylesheet
+ * Cartoon arcade styling for Menu, HUD and TouchControls.
+ * 'Baloo 2' is loaded in index.html; every overlay is DOM-based
+ * (position: fixed) and non-blocking by default.
+ * ============================================================ */
+
+:root {
+  --sk3d-ink: #1b2a41;
+  --sk3d-yellow: #ffd166;
+  --sk3d-red: #ff5a5f;
+  --sk3d-blue: #2ec4ff;
+  --sk3d-green: #6cff8f;
+  --sk3d-purple: #c86bff;
+  --sk3d-orange: #ff9f45;
+  --sk3d-cream: #fffdf7;
+  --sk3d-silver: #dbe4ee;
+  --sk3d-bronze: #ffb26b;
+  --sk3d-font: 'Baloo 2', 'Trebuchet MS', Verdana, sans-serif;
+  --sk3d-radius: 16px;
+  --sk3d-border: 3px solid var(--sk3d-ink);
+  --sk3d-hard-shadow: 0 5px 0 var(--sk3d-ink);
+}
+
+/* ---------- shared ---------- */
+
+.sk3d-hidden {
+  display: none !important;
+}
+
+.sk3d-overlay,
+.sk3d-overlay *,
+.sk3d-hud,
+.sk3d-hud *,
+.sk3d-touch,
+.sk3d-touch * {
+  box-sizing: border-box;
+}
+
+.sk3d-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; /* overlays never block the canvas */
+  font-family: var(--sk3d-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+.sk3d-chip {
+  font-family: var(--sk3d-font);
+  font-weight: 800;
+  color: var(--sk3d-ink);
+  background: rgba(255, 253, 247, 0.94);
+  border: var(--sk3d-border);
+  border-radius: 14px;
+  box-shadow: 0 4px 0 rgba(27, 42, 65, 0.85);
+  padding: 6px 14px;
+  white-space: nowrap;
+}
+
+/* ---------- menu ---------- */
+
+.sk3d-menu {
+  z-index: 100;
+  background: radial-gradient(
+    120% 120% at 50% 20%,
+    rgba(46, 196, 255, 0.32),
+    rgba(27, 42, 65, 0.58) 72%
+  );
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.sk3d-menu-card {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 42px 52px 26px;
+  max-width: 580px;
+  width: calc(100% - 32px);
+  background: rgba(255, 253, 247, 0.94);
+  border: var(--sk3d-border);
+  border-radius: 26px;
+  box-shadow:
+    0 10px 0 rgba(27, 42, 65, 0.9),
+    0 30px 70px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.sk3d-logo {
+  font-family: var(--sk3d-font);
+  font-weight: 800;
+  line-height: 0.92;
+  margin: 0;
+}
+
+.sk3d-logo-line {
+  display: block;
+  font-size: clamp(2.6rem, 8vw, 4.1rem);
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  text-shadow:
+    2px 0 0 var(--sk3d-ink),
+    -2px 0 0 var(--sk3d-ink),
+    0 2px 0 var(--sk3d-ink),
+    0 -2px 0 var(--sk3d-ink),
+    3px 3px 0 var(--sk3d-ink),
+    -3px 3px 0 var(--sk3d-ink),
+    3px -3px 0 var(--sk3d-ink),
+    -3px -3px 0 var(--sk3d-ink),
+    0 6px 0 rgba(27, 42, 65, 0.9),
+    0 12px 20px rgba(0, 0, 0, 0.35);
+}
+
+.sk3d-logo-sub {
+  display: inline-block;
+  font-size: clamp(2.2rem, 7vw, 3.4rem);
+  color: var(--sk3d-yellow);
+  transform: rotate(-3deg);
+  text-shadow:
+    2px 0 0 var(--sk3d-ink),
+    -2px 0 0 var(--sk3d-ink),
+    0 2px 0 var(--sk3d-ink),
+    0 -2px 0 var(--sk3d-ink),
+    3px 3px 0 var(--sk3d-ink),
+    0 6px 0 var(--sk3d-red),
+    0 10px 16px rgba(0, 0, 0, 0.3);
+}
+
+.sk3d-logo-strip {
+  width: 210px;
+  height: 15px;
+  margin-top: -6px;
+  border: var(--sk3d-border);
+  border-radius: 9px;
+  background: repeating-conic-gradient(
+    #ffffff 0% 25%,
+    var(--sk3d-ink) 0% 50%
+  ) 0 0 / 16px 16px;
+  box-shadow: 0 3px 0 rgba(27, 42, 65, 0.8);
+}
+
+.sk3d-tagline {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--sk3d-ink);
+  opacity: 0.8;
+}
+
+.sk3d-btn {
+  font-family: var(--sk3d-font);
+  font-weight: 800;
+  border: var(--sk3d-border);
+  border-radius: var(--sk3d-radius);
+  color: var(--sk3d-ink);
+  background: var(--sk3d-cream);
+  box-shadow: var(--sk3d-hard-shadow);
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sk3d-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 7px 0 var(--sk3d-ink);
+}
+
+.sk3d-btn:active {
+  transform: translateY(3px) scale(0.97);
+  box-shadow: 0 1px 0 var(--sk3d-ink);
+}
+
+.sk3d-primary-btn {
+  background: var(--sk3d-yellow);
+  font-size: 1.55rem;
+  padding: 14px 52px;
+  animation: sk3d-glow 2.2s ease-in-out infinite;
+}
+
+.sk3d-help-toggle {
+  font-size: 1.05rem;
+  padding: 10px 26px;
+  background: var(--sk3d-blue);
+}
+
+.sk3d-help-panel {
+  width: 100%;
+  max-width: 460px;
+  background: var(--sk3d-cream);
+  border: var(--sk3d-border);
+  border-radius: 14px;
+  box-shadow: 0 4px 0 rgba(27, 42, 65, 0.85);
+  padding: 14px 18px;
+  animation: sk3d-fade-up 0.3s ease both;
+}
+
+.sk3d-controls-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.sk3d-controls-table th,
+.sk3d-controls-table td {
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 2px solid rgba(27, 42, 65, 0.12);
+}
+
+.sk3d-controls-table th {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sk3d-red);
+}
+
+.sk3d-controls-table td:first-child {
+  font-weight: 800;
+  color: var(--sk3d-ink);
+}
+
+.sk3d-controls-table td:not(:first-child) {
+  color: #52617a;
+}
+
+.sk3d-controls-table tr:last-child td {
+  border-bottom: none;
+}
+
+.sk3d-color-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.sk3d-color-label {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sk3d-ink);
+  opacity: 0.75;
+}
+
+.sk3d-color-swatches {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.sk3d-color-swatch {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 3px solid var(--sk3d-ink);
+  background: var(--sk3d-swatch, var(--sk3d-red));
+  box-shadow: 0 4px 0 rgba(27, 42, 65, 0.8);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sk3d-color-swatch:hover {
+  transform: scale(1.12);
+}
+
+.sk3d-color-swatch:active {
+  transform: scale(0.94);
+  box-shadow: 0 1px 0 rgba(27, 42, 65, 0.8);
+}
+
+.sk3d-color-swatch.is-selected {
+  outline: 4px solid var(--sk3d-blue);
+  outline-offset: 2px;
+  transform: scale(1.1);
+}
+
+.sk3d-credit {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--sk3d-ink);
+  opacity: 0.55;
+  margin-top: 4px;
+}
+
+/* menu entrance (re-triggered on every show()) */
+.sk3d-menu-anim .sk3d-logo {
+  animation: sk3d-drop 0.7s cubic-bezier(0.22, 1.4, 0.36, 1) both;
+}
+.sk3d-menu-anim .sk3d-logo-strip {
+  animation: sk3d-drop 0.7s 0.1s cubic-bezier(0.22, 1.4, 0.36, 1) both;
+}
+.sk3d-menu-anim .sk3d-tagline {
+  animation: sk3d-fade-up 0.5s 0.18s ease both;
+}
+.sk3d-menu-anim .sk3d-start-btn {
+  animation: sk3d-fade-up 0.5s 0.26s ease both;
+}
+.sk3d-menu-anim .sk3d-help-toggle {
+  animation: sk3d-fade-up 0.5s 0.34s ease both;
+}
+.sk3d-menu-anim .sk3d-color-picker {
+  animation: sk3d-fade-up 0.5s 0.42s ease both;
+}
+.sk3d-menu-anim .sk3d-credit {
+  animation: sk3d-fade-up 0.5s 0.5s ease both;
+}
+
+/* ---------- HUD ---------- */
+
+.sk3d-hud {
+  z-index: 50;
+  display: block;
+}
+
+.sk3d-hud-top {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.sk3d-hud-left {
+  display: flex;
+  gap: 8px;
+}
+
+.sk3d-position {
+  font-size: 1.15rem;
+  min-width: 64px;
+  text-align: center;
+  background: var(--sk3d-cream);
+}
+
+.sk3d-position-1 { background: var(--sk3d-yellow); }
+.sk3d-position-2 { background: var(--sk3d-silver); }
+.sk3d-position-3 { background: var(--sk3d-bronze); }
+
+.sk3d-lap {
+  font-size: 1.05rem;
+}
+
+.sk3d-time {
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.sk3d-hud-bottom {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+/* --- speedometer --- */
+
+.sk3d-speedo {
+  width: 132px;
+}
+
+.sk3d-speedo-dial {
+  position: relative;
+  width: 132px;
+  height: 75px;
+}
+
+.sk3d-speedo-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.sk3d-speedo-arc {
+  transition: stroke-dashoffset 0.08s linear;
+}
+
+.sk3d-speedo-needle {
+  position: absolute;
+  left: 50%;
+  bottom: 9px; /* pivot sits on the arc center (70,70) */
+  width: 4px;
+  height: 50px;
+  margin-left: -2px;
+  transform-origin: 50% 100%;
+  background: linear-gradient(var(--sk3d-red), #d93b40);
+  border: 2px solid var(--sk3d-ink);
+  border-radius: 4px;
+  transition: transform 0.08s linear;
+}
+
+.sk3d-speedo-hub {
+  position: absolute;
+  left: 50%;
+  bottom: 9px;
+  width: 13px;
+  height: 13px;
+  transform: translate(-50%, 50%);
+  background: var(--sk3d-cream);
+  border: 3px solid var(--sk3d-ink);
+  border-radius: 50%;
+}
+
+.sk3d-speedo-readout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  margin-top: -2px;
+}
+
+.sk3d-speedo-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--sk3d-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.sk3d-speedo-unit {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sk3d-ink);
+  opacity: 0.6;
+}
+
+/* --- item slot --- */
+
+.sk3d-item-slot {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.15rem;
+  padding: 4px;
+}
+
+.sk3d-item-label {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.54rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  background: var(--sk3d-ink);
+  color: var(--sk3d-cream);
+  padding: 1px 8px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.sk3d-item-icon {
+  line-height: 1;
+}
+
+.sk3d-item-empty {
+  color: var(--sk3d-ink);
+  opacity: 0.5;
+  animation: sk3d-pulse 1.6s ease-in-out infinite;
+}
+
+.sk3d-item-red {
+  filter: hue-rotate(-120deg) saturate(2.6) brightness(1.05);
+}
+
+.sk3d-item-pop {
+  animation: sk3d-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* --- countdown --- */
+
+.sk3d-countdown {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sk3d-font);
+  font-weight: 800;
+  font-size: clamp(6rem, 22vw, 11rem);
+  color: var(--sk3d-yellow);
+  -webkit-text-stroke: 4px var(--sk3d-ink);
+  text-shadow:
+    0 6px 0 var(--sk3d-ink),
+    0 12px 0 rgba(27, 42, 65, 0.65),
+    0 20px 34px rgba(0, 0, 0, 0.4);
+}
+
+.sk3d-countdown-go {
+  color: var(--sk3d-green);
+}
+
+.sk3d-countdown.sk3d-pop,
+.sk3d-pop {
+  animation: sk3d-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* --- finish screen --- */
+
+.sk3d-finish {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    90% 90% at 50% 42%,
+    rgba(46, 196, 255, 0.38),
+    rgba(27, 42, 65, 0.62) 78%
+  );
+}
+
+.sk3d-finish-card {
+  text-align: center;
+  background: rgba(255, 253, 247, 0.96);
+  border: 4px solid var(--sk3d-ink);
+  border-radius: 26px;
+  box-shadow:
+    0 10px 0 rgba(27, 42, 65, 0.9),
+    0 34px 70px rgba(0, 0, 0, 0.45);
+  padding: 34px 58px 28px;
+  max-width: calc(100% - 32px);
+}
+
+.sk3d-finish-trophy {
+  font-size: 4.2rem;
+  line-height: 1;
+  animation: sk3d-float 2.4s ease-in-out infinite;
+}
+
+.sk3d-finish-title {
+  font-family: var(--sk3d-font);
+  font-weight: 800;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  color: var(--sk3d-ink);
+  margin: 8px 0 4px;
+  -webkit-text-stroke: 2px var(--sk3d-ink);
+  -webkit-text-fill-color: var(--sk3d-cream);
+}
+
+.sk3d-finish-place {
+  color: var(--sk3d-yellow);
+  -webkit-text-fill-color: var(--sk3d-yellow);
+}
+
+.sk3d-finish-time {
+  font-family: var(--sk3d-font);
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: var(--sk3d-blue);
+  -webkit-text-stroke: 1px var(--sk3d-ink);
+  margin: 4px 0 10px;
+}
+
+.sk3d-finish-hint {
+  font-family: var(--sk3d-font);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--sk3d-ink);
+  opacity: 0.65;
+}
+
+/* --- toast --- */
+
+.sk3d-toast {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  translate: -50% -50%;
+  z-index: 4;
+  max-width: min(86vw, 480px);
+  font-family: var(--sk3d-font);
+  font-weight: 800;
+  font-size: 1.3rem;
+  text-align: center;
+  color: var(--sk3d-cream);
+  background: var(--sk3d-ink);
+  border: 3px solid var(--sk3d-cream);
+  border-radius: 999px;
+  padding: 12px 28px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.35), 0 16px 30px rgba(0, 0, 0, 0.3);
+}
+
+.sk3d-toast-show {
+  animation: sk3d-toast-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ---------- touch controls ---------- */
+
+.sk3d-touch {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  pointer-events: none;
+  font-family: var(--sk3d-font);
+}
+
+.sk3d-touch-btn {
+  pointer-events: auto;
+  position: absolute;
+  bottom: 24px;
+  width: 76px; /* >= 56px touch target */
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 3px solid var(--sk3d-ink);
+  background: rgba(255, 253, 247, 0.55);
+  color: var(--sk3d-ink);
+  font-family: var(--sk3d-font);
+  font-size: 1.9rem;
+  font-weight: 800;
+  box-shadow: 0 5px 0 rgba(27, 42, 65, 0.7);
+  touch-action: none; /* never scroll/zoom from these buttons */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.06s ease, background 0.1s ease, box-shadow 0.06s ease;
+}
+
+.sk3d-touch-btn.is-active {
+  transform: scale(0.9);
+  background: rgba(255, 209, 102, 0.95);
+  box-shadow: 0 2px 0 rgba(27, 42, 65, 0.7);
+}
+
+.sk3d-touch-left {
+  left: 20px;
+}
+
+.sk3d-touch-right {
+  left: 112px;
+}
+
+.sk3d-touch-item {
+  right: 20px;
+  width: 84px;
+  height: 84px;
+  font-size: 2.3rem;
+  background: rgba(255, 209, 102, 0.85);
+}
+
+/* ---------- keyframes ---------- */
+
+@keyframes sk3d-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes sk3d-drop {
+  0% {
+    transform: translateY(-150%) rotate(-5deg);
+    opacity: 0;
+  }
+  55% {
+    transform: translateY(6%) rotate(0deg);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-3%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sk3d-fade-up {
+  from {
+    transform: translateY(18px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sk3d-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes sk3d-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+@keyframes sk3d-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 5px 0 var(--sk3d-ink),
+      0 0 0 0 rgba(255, 209, 102, 0.55);
+  }
+  50% {
+    box-shadow:
+      0 5px 0 var(--sk3d-ink),
+      0 0 0 16px rgba(255, 209, 102, 0);
+  }
+}
+
+@keyframes sk3d-toast-in {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ---------- focus ---------- */
+
+.sk3d-btn:focus-visible,
+.sk3d-color-swatch:focus-visible,
+.sk3d-touch-btn:focus-visible {
+  outline: 3px dashed var(--sk3d-blue);
+  outline-offset: 3px;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 768px) {
+  .sk3d-menu-card {
+    padding: 28px 20px 18px;
+    gap: 14px;
+  }
+
+  .sk3d-primary-btn {
+    padding: 12px 30px;
+    font-size: 1.3rem;
+  }
+
+  /* compact HUD pinned to the top so touch buttons stay clear */
+  .sk3d-hud-top {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+  }
+
+  .sk3d-hud-left {
+    gap: 6px;
+  }
+
+  .sk3d-chip {
+    padding: 4px 10px;
+    font-size: 0.82rem;
+  }
+
+  .sk3d-position {
+    font-size: 0.92rem;
+    min-width: 52px;
+  }
+
+  .sk3d-hud-bottom {
+    top: 58px;
+    right: 8px;
+    bottom: auto;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .sk3d-speedo {
+    width: 102px;
+  }
+
+  .sk3d-speedo-dial {
+    width: 102px;
+    height: 58px;
+  }
+
+  .sk3d-speedo-needle {
+    height: 39px;
+    bottom: 7px;
+  }
+
+  .sk3d-speedo-hub {
+    bottom: 7px;
+  }
+
+  .sk3d-speedo-value {
+    font-size: 1.2rem;
+  }
+
+  .sk3d-item-slot {
+    width: 56px;
+    height: 56px;
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sk3d-countdown {
+    font-size: 5.5rem;
+    -webkit-text-stroke: 3px var(--sk3d-ink);
+  }
+
+  .sk3d-touch-btn {
+    width: 66px;
+    height: 66px;
+    bottom: 18px;
+    font-size: 1.6rem;
+  }
+
+  .sk3d-touch-left {
+    left: 14px;
+  }
+
+  .sk3d-touch-right {
+    left: 92px;
+  }
+
+  .sk3d-touch-item {
+    right: 14px;
+    width: 74px;
+    height: 74px;
+    font-size: 2rem;
+  }
+}
+
+/* ---------- reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .sk3d-menu *,
+  .sk3d-hud *,
+  .sk3d-touch * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
