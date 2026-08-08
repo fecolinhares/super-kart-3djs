@@ -267,7 +267,7 @@ export class Kart {
     nctx.fillStyle = '#ffffff';
     nctx.fillRect(0, 0, 128, 128);
     nctx.fillStyle = '#1b2a41';
-    nctx.font = 'bold 80px sans-serif';
+    nctx.font = 'bold 92px sans-serif';
     nctx.textAlign = 'center';
     nctx.textBaseline = 'middle';
     nctx.fillText(String(this.number), 64, 68);
@@ -284,11 +284,11 @@ export class Kart {
 
     // Rear number plate (visible from the chase camera).
     const plateBack = new THREE.Mesh(
-      new THREE.BoxGeometry(0.42, 0.4, 0.06),
+      new THREE.BoxGeometry(0.52, 0.5, 0.07),
       new THREE.MeshToonMaterial({ color: 0xffffff })
     );
     plateBack.material.map = numTex;
-    plateBack.position.set(0, KC.wheelRadius + 0.62, -0.9);
+    plateBack.position.set(0, KC.wheelRadius + 0.68, -0.9);
     plateBack.rotation.x = 0.12;
     this.group.add(plateBack);
 

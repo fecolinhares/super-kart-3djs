@@ -257,13 +257,13 @@ let _finishTex = null;
 export function finishLineTexture() {
   if (_finishTex) return _finishTex;
   _finishTex = canvasTexture(
-    128,
+    256,
     (ctx, s) => {
-      const cw = s / 8;
+      const cw = s / 6;
       const ch = s / 2;
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 6; i++) {
         for (let j = 0; j < 2; j++) {
-          ctx.fillStyle = (i + j) % 2 === 0 ? '#ffffff' : '#1b2a41';
+          ctx.fillStyle = (i + j) % 2 === 0 ? '#ffffff' : '#0f1218';
           ctx.fillRect(i * cw, j * ch, cw, ch);
         }
       }
