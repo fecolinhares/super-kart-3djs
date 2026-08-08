@@ -218,6 +218,16 @@ export class Kart {
     );
     hood.scale.set(1.2, 0.62, 1.35);
     this._outline(hood);
+    // Specular highlight blob on the hood (fake glossy plastic — the MK8
+    // painted-body cue: a soft white sky reflection, not a flat surface).
+    const gloss = new THREE.Mesh(
+      new THREE.SphereGeometry(0.4, 14, 10),
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.28, depthWrite: false })
+    );
+    gloss.position.set(-0.14, KC.wheelRadius + 0.44, 0.18);
+    gloss.scale.set(0.62, 0.22, 0.9);
+    gloss.renderOrder = 2;
+    this.group.add(gloss);
 
     // Rounded tail (sphere squashed at the rear) — the chase camera mostly
     // sees the back, so the silhouette must read molded from behind too.
@@ -324,11 +334,13 @@ export class Kart {
     this._mesh(new THREE.BoxGeometry(0.06, 0.34, 0.06), dark, -0.3, 0.86, -0.84);
     this._mesh(new THREE.BoxGeometry(0.06, 0.34, 0.06), dark, 0.3, 0.86, -0.84);
 
-    // exhaust pipes (+ orange tips)
+    // exhaust pipes (+ orange tips) — chrome via metalness (MK8 material
+    // separation: painted plastic vs matte rubber vs shiny metal).
+    const chrome = new THREE.MeshStandardMaterial({ color: 0x9aa5b3, metalness: 0.85, roughness: 0.25 });
     for (const s of [-1, 1]) {
       this._mesh(
         new THREE.CylinderGeometry(0.06, 0.06, 0.26, 10),
-        steel, s * 0.22, 0.52, -0.94,
+        chrome, s * 0.22, 0.52, -0.94,
         { rx: Math.PI / 2, cast: false }
       );
       this._mesh(
