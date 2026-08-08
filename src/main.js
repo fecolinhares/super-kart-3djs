@@ -57,6 +57,15 @@ setState(STATES.MENU);
 menu.show();
 if (DEMO || TEST) startRace(); // demo autopilot / fast test mode jump straight in
 
+// Quality gate (audio lifecycle): pause all audio when the tab is hidden.
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    audio.suspend();
+  } else {
+    audio.resume();
+  }
+});
+
 // ---------------------------------------------------------------------------
 // Karts
 // ---------------------------------------------------------------------------

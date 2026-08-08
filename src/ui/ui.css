@@ -65,11 +65,15 @@
 
 .sk3d-menu {
   z-index: 100;
-  background: radial-gradient(
-    120% 120% at 50% 20%,
-    rgba(46, 196, 255, 0.32),
-    rgba(27, 42, 65, 0.58) 72%
-  );
+  /* Solid fallback so the menu stays readable without backdrop-filter
+     (WeChat WebView / older mobile browsers ignore the blur). */
+  background:
+    radial-gradient(
+      120% 120% at 50% 20%,
+      rgba(46, 196, 255, 0.32),
+      rgba(27, 42, 65, 0.58) 72%
+    ),
+    rgba(20, 26, 40, 0.92);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
 }

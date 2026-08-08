@@ -93,6 +93,18 @@ export class AudioManager {
     }
   }
 
+  /** Pause the whole AudioContext (tab hidden). Quality gate: audio lifecycle. */
+  suspend() {
+    if (this._ctx && this._ctx.state === 'running') {
+      this._ctx.suspend().catch(() => {});
+    }
+  }
+
+  /** Resume the AudioContext after the tab becomes visible again. */
+  resume() {
+    this._resume();
+  }
+
   _attachUnlock() {
     if (typeof window === 'undefined') return;
     for (const evt of GESTURE_EVENTS) {
