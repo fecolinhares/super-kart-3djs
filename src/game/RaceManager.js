@@ -253,6 +253,11 @@ export class RaceManager {
     // the player before the first corner.
     for (const k of this.karts) {
       if (k && typeof k.setInvincible === 'function') k.setInvincible(true, 2000);
+      // AUDIT r6: AI rocket start — MK8D CPUs execute a start boost too; the
+      // player's 900ms start was a one-sided free advantage.
+      if (k && k !== this.player && typeof k.applyBoost === 'function') {
+        k.applyBoost(600 + Math.random() * 300); // 600-900ms, slight variance
+      }
     }
   }
 
@@ -349,6 +354,10 @@ export class RaceManager {
             st.vY = 3.5; // the little pop the Lakitu gives you
             st.spinOut = false;
             kart._stuckT = 0;
+            // AUDIT r6: Lakitu removes the held item (MK8D) — a rescued kart
+            // shouldn't keep a free shield/shell.
+            kart.heldItem = null;
+            kart.heldItem2 = null;
             kart._onRescued?.();
             if (kart === this.player && typeof window !== 'undefined' && window.__sk3d?.addShake) {
               window.__sk3d.addShake(0.3, 0.3);

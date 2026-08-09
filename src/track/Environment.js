@@ -2059,28 +2059,30 @@ export class Environment {
     const halfW = CONFIG.track.roadWidth / 2;
     if (!this._bannerTex) {
       const c = document.createElement('canvas');
-      c.width = 256;
-      c.height = 64;
+      // AUDIT r6: 256x64 read soft on the 5.6m board (~46px/m) — 512x128
+      // matches the finish/gantry texture standard.
+      c.width = 512;
+      c.height = 128;
       const g = c.getContext('2d');
       // diagonal racing stripes — reads as a sponsor banner at distance
       const colors = ['#e2504f', '#f4f6f8', '#2e9be8', '#ffd166'];
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 16; i++) {
         g.fillStyle = colors[i % colors.length];
         g.beginPath();
-        g.moveTo(i * 32 - 32, 64);
-        g.lineTo(i * 32 + 32, 64);
+        g.moveTo(i * 32 - 32, 128);
+        g.lineTo(i * 32 + 32, 128);
         g.lineTo(i * 32 + 64, 0);
         g.lineTo(i * 32, 0);
         g.closePath();
         g.fill();
       }
       g.fillStyle = 'rgba(27,42,65,0.85)';
-      g.fillRect(0, 22, 256, 20);
+      g.fillRect(0, 44, 512, 40);
       g.fillStyle = '#ffffff';
-      g.font = '900 26px "Baloo 2", "Nunito", Arial, sans-serif';
+      g.font = '900 52px "Baloo 2", "Nunito", Arial, sans-serif';
       g.textAlign = 'center';
       g.textBaseline = 'middle';
-      g.fillText('SUPER KART GP', 128, 32);
+      g.fillText('SUPER KART GP', 256, 64);
       const tex = new THREE.CanvasTexture(c);
       tex.colorSpace = THREE.SRGBColorSpace;
       this._bannerTex = tex;
