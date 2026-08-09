@@ -1703,12 +1703,12 @@ export class Environment {
     const dummy = new THREE.Object3D();
     const dir = new THREE.Vector3();
     let idx = 0;
-    // Row A hugs the track (32-42m); row B sits behind it (42-54m) so the
-    // skyline reads as a dense city ring AND shows in the chase-cam frame
-    // (vision critic: 65-90m towers never appeared in stills).
+    // Row A hugs the track (16-26m); row B sits behind it (26-38m) — close
+    // enough that the towers MARGIN the road and read as city scale in the
+    // chase cam (vision critic: 'bring larger buildings close to the track').
     const rows = [
-      { seed: 21000, base: 32, range: 10 },
-      { seed: 22000, base: 42, range: 12 },
+      { seed: 21000, base: 16, range: 10 },
+      { seed: 22000, base: 26, range: 12 },
     ];
     for (const row of rows) {
       const rand = rnd(row.seed);

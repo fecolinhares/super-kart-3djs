@@ -180,7 +180,7 @@ function buildRoadRibbon(path, length, opts = {}) {
   return new THREE.Mesh(geo, mat);
 }
 
-function buildTerrain(path) {
+function buildTerrain(path, cityMode = false) {
   const size = 460;
   const seg = 72;
   const geo = new THREE.PlaneGeometry(size, size, seg, seg);
@@ -228,9 +228,11 @@ function buildTerrain(path) {
     pos.setY(i, y);
   }
   geo.computeVertexNormals();
-  const mat = toonMaterial(0xffffff, {});
-  mat.map = grassTexture();
-  mat.color.set(0xffffff);
+  const mat = toonMaterial(cityMode ? 0x242730 : 0xffffff, {});
+  if (!cityMode) {
+    mat.map = grassTexture();
+    mat.color.set(0xffffff);
+  }
   const mesh = new THREE.Mesh(geo, mat);
   mesh.receiveShadow = true;
   return mesh;
@@ -967,7 +969,8 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   const startPos = path.getPointAt(startT);
   const startDir = path.getTangentAt(startT).normalize();
 
-  const terrain = buildTerrain(path);
+  const cityMode = trackPath === CITY_PATH;
+  const terrain = buildTerrain(path, cityMode);
   group.add(terrain);
 
   // Dirt shoulders either side of the asphalt (softens the road→grass edge).
