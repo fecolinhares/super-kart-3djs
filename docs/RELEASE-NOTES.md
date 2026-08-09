@@ -44,6 +44,13 @@ A complete cartoon arcade kart racer, 100% procedural (zero external assets):
   tires, rear spoiler wing + struts, hood/rear specular highlights). 256px
   asphalt with cracks/grime, 256px grass with blade strokes, sky dome with
   painted sun + haze.
+- **AAA world (redesign v1+v2)**: continuous low guard-rails along both road
+  edges (below the chase camera, never obstructing), 3-point lighting rig
+  (warm key + cool fill + shadow sun with soft radius), 2-layer mountains
+  (rock base + snow caps) at 3 depth bands, forest with 3 species of LAYERED
+  canopy trees (pine/oak/palm), organized prop clusters (trees every ~12m,
+  rocks in groups, flowers in patches), corner signs + distance boards +
+  light poles on straights.
 - **MK8-style item boxes** (white panel, bold red '?', spinning + bobbing,
   golden ring + beam + sparkles), molded karts + oversized chibi driver,
   2.5D painted spectator crowd on 6 track segments + grandstands,
@@ -52,7 +59,9 @@ A complete cartoon arcade kart racer, 100% procedural (zero external assets):
   marks, confetti at the line, **position-change chip pop + posUp/posDown
   SFX** (overtakes are audible), lap fanfare, item pickup fanfare, landing
   thump, drift tire screech, mini-boost sparkle bursts, **MK8 item roulette**
-  (the slot cycles icons ~0.7s before revealing the pickup).
+  (the slot cycles icons ~0.7s before revealing the pickup), **PLAYER HIT
+  feedback** (red screen flash + "BANANA!/SHELL HIT!" label + camera shake),
+  **item-use toast** (🍄 MUSHROOM! / 🐢 SHELL! etc) + spark bursts on use.
 - **Quality of life**: Pause (P/Esc or ⏸ button on mobile, tap-to-resume),
   "Race Again" + **"Menu"** buttons on the finish screen, touch **DRIFT
   button** (hold-to-drift on mobile), **kart color + mute state persisted**
