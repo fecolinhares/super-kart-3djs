@@ -67,7 +67,8 @@ export const CONFIG = {
   },
 
   items: {
-    boxRadius: 1.0,
+    boxRadius: 0.7, // cube edge/2 — AAA REBUILD: was 1.0 (2m cube dominated
+    // every frame, MK8D item boxes are ~1.4m and read as pickups, not props)
     boxBobSpeed: 2.0,
     pickupRadius: 2.8, // generous — at 43 m/s the kart crosses 2.1m per 0.05s frame
     shellSpeed: 46,

@@ -41,13 +41,20 @@ export function getGradientMap() {
 }
 
 /**
- * Toon material with the shared gradient map.
- * opts: { emissive, emissiveIntensity, transparent, opacity, side }
+ * Cartoon material — AAA REBUILD (MK8D pipeline).
+ * The old MeshToonMaterial + 3-band gradient map shaded every surface in
+ * harsh flat bands — the single loudest "low-poly/draft" cue the user keeps
+ * flagging. MK8D is PBR-stylized (vibrant colors, continuous shading, glossy
+ * highlights), so this now returns MeshStandardMaterial: it responds to the
+ * 3-point rig AND the sunny-sky IBL with smooth gradients + subtle sheen.
+ * Contract is unchanged ({color, emissive, emissiveIntensity, transparent,
+ * opacity, side, map}) — every existing call site keeps working.
  */
 export function toonMaterial(color, opts = {}) {
-  const mat = new THREE.MeshToonMaterial({
+  const mat = new THREE.MeshStandardMaterial({
     color,
-    gradientMap: getGradientMap(),
+    roughness: opts.roughness ?? 0.82,
+    metalness: opts.metalness ?? 0.0,
     emissive: opts.emissive || 0x000000,
     emissiveIntensity: opts.emissiveIntensity ?? 0,
     transparent: !!opts.transparent,
@@ -85,7 +92,9 @@ const _outlineTmp = new THREE.Mesh();
  * Returns the outline mesh (store it if you need to toggle visibility).
  */
 export function cartoonOutline(mesh, color = 0x1b2a41, thickness = 0.045) {
-  const outlineMat = new THREE.MeshToonMaterial({
+  // MeshBasicMaterial (was MeshToonMaterial) — the outline must not depend
+  // on the retired toon gradient map; unlit black reads the same.
+  const outlineMat = new THREE.MeshBasicMaterial({
     color,
     side: THREE.BackSide,
   });

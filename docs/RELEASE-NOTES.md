@@ -36,6 +36,10 @@
   corners against the track.
 
 ### Visual — MK8D bar
+- **Material pipeline rebuilt toon→PBR**: `toonMaterial()` now returns
+  `MeshStandardMaterial` (continuous PBR shading, responds to the sunny-sky
+  IBL) — the 3-band cel gradient that read as "low poly" is gone; hemi/key
+  lifted for the PBR response, exposure 1.12, item boxes shrunk 2m→1.4m.
 - **Karts rebuilt**: LatheGeometry molded shell (nose→body→tail lozenge)
   replaces the box chassis; cockpit tub + seat/headrest; shaped spoiler blade
   with struts + endplates; wheels with tread ribs, chrome disc rims + hub caps
