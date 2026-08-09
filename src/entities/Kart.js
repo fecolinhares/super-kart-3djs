@@ -107,15 +107,15 @@ export class Kart {
     this._heldMeshes = {};
     // mushroom: red cap + white stem
     const mush = new THREE.Group();
-    mush.add(new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 8), this._mat(0xff5a5f)));
-    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.06, 0.1, 6), this._mat(0xf4f6f8));
+    mush.add(new THREE.Mesh(new THREE.SphereGeometry(0.11, 14, 10), this._mat(0xff5a5f)));
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.06, 0.1, 8), this._mat(0xf4f6f8));
     stem.position.y = -0.1;
     mush.add(stem);
     mush.scale.setScalar(0.95);
     this._heldMeshes.mushroom = mush;
     // shell family: squashed sphere, tinted per type
     const mkShell = (c) => {
-      const s = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 8), this._mat(c));
+      const s = new THREE.Mesh(new THREE.SphereGeometry(0.13, 14, 10), this._mat(c));
       s.scale.set(0.75, 1, 1.15);
       return s;
     };
@@ -124,7 +124,7 @@ export class Kart {
     this._heldMeshes.blue_shell = mkShell(0x1f3fc8);
     // banana: tilted yellow cylinder
     const ban = new THREE.Group();
-    const b1 = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.055, 0.24, 8), this._mat(0xffd166));
+    const b1 = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.055, 0.24, 10), this._mat(0xffd166));
     b1.rotation.z = 0.45;
     ban.add(b1);
     this._heldMeshes.banana = ban;
@@ -133,11 +133,11 @@ export class Kart {
     star.scale.set(1, 0.7, 1);
     this._heldMeshes.star = star;
     // lightning / anything else: colored orb fallback
-    this._heldOrb = new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 10), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    this._heldOrb = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffffff }));
     this._heldOrbMat = this._heldOrb.material;
     this.heldItemGroup.add(this._heldOrb);
     this.heldItemGroup.add(new THREE.Mesh(
-      new THREE.TorusGeometry(0.26, 0.02, 8, 20),
+      new THREE.TorusGeometry(0.26, 0.02, 10, 24),
       new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55 })
     ));
     for (const key of Object.keys(this._heldMeshes)) this.heldItemGroup.add(this._heldMeshes[key]);
@@ -230,7 +230,7 @@ export class Kart {
     // Soft blob shadow under the kart (cartoon contact shadow). depthWrite off
     // + polygonOffset so it never z-fights the asphalt.
     const blob = new THREE.Mesh(
-      new THREE.CircleGeometry(1.15, 18),
+      new THREE.CircleGeometry(1.15, 24),
       new THREE.MeshBasicMaterial({
         color: 0x000000,
         transparent: true,
@@ -248,7 +248,7 @@ export class Kart {
     const body = this._mat(color);
     // Car paint: glossy PBR for the body shell (the MK8 painted-plastic cue).
     // Needs scene.environment (set in main.js) to show reflections.
-    const carPaint = new THREE.MeshPhysicalMaterial({ color, roughness: 0.24, metalness: 0.05, clearcoat: 1.0, clearcoatRoughness: 0.15, envMapIntensity: 1.6 });
+    const carPaint = Materials.plasticMaterial(color);
     const bodyDark = this._mat(new THREE.Color(color).multiplyScalar(0.82).getHex());
     // keep refs so the player can repaint (setBodyColor)
     this._bodyMat = body;
@@ -285,7 +285,7 @@ export class Kart {
     // Rounded hood (sphere squashed) — breaks the flat box silhouette so the
     // kart reads as a molded body, not a crate (MK8-style).
     const hood = this._mesh(
-      new THREE.SphereGeometry(0.42, 28, 18),
+      new THREE.SphereGeometry(0.42, 36, 24),
       carPaint,
       0, KC.wheelRadius + 0.34, 0.3
     );
@@ -294,7 +294,7 @@ export class Kart {
     // Specular highlight blob on the hood (fake glossy plastic — the MK8
     // painted-body cue: a soft white sky reflection, not a flat surface).
     const gloss = new THREE.Mesh(
-      new THREE.SphereGeometry(0.4, 14, 10),
+      new THREE.SphereGeometry(0.4, 18, 12),
       new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.45, depthWrite: false })
     );
     gloss.position.set(-0.14, KC.wheelRadius + 0.44, 0.18);
@@ -303,7 +303,7 @@ export class Kart {
     this.group.add(gloss);
     // Second highlight on the rear deck (visible from the chase camera).
     const glossBack = new THREE.Mesh(
-      new THREE.SphereGeometry(0.4, 14, 10),
+      new THREE.SphereGeometry(0.4, 18, 12),
       new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35, depthWrite: false })
     );
     glossBack.position.set(0, KC.wheelRadius + 0.42, -0.55);
@@ -314,7 +314,7 @@ export class Kart {
     // Rounded tail (sphere squashed at the rear) — the chase camera mostly
     // sees the back, so the silhouette must read molded from behind too.
     const tail = this._mesh(
-      new THREE.SphereGeometry(0.4, 28, 18),
+      new THREE.SphereGeometry(0.4, 36, 24),
       carPaint, // back is what the player watches — glossy there too
       0, KC.wheelRadius + 0.3, -0.55
     );
@@ -323,7 +323,7 @@ export class Kart {
 
     // nose cone (rounded tip pointing forward — classic kart nose)
     const noseCone = this._mesh(
-      new THREE.ConeGeometry(0.3, 0.8, 16),
+      new THREE.ConeGeometry(0.3, 0.8, 24),
       carPaint,
       0, KC.wheelRadius + 0.24, 1.0,
       { rx: Math.PI / 2 }
@@ -332,18 +332,18 @@ export class Kart {
 
     // front bumper (rounded via cylinder)
     this._mesh(
-      new THREE.CylinderGeometry(0.17, 0.2, KC.chassisWidth * 0.96, 14),
+      new THREE.CylinderGeometry(0.17, 0.2, KC.chassisWidth * 0.96, 20),
       dark,
       0, 0.42, 1.02,
       { rx: Math.PI / 2 }
     );
     // headlights
-    this._mesh(new THREE.SphereGeometry(0.075, 10, 8), white, -0.2, 0.46, 1.02);
-    this._mesh(new THREE.SphereGeometry(0.075, 10, 8), white, 0.2, 0.46, 1.02);
+    this._mesh(new THREE.SphereGeometry(0.075, 14, 10), white, -0.2, 0.46, 1.02);
+    this._mesh(new THREE.SphereGeometry(0.075, 14, 10), white, 0.2, 0.46, 1.02);
 
     // cockpit + windshield + seat
     const cockpit = this._mesh(
-      new THREE.BoxGeometry(0.78, 0.26, 0.62),
+      new THREE.BoxGeometry(0.78, 0.26, 0.62, 2, 2, 2),
       carPaint,
       0, KC.wheelRadius + 0.62, -0.12
     );
@@ -351,7 +351,7 @@ export class Kart {
     this._mesh(new THREE.BoxGeometry(0.64, 0.2, 0.04), glass, 0, 1.04, 0.3, { rx: -0.28, cast: false });
     // Curved windshield dome (half-cylinder, tilts with the cockpit).
     const wind = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.3, 0.3, 0.62, 14, 1, true, 0, Math.PI),
+      new THREE.CylinderGeometry(0.3, 0.3, 0.62, 20, 1, true, 0, Math.PI),
       glassPBR
     );
     wind.position.set(0, 1.06, 0.32);
@@ -383,14 +383,14 @@ export class Kart {
       roughness: 0.4,
     });
     for (const s of [-1, 1]) {
-      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), this._brakeLampMat);
+      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.06, 14, 10), this._brakeLampMat);
       lamp.position.set(s * 0.34, KC.wheelRadius + 0.42, -0.98);
       this.group.add(lamp);
     }
     // Rounded rear side pods (audit v5 #3: the chase view was a plain slab
     // between the spoiler struts — pods fill the silhouette).
     for (const s of [-1, 1]) {
-      const pod = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), carPaint);
+      const pod = new THREE.Mesh(new THREE.SphereGeometry(0.16, 24, 16), carPaint);
       pod.position.set(s * 0.5, KC.wheelRadius + 0.26, -0.62);
       pod.scale.set(0.8, 0.75, 1.5);
       this.group.add(pod);
@@ -475,12 +475,12 @@ export class Kart {
     const chrome = new THREE.MeshPhysicalMaterial({ color: 0x9aa5b3, metalness: 1.0, roughness: 0.18, envMapIntensity: 1.6 });
     for (const s of [-1, 1]) {
       this._mesh(
-        new THREE.CylinderGeometry(0.06, 0.06, 0.26, 10),
+        new THREE.CylinderGeometry(0.06, 0.06, 0.26, 14),
         chrome, s * 0.22, 0.52, -0.94,
         { rx: Math.PI / 2, cast: false }
       );
       this._mesh(
-        new THREE.CylinderGeometry(0.075, 0.075, 0.05, 10),
+        new THREE.CylinderGeometry(0.075, 0.075, 0.05, 14),
         tip, s * 0.22, 0.52, -1.06,
         { rx: Math.PI / 2, cast: false }
       );
@@ -492,9 +492,9 @@ export class Kart {
     const wy = wR;
     const wz = KC.chassisLength / 2 - 0.18;
     const wx = KC.chassisWidth / 2 + 0.18;
-    const tireGeo = new THREE.CylinderGeometry(wR, wR, wW, 24);
-    const hubGeo = new THREE.CylinderGeometry(0.13, 0.13, wW + 0.02, 16);
-    const rimGeo = new THREE.TorusGeometry(wR - 0.03, 0.022, 10, 26);
+    const tireGeo = new THREE.CylinderGeometry(wR, wR, wW, 32);
+    const hubGeo = new THREE.CylinderGeometry(0.13, 0.13, wW + 0.02, 24);
+    const rimGeo = new THREE.TorusGeometry(wR - 0.03, 0.022, 12, 36);
     for (const sx of [-1, 1]) {
       for (const sz of [-1, 1]) {
         const root = new THREE.Group();
@@ -535,18 +535,18 @@ export class Kart {
     // above the cockpit — the original was hidden behind the seat).
     // Racing suit recolored by the character identity (falls back to white).
     const suit = character ? this._mat(character.suitColor) : white;
-    this._mesh(new THREE.CapsuleGeometry(0.14, 0.3, 6, 12), suit, 0, 0.94, -0.02, { parent: drv });
+    this._mesh(new THREE.CapsuleGeometry(0.14, 0.3, 8, 16), suit, 0, 0.94, -0.02, { parent: drv });
     for (const s of [-1, 1]) {
       this._mesh(
-        new THREE.CapsuleGeometry(0.05, 0.24, 4, 8),
+        new THREE.CapsuleGeometry(0.05, 0.24, 6, 12),
         suit, s * 0.15, 0.98, 0.1,
         { parent: drv, rx: 1.15 }
       );
-      this._mesh(new THREE.SphereGeometry(0.05, 10, 8), skin, s * 0.15, 0.86, 0.2, { parent: drv, cast: false });
+      this._mesh(new THREE.SphereGeometry(0.05, 14, 10), skin, s * 0.15, 0.86, 0.2, { parent: drv, cast: false });
     }
     // steering wheel
     const wheel = new THREE.Mesh(
-      new THREE.TorusGeometry(0.09, 0.022, 8, 18),
+      new THREE.TorusGeometry(0.09, 0.022, 12, 24),
       dark
     );
     wheel.position.set(0, 0.9, 0.26);
@@ -555,13 +555,13 @@ export class Kart {
     drv.add(wheel);
 
     // head + face (bigger, higher, pushed forward — readable from behind)
-    this._mesh(new THREE.SphereGeometry(0.17, 20, 16), skin, 0, 1.2, 0.1, { parent: drv });
+    this._mesh(new THREE.SphereGeometry(0.17, 32, 24), skin, 0, 1.2, 0.1, { parent: drv });
     // Helmet recolored per character (own material so setBodyColor can still
     // repaint it alongside the body — classic menu color picker behavior).
     const helmetMat = character ? this._mat(character.helmetColor) : body;
     this._helmetMat = helmetMat;
     const helmet = new THREE.Mesh(
-      new THREE.SphereGeometry(0.175, 20, 16),
+      new THREE.SphereGeometry(0.175, 32, 24),
       helmetMat
     );
     helmet.position.set(0, 1.3, -0.02);
@@ -569,13 +569,13 @@ export class Kart {
     helmet.castShadow = true;
     drv.add(helmet);
     this._outline(helmet);
-    this._mesh(new THREE.TorusGeometry(0.175, 0.02, 6, 18), bodyDark, 0, 1.2, -0.02, { parent: drv, rx: Math.PI / 2, cast: false });
+    this._mesh(new THREE.TorusGeometry(0.175, 0.02, 8, 24), bodyDark, 0, 1.2, -0.02, { parent: drv, rx: Math.PI / 2, cast: false });
     // Helmet accent stripe — the character's color mark instead of a name
     // decal (no text): a thin ring around the helmet equator, proud of the
     // shell so it reads from the chase camera.
     if (character) {
       this._mesh(
-        new THREE.TorusGeometry(0.178, 0.02, 6, 24),
+        new THREE.TorusGeometry(0.178, 0.02, 8, 32),
         this._mat(character.accentColor),
         0, 1.3, -0.02,
         { parent: drv, rx: Math.PI / 2, cast: false }
@@ -583,9 +583,9 @@ export class Kart {
     }
 
     for (const s of [-1, 1]) {
-      this._mesh(new THREE.SphereGeometry(0.055, 10, 8), 0xffffff, s * 0.068, 1.24, 0.22, { parent: drv, cast: false });
-      this._mesh(new THREE.SphereGeometry(0.026, 8, 6), 0x1b2a41, s * 0.068, 1.24, 0.26, { parent: drv, cast: false });
-      this._mesh(new THREE.SphereGeometry(0.01, 6, 4), 0xffffff, s * 0.068 + 0.012, 1.245, 0.273, { parent: drv, cast: false });
+      this._mesh(new THREE.SphereGeometry(0.055, 14, 10), 0xffffff, s * 0.068, 1.24, 0.22, { parent: drv, cast: false });
+      this._mesh(new THREE.SphereGeometry(0.026, 12, 8), 0x1b2a41, s * 0.068, 1.24, 0.26, { parent: drv, cast: false });
+      this._mesh(new THREE.SphereGeometry(0.01, 8, 6), 0xffffff, s * 0.068 + 0.012, 1.245, 0.273, { parent: drv, cast: false });
     }
   }
 

@@ -2,7 +2,8 @@
  * Super Kart 3D.js — track builder.
  * Builds a closed cartoon race loop: CatmullRomCurve3 path with elevation,
  * a road ribbon (BufferGeometry) with asphalt texture, red/white curb
- * strips, lane dashes, start/finish gantry and an undulating grass terrain.
+ * strips, continuous guard-rails along both edges, lane dashes, start/finish
+ * gantry and an undulating grass terrain.
  *
  * Exports (contract):
  *   buildTrack(scene) → { group, path, waypoints, startLine, length }
@@ -165,6 +166,117 @@ function buildCurbs(path, length, side) {
   mesh.instanceMatrix.needsUpdate = true;
   if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   return mesh;
+}
+
+/**
+ * Solid rectangular-section ribbon (closed box) following the path at a
+ * fixed lateral offset and height band — the guard-rail's continuous darker
+ * top rail. Top/bottom/side faces make it read from any camera angle.
+ */
+function buildEdgeRibbon(path, lateralOffset, yBase, w, h, mat) {
+  const N = 200;
+  const nrm = new THREE.Vector3();
+  const tan = new THREE.Vector3();
+  const p = new THREE.Vector3();
+  const pos = [];
+  const idx = [];
+  for (let i = 0; i <= N; i++) {
+    const t = i / N;
+    path.getPointAt(t, p);
+    path.getTangentAt(t, tan);
+    nrm.set(-tan.z, 0, tan.x).normalize();
+    const cx = p.x + nrm.x * lateralOffset;
+    const cz = p.z + nrm.z * lateralOffset;
+    const ox = nrm.x * (w / 2);
+    const oz = nrm.z * (w / 2);
+    const y0 = p.y + yBase;
+    const y1 = p.y + yBase + h;
+    pos.push(cx - ox, y0, cz - oz); // 0 outer-bottom
+    pos.push(cx + ox, y0, cz + oz); // 1 inner-bottom
+    pos.push(cx + ox, y1, cz + oz); // 2 inner-top
+    pos.push(cx - ox, y1, cz - oz); // 3 outer-top
+  }
+  for (let i = 0; i < N; i++) {
+    const a = i * 4;
+    const b = a + 4;
+    // bottom face
+    idx.push(a, b, a + 1, a + 1, b, b + 1);
+    // top face
+    idx.push(a + 3, a + 2, b + 2, a + 3, b + 2, b + 3);
+    // outer side
+    idx.push(a, a + 3, b + 3, a, b + 3, b);
+    // inner side
+    idx.push(a + 1, b + 1, b + 2, a + 1, b + 2, a + 2);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
+/**
+ * Continuous guard-rail along ONE road edge: short barrier segments
+ * (alternating white/red) instanced every ~4m following the path normal,
+ * with a continuous darker top rail on top. Placed at roadWidth/2 + 0.6 so
+ * it never intrudes on the racing line (the kart wall bounce lives further
+ * out, at +roadEdge). The whole edge reads as ONE organized structure —
+ * asphalt → curbs → guard rail → grass — instead of scattered props.
+ */
+function buildGuardRail(path, length, side) {
+  const roadW = getRoadWidthAt();
+  const lateral = side * (roadW / 2 + 0.6);
+  const segLen = 3.9; // short segments, 0.1m joint gap reads as intentional
+  // Tile the whole loop with ~4m spacing (count = round → spacing = length /
+  // count ≈ 3.99m) so there's no seam gap where the loop closes at start.
+  const count = Math.max(1, Math.round(length / 4.0));
+
+  const geo = new THREE.BoxGeometry(0.42, 0.7, segLen);
+  const mat = toonMaterial(0xffffff, {});
+  const mesh = new THREE.InstancedMesh(geo, mat, count);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+
+  const p = new THREE.Vector3();
+  const tan = new THREE.Vector3();
+  const nrm = new THREE.Vector3();
+  const dummy = new THREE.Object3D();
+  const col = new THREE.Color();
+
+  for (let i = 0; i < count; i++) {
+    const t = (i + 0.5) / count; // center each segment on its slot → even spacing
+    path.getPointAt(t, p);
+    path.getTangentAt(t, tan);
+    nrm.set(-tan.z, 0, tan.x).normalize();
+    dummy.position.set(
+      p.x + nrm.x * lateral,
+      p.y + 0.05 + 0.35, // base at path elevation +0.05; box half-height 0.35
+      p.z + nrm.z * lateral
+    );
+    dummy.lookAt(
+      p.x + tan.x + nrm.x * lateral,
+      p.y,
+      p.z + tan.z + nrm.z * lateral
+    );
+    dummy.updateMatrix();
+    mesh.setMatrixAt(i, dummy.matrix);
+    col.setHex(i % 2 === 0 ? 0xff5a5f : 0xf4f6f8);
+    mesh.setColorAt(i, col);
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+
+  // Continuous darker top rail sitting on the segments (no seams between
+  // them). DoubleSide so winding never culls it.
+  const railMat = toonMaterial(0x232b38, { side: THREE.DoubleSide });
+  const rail = buildEdgeRibbon(path, lateral, 0.05 + 0.7, 0.5, 0.22, railMat);
+
+  const g = new THREE.Group();
+  g.add(mesh, rail);
+  return g;
 }
 
 function buildLaneDashes(path, length) {
@@ -405,9 +517,10 @@ function buildTireBarriers(path, roadW) {
     if (curv > 0.0022 && t - lastT > 0.06 && t > 0.05 && t < 0.95) {
       path.getPointAt(t, p);
       nrm.set(-tan.z, 0, tan.x).normalize();
-      // A tire STACK (3 tires high) on each side, just off the road.
+      // A tire STACK (3 tires high) on each side, just off the road — and
+      // outside the guard-rail (rail sits at halfW+0.6, so +1.5 clears it).
       for (let side = -1; side <= 1; side += 2) {
-        spots.push({ x: p.x + nrm.x * (side * (halfW + 1.1)), y: p.y, z: p.z + nrm.z * (side * (halfW + 1.1)), ry: Math.atan2(tan.x, tan.z) });
+        spots.push({ x: p.x + nrm.x * (side * (halfW + 1.5)), y: p.y, z: p.z + nrm.z * (side * (halfW + 1.5)), ry: Math.atan2(tan.x, tan.z) });
       }
       lastT = t;
     }
@@ -485,6 +598,11 @@ export function buildTrack(scene) {
   const curbR = buildCurbs(path, length, 1);
   group.add(curbL, curbR);
 
+  // Continuous guard-rails along both edges. Edge hierarchy is now organized:
+  // asphalt → curbs → guard rail (roadW/2 + 0.6) → grass. Placed outside the
+  // curb so the racing line is never blocked.
+  group.add(buildGuardRail(path, length, -1), buildGuardRail(path, length, 1));
+
   const dashes = buildLaneDashes(path, length);
   group.add(dashes);
 
@@ -500,7 +618,8 @@ export function buildTrack(scene) {
   const ramps = buildRamps(path, length);
   for (const r of ramps) {
     group.add(r.mesh);
-    if (r.chev) group.add(r.chev);
+    // chev is parented to r.mesh now (stays flush on the slope) — it must
+    // NOT be re-added here or it would detach from the ramp.
   }
 
   const startLine = { position: startPos.clone(), direction: startDir.clone(), width: getRoadWidthAt() };
@@ -541,25 +660,33 @@ function buildRamps(path, length) {
   const chevMat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), transparent: true, depthWrite: false, side: THREE.DoubleSide });
   const tan = new THREE.Vector3();
   const p = new THREE.Vector3();
-  for (const t of [0.16, 0.56]) {
+  // Two ramps on the two long straights, evenly split around the lap (0.30
+  // and 0.86 — curvature < 0.001) and clear of the turbo-pad clusters
+  // (0.18 / 0.72) and the corner dressing — no more cluster at t=0.16/0.56
+  // (the old 0.56 ramp sat on the corner entry, c≈0.0015).
+  for (const t of [0.30, 0.86]) {
     path.getPointAt(t, p);
     path.getTangentAt(t, tan);
     const mesh = new THREE.Mesh(
       new THREE.BoxGeometry(4.6, 0.45, CONFIG.track.roadWidth * 0.78),
       mat
     );
-    mesh.position.set(p.x, p.y + 0.22, p.z);
+    // Base sits exactly on the asphalt top (ribbon y+0.18) — the old
+    // y+0.22 center left the bottom third buried under the ribbon.
+    mesh.position.set(p.x, p.y + 0.18 + 0.225, p.z);
     mesh.rotation.y = Math.atan2(tan.x, tan.z);
     mesh.rotation.x = 0.3; // slope up along travel direction
     mesh.castShadow = true;
     mesh.receiveShadow = true;
-    // Chevron decal floating just above the ramp surface (y+0.24, follows
-    // the slope via the same rotation).
+    // Chevron decal PARENTED to the ramp: local +Y 0.23 = 5mm above the top
+    // face, inherits the slope so it stays flush end-to-end. The old
+    // free-floating plane at world y+0.26 was buried inside the ramp's top
+    // face (y+0.445) — invisible at the center, ghosting at the low end.
     const chev = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.1), chevMat);
-    chev.position.set(p.x, p.y + 0.26, p.z);
-    chev.rotation.y = Math.atan2(tan.x, tan.z);
-    chev.rotation.x = 0.3;
+    chev.rotation.x = -Math.PI / 2;
+    chev.position.set(0, 0.23, 0);
     chev.renderOrder = 1;
+    mesh.add(chev);
     ramps.push({ t, point: p.clone(), dir: tan.clone(), mesh, chev });
   }
   return ramps;

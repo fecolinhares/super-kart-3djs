@@ -51,6 +51,23 @@ export function toonMaterial(color, opts = {}) {
   return mat;
 }
 
+/**
+ * Shared glossy painted-plastic PBR material — the MK8 painted-plastic cue:
+ * cartoon body shells read as polished toys, not raw matte plastic.
+ * Requires scene.environment (set in main.js) to show reflections.
+ * opts: { roughness, metalness, clearcoat, clearcoatRoughness, envMapIntensity }
+ */
+export function plasticMaterial(color, opts = {}) {
+  return new THREE.MeshPhysicalMaterial({
+    color,
+    roughness: opts.roughness ?? 0.24,
+    metalness: opts.metalness ?? 0.05,
+    clearcoat: opts.clearcoat ?? 1.0,
+    clearcoatRoughness: opts.clearcoatRoughness ?? 0.15,
+    envMapIntensity: opts.envMapIntensity ?? 1.6,
+  });
+}
+
 const _outlineTmp = new THREE.Mesh();
 
 /**
