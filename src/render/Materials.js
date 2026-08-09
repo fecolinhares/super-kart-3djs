@@ -186,12 +186,20 @@ export function grassTexture() {
         ctx.lineTo(x + Math.cos(a) * len, y + Math.sin(a) * len);
         ctx.stroke();
       }
-      // soft darker patches
-      ctx.globalAlpha = 0.14;
-      for (let i = 0; i < 7; i++) {
+      // soft darker + lighter patches (vision critic: grass read as flat —
+      // bigger, stronger patches read at distance)
+      ctx.globalAlpha = 0.32;
+      for (let i = 0; i < 6; i++) {
         ctx.fillStyle = '#2f8f43';
         ctx.beginPath();
-        ctx.arc(Math.random() * s, Math.random() * s, 16 + Math.random() * 26, 0, Math.PI * 2);
+        ctx.arc(Math.random() * s, Math.random() * s, 34 + Math.random() * 40, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 0.26;
+      for (let i = 0; i < 5; i++) {
+        ctx.fillStyle = '#55cc68';
+        ctx.beginPath();
+        ctx.arc(Math.random() * s, Math.random() * s, 30 + Math.random() * 38, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.globalAlpha = 1;
