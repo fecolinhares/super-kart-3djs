@@ -19,6 +19,10 @@ import { KartPhysics } from './KartPhysics.js';
 
 const OUTLINE = 0x1b2a41;
 
+// AUDIT r7: finished-kart celebration duration (ms) — the wheelie hop runs
+// this long; the checkered flag stays up afterwards.
+const KART_FINISH_MS = 1400;
+
 /** Held-item bubble colors (PowerUpType value → orb tint). */
 const HELD_ITEM_COLORS = {
   mushroom: 0xff5a5f,
@@ -86,6 +90,9 @@ export class Kart {
     // effect flags / timers (ms)
     this.invincible = false;
     this.starred = false;
+    // AUDIT r7: finished-kart celebration (wheelie hop + checkered flag).
+    this._finishActive = false;
+    this._finishMs = 0;
     // AI rubber-band override base (must not leak across restarts — audit F9).
     // The public `cruiseSpeed` getter/setter below folds the coin bonus into
     // whatever KartPhysics targets every frame (see get/set cruiseSpeed).
@@ -195,6 +202,42 @@ export class Kart {
     // character's identity color, falling back to the classic default.
     const bodyColor = color !== undefined ? color : (character ? character.color : 0xff5a5f);
     this._buildMesh(bodyColor, character);
+
+    // AUDIT r7: finished-kart celebration — a mini checkered flag on a thin
+    // pole above the tail. Hidden until the kart crosses the finish line;
+    // the wheelie hop is animated in update().
+    this._finishFlag = new THREE.Group();
+    this._finishFlag.visible = false;
+    const flagPole = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.018, 0.024, 0.7, 8),
+      this._mat(0x2b3340)
+    );
+    flagPole.position.set(0, 1.1, -0.5);
+    this._finishFlag.add(flagPole);
+    // Small checkered cloth — local 4x3 canvas (Materials.checkerTexture is
+    // a road-stripe 2x8, wrong aspect for a flag).
+    const flagCanvas = document.createElement('canvas');
+    flagCanvas.width = 64;
+    flagCanvas.height = 48;
+    const fg = flagCanvas.getContext('2d');
+    const cw = 64 / 4;
+    const ch = 48 / 3;
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 3; j++) {
+        fg.fillStyle = (i + j) % 2 === 0 ? '#ffffff' : '#10141c';
+        fg.fillRect(i * cw, j * ch, cw + 1, ch + 1); // +1 hides AA seams
+      }
+    }
+    const flagTex = new THREE.CanvasTexture(flagCanvas);
+    flagTex.colorSpace = THREE.SRGBColorSpace;
+    flagTex.anisotropy = 4;
+    this._flagCloth = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.46, 0.3),
+      new THREE.MeshBasicMaterial({ map: flagTex, side: THREE.DoubleSide })
+    );
+    this._flagCloth.position.set(-0.24, 1.36, -0.5);
+    this._finishFlag.add(this._flagCloth);
+    this.group.add(this._finishFlag);
 
     this.group.position.copy(this.state.position);
     this.group.rotation.y = startHeading;
@@ -431,6 +474,7 @@ export class Kart {
     blob.position.y = 0.02;
     blob.renderOrder = 1;
     this.group.add(blob);
+    this._blob = blob; // AUDIT r7: counter-tilt keeps the shadow flat during the wheelie
 
     // ---- molded shell (48-segment lathe lozenge) -----------------------------
     // Continuous molded body: a high-segment lathe hull (nose→body→tail) in
@@ -1244,6 +1288,11 @@ export class Kart {
     this._scaleMs = 0;
     this._scaleTarget = 1;
     this._latVel = 0;
+    // AUDIT r7: no stale finish celebration into the fresh race.
+    this._finishActive = false;
+    this._finishMs = 0;
+    if (this._finishFlag) this._finishFlag.visible = false;
+    if (this._blob) this._blob.rotation.x = -Math.PI / 2;
     // AUDIT r2: stale trick/slipstream state leaked into the fresh race —
     // an armed trick or drafting slingshot fired right after GO.
     this._wasDrafting = false;
@@ -1274,6 +1323,14 @@ export class Kart {
     this._boostMs = Math.max(this._boostMs, durationMs);
     this._scaleTarget = 1.06; // stretch
     this._scaleMs = Math.max(this._scaleMs, 420);
+  }
+
+  /** AUDIT r7: finished-kart celebration — one wheelie hop + checkered flag
+   *  (latched so it fires exactly once; restart()/reset() clear it). */
+  _beginFinishCelebration() {
+    this._finishActive = true;
+    this._finishMs = KART_FINISH_MS;
+    if (this._finishFlag) this._finishFlag.visible = true;
   }
 
   /** Star: invincible + long boost + rainbow trail. */
@@ -1394,6 +1451,10 @@ export class Kart {
     this._nudgeVel.set(0, 0, 0);
     this._lastProgress = 0;
     this._bounce = 0;
+    this._finishActive = false; // AUDIT r7: no stale finish celebration
+    this._finishMs = 0;
+    if (this._finishFlag) this._finishFlag.visible = false;
+    if (this._blob) this._blob.rotation.x = -Math.PI / 2;
     if (position) this.state.position.copy(position);
     this.state.heading = heading;
     this.group.position.copy(this.state.position);
@@ -1471,6 +1532,10 @@ export class Kart {
       KartPhysics.step(this, this._controls, dt, ctx.track, ctx.raceManager);
     }
     s.finished = this.finished;
+    // AUDIT r7: finished-kart celebration — rising edge of this.finished
+    // triggers one wheelie hop + the checkered flag (guarded so it fires
+    // exactly once per race; restart()/reset() clear the latch).
+    if (this.finished && !this._finishActive) this._beginFinishCelebration();
 
     // sync transform
     this.group.position.copy(s.position);
@@ -1481,7 +1546,25 @@ export class Kart {
     const steerVis = this._controls.steer * speed01;
     const rollTarget = -steerVis * 0.09 - (s.drifting ? this._controls.steer * 0.035 : 0);
     this.group.rotation.z = THREE.MathUtils.lerp(this.group.rotation.z, rollTarget, Math.min(1, 6 * dt));
-    const pitchTarget = s.spinOut ? 0 : (this._controls.throttle ? 0.05 : (this._controls.brake ? -0.04 : 0));
+    let pitchTarget = s.spinOut ? 0 : (this._controls.throttle ? 0.05 : (this._controls.brake ? -0.04 : 0));
+    // AUDIT r7: finished-kart celebration — a quick wheelie hop (nose up,
+    // negative rotation.x per the three.js XYZ Euler convention) while
+    // _finishMs runs, then the checkered flag keeps waving up top.
+    if (this._finishMs > 0) {
+      const ft = 1 - this._finishMs / KART_FINISH_MS; // 0 → 1 over the celebration
+      const rise = Math.min(1, ft * 6); // fast nose-up over the first ~0.17s
+      const settle = 1 - Math.max(0, (ft - 0.55) / 0.45); // ease back after 55%
+      pitchTarget -= 0.26 * rise * settle + Math.sin(this._t * 9) * 0.02 * settle; // nose up + tiny wobble
+      this.group.position.y += Math.sin(rise * Math.PI) * 0.14; // visual hop (physics re-syncs next frame)
+    }
+    if (this._finishActive) {
+      if (this._blob) this._blob.rotation.x = -Math.PI / 2 - this.group.rotation.x; // shadow stays flat
+      if (this._finishFlag) {
+        this._finishFlag.visible = true;
+        this._finishFlag.rotation.y += dt * 5; // spin the flag around its pole
+        if (this._flagCloth) this._flagCloth.rotation.z = Math.sin(this._t * 7) * 0.22; // cloth wave
+      }
+    }
     this.group.rotation.x = THREE.MathUtils.lerp(this.group.rotation.x, pitchTarget, Math.min(1, 5 * dt));
 
     this._animateWheels(dt);
@@ -1528,6 +1611,10 @@ export class Kart {
     if (this._scaleMs > 0) {
       this._scaleMs = Math.max(0, this._scaleMs - ms);
       if (this._scaleMs <= 0) this._scaleTarget = 1;
+    }
+    // AUDIT r7: finish celebration timer — ends the wheelie (flag persists).
+    if (this._finishMs > 0) {
+      this._finishMs = Math.max(0, this._finishMs - ms);
     }
   }
 

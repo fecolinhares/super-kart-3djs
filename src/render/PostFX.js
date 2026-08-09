@@ -105,6 +105,10 @@ export class PostFX {
 
     this._onResize = this._onResize.bind(this);
     window.addEventListener('resize', this._onResize);
+
+    // AUDIT r7: cheap sun lens flare — bright disc sprite + horizontal glare
+    // streak hung in the sky along the key-light direction (day track only).
+    this.buildSunFlare();
   }
 
   _onResize() {
@@ -143,6 +147,96 @@ export class PostFX {
         this.composer = null;
       }
     } catch { /* readPixels can fail on some drivers — assume OK */ }
+  }
+
+  /** Mirrors main.js TRACK_ID resolution: ?track=2 / __sk3dTrack /
+   *  localStorage sk3d.track → neon city (night, no sun flare). */
+  _isDayTrack() {
+    let saved = 0;
+    try { saved = Number(localStorage.getItem('sk3d.track')); } catch { /* private mode */ }
+    const q = new URLSearchParams(window.location.search);
+    const id = Number(window.__sk3dTrack) === 2 || saved === 2 || Number(q.get('track')) === 2 ? 2 : 1;
+    return id !== 2;
+  }
+
+  /**
+   * AUDIT r7: cheap sun lens flare — a bright sun disc sprite + a small
+   * horizontal anamorphic glare line, both additive MeshBasicMaterials in
+   * the sky along the key-light direction (same axis as Environment's sun
+   * glow at 70,90,40). Static (the sun never moves); the additive white
+   * core is what UnrealBloom picks up as the flare. Deterministic textures,
+   * two draw calls, fog-free so they stay crisp past the fog far plane.
+   */
+  buildSunFlare() {
+    if (!this.scene || !this._isDayTrack()) return;
+    const pos = new THREE.Vector3(70, 90, 40).normalize().multiplyScalar(340);
+
+    // Sun disc sprite (bright core, soft warm falloff).
+    if (!this._sunDiscTex) {
+      const c = document.createElement('canvas');
+      c.width = 128;
+      c.height = 128;
+      const g = c.getContext('2d');
+      const grad = g.createRadialGradient(64, 64, 2, 64, 64, 62);
+      grad.addColorStop(0, 'rgba(255,255,255,1)');
+      grad.addColorStop(0.25, 'rgba(255,246,214,0.9)');
+      grad.addColorStop(0.6, 'rgba(255,238,190,0.35)');
+      grad.addColorStop(1, 'rgba(255,235,180,0)');
+      g.fillStyle = grad;
+      g.fillRect(0, 0, 128, 128);
+      this._sunDiscTex = new THREE.CanvasTexture(c);
+      this._sunDiscTex.colorSpace = THREE.SRGBColorSpace;
+      const disc = new THREE.Mesh(
+        new THREE.PlaneGeometry(26, 26),
+        new THREE.MeshBasicMaterial({
+          map: this._sunDiscTex,
+          transparent: true,
+          depthWrite: false,
+          fog: false,
+          blending: THREE.AdditiveBlending,
+          side: THREE.DoubleSide,
+        })
+      );
+      disc.position.copy(pos);
+      disc.lookAt(0, 0, 0);
+      this._sunDisc = disc;
+      this.scene.add(disc);
+    }
+
+    // Horizontal glare line — a radial gradient squashed into a thin streak
+    // (reads as the anamorphic lens flare crossing the sun).
+    if (!this._glareTex) {
+      const c = document.createElement('canvas');
+      c.width = 256;
+      c.height = 64;
+      const g = c.getContext('2d');
+      g.translate(128, 32);
+      g.scale(1, 0.24);
+      g.translate(-128, -32);
+      const grad = g.createRadialGradient(128, 32, 2, 128, 32, 124);
+      grad.addColorStop(0, 'rgba(255,255,255,0.9)');
+      grad.addColorStop(0.4, 'rgba(255,244,214,0.45)');
+      grad.addColorStop(1, 'rgba(255,235,190,0)');
+      g.fillStyle = grad;
+      g.fillRect(0, 0, 256, 64);
+      this._glareTex = new THREE.CanvasTexture(c);
+      this._glareTex.colorSpace = THREE.SRGBColorSpace;
+      const glare = new THREE.Mesh(
+        new THREE.PlaneGeometry(110, 7),
+        new THREE.MeshBasicMaterial({
+          map: this._glareTex,
+          transparent: true,
+          depthWrite: false,
+          fog: false,
+          blending: THREE.AdditiveBlending,
+          side: THREE.DoubleSide,
+        })
+      );
+      glare.position.copy(pos);
+      glare.lookAt(0, 0, 0);
+      this._glare = glare;
+      this.scene.add(glare);
+    }
   }
 
   render() {

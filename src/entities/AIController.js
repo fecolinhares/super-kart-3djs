@@ -294,6 +294,11 @@ export class AIController {
     this.itemAccum += CONFIG.ai.itemUseChancePerSec * dt;
     if (this.itemAccum < 1) return;
     this.itemAccum = 0;
+    // AUDIT r7 (defensive rear play): a chased AI used to hoard its shell or
+    // banana forever (the forward-use checks refuse when nothing is ahead).
+    // MK8D pack AI drops/throws backward — rear-throw the held shell/banana
+    // at a chaser. Checked before forward use: the immediate threat wins.
+    if (this._rearDefense()) return;
     // Dead-weight primary (a block-hold the use check would refuse — shell
     // with nobody ahead, banana held while not leading): swap the reserve in
     // BEFORE the use check so it gets a chance instead of rotting. The
@@ -358,6 +363,53 @@ export class AIController {
       default:
         return true;
     }
+  }
+
+  /** AUDIT r7: defensive rear play — when a rival is close BEHIND, arm the
+   *  existing rear-throw path (kart._rearThrow, read + cleared by
+   *  PowerUp.useItem) and fire the held shell/banana backward (MK8D pack AI
+   *  drops a banana/shell behind when chased) instead of hoarding forever.
+   *  Returns true when the item was consumed (or the throw was attempted). */
+  _rearDefense() {
+    const kart = this.kart;
+    const type = kart.heldItem;
+    if (type !== PowerUpType.SHELL && type !== PowerUpType.RED_SHELL && type !== PowerUpType.BANANA) {
+      return false;
+    }
+    if (!this._chased()) return false;
+    // Mirror main.js hold-to-throw (rear = true → kart._rearThrow → useItem):
+    // arm the rear flag, fire, then clear it even if useItem bailed (empty
+    // slot race) so the flag never leaks into a later forward use.
+    kart._rearThrow = true;
+    this.raceManager?.useItem?.(kart);
+    kart._rearThrow = false;
+    return true;
+  }
+
+  /** Is a rival close BEHIND us? Either criterion fires:
+   *   - standings gap: progressScore(rival) - progressScore(kart) < -5.
+   *     (lap*1000 dominates the 0..1 progress01, so this mainly catches
+   *     lapping chasers; within a lap the gap range is only -1..0.)
+   *   - physical: a rival within 8m BEHIND our heading (the pack-chase
+   *     case that actually drives MK8D-style defensive drops). */
+  _chased() {
+    const karts = this.raceManager?.karts;
+    if (!Array.isArray(karts)) return false;
+    const kart = this.kart;
+    const opos = kartPosition(kart);
+    const dir = headingVector(kart);
+    const myScore = progressScore(kart);
+    for (const k of karts) {
+      if (!k || k === kart || k.finished) continue;
+      const d = progressScore(k) - myScore; // < 0 → rival behind in standings
+      const p = kartPosition(k);
+      const dx = p.x - opos.x;
+      const dz = p.z - opos.z;
+      const behind = dx * dir.x + dz * dir.y; // < 0 → physically behind us
+      if (behind >= 0) continue; // only rivals behind count as chasers
+      if (d < -5 || Math.hypot(dx, dz) < 8) return true;
+    }
+    return false;
   }
 
   /** The kart one place AHEAD in the standings (null if leading). */

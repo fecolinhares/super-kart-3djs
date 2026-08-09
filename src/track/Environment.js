@@ -210,6 +210,43 @@ function gravelTexture() {
   return tex;
 }
 
+// ---------------------------------------------------------------------------
+// Soft cloud shadow patch (AUDIT r7) — a dark radial blob projected on the
+// ground beneath each cloud, drifting with it. Shared geometry + material
+// (14 cheap quads, one texture); update() re-pins the Y to the terrain
+// every frame so the patch follows the rolling hills.
+// ---------------------------------------------------------------------------
+let _cloudShadowTex = null;
+let _cloudShadowGeo = null;
+let _cloudShadowMat = null;
+function getCloudShadowParts() {
+  if (!_cloudShadowTex) {
+    const c = document.createElement('canvas');
+    c.width = 128;
+    c.height = 128;
+    const g = c.getContext('2d');
+    const grad = g.createRadialGradient(64, 64, 6, 64, 64, 62);
+    grad.addColorStop(0, 'rgba(14,20,34,0.6)');
+    grad.addColorStop(0.55, 'rgba(14,20,34,0.34)');
+    grad.addColorStop(1, 'rgba(14,20,34,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 128, 128);
+    _cloudShadowTex = new THREE.CanvasTexture(c);
+    _cloudShadowGeo = new THREE.CircleGeometry(1, 24);
+    _cloudShadowMat = new THREE.MeshBasicMaterial({
+      map: _cloudShadowTex,
+      transparent: true,
+      opacity: 0.5,
+      depthWrite: false,
+      fog: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1,
+    });
+  }
+  return { geo: _cloudShadowGeo, mat: _cloudShadowMat };
+}
+
 /** Triangle-strip ribbon following the track path (mirrors TrackBuilder's
  *  buildRoadRibbon geometry so it sits exactly on the shoulder plane) — used
  *  for the gravel verge band. Up-facing normals, UVs 0..1 along path/across
@@ -668,6 +705,19 @@ export class Environment {
       c.userData.speed = 0.6 + rand() * 1.4;
       c.userData.baseX = c.position.x;
       c.userData.radius = 60 + rand() * 90;
+      // AUDIT r7: soft shadow patch on the ground below this cloud (child of
+      // the cloud group so it drifts with it; update() re-pins the Y each
+      // frame). Deterministic size from the seeded rand() — added AFTER all
+      // existing draws so no earlier placement shifts.
+      const parts = getCloudShadowParts();
+      const shadow = new THREE.Mesh(parts.geo, parts.mat);
+      shadow.rotation.x = -Math.PI / 2;
+      const br = 9 + rand() * 7; // 9-16m radius patch (bigger than the cloud)
+      shadow.scale.set(br * 2, br * 1.6, 1);
+      shadow.position.y = this._gy(c.position.x, c.position.z) - c.position.y;
+      shadow.renderOrder = 1;
+      c.add(shadow);
+      c.userData.shadowBlob = shadow;
       group.add(c);
       this.clouds.push(c);
     }
@@ -3784,6 +3834,9 @@ export class Environment {
       const r = c.userData.radius;
       c.position.x = c.userData.baseX + Math.sin(t * c.userData.speed * 0.1) * r;
       c.position.z += Math.cos(t * c.userData.speed * 0.07) * dt * 1.2;
+      // AUDIT r7: keep the cloud's shadow patch pinned to the terrain below.
+      const blob = c.userData.shadowBlob;
+      if (blob && this._gy) blob.position.y = this._gy(c.position.x, c.position.z) - c.position.y;
     }
     // Hot-air balloons bob gently.
     for (const b of this.balloons || []) {

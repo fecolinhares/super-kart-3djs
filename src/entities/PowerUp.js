@@ -269,6 +269,10 @@ function isAheadOf(a, b) {
 // ShellProjectile
 // ---------------------------------------------------------------------------
 
+// AUDIT r7 (shell motion trail): pooled ribbon length + per-quad fade.
+const SHELL_TRAIL_LENGTH = 10;
+const SHELL_TRAIL_FADE = 0.72;
+
 /** A shell: green = straight, red = homing. Hits any kart (except the owner
  *  for the first 0.5s) within 1.0m → kart.hitShell(). Lifetime 8s, culled
  *  when it flies off the road. `rear` shells (hold-to-throw-back, audit r4)
@@ -315,6 +319,11 @@ export class ShellProjectile {
     this.mesh.rotation.y = Math.atan2(this.dir.x, this.dir.y);
     this.mesh.castShadow = true;
     this.scene?.add(this.mesh);
+    // AUDIT r7 (shell motion trail): pooled ribbon of small glowing quads
+    // left behind the shell — MK8D shells streak. Skipped with no scene
+    // (headless / unit-test harness).
+    this._trail = null;
+    if (this.scene) this._buildTrail(color);
   }
 
   update(dt, karts) {
@@ -375,6 +384,7 @@ export class ShellProjectile {
       this._vY -= CONFIG.items.blueShellGravity * dt;
       m.position.y += this._vY * dt;
       if (this._shadow) this._shadow.position.set(m.position.x, 0.05, m.position.z);
+      this._emitTrail();
       // Descend when falling back near the ground — switch to the normal
       // homing dive (the shadow warning has done its job).
       if (m.position.y <= 3.4 && this._arcT > 0.9) {
@@ -389,6 +399,7 @@ export class ShellProjectile {
     m.position.x += this.dir.x * this.speed * dt;
     m.position.z += this.dir.y * this.speed * dt;
     m.rotation.y = Math.atan2(this.dir.x, this.dir.y);
+    this._emitTrail();
 
     // Green shell follows the racing line (MK8 behavior): steer toward the
     // nearest centerline tangent so it hugs the track instead of flying off
@@ -485,6 +496,48 @@ export class ShellProjectile {
     return best;
   }
 
+  /** AUDIT r7: build the pooled trail ribbon — one shared geometry, one
+   *  material per quad so each quad fades independently. */
+  _buildTrail(shellColor) {
+    const geo = new THREE.CircleGeometry(0.26, 8);
+    const pool = [];
+    for (let i = 0; i < SHELL_TRAIL_LENGTH; i++) {
+      const mat = new THREE.MeshBasicMaterial({
+        color: shellColor,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      });
+      const quad = new THREE.Mesh(geo, mat);
+      quad.rotation.x = -Math.PI / 2; // flat on the road, like a light streak
+      quad.visible = false;
+      this.scene.add(quad);
+      pool.push(quad);
+    }
+    this._trail = { geo, pool };
+  }
+
+  /** AUDIT r7: shift the ribbon one slot and plant the head at the shell.
+   *  Each quad inherits its neighbour's position AND a faded opacity, so the
+   *  trail stretches out behind the shell and dies away (no per-frame
+   *  allocation). */
+  _emitTrail() {
+    const t = this._trail;
+    if (!t) return;
+    const pool = t.pool;
+    const m = this.mesh.position;
+    for (let i = pool.length - 1; i > 0; i--) {
+      pool[i].position.copy(pool[i - 1].position);
+      const o = pool[i - 1].material.opacity * SHELL_TRAIL_FADE;
+      pool[i].material.opacity = o;
+      pool[i].visible = o > 0.02;
+    }
+    pool[0].position.set(m.x, 0.06, m.z);
+    pool[0].material.opacity = 0.75;
+    pool[0].visible = true;
+  }
+
   _rotateDir(delta) {
     const c = Math.cos(delta);
     const s = Math.sin(delta);
@@ -529,10 +582,21 @@ export class ShellProjectile {
     this.scene?.remove(this.mesh);
     // AUDIT r4: drop the arc shadow if it died mid-flight (e.g. timeout).
     if (this._shadow) { this.scene?.remove(this._shadow); this._shadow = null; }
+    // AUDIT r7: take the pooled trail ribbon out of the scene too.
+    const t = this._trail;
+    if (t) {
+      for (const q of t.pool) this.scene?.remove(q);
+      this._trail = null;
+    }
   }
 
   dispose() {
     disposeObject(this.mesh);
+    const t = this._trail;
+    if (t) {
+      t.geo.dispose?.();
+      for (const q of t.pool) q.material?.dispose?.();
+    }
   }
 }
 

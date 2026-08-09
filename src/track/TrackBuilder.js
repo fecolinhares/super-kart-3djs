@@ -946,6 +946,108 @@ function buildFinishLine(startLine) {
   return mesh;
 }
 
+// ---------------------------------------------------------------------------
+// Start-grid pole numbers (AUDIT r7)
+// White number on a dark disc painted on the asphalt at every grid slot,
+// MK8-style. One merged BufferGeometry (N quads, one draw call) with a
+// single atlas texture holding all N discs; deterministic — no Math.random.
+// ---------------------------------------------------------------------------
+let _gridNumberAtlas = null; // { count, tex }
+function gridNumberAtlas(count) {
+  if (_gridNumberAtlas && _gridNumberAtlas.count === count) return _gridNumberAtlas.tex;
+  const c = document.createElement('canvas');
+  c.width = 128 * count;
+  c.height = 128;
+  const g = c.getContext('2d');
+  for (let i = 0; i < count; i++) {
+    const cx = i * 128 + 64;
+    // dark disc with a soft radial falloff (reads as paint, not a sticker)
+    const grad = g.createRadialGradient(cx, 64, 8, cx, 64, 58);
+    grad.addColorStop(0, '#242c3a');
+    grad.addColorStop(0.75, '#1a212c');
+    grad.addColorStop(1, 'rgba(20,26,36,0)');
+    g.fillStyle = grad;
+    g.beginPath();
+    g.arc(cx, 64, 58, 0, Math.PI * 2);
+    g.fill();
+    // crisp white rim ring
+    g.strokeStyle = 'rgba(255,255,255,0.9)';
+    g.lineWidth = 3;
+    g.beginPath();
+    g.arc(cx, 64, 51, 0, Math.PI * 2);
+    g.stroke();
+    // bold white number
+    g.fillStyle = '#ffffff';
+    g.font = '900 72px "Baloo 2", "Nunito", Arial, sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText(String(i + 1), cx, 66);
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  _gridNumberAtlas = { count, tex };
+  return tex;
+}
+
+/**
+ * Painted start-grid numbers. Replicates main.js buildGridPositions():
+ * 2 rows x 3 cols behind the start line (row 3.6m, col 2.7m) for karts
+ * 1..min(8, numKarts). Each slot gets a flat 1.9m disc sitting just above
+ * the asphalt (y+0.21, same decal layer as the finish line), oriented so
+ * the digit is upright from the start camera behind the grid.
+ */
+function buildGridNumbers(startLine) {
+  const count = Math.min(8, CONFIG.game.numKarts || 6);
+  if (count <= 0) return null;
+  const tex = gridNumberAtlas(count);
+  const mat = new THREE.MeshBasicMaterial({
+    map: tex,
+    transparent: true,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+    polygonOffsetUnits: -2,
+  });
+  mat.renderOrder = 2;
+
+  const dir3 = startLine.direction.clone().normalize();
+  const dir = new THREE.Vector3(dir3.x, 0, dir3.z).normalize(); // horizontal (decal lies flat)
+  const perp = new THREE.Vector3(-dir.z, 0, dir.x);
+  const S = 0.95; // half-size → 1.9m disc (fits the 2.7m lane spacing)
+
+  const positions = [];
+  const normals = [];
+  const uvs = [];
+  const indices = [];
+  for (let i = 0; i < count; i++) {
+    const col = i % 3;
+    const row = Math.floor(i / 3);
+    const cx = startLine.position.x + dir3.x * (-(row + 1) * 3.6) + perp.x * ((col - 1) * 2.7);
+    const cz = startLine.position.z + dir3.z * (-(row + 1) * 3.6) + perp.z * ((col - 1) * 2.7);
+    const cy = startLine.position.y + 0.21; // same decal layer as the finish line
+    const u0 = i / count;
+    const u1 = (i + 1) / count;
+    // corners in the flat XZ plane; texture V up = +dir (readable from behind)
+    const p = (dx, dz) => positions.push(cx + dx, cy, cz + dz);
+    p(dir.x * S + perp.x * S, dir.z * S + perp.z * S); // (u1, v1)
+    p(dir.x * S - perp.x * S, dir.z * S - perp.z * S); // (u1, v0)
+    p(-dir.x * S - perp.x * S, -dir.z * S - perp.z * S); // (u0, v0)
+    p(-dir.x * S + perp.x * S, -dir.z * S + perp.z * S); // (u0, v1)
+    uvs.push(u1, 1, u1, 0, u0, 0, u0, 1);
+    normals.push(0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0);
+    const b = i * 4;
+    indices.push(b, b + 1, b + 2, b, b + 2, b + 3); // up-facing winding
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geo.setIndex(indices);
+  return new THREE.Mesh(geo, mat);
+}
+
 /**
  * Painted direction chevrons at the sharpest corners (curvature > threshold),
  *  so the road reads "race track" and not a plain strip. */
@@ -1544,6 +1646,13 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   // Checkered finish line painted on the asphalt (proper yaw this time —
   // reads as paint, not a floating slab).
   group.add(buildFinishLine(startLine));
+
+  // AUDIT r7: start-grid pole numbers — a numbered disc painted on the
+  // asphalt at every grid slot (white number on a dark disc, MK8-style).
+  // Mirrors main.js buildGridPositions() slot layout so each kart sits on
+  // its own number; the discs read upright from the start camera behind
+  // the grid (texture V points along the direction of travel).
+  group.add(buildGridNumbers(startLine));
 
   // Finish checkered strip on the road itself at startT.
   // REMOVED — the painted decal read as a floating board in the middle of
