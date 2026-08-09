@@ -1015,6 +1015,17 @@ export class Kart {
       }
     }
 
+    // exhaust puffs (subtle, MK8-style — gives the kart a living feel)
+    if (speedAbs > 5 && s.throttle > 0.1 && !s.spinOut) {
+      this._exhAcc = (this._exhAcc || 0) + dt;
+      if (this._exhAcc >= 0.22) {
+        this._exhAcc = 0;
+        this._localToWorld(this._pv, 0, this._pipeOffset.y - 0.12, this._pipeOffset.z - 0.1);
+        this._v.copy(this._back).multiplyScalar(1.4);
+        particles.emit('dust', this._pv, { velocity: this._v, spread: 0.18, size: 0.1, color: 0xe8e4da, duration: 0.35 });
+      }
+    }
+
     // star rainbow trail
     if (this.starred) {
       this._starAcc += dt;
