@@ -228,13 +228,16 @@ function buildEdgeRibbon(path, lateralOffset, yBase, w, h, mat) {
  */
 function buildGuardRail(path, length, side) {
   const roadW = getRoadWidthAt();
-  const lateral = side * (roadW / 2 + 0.6);
+  // LOW + FAR from the racing line so the chase camera never clips/obscures:
+  // 0.5m tall rail at road edge +1.1m (vision critic: 0.7m at +0.6 dominated
+  // the frame and the camera sat inside it).
+  const lateral = side * (roadW / 2 + 1.1);
   const segLen = 3.9; // short segments, 0.1m joint gap reads as intentional
   // Tile the whole loop with ~4m spacing (count = round → spacing = length /
   // count ≈ 3.99m) so there's no seam gap where the loop closes at start.
   const count = Math.max(1, Math.round(length / 4.0));
 
-  const geo = new THREE.BoxGeometry(0.42, 0.7, segLen);
+  const geo = new THREE.BoxGeometry(0.3, 0.5, segLen);
   const mat = toonMaterial(0xffffff, {});
   const mesh = new THREE.InstancedMesh(geo, mat, count);
   mesh.castShadow = true;
@@ -253,7 +256,7 @@ function buildGuardRail(path, length, side) {
     nrm.set(-tan.z, 0, tan.x).normalize();
     dummy.position.set(
       p.x + nrm.x * lateral,
-      p.y + 0.05 + 0.35, // base at path elevation +0.05; box half-height 0.35
+      p.y + 0.05 + 0.25, // base at path elevation +0.05; box half-height 0.25
       p.z + nrm.z * lateral
     );
     dummy.lookAt(
