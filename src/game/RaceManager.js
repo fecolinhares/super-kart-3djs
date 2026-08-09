@@ -316,12 +316,48 @@ export class RaceManager {
     for (const kart of this.karts) kart.update?.(dt, ctx);
     for (const ctrl of this.aiControllers) ctrl.update(dt);
     this._resolveKartCollisions(dt);
+    this._updateRescues(dt);
 
     if (this.phase === 'race') {
       this._updateStandings();
       this._checkFinishes();
       if (this.elapsed >= CONFIG.game.raceTimeoutMs) this._forceFinish();
       if (this.raceOver) this.phase = 'finished';
+    }
+  }
+
+  /** Off-track rescue (audit r4 — the Lakitu): a kart shoved into grass
+   *  crawls at 45% with no way back. After 2s stuck off-road and slow,
+   *  respawn it on its own progress point of the racing line with a hop. */
+  _updateRescues(dt) {
+    if (this.phase !== 'race' || !this.track?.path) return;
+    for (const kart of this.karts) {
+      if (kart.finished || kart.invincible || kart.starred) {
+        kart._stuckT = 0;
+        continue;
+      }
+      const st = kart.state || {};
+      if (st.offRoad && Math.abs(st.speed) < 3 && typeof st.progress01 === 'number') {
+        kart._stuckT = (kart._stuckT || 0) + dt;
+        if (kart._stuckT >= 2) {
+          const p = this.track.path.getPointAt(st.progress01);
+          const tan = this.track.path.getTangentAt(st.progress01);
+          if (p) {
+            st.position.set(p.x, p.y + 0.5, p.z);
+            st.heading = Math.atan2(tan.x, tan.z);
+            st.speed = 0;
+            st.vY = 3.5; // the little pop the Lakitu gives you
+            st.spinOut = false;
+            kart._stuckT = 0;
+            kart._onRescued?.();
+            if (kart === this.player && typeof window !== 'undefined' && window.__sk3d?.addShake) {
+              window.__sk3d.addShake(0.3, 0.3);
+            }
+          }
+        }
+      } else {
+        kart._stuckT = 0;
+      }
     }
   }
 
