@@ -294,13 +294,16 @@ export function roadTexture() {
         }
       }
       // Racing-line rubber buildup: a heavier darkened band between the two
-      // tire ribbons (the groove most karts take) — reads as real wear.
-      ctx.globalAlpha = 0.16;
+      // tire ribbons — SPLIT into overlapping irregular segments (a single
+      // wide fillRect repeated every tile read as broad tonal striping).
+      ctx.globalAlpha = 0.14;
       ctx.fillStyle = '#3a4554';
-      ctx.fillRect(0, s * 0.44, s, s * 0.12);
+      for (let x = -10; x < s + 10; x += 5 + Math.random() * 9) {
+        ctx.fillRect(x, s * 0.43 + (Math.random() - 0.5) * 6, 9 + Math.random() * 12, s * 0.10 + Math.random() * 6);
+      }
       ctx.globalAlpha = 0.10;
       ctx.fillStyle = '#313b49';
-      for (let x = 0; x < s; x += 6 + Math.random() * 8) {
+      for (let x = -10; x < s + 10; x += 6 + Math.random() * 8) {
         ctx.fillRect(x, s * 0.45 + (Math.random() - 0.5) * 8, 4 + Math.random() * 8, 2 + Math.random() * 3);
       }
       ctx.globalAlpha = 1;
