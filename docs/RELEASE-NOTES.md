@@ -4,6 +4,19 @@
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
 ### Round 3 — AAA polish loop (auditor-driven, 2026-08-09)
+- **Item depth (r6)**: second held-item slot + swap key; coin pickups
+  (+1% maxSpeed each, cap +10%); triple item boxes (~1/6) with queued
+  uses — the MK8 hold/swap + collect economy.
+- **Castle landmark** in the Meadow infield (keep + 4 turrets + cone
+  roofs + pennant) — the course's identity piece.
+- **CC selector (50/100/150)** + auto-accelerate + steer-assist + player
+  stats applied — difficulty/accessibility layer; speedo gauge rescales
+  with the engine class.
+- **Off-road exit kick** — held grass dives pay a recovery boost.
+- **AI avoids hazards**, targets the rival ahead (standings), rocket
+  start is a timing skill, menu music + music intensity arc, sponsor
+  boards read clean (no more fake "checker corruption"), grass mow
+  variation, prop contact shadows, deterministic world.
 - **Black artifacts eliminated**: snow-cap faces with inverted windings got
   averaged normals pointing INWARD → weak-emissive faces rasterized black
   ('jagged black triangular patches on peaks' — every critic round). Ridged
