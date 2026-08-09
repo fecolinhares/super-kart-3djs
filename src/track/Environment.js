@@ -344,11 +344,14 @@ export class Environment {
     });
     for (const band of bands) {
       const group = new THREE.Group();
-      // DoubleSide: the ridged-cone jitter inverts some windings — with
-      // FrontSide those faces render BLACK (the critic's "black fragments
-      // around the mountains").
-      const rockMat = toonMaterial(band.rock, { side: THREE.DoubleSide });
-      const snowMat = toonMaterial(band.snow, { emissive: 0xffffff, emissiveIntensity: band.snowEm, side: THREE.DoubleSide });
+      // MeshBasicMaterial (unlit): mountains are background dressing — with
+      // PBR Standard + radial normals the faces facing away from the sun
+      // rasterized near-black (rock 0x2e3a7a × 0 light = the 'jagged black
+      // fragments' the critic kept flagging next to the gantry). MK8D draws
+      // backdrop ranges as flat painted silhouettes — flat color + haze is
+      // both stable and stylistically correct. Snow stays bright via color.
+      const rockMat = new THREE.MeshBasicMaterial({ color: band.rock });
+      const snowMat = new THREE.MeshBasicMaterial({ color: band.snow });
       for (let i = 0; i < band.count; i++) {
         const rand = rnd(band.seed * 1000 + i);
         const a = (i / band.count) * Math.PI * 2 + (band.radius > 250 ? 0.6 : 0.2);
