@@ -6,6 +6,17 @@
 ## What's new
 A complete cartoon arcade kart racer, 100% procedural (zero external assets):
 
+## 🏁 Track 2: NEON CITY (menu track switch or `?track=2`)
+- Tight urban circuit (649m — long straights + hairpins, same physics).
+- Night theme: dark purple-blue sky + glowing moon, building skyline with
+  lit windows, neon pink/cyan poles, dark asphalt, neon kerbs, metallic
+  guard-rails with emissive top strip.
+
+## 🏁 Track 1: SUNNY MEADOW (default)
+- Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
+  formation, windmill), sponsor boards, corner cones, flower/rock groups,
+  guard-rails, 3-point lighting, layered mountains + 3 tree species.
+
 - **6 named characters** with distinct suits/helmets/stats: Turbo, Comet, Bolt,
   Daisy, King, Pip. Driver stats are APPLIED: speed/accel/handling shape each
   AI rival's cruise speed, throttle eagerness and steering authority.
