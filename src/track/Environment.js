@@ -228,7 +228,10 @@ export class Environment {
     // toon faces read fully lit from the light side.
     const keyColor = night ? 0x8fa8ff : 0xfff2d0;
     const keyPos = night ? [90, 115, -72] : [70, 90, 40];
-    const key = new THREE.DirectionalLight(keyColor, night ? 0.9 : 1.5);
+    const key = new THREE.DirectionalLight(keyColor, night ? 0.9 : 1.0);
+    // AUDIT r2: total scene intensity was 2.85 (hemi 0.9 + key 1.5 + fill
+    // 0.45) — it washed ACES highlights flat. Key trimmed 1.5 → 1.0 keeps
+    // the sun strong but lets shadows/highlights breathe.
     key.position.set(...keyPos);
     scene.add(key);
     scene.add(key.target);
