@@ -1353,7 +1353,7 @@ function buildRamps(path, length) {
     chev.position.set(0, rampHeight / 2 + 0.006, 0);
     chev.renderOrder = 1;
     mesh.add(chev);
-    ramps.push({ t, point: p.clone(), dir: tan.clone(), mesh, chev });
+    ramps.push({ t, point: p.clone(), dir: tan.clone(), mesh, chev, length: rampLen, height: rampHeight });
   }
   return ramps;
 }

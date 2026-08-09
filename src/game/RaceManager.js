@@ -108,6 +108,12 @@ export class RaceManager {
     }
     this.activeItems = [];
     for (const box of this.itemBoxes) box.reset?.();
+    // AUDIT FIX (gameplay): the finish handler pushes a cruise controller for
+    // the player kart; rebuild would re-randomize AI lanes (kart.position is
+    // rank, all reset to numKarts), so instead drop the player's extra
+    // controller (unless the demo autopilot owns the player) and reset the
+    // rest in place.
+    this.aiControllers = this.aiControllers.filter((c) => c.kart !== this.player || this._playerAI);
     for (const ctrl of this.aiControllers) ctrl.reset?.();
     for (const kart of this.karts) this._resetKart(kart);
     this.start();
@@ -158,7 +164,13 @@ export class RaceManager {
     }
   }
 
-  /** Push overlapping karts apart (simple circle collision). */
+  /** Push overlapping karts apart (speed-aware circle collision).
+   *  AUDIT FIX (gameplay): the old version pushed BOTH karts symmetrically
+   *  with a fixed nudge — a 64 m/s rear-end shoved the front kart sideways
+   *  as hard as the rear-ender, and finished/cruising karts were rammed like
+   *  targets. Now the impulse scales with the relative speed along the
+   *  contact normal (the rear-ender loses more speed), and finished karts
+   *  are only separated, never accelerated. */
   _resolveKartCollisions() {
     const karts = this.karts;
     const R = 1.55;
@@ -177,12 +189,22 @@ export class RaceManager {
           const overlap = (R - d) / 2;
           const nx = dx / d;
           const nz = dz / d;
-          a.state.position.x -= nx * overlap;
-          a.state.position.z -= nz * overlap;
-          b.state.position.x += nx * overlap;
-          b.state.position.z += nz * overlap;
-          a.nudge?.({ x: -nx, y: 0, z: -nz });
-          b.nudge?.({ x: nx, y: 0, z: nz });
+          // Speed-aware: how fast is B approaching A along the contact normal?
+          // Positive = B is closing on A (rear-ender). Scale the positional
+          // shove and speed penalty by that closing speed.
+          const relSpeed = (b.state.speed || 0) - (a.state.speed || 0);
+          const closing = Math.max(0, Math.abs(relSpeed) * 0.35);
+          const pushA = overlap + closing * 0.02;
+          const pushB = overlap - closing * 0.01;
+          a.state.position.x -= nx * pushA;
+          a.state.position.z -= nz * pushA;
+          b.state.position.x += nx * pushB;
+          b.state.position.z += nz * pushB;
+          // Finished karts are obstacles, not pinballs: never accelerate them.
+          if (!a.finished) a.nudge?.({ x: -nx, y: 0, z: -nz });
+          if (!b.finished) b.nudge?.({ x: nx, y: 0, z: nz });
+          // Rear-ender pays a small speed penalty for the shove.
+          if (relSpeed > 1 && !b.finished) b.state.speed *= 0.985;
         }
       }
     }

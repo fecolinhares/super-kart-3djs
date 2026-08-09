@@ -120,7 +120,9 @@ export class Environment {
     // a dark blue-purple night gradient (0x1a1a3a horizon → 0x3a2a6a zenith)
     // with a faint star field instead of the sunny blue.
     const sky = new THREE.Mesh(
-      new THREE.SphereGeometry(520, 24, 12),
+      // AUDIT FIX: 24 segments faceted the horizon (~135m chords at 520m
+      // radius); 64x32 reads smooth even from the high chase camera.
+      new THREE.SphereGeometry(520, 64, 32),
       new THREE.MeshBasicMaterial({
         map: night ? this._nightSkyTexture() : skyTexture(),
         side: THREE.BackSide,

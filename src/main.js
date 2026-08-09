@@ -114,7 +114,6 @@ const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressIte
 let playerColor = CONFIG.kart.characters[0].color;
 let playerKart = null;
 let aiKarts = [];
-let aiControllers = [];
 let countdownT = 0;
 let countdownIndex = -1;
 let offroadT = 0.55; // off-road gravel SFX accumulator (feedback audit)
@@ -242,7 +241,6 @@ function buildKarts() {
   wireMiniBoost(playerKart);
 
   aiKarts = [];
-  aiControllers = [];
   let aiNum = 2;
   let charIdx = 1; // AI roster: characters[1..5] (player owns characters[0])
   for (let i = 0; i < CONFIG.game.numKarts; i++) {
@@ -260,15 +258,11 @@ function buildKarts() {
     scene.add(kart.group);
     wireMiniBoost(kart);
     aiKarts.push(kart);
-    const ctrl = new AIController(kart, track, raceManager);
-    aiControllers.push(ctrl);
   }
-
-  if (DEMO) {
-    // Player kart becomes an AI too — cinematic autopilot for QA captures.
-    const ctrl = new AIController(playerKart, track, raceManager);
-    aiControllers.push(ctrl);
-  }
+  // NOTE: AI controllers are created by RaceManager.init() (single source of
+  // truth — AUDIT FIX: main.js used to keep a duplicate local array whose
+  // cruise controller leaked into restarts). The DEMO autopilot controller
+  // for the player kart is added in startRace() after init().
 }
 
 // ---------------------------------------------------------------------------
@@ -369,6 +363,10 @@ function startRace() {
     audio,
     particles,
   });
+  // DEMO autopilot owns the player kart (QA captures); RaceManager.restart()
+  // preserves it via _playerAI instead of dropping it like a cruise controller.
+  raceManager._playerAI = DEMO;
+  if (DEMO) raceManager.aiControllers.push(new AIController(playerKart, track, raceManager));
   // Onboarding tip (audit v4 F10): teach the drift-boost loop once per session.
   if (!window.__sk3dDriftTipShown) {
     window.__sk3dDriftTipShown = true;
@@ -390,7 +388,7 @@ function startRace() {
     // Cruise mode (genre standard): the kart keeps driving automatically at
     // reduced speed, engine hums quietly and the music swells over the SFX.
     playerKart.cruiseSpeed = CONFIG.physics.maxSpeed * 0.6;
-    aiControllers.push(new AIController(playerKart, track, raceManager));
+    raceManager.aiControllers.push(new AIController(playerKart, track, raceManager));
     audio.setMusicVolume(1);
     audio.play('finish');
     // Victory fanfare only for podium (was playing for EVERY finish).
@@ -411,22 +409,34 @@ function startRace() {
 /** Toggle pause from keyboard or the mobile pause button. */
 function togglePause() {
   const st = getState();
-  if (st === STATES.RACE) { setState(STATES.PAUSED); audio.suspend?.(); hud.showPause(true); }
-  else if (st === STATES.PAUSED) { setState(STATES.RACE); audio.resume?.(); hud.showPause(false); }
+  if (st === STATES.RACE) {
+    setState(STATES.PAUSED);
+    audio.suspend?.();
+    hud.showPause(true);
+    touch.hide?.(); // AUDIT FIX: touch buttons (z 120) sat over the pause
+    // overlay (z 6) and blocked tap-to-resume.
+  } else if (st === STATES.PAUSED) {
+    setState(STATES.RACE);
+    audio.resume?.();
+    hud.showPause(false);
+    if (isTouchMode()) touch.show?.();
+  }
 }
 
 function restartRace() {
   audio.clearEngineLoops(); // restart engine sounds from scratch (no echo/doubling)
-  // CRITICAL FIX (user bug): the finish handler pushed an AIController onto
-  // the player kart for the post-race cruise. If it survives the restart it
-  // calls kart.setControls() every frame and fights the human input — the
-  // player feels "the game is driving the car". Drop every controller bound
-  // to the player kart before the reset.
-  aiControllers = aiControllers.filter((c) => c.kart !== playerKart);
+  // The finish-cruise AIController on the player kart is dropped inside
+  // RaceManager.restart() (single source of truth — AUDIT FIX: the cruise
+  // controller used to survive here and fight the player's input).
   raceManager.restart();
   skids.clear();
   lastLap = 0;
   finalLapShown = false;
+  // AUDIT FIX: stale held-item toast + off-road audio state carried into the
+  // new race (the loop's `else if (!heldItem)` eventually clears them, but
+  // explicit reset avoids a flash of the old item / gravel rumble at GO).
+  lastHeldItem = null;
+  offroadT = 0.55;
   if (playerKart) playerKart.position = CONFIG.game.numKarts;
   hud.reset();
   hud.show();
@@ -439,6 +449,7 @@ function gotoMenu() {
   setState(STATES.MENU);
   hud.hide();
   menu.show();
+  touch.hide?.(); // AUDIT FIX: touch buttons floated over the menu card
   audio.clearEngineLoops();
 }
 
@@ -521,8 +532,7 @@ function updateCamera(dt, t) {
 
   _camDesired.copy(st.position)
     .addScaledVector(_fwd, -CONFIG.camera.followDistance)
-    .addScaledVector(_side, 0)
-    .addScaledVector(_fwd, 0);
+    .addScaledVector(_side, 0);
   _camDesired.y += CONFIG.camera.followHeight;
 
   const lerp = 1 - Math.exp(-CONFIG.camera.lerp * dt);
@@ -633,7 +643,7 @@ loop.start((dt, t) => {
           drift: input.drift,
         });
       }
-      for (const ctrl of aiControllers) ctrl.update(dt);
+      for (const ctrl of raceManager.aiControllers) ctrl.update(dt);
       raceManager.update(dt);
       hud.update(raceManager, playerKart, raceManager.karts);
       // Drift charge meter (white → yellow → orange; only while drifting).
@@ -671,7 +681,7 @@ loop.start((dt, t) => {
     } else {
       // FINISHED — cruise: AI drives the player at reduced speed, engines
       // keep humming quietly while the music swells (genre standard).
-      for (const ctrl of aiControllers) ctrl.update(dt);
+      for (const ctrl of raceManager.aiControllers) ctrl.update(dt);
       raceManager.update(dt);
       hud.update(raceManager, playerKart, raceManager.karts);
     }
@@ -803,8 +813,8 @@ window.__sk3d = {
   get countdownIndex() { return countdownIndex; },
   // QA: AI controller roster — lets tests assert the cruise controller is
   // removed on restart (the user bug: AI kept driving the player kart).
-  get aiControllerCount() { return aiControllers.length; },
-  get playerAIControlled() { return aiControllers.some((c) => c.kart === playerKart); },
+  get aiControllerCount() { return raceManager.aiControllers.length; },
+  get playerAIControlled() { return raceManager.aiControllers.some((c) => c.kart === playerKart); },
 };
 
 console.log('[Super Kart 3D.js] booted. Demo mode:', DEMO, '| State:', getState());

@@ -313,13 +313,38 @@ export class KartPhysics {
     }
 
     // ---- height / gravity -----------------------------------------------------
-    const groundY = near.groundY + kart.rideHeight;
+    // AUDIT FIX (gameplay): the kart used to ride FLAT through the ramp mesh
+    // (groundY came only from path samples) and 'popped' at the trigger —
+    // it sank INTO the ramp visually. Interpolate the wedge height along the
+    // ramp axis so the kart climbs the slope and launches off the top.
+    const baseGroundY = near.groundY + kart.rideHeight;
+    let rampLift = 0;
+    let onRampNow = false;
+    if (track.ramps && track.ramps.length) {
+      for (const r of track.ramps) {
+        const rdx = s.position.x - r.point.x;
+        const rdz = s.position.z - r.point.z;
+        // Project onto the ramp axis (r.dir = travel direction unit vector).
+        const along = rdx * r.dir.x + rdz * r.dir.z;
+        const lateral = Math.abs(rdx * r.dir.z - rdz * r.dir.x);
+        const halfL = (r.length ?? 4.6) / 2;
+        const halfW = (CONFIG.track.roadWidth * 0.78) / 2;
+        if (along > -halfL - 0.5 && along < halfL + 0.5 && lateral < halfW + 0.6) {
+          const climb = Math.max(0, Math.min(1, (along + halfL) / (halfL * 2)));
+          rampLift = Math.max(rampLift, (r.height ?? 0.55) * climb);
+          onRampNow = along > -halfL - 0.3;
+        }
+      }
+    }
+    const groundY = baseGroundY + rampLift;
     // Trick ramp launch (audit F3: air physics existed but nothing set vY>0).
     if (track.ramps && track.ramps.length && s.position.y <= groundY + 0.06) {
       for (const r of track.ramps) {
         const dx = r.point.x - s.position.x;
         const dz = r.point.z - s.position.z;
-        if (dx * dx + dz * dz < 7.3) {
+        // Launch only when actually ON the ramp (was: any kart within a 2.7m
+        // circle of center — a kart beside the 3.5m-wide ramp also popped).
+        if (dx * dx + dz * dz < 7.3 && onRampNow) {
           s.vY = 6.5; // launch off the ramp (audit v4: 5.4 gave 0.34s air —
           s.position.y += 0.02; //  below the 0.25s trick-arm window)
           s.onRamp = true;
