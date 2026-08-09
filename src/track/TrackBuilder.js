@@ -31,6 +31,24 @@ const CONTROL_POINTS = [
 
 export const TRACK_PATH = CONTROL_POINTS.map(([x, y, z]) => new THREE.Vector3(x, y, z));
 
+// Track 2 — "NEON CITY": tight urban circuit (long straights + hairpins).
+// Tuned to the same physics (roadWidth, ramp spacing) as Track 1.
+export const CITY_PATH = [
+  [0, 0, 0],
+  [55, 0.2, -10],
+  [95, 0.8, 18],
+  [104, 1.2, 70],
+  [78, 1.0, 108],
+  [30, 0.6, 118],
+  [-15, 0.4, 96],
+  [-46, 0.8, 60],
+  [-62, 0.6, 12],
+  [-48, 0.4, -34],
+  [-12, 0.2, -58],
+  [30, 0.4, -56],
+  [58, 0.2, -34],
+].map(([x, y, z]) => new THREE.Vector3(x, y, z));
+
 export function getRoadWidthAt() {
   return CONFIG.track.roadWidth;
 }
@@ -894,11 +912,11 @@ function buildApexCones(path, length, roadW) {
   return g;
 }
 
-export function buildTrack(scene) {
+export function buildTrack(scene, trackPath = TRACK_PATH) {
   const group = new THREE.Group();
 
   // Closed curve with elevation.
-  const pts = TRACK_PATH.map((v) => v.clone());
+  const pts = trackPath.map((v) => v.clone());
   const path = new THREE.CatmullRomCurve3(pts, true, 'catmullrom', 0.5);
   const length = path.getLength();
 

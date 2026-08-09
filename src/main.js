@@ -9,7 +9,7 @@ import { CONFIG } from './config.js';
 import { createScene } from './render/SceneManager.js';
 import { GameLoop } from './game/GameLoop.js';
 import { setState, getState, STATES, onStateChange } from './game/GameState.js';
-import { buildTrack } from './track/TrackBuilder.js';
+import { buildTrack, TRACK_PATH, CITY_PATH } from './track/TrackBuilder.js';
 import { Environment } from './track/Environment.js';
 import { PostFX } from './render/PostFX.js';
 import { AudioManager } from './audio/AudioManager.js';
@@ -31,9 +31,11 @@ const { scene, camera, renderer } = createScene(container);
 
 const DEMO = new URLSearchParams(location.search).has('demo');
 const TEST = new URLSearchParams(location.search).has('test'); // fast no-postfx mode for gameplay testing
+// Track select: ?track=2 → Neon City (defaults to the meadow circuit).
+const TRACK_ID = Number(new URLSearchParams(location.search).get('track')) === 2 ? 2 : 1;
 
 const env = new Environment();
-const track = buildTrack(scene);
+const track = buildTrack(scene, TRACK_ID === 2 ? CITY_PATH : TRACK_PATH);
 env.buildEnvironment(scene, track); // track passed so props avoid the road
 // Image-based lighting: chrome + car paint need an env map or metalness
 // renders BLACK. A procedural SUNNY-SKY env (instead of the grey RoomEnvironment)
