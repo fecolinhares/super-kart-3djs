@@ -46,11 +46,13 @@ A complete cartoon arcade kart racer, 100% procedural (zero external assets):
   painted sun + haze.
 - **AAA world (redesign v1+v2)**: continuous low guard-rails along both road
   edges (below the chase camera, never obstructing), 3-point lighting rig
-  (warm key + cool fill + shadow sun with soft radius), 2-layer mountains
-  (rock base + snow caps) at 3 depth bands, forest with 3 species of LAYERED
-  canopy trees (pine/oak/palm), organized prop clusters (trees every ~12m,
-  rocks in groups, flowers in patches), corner signs + distance boards +
-  light poles on straights.
+  (warm key + cool fill + shadow sun with PCF+radius soft shadows),
+  2-layer mountains (rock base + snow caps) at 3 depth bands, forest with
+  3 species of LAYERED canopy trees (pine/oak/palm), organized prop clusters
+  (seeded deterministic placement — same world every load), grass with
+  fine stipple patches (no flat green, no banding), kart contact shadows as
+  soft radial-gradient ovals (no decal look), corner signs + distance boards
+  + light poles on straights.
 - **MK8-style item boxes** (white panel, bold red '?', spinning + bobbing,
   golden ring + beam + sparkles), molded karts + oversized chibi driver,
   2.5D painted spectator crowd on 6 track segments + grandstands,
