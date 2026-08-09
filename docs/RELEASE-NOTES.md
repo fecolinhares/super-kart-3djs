@@ -4,6 +4,19 @@
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
 ### Round 3 — AAA polish loop (auditor-driven, 2026-08-09)
+- **Round 10-11 — FECO review fixes**:
+  - AI reverse bug: nearest-sample fallback could land on the opposite side
+    of the loop (AI drove backwards) — now snaps to the progress point.
+  - Crowd orientation: billboard figures now face the track with explicit
+    roll-free yaw (no more upside-down/paper figures).
+  - Finish line: 512px 8x2 crisp checker (was 256px 6x2 stretched).
+  - Trackside banners: print only on the ±Z faces (side strips were
+    distorted); chrome rims toned down.
+  - Full-screen RACERS screen (character cards + stats + kart silhouette)
+    and TRACKS screen (canvas-drawn track layout + START marker).
+  - Premium karts: expressive driver face, gloves, wing endplates,
+    exhausts, canards, brake calipers, accent hub caps, fake AO.
+  - 3D instanced grass blades, gravel verge strip, bush tone variation.
 - **Round 9 — convergence fixes**: blue-shell ARC TDZ crash (froze the race
   on every blue shell — fixed + live-tested), AI throttle clamp, turbo pads
   fire mid-boost, draft exit-kick player-only, boost ignores off-road
