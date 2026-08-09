@@ -163,6 +163,16 @@ export class Menu {
     this.startBtn.focus({ preventScroll: true });
   }
 
+  /** Reflect the persisted kart color on the swatch row (audit v4 F2). */
+  setSelectedColor(color) {
+    const index = CONFIG.kart.playerColors.indexOf(color);
+    if (index < 0) return;
+    this.selectedColor = color;
+    for (const s of this.swatches) {
+      s.classList.toggle('is-selected', Number(s.dataset.index) === index);
+    }
+  }
+
   hide() {
     this.root.classList.add('sk3d-hidden');
   }

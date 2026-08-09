@@ -91,7 +91,7 @@ const menu = new Menu({
   onStart: startRace,
   onColor: setPlayerColor,
   onSound: (n) => audio.play(n),
-  onToggleMute: (muted) => audio.setMasterVolume(muted ? 0 : 1),
+  onToggleMute: (muted) => audio.setMasterVolume(muted ? 0 : CONFIG.audio.masterVolume), // v4 F4: unmute restores design volume (0.8), not 1
 });
 menu.restoreMute(); // persisted mute state (audit minor)
 const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressItem(), onPause: togglePause, onDrift: (b) => { touchDrift = b; } });
@@ -157,13 +157,16 @@ function setPlayerColor(color) {
   } catch { /* private mode */ }
 }
 
-// Restore persisted kart color (audit minor).
+// Restore persisted kart color (audit minor) + sync the menu picker (v4 F2).
 (function restoreColor() {
   try {
     const saved = localStorage.getItem('sk3d.color');
     if (saved) {
       const c = Number(saved);
-      if (Number.isFinite(c)) playerColor = c;
+      if (Number.isFinite(c)) {
+        playerColor = c;
+        menu.setSelectedColor?.(c);
+      }
     }
   } catch { /* private mode */ }
 })();

@@ -449,21 +449,20 @@ export class HUD {
     // Position pips (medal emoji + ordinal + medal-colored chip).
     const pos = player && typeof player.position === 'number' ? player.position : 0;
     if (pos !== this._pos) {
+      const prev = this._pos; // capture BEFORE the write (audit v4 F1: the
+      // old code wrote _pos then compared — dead pop + always-'down' SFX)
       this._pos = pos;
       const medal = MEDALS[pos] ? `${MEDALS[pos]} ` : '';
       const text = medal + ordinal(pos);
       const cls = pos === 1 ? ' sk3d-position-1' : pos === 2 ? ' sk3d-position-2' : pos === 3 ? ' sk3d-position-3' : '';
       this.positionEl.className = `sk3d-chip sk3d-position${cls}`;
       this.positionEl.textContent = text;
-      // Position change feedback (audit UX-v3 F2: overtakes were invisible):
-      // pop the chip; report the direction so main can play the SFX.
-      if (pos !== this._pos) {
-        const dir = typeof this._pos === 'number' ? (pos < this._pos ? 'up' : 'down') : null;
-        this._pos = pos;
-        this.positionEl.classList.remove('sk3d-position-pop');
-        void this.positionEl.offsetWidth;
-        this.positionEl.classList.add('sk3d-position-pop');
-        if (dir) this._onPositionChange?.(dir);
+      // Position change feedback (audit UX-v3 F2): pop the chip + SFX.
+      this.positionEl.classList.remove('sk3d-position-pop');
+      void this.positionEl.offsetWidth;
+      this.positionEl.classList.add('sk3d-position-pop');
+      if (typeof prev === 'number' && pos !== prev) {
+        this._onPositionChange?.(pos < prev ? 'up' : 'down');
       }
     }
 
@@ -539,6 +538,7 @@ export class HUD {
       icon.classList.remove('sk3d-item-empty');
       if (nameEl) nameEl.textContent = ITEM_NAMES[this.itemType] || this.itemType;
     } else {
+      this.cancelRoulette(); // v4 F3: using the item mid-spin must kill the spin
       icon.textContent = '?';
       icon.classList.remove('sk3d-item-red');
       icon.classList.add('sk3d-item-empty');
@@ -559,7 +559,9 @@ export class HUD {
     const icons = Object.values(ITEM_ICONS).filter((s) => s && s !== '?');
     let tick = 0;
     if (this._rouletteTimer) clearInterval(this._rouletteTimer);
+    const gen = (this._rouletteGen = (this._rouletteGen || 0) + 1); // v4 F3: stale spins must not reveal a phantom item
     this._rouletteTimer = setInterval(() => {
+      if (gen !== this._rouletteGen) { clearInterval(this._rouletteTimer); this._rouletteTimer = null; return; }
       tick++;
       if (tick > 9) {
         clearInterval(this._rouletteTimer);
@@ -570,6 +572,16 @@ export class HUD {
       this.itemIconEl.textContent = icons[Math.floor(Math.random() * icons.length)];
       this.itemIconEl.classList.remove('sk3d-item-red', 'sk3d-item-empty');
     }, 80);
+  }
+
+  /** Cancel a running item roulette (called on setItem(null) and reset —
+   *  audit v4 F3: using the item mid-spin leaked a phantom reveal). */
+  cancelRoulette() {
+    this._rouletteGen = (this._rouletteGen || 0) + 1;
+    if (this._rouletteTimer) {
+      clearInterval(this._rouletteTimer);
+      this._rouletteTimer = null;
+    }
   }
 
   /**
@@ -654,6 +666,7 @@ export class HUD {
   reset() {
     clearTimeout(this.countdownTimer);
     clearTimeout(this.toastTimer);
+    this.cancelRoulette(); // v4 F3: a restart must not leak the old spin
     this.showPause(false);
 
     this._pos = null;
