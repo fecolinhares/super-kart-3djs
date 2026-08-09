@@ -52,7 +52,9 @@ A complete cartoon arcade kart racer, 100% procedural (zero external assets):
   (seeded deterministic placement — same world every load), grass with
   fine stipple patches (no flat green, no banding), kart contact shadows as
   soft radial-gradient ovals (no decal look), corner signs + distance boards
-  + light poles on straights.
+  + light poles on straights, **dense organized roadside** (sponsor boards on
+  straights, flower patches + grass tufts along both rails, corner cone
+  markers at apexes — all below the camera line).
 - **MK8-style item boxes** (white panel, bold red '?', spinning + bobbing,
   golden ring + beam + sparkles), molded karts + oversized chibi driver,
   2.5D painted spectator crowd on 6 track segments + grandstands,
@@ -63,7 +65,8 @@ A complete cartoon arcade kart racer, 100% procedural (zero external assets):
   thump, drift tire screech, mini-boost sparkle bursts, **MK8 item roulette**
   (the slot cycles icons ~0.7s before revealing the pickup), **PLAYER HIT
   feedback** (red screen flash + "BANANA!/SHELL HIT!" label + camera shake),
-  **item-use toast** (🍄 MUSHROOM! / 🐢 SHELL! etc) + spark bursts on use.
+  **item-use toast** (🍄 MUSHROOM! / 🐢 SHELL! etc) + spark bursts on use,
+  **tire speed-dust + subtle exhaust puffs** (karts feel alive at speed).
 - **Quality of life**: Pause (P/Esc or ⏸ button on mobile, tap-to-resume),
   "Race Again" + **"Menu"** buttons on the finish screen, touch **DRIFT
   button** (hold-to-drift on mobile), **kart color + mute state persisted**
