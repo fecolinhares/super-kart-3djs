@@ -249,6 +249,11 @@ export class RaceManager {
     this.raceOver = false;
     this.finishOrder = [];
     this.playerFinished = false;
+    // AUDIT r4: ~2s spawn protection at GO — the grid pack used to shell-train
+    // the player before the first corner.
+    for (const k of this.karts) {
+      if (k && typeof k.setInvincible === 'function') k.setInvincible(true, 2000);
+    }
   }
 
   /** Reset karts / hazards / boxes and start over. */

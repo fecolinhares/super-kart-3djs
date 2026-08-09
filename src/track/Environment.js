@@ -231,28 +231,28 @@ export class Environment {
     sky.position.y = -10;
     scene.add(sky);
 
-    // --- lights (AAA 3-point rig: key + fill + sky/ground hemi) ----------
+    // --- lights (AAA rig: key + fill + sky/ground hemi + rim) --------------
     // NEON CITY swaps the warm sunny rig for dim cool moonlight (the moon
     // disc in buildNeonCity sits on the same axis, so shadows match it).
-    const hemi = new THREE.HemisphereLight(night ? 0x40509a : 0xd8e8ff, night ? 0x141430 : 0x7bca7f, night ? 0.55 : 0.6);
+    // AUDIT r4: lit faces got ~2.8 irradiance vs ~1.55 in shadow — an ACES
+    // contrast ratio under 2:1 = "flat, washed out". The shadow sun is now
+    // the SOLE key; hemi/fill cut hard so shadow sides stay shaded.
+    const hemi = new THREE.HemisphereLight(night ? 0x40509a : 0xd8e8ff, night ? 0x141430 : 0x7bca7f, night ? 0.45 : 0.35);
     scene.add(hemi);
 
     // KEY: primary illumination — warm day sun, or cool moonlit blue at night.
-    // Pure light (no shadow casting); the sun below carries the shadows so
-    // toon faces read fully lit from the light side.
+    // The shadow sun below carries BOTH the light and the shadows now (the
+    // duplicate non-casting key was the wash source — removed).
     const keyColor = night ? 0x8fa8ff : 0xfff2d0;
     const keyPos = night ? [90, 115, -72] : [70, 90, 40];
-    const key = new THREE.DirectionalLight(keyColor, night ? 0.9 : 1.0);
-    // AUDIT r2: total scene intensity was 2.85 (hemi 0.9 + key 1.5 + fill
-    // 0.45) — it washed ACES highlights flat. Key trimmed 1.5 → 1.0 keeps
-    // the sun strong but lets shadows/highlights breathe.
+    const key = new THREE.DirectionalLight(keyColor, night ? 1.1 : 1.35);
     key.position.set(...keyPos);
     scene.add(key);
     scene.add(key.target);
 
     // FILL: opposite-side bounce — lifts the shadow sides so unlit faces
     // read as shaded blue, never black (deep indigo at night).
-    const fill = new THREE.DirectionalLight(night ? 0x2a3a7a : 0x9fc8ff, night ? 0.3 : 0.45);
+    const fill = new THREE.DirectionalLight(night ? 0x2a3a7a : 0x9fc8ff, night ? 0.3 : 0.22);
     fill.position.set(night ? 80 : -70, 60, night ? 60 : -40);
     scene.add(fill);
     scene.add(fill.target);
@@ -266,19 +266,23 @@ export class Environment {
 
     // Shadow-casting sun — kept as the key's shadow companion: same tint and
     // direction so shadowed areas match the key light (dim blue at night).
-    const sun = new THREE.DirectionalLight(keyColor, night ? 0.55 : 1.2);
+    const sun = new THREE.DirectionalLight(keyColor, night ? 0.55 : 2.0);
+    // AUDIT r4: the shadow sun is now the SOLE key (was 1.2 beside the
+    // duplicate 1.0 key). radius 2 → 4.5 for penumbra (kart shadows read as
+    // dark stickers otherwise), bias relaxed, far extended to match fog so
+    // distant trees/stands still project.
     sun.position.set(...keyPos);
     sun.castShadow = true;
     if (CONFIG.render.shadows) {
       const testMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('test');
       sun.shadow.mapSize.set(testMode ? CONFIG.render.testShadowMapSize : CONFIG.render.shadowMapSize, testMode ? CONFIG.render.testShadowMapSize : CONFIG.render.shadowMapSize);
-      sun.shadow.radius = 2; // softer shadow edges (blurs PCF; PCFSoft already softens)
+      sun.shadow.radius = 4.5; // softer shadow edges (penumbra)
       sun.shadow.camera.left = -28; // TIGHT frustum following the player
       sun.shadow.camera.right = 28; // (audit r2: ±90m gave ~9cm texels →
       sun.shadow.camera.top = 28; //  blurry blob shadows; ±28m gives ~2.7cm)
       sun.shadow.camera.bottom = -28;
-      sun.shadow.camera.far = 220;
-      sun.shadow.bias = -0.0004;
+      sun.shadow.camera.far = 430; // match fog so distant props still project
+      sun.shadow.bias = -0.0008;
       this.shadowSun = sun; // main.js re-positions it to follow the player
     }
     scene.add(sun);

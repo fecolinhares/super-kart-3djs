@@ -1040,6 +1040,9 @@ export class Kart {
     this.state.speed *= 0.3;
     this._scaleTarget = 0.92;
     this._scaleMs = Math.max(this._scaleMs, 300);
+    // AUDIT r4: post-hit i-frames — a shell train/lightning combo used to pin
+    // a kart for 4-5s of helplessness (no invincibility after any hit).
+    this.setInvincible(true, 2000);
     this._onHit?.('banana'); // player hit feedback hook (screen flash + label)
   }
 
@@ -1056,6 +1059,8 @@ export class Kart {
     this._nudgeVel.set(Math.random() - 0.5, 0, Math.random() - 0.5).normalize().multiplyScalar(5);
     this._scaleTarget = 0.9;
     this._scaleMs = Math.max(this._scaleMs, 380);
+    // AUDIT r4: post-hit i-frames (see hitBanana) — no chain-stun pinning.
+    this.setInvincible(true, 2000);
     this._onHit?.(opts.blue ? 'blue' : 'shell'); // player hit feedback hook
   }
 
