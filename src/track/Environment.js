@@ -195,6 +195,10 @@ export class Environment {
     this._track = track;
     this._trackSamples = null;
     this._trackPath = track?.path ?? null;
+    // AUDIT r3: deterministic world — the same track every load so QA frames
+    // are reproducible (grass/hay/palms/roadside used Math.random() and the
+    // world drifted between loads, breaking before/after comparison).
+    this._rand = rnd(0xC0FFEE);
     // Ground props on the SAME rolling field as the terrain (incl. hills).
     this._gy = (x, z) =>
       this._trackPath ? terrainHeight(x, z, this._trackPath) : smoothH(x, z) * 0.5 - 0.25;
@@ -613,8 +617,8 @@ export class Environment {
       if (this._onTrack(x, z, 8)) continue; // never place a palm on the road
       const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.34, 4.2, 12), trunkMat);
       trunk.position.set(x, 2.1, z);
-      trunk.rotation.z = (Math.random() - 0.5) * 0.22;
-      trunk.rotation.x = (Math.random() - 0.5) * 0.22;
+      trunk.rotation.z = (this._rand() - 0.5) * 0.22;
+      trunk.rotation.x = (this._rand() - 0.5) * 0.22;
       trunk.castShadow = true;
       scene.add(trunk);
 
@@ -638,7 +642,7 @@ export class Environment {
       // Fan of fronds: flattened cones radiating from the crown, tilted down.
       const leafCount = 11;
       for (let i = 0; i < leafCount; i++) {
-        const a = (i / leafCount) * Math.PI * 2 + Math.random() * 0.3;
+        const a = (i / leafCount) * Math.PI * 2 + this._rand() * 0.3;
         const leaf = new THREE.Mesh(
           new THREE.ConeGeometry(0.17, 2.4, 10),
           i % 2 === 0 ? leafMat : leafMatDark
@@ -1017,14 +1021,14 @@ export class Environment {
       let bx = x;
       let bz = z;
       for (let attempt = 0; attempt < 4; attempt++) {
-        const off = (i % 2 === 0 ? 1 : -1) * (7 + attempt * 9 + Math.random() * 4);
+        const off = (i % 2 === 0 ? 1 : -1) * (7 + attempt * 9 + this._rand() * 4);
         bx = x + off * 0.7;
         bz = z + off * 0.7;
         if (!this._onTrack(bx, bz, 6)) break;
       }
       dummy.position.set(bx, this._gy(bx, bz) + 0.55, bz);
-      dummy.scale.set(1.2, 0.9 + Math.random() * 0.5, 1.2);
-      dummy.rotation.y = Math.random() * Math.PI;
+      dummy.scale.set(1.2, 0.9 + this._rand() * 0.5, 1.2);
+      dummy.rotation.y = this._rand() * Math.PI;
       dummy.updateMatrix();
       roadside.setMatrixAt(i, dummy.matrix);
     }
@@ -1488,11 +1492,11 @@ export class Environment {
       path.getTangentAt(t, tan);
       nrm.set(-tan.z, 0, tan.x).normalize();
       for (const side of [-1, 1]) {
-        const off = halfW + 2.0 + (i % 3) * 0.75 + Math.random() * 0.6;
+        const off = halfW + 2.0 + (i % 3) * 0.75 + this._rand() * 0.6;
         const tx = p.x + nrm.x * side * off;
         const tz = p.z + nrm.z * side * off;
         if (this._onTrack(tx, tz, 2)) continue;
-        spots.push({ x: tx, z: tz, gy: this._gy(tx, tz), sc: 0.8 + Math.random() * 0.8, c: (i + (side === 1 ? 1 : 0)) % 3 });
+        spots.push({ x: tx, z: tz, gy: this._gy(tx, tz), sc: 0.8 + this._rand() * 0.8, c: (i + (side === 1 ? 1 : 0)) % 3 });
       }
     }
     if (!spots.length) return;
@@ -1503,8 +1507,8 @@ export class Environment {
     for (let i = 0; i < spots.length; i++) {
       const s = spots[i];
       dummy.position.set(s.x, s.gy, s.z);
-      dummy.rotation.set(0, Math.random() * Math.PI, 0);
-      dummy.scale.set(s.sc, s.sc * (0.9 + Math.random() * 0.35), s.sc);
+      dummy.rotation.set(0, this._rand() * Math.PI, 0);
+      dummy.scale.set(s.sc, s.sc * (0.9 + this._rand() * 0.35), s.sc);
       dummy.updateMatrix();
       grass.setMatrixAt(i, dummy.matrix);
       col.setHex(PAL[s.c]);
@@ -1550,10 +1554,10 @@ export class Environment {
       const s = spots[i];
       dummy.position.set(s.x, s.gy + 0.42, s.z);
       dummy.rotation.set(Math.PI / 2, 0, s.ry); // laid flat along the track
-      dummy.scale.set(1, 1, 0.85 + Math.random() * 0.3);
+      dummy.scale.set(1, 1, 0.85 + this._rand() * 0.3);
       dummy.updateMatrix();
       hay.setMatrixAt(i, dummy.matrix);
-      col.setHex(Math.random() > 0.5 ? 0xe0b84e : 0xd3a93f);
+      col.setHex(this._rand() > 0.5 ? 0xe0b84e : 0xd3a93f);
       hay.setColorAt(i, col);
     }
     hay.instanceMatrix.needsUpdate = true;
@@ -1657,7 +1661,7 @@ export class Environment {
     c.height = 128;
     const g = c.getContext('2d');
     const COLORS = ['#ff5a5f', '#2ec4ff', '#ffd166', '#6cff8f', '#c86bff', '#ff9f45'];
-    const col = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const col = COLORS[Math.floor(this._rand() * COLORS.length)];
     g.fillStyle = col;
     g.fillRect(0, 0, 256, 128);
     g.fillStyle = 'rgba(255,255,255,0.92)';
@@ -1982,12 +1986,12 @@ export class Environment {
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 15; j++) {
           dummy.position.set(-8.2 + j * 1.1, 1.6 + i * 1.15, -i * 2.2 + 0.3);
-          dummy.scale.set(1, 0.9 + Math.random() * 0.4, 1);
+          dummy.scale.set(1, 0.9 + this._rand() * 0.4, 1);
           dummy.rotation.set(0, 0, 0);
           baseY[sIdx] = dummy.position.y;
           dummy.updateMatrix();
           spec.setMatrixAt(sIdx, dummy.matrix);
-          col.setHex(crowdColors[Math.floor(Math.random() * crowdColors.length)]);
+          col.setHex(crowdColors[Math.floor(this._rand() * crowdColors.length)]);
           spec.setColorAt(sIdx, col);
           headDummy.position.set(dummy.position.x, dummy.position.y + 0.95, dummy.position.z);
           headDummy.scale.set(1, 1, 1);
@@ -2185,7 +2189,7 @@ export class Environment {
             dummy.position.set(p.x + nrm.x * (side * (halfW + rowOff)), p.y + 0.9, p.z + nrm.z * (side * (halfW + rowOff)));
             dummy.lookAt(p.x, p.y + 0.9, p.z);
             dummy.rotation.z = 0;
-            dummy.scale.set(0.9 + Math.random() * 0.3, 0.85 + Math.random() * 0.3, 1);
+            dummy.scale.set(0.9 + this._rand() * 0.3, 0.85 + this._rand() * 0.3, 1);
             dummy.updateMatrix();
             const figIdx = (i + (rowOff === ROWS[0] ? 0 : 3) + (side === 1 ? 1 : 0)) % FIGURES.length;
             perFig[figIdx].push(dummy.matrix.clone());
