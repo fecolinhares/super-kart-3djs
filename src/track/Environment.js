@@ -1005,6 +1005,7 @@ export class Environment {
       }
     }
     const rocks = new THREE.InstancedMesh(rockGeo, rockMat, rockSpots.length);
+    rocks.castShadow = true; // AUDIT r5: contact shadows ground the props
     const dummy = new THREE.Object3D();
     rockSpots.forEach((r, i) => {
       dummy.position.set(r.x, this._gy(r.x, r.z) + 0.33 * r.s, r.z);
@@ -1034,6 +1035,7 @@ export class Environment {
     }
     if (midSpots.length) {
       const mids = new THREE.InstancedMesh(midGeo, midMat, midSpots.length);
+      mids.castShadow = true; // AUDIT r5: contact shadows
       const col = new THREE.Color();
       const MPAL = [0x2f8f43, 0x3faf4e, 0x6d4c41, 0x7f8c8d, 0xc9a86a];
       midSpots.forEach((r, i) => {
@@ -1075,6 +1077,7 @@ export class Environment {
       }
     }
     const bushes = new THREE.InstancedMesh(bushGeo, bushMat, bushSpots.length);
+    bushes.castShadow = true; // AUDIT r5: contact shadows
     bushSpots.forEach((b, i) => {
       dummy.position.set(b.x, this._gy(b.x, b.z) + 0.55 * b.s, b.z);
       dummy.scale.set(b.s, b.s * (0.75 + rnd(6100 + i)() * 0.25), b.s);
@@ -1087,6 +1090,7 @@ export class Environment {
 
     // Roadside greenery: dense bushes hugging the track edge (known spots).
     const roadside = new THREE.InstancedMesh(bushGeo, bushMat, 40);
+    roadside.castShadow = true; // AUDIT r5: contact shadows
     const edgeSpots = [
       [-58, 14], [-40, -44], [-14, -60], [26, -62], [52, -42], [64, -10],
       [56, 26], [30, 52], [-6, 60], [-36, 48], [-58, 26], [-24, -30],
@@ -1143,6 +1147,7 @@ export class Environment {
       }
     }
     const flowers = new THREE.InstancedMesh(flowerGeo, flowerMat, flowerSpots.length);
+    flowers.castShadow = true; // AUDIT r5: contact shadows
     const stems = new THREE.InstancedMesh(stemGeo, stemMat, flowerSpots.length);
     flowerSpots.forEach((f, i) => {
       const gy = smoothH(f.x, f.z) * 0.5 - 0.25;

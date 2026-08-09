@@ -285,6 +285,16 @@ export function grassTexture() {
         ctx.arc(Math.random() * s, Math.random() * s, 8 + Math.random() * 14, 0, Math.PI * 2);
         ctx.fill();
       }
+      // LARGE soft mow/stripe variation (audit r5: from chase distance the
+      // fine stipple reads as uniform green — big low-alpha patches break
+      // the monotony without banding).
+      ctx.globalAlpha = 0.14;
+      for (let i = 0; i < 8; i++) {
+        ctx.fillStyle = i % 2 ? '#2f8f43' : '#57c96b';
+        ctx.beginPath();
+        ctx.ellipse(Math.random() * s, Math.random() * s, 34 + Math.random() * 30, 22 + Math.random() * 20, Math.random() * Math.PI, 0, Math.PI * 2);
+        ctx.fill();
+      }
       ctx.globalAlpha = 1;
     },
     { repeat: [50, 50] }
