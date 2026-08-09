@@ -506,7 +506,9 @@ export class Environment {
       Math.floor(trees.length * 0.5) // Approximately half get darker tops
     );
     const branchStubs = new THREE.InstancedMesh(branchGeo, branchMat, trees.length * 2); // 2 branch stubs per tree
-    const palmFronds = new THREE.InstancedMesh(palmFrondGeo, palmFrondMat, 0); // Will resize for palms
+    // let: reassigned below with the real frond count (const-in-block shadowed
+    // the outer binding → TDZ ReferenceError at scene.remove — user bug #2)
+    let palmFronds = new THREE.InstancedMesh(palmFrondGeo, palmFrondMat, 0); // Will resize for palms
     
     const dummy = new THREE.Object3D();
     let darkTreeIndex = 0;
@@ -517,9 +519,9 @@ export class Environment {
       if (species[tree.speciesIdx].name === 'palm') palmCount++;
     });
     if (palmCount > 0) {
-      // Replace palm fronds mesh with proper sizing
+      // Replace palm fronds mesh with proper sizing (reassign, don't redeclare)
       scene.remove(palmFronds);
-      const palmFronds = new THREE.InstancedMesh(palmFrondGeo, palmFrondMat, palmCount * 12); // 12 fronds per palm
+      palmFronds = new THREE.InstancedMesh(palmFrondGeo, palmFrondMat, palmCount * 12); // 12 fronds per palm
     }
     
     let palmInstance = 0;
