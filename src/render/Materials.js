@@ -8,24 +8,32 @@ import * as THREE from 'three';
 let _gradientMap = null;
 
 /**
- * 3-step toon gradient map (8x1, NearestFilter) shared by all toon materials.
- * U axis = light intensity → dark / mid / light bands = classic cel shading.
+ * Toon gradient map shared by all toon materials.
+ * AUDITOR FIX: the old map was 8x1 with THREE hard bands (2px dark / 4px
+ * mid / 2px white, NearestFilter) — every large surface (road, terrain,
+ * grandstand, chassis) shaded in harsh flat bands that read "low poly".
+ * Now 64x1 with SMOOTH transitions (dark→mid→light with soft ramps): the
+ * cel look survives, but surfaces shade like a premium cartoon, not a
+ * 3-band posterize.
  */
 export function getGradientMap() {
   if (_gradientMap) return _gradientMap;
   const canvas = document.createElement('canvas');
-  canvas.width = 8;
+  canvas.width = 64;
   canvas.height = 1;
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#3d4a63'; // shadow band
-  ctx.fillRect(0, 0, 2, 1);
-  ctx.fillStyle = '#d8dee8'; // mid band — NEUTRAL (was #9fb0cc: cast blue-gray
-  ctx.fillRect(2, 0, 4, 1); //  over every mid-tone, killing saturated paint)
-  ctx.fillStyle = '#ffffff'; // lit band
-  ctx.fillRect(6, 0, 2, 1);
+  const grad = ctx.createLinearGradient(0, 0, 64, 0);
+  grad.addColorStop(0.0, '#3d4a63');   // shadow
+  grad.addColorStop(0.22, '#3d4a63');  // hold shadow
+  grad.addColorStop(0.42, '#8d97ab');  // soft ramp into mid
+  grad.addColorStop(0.60, '#d8dee8');  // mid (neutral — keeps paint saturated)
+  grad.addColorStop(0.78, '#eef1f5');  // soft ramp into lit
+  grad.addColorStop(1.0, '#ffffff');   // lit
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 64, 1);
   const tex = new THREE.CanvasTexture(canvas);
-  tex.minFilter = THREE.NearestFilter;
-  tex.magFilter = THREE.NearestFilter;
+  tex.minFilter = THREE.NearestFilter;  // still stepwise across the 64px ramp
+  tex.magFilter = THREE.NearestFilter;  // (band count high enough to read smooth)
   tex.generateMipmaps = false;
   tex.colorSpace = THREE.SRGBColorSpace;
   _gradientMap = tex;
