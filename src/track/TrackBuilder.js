@@ -12,7 +12,7 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { toonMaterial, cartoonOutline, roadTexture, dirtTexture, grassTexture, checkerTexture, bannerCheckerTexture, turboPadTexture, arrowTexture, finishLineTexture } from '../render/Materials.js';
+import { toonMaterial, cartoonOutline, roadTexture, dirtTexture, grassTexture, concreteTexture, checkerTexture, bannerCheckerTexture, turboPadTexture, arrowTexture, finishLineTexture } from '../render/Materials.js';
 
 // Control points forming the closed loop (X, Y=elevation, Z).
 const CONTROL_POINTS = [
@@ -228,9 +228,13 @@ function buildTerrain(path, cityMode = false) {
     pos.setY(i, y);
   }
   geo.computeVertexNormals();
-  const mat = toonMaterial(cityMode ? 0x242730 : 0xffffff, {});
+  const mat = toonMaterial(cityMode ? 0x2a2d38 : 0xffffff, {});
   if (!cityMode) {
     mat.map = grassTexture();
+    mat.color.set(0xffffff);
+  } else {
+    // Urban concrete (vision critic: flat black void — needs pavement detail).
+    mat.map = concreteTexture();
     mat.color.set(0xffffff);
   }
   const mesh = new THREE.Mesh(geo, mat);

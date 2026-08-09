@@ -117,6 +117,49 @@ export function canvasTexture(size, drawFn, opts = {}) {
 // ---------------------------------------------------------------------------
 let _grassTex = null;
 let _roadTex = null;
+let _concreteTex = null;
+/** Urban concrete: grey pavement with speckle, expansion lines + patches.
+ *  Used by NEON CITY's ground (vision critic: flat black void needs detail). */
+export function concreteTexture() {
+  if (_concreteTex) return _concreteTex;
+  _concreteTex = canvasTexture(
+    256,
+    (ctx, s) => {
+      ctx.fillStyle = '#4a4d5c';
+      ctx.fillRect(0, 0, s, s);
+      // speckle
+      for (let i = 0; i < 900; i++) {
+        ctx.fillStyle = Math.random() > 0.5 ? '#585b6c' : '#3c3f4e';
+        ctx.fillRect(Math.random() * s, Math.random() * s, 2, 2);
+      }
+      // expansion joints (horizontal + vertical lines)
+      ctx.strokeStyle = '#33363f';
+      ctx.lineWidth = 2;
+      for (let i = 1; i < 4; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, (s / 4) * i);
+        ctx.lineTo(s, (s / 4) * i);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo((s / 4) * i, 0);
+        ctx.lineTo((s / 4) * i, s);
+        ctx.stroke();
+      }
+      // worn dark patches
+      ctx.globalAlpha = 0.25;
+      for (let i = 0; i < 8; i++) {
+        ctx.fillStyle = '#33363f';
+        ctx.beginPath();
+        ctx.arc(Math.random() * s, Math.random() * s, 12 + Math.random() * 22, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    },
+    { repeat: [30, 30] }
+  );
+  return _concreteTex;
+}
+
 let _dirtTex = null;
 let _checkerTex = null;
 let _bannerCheckerTex = null;
