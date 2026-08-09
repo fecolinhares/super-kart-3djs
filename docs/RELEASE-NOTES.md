@@ -4,6 +4,11 @@
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
 ### Round 3 — AAA polish loop (auditor-driven, 2026-08-09)
+- **Round 12 — audit r6 fixes**: crowd figures get volume (2 crossed
+  planes, terrain-grounded), 3D grass tufts in the infield, banner
+  texture 512px, Lakitu clears the held item, AI rocket start at GO,
+  blue shell re-targets the current leader each frame, AI uses its
+  reserve item slot.
 - **Round 10-11 — FECO review fixes**:
   - AI reverse bug: nearest-sample fallback could land on the opposite side
     of the loop (AI drove backwards) — now snaps to the progress point.
