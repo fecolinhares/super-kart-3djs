@@ -345,7 +345,7 @@ function startRace() {
     const tip = isTouchMode()
       ? 'Hold DRIFT — release when it flashes for a boost!'
       : 'Hold Shift to drift — release at the flash for a boost!';
-    hud.toast(tip, 4200);
+    hud.showMessage(tip);
   }
   raceManager.onPlayerFinish = (place, time) => {
     hud.showFinish(place, time);
