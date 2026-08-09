@@ -445,6 +445,16 @@ export class ShellProjectile {
       const dx = p.x - m.position.x;
       const dz = p.z - m.position.z;
       if (dx * dx + dz * dz < 4.0) {
+        // AUDIT r8 (MK8D blue-shell dodge counterplay): the spiny's dive is
+        // dodgeable. A leader who is invincible (star / item-box pickup /
+        // trick-landing i-frames granted in main.js) or mid-trick (airborne
+        // with an armed trick about to land) shakes it off — the shell
+        // explodes harmlessly and the leader keeps a fresh 900ms window.
+        if (this.blue && this._descended && k === this.target && this._blueDodged(k)) {
+          k.setInvincible?.(true, 900);
+          this._explodeHarmless(p);
+          return;
+        }
         this._hit(k, p);
         return;
       }
@@ -549,6 +559,28 @@ export class ShellProjectile {
   _hit(victim, pos) {
     this.raceManager?.particles?.emit?.('explosion', new THREE.Vector3(pos.x, pos.y + 0.6, pos.z));
     victim?.hitShell?.({ blue: !!this.blue }); // blue shells bypass item-hold (audit v4)
+    this.audio?.play?.('crash');
+    this.die();
+  }
+
+  /** AUDIT r8: MK8D blue-shell dodge check — the leader escapes the dive when
+   *  invincible (star / post-pickup / post-trick i-frames wired in main.js),
+   *  mid-trick (airborne with an armed trick about to land), or fresh off a
+   *  trick/item-box pickup within the ~0.9s dodge window (timestamps are a
+   *  safety net in case setInvincible was cleared early by another effect). */
+  _blueDodged(k) {
+    if (k.invincible) return true;
+    if (k._trickArmed) return true;
+    const now = performance.now();
+    if (k._lastTrickAt && now - k._lastTrickAt < 900) return true;
+    if (k._lastBoxAt && now - k._lastBoxAt < 900) return true;
+    return false;
+  }
+
+  /** AUDIT r8: spiny dodge resolution — same drama as a hit (explosion +
+   *  crash + consume the shell) but with NO kart damage. */
+  _explodeHarmless(pos) {
+    this.raceManager?.particles?.emit?.('explosion', new THREE.Vector3(pos.x, pos.y + 0.6, pos.z));
     this.audio?.play?.('crash');
     this.die();
   }

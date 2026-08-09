@@ -34,6 +34,58 @@ const HELD_ITEM_COLORS = {
   blue_shell: 0x1f3fc8,
 };
 
+// AUDIT r8: floating rank arrows (MK8D) — one pooled canvas texture per
+// ordinal (1-8), built lazily on first use and shared across ALL karts.
+// Deterministic: no per-frame allocation, no Math.random.
+const RANK_ARROW_MAX = 8;
+const RANK_ARROW_COLORS = { 1: '#ffd700', 2: '#e8e8e8', 3: '#e08a4e' }; // gold/silver/bronze
+const _rankArrowTextures = new Map();
+
+function _rankArrowTexture(n) {
+  let tex = _rankArrowTextures.get(n);
+  if (tex) return tex;
+  try {
+    const c = document.createElement('canvas');
+    c.width = 128;
+    c.height = 128;
+    const g = c.getContext('2d');
+    const color = RANK_ARROW_COLORS[n] || '#ffffff';
+    // Upward arrow head + shaft (MK8D-style pointer above the kart).
+    g.strokeStyle = color;
+    g.lineCap = 'round';
+    g.lineJoin = 'round';
+    g.lineWidth = 15;
+    g.beginPath();
+    g.moveTo(64, 12);   // head tip
+    g.lineTo(27, 46);   // left wing
+    g.moveTo(64, 12);
+    g.lineTo(101, 46);  // right wing
+    g.moveTo(64, 34);
+    g.lineTo(64, 58);   // shaft down into the badge
+    g.stroke();
+    // Dark translucent badge holding the ordinal.
+    g.fillStyle = 'rgba(12, 16, 26, 0.74)';
+    g.beginPath();
+    g.arc(64, 84, 40, 0, Math.PI * 2);
+    g.fill();
+    g.lineWidth = 6;
+    g.strokeStyle = color;
+    g.stroke();
+    g.fillStyle = color;
+    g.font = '800 46px system-ui, sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText(String(n), 64, 86);
+    tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    _rankArrowTextures.set(n, tex);
+  } catch {
+    tex = null; // no DOM (node smoke tests) — arrow stays hidden
+  }
+  return tex;
+}
+
 export class Kart {
   /**
    * @param {object} opts
@@ -238,6 +290,23 @@ export class Kart {
     this._flagCloth.position.set(-0.24, 1.36, -0.5);
     this._finishFlag.add(this._flagCloth);
     this.group.add(this._finishFlag);
+
+    // AUDIT r8: floating rank arrow (MK8D) — canvas arrow + ordinal above the
+    // kart (y 2.2), parented to this.group so it follows every move/tumble.
+    // Hidden until RaceManager reveals it mid-race via setRankVisible().
+    this._rankVisible = false;
+    this._rankPos = 0;
+    this._rankArrow = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: null,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+    }));
+    this._rankArrow.scale.set(1.0, 1.0, 1);
+    this._rankArrow.position.set(0, 2.2, 0);
+    this._rankArrow.renderOrder = 10; // draws above scenery (MK8D arrows stay readable)
+    this._rankArrow.visible = false;
+    this.group.add(this._rankArrow);
 
     this.group.position.copy(this.state.position);
     this.group.rotation.y = startHeading;
@@ -1252,6 +1321,53 @@ export class Kart {
     }
   }
 
+  /** AUDIT r8: MK8D coin loss on a hit — drop up to 3 coins (recollectable).
+   *  Decrements _coins and reports via the _onCoinDrop hook; RaceManager
+   *  respawns the coins near the kart with a sparkle. No-op with no coins. */
+  _dropCoinsOnHit() {
+    const n = this._coins || 0;
+    if (n <= 0) return;
+    const dropped = Math.min(3, n);
+    this._coins = n - dropped;
+    this._onCoinDrop?.(dropped, this);
+  }
+
+  /** AUDIT r8: show/hide the floating rank arrow. RaceManager drives this
+   *  from its phase — arrows only appear during a live race (hidden in
+   *  menu / countdown / finish, MK8D-style). */
+  setRankVisible(v) {
+    this._rankVisible = !!v;
+    if (!v) {
+      this._rankPos = 0;
+      if (this._rankArrow) this._rankArrow.visible = false;
+    }
+  }
+
+  /** AUDIT r8: point the rank arrow at the kart's current race position
+   *  (kart.position is written by RaceManager.getStandings each frame).
+   *  Swaps the pooled canvas texture only when the ordinal changed — no
+   *  per-frame allocation. */
+  _syncRankArrow() {
+    const arrow = this._rankArrow;
+    if (!arrow) return;
+    const pos = this._rankVisible ? (this.position || 0) : 0;
+    if (pos < 1 || pos > RANK_ARROW_MAX) {
+      if (arrow.visible) arrow.visible = false;
+      this._rankPos = 0;
+      return;
+    }
+    arrow.visible = true;
+    if (pos !== this._rankPos) {
+      this._rankPos = pos;
+      const mat = arrow.material;
+      const tex = _rankArrowTexture(pos);
+      if (tex && mat.map !== tex) {
+        mat.map = tex;
+        mat.needsUpdate = true;
+      }
+    }
+  }
+
   /** Full reset for race restart — position, heading, timers, progress. */
   restart() {
     const s = this.state;
@@ -1293,6 +1409,10 @@ export class Kart {
     this._finishMs = 0;
     if (this._finishFlag) this._finishFlag.visible = false;
     if (this._blob) this._blob.rotation.x = -Math.PI / 2;
+    // AUDIT r8: no stale rank arrow into the fresh race (RaceManager re-shows it).
+    this._rankVisible = false;
+    this._rankPos = 0;
+    if (this._rankArrow) this._rankArrow.visible = false;
     // AUDIT r2: stale trick/slipstream state leaked into the fresh race —
     // an armed trick or drafting slingshot fired right after GO.
     this._wasDrafting = false;
@@ -1362,6 +1482,7 @@ export class Kart {
     // a kart for 4-5s of helplessness (no invincibility after any hit).
     this.setInvincible(true, 2000);
     this._onHit?.('banana'); // player hit feedback hook (screen flash + label)
+    this._dropCoinsOnHit(); // AUDIT r8: MK8D scatters up to 3 coins on a hit
   }
 
   /** Shell: heavier crash — spin-out + hop + lateral shove.
@@ -1380,6 +1501,7 @@ export class Kart {
     // AUDIT r4: post-hit i-frames (see hitBanana) — no chain-stun pinning.
     this.setInvincible(true, 2000);
     this._onHit?.(opts.blue ? 'blue' : 'shell'); // player hit feedback hook
+    this._dropCoinsOnHit(); // AUDIT r8: MK8D scatters up to 3 coins on a hit
   }
 
   /** Holding a shell/banana behind blocks an incoming hit (MK8 pillar).
@@ -1455,6 +1577,9 @@ export class Kart {
     this._finishMs = 0;
     if (this._finishFlag) this._finishFlag.visible = false;
     if (this._blob) this._blob.rotation.x = -Math.PI / 2;
+    this._rankVisible = false; // AUDIT r8: no stale rank arrow
+    this._rankPos = 0;
+    if (this._rankArrow) this._rankArrow.visible = false;
     if (position) this.state.position.copy(position);
     this.state.heading = heading;
     this.group.position.copy(this.state.position);
@@ -1467,6 +1592,7 @@ export class Kart {
   update(dt, ctx = {}) {
     this._t += dt;
     const s = this.state;
+    this._syncRankArrow(); // AUDIT r8: float the MK8D rank arrow above the kart
     // Brake lights flare (audit v5 #2).
     if (this._brakeLampMat) {
       const braking = this._controls.brake || s.spinOut;

@@ -568,7 +568,11 @@ export class HUD {
     this.setItem(item, player ? player._heldItemCount || 1 : 1);
     const item2 = player ? player.heldItem2 : null;
     this.setItem2(item2, player ? player._heldItem2Count || 1 : 1);
-    this.setCoins(player ? player._coins || 0 : 0);
+    // AUDIT r8: MK8D coin loss on a hit — a shell/banana scatters up to 3
+    // coins, so a drop here is a hit cue: red-flash the chip + show −N.
+    const coins = player ? player._coins || 0 : 0;
+    if (coins < this._coins) this.flashCoinLoss(this._coins - coins);
+    this.setCoins(coins);
 
     // Minimap dots.
     this._updateMinimap(karts);
@@ -680,6 +684,36 @@ export class HUD {
       void chip.offsetWidth;
       chip.classList.add('sk3d-position-pop');
     }
+  }
+
+  /** AUDIT r8: coin-loss feedback — red flash + a transient −N badge on the
+   *  coin chip when a hit costs coins (MK8D drops up to 3 per shell/banana
+   *  hit). Inline styles only, so no CSS file changes; clears itself. */
+  flashCoinLoss(lost) {
+    const chip = this.coinCountEl && this.coinCountEl.closest('.sk3d-coins');
+    if (chip) {
+      chip.style.color = '#ff6b6b';
+      chip.style.borderColor = '#ff6b6b';
+      chip.style.boxShadow = '0 0 14px rgba(255, 90, 90, 0.55)';
+      if (!this._coinLostEl) {
+        this._coinLostEl = document.createElement('span');
+        this._coinLostEl.style.cssText = 'margin-left:6px;font-weight:800;color:#ff6b6b;';
+        chip.appendChild(this._coinLostEl);
+      }
+      this._coinLostEl.textContent = `−${Math.max(1, Math.round(lost || 1))}`;
+    }
+    clearTimeout(this._coinLossT);
+    this._coinLossT = setTimeout(() => this._clearCoinLoss(), 1000);
+  }
+
+  _clearCoinLoss() {
+    const chip = this.coinCountEl && this.coinCountEl.closest('.sk3d-coins');
+    if (chip) {
+      chip.style.color = '';
+      chip.style.borderColor = '';
+      chip.style.boxShadow = '';
+    }
+    if (this._coinLostEl) this._coinLostEl.textContent = '';
   }
 
   /**
@@ -861,6 +895,8 @@ export class HUD {
     this.setItem(null);
     this.setItem2(null);
     this.setCoins(0);
+    clearTimeout(this._coinLossT); // AUDIT r8: no stale coin-loss flash into the fresh race
+    this._clearCoinLoss();
 
     this.countdownEl.classList.add('sk3d-hidden');
     this.finishEl.classList.add('sk3d-hidden');

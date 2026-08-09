@@ -144,6 +144,12 @@ let offroadT = 0.55; // off-road gravel SFX accumulator (feedback audit)
 let lastHeldItem = null;
 let lastHeldItem2 = null; // reserve-slot toast tracker (audit r3 dual-slot)
 let suppressNextItemToast = 0; // swap feedback replaces the pickup fanfare for 1 frame
+// AUDIT r8 (item roulette anticipation): the pickup toast reveal is delayed
+// ~0.45s (MK8D roulette spins 0.4-0.5s before the reveal) — generation-guarded
+// so a newer pickup / item use / swap cancels the pending announce.
+let pickupRevealGen = 0;
+let pickupRevealTimer = null;
+const ITEM_ROULETTE_MS = 450; // shuffle duration before the item name is revealed
 // AUDIT r4 (rear throw): hold-to-arm-back input state. itemPressT records when
 // the item button went down (-1 = up); crossing REAR_HOLD_MS while held flips
 // the item bubble (Kart.setItemRear) and the release fires REARWARD.
@@ -237,6 +243,13 @@ function wireMiniBoost(kart) {
   };
   kart._onTrick = () => {
     // Trick landing boost — sparkle burst + pop (mostly for the player).
+    // AUDIT r8 (MK8D blue-shell dodge counterplay): a trick landed within
+    // ~1s of the spiny's dive grants a 900ms invincibility window — the
+    // classic well-timed-hop dodge. PowerUp._blueDodged also consults
+    // _lastTrickAt, so the dodge holds even if setInvincible gets cleared
+    // early by an overlapping effect.
+    kart._lastTrickAt = performance.now();
+    kart.setInvincible?.(true, 900);
     if (kart.isPlayer) {
       audio.play('driftReleaseMiniBoost', { volume: 0.7 });
       particles.emit('sparkle', kart.group.position, { count: 16, speed: 5, size: 0.3 });
@@ -663,6 +676,10 @@ function restartRace() {
   lastHeldItem = null;
   lastHeldItem2 = null;
   suppressNextItemToast = 0;
+  // AUDIT r8: no stale roulette reveal from the previous race (karts persist
+  // across restart, but the pending setTimeout lives at module scope).
+  clearTimeout(pickupRevealTimer);
+  pickupRevealGen++;
   // AUDIT r4: a mid-hold restart must not fire the old item into the new race.
   itemPressT = -1;
   disarmRear();
@@ -953,6 +970,20 @@ loop.start((dt, t) => {
       }
       for (const ctrl of raceManager.aiControllers) ctrl.update(dt);
       raceManager.update(dt);
+      // AUDIT r8 (MK8D blue-shell dodge counterplay): collecting an item box
+      // grants a short invincibility window — the classic spiny dodge (drive
+      // into a box as it dives). Pickups happen inside raceManager.update, so
+      // detect fresh pickups for EVERY kart (AI included) by diffing the
+      // held-slot count against the previous frame.
+      for (const k of raceManager.karts) {
+        if (!k || k.finished) continue;
+        const have = (k.heldItem ? 1 : 0) + (k.heldItem2 ? 1 : 0);
+        if (k._prevHeldCount !== undefined && have > k._prevHeldCount) {
+          k._lastBoxAt = performance.now(); // PowerUp._blueDodged consults this
+          k.setInvincible?.(true, 900);
+        }
+        k._prevHeldCount = have;
+      }
       hud.update(raceManager, playerKart, raceManager.karts);
       // Drift charge meter (white → yellow → orange; only while drifting).
       hud.setDriftCharge(playerKart.state.driftCharge, playerKart.state.drifting);
@@ -971,6 +1002,9 @@ loop.start((dt, t) => {
       // AUDIT r3 dual-slot: watches BOTH slots (a pickup lands in the reserve
       // when the primary is full) and shows ×N for triple stacks.
       if (playerKart.heldItem !== lastHeldItem || playerKart.heldItem2 !== lastHeldItem2) {
+        // AUDIT r8: ANY held-slot change (pickup, use, lightning knock, swap)
+        // supersedes a pending roulette reveal — the stale announce stays quiet.
+        const gen = ++pickupRevealGen;
         if (suppressNextItemToast > 0) {
           suppressNextItemToast--; // swap already announced itself
         } else if (playerKart.heldItem || playerKart.heldItem2) {
@@ -981,6 +1015,9 @@ loop.start((dt, t) => {
             : playerKart._heldItem2Count || 1;
           audio.play('pickup'); // item fanfare (was silent — UX gap)
           hud.setItemRoulette(changed, count); // MK8 roulette spin (audit minor)
+          // AUDIT r8 (item roulette anticipation): the HUD icons shuffle for
+          // ~0.45s (MK8D roulette spins 0.4-0.5s) — delay the name reveal to
+          // match, guarded by the generation counter above.
           // Keys match PowerUpType VALUES (lowercase): mushroom, shell, red_shell…
           const ITEMS = {
             mushroom: ['🍄', 'Mushroom'],
@@ -991,7 +1028,12 @@ loop.start((dt, t) => {
             lightning: ['⚡', 'Lightning'],
           };
           const [icon, name] = ITEMS[changed] || ['❓', changed];
-          hud.showMessage(count > 1 ? `${icon} ${name} ×${count}` : `${icon} ${name}`);
+          const label = count > 1 ? `${icon} ${name} ×${count}` : `${icon} ${name}`;
+          clearTimeout(pickupRevealTimer);
+          pickupRevealTimer = setTimeout(() => {
+            if (gen !== pickupRevealGen) return; // superseded — stay quiet
+            hud.showMessage(label);
+          }, ITEM_ROULETTE_MS);
         }
         lastHeldItem = playerKart.heldItem;
         lastHeldItem2 = playerKart.heldItem2;

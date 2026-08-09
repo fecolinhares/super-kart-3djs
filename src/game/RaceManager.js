@@ -36,13 +36,18 @@ const CONTACT_SFX_COOLDOWN = 0.22; // s between crash SFX (pack collisions)
 // ---------------------------------------------------------------------------
 
 class Coin {
-  constructor(track, t, side, jitter) {
+  /** @param {object|null} [at] optional explicit world position — used by
+   *  AUDIT r8 dropped coins so they land where the kart scattered them
+   *  (instead of along the track's coin row). */
+  constructor(track, t, side, jitter, at = null) {
     this.track = track;
     this.t = t;
     this.side = side;
     this.active = true;
     this.bobPhase = (t * 40 + side * 3) % (Math.PI * 2);
-    this.base = this._computeBase(track, t, side, jitter);
+    this.base = at
+      ? { x: at.x, y: at.y, z: at.z }
+      : this._computeBase(track, t, side, jitter);
     this.mesh = this._buildMesh();
   }
 
@@ -151,6 +156,7 @@ export class RaceManager {
     this.aiControllers = [];
     this.itemBoxes = [];
     this.coins = []; // gold coin pickups (audit r3)
+    this.droppedCoins = []; // AUDIT r8: coins scattered by kart hits (recollectable)
     this.activeItems = []; // ShellProjectile / Banana / StarEffect
 
     this.player = null;
@@ -184,6 +190,13 @@ export class RaceManager {
 
     if (playerKart && Kart && !(playerKart instanceof Kart)) {
       console.warn('[RaceManager] playerKart is not a Kart instance — continuing with duck-typed API.');
+    }
+
+    // AUDIT r8: coin-drop-on-hit — every kart reports scattered coins through
+    // this hook; RaceManager respawns them near the kart (MK8D drops up to 3
+    // per shell/banana hit). Re-wired on every init (idempotent).
+    for (const k of this.karts) {
+      k._onCoinDrop = (dropped, kart) => this._spawnDroppedCoins(kart, dropped);
     }
 
     // AUDIT r3: leak fix — Menu→StartRace re-added boxes without removing
@@ -223,6 +236,13 @@ export class RaceManager {
       for (const c of this.coins) if (c.mesh) this.scene.add(c.mesh);
     }
 
+    // AUDIT r8: drop coins from a previous race/visit (leak-safe).
+    for (const c of this.droppedCoins) {
+      if (c.mesh) this.scene?.remove(c.mesh);
+      c.dispose?.();
+    }
+    this.droppedCoins = [];
+
     this.aiControllers = (aiKarts || []).map((k, i) => new AIController(k, track, this, i));
 
     // Build the navigation cache for AI + projectile off-track culling.
@@ -235,6 +255,9 @@ export class RaceManager {
       const len = track.length || 500;
       this.centerlineSpacing = Math.max(1.5, len / track.waypoints.length);
     }
+
+    // AUDIT r8: rank arrows only exist during a live race — hidden in menu.
+    this._setRankArrowsVisible(false);
 
     return this;
   }
@@ -249,6 +272,8 @@ export class RaceManager {
     this.raceOver = false;
     this.finishOrder = [];
     this.playerFinished = false;
+    // AUDIT r8: MK8D rank arrows float above every kart the moment GO hits.
+    this._setRankArrowsVisible(true);
     // AUDIT r4: ~2s spawn protection at GO — the grid pack used to shell-train
     // the player before the first corner.
     for (const k of this.karts) {
@@ -270,6 +295,12 @@ export class RaceManager {
     this.activeItems = [];
     for (const box of this.itemBoxes) box.reset?.();
     for (const coin of this.coins) coin.reset?.();
+    // AUDIT r8: scattered coins don't survive a restart (per-race state).
+    for (const c of this.droppedCoins) {
+      if (c.mesh) this.scene?.remove(c.mesh);
+      c.dispose?.();
+    }
+    this.droppedCoins = [];
     // AUDIT FIX (gameplay): the finish handler pushes a cruise controller for
     // the player kart; rebuild would re-randomize AI lanes (kart.position is
     // rank, all reset to numKarts), so instead drop the player's extra
@@ -304,9 +335,21 @@ export class RaceManager {
     // (ItemBox only picks up into an empty primary — audit r3 dual-slot).
     this._updateReservePickups();
     for (const coin of this.coins) coin.update?.(dt, this.karts, this);
+    // AUDIT r8: scattered coins behave exactly like pickups (bob, spin,
+    // collect); collected ones are swept out of the scene.
+    for (const coin of this.droppedCoins) coin.update?.(dt, this.karts, this);
+    for (let i = this.droppedCoins.length - 1; i >= 0; i--) {
+      const c = this.droppedCoins[i];
+      if (!c.active) {
+        if (c.mesh) this.scene?.remove(c.mesh);
+        c.dispose?.();
+        this.droppedCoins.splice(i, 1);
+      }
+    }
     this._updateActiveItems(dt);
 
     if (this.phase === 'countdown') {
+      this._setRankArrowsVisible(false); // AUDIT r8: no arrows before GO
       this.countdown -= dt;
       if (this.countdown <= 0) {
         this.countdown = 0;
@@ -327,7 +370,10 @@ export class RaceManager {
       this._updateStandings();
       this._checkFinishes();
       if (this.elapsed >= CONFIG.game.raceTimeoutMs) this._forceFinish();
-      if (this.raceOver) this.phase = 'finished';
+      if (this.raceOver) {
+        this.phase = 'finished';
+        this._setRankArrowsVisible(false); // AUDIT r8: arrows retire at the flag
+      }
     }
   }
 
@@ -495,6 +541,58 @@ export class RaceManager {
   /** Register a live item (projectile / hazard / star effect). */
   addActiveItem(item) {
     this.activeItems.push(item);
+  }
+
+  /** AUDIT r8: respawn coins scattered by a kart hit (MK8D drops up to 3,
+   *  recollectable by anyone). Coins land BEYOND the pickup radius so the
+   *  hit kart can't instantly re-grab its own loss; scatter is deterministic
+   *  (fixed lateral pattern from the kart's heading — no Math.random).
+   *  Reuses the Coin pickup mesh/behaviour; the dropping kart's sparkle +
+   *  blip only play for the player (matches pickup fanfare rules). */
+  _spawnDroppedCoins(kart, count) {
+    if (!kart || !this.scene || !this.track) return;
+    const h = kart.state?.heading ?? kart.group?.rotation?.y ?? 0;
+    const fx = Math.sin(h); // forward (world XZ)
+    const fz = Math.cos(h);
+    const rx = Math.cos(h); // right
+    const rz = -Math.sin(h);
+    const p = kart.state?.position ?? kart.group?.position;
+    if (!p) return;
+    // Land on the ROAD (track height at the kart's progress) so a mid-air hit
+    // doesn't strand the coins in the sky — MK8D coins fall to the asphalt.
+    let roadY = p.y;
+    try {
+      const pp = this.track.path?.getPointAt?.(Math.min(Math.max(kart.state?.progress01 ?? 0, 0.001), 0.999));
+      if (pp && Number.isFinite(pp.y)) roadY = pp.y;
+    } catch { /* keep kart height */ }
+    // Fixed scatter: left, right, ahead — all outside coinPickupRadius (2.4).
+    const scatter = [
+      { x: rx * 2.9, z: rz * 2.9 },
+      { x: -rx * 2.9, z: -rz * 2.9 },
+      { x: fx * 2.9, z: fz * 2.9 },
+    ];
+    for (let i = 0; i < count; i++) {
+      const off = scatter[i % scatter.length];
+      const coin = new Coin(this.track, 0.5 + i * 0.13, i % 2 === 0 ? 1 : -1, 0, {
+        x: p.x + off.x,
+        y: roadY + 0.45,
+        z: p.z + off.z,
+      });
+      this.droppedCoins.push(coin);
+      if (coin.mesh) this.scene.add(coin.mesh);
+    }
+    if (kart === this.player) {
+      this.particles?.emit?.('sparkle', new THREE.Vector3(p.x, p.y + 0.4, p.z), {
+        count: 8, speed: 3.2, size: 0.16, color: 0xffd166,
+      });
+      this.audio?.play?.('pickup', { volume: 0.5 });
+    }
+  }
+
+  /** AUDIT r8: show/hide every kart's floating rank arrow. Only a live race
+   *  shows the MK8D ordinals — menu, countdown and finish hide them. */
+  _setRankArrowsVisible(v) {
+    for (const k of this.karts) k.setRankVisible?.(v);
   }
 
   // -------------------------------------------------------------------------
