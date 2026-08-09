@@ -246,6 +246,14 @@ function wireMiniBoost(kart) {
     // Soft thump on touchdown — mostly for the player (AI landings are quiet).
     if (kart.isPlayer) audio.play('landing', { volume: 0.5 });
   };
+  kart._onRescued = () => {
+    // AUDIT r7: the Lakitu hook was producer-only dead code — a rescued
+    // player got only a shake. Now: toast + item-lost feedback.
+    if (kart.isPlayer) {
+      hud.showMessage('🧑‍✈️ LAKITU!', 1800);
+      addShake(0.3, 0.3);
+    }
+  };
   kart._onMiniBoost = (charge01 = 1) => {
     const v = (kart.isPlayer ? 0.8 : 0.45) * (0.5 + charge01 * 0.5);
     audio.play('driftReleaseMiniBoost', { volume: v, pan: (kart.group.position.x - playerKart.group.position.x) * 0.02 });

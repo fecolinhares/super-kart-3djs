@@ -422,10 +422,14 @@ export class ShellProjectile {
 
     // Collision with karts (radius 2.0 — a shell that passes near a kart
     // counts; 1.0 required near-perfect aim and felt like it "did nothing").
+    // AUDIT r7: a blue shell only explodes on the CURRENT leader — a
+    // mid-pack kart crossing the dive path used to eat the comeback weapon.
     const list = karts || [];
     for (const k of list) {
       if (k === this.owner && this.age < 0.5) continue; // spawn grace
       if (k.finished) continue;
+      if (this.blue && this._descended && k !== this.target) continue; // leader only
+      if (this.blue && !this._descended) continue; // arc phase never collides
       const p = kartPosition(k);
       const dx = p.x - m.position.x;
       const dz = p.z - m.position.z;
