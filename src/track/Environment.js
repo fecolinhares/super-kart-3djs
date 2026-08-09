@@ -12,8 +12,10 @@
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { toonMaterial, cartoonOutline, skyTexture } from '../render/Materials.js';
+import { terrainHeight } from './TrackBuilder.js';
 
-// Mirrors TrackBuilder.smoothH so props sit at the same terrain height.
+// Mirrors TrackBuilder.terrainHeight so props sit at the same terrain height
+// (incl. the rolling hills — the old flat smoothH copy made far props float).
 function smoothH(x, z) {
   return (
     Math.sin(x * 0.08) * Math.cos(z * 0.1) * 0.18 +
@@ -97,6 +99,10 @@ export class Environment {
   buildEnvironment(scene, track = null) {
     this._track = track;
     this._trackSamples = null;
+    this._trackPath = track?.path ?? null;
+    // Ground props on the SAME rolling field as the terrain (incl. hills).
+    this._gy = (x, z) =>
+      this._trackPath ? terrainHeight(x, z, this._trackPath) : smoothH(x, z) * 0.5 - 0.25;
     if (track && track.path) {
       // Cache centerline samples for _onTrack checks.
       this._trackSamples = [];
@@ -562,7 +568,7 @@ export class Environment {
       const { x, z, s } = tree;
       
       // Position based on terrain height
-      const h = smoothH(x, z) * 0.5 - 0.25;
+      const h = this._gy(x, z);
       const baseY = h + 1.0 * s;
       
       // Position and scale trunk
@@ -690,7 +696,7 @@ export class Environment {
     const rocks = new THREE.InstancedMesh(rockGeo, rockMat, rockSpots.length);
     const dummy = new THREE.Object3D();
     rockSpots.forEach((r, i) => {
-      dummy.position.set(r.x, smoothH(r.x, r.z) * 0.5 - 0.25 + 0.33 * r.s, r.z);
+      dummy.position.set(r.x, this._gy(r.x, r.z) + 0.33 * r.s, r.z);
       dummy.scale.setScalar(r.s);
       dummy.rotation.set(r.rx, r.ry, r.rz);
       dummy.updateMatrix();
@@ -725,7 +731,7 @@ export class Environment {
     }
     const bushes = new THREE.InstancedMesh(bushGeo, bushMat, bushSpots.length);
     bushSpots.forEach((b, i) => {
-      dummy.position.set(b.x, smoothH(b.x, b.z) * 0.5 - 0.25 + 0.55 * b.s, b.z);
+      dummy.position.set(b.x, this._gy(b.x, b.z) + 0.55 * b.s, b.z);
       dummy.scale.set(b.s, b.s * (0.75 + rnd(6100 + i)() * 0.25), b.s);
       dummy.rotation.y = b.ry;
       dummy.updateMatrix();
@@ -753,7 +759,7 @@ export class Environment {
         bz = z + off * 0.7;
         if (!this._onTrack(bx, bz, 6)) break;
       }
-      dummy.position.set(bx, smoothH(bx, bz) * 0.5 - 0.25 + 0.55, bz);
+      dummy.position.set(bx, this._gy(bx, bz) + 0.55, bz);
       dummy.scale.set(1.2, 0.9 + Math.random() * 0.5, 1.2);
       dummy.rotation.y = Math.random() * Math.PI;
       dummy.updateMatrix();
@@ -847,7 +853,7 @@ export class Environment {
     for (const s of spots) {
       if (this._onTrack(s.x, s.z, 8)) continue; // keep billboards off the road
       const board = new THREE.Mesh(boardGeo, boardMat);
-      board.position.set(s.x, smoothH(s.x, s.z) * 0.5 - 0.25 + 1.5, s.z);
+      board.position.set(s.x, this._gy(s.x, s.z) + 1.5, s.z);
       board.rotation.y = s.ry;
       board.castShadow = true;
       scene.add(board);
@@ -857,7 +863,7 @@ export class Environment {
           new THREE.CylinderGeometry(0.09, 0.09, 1.5, 8),
           toonMaterial(0x8b7a5c, {})
         );
-        leg.position.set(s.x + side * 2.0, smoothH(s.x, s.z) * 0.5 - 0.25 + 0.75, s.z);
+        leg.position.set(s.x + side * 2.0, this._gy(s.x, s.z) + 0.75, s.z);
         scene.add(leg);
       }
     }
@@ -873,7 +879,7 @@ export class Environment {
    * Deterministic seeded rnd; every prop sits at smoothH terrain height.
    */
   buildFieldLandmarks(scene) {
-    const gy = (x, z) => smoothH(x, z) * 0.5 - 0.25;
+    const gy = (x, z) => this._gy(x, z);
     // Place only when the spot clears the road (>50m from centerline).
     const place = (x, z, fn) => {
       if (!this._onTrack(x, z, 50)) fn();
@@ -1322,7 +1328,7 @@ export class Environment {
         post.position.set(side * 8, 2.2, -3.4);
         grp.add(post);
       }
-      grp.position.set(gs.x, smoothH(gs.x, gs.z) * 0.5 - 0.25, gs.z);
+      grp.position.set(gs.x, this._gy(gs.x, gs.z), gs.z);
       grp.rotation.y = gs.ry;
       scene.add(grp);
     }

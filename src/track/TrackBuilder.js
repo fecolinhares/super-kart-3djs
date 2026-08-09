@@ -62,6 +62,44 @@ function broadHill(x, z) {
   );
 }
 
+let _heightCachePath = null;
+let _heightSamples = null;
+/**
+ * Distance-aware terrain height — the EXACT formula buildTerrain uses
+ * (smoothH scaled by corridor falloff + broadHill landforms). Exported so
+ * Environment.js grounds its far-field props on the same rolling field
+ * (agent flag: the Environment's own smoothH copy ignored the new hills →
+ * trees/rocks at 46-162m floated/buried 0.5-3m).
+ */
+export function terrainHeight(x, z, path) {
+  if (path !== _heightCachePath) {
+    _heightCachePath = path || null;
+    _heightSamples = null;
+    if (path) {
+      _heightSamples = new Float32Array(400 * 2);
+      const sp = new THREE.Vector3();
+      for (let i = 0; i < 400; i++) {
+        path.getPointAt(i / 400, sp);
+        _heightSamples[i * 2] = sp.x;
+        _heightSamples[i * 2 + 1] = sp.z;
+      }
+    }
+  }
+  let d2 = Infinity;
+  if (_heightSamples) {
+    for (let i = 0; i < 400; i++) {
+      const dx = x - _heightSamples[i * 2];
+      const dz = z - _heightSamples[i * 2 + 1];
+      const dd = dx * dx + dz * dz;
+      if (dd < d2) d2 = dd;
+    }
+  }
+  const d = Math.sqrt(d2);
+  const raw = Math.min(1, Math.max(0, (d - 10) / 15));
+  const falloff = raw * raw * (3 - 2 * raw); // C1 smoothstep
+  return -0.25 + smoothH(x, z) * 0.5 * (1 + falloff * 2.5) + broadHill(x, z) * 1.2 * falloff;
+}
+
 function buildRoadRibbon(path, length, opts = {}) {
   const roadW = opts.width || getRoadWidthAt();
   const segments = opts.segments || 520;
