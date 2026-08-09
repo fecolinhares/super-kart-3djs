@@ -50,22 +50,28 @@ function buildSkyEnv(renderer) {
   skyCanvas.height = 256;
   const g = skyCanvas.getContext('2d');
   const grad = g.createLinearGradient(0, 0, 0, 256);
-  grad.addColorStop(0, '#4db4ff');   // deep sky
-  grad.addColorStop(0.55, '#a8dcff'); // mid sky
-  grad.addColorStop(0.78, '#eef7ff'); // horizon haze
-  grad.addColorStop(1, '#c8e9c8');   // ground tint
+  grad.addColorStop(0, '#3f9fe8');   // deep sky
+  grad.addColorStop(0.55, '#8fd0f7'); // mid sky
+  grad.addColorStop(0.78, '#e8f4ff'); // horizon haze
+  grad.addColorStop(1, '#b8e6b8');   // ground tint
   g.fillStyle = grad;
   g.fillRect(0, 0, 512, 256);
-  // bright sun disc
-  g.fillStyle = '#fff7d6';
+  // bright sun disc — BRIGHTER than ambient so clearcoat/chrome get a
+  // strong, defined reflection (vision critic: gloss reads but is weak).
+  g.fillStyle = '#fffbe0';
   g.beginPath();
-  g.arc(128, 40, 26, 0, Math.PI * 2);
+  g.arc(128, 40, 30, 0, Math.PI * 2);
+  g.fill();
+  // hard sun core (sharp reflection highlight)
+  g.fillStyle = '#ffffff';
+  g.beginPath();
+  g.arc(128, 40, 14, 0, Math.PI * 2);
   g.fill();
   // soft sun glow
-  g.globalAlpha = 0.35;
+  g.globalAlpha = 0.45;
   g.fillStyle = '#fff3c0';
   g.beginPath();
-  g.arc(128, 40, 60, 0, Math.PI * 2);
+  g.arc(128, 40, 70, 0, Math.PI * 2);
   g.fill();
   g.globalAlpha = 1;
   const tex = new THREE.CanvasTexture(skyCanvas);
