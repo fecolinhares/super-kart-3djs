@@ -108,6 +108,7 @@ let offroadT = 0.55; // off-road gravel SFX accumulator (feedback audit)
 let lastHeldItem = null;
 let lastLap = 0;
 let driftScreechAcc = 0; // drift tire screech accumulator
+let aiScreechAcc = 0;    // AI drift screech accumulator (v4 F5)
 let dustAcc = 0;         // off-road dust accumulator
 let turboParticleAcc = 0; // accumulator: burst once per 0.1s while turbo-boosting
 
@@ -616,6 +617,20 @@ loop.start((dt, t) => {
       if (driftScreechAcc >= 0.9) {
         driftScreechAcc = 0;
         audio.play('drift', { volume: 0.55 });
+      }
+    }
+    // AI drift screech (audit v4 F5: AI drifts were silent — breaks immersion).
+    if (aiKarts) {
+      aiScreechAcc += dt;
+      if (aiScreechAcc >= 0.7) {
+        aiScreechAcc = 0;
+        for (const k of aiKarts) {
+          if (k.state.drifting && Math.abs(k.state.speed) > 8) {
+            const pan = (k.group.position.x - (playerKart?.group.position.x ?? 0)) * 0.04;
+            audio.play('drift', { volume: 0.22, pan: Math.max(-0.9, Math.min(0.9, pan)) });
+            break; // one at a time keeps it readable
+          }
+        }
       }
     }
     for (let i = 0; i < aiKarts.length; i++) {

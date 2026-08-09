@@ -11,7 +11,11 @@ export function createScene(container) {
     powerPreference: 'high-performance',
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, CONFIG.render.pixelRatioCap));
+  // Mobile perf tier (audit v4 F8): coarse pointers get a lower pixel ratio —
+  // the GPU stays headroom-free for bloom + shadows on phones.
+  const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  const cap = coarse ? Math.min(CONFIG.render.pixelRatioCap, 1.5) : CONFIG.render.pixelRatioCap;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, cap));
   if (CONFIG.render.shadows) {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
