@@ -101,13 +101,13 @@ export class Environment {
     scene.add(sky);
 
     // --- lights (AAA 3-point rig: warm key + cool fill + sky/ground hemi) --
-    const hemi = new THREE.HemisphereLight(0xbcdcff, 0x7bca7f, 0.8);
+    const hemi = new THREE.HemisphereLight(0xd8e8ff, 0x7bca7f, 0.75);
     scene.add(hemi);
 
     // KEY: warm directional from the sun direction — primary illumination.
     // Pure light (no shadow casting); the sun below carries the shadows so
     // toon faces read fully lit from the sunny side.
-    const key = new THREE.DirectionalLight(0xfff2d0, 1.1);
+    const key = new THREE.DirectionalLight(0xfff2d0, 1.3);
     key.position.set(70, 90, 40);
     scene.add(key);
     scene.add(key.target);

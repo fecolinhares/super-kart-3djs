@@ -101,9 +101,9 @@ export const CONFIG = {
   render: {
     antialias: true,
     pixelRatioCap: 2,
-    bloomStrength: 0.75,
-    bloomRadius: 0.5,
-    bloomThreshold: 0.88,
+    bloomStrength: 0.6,
+    bloomRadius: 0.42,
+    bloomThreshold: 0.92,
     vignetteStrength: 0.3,
     colorGradeSaturation: 1.18,
     colorGradeContrast: 1.08,
