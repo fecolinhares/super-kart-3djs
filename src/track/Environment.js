@@ -1630,10 +1630,12 @@ export class Environment {
     ctx.fillStyle = '#161c30'; // dark wall base
     ctx.fillRect(0, 0, s, s);
     const rand = rnd(4242);
-    const cols = 8;
-    const rows = 7;
-    const cell = 24;
-    const gap = 4;
+    // Fewer, BIGGER windows (vision critic: 8×7 tiny cells read as colored
+    // panels, not buildings — 4×5 big lit windows read as a skyline).
+    const cols = 4;
+    const rows = 5;
+    const cell = 46;
+    const gap = 6;
     const startX = (s - (cols * cell + (cols - 1) * gap)) / 2;
     const startY = (s - (rows * cell + (rows - 1) * gap)) / 2;
     const litTints = ['#ffe9c4', '#cfe4ff', '#fff7cc'];
@@ -1694,9 +1696,9 @@ export class Environment {
     }
     cent.multiplyScalar(1 / 64);
 
-    const geo = new THREE.BoxGeometry(6, 12, 6);
+    const geo = new THREE.BoxGeometry(10, 14, 8);
     const mat = new THREE.MeshBasicMaterial({ map: this._windowTexture() });
-    const towers = new THREE.InstancedMesh(geo, mat, 32);
+    const towers = new THREE.InstancedMesh(geo, mat, 48);
     const windowColors = [0xff9a3c, 0x3c9aff, 0xffe23c];
     const dummy = new THREE.Object3D();
     const dir = new THREE.Vector3();
