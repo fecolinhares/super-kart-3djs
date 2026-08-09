@@ -89,7 +89,7 @@ hud._onPositionChange = (dir) => {
 };
 hud._onDriftReady = () => {
   // Beep the instant the drift charge hits the release point (audit v4 F9).
-  audio.play('posUp', { volume: 0.45 });
+  audio.play('driftReady', { volume: 0.5 });
 };
 const menu = new Menu({
   onStart: startRace,

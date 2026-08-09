@@ -425,6 +425,14 @@ export function renderSfx(ctx, out, name, opts = {}) {
       break;
     }
 
+    case 'driftReady': {
+      // Distinct rising chime when the drift charge hits the release point
+      // (audit v5 F5: was reusing the overtake blip — same sound, two events).
+      osc(ctx, target, { type: 'sine', freq: 660 * rate, glideTo: 990 * rate, dur: 0.09, vol: v(0.3), at, attack: 0.002 });
+      osc(ctx, target, { type: 'sine', freq: 1320 * rate, dur: 0.06, vol: v(0.12), at: at + 0.05, attack: 0.002 });
+      break;
+    }
+
     case 'posDown': {
       // Descending two-tone blip (lost a place).
       osc(ctx, target, { type: 'square', freq: 520 * rate, glideTo: 300 * rate, dur: 0.12, vol: v(0.3), at, attack: 0.003 });
