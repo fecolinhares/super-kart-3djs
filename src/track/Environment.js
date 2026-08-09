@@ -259,7 +259,7 @@ export class Environment {
 
     // RIM (audit r3): a cool back-light separates karts/props from the
     // background — the 'pasted on' flatness came from no edge definition.
-    const rim = new THREE.DirectionalLight(night ? 0x5a7ad8 : 0xfff0c8, night ? 0.35 : 0.5);
+    const rim = new THREE.DirectionalLight(night ? 0x5a7ad8 : 0xfff0c8, night ? 0.45 : 0.7);
     rim.position.set(night ? -40 : 30, 40, night ? -30 : 25); // opposite the key
     scene.add(rim);
     scene.add(rim.target);
