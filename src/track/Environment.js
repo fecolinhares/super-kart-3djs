@@ -1926,6 +1926,11 @@ export class Environment {
     }
     const bannerMat = new THREE.MeshBasicMaterial({ map: this._bannerTex, side: THREE.DoubleSide });
     const poleMat = toonMaterial(0x8b7a5c, {});
+    // AUDIT r10 (FECO): the BoxGeometry mapped the banner texture on ALL six
+    // faces — the 0.08m-thick side faces showed the whole 5.6m texture
+    // stretched into thin strips (the 'distorted banners'). Only the ±Z
+    // faces carry the print; edges get a neutral trim.
+    const bannerEdgeMat = toonMaterial(0x6a5c48, {});
     const bannerGeo = new THREE.BoxGeometry(5.6, 1.0, 0.08);
     const poleGeo = new THREE.CylinderGeometry(0.07, 0.09, 3.0, 8);
     const tan = new THREE.Vector3();
@@ -1954,7 +1959,11 @@ export class Environment {
         pole.position.set(bx + tan.x * off * 2.7, by + 1.5, bz + tan.z * off * 2.7);
         scene.add(pole);
       }
-      const banner = new THREE.Mesh(bannerGeo, bannerMat);
+      const banner = new THREE.Mesh(
+        bannerGeo,
+        // material groups: 0-3 = ±X/±Y edge faces (neutral), 4-5 = ±Z print
+        [bannerEdgeMat, bannerEdgeMat, bannerEdgeMat, bannerEdgeMat, bannerMat, bannerMat]
+      );
       banner.position.set(bx, by + 2.35, bz);
       banner.lookAt(p.x, by + 2.35, p.z); // face the track
       banner.rotation.z = 0;
@@ -2746,8 +2755,13 @@ export class Environment {
             path.getTangentAt(t, tan);
             nrm.set(-tan.z, 0, tan.x).normalize();
             dummy.position.set(p.x + nrm.x * (side * (halfW + rowOff)), p.y + 0.9, p.z + nrm.z * (side * (halfW + rowOff)));
-            dummy.lookAt(p.x, p.y + 0.9, p.z);
-            dummy.rotation.z = 0;
+            // AUDIT r10 (FECO): explicit roll-free yaw instead of lookAt —
+            // lookAt left odd orientations on some segments (figures read as
+            // sideways/inverted 'paper'). Face the track center deterministically.
+            // The +Z of the plane (the figure's face) points toward -side*nrm.
+            const faceX = -side * nrm.x;
+            const faceZ = -side * nrm.z;
+            dummy.rotation.set(0, Math.atan2(faceX, faceZ), 0);
             dummy.scale.set(0.9 + this._rand() * 0.3, 0.85 + this._rand() * 0.3, 1);
             dummy.updateMatrix();
             const figIdx = (i + (rowOff === ROWS[0] ? 0 : 3) + (side === 1 ? 1 : 0)) % FIGURES.length;

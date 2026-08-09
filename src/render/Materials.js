@@ -479,16 +479,18 @@ export function arrowTexture() {
   return _arrowTex;
 }
 
-/** Finish-line painted on the asphalt: classic 8x2 checker band. */
+/** Finish-line painted on the asphalt: classic 8x2 checker band.
+ *  AUDIT r10 (FECO): was 256px + 6x2 — read as a stretched low-res strip
+ *  on the ~8.8m plane. 512px + 8x2 gives crisp ~1.1m squares. */
 let _finishTex = null;
 export function finishLineTexture() {
   if (_finishTex) return _finishTex;
   _finishTex = canvasTexture(
-    256,
+    512,
     (ctx, s) => {
-      const cw = s / 6;
+      const cw = s / 8;
       const ch = s / 2;
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 2; j++) {
           ctx.fillStyle = (i + j) % 2 === 0 ? '#ffffff' : '#0f1218';
           ctx.fillRect(i * cw, j * ch, cw, ch);

@@ -232,18 +232,35 @@ export class AIController {
       }
     }
     // Fell far away (crash off track / respawn) — rescan everything.
+    // AUDIT r10 (FECO BUG REPORT): the full-scan fallback could land on the
+    // OPPOSITE side of the loop — the nearest sample IN SPACE isn't the one
+    // ahead, so the look-ahead target sat BEHIND the kart and the AI spun
+    // around and drove backwards 'out of nowhere'. Prefer the sample matching
+    // the kart's progress01 (the point it should be near), never the far side.
     const slack = this.spacing * 20;
     if (bestD > slack * slack) {
-      best = 0;
-      bestD = Infinity;
-      for (let j = 0; j < n; j++) {
-        const p = cl[j];
-        const dx = p.x - pos.x;
-        const dz = p.z - pos.z;
-        const d = dx * dx + dz * dz;
-        if (d < bestD) {
-          bestD = d;
-          best = j;
+      const prog = kart.state?.progress01;
+      if (typeof prog === 'number' && prog >= 0 && prog <= 1) {
+        best = Math.min(n - 1, Math.max(0, Math.round(prog * n)));
+        bestD = Infinity;
+        for (let j = best - 5; j <= best + 5; j++) {
+          const k = ((j % n) + n) % n;
+          const p = cl[k];
+          const d = (p.x - pos.x) * (p.x - pos.x) + (p.z - pos.z) * (p.z - pos.z);
+          if (d < bestD) { bestD = d; best = k; }
+        }
+      } else {
+        best = 0;
+        bestD = Infinity;
+        for (let j = 0; j < n; j++) {
+          const p = cl[j];
+          const dx = p.x - pos.x;
+          const dz = p.z - pos.z;
+          const d = dx * dx + dz * dz;
+          if (d < bestD) {
+            bestD = d;
+            best = j;
+          }
         }
       }
     }
