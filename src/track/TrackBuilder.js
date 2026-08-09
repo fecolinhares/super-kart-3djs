@@ -990,7 +990,7 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   group.add(shoulder);
 
   const ribbonOpts = { texture: roadTexture };
-  if (isCity) ribbonOpts.color = 0x2b2f3a; // NEON CITY: dark asphalt (tint keeps roadTexture)
+  if (isCity) ribbonOpts.color = 0x3c4152; // NEON CITY: grey-charcoal asphalt (vision critic: near-black absorbed all detail — needs tone + neon sheen)
   const ribbon = buildRoadRibbon(path, length, ribbonOpts);
   ribbon.receiveShadow = true;
   group.add(ribbon);

@@ -155,7 +155,7 @@ export function concreteTexture() {
       }
       ctx.globalAlpha = 1;
     },
-    { repeat: [30, 30] }
+    { repeat: [80, 80] }
   );
   return _concreteTex;
 }
