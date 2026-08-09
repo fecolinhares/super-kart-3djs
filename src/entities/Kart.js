@@ -925,6 +925,7 @@ export class Kart {
     this._airTime = 0;
     this._trickArmed = false;
     this._prevY = 0;
+    this._offRoadT = 0; // AUDIT r3: no grass-exit kick from the previous race
     this._nudgeVel.set(0, 0, 0);
     this._lastProgress = 0; // avoids a phantom lap on restart
     this._controls = { steer: 0, throttle: false, brake: false, drift: false, useItem: false };

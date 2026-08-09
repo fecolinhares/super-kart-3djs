@@ -309,6 +309,18 @@ export class KartPhysics {
     kart._wasDrafting = s.draft;
     s.offRoad = Math.abs(near.lateralDist) > halfW;
     if (s.offRoad) target *= T.offRoadMaxSpeedFactor;
+    // AUDIT r3: off-road exit kick — a grass dive that's actually held pays
+    // a small recovery boost back on tarmac (risky lines now have a payoff).
+    if (s.offRoad) {
+      kart._offRoadT = (kart._offRoadT || 0) + dt;
+    } else if (kart._offRoadT > 0) {
+      if (kart._offRoadT >= 0.7) {
+        const kick = Math.min(360, 120 + kart._offRoadT * 160); // 0.7s→232ms, 1.5s→360ms
+        kart.applyBoost(kick);
+        kart._onGrassExit?.();
+      }
+      kart._offRoadT = 0;
+    }
     if (s.spinOut) target = 0;
 
     if (!s.spinOut) {
