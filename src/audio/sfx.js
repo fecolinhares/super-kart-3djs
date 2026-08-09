@@ -35,6 +35,49 @@ const SFX_PENTA = [N.C5, N.D5, N.E5, N.G5, N.A5, N.C6, N.D6, N.E6];
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
+// ------------------------------------------------------------
+// Engine gear map (audit r2): a continuous 55→205Hz RPM sweep reads as
+// a synth drone, not a kart. Piecewise gears with OVERLAPPING ranges
+// (hysteresis): at the shift boundary the new gear always starts BELOW
+// the old gear's redline, so the pitch audibly DROPS on upshift, then
+// climbs again. `load` is the throttle proxy (speed01); `local` is the
+// position inside the current gear (0 right after shift → 1 redline).
+// Shared by the live engine loop (AudioManager) and the QA 'engine'
+// recipe so both always agree.
+// ------------------------------------------------------------
+const ENGINE_GEARS = [
+  { lo: 0.0,  hi: 0.28, base: 58,  redline: 150 },
+  { lo: 0.22, hi: 0.52, base: 92,  redline: 175 },
+  { lo: 0.48, hi: 0.78, base: 128, redline: 195 },
+  { lo: 0.74, hi: 1.0,  base: 164, redline: 205 },
+];
+
+/**
+ * Piecewise gear map: speed01 (0 idle … 1 full) → engine state.
+ * @param {number} speed01
+ * @returns {{gear:number, rpm:number, local:number, load:number, ratio:number}}
+ */
+export function engineGear(speed01) {
+  const s = clamp(speed01, 0, 1);
+  let gear = 0;
+  for (let g = 1; g < ENGINE_GEARS.length; g++) {
+    if (s >= ENGINE_GEARS[g].lo) gear = g;
+  }
+  const gd = ENGINE_GEARS[gear];
+  const span = Math.max(1e-6, gd.hi - gd.lo);
+  const local = clamp((s - gd.lo) / span, 0, 1);
+  const rpm = gd.base + local * (gd.redline - gd.base);
+  const lo = ENGINE_GEARS[0].base;
+  const hi = ENGINE_GEARS[ENGINE_GEARS.length - 1].redline;
+  return {
+    gear,
+    rpm,
+    local,
+    load: s, // throttle proxy — 0 coasting, 1 full throttle
+    ratio: clamp((rpm - lo) / (hi - lo), 0, 1),
+  };
+}
+
 /* ---------------- Shared helpers ---------------- */
 
 // One cached 2s white-noise buffer per context (DC-blocked).
@@ -203,8 +246,8 @@ function horn(ctx, out, at, freq, dur, vol = 0.5) {
  * @param {BaseAudioContext} ctx
  * @param {AudioNode} out
  * @param {string} name engine|boost|drift|itemPickup|useItem|shell|redShell|
- *   banana|star|lightning|crash|countdown|go|lap|finish|victory|uiClick|
- *   uiHover|musicIntro (alias: menuMusic)
+ *   banana|star|lightning|crash|countdown|go|lap|finalLap|cheer|finish|
+ *   victory|uiClick|uiHover|musicIntro (alias: menuMusic)
  * @param {Object} [opts] { volume=1, rate=1, pan=0, at=0, speed01, dur }
  */
 export function renderSfx(ctx, out, name, opts = {}) {
@@ -225,23 +268,27 @@ export function renderSfx(ctx, out, name, opts = {}) {
     case 'engine': {
       // Looping tone pair (sawtooth base + square octave + sine sub) used
       // by AudioManager.setEngineLoop; here rendered for QA. `speed01`
-      // maps to RPM, `dur` is the QA render window.
+      // drives the piecewise GEAR MAP (audit r2): RPM climbs within a
+      // gear and DROPS on upshift — the old continuous 55→205Hz sweep
+      // read as a synth drone, not a kart gearbox. `dur` is the QA render
+      // window. Matches AudioManager._updateEngineLoop exactly.
       const speed = clamp(opts.speed01 ?? 0.6, 0, 1);
       const d = Math.max(0.3, opts.dur ?? 2.0);
-      const base = 55 + speed * 150;
-      const cut = 300 + speed * 1300;
-      const lvl = 0.4 + speed * 0.35;
+      const { rpm, local, load, ratio } = engineGear(speed);
+      const lug = (1 - local) * load; // post-upshift strain (muffles top end)
+      const cut = 300 + ratio * 1500 - lug * 250;
+      const lvl = 0.28 + 0.64 * (0.7 * load + 0.3 * local);
       osc(ctx, target, {
-        type: 'sawtooth', freq: base, dur: d, vol: v(lvl * 0.55), at, attack: 0.1, sustain: true, release: 0.08,
-        filterType: 'lowpass', filterFreq: cut, filterQ: 0.8, lfoFreq: 24, lfoDepth: base * 0.012,
+        type: 'sawtooth', freq: rpm, dur: d, vol: v(lvl * 0.55), at, attack: 0.1, sustain: true, release: 0.08,
+        filterType: 'lowpass', filterFreq: cut, filterQ: 0.8, lfoFreq: 24, lfoDepth: rpm * 0.012,
       });
       osc(ctx, target, {
-        type: 'square', freq: base * 2, dur: d, vol: v(lvl * 0.22), at, attack: 0.1, sustain: true, release: 0.08,
+        type: 'square', freq: rpm * 2, dur: d, vol: v(lvl * 0.22), at, attack: 0.1, sustain: true, release: 0.08,
         filterType: 'lowpass', filterFreq: cut * 1.4, filterQ: 1.2,
       });
       // Sub oscillator — matches the live engine loop (low-end body).
       osc(ctx, target, {
-        type: 'sine', freq: base * 0.5, dur: d, vol: v(lvl * 0.5), at, attack: 0.1, sustain: true, release: 0.08,
+        type: 'sine', freq: rpm * 0.5, dur: d, vol: v(lvl * 0.5), at, attack: 0.1, sustain: true, release: 0.08,
       });
       noise(ctx, target, { dur: d, vol: v(lvl * 0.1), at, filterType: 'bandpass', freq: cut * 0.6, q: 0.5, attack: 0.1, sustain: true, release: 0.08 });
       break;
@@ -507,6 +554,49 @@ export function renderSfx(ctx, out, name, opts = {}) {
       break;
     }
 
+    case 'finalLap': {
+      // Dedicated FINAL LAP jingle (audit r2): was reusing posUp — the
+      // overtake blip — so the last lap sounded like any other position
+      // change. This is a short urgent fanfare: staccato horn triple
+      // E5-G5-C6, held C6, sparkle on top. Distinct from 'lap' (chime
+      // run) and 'finish' (longer horn fanfare).
+      horn(ctx, target, at, 659.25 * rate, 0.16, v(0.3));
+      horn(ctx, target, at + 0.13, 783.99 * rate, 0.16, v(0.3));
+      horn(ctx, target, at + 0.26, 1046.5 * rate, 0.42, v(0.34));
+      chime(ctx, target, { freq: 1318.51 * rate, dur: 0.6, vol: v(0.2), at: at + 0.34, partials: [1, 2, 3, 4] });
+      noise(ctx, target, { dur: 0.35, vol: v(0.06), at: at + 0.3, filterType: 'highpass', freq: 7500, timeConstant: 0.12 });
+      break;
+    }
+
+    case 'cheer': {
+      // Crowd cheer burst (audit r2): swelling bandpass-noise roar plus a
+      // few rising triangle "woo" voices. `intensity` (0..1) scales
+      // loudness/length — small on overtakes, big on the finish line.
+      const inten = clamp(opts.intensity ?? 0.5, 0.05, 1);
+      const d = 0.5 + inten * 0.9;
+      noise(ctx, target, {
+        dur: d, vol: v(0.1 + inten * 0.3), at, filterType: 'bandpass',
+        freq: 450 + inten * 250, q: 0.7, glideTo: 900 + inten * 500,
+        attack: 0.08, sustain: true, release: 0.15,
+      });
+      noise(ctx, target, {
+        dur: d * 0.8, vol: v(0.04 + inten * 0.12), at: at + 0.03,
+        filterType: 'bandpass', freq: 1800, q: 2, attack: 0.1, sustain: true, release: 0.1,
+      });
+      const wooCount = 2 + Math.round(inten * 3);
+      let wt = at + 0.05;
+      for (let i = 0; i < wooCount; i++) {
+        const f = (420 + i * 55) * rate; // deterministic voice ladder
+        osc(ctx, target, {
+          type: 'triangle', freq: f, glideTo: f * 1.12, dur: 0.3 + inten * 0.2,
+          vol: v(0.05 + inten * 0.1), at: wt, attack: 0.08, sustain: true, release: 0.1,
+          filterType: 'lowpass', filterFreq: 1400, lfoFreq: 6, lfoDepth: f * 0.02,
+        });
+        wt += 0.09;
+      }
+      break;
+    }
+
     case 'finish': {
       // Fanfare arpeggio + held top note.
       const notes = [N.C5, N.E5, N.G5, N.C6, N.E6];
@@ -573,11 +663,13 @@ export function renderSfx(ctx, out, name, opts = {}) {
 
     default: {
       // Unknown name: warn (recipes stay pure) and play a quiet tick
-      // so callers always hear feedback.
+      // so callers always hear feedback. USER FIX (audit r2): triangle
+      // instead of the old raw square — the fallback was the last '8-bit'
+      // square left in the SFX set.
       if (typeof console !== 'undefined' && console.warn) {
         console.warn(`[sfx] Unknown SFX name: "${name}"`);
       }
-      osc(ctx, target, { type: 'square', freq: 1000 * rate, dur: 0.04, vol: v(0.1), at, attack: 0.002 });
+      osc(ctx, target, { type: 'triangle', freq: 1000 * rate, dur: 0.04, vol: v(0.1), at, attack: 0.002 });
       break;
     }
   }

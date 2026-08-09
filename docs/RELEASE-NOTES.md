@@ -3,7 +3,28 @@
 **Date:** 2026-08-09 · **Status:** 🚀 v0.2.0-draft (AAA visual/audio pass)
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
-## v0.2.0-draft — the AAA pass (2026-08-09)
+### Round 3 — AAA polish loop (auditor-driven, 2026-08-09)
+- **Forest instancing fixed**: trees were piled at world origin (matrices
+  written into dead meshes) — the visible blob is gone.
+- **AI no longer trains**: lane offsets seeded from roster index (golden-ratio
+  spread) instead of a zeroed position; leaders cap their speed at 1.0×.
+- **Shadow camera follows the player** (±28m tight frustum, ~2.7cm texels)
+  instead of one ±90m frustum over the loop (blurry blob shadows).
+- **Asphalt specular**: racing-line overlay is now MeshPhysicalMaterial
+  (clearcoat 0.35, envMapIntensity 1.1) — polished-rubber sheen, not flat
+  matte; leftover MeshToonMaterial (water/pond/billboard) → PBR Standard.
+- **Drift tiers + auto mini-turbo** (MK8D cadence): spark/beep at 0.33/0.66,
+  full-charge auto-release after a grace window.
+- **Kart contact physics**: lateral closing speed → spin-out + collision SFX +
+  camera shake; positional snap clamped (no teleporting).
+- **AI items target the nearest rival ahead** (not always the player).
+- **Camera swing**: lateral offset ∝ steer while drifting, distance ∝ speed,
+  kick on mini-boost.
+- **Positional audio**: AI engine loops panned/spaced from the camera bearing;
+  crowd ambience wash + cheer bursts; engine gear map with upshift drops;
+  final-lap jingle + triangle fallback (no 8-bit leakage).
+- **Pause UX**: Restart / Sound / Menu buttons in the pause overlay (touch
+  players can leave mid-race); restart hygiene clears trick/draft state.
 
 ### Gameplay round-2 (auditor-driven)
 - **Trick ramps now actually launch the kart** — unit test proved the launch

@@ -16,6 +16,16 @@ import { rollPowerUpType, useItem as applyItemEffect } from '../entities/PowerUp
 const COUNTDOWN_SECONDS = CONFIG.game.countdownMs[0] || 3;
 const FINISH_SCORE_BASE = 1e9;
 
+// ---- Kart-contact physics (audit r2) --------------------------------------
+const CONTACT_R = 1.55;
+const CONTACT_R2 = CONTACT_R * CONTACT_R;
+const CONTACT_SNAP_MAX = 0.42;     // max positional correction/frame (no teleport)
+const CONTACT_SPIN_LAT_MIN = 7.0;  // m/s lateral closing speed to trigger a spin-out
+const CONTACT_SPIN_MS = 550;       // rammer spin duration (mild side-swipe)
+const CONTACT_SPIN_MS_MAX = 950;   // rammer spin duration (severe T-bone)
+const CONTACT_RAM_COOLDOWN = 1.1;  // s per kart between spin triggers
+const CONTACT_SFX_COOLDOWN = 0.22; // s between crash SFX (pack collisions)
+
 export class RaceManager {
   constructor(scene, camera) {
     this.scene = scene;
@@ -154,7 +164,7 @@ export class RaceManager {
     const ctx = { track: this.track, raceManager: this, particles: this.particles };
     for (const kart of this.karts) kart.update?.(dt, ctx);
     for (const ctrl of this.aiControllers) ctrl.update(dt);
-    this._resolveKartCollisions();
+    this._resolveKartCollisions(dt);
 
     if (this.phase === 'race') {
       this._updateStandings();
@@ -170,44 +180,105 @@ export class RaceManager {
    *  as hard as the rear-ender, and finished/cruising karts were rammed like
    *  targets. Now the impulse scales with the relative speed along the
    *  contact normal (the rear-ender loses more speed), and finished karts
-   *  are only separated, never accelerated. */
-  _resolveKartCollisions() {
+   *  are only separated, never accelerated.
+   *  AUDIT r2: the positional snap is clamped so karts never visibly
+   *  teleport, and side-swipe / T-bone contacts spin out the RAMMER. */
+  _resolveKartCollisions(dt = 0.016) {
     const karts = this.karts;
-    const R = 1.55;
-    const R2 = R * R;
     for (let i = 0; i < karts.length; i++) {
       const a = karts[i];
       if (!a.state) continue;
+      const ac = a._ramCooldown || 0;
+      if (ac > 0) a._ramCooldown = Math.max(0, ac - dt);
       for (let j = i + 1; j < karts.length; j++) {
         const b = karts[j];
         if (!b.state) continue;
+        const bc = b._ramCooldown || 0;
+        if (bc > 0) b._ramCooldown = Math.max(0, bc - dt);
         const dx = b.state.position.x - a.state.position.x;
         const dz = b.state.position.z - a.state.position.z;
         const d2 = dx * dx + dz * dz;
-        if (d2 < R2 && d2 > 0.0001) {
-          const d = Math.sqrt(d2);
-          const overlap = (R - d) / 2;
-          const nx = dx / d;
-          const nz = dz / d;
-          // Speed-aware: how fast is B approaching A along the contact normal?
-          // Positive = B is closing on A (rear-ender). Scale the positional
-          // shove and speed penalty by that closing speed.
-          const relSpeed = (b.state.speed || 0) - (a.state.speed || 0);
-          const closing = Math.max(0, Math.abs(relSpeed) * 0.35);
-          const pushA = overlap + closing * 0.02;
-          const pushB = overlap - closing * 0.01;
-          a.state.position.x -= nx * pushA;
-          a.state.position.z -= nz * pushA;
-          b.state.position.x += nx * pushB;
-          b.state.position.z += nz * pushB;
-          // Finished karts are obstacles, not pinballs: never accelerate them.
-          if (!a.finished) a.nudge?.({ x: -nx, y: 0, z: -nz });
-          if (!b.finished) b.nudge?.({ x: nx, y: 0, z: nz });
-          // Rear-ender pays a small speed penalty for the shove.
-          if (relSpeed > 1 && !b.finished) b.state.speed *= 0.985;
-        }
+        if (d2 >= CONTACT_R2 || d2 <= 0.0001) continue;
+        const d = Math.sqrt(d2);
+        const overlap = (CONTACT_R - d) / 2;
+        const nx = dx / d;
+        const nz = dz / d;
+        // Speed-aware: how fast is B approaching A along the contact normal?
+        // Positive = B is closing on A (rear-ender). Scale the positional
+        // shove and speed penalty by that closing speed — clamped so even a
+        // hard 64 m/s hit can't snap karts across the track in one frame.
+        const relSpeed = (b.state.speed || 0) - (a.state.speed || 0);
+        const closing = Math.max(0, Math.abs(relSpeed) * 0.35);
+        const rawA = overlap + closing * 0.02;
+        const rawB = overlap - closing * 0.01;
+        const pushA = Math.max(-CONTACT_SNAP_MAX, Math.min(CONTACT_SNAP_MAX, rawA));
+        const pushB = Math.max(-CONTACT_SNAP_MAX, Math.min(CONTACT_SNAP_MAX, rawB));
+        a.state.position.x -= nx * pushA;
+        a.state.position.z -= nz * pushA;
+        b.state.position.x += nx * pushB;
+        b.state.position.z += nz * pushB;
+        // Finished karts are obstacles, not pinballs: never accelerate them.
+        if (!a.finished) a.nudge?.({ x: -nx, y: 0, z: -nz });
+        if (!b.finished) b.nudge?.({ x: nx, y: 0, z: nz });
+        // Rear-ender pays a small speed penalty for the shove.
+        if (relSpeed > 1 && !b.finished) b.state.speed *= 0.985;
+        // Lateral-shear contact (audit r2): side-swipes and T-bones spin out
+        // the rammer; rear-ends have ~zero lateral component and stay gentle
+        // shoves.
+        this._resolveContactSpin(a, b, nx, nz);
       }
     }
+  }
+
+  /** Side-swipe / T-bone spin-out (audit r2). The lateral closing speed is
+   *  the relative velocity PERPENDICULAR to the contact normal — ~0 for
+   *  rear-ends, large for rams. Above the threshold, the kart moving most
+   *  laterally across the contact (the rammer) gets a brief spin-out via the
+   *  kart's existing _spinMs timer (KartPhysics spins s.heading + decays
+   *  speed while it runs; AIController releases controls during it). */
+  _resolveContactSpin(a, b, nx, nz) {
+    const ha = a.state.heading || 0;
+    const hb = b.state.heading || 0;
+    const vaX = Math.sin(ha) * (a.state.speed || 0);
+    const vaZ = Math.cos(ha) * (a.state.speed || 0);
+    const vbX = Math.sin(hb) * (b.state.speed || 0);
+    const vbZ = Math.cos(hb) * (b.state.speed || 0);
+    const relX = vbX - vaX;
+    const relZ = vbZ - vaZ;
+    // |relV × n| (2D) — the lateral component of the relative velocity.
+    const latClose = Math.abs(relX * nz - relZ * nx);
+    if (latClose < CONTACT_SPIN_LAT_MIN) return;
+    // Rammer = the kart whose own motion is most lateral to the contact.
+    const latA = Math.abs(vaX * nz - vaZ * nx);
+    const latB = Math.abs(vbX * nz - vbZ * nx);
+    const rammer = latB > latA ? b : a;
+    if (rammer.finished || rammer.invincible || rammer.starred) return;
+    if ((rammer._ramCooldown || 0) > 0) return;
+    rammer._ramCooldown = CONTACT_RAM_COOLDOWN;
+    const severity = Math.min(1, (latClose - CONTACT_SPIN_LAT_MIN) / 18);
+    const spinMs = Math.round(CONTACT_SPIN_MS + (CONTACT_SPIN_MS_MAX - CONTACT_SPIN_MS) * severity);
+    if (typeof rammer._spinMs === 'number') {
+      rammer._spinMs = Math.max(rammer._spinMs || 0, spinMs);
+      rammer._spinDir = Math.random() < 0.5 ? -1 : 1;
+    } else {
+      rammer.state.spinOut = true; // duck-typed fallback
+    }
+    this._playContactSfx(a, b, latClose);
+    // Small camera shake — only when the player is part of the hit.
+    if ((a === this.player || b === this.player) && typeof window !== 'undefined' && window.__sk3d?.addShake) {
+      window.__sk3d.addShake(Math.min(0.55, 0.18 + severity * 0.3), 0.35);
+    }
+  }
+
+  /** Impact SFX ('crash') with world-X pan + volume scaled by lateral speed. */
+  _playContactSfx(a, b, latClose) {
+    if (!this.audio?.play) return;
+    if (this._lastCrashSfx !== undefined && this.elapsed - this._lastCrashSfx < CONTACT_SFX_COOLDOWN) return;
+    this._lastCrashSfx = this.elapsed;
+    const midX = (a.state.position.x + b.state.position.x) / 2;
+    const pan = (midX - (this.player?.state?.position.x ?? midX)) * 0.04;
+    const vol = Math.min(0.85, 0.35 + (latClose / 30) * 0.5);
+    this.audio.play('crash', { volume: vol, pan: Math.max(-0.9, Math.min(0.9, pan)) });
   }
 
   /** Advance projectiles/effects; sweep dead ones out of the scene. */
@@ -320,11 +391,12 @@ export class RaceManager {
   }
 
   /** Central item-usage entry point — builds the ctx for PowerUp.useItem.
-   *  AI passes the player as the preferred homing target; the player passes
-   *  none (PowerUp then picks the nearest rival ahead). */
+   *  AI shells/red shells target the nearest rival AHEAD of the shooter
+   *  (standings-based, not always the player — audit r2); the player passes
+   *  none (PowerUp then picks the nearest rival ahead itself). */
   useItem(kart) {
     if (!kart || !kart.heldItem) return;
-    const targetKart = kart === this.player ? null : this.player;
+    const targetKart = kart === this.player ? null : this._pickRivalAhead(kart);
     applyItemEffect(kart, {
       scene: this.scene,
       karts: this.karts,
@@ -333,6 +405,28 @@ export class RaceManager {
       particles: this.particles,
       targetKart,
     });
+  }
+
+  /** Nearest rival AHEAD of the shooter by race standings (position 1 =
+   *  leader; getStandings() rows before the shooter are all ahead). Returns
+   *  null when nobody is ahead (leader / unknown kart). */
+  _pickRivalAhead(shooter) {
+    const rows = this.getStandings();
+    let myIdx = -1;
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i].kart === shooter) { myIdx = i; break; }
+    }
+    if (myIdx <= 0) return null;
+    const myScore = rows[myIdx].lap * 1000 + rows[myIdx].progress01;
+    let best = null;
+    let bestDiff = Infinity;
+    for (let i = 0; i < myIdx; i++) {
+      const r = rows[i];
+      if (r.finished) continue;
+      const diff = r.lap * 1000 + r.progress01 - myScore;
+      if (diff > 0 && diff < bestDiff) { bestDiff = diff; best = r.kart; }
+    }
+    return best;
   }
 
   // -------------------------------------------------------------------------

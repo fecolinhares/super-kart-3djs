@@ -166,7 +166,11 @@ export class AIController {
       // Real comeback: throttle alone can't raise TOP SPEED (physics caps at
       // maxSpeed/boostSpeed), so behind-AIs also get a cruiseSpeed override.
       // The driver's speed stat scales the whole cruise envelope (F2 curve).
-      const statScale = 0.95 + (this.stats?.speed || 7) / 10 * 0.1;
+      // AUDIT r2: when the AI is AHEAD the statScale caps at 1.0 — leading
+      // rivals used to out-pace the player without items (feels unfair).
+      const statScale = d > 0.03
+        ? 0.95 + (this.stats?.speed || 7) / 10 * 0.1
+        : Math.min(1.0, 0.95 + (this.stats?.speed || 7) / 10 * 0.1);
       if (d > 0.03) {
         const boost = Math.min(0.12, d * 0.3); // audit v4: capped +12% (was +22% — felt like cheating)
         kart.cruiseSpeed = CONFIG.physics.maxSpeed * (1 + boost) * statScale;

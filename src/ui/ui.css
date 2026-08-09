@@ -956,6 +956,41 @@
   letter-spacing: 0.06em;
 }
 
+.sk3d-pause-title {
+  font-size: 3rem;
+}
+
+.sk3d-pause-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.sk3d-pause-actions .sk3d-btn {
+  min-height: 48px; /* mobile touch target ≥44px */
+  padding: 10px 18px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--sk3d-cream, #f6ecd9);
+  background: rgba(27, 42, 65, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--sk3d-font);
+  transition: transform 0.08s ease, background 0.15s ease;
+}
+
+.sk3d-pause-actions .sk3d-btn:hover {
+  background: rgba(43, 62, 92, 0.95);
+  transform: translateY(-1px);
+}
+
+.sk3d-pause-actions .sk3d-btn:active {
+  transform: scale(0.96);
+}
+
 .sk3d-touch-pause {
   position: absolute;
   top: 84px; /* below the position/lap chips row (was 12px — overlapped them) */

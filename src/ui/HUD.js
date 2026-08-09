@@ -115,7 +115,15 @@ export class HUD {
       <div class="sk3d-hitflash sk3d-hidden" aria-hidden="true"></div>
       <div class="sk3d-draft sk3d-hidden">DRAFT</div>
       <div class="sk3d-countdown sk3d-hidden">3</div>
-      <div class="sk3d-pause sk3d-hidden">⏸ PAUSED<div class="sk3d-pause-hint">Press P / tap to resume</div></div>
+      <div class="sk3d-pause sk3d-hidden">
+        <div class="sk3d-pause-title">⏸ PAUSED</div>
+        <div class="sk3d-pause-hint">Press P / tap to resume</div>
+        <div class="sk3d-pause-actions">
+          <button type="button" class="sk3d-btn sk3d-pause-restart">↻ Restart</button>
+          <button type="button" class="sk3d-btn sk3d-pause-sound">🔊 Sound</button>
+          <button type="button" class="sk3d-btn sk3d-pause-menu">⌂ Menu</button>
+        </div>
+      </div>
       <div class="sk3d-finish sk3d-hidden">
         <div class="sk3d-finish-card">
           <div class="sk3d-finish-trophy" aria-hidden="true">🏆</div>
@@ -163,6 +171,14 @@ export class HUD {
     this.finishBtnEl.addEventListener('click', () => window.__sk3d?.restartRace?.());
     this.menuBtnEl = this.root.querySelector('.sk3d-menu-btn');
     this.menuBtnEl.addEventListener('click', () => window.__sk3d?.gotoMenu?.());
+    // Pause overlay actions (AUDIT r2: pause was a touch dead-end — only
+    // 'tap to resume'; touch players couldn't restart/quit mid-race).
+    const pr = this.root.querySelector('.sk3d-pause-restart');
+    if (pr) pr.addEventListener('click', () => window.__sk3d?.restartRace?.());
+    const ps = this.root.querySelector('.sk3d-pause-sound');
+    if (ps) ps.addEventListener('click', () => window.__sk3d?.audio?.toggleMute?.());
+    const pm = this.root.querySelector('.sk3d-pause-menu');
+    if (pm) pm.addEventListener('click', () => window.__sk3d?.gotoMenu?.());
     this.finishTimeEl = this.root.querySelector('.sk3d-finish-time');
     this.toastEl = this.root.querySelector('.sk3d-toast');
     this.toastEl.setAttribute('aria-live', 'polite'); // toast only (root was too chatty)

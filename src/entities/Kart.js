@@ -841,6 +841,12 @@ export class Kart {
     this._scaleMs = 0;
     this._scaleTarget = 1;
     this._latVel = 0;
+    // AUDIT r2: stale trick/slipstream state leaked into the fresh race —
+    // an armed trick or drafting slingshot fired right after GO.
+    this._wasDrafting = false;
+    this._airTime = 0;
+    this._trickArmed = false;
+    this._prevY = 0;
     this._nudgeVel.set(0, 0, 0);
     this._lastProgress = 0; // avoids a phantom lap on restart
     this._controls = { steer: 0, throttle: false, brake: false, drift: false, useItem: false };

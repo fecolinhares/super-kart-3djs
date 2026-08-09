@@ -220,6 +220,22 @@ function wireMiniBoost(kart) {
       });
     }
   };
+  kart._onDriftTier = (tier = 1) => {
+    // Drift charge tier cue (audit r2): beep + small spark burst at 0.33/0.66
+    // (tier 1 = white→yellow tick, tier 2 = yellow→orange blip; the HUD's
+    // driftReady chime covers the 0.75 release flash for the player).
+    const v = kart.isPlayer ? 0.5 : 0.26;
+    audio.play(tier === 1 ? 'uiClick' : 'posUp', {
+      volume: v,
+      pan: (kart.group.position.x - playerKart.group.position.x) * 0.02,
+    });
+    if (particles) {
+      particles.emit('sparkle', kart.state.position.clone().add(new THREE.Vector3(0, 0.6, 0)), {
+        count: tier === 1 ? 6 : 10, speed: 3.2, size: 0.18,
+        spread: 1.0, color: tier === 1 ? 0x9adcff : 0xffd166,
+      });
+    }
+  };
 }
 
 function buildKarts() {
@@ -474,6 +490,13 @@ const _pos2 = new THREE.Vector3(); // skid-mark scratch
 let baseFov = CONFIG.camera.fov;
 let shakeTimer = 0;
 let shakeMag = 0;
+// Camera feel (audit r2): drift swing, speed pull-back, mini-boost kick.
+const CAM_DRIFT_SWING = 1.7;     // lateral offset ∝ steer while drifting
+const CAM_SPEED_PULLBACK = 0.35; // follow distance scales with speed01
+const CAM_BOOST_KICK = 0.9;      // extra pull-back on boost start
+let camSwing = 0;                // smoothed lateral camera swing
+let camBoostKick = 0;            // decaying boost kick
+let camWasBoost = false;         // boost rising-edge detect
 
 /** Wavy fabric animation for the finish-line banner (segmented plane). */
 function waveBanner(t) {
@@ -539,21 +562,36 @@ function updateCamera(dt, t) {
   _fwd.set(0, 0, 1).applyQuaternion(group.quaternion);
   _side.set(_fwd.z, 0, -_fwd.x);
 
+  const speed01 = Math.min(1, Math.abs(st.speed) / CONFIG.physics.maxSpeed);
+
+  // Camera feel (audit r2): lateral swing ∝ steer while drifting (smoothed
+  // so entry/exit doesn't snap), follow distance ∝ speed, and a decaying
+  // kick on boost start (mini-boost auto-fire / mushroom / rocket start).
+  const steer = k.input && typeof k.input.steer === 'number' ? k.input.steer : 0;
+  const swingTarget = st.drifting ? steer * CAM_DRIFT_SWING : 0;
+  camSwing += (swingTarget - camSwing) * Math.min(1, 6 * dt);
+  if (st.boost && !camWasBoost) camBoostKick = 1;
+  camWasBoost = !!st.boost;
+  camBoostKick *= Math.exp(-5.5 * dt);
+  const dist =
+    CONFIG.camera.followDistance * (1 + speed01 * CAM_SPEED_PULLBACK) +
+    camBoostKick * CAM_BOOST_KICK;
+
   camTarget.copy(st.position).addScaledVector(_fwd, CONFIG.camera.lookAhead);
   camTarget.y += CONFIG.camera.lookHeight;
 
   _camDesired.copy(st.position)
-    .addScaledVector(_fwd, -CONFIG.camera.followDistance)
-    .addScaledVector(_side, 0);
-  _camDesired.y += CONFIG.camera.followHeight;
+    .addScaledVector(_fwd, -dist)
+    .addScaledVector(_side, camSwing);
+  _camDesired.y += CONFIG.camera.followHeight + camBoostKick * 0.4;
 
   const lerp = 1 - Math.exp(-CONFIG.camera.lerp * dt);
   camPos.lerp(_camDesired, lerp);
   camera.position.copy(camPos);
 
-  const speed01 = Math.min(1, Math.abs(st.speed) / CONFIG.physics.maxSpeed);
-  // Speed FOV: wider at high speed + extra punch on boost (arcade feel).
-  const targetFov = baseFov + (st.boost > 0 ? 6 : 0) + speed01 * 5;
+  // Speed FOV: wider at high speed + extra punch on boost (arcade feel);
+  // the decaying camBoostKick adds a short FOV punch on mini-boost.
+  const targetFov = baseFov + (st.boost > 0 ? 6 : 0) + speed01 * 5 + camBoostKick * 3.5;
   camera.fov += (targetFov - camera.fov) * Math.min(1, dt * 6);
   camera.updateProjectionMatrix();
 

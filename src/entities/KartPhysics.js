@@ -111,13 +111,51 @@ function approach(cur, target, step) {
   return Math.max(cur - step, target);
 }
 
+// Drift auto-fire tiers (audit r2 — MK8D cadence): charge beeps at 0.33/0.66;
+// holding at full charge for the grace window AUTO-RELEASES a full mini-boost
+// without manual release (re-holding chains the next drift).
+const DRIFT_TIER_1 = 0.33;
+const DRIFT_TIER_2 = 0.66;
+const DRIFT_AUTO_FIRE_GRACE = 0.5; // seconds at full charge before auto-fire
+const DRIFT_AUTO_BOOST_MS = 750;   // auto-fire boost (matches full-charge manual)
+
 function updateDrift(kart, input, dt, speedAbs) {
   const s = kart.state;
   const P = CONFIG.physics;
   const can = speedAbs >= P.driftMinSpeed && !s.spinOut;
   if (input.drift && can) {
-    if (!s.drifting) { s.drifting = true; s.driftCharge = 0; }
+    if (!s.drifting) {
+      s.drifting = true;
+      s.driftCharge = 0;
+      kart._driftFullT = 0;
+      kart._driftTier1 = false;
+      kart._driftTier2 = false;
+    }
     s.driftCharge = Math.min(1, s.driftCharge + P.driftChargeRate * dt * (1 + Math.abs(input.steer) * 0.6));
+    // Charge tiers (audit r2): one-shot spark + beep cue at 0.33 / 0.66,
+    // matching the HUD meter's white→yellow→orange steps (MK8 spark levels).
+    if (!kart._driftTier1 && s.driftCharge >= DRIFT_TIER_1) {
+      kart._driftTier1 = true;
+      kart._onDriftTier?.(1);
+    } else if (kart._driftTier1 && !kart._driftTier2 && s.driftCharge >= DRIFT_TIER_2) {
+      kart._driftTier2 = true;
+      kart._onDriftTier?.(2);
+    }
+    // Full charge: short grace window, then AUTO-RELEASE a full mini-boost
+    // without manual release (MK8D: holding past the top fires the turbo for
+    // you; still holding re-enters the drift and chains).
+    if (s.driftCharge >= 1) {
+      kart._driftFullT = (kart._driftFullT || 0) + dt;
+      if (kart._driftFullT >= DRIFT_AUTO_FIRE_GRACE) {
+        kart.applyBoost(DRIFT_AUTO_BOOST_MS);
+        kart._onMiniBoost?.(1); // drama hook (SFX + spark burst) wired in main.js
+        s.drifting = false;
+        s.driftCharge = 0;
+        kart._driftFullT = 0;
+        kart._driftTier1 = false;
+        kart._driftTier2 = false;
+      }
+    }
   } else if (s.drifting) {
     if (s.driftCharge >= P.driftReleaseBoost) {
       // Charge-scaled mini-boost (was a fixed 750ms): full charge = full kick,
@@ -132,6 +170,9 @@ function updateDrift(kart, input, dt, speedAbs) {
     }
     s.drifting = false;
     s.driftCharge = 0;
+    kart._driftFullT = 0;
+    kart._driftTier1 = false;
+    kart._driftTier2 = false;
   }
 }
 
