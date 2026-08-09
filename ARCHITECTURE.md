@@ -71,9 +71,14 @@ ARCHITECTURE.md, DESIGN.md live at the repo root (same layout as Match-3D.js).
 
 ### RaceManager
 - `new RaceManager(scene, camera)`
-- `init({ track, playerKart, aiKarts, itemBoxes, audio })`
+- `init({ track, playerKart, aiKarts, itemBoxes, audio, particles })`
 - `start()`, `restart()`, `update(dt)`
 - `getStandings()` → `[{ kart, position, lap, progress01, finished }]` sorted by race progress.
+- **`aiControllers` is the single source of truth for AI drivers** (created in
+  `init()`, updated in `update()`). main.js must NOT keep its own controller
+  array — the finish-cruise controller (player kart after the line) is pushed
+  here and `restart()` drops it (`filter(c => c.kart !== player || _playerAI)`),
+  which is what guarantees the player regains control on `Race Again`/`R`.
 - `onPlayerFinish(place, totalTime)` — called once when player crosses the finish line.
 - Exposes `player`, `karts`, `track`, `elapsed`, `raceOver`.
 
@@ -106,6 +111,10 @@ ARCHITECTURE.md, DESIGN.md live at the repo root (same layout as Match-3D.js).
   Arcade model: steer-rate scales with speed, drift with charge → mini-boost,
   off-road slowdown, wall bounce at track edges, gravity on ramps, squash &
   stretch on accel/boost.
+- **Trick ramps**: the kart's ground height interpolates the ramp wedge slope
+  (via `track.ramps[].length/height` + `point/dir`), so it CLIMBS the ramp
+  visually; the launch fires near the top (`vY=6.5`, position anchored past the
+  airborne threshold) into a ~0.4s arc — the mid-air trick + landing boost.
 
 ### AIController
 - `new AIController(kart, track, raceManager)`

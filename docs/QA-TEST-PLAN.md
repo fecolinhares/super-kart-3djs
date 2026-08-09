@@ -21,12 +21,19 @@ audio lifecycle, HUD, mobile basics, performance budget.
 | T07 | Audio | UI sounds on menu; off-road rumble; mini-boost SFX on drift release | code audit + manual | ✅ PASS |
 | T08 | Mobile | Touch buttons (LEFT/RIGHT/ITEM) via pointer capture; AudioContext resumes on first gesture; menu has solid fallback (no backdrop-filter dependency) | code audit | ✅ PASS |
 | T09 | Performance | Build < 200 draw calls (instanced), 60fps desktop, ≤33ms mobile | code audit + profiler | ⚠️ TBD manual |
+| T10 | Restart control | Finish-cruise AIController REMOVED on restart (player regains input — the "game drives the car" bug) | `sk3d-restart-sig-test.cjs` (playerAIControlled false→true→false) | ✅ PASS |
+| T11 | Trick ramp | Kart CLIMBS the wedge and launches airborne (vY>1, airTime>0.15) | `sk3d-ramp-unit-test.cjs` (physics unit test) | ✅ PASS |
+| T12 | Smoke | Boot → race state, 6 karts, no errors (robust, waits for race) | `sk3d-smoke-robust.cjs` | ✅ PASS |
 
 ## 3. Regression notes (this release)
 - `Kart.restart()` now uses the SAVED startPosition — restart actually resets (bug fixed).
 - Item toast keys are lowercase (PowerUpType VALUES) — slot + toast icons finally match.
 - Finish cruise mode replaces the engine screech (AI drives player, music swells).
 - `?test` / `__freezeCam` QA hooks are stable; vision critic re-scores HUD 7.5/10, banner 8/10.
+- v0.2.0: `raceManager.aiControllers` is the single source of truth (no duplicate
+  array in main.js); `restart()` drops the player's cruise controller itself.
+- v0.2.0: ramp launch anchors past the airborne threshold — the trick was silently
+  dead before (unit test caught it); karts now climb + launch.
 
 ## 4. Known issues (accepted for v0.1.0)
 - Software-GL headless is ~1-5 fps — QA requires `?test` (documented, by design).
