@@ -613,6 +613,15 @@
   100% { transform: scale(1); }
 }
 
+.sk3d-drift-ready {
+  animation: sk3d-driftready 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes sk3d-driftready {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
+
 /* --- item slot --- */
 
 .sk3d-item-slot {

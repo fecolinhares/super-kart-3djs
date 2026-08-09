@@ -651,9 +651,17 @@ export class HUD {
     this.driftMeterEl.classList.remove('sk3d-hidden');
     const pct = Math.max(0, Math.min(1, charge || 0));
     this.driftFillEl.style.width = `${Math.round(pct * 100)}%`;
+    const ready = pct >= 0.75; // mini-boost release threshold (audit v4 F9:
+    // the 3px tick was illegible — the whole meter flashes when ready)
     const color = pct < 0.33 ? '#ffffff' : pct < 0.66 ? '#ffd166' : '#ff9f45';
-    this.driftFillEl.style.background = color;
-    this.driftFillEl.style.boxShadow = `0 0 8px ${color}`;
+    this.driftFillEl.style.background = ready ? '#ffd166' : color;
+    this.driftFillEl.style.boxShadow = ready ? '0 0 14px #ffd166, 0 0 26px #ff9f45' : `0 0 8px ${color}`;
+    this.driftMeterEl.classList.toggle('sk3d-drift-ready', ready);
+    if (ready && !this._driftReadyWas) {
+      this._driftReadyWas = true;
+      this._onDriftReady?.(); // beep when the release point is reached
+    }
+    if (!ready) this._driftReadyWas = false;
   }
 
   /** Toggle the pause overlay. */

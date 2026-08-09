@@ -87,6 +87,10 @@ hud._onPositionChange = (dir) => {
   // Overtake/loss feedback (audit UX-v3 F2): subtle blips, player only.
   audio.play(dir === 'up' ? 'posUp' : 'posDown', { volume: 0.5 });
 };
+hud._onDriftReady = () => {
+  // Beep the instant the drift charge hits the release point (audit v4 F9).
+  audio.play('posUp', { volume: 0.45 });
+};
 const menu = new Menu({
   onStart: startRace,
   onColor: setPlayerColor,
@@ -335,6 +339,14 @@ function startRace() {
     audio,
     particles,
   });
+  // Onboarding tip (audit v4 F10): teach the drift-boost loop once per session.
+  if (!window.__sk3dDriftTipShown) {
+    window.__sk3dDriftTipShown = true;
+    const tip = isTouchMode()
+      ? 'Hold DRIFT — release when it flashes for a boost!'
+      : 'Hold Shift to drift — release at the flash for a boost!';
+    hud.toast(tip, 4200);
+  }
   raceManager.onPlayerFinish = (place, time) => {
     hud.showFinish(place, time);
     // Celebration burst as the player crosses the line (art-bible: reward juice).
