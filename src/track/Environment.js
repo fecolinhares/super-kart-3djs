@@ -1630,6 +1630,47 @@ export class Environment {
         pennantPivot.position.set(ccx, gy + 5.7 + 1.7, ccz);
         castle.add(pennantPivot);
         this.flagMeshes.push(pennantPivot); // update() waves the pennant
+        // AUDIT r6: the keep read as a gazebo — scale the mass up and add a
+        // battlement ring so the silhouette says CASTLE at race distance.
+        castle.scale.setScalar(1.5);
+        const wallMat = toonMaterial(0xc9b38f, {});
+        const merlonMat = toonMaterial(0xb3a17e, {});
+        const WALL_R = 5.2;
+        const wallH = 1.5;
+        for (let w = 0; w < 8; w++) {
+          const wa = (w / 8) * Math.PI * 2 + Math.PI / 8;
+          const wx = ccx + Math.cos(wa) * WALL_R;
+          const wz = ccz + Math.sin(wa) * WALL_R;
+          const wall = new THREE.Mesh(new THREE.BoxGeometry(3.1, wallH, 0.42), wallMat);
+          wall.position.set(wx, gy + 0.6 + wallH / 2, wz);
+          wall.rotation.y = -wa + Math.PI / 2;
+          wall.castShadow = true;
+          castle.add(wall);
+          for (let m = -1; m <= 1; m++) {
+            const merlon = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.5, 0.5), merlonMat);
+            merlon.position.set(
+              wx + Math.cos(wa) * 0 + Math.sin(wa) * (m * 1.15),
+              gy + 0.6 + wallH + 0.25,
+              wz + Math.cos(wa) * (m * 1.15) * -1 + Math.sin(wa) * 0
+            );
+            // orient merlon along the wall tangent
+            merlon.rotation.y = -wa + Math.PI / 2;
+            merlon.castShadow = true;
+            castle.add(merlon);
+          }
+        }
+        // 4 turret pennants — little red flags on the corner turrets
+        const turretPennantMat = toonMaterial(0xe2504f, {});
+        for (let i = 0; i < 4; i++) {
+          const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+          const tx = ccx + Math.cos(a) * 1.9;
+          const tz = ccz + Math.sin(a) * 1.9;
+          const tp = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.5, 3), turretPennantMat);
+          tp.rotation.z = -Math.PI / 2;
+          tp.rotation.y = a;
+          tp.position.set(tx + Math.cos(a) * 0.4, gy + 0.6 + 4.35, tz + Math.sin(a) * 0.4);
+          castle.add(tp);
+        }
         scene.add(castle);
       }
     }
