@@ -329,8 +329,11 @@ export class Environment {
     });
     for (const band of bands) {
       const group = new THREE.Group();
-      const rockMat = toonMaterial(band.rock, {});
-      const snowMat = toonMaterial(band.snow, { emissive: 0xffffff, emissiveIntensity: band.snowEm });
+      // DoubleSide: the ridged-cone jitter inverts some windings — with
+      // FrontSide those faces render BLACK (the critic's "black fragments
+      // around the mountains").
+      const rockMat = toonMaterial(band.rock, { side: THREE.DoubleSide });
+      const snowMat = toonMaterial(band.snow, { emissive: 0xffffff, emissiveIntensity: band.snowEm, side: THREE.DoubleSide });
       for (let i = 0; i < band.count; i++) {
         const rand = rnd(band.seed * 1000 + i);
         const a = (i / band.count) * Math.PI * 2 + (band.radius > 250 ? 0.6 : 0.2);
