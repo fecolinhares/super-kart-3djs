@@ -69,6 +69,17 @@ export class RaceManager {
       console.warn('[RaceManager] playerKart is not a Kart instance — continuing with duck-typed API.');
     }
 
+    // AUDIT r3: leak fix — Menu→StartRace re-added boxes without removing
+    // the previous ones (scene grew unbounded). Drop the old set first.
+    if (this.itemBoxes && this.scene) {
+      for (const box of this.itemBoxes) {
+        if (box.mesh) this.scene.remove(box.mesh);
+        if (box.beam) this.scene.remove(box.beam);
+        if (box.arrows) this.scene.remove(box.arrows);
+        box.mesh?.geometry?.dispose?.();
+      }
+    }
+
     this.itemBoxes =
       itemBoxes && itemBoxes.length ? itemBoxes : track ? createItemBoxes(track) : [];
 

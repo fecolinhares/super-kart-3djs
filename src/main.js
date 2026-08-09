@@ -369,6 +369,17 @@ function setStartLights(state) {
 }
 
 function startRace() {
+  // AUDIT r3: leak fix — Menu→StartRace re-added kart groups without
+  // removing the previous ones (unbounded scene growth + draw calls).
+  // Dispose old kart groups before rebuilding.
+  if (playerKart) {
+    scene.remove(playerKart.group);
+    playerKart.group.traverse((o) => { if (o.isMesh) { o.geometry?.dispose?.(); if (o.material?.map) o.material.map.dispose(); } });
+  }
+  for (const k of aiKarts) {
+    scene.remove(k.group);
+    k.group.traverse((o) => { if (o.isMesh) { o.geometry?.dispose?.(); if (o.material?.map) o.material.map.dispose(); } });
+  }
   buildKarts();
   const boxes = createItemBoxes(track);
   raceManager.init({
@@ -737,8 +748,22 @@ loop.start((dt, t) => {
     }
     // Continuous engine loops — race AND cruise (pitch follows speed; in
     // cruise the reduced speed naturally lowers pitch + volume).
+    // AUDIT r3: positional audio was DEAD — the StereoPanner/rolloff existed
+    // but no pose was ever fed. Now every engine gets its world pose and the
+    // listener is the chase camera, so a rival ahead/behind/left/right pans.
     const pSpeed01 = Math.min(1, Math.abs(playerKart.state.speed) / CONFIG.physics.maxSpeed);
-    audio.setEngineLoop('player', pSpeed01);
+    const pPos = playerKart.state.position;
+    audio.setEngineLoop('player', pSpeed01, { x: pPos.x, z: pPos.z, heading: playerKart.state.heading });
+    audio.setListenerPose({ x: camera.position.x, y: camera.position.y, z: camera.position.z, heading: playerKart.state.heading });
+    // Crowd proximity (audit r3: grandstand boost + cheers were dead code —
+    // setCrowdProximity was never called). Proximity to the start/finish
+    // grandstand: 1 at the line, 0 beyond ~90m.
+    if (track.startLine) {
+      const gx = track.startLine.position.x;
+      const gz = track.startLine.position.z;
+      const gd = Math.hypot(pPos.x - gx, pPos.z - gz);
+      audio.setCrowdProximity(THREE.MathUtils.clamp(1 - gd / 90, 0, 1));
+    }
     // Drift tire screech (was dead code — drifting was audibly empty).
     if (playerKart.state.drifting && Math.abs(playerKart.state.speed) > 8) {
       driftScreechAcc += dt;
@@ -763,7 +788,8 @@ loop.start((dt, t) => {
     }
     for (let i = 0; i < aiKarts.length; i++) {
       const s01 = Math.min(1, Math.abs(aiKarts[i].state.speed) / CONFIG.physics.maxSpeed);
-      audio.setEngineLoop('ai' + i, s01 * 0.35); // AI engines quieter
+      const ap = aiKarts[i].state.position;
+      audio.setEngineLoop('ai' + i, s01 * 0.35, { x: ap.x, z: ap.z, heading: aiKarts[i].state.heading }); // AI engines quieter + panned
     }
     // Tire skid marks: both rears while drifting (player + AI).
     for (let i = 0; i < raceManager.karts.length; i++) {

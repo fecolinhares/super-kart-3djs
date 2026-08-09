@@ -348,16 +348,15 @@ export class Environment {
     });
     for (const band of bands) {
       const group = new THREE.Group();
-      // MeshBasicMaterial (unlit): mountains are background dressing — with
-      // PBR Standard + radial normals the faces facing away from the sun
-      // rasterized near-black (rock 0x2e3a7a × 0 light = the 'jagged black
-      // fragments' the critic kept flagging next to the gantry). MK8D draws
-      // backdrop ranges as flat painted silhouettes — flat color + haze is
-      // both stable and stylistically correct. Snow stays bright via color.
-      const rockMat = new THREE.MeshBasicMaterial({ color: band.rock });
-      const snowMat = new THREE.MeshBasicMaterial({ color: band.snow });
       for (let i = 0; i < band.count; i++) {
         const rand = rnd(band.seed * 1000 + i);
+        // AUDIT r3: per-peak tint — every peak in a band shared ONE flat
+        // color and read as a wall. Unlit stays, but each peak gets a
+        // ±3.5% lightness / ±2% hue jitter (cheap, kills monotony).
+        const rockMat = new THREE.MeshBasicMaterial({
+          color: new THREE.Color(band.rock).offsetHSL((rand() - 0.5) * 0.04, 0, (rand() - 0.5) * 0.07),
+        });
+        const snowMat = new THREE.MeshBasicMaterial({ color: band.snow });
         const a = (i / band.count) * Math.PI * 2 + (band.radius > 250 ? 0.6 : 0.2);
         const r = band.radius * (0.86 + rand() * 0.28); // more spread per band
         const h = band.baseH + rand() * band.hVar;
@@ -972,6 +971,40 @@ export class Environment {
     rocks.instanceMatrix.needsUpdate = true;
     scene.add(rocks);
 
+    // --- Mid-field ring (AUDIT r3: the 20-45m band between the trees and
+    //     the landmark ring was EMPTY — the critic's 'sparse' at chase-cam
+    //     distance). ~70 bushes/rocks/flowers seeded 25-40m, one draw call.
+    const midGeo = new THREE.SphereGeometry(0.7, 10, 8);
+    const midMat = toonMaterial(0x2f8f43, {});
+    const midSpots = [];
+    const MID_N = 70;
+    for (let c = 0; c < MID_N; c++) {
+      const mr = rnd(9000 + c);
+      const ma = (c / MID_N) * Math.PI * 2 + 0.55;
+      const mrad = 25 + mr() * 15;
+      const mx = Math.cos(ma) * mrad;
+      const mz = Math.sin(ma) * mrad;
+      if (this._onTrack(mx, mz, 14) || inWater(mx, mz, 5)) continue;
+      midSpots.push({ x: mx, z: mz, s: 0.5 + mr() * 0.8, ry: mr() * Math.PI });
+    }
+    if (midSpots.length) {
+      const mids = new THREE.InstancedMesh(midGeo, midMat, midSpots.length);
+      const col = new THREE.Color();
+      const MPAL = [0x2f8f43, 0x3faf4e, 0x6d4c41, 0x7f8c8d, 0xc9a86a];
+      midSpots.forEach((r, i) => {
+        dummy.position.set(r.x, this._gy(r.x, r.z) + 0.2 * r.s, r.z);
+        dummy.scale.setScalar(r.s);
+        dummy.rotation.set(0, r.ry, 0);
+        dummy.updateMatrix();
+        mids.setMatrixAt(i, dummy.matrix);
+        col.setHex(MPAL[i % MPAL.length]);
+        mids.setColorAt(i, col);
+      });
+      mids.instanceMatrix.needsUpdate = true;
+      if (mids.instanceColor) mids.instanceColor.needsUpdate = true;
+      scene.add(mids);
+    }
+
     // --- Bushes: clumped undergrowth (2-3 per spot) on organized ring
     //     positions — smoother 12x8 spheres, no flat facets.
     const bushGeo = new THREE.SphereGeometry(0.9, 12, 8);
@@ -1572,7 +1605,7 @@ export class Environment {
     const len = path.getLength();
     const halfW = CONFIG.track.roadWidth / 2;
     const panelTex = this._sponsorBoardTexture();
-    const panelMat = toonMaterial(0xffffff, { map: panelTex });
+    const panelMat = toonMaterial(0xffffff, { map: panelTex, roughness: 0.4, envMapIntensity: 1.0 }); // glossy plastic board
     const frameMat = toonMaterial(0x2b3242, {});
     const postMat = toonMaterial(0x8b7a5c, {});
     const n = 7;

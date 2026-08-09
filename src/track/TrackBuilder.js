@@ -174,6 +174,10 @@ function buildRoadRibbon(path, length, opts = {}) {
     transparent: opts.transparent,
     opacity: opts.opacity,
     roughness: opts.roughness,
+    // AUDIT r3: asphalt differentiation — the biggest in-frame surface was
+    // pure matte (r 0.82, env 0). Give it a subtle sky sheen so the road
+    // reads as polished tarmac, not flat gray.
+    envMapIntensity: opts.envMapIntensity ?? 1.0,
     metalness: opts.metalness,
   });
   if (opts.texture) {
@@ -494,7 +498,7 @@ function buildCurbs(path, length, side, opts = {}) {
           Math.floor(count / 2)
         ),
       ]
-    : [new THREE.InstancedMesh(geo, toonMaterial(0xffffff, { side: THREE.DoubleSide }), count)];
+    : [new THREE.InstancedMesh(geo, toonMaterial(0xffffff, { side: THREE.DoubleSide, roughness: 0.55 }), count)];
   for (const m of meshes) m.castShadow = true;
   const mesh = meshes[0]; // legacy single-mesh path
   // Worn kerb palette (classic track): 4 alternating stone colors + a

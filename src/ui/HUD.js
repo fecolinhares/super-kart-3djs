@@ -704,6 +704,13 @@ export class HUD {
   showPause(show) {
     const el = this.root.querySelector('.sk3d-pause');
     if (el) el.classList.toggle('sk3d-hidden', !show);
+    // AUDIT r3: Sound button must reflect mute state (was always '🔊').
+    if (show) {
+      const btn = this.root.querySelector('.sk3d-pause-sound');
+      if (btn && window.__sk3d?.audio) {
+        btn.textContent = window.__sk3d.audio.muted ? '🔇 Sound Off' : '🔊 Sound';
+      }
+    }
   }
 
   /** Clear all HUD state back to defaults. */

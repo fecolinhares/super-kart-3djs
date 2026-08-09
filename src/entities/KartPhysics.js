@@ -116,7 +116,8 @@ function approach(cur, target, step) {
 // without manual release (re-holding chains the next drift).
 const DRIFT_TIER_1 = 0.33;
 const DRIFT_TIER_2 = 0.66;
-const DRIFT_AUTO_FIRE_GRACE = 0.5; // seconds at full charge before auto-fire
+const DRIFT_AUTO_FIRE_GRACE = 0.7; // seconds at full charge before auto-fire
+// (audit r3: 0.5 made full-charge chains too easy; MK8D cadence ~2.6s total)
 const DRIFT_AUTO_BOOST_MS = 750;   // auto-fire boost (matches full-charge manual)
 
 function updateDrift(kart, input, dt, speedAbs) {

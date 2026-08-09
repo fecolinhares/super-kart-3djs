@@ -23,7 +23,9 @@ export const CONFIG = {
     steerSpeedLow: 3.2, // rad/s when slow
     driftSteer: 3.6,
     driftMinSpeed: 12,
-    driftChargeRate: 1.0, // 0..1 per second while drifting
+    driftChargeRate: 0.55, // 0..1 per second while drifting (audit r3: 1.0 made
+    // tier sparks hit at 0.2-0.33s and auto-fire at ~1.3s — 2× faster than
+    // MK8D's 1.1/1.7/2.2s sparks / 2.6s auto; chaining minis was free)
     driftReleaseBoost: 0.75, // mini-boost if charge >= this
     friction: 3.2,
     lateralGrip: 8.5,
