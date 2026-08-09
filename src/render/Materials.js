@@ -51,17 +51,36 @@ export function getGradientMap() {
  * opacity, side, map}) — every existing call site keeps working.
  */
 export function toonMaterial(color, opts = {}) {
-  const mat = new THREE.MeshStandardMaterial({
-    color,
-    roughness: opts.roughness ?? 0.82,
-    metalness: opts.metalness ?? 0.0,
-    emissive: opts.emissive || 0x000000,
-    emissiveIntensity: opts.emissiveIntensity ?? 0,
-    transparent: !!opts.transparent,
-    opacity: opts.opacity ?? 1,
-    side: opts.side ?? THREE.FrontSide,
-    map: opts.map || null, // textures (e.g. the '?' box) must actually show
-  });
+  // AUDIT r2: clearcoat/envMapIntensity promote the material to
+  // MeshPhysicalMaterial — glossy surfaces (racing line, wet surfaces) get
+  // real specular instead of reading flat matte.
+  const usePhysical = opts.clearcoat !== undefined || opts.envMapIntensity !== undefined;
+  const mat = usePhysical
+    ? new THREE.MeshPhysicalMaterial({
+        color,
+        roughness: opts.roughness ?? 0.82,
+        metalness: opts.metalness ?? 0.0,
+        emissive: opts.emissive || 0x000000,
+        emissiveIntensity: opts.emissiveIntensity ?? 0,
+        clearcoat: opts.clearcoat ?? 0,
+        clearcoatRoughness: opts.clearcoatRoughness ?? 0.3,
+        envMapIntensity: opts.envMapIntensity ?? 1,
+        transparent: !!opts.transparent,
+        opacity: opts.opacity ?? 1,
+        side: opts.side ?? THREE.FrontSide,
+        map: opts.map || null, // textures (e.g. the '?' box) must actually show
+      })
+    : new THREE.MeshStandardMaterial({
+        color,
+        roughness: opts.roughness ?? 0.82,
+        metalness: opts.metalness ?? 0.0,
+        emissive: opts.emissive || 0x000000,
+        emissiveIntensity: opts.emissiveIntensity ?? 0,
+        transparent: !!opts.transparent,
+        opacity: opts.opacity ?? 1,
+        side: opts.side ?? THREE.FrontSide,
+        map: opts.map || null, // textures (e.g. the '?' box) must actually show
+      });
   if (opts.map) mat.needsUpdate = true;
   return mat;
 }
@@ -121,6 +140,10 @@ export function canvasTexture(size, drawFn, opts = {}) {
   const ctx = canvas.getContext('2d');
   drawFn(ctx, size);
   const tex = new THREE.CanvasTexture(canvas);
+  // AUDIT r2: global anisotropy kills the moiré shimmer on repeated grass /
+  // dirt / concrete tiles at grazing chase-cam angles (only roadTexture set
+  // it before).
+  tex.anisotropy = 8;
   tex.colorSpace = THREE.SRGBColorSpace;
   if (opts.repeat) {
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;

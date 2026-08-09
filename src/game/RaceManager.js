@@ -72,7 +72,7 @@ export class RaceManager {
       }
     }
 
-    this.aiControllers = (aiKarts || []).map((k) => new AIController(k, track, this));
+    this.aiControllers = (aiKarts || []).map((k, i) => new AIController(k, track, this, i));
 
     // Build the navigation cache for AI + projectile off-track culling.
     if (track && track.path && typeof track.path.getSpacedPoints === 'function') {

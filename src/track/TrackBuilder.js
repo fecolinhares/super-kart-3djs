@@ -271,6 +271,11 @@ function buildRacingLineOverlay(path, length) {
     transparent: true,
     opacity: 0.5,
     roughness: 0.55,
+    // AUDIT r2: polished-rubber specular — clearcoat + env reflection make
+    // the racing line read as wet/grippy instead of flat matte black.
+    clearcoat: 0.35,
+    clearcoatRoughness: 0.25,
+    envMapIntensity: 1.1,
     polygonOffset: true,
   });
   mesh.material.depthWrite = false;

@@ -16,7 +16,7 @@ import { headingVector, progressScore, signedAngle, PowerUpType, kartPosition } 
 const STEER_FULL_AT = 0.7;
 
 export class AIController {
-  constructor(kart, track, raceManager) {
+  constructor(kart, track, raceManager, aiIndex = 0) {
     this.kart = kart;
     this.track = track;
     this.raceManager = raceManager;
@@ -35,9 +35,12 @@ export class AIController {
     const st = kart.character?.stats || { speed: 7, accel: 7, handling: 7 };
     this.stats = st;
     // Per-driver lateral lane offset (audit v4 F3: all AI hugged the same
-    // centerline → train formation). Deterministic golden-ratio spread so
-    // rivals hold different lines without random jitter.
-    this.laneOffset = (Math.floor(Math.abs(kart.position) * 13.7 + (kart.index ?? 0) * 0.618) % 1 - 0.5) * CONFIG.track.roadWidth * 0.62;
+    // centerline → train formation). Deterministic golden-ratio spread seeded
+    // from the roster index (NOT kart.position — that was 0 at construction,
+    // so every rival got the identical offset and drove one behind the other).
+    this.laneOffset = aiIndex !== undefined && aiIndex !== null
+      ? (aiIndex * 0.61803398875 - Math.floor(aiIndex * 0.61803398875) - 0.5) * CONFIG.track.roadWidth * 0.62
+      : 0;
     this._initPath();
   }
 

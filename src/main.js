@@ -494,6 +494,18 @@ function waveBanner(t) {
 }
 
 function updateCamera(dt, t) {
+  // Tight shadow frustum follows the player (audit r2): the shadow sun used
+  // to span ±90m over the whole loop → ~9cm texels, blurry blob shadows.
+  // Re-anchoring on the player keeps ~2.7cm texels under the kart.
+  if (env.shadowSun && playerKart && env.sunDir) {
+    const sp = playerKart.state.position;
+    env.shadowSun.position.set(
+      sp.x + env.sunDir.x * 90,
+      sp.y + env.sunDir.y * 90,
+      sp.z + env.sunDir.z * 90
+    );
+    env.shadowSun.target.position.copy(sp);
+  }
   if (window.__freezeCam) return; // QA hook: freeze the chase camera
   if (DEMO) {
     // Cinematic autopilot: chase the player kart with a swaying side offset

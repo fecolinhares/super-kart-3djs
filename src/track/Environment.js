@@ -248,16 +248,18 @@ export class Environment {
     if (CONFIG.render.shadows) {
       const testMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('test');
       sun.shadow.mapSize.set(testMode ? CONFIG.render.testShadowMapSize : CONFIG.render.shadowMapSize, testMode ? CONFIG.render.testShadowMapSize : CONFIG.render.shadowMapSize);
-      sun.shadow.radius = 4; // softer shadow edges (blurs PCF; PCFSoft already softens)
-      sun.shadow.camera.left = -90; // shadow frustum must cover the whole loop
-      sun.shadow.camera.right = 90;
-      sun.shadow.camera.top = 90;
-      sun.shadow.camera.bottom = -90;
-      sun.shadow.camera.far = 260;
+      sun.shadow.radius = 2; // softer shadow edges (blurs PCF; PCFSoft already softens)
+      sun.shadow.camera.left = -28; // TIGHT frustum following the player
+      sun.shadow.camera.right = 28; // (audit r2: ±90m gave ~9cm texels →
+      sun.shadow.camera.top = 28; //  blurry blob shadows; ±28m gives ~2.7cm)
+      sun.shadow.camera.bottom = -28;
+      sun.shadow.camera.far = 220;
       sun.shadow.bias = -0.0004;
+      this.shadowSun = sun; // main.js re-positions it to follow the player
     }
     scene.add(sun);
     scene.add(sun.target);
+    this.sunDir = new THREE.Vector3(...keyPos).normalize(); // shadow follow (main.js)
     this.sun = sun;
 
     // NEON CITY dressing: glowing moon disc + lit-window skyline. (Neon
@@ -540,12 +542,14 @@ export class Environment {
       // reads as TWO water planes (depth + shore), not one flat cyan sheet.
       const deep = new THREE.Mesh(
         new THREE.CircleGeometry(Math.max(w, d) / 2 + 3, 28),
-        new THREE.MeshToonMaterial({
+        new THREE.MeshStandardMaterial({
           color: 0x1479b8,
           transparent: true,
           opacity: 0.6,
           emissive: 0x0e5a94,
           emissiveIntensity: 0.3,
+          roughness: 0.35,
+          metalness: 0.1,
         })
       );
       deep.rotation.x = -Math.PI / 2;
@@ -785,21 +789,14 @@ export class Environment {
     const branchGeo = new THREE.CylinderGeometry(0.08, 0.04, 0.6, 6);
     const branchMat = toonMaterial(0x6d4c41, {});
     
-    const trunks = new THREE.InstancedMesh(
-      new THREE.BufferGeometry(), // Will merge geometries
-      trunkMats[0], 
-      trees.length
-    );
-    const canopies = new THREE.InstancedMesh(
-      new THREE.BufferGeometry(), 
-      canopyMats[0], 
-      trees.length
-    );
-    const darkCanopies = new THREE.InstancedMesh(
-      new THREE.BufferGeometry(), 
-      canopyMatsDark[0], 
-      Math.floor(trees.length * 0.5) // Approximately half get darker tops
-    );
+    // FINAL instanced meshes (real geometries, the ONLY ones added to the
+    // scene). AUDIT FIX: matrices were written into dead meshes holding
+    // empty BufferGeometry while these scene meshes never got a matrix —
+    // every trunk/canopy rendered piled at world origin (a visible blob).
+    const maxLayers = Math.max(...species.map(s => s.canopyLayers.length));
+    const finalTrunks = new THREE.InstancedMesh(trunkGeoms[0], trunkMats[0], trees.length);
+    const finalCanopies = new THREE.InstancedMesh(canopyGeoms[0], canopyMats[0], trees.length * maxLayers);
+    const finalDarkCanopies = new THREE.InstancedMesh(canopyGeoms[0], canopyMatsDark[0], Math.floor(trees.length * 0.5));
     const branchStubs = new THREE.InstancedMesh(branchGeo, branchMat, trees.length * 2); // 2 branch stubs per tree
     // let: reassigned below with the real frond count (const-in-block shadowed
     // the outer binding → TDZ ReferenceError at scene.remove — user bug #2)
@@ -835,8 +832,7 @@ export class Environment {
       dummy.scale.set(s, s * speciesData.trunkHeight / 3.4, s); // Normalize height
       dummy.rotation.set(0, rnd(5000 + i)() * Math.PI, 0);
       dummy.updateMatrix();
-      
-      // Add to trunk buffer (we'll rebuild this properly)
+      finalTrunks.setMatrixAt(i, dummy.matrix); // AUDIT FIX: was never written
       
       // Position canopy layers
       for (let layerIdx = 0; layerIdx < speciesData.canopyLayers.length; layerIdx++) {
@@ -859,7 +855,7 @@ export class Environment {
             );
             dummy.scale.set(s * 0.8, s * 1.2, s * 0.8);
             dummy.updateMatrix();
-            // Would add to palmFronds here
+            palmFronds.setMatrixAt(palmInstance++, dummy.matrix); // AUDIT FIX: fronds were never placed
           }
         } else {
           // Standard spherical canopy layers
@@ -870,11 +866,11 @@ export class Environment {
           dummy.updateMatrix();
           
           // Alternate between light and dark canopy colors for variety
-          if (layerIdx % 2 === 1 && darkTreeIndex < darkCanopies.count) {
-            darkCanopies.setMatrixAt(darkTreeIndex, dummy.matrix);
+          if (layerIdx % 2 === 1 && darkTreeIndex < finalDarkCanopies.count) {
+            finalDarkCanopies.setMatrixAt(darkTreeIndex, dummy.matrix); // AUDIT FIX: was written to a dead mesh
             darkTreeIndex++;
           } else {
-            canopies.setMatrixAt(i * speciesData.canopyLayers.length + layerIdx, dummy.matrix);
+            finalCanopies.setMatrixAt(i * maxLayers + layerIdx, dummy.matrix); // AUDIT FIX: was written to a dead mesh
           }
         }
       }
@@ -900,27 +896,16 @@ export class Environment {
       }
     }
     
-    // Rebuild with merged geometries (simplified - keeping separate for clarity)
-    const finalTrunks = new THREE.InstancedMesh(trunkGeoms[0], trunkMats[0], trees.length);
+    // All matrices were written into the FINAL meshes above (audit fix).
     finalTrunks.instanceMatrix.needsUpdate = true;
-    
-    const finalCanopies = new THREE.InstancedMesh(canopyGeoms[0], canopyMats[0], 
-      trees.length * Math.max(...species.map(s => s.canopyLayers.length)));
     finalCanopies.instanceMatrix.needsUpdate = true;
-    
-    const finalDarkCanopies = darkTreeIndex > 0 ? 
-      new THREE.InstancedMesh(canopyGeoms[0], canopyMatsDark[0], darkTreeIndex) : 
-      null;
-    if (finalDarkCanopies) finalDarkCanopies.instanceMatrix.needsUpdate = true;
-    
+    if (finalDarkCanopies.count > 0) finalDarkCanopies.instanceMatrix.needsUpdate = true;
     branchStubs.instanceMatrix.needsUpdate = true;
-    if (palmCount > 0) {
-      // palmFronds.instanceMatrix.needsUpdate = true;
-    }
-    
+    if (palmCount > 0) palmFronds.instanceMatrix.needsUpdate = true;
+
     // Add to scene
     scene.add(finalTrunks, finalCanopies);
-    if (finalDarkCanopies) scene.add(finalDarkCanopies);
+    if (finalDarkCanopies.count > 0) scene.add(finalDarkCanopies);
     scene.add(branchStubs);
     if (palmCount > 0) scene.add(palmFronds);
   }
@@ -1098,7 +1083,7 @@ export class Environment {
     const boardTex = new THREE.CanvasTexture(boardCanvas);
     boardTex.colorSpace = THREE.SRGBColorSpace;
 
-    const boardMat = new THREE.MeshToonMaterial({ color: 0xffffff });
+    const boardMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
     boardMat.map = boardTex;
     const boardGeo = new THREE.BoxGeometry(4.6, 2.3, 0.35);
     const spots = [
@@ -1151,12 +1136,13 @@ export class Environment {
       const baseY = gy(px, pz);
       const water = new THREE.Mesh(
         new THREE.CircleGeometry(4, 24),
-        new THREE.MeshToonMaterial({
+        new THREE.MeshStandardMaterial({
           color: 0x3ec6ff,
           transparent: true,
           opacity: 0.8,
           emissive: 0x1e9bd6,
           emissiveIntensity: 0.35,
+          roughness: 0.3,
         })
       );
       water.rotation.x = -Math.PI / 2;
