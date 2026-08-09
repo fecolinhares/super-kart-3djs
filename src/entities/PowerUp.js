@@ -145,12 +145,16 @@ export function useItem(kart, ctx = {}) {
     case PowerUpType.MUSHROOM:
       kart.applyBoost?.(CONFIG.items.mushroomBoostMs);
       audio?.play?.('boost');
+      // Big-use juice (user: item use felt weak — the mushroom should POP).
+      ctx.particles?.emit?.('boost', kartPosition(kart), { count: 18, speed: 8.5, size: 0.32 });
+      ctx.particles?.emit?.('sparkle', kartPosition(kart), { count: 16, speed: 5, size: 0.28, color: 0xffd166 });
       break;
 
     case PowerUpType.SHELL: {
       const proj = new ShellProjectile(kart, { homing: false, ...ctx });
       ctx.raceManager?.addActiveItem?.(proj);
       audio?.play?.('shell');
+      ctx.particles?.emit?.('sparkle', kartPosition(kart), { count: 8, speed: 4, size: 0.22 });
       break;
     }
 
@@ -159,6 +163,7 @@ export function useItem(kart, ctx = {}) {
       const proj = new ShellProjectile(kart, { homing: !!target, targetKart: target, ...ctx });
       ctx.raceManager?.addActiveItem?.(proj);
       audio?.play?.('redShell');
+      ctx.particles?.emit?.('sparkle', kartPosition(kart), { count: 8, speed: 4, size: 0.22 });
       break;
     }
 
@@ -173,6 +178,7 @@ export function useItem(kart, ctx = {}) {
       const proj = new ShellProjectile(kart, { homing: true, targetKart: leader, blue: true, ...ctx });
       ctx.raceManager?.addActiveItem?.(proj);
       audio?.play?.('redShell');
+      ctx.particles?.emit?.('sparkle', kartPosition(kart), { count: 12, speed: 5, size: 0.26, color: 0x1f3fc8 });
       break;
     }
 
