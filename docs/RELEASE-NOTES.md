@@ -4,6 +4,10 @@
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
 ### Round 3 — AAA polish loop (auditor-driven, 2026-08-09)
+- **Round 14 — audit r8 fixes**: coin drop on hit (up to 3, respawned),
+  blue-shell dodge counterplay (trick/item-box invincibility window),
+  item roulette anticipation (0.45s shuffle), floating rank arrows
+  (1-8) above every kart.
 - **Round 13 — audit r7 fixes**: AI defensive rear-item play (chased AI
   drops/throws backward), shell motion trails, start-grid pole numbers,
   cloud shadows, sun lens flare, finished-kart wheelie + checkered flag,
