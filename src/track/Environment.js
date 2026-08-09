@@ -1578,11 +1578,13 @@ export class Environment {
         }
         const gy = this._gy(ccx, ccz);
         const castle = new THREE.Group();
-        const stoneMat = toonMaterial(0xc9b38f, {});   // warm stone
-        const trimMat = toonMaterial(0xb3a17e, {});    // darker trim + plinth
-        const roofMat = toonMaterial(0x6b84a8, {});    // slate cone roofs
-        const poleMat = toonMaterial(0x6d4c41, {});    // banner pole (wood)
-        const pennantMat = toonMaterial(0xe2504f, {}); // red pennant (windmill red)
+        // AUDIT r6: darker stone — the pale keep vanished against the green
+        // grass; darker warm stone + lighter trim reads as a fortress.
+        const stoneMat = toonMaterial(0x9d8a6c, {});   // warm stone (darkened)
+        const trimMat = toonMaterial(0x8a7a5e, {});    // darker trim + plinth
+        const roofMat = toonMaterial(0x5f7ba0, {});    // slate cone roofs
+        const poleMat = toonMaterial(0x5d4e3f, {});    // banner pole (wood)
+        const pennantMat = toonMaterial(0xd8433c, {}); // red pennant (bright)
         // base plinth — plants the keep on the rolling turf
         const plinth = new THREE.Mesh(new THREE.CylinderGeometry(2.7, 3.0, 0.6, 16), trimMat);
         plinth.position.set(ccx, gy + 0.3, ccz);
@@ -1659,16 +1661,17 @@ export class Environment {
             castle.add(merlon);
           }
         }
-        // 4 turret pennants — little red flags on the corner turrets
-        const turretPennantMat = toonMaterial(0xe2504f, {});
+        // 4 turret pennants — BIG red flags on the corner turrets (audit r6:
+        // tiny flags were invisible at race distance — these read).
+        const turretPennantMat = toonMaterial(0xd8433c, {});
         for (let i = 0; i < 4; i++) {
           const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
           const tx = ccx + Math.cos(a) * 1.9;
           const tz = ccz + Math.sin(a) * 1.9;
-          const tp = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.5, 3), turretPennantMat);
+          const tp = new THREE.Mesh(new THREE.ConeGeometry(0.4, 1.1, 3), turretPennantMat);
           tp.rotation.z = -Math.PI / 2;
           tp.rotation.y = a;
-          tp.position.set(tx + Math.cos(a) * 0.4, gy + 0.6 + 4.35, tz + Math.sin(a) * 0.4);
+          tp.position.set(tx + Math.cos(a) * 0.75, gy + 0.6 + 4.35, tz + Math.sin(a) * 0.75);
           castle.add(tp);
         }
         scene.add(castle);
