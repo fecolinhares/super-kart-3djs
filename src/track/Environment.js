@@ -63,6 +63,7 @@ function ridgeNoise(a, seed) {
  */
 function ridgedConeGeometry(baseR, h, segs, rings, jitter, seed, t0 = 0, overhang = 1) {
   const positions = [];
+  const normals = [];
   const indices = [];
   for (let r = 0; r <= rings; r++) {
     const t = t0 + (1 - t0) * (r / rings);
@@ -77,6 +78,11 @@ function ridgedConeGeometry(baseR, h, segs, rings, jitter, seed, t0 = 0, overhan
       // horizon every critic round).
       const rad = Math.max(rad0 * 0.3, rad0 * (1 + j) * overhang);
       positions.push(Math.cos(a) * rad, y, Math.sin(a) * rad);
+      // RADIAL normals (point outward in XZ), not computeVertexNormals: the
+      // jitter inverts some windings and the averaged normals pointed INWARD
+      // on those faces — with a weak emissive they rasterized BLACK (the
+      // 'jagged black triangular patches' the critic kept seeing on peaks).
+      normals.push(Math.cos(a), 0, Math.sin(a));
     }
   }
   for (let r = 0; r < rings; r++) {
@@ -90,8 +96,8 @@ function ridgedConeGeometry(baseR, h, segs, rings, jitter, seed, t0 = 0, overhan
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
   geo.setIndex(indices);
-  geo.computeVertexNormals();
   return geo;
 }
 
@@ -325,10 +331,10 @@ export class Environment {
     // follows the ridge line (never a plain cone on a cone). All grounded
     // on the real rolling terrain (this._gy) — the old fixed-y cones floated.
     const bands = [
-      { radius: 318, count: 14, rock: 0xc9d6f2, snow: 0xf4f8ff, baseH: 38, hVar: 18, seed: 11, haze: 0.32, snowEm: 0.10 }, // farthest — pale haze
-      { radius: 260, count: 13, rock: 0x8a9ad9, snow: 0xf2f7ff, baseH: 33, hVar: 16, seed: 27, haze: 0.26, snowEm: 0.14 },  // mid blue-purple
-      { radius: 200, count: 12, rock: 0x4f61b8, snow: 0xfffdf4, baseH: 28, hVar: 14, seed: 43, haze: 0.20, snowEm: 0.20 },  // near indigo
-      { radius: 144, count: 10, rock: 0x2e3a7a, snow: 0xffffff, baseH: 24, hVar: 12, seed: 61, haze: 0.12, snowEm: 0.30 },  // closest — deepest + brightest
+      { radius: 318, count: 14, rock: 0xc9d6f2, snow: 0xf4f8ff, baseH: 38, hVar: 18, seed: 11, haze: 0.32, snowEm: 0.35 }, // farthest — pale haze
+      { radius: 260, count: 13, rock: 0x8a9ad9, snow: 0xf2f7ff, baseH: 33, hVar: 16, seed: 27, haze: 0.26, snowEm: 0.35 },  // mid blue-purple
+      { radius: 200, count: 12, rock: 0x4f61b8, snow: 0xfffdf4, baseH: 28, hVar: 14, seed: 43, haze: 0.20, snowEm: 0.38 },  // near indigo
+      { radius: 144, count: 10, rock: 0x2e3a7a, snow: 0xffffff, baseH: 24, hVar: 12, seed: 61, haze: 0.12, snowEm: 0.42 },  // closest — deepest + brightest
     ];
     const hazeMat = new THREE.MeshStandardMaterial({
       color: 0xc3d2ea,
