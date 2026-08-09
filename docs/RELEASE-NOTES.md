@@ -36,6 +36,18 @@
   corners against the track.
 
 ### Visual — MK8D bar
+- **Track rebuild (authored MK8D circuit)**: racing-line wear overlay (wet
+  polished rubber sheen over the asphalt), worn 4-tone beveled kerbs with
+  per-stone jitter, armco guard rails (main rail + lower line + box posts +
+  footing plates), painted-on markings with grime, 6 road sponsor decals on
+  the straights, asphalt edge shadow lines, structural gantry with cross-
+  braces.
+- **Environment density**: ridged/vertex-jittered mountains (snow cap drapes
+  the ridge — no more plain cones), 3D grass tufts along both verges, hay
+  bales, sponsor boards on 3D frames, corner marshal flags, reflective water,
+  sun glow billboard.
+- **SSAO pass** in the post chain — karts/props get contact shadows
+  (the critic's "karts look pasted on" gap); contrast 1.15.
 - **Material pipeline rebuilt toon→PBR**: `toonMaterial()` now returns
   `MeshStandardMaterial` (continuous PBR shading, responds to the sunny-sky
   IBL) — the 3-band cel gradient that read as "low poly" is gone; hemi/key

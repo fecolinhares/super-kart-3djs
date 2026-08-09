@@ -6,7 +6,8 @@
  * gantry and an undulating grass terrain.
  *
  * Exports (contract):
- *   buildTrack(scene) → { group, path, waypoints, startLine, length }
+ *   buildTrack(scene) → { group, path, waypoints, startLine, length,
+ *                         startLights, turboPads, ramps }
  *   getRoadWidthAt(t) → number
  *   TRACK_PATH        → Vector3[] closed loop
  */
@@ -133,6 +134,7 @@ function buildRoadRibbon(path, length, opts = {}) {
   // bands/cracks read as fine surface noise, not huge tiled bands.
   const repeatU = opts.repeatU ?? Math.max(24, length * 0.08);
 
+  const lat = opts.lateral ?? 0; // lateral shift from the path centerline
   for (let i = 0; i <= segments; i++) {
     const t = i / segments;
     path.getPointAt(t, p);
@@ -140,10 +142,10 @@ function buildRoadRibbon(path, length, opts = {}) {
     nrm.set(-tan.z, 0, tan.x).normalize();
     const half = roadW / 2;
     const base = i * 2;
-    positions[base * 3 + 0] = p.x + nrm.x * half;
+    positions[base * 3 + 0] = p.x + nrm.x * (lat + half);
     positions[base * 3 + 1] = p.y + yOff;
-    positions[base * 3 + 2] = p.z + nrm.z * half;
-    positions[(base + 1) * 3 + 0] = p.x - nrm.x * half;
+    positions[base * 3 + 2] = p.z + nrm.z * (lat + half);
+    positions[(base + 1) * 3 + 0] = p.x + nrm.x * (lat - half);
     positions[(base + 1) * 3 + 1] = p.y + yOff;
     positions[(base + 1) * 3 + 2] = p.z - nrm.z * half;
     uvs[base * 2 + 0] = t * repeatU;
@@ -168,7 +170,12 @@ function buildRoadRibbon(path, length, opts = {}) {
   geo.setIndex(indices);
   geo.computeVertexNormals();
 
-  const mat = toonMaterial(0xffffff, {});
+  const mat = toonMaterial(0xffffff, {
+    transparent: opts.transparent,
+    opacity: opts.opacity,
+    roughness: opts.roughness,
+    metalness: opts.metalness,
+  });
   if (opts.texture) {
     const tex = opts.texture().clone();
     tex.needsUpdate = true;
@@ -188,8 +195,112 @@ function buildRoadRibbon(path, length, opts = {}) {
     mat.emissive.setHex(opts.emissive);
     mat.emissiveIntensity = opts.emissiveIntensity ?? 0.5;
   }
+  if (opts.polygonOffset) {
+    mat.polygonOffset = true;
+    mat.polygonOffsetFactor = -2;
+    mat.polygonOffsetUnits = -2;
+  }
 
   return new THREE.Mesh(geo, mat);
+}
+
+/**
+ * Racing-line wear overlay texture: a soft black gradient band down the road
+ * center (double tire-track darkening) with streak noise along the track and
+ * faint sheen glints. The road's grain still shows through — the band reads
+ * as polished rubber, not as painted-on black.
+ */
+function racingLineTexture() {
+  const c = document.createElement('canvas');
+  c.width = 512;
+  c.height = 256;
+  const g = c.getContext('2d');
+  g.clearRect(0, 0, 512, 256);
+  // Vertical alpha gradient: transparent at the edges → dark at the center.
+  const grad = g.createLinearGradient(0, 0, 0, 256);
+  grad.addColorStop(0, 'rgba(10,14,20,0)');
+  grad.addColorStop(0.32, 'rgba(10,14,20,0)');
+  grad.addColorStop(0.42, 'rgba(8,11,16,0.5)');
+  grad.addColorStop(0.5, 'rgba(6,9,14,0.9)');
+  grad.addColorStop(0.58, 'rgba(8,11,16,0.5)');
+  grad.addColorStop(0.68, 'rgba(10,14,20,0)');
+  grad.addColorStop(1, 'rgba(10,14,20,0)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 512, 256);
+  // Two darker tire-track sub-bands inside the rubbered line.
+  for (const vy of [116, 140]) {
+    const t2 = g.createLinearGradient(0, vy - 12, 0, vy + 12);
+    t2.addColorStop(0, 'rgba(4,7,11,0)');
+    t2.addColorStop(0.5, 'rgba(4,7,11,0.5)');
+    t2.addColorStop(1, 'rgba(4,7,11,0)');
+    g.fillStyle = t2;
+    g.fillRect(0, vy - 12, 512, 24);
+  }
+  // Streak noise along the track direction (U) — breaks up the band edge.
+  for (let i = 0; i < 700; i++) {
+    const y = 52 + Math.random() * 152;
+    g.fillStyle = 'rgba(2,5,9,' + (0.05 + Math.random() * 0.12).toFixed(3) + ')';
+    g.fillRect(Math.random() * 512, y, 6 + Math.random() * 42, 1 + Math.random() * 2);
+  }
+  // Faint wet-sheen glints along the polished line.
+  g.fillStyle = 'rgba(180,205,225,0.06)';
+  for (let i = 0; i < 130; i++) {
+    g.fillRect(Math.random() * 512, 84 + Math.random() * 88, 4 + Math.random() * 12, 1);
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+
+/**
+ * Racing-line wear + wet sheen overlay: a second ribbon 1mm above the asphalt
+ * (y+0.181) carrying the soft dark center band at low opacity and a LOWER
+ * roughness (0.55 vs the road's 0.82) — the rubbered line catches light and
+ * reads polished, MK8D-style. Transparent + depthWrite false so it never
+ * occludes the kart or the painted decals above it.
+ */
+function buildRacingLineOverlay(path, length) {
+  const roadW = getRoadWidthAt();
+  const mesh = buildRoadRibbon(path, length, {
+    width: roadW,
+    yOffset: 0.181,
+    texture: racingLineTexture,
+    repeatU: Math.max(12, length * 0.03),
+    repeatV: 1,
+    transparent: true,
+    opacity: 0.5,
+    roughness: 0.55,
+    polygonOffset: true,
+  });
+  mesh.material.depthWrite = false;
+  mesh.renderOrder = 1;
+  return mesh;
+}
+
+/**
+ * Dark curb shadow line where asphalt meets kerb: a thin (0.1m) transparent
+ * dark ribbon hugging the road edge just inside the kerb stones — the depth
+ * cue that stops the asphalt reading as a uniform matte plane.
+ */
+function buildEdgeShadowLine(path, length) {
+  const roadW = getRoadWidthAt();
+  const g = new THREE.Group();
+  for (const side of [-1, 1]) {
+    const m = buildRoadRibbon(path, length, {
+      width: 0.1,
+      yOffset: 0.1815,
+      lateral: side * (roadW / 2 - 0.12),
+      color: 0x0d1117,
+      transparent: true,
+      opacity: 0.38,
+      roughness: 0.95,
+      polygonOffset: true,
+    });
+    m.renderOrder = 1;
+    g.add(m);
+  }
+  return g;
 }
 
 function buildTerrain(path, cityMode = false) {
@@ -381,6 +492,10 @@ function buildCurbs(path, length, side, opts = {}) {
     : [new THREE.InstancedMesh(geo, toonMaterial(0xffffff, { side: THREE.DoubleSide }), count)];
   for (const m of meshes) m.castShadow = true;
   const mesh = meshes[0]; // legacy single-mesh path
+  // Worn kerb palette (classic track): 4 alternating stone colors + a
+  // per-instance dirtied tint so the kerb reads as individual worn stones
+  // set into the ground, not a flat repetitive tile strip (vision critic).
+  const KERB_PALETTE = [0xff5a5f, 0xf4f6f8, 0xd2d9e1, 0xe05054];
 
   const p = new THREE.Vector3();
   const tan = new THREE.Vector3();
@@ -394,10 +509,14 @@ function buildCurbs(path, length, side, opts = {}) {
     path.getPointAt(t, p);
     path.getTangentAt(t, tan);
     nrm.set(-tan.z, 0, tan.x).normalize();
+    // Per-stone jitter (height + lateral) so the kerb reads as stones set
+    // into the ground; top now at y+0.28 (±0.01) — recessed 1cm from 0.29.
+    const yJ = (hash01(i, 7) - 0.5) * 0.02;
+    const latJ = (hash01(i, 8) - 0.5) * 0.03;
     dummy.position.set(
-      p.x + nrm.x * side * (roadW / 2 + 0.15),
-      p.y + 0.29 - curbH / 2, // kerb TOP stays at y+0.29; extra height embeds in the asphalt
-      p.z + nrm.z * side * (roadW / 2 + 0.15)
+      p.x + nrm.x * side * (roadW / 2 + 0.15 + latJ),
+      p.y + 0.28 - curbH / 2 + yJ,
+      p.z + nrm.z * side * (roadW / 2 + 0.15 + latJ)
     );
     dummy.lookAt(
       p.x + tan.x + nrm.x * side * (roadW / 2 + 0.15),
@@ -410,7 +529,8 @@ function buildCurbs(path, length, side, opts = {}) {
       meshes[slot].setMatrixAt(cursor[slot]++, dummy.matrix);
     } else {
       mesh.setMatrixAt(i, dummy.matrix);
-      col.setHex(i % 2 === 0 ? 0xff5a5f : 0xffffff);
+      const base = KERB_PALETTE[Math.floor(hash01(i, 9) * KERB_PALETTE.length)];
+      col.setHex(base).multiplyScalar(0.78 + hash01(i, 10) * 0.35); // dirtied/worn tint
       mesh.setColorAt(i, col);
     }
   }
@@ -477,100 +597,106 @@ function buildEdgeRibbon(path, lateralOffset, yBase, w, h, mat) {
 }
 
 /**
- * Continuous guard-rail along ONE road edge: short barrier segments
- * (alternating white/red) instanced every ~4m following the path normal,
- * with a continuous darker top rail on top. Placed at roadWidth/2 + 0.6 so
- * it never intrudes on the racing line (the kart wall bounce lives further
- * out, at +roadEdge). The whole edge reads as ONE organized structure —
- * asphalt → curbs → guard rail → grass — instead of scattered props.
+ * Armco-style guard-rail along ONE road edge: a continuous main rail + a
+ * continuous lower barrier line (double steel rail), box posts every ~3.5m
+ * with visible footing base plates. Placed at roadWidth/2 + 1.1 so it never
+ * intrudes on the racing line (the kart wall bounce lives further out, at
+ * +roadEdge). Reads as ONE engineered barrier — asphalt → curbs → armco →
+ * grass — instead of thin bars with sparse posts (vision critic).
  */
 function buildGuardRail(path, length, side, opts = {}) {
   const roadW = getRoadWidthAt();
   // LOW + FAR from the racing line so the chase camera never clips/obscures:
-  // rail top ~1.05m at road edge +1.1m (vision critic: 0.7m at +0.6 dominated
-  // the frame and the camera sat inside it).
+  // rail top ~0.71m at road edge +1.1m.
   const lateral = side * (roadW / 2 + 1.1);
-  // 3.5m barrier segments leave a ~0.5m slot at every 4m joint — each post
-  // stands in its own slot, so the rail reads as rail + posts (vision critic:
-  // "thin black strip").
-  const segLen = 3.5;
-  // Tile the whole loop with ~4m spacing (count = round → spacing = length /
-  // count ≈ 4.0m) so there's no seam gap where the loop closes at start.
-  const count = Math.max(1, Math.round(length / 4.0));
+  // Posts every ~3.5m (count = round → spacing = length / count ≈ 3.5m) so
+  // there's no seam gap where the loop closes at start.
+  const count = Math.max(1, Math.round(length / 3.5));
 
-  const geo = new THREE.BoxGeometry(0.36, 0.55, segLen);
-  // NEON CITY: uniform metallic dark barriers (no red/white alternation).
-  const mat = opts.neon ? toonMaterial(0x3a4152, {}) : toonMaterial(0xffffff, {});
-  const mesh = new THREE.InstancedMesh(geo, mat, count);
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
+  // Steel palette. NEON CITY: dark body with an emissive pink main rail.
+  const mainMat = opts.neon
+    ? toonMaterial(0x3a4152, { side: THREE.DoubleSide, emissive: 0xff2ec4, emissiveIntensity: 0.8 })
+    : toonMaterial(0xbcc7d1, { side: THREE.DoubleSide, roughness: 0.42, metalness: 0.55 });
+  const lowerMat = opts.neon
+    ? toonMaterial(0x2b3240, { side: THREE.DoubleSide })
+    : toonMaterial(0x8f9aa6, { side: THREE.DoubleSide, roughness: 0.55, metalness: 0.35 });
+  const postMat = toonMaterial(opts.neon ? 0x232a36 : 0x2a3140, {});
+  const plateMat = toonMaterial(opts.neon ? 0x1c222d : 0x222a38, {});
+
+  // Continuous double rail (no seams): main rail band 0.55..0.71m, lower
+  // rail band 0.28..0.40m — the classic armco barrier profile.
+  const mainRail = buildEdgeRibbon(path, lateral, 0.05 + 0.5, 0.5, 0.16, mainMat);
+  const lowerRail = buildEdgeRibbon(path, lateral, 0.05 + 0.23, 0.42, 0.12, lowerMat);
+
+  // Box posts (0.13 x 0.40 x 0.13) from the ground to the main rail, each on
+  // a visible footing plate (0.40 x 0.08 x 0.40) set into the shoulder.
+  const postGeo = new THREE.BoxGeometry(0.13, 0.4, 0.13);
+  const plateGeo = new THREE.BoxGeometry(0.4, 0.08, 0.4);
+  const posts = new THREE.InstancedMesh(postGeo, postMat, count);
+  const plates = new THREE.InstancedMesh(plateGeo, plateMat, count);
+  posts.castShadow = true;
+  plates.castShadow = true;
 
   const p = new THREE.Vector3();
   const tan = new THREE.Vector3();
   const nrm = new THREE.Vector3();
   const dummy = new THREE.Object3D();
-  const col = new THREE.Color();
-
   for (let i = 0; i < count; i++) {
-    const t = (i + 0.5) / count; // center each segment on its slot → even spacing
+    const t = i / count; // one post per joint
     path.getPointAt(t, p);
     path.getTangentAt(t, tan);
     nrm.set(-tan.z, 0, tan.x).normalize();
-    dummy.position.set(
-      p.x + nrm.x * lateral,
-      p.y + 0.05 + 0.275, // base at path elevation +0.05; box half-height 0.275
-      p.z + nrm.z * lateral
-    );
-    dummy.lookAt(
-      p.x + tan.x + nrm.x * lateral,
-      p.y,
-      p.z + tan.z + nrm.z * lateral
-    );
-    dummy.updateMatrix();
-    mesh.setMatrixAt(i, dummy.matrix);
-    if (!opts.neon) {
-      col.setHex(i % 2 === 0 ? 0xff5a5f : 0xf4f6f8);
-      mesh.setColorAt(i, col);
-    }
-  }
-  mesh.instanceMatrix.needsUpdate = true;
-  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-
-  // Support posts: one per joint (~4m apart), standing from the ground up to
-  // the underside of the top rail. Cylinders are radially symmetric, so no
-  // lookAt is needed — position them at the path normal only.
-  const postGeo = new THREE.CylinderGeometry(0.09, 0.11, 0.7, 8);
-  const postMat = toonMaterial(opts.neon ? 0x2b3240 : 0x232b38, {});
-  const posts = new THREE.InstancedMesh(postGeo, postMat, count);
-  posts.castShadow = true;
-  for (let i = 0; i < count; i++) {
-    const t = i / count; // joints between barrier segments
-    path.getPointAt(t, p);
-    path.getTangentAt(t, tan);
-    nrm.set(-tan.z, 0, tan.x).normalize();
-    dummy.rotation.set(0, 0, 0); // cylinder — clear the barrier's lookAt
-    dummy.position.set(
-      p.x + nrm.x * lateral,
-      p.y + 0.05 + 0.35, // base at path elevation +0.05; half-height 0.35
-      p.z + nrm.z * lateral
-    );
+    const px = p.x + nrm.x * lateral;
+    const pz = p.z + nrm.z * lateral;
+    dummy.rotation.set(0, 0, 0);
+    dummy.scale.set(1, 1, 1);
+    dummy.position.set(px, p.y + 0.35, pz); // post spans 0.15..0.55 (main rail underside)
     dummy.updateMatrix();
     posts.setMatrixAt(i, dummy.matrix);
+    dummy.position.set(px, p.y + 0.11, pz); // plate spans 0.07..0.15 — proud of the shoulder top
+    dummy.updateMatrix();
+    plates.setMatrixAt(i, dummy.matrix);
   }
   posts.instanceMatrix.needsUpdate = true;
-
-  // Continuous darker top rail sitting on the segments (no seams between
-  // them). DoubleSide so winding never culls it. Thicker profile (0.62 x 0.30)
-  // with a small overhang so it reads as a proper rail cap. NEON CITY:
-  // metallic dark body with an emissive pink strip along the top.
-  const railMat = opts.neon
-    ? toonMaterial(0x3a4152, { side: THREE.DoubleSide, emissive: 0xff2ec4, emissiveIntensity: 0.8 })
-    : toonMaterial(0x232b38, { side: THREE.DoubleSide });
-  const rail = buildEdgeRibbon(path, lateral, 0.05 + 0.7, 0.62, 0.3, railMat);
+  plates.instanceMatrix.needsUpdate = true;
 
   const g = new THREE.Group();
-  g.add(mesh, posts, rail);
+  g.add(mainRail, lowerRail, posts, plates);
   return g;
+}
+
+/** Painted lane dash card: warm yellow with a worn darker border + grime
+ *  speckle, so markings read as worn paint on asphalt (vision critic). */
+function dashTexture() {
+  const c = document.createElement('canvas');
+  c.width = 128;
+  c.height = 128;
+  const g = c.getContext('2d');
+  g.fillStyle = '#ffd166';
+  g.fillRect(0, 0, 128, 128);
+  // Worn darker border — slightly irregular, hand-painted feel.
+  g.strokeStyle = 'rgba(120,82,18,0.55)';
+  g.lineWidth = 7;
+  g.strokeRect(3, 3, 122, 122);
+  g.strokeStyle = 'rgba(90,60,10,0.4)';
+  g.lineWidth = 3;
+  g.strokeRect(8, 8, 112, 112);
+  // Grime speckle + worn patches.
+  for (let i = 0; i < 170; i++) {
+    g.fillStyle = Math.random() > 0.5 ? 'rgba(60,40,8,0.14)' : 'rgba(255,236,180,0.12)';
+    g.fillRect(Math.random() * 128, Math.random() * 128, 2 + Math.random() * 3, 1 + Math.random() * 2);
+  }
+  g.globalAlpha = 0.16;
+  g.fillStyle = '#8a6420';
+  for (let i = 0; i < 7; i++) {
+    g.beginPath();
+    g.arc(Math.random() * 128, Math.random() * 128, 6 + Math.random() * 11, 0, Math.PI * 2);
+    g.fill();
+  }
+  g.globalAlpha = 1;
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
 
 function buildLaneDashes(path, length) {
@@ -579,11 +705,15 @@ function buildLaneDashes(path, length) {
   // floating sliver). polygonOffset wins the depth test against the ribbon —
   // the classic decal technique.
   const geo = new THREE.PlaneGeometry(0.3, 2.4);
-  const mat = toonMaterial(0xffd166, { side: THREE.DoubleSide });
+  // Painted look: worn darker border + grime on the dash card, slight
+  // transparency so the asphalt grain shows through the paint.
+  const mat = toonMaterial(0xffffff, { side: THREE.DoubleSide, map: dashTexture(), transparent: true, opacity: 0.85 });
   mat.polygonOffset = true;
   mat.polygonOffsetFactor = -2;
   mat.polygonOffsetUnits = -2;
+  mat.depthWrite = false;
   const mesh = new THREE.InstancedMesh(geo, mat, count);
+  mesh.renderOrder = 2;
 
   const p = new THREE.Vector3();
   const tan = new THREE.Vector3();
@@ -664,21 +794,51 @@ function buildGantry(startLine) {
   const roadW = getRoadWidthAt();
   const nrm = new THREE.Vector3(-startLine.direction.z, 0, startLine.direction.x).normalize();
 
-  const pillarGeo = new THREE.CylinderGeometry(0.28, 0.36, 5.8, 10);
+  const pillarGeo = new THREE.CylinderGeometry(0.28, 0.36, 5.6, 10);
   const pillarMat = toonMaterial(0xff5a5f, {});
+  const footingGeo = new THREE.BoxGeometry(0.95, 0.16, 0.95);
+  const footingMat = toonMaterial(0x2b3340, {});
+  const braceMat = toonMaterial(0x2b3340, {});
   const beamGeo = new THREE.BoxGeometry(roadW + 5, 0.5, 0.7);
   const beamMat = toonMaterial(0x2ec4ff, {});
 
-  for (const side of [-1, 1]) {
+  // Pillars now run from the ground (y 0.0) up to the beam — no more
+  // floating poles — each with a visible footing plate set into the shoulder.
+  const pillarBaseL = startLine.position.clone().addScaledVector(nrm, -(roadW / 2 + 1.6));
+  const pillarBaseR = startLine.position.clone().addScaledVector(nrm, roadW / 2 + 1.6);
+  for (const base of [pillarBaseL, pillarBaseR]) {
     const pillar = new THREE.Mesh(pillarGeo, pillarMat);
-    pillar.position
-      .copy(startLine.position)
-      .addScaledVector(nrm, side * (roadW / 2 + 1.6));
-    pillar.position.y = 2.6;
+    pillar.position.copy(base);
+    pillar.position.y = 2.8; // height 5.6 → spans 0.0..5.6 (beam top is 5.65)
     pillar.castShadow = true;
     group.add(pillar);
     cartoonOutline(pillar, 0x1b2a41, 0.03);
+    const footing = new THREE.Mesh(footingGeo, footingMat);
+    footing.position.copy(base);
+    footing.position.y = 0.08; // spans 0.0..0.16 — proud of the shoulder top (0.14)
+    footing.castShadow = true;
+    group.add(footing);
   }
+
+  // Cross-braces between the pillars — the gantry reads as a structural
+  // truss, not two poles holding a beam. Diagonals cross ~1.6m above the
+  // road, clear of the karts (~1.2m tall).
+  const strut = (a, b) => {
+    const dir = new THREE.Vector3().subVectors(b, a);
+    const len = dir.length();
+    const mid = new THREE.Vector3().addVectors(a, b).multiplyScalar(0.5);
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, len, 8), braceMat);
+    m.position.copy(mid);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+    m.castShadow = true;
+    group.add(m);
+  };
+  const aL = pillarBaseL.clone(); aL.y += 0.5;
+  const aR = pillarBaseR.clone(); aR.y += 0.5;
+  const bL = pillarBaseL.clone(); bL.y += 2.7;
+  const bR = pillarBaseR.clone(); bR.y += 2.7;
+  strut(aL, bR);
+  strut(aR, bL);
 
   const beam = new THREE.Mesh(beamGeo, beamMat);
   beam.position.copy(startLine.position);
@@ -716,7 +876,7 @@ function buildGantry(startLine) {
     startLights.push(lamp);
   }
 
-  // Banner flags
+  // Banner flags — each now on its own pole (they used to float at y+7.2).
   for (const side of [-1, 1]) {
     const flag = new THREE.Mesh(
       new THREE.ConeGeometry(0.5, 1.0, 4),
@@ -727,6 +887,14 @@ function buildGantry(startLine) {
       .addScaledVector(nrm, side * (roadW / 2 + 2.3));
     flag.position.y = 7.2;
     group.add(flag);
+    const pole = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.045, 0.045, 0.95, 8),
+      toonMaterial(0x2b3340, {})
+    );
+    pole.position.copy(flag.position);
+    pole.position.y = 6.2; // spans 5.725..6.675 — the flag base sits on top
+    pole.castShadow = true;
+    group.add(pole);
   }
 
   return { group, startLights, banner };
@@ -741,13 +909,14 @@ function buildGantry(startLine) {
 function buildFinishLine(startLine) {
   const w = getRoadWidthAt() + 1;
   const geo = new THREE.PlaneGeometry(w, 1.6);
-  const mat = new THREE.MeshBasicMaterial({ map: finishLineTexture(), side: THREE.DoubleSide });
+  const mat = new THREE.MeshBasicMaterial({ map: finishLineTexture(), transparent: true, opacity: 0.9, side: THREE.DoubleSide });
   // polygonOffset wins the depth test against the road ribbon at grazing
   // angles (classic decal technique — plain y-offset z-fights).
   mat.polygonOffset = true;
   mat.polygonOffsetFactor = -2;
   mat.polygonOffsetUnits = -2;
   const mesh = new THREE.Mesh(geo, mat);
+  mesh.renderOrder = 2;
   mesh.position.copy(startLine.position);
   mesh.position.y += 0.21; // road ribbon sits at y+0.18; sit just above it
   mesh.lookAt(
@@ -787,11 +956,12 @@ function buildDirectionArrows(path) {
   }
   if (spots.length === 0) return null;
   const geo = new THREE.PlaneGeometry(3.4, 3.4); // big chevrons (MK8-style corner signage)
-  const mat = new THREE.MeshBasicMaterial({ map: arrowTexture(), transparent: true, side: THREE.DoubleSide, depthWrite: false });
+  const mat = new THREE.MeshBasicMaterial({ map: arrowTexture(), transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false });
   mat.polygonOffset = true;
   mat.polygonOffsetFactor = -2;
   mat.polygonOffsetUnits = -2;
   const mesh = new THREE.InstancedMesh(geo, mat, spots.length);
+  mesh.renderOrder = 2;
   for (let i = 0; i < spots.length; i++) {
     const s = spots[i];
     dummy.position.set(s.x, s.y + 0.21, s.z); // road ribbon sits at y+0.18
@@ -1114,6 +1284,141 @@ function buildApexCones(path, length, roadW) {
   return g;
 }
 
+/** Road sponsor decal card: a faded brand-color block with a worn darker
+ *  border, text-like noise (pseudo-glyph wordmark) and grime — paint on
+ *  asphalt, not a floating board. */
+function roadDecalTexture(baseHex, accentHex) {
+  const c = document.createElement('canvas');
+  c.width = 256;
+  c.height = 128;
+  const g = c.getContext('2d');
+  const base = '#' + baseHex.toString(16).padStart(6, '0');
+  const accent = '#' + accentHex.toString(16).padStart(6, '0');
+  g.globalAlpha = 0.92;
+  g.fillStyle = base;
+  g.fillRect(0, 0, 256, 128);
+  // Worn border (irregular paint edge).
+  g.globalAlpha = 0.55;
+  g.strokeStyle = 'rgba(10,14,20,0.8)';
+  g.lineWidth = 6;
+  g.strokeRect(3, 3, 250, 122);
+  // Text-like noise: a row of pseudo-glyph strokes that reads as a sponsor
+  // wordmark without spelling anything.
+  g.globalAlpha = 0.9;
+  g.fillStyle = accent;
+  let x = 16;
+  while (x < 232) {
+    const w = 6 + Math.random() * 5;
+    const h = 26 + Math.random() * 18;
+    const y = 42 + Math.random() * 10;
+    g.fillRect(x, y, w, h); // vertical stem
+    if (Math.random() > 0.45) g.fillRect(x, y + h - 6, w + 16, 5); // crossbar
+    if (Math.random() > 0.65) g.fillRect(x + w + 2, y + 6, 8, 5); // mid bar
+    x += 10 + Math.random() * 8;
+  }
+  // Logo disc.
+  g.beginPath();
+  g.arc(226, 26, 15, 0, Math.PI * 2);
+  g.fillStyle = accent;
+  g.fill();
+  g.lineWidth = 4;
+  g.strokeStyle = base;
+  g.stroke();
+  // Grime + tire streaks (karts drive over these).
+  g.globalAlpha = 0.18;
+  g.fillStyle = '#0a0e14';
+  for (let i = 0; i < 240; i++) {
+    g.fillRect(Math.random() * 256, Math.random() * 128, 2 + Math.random() * 4, 1 + Math.random() * 2);
+  }
+  g.globalAlpha = 0.28;
+  g.fillRect(0, 44, 256, 3);
+  g.fillRect(0, 82, 256, 3);
+  g.globalAlpha = 1;
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+/**
+ * Painted sponsor decals ON the asphalt near the straights — large faded
+ * brand-color blocks with text-like noise and grime, exactly like real
+ * circuits paint their sponsors on the racing surface. Painted at y+0.21
+ * with polygonOffset (same decal technique as the finish line), slightly
+ * transparent so the asphalt grain shows through the paint.
+ */
+function buildRoadSponsorDecals(path) {
+  const halfW = getRoadWidthAt() / 2;
+  const SCHEMES = [
+    { base: 0x1fa8d8, accent: 0xffffff },
+    { base: 0xd8493f, accent: 0xffffff },
+    { base: 0xe87a2a, accent: 0x1b2a41 },
+    { base: 0x3fa44e, accent: 0xffffff },
+    { base: 0xe2b13c, accent: 0x1b2a41 },
+    { base: 0x7b5cbf, accent: 0xffffff },
+  ];
+  // Low-curvature straights, clear of the start grid (t<0.07), the ramps
+  // (0.30/0.86) and the turbo clusters (0.18/0.72).
+  const CANDIDATES = [0.08, 0.46, 0.50, 0.62, 0.80, 0.92];
+  const RAMP_TS = [0.30, 0.86];
+  const TURBO_TS = CONFIG.track.turboPadTs || [];
+  const tan = new THREE.Vector3();
+  const tan2 = new THREE.Vector3();
+  const p = new THREE.Vector3();
+  const nrm = new THREE.Vector3();
+  const dt = 1 / 160;
+  const spots = [];
+  for (const t of CANDIDATES) {
+    path.getTangentAt(t, tan);
+    path.getTangentAt(Math.min(1, t + dt), tan2);
+    const curv = 1 - Math.min(1, Math.max(-1, tan.dot(tan2)));
+    if (curv > 0.0012) continue;
+    let clash = false;
+    for (const rt of RAMP_TS) {
+      if (Math.min(Math.abs(t - rt), 1 - Math.abs(t - rt)) < 0.05) clash = true;
+    }
+    for (const tt of TURBO_TS) {
+      if (Math.min(Math.abs(t - tt), 1 - Math.abs(t - tt)) < 0.05) clash = true;
+    }
+    if (!clash) spots.push(t);
+  }
+  if (spots.length === 0) return null;
+
+  const group = new THREE.Group();
+  // X = across the road, Y = along the track (finish-line convention).
+  const geo = new THREE.PlaneGeometry(3.6, 5.4);
+  for (let i = 0; i < spots.length; i++) {
+    const t = spots[i];
+    const scheme = SCHEMES[i % SCHEMES.length];
+    const mat = new THREE.MeshStandardMaterial({
+      map: roadDecalTexture(scheme.base, scheme.accent),
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.5,
+      roughness: 0.85,
+      metalness: 0,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    mat.polygonOffset = true;
+    mat.polygonOffsetFactor = -2;
+    mat.polygonOffsetUnits = -2;
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.renderOrder = 2;
+    path.getPointAt(t, p);
+    path.getTangentAt(t, tan);
+    nrm.set(-tan.z, 0, tan.x).normalize();
+    const side = i % 2 === 0 ? 1 : -1;
+    const lx = nrm.x * side * halfW * 0.3;
+    const lz = nrm.z * side * halfW * 0.3;
+    mesh.position.set(p.x + lx, p.y + 0.21, p.z + lz);
+    mesh.lookAt(p.x + tan.x + lx, p.y, p.z + tan.z + lz);
+    mesh.rotateX(-Math.PI / 2);
+    mesh.rotation.z += (hash01(i, 3) - 0.5) * 0.03; // hand-painted yaw jitter
+    group.add(mesh);
+  }
+  return group;
+}
+
 export function buildTrack(scene, trackPath = TRACK_PATH) {
   const group = new THREE.Group();
 
@@ -1157,6 +1462,12 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   ribbon.receiveShadow = true;
   group.add(ribbon);
 
+  // Racing-line wear + wet sheen: a low-roughness dark band down the center
+  // of the asphalt that visibly polishes the surface (MK8D cue).
+  group.add(buildRacingLineOverlay(path, length));
+  // Dark curb shadow line where asphalt meets kerb (edge depth cue).
+  group.add(buildEdgeShadowLine(path, length));
+
   // Red/white kerbs along both edges (kart-circuit look — was disabled due to
   // the y+0.11-buried + rotateX bugs; now fixed). NEON CITY swaps them for
   // alternating emissive pink/cyan.
@@ -1182,6 +1493,11 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   group.add(buildGrassTufts(path, length));
   const apexCones = buildApexCones(path, length, getRoadWidthAt());
   if (apexCones) group.add(apexCones);
+
+  // Painted sponsor decals on the asphalt near the straights (real circuits
+  // paint their sponsors on the road surface — large faded blocks).
+  const roadDecals = buildRoadSponsorDecals(path);
+  if (roadDecals) group.add(roadDecals);
 
   const dashes = buildLaneDashes(path, length);
   group.add(dashes);

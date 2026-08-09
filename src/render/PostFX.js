@@ -11,6 +11,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader.js';
+import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass.js';
 import { CONFIG } from '../config.js';
 
 const ColorGradeShader = {
@@ -63,6 +64,16 @@ export class PostFX {
       this.composer = new EffectComposer(renderer, rt);
       this.composer.addPass(new RenderPass(scene, camera));
 
+      // SSAO (AAA contact shadows): subtle ambient occlusion grounds karts
+      // and props — the critic's #1 material gap ("karts look pasted on").
+      // Kernel is small + blurred so it reads as contact, not noise.
+      this.ssao = new SSAOPass(scene, camera, size.width, size.height);
+      this.ssao.kernelRadius = 6;
+      this.ssao.minDistance = 0.004;
+      this.ssao.maxDistance = 0.12;
+      this.ssao.output = SSAOPass.OUTPUT.Default;
+      this.composer.addPass(this.ssao);
+
       this.bloom = new UnrealBloomPass(
         new THREE.Vector2(window.innerWidth, window.innerHeight),
         CONFIG.render.bloomStrength,
@@ -93,6 +104,7 @@ export class PostFX {
   _onResize() {
     if (!this.composer) return;
     this.composer.setSize(window.innerWidth, window.innerHeight);
+    if (this.ssao) this.ssao.setSize(window.innerWidth, window.innerHeight);
   }
 
   setBloom(strength) {

@@ -109,8 +109,8 @@ export const CONFIG = {
     bloomRadius: 0.4,
     bloomThreshold: 0.95,
     vignetteStrength: 0.3,
-    colorGradeSaturation: 1.18,
-    colorGradeContrast: 1.08,
+    colorGradeSaturation: 1.2,
+    colorGradeContrast: 1.15,
     shadows: true,
     shadowMapSize: 2048,
     testShadowMapSize: 1024, // used when ?test is active (QA speed)
