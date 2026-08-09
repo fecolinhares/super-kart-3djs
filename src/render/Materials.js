@@ -206,6 +206,21 @@ export function roadTexture() {
       ctx.fillStyle = '#2f3844';
       ctx.fillRect(0, Math.floor(s * 0.34), s, 3);
       ctx.fillRect(0, Math.floor(s * 0.72), s, 3);
+      // large oil/rubber patches (macro contrast — reads in screenshots)
+      ctx.globalAlpha = 0.2;
+      ctx.fillStyle = '#2b3542';
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        ctx.ellipse(Math.random() * s, Math.random() * s, 18 + Math.random() * 30, 10 + Math.random() * 18, Math.random() * Math.PI, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 0.12;
+      ctx.fillStyle = '#6d7f92';
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        ctx.ellipse(Math.random() * s, Math.random() * s, 14 + Math.random() * 24, 8 + Math.random() * 14, Math.random() * Math.PI, 0, Math.PI * 2);
+        ctx.fill();
+      }
       // subtle cracks (short dark jagged strokes)
       ctx.globalAlpha = 0.16;
       ctx.strokeStyle = '#2f3844';
@@ -353,9 +368,9 @@ export function skyTexture() {
       g.addColorStop(1, '#d9f4ff');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, s, s);
-      // sun disc + halo (upper third)
-      const sunX = s * 0.3;
-      const sunY = s * 0.2;
+      // sun disc + halo (center of the dome — visible straight ahead)
+      const sunX = s * 0.5;
+      const sunY = s * 0.18;
       ctx.globalAlpha = 0.35;
       ctx.fillStyle = '#fff7cf';
       ctx.beginPath();
