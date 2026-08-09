@@ -292,7 +292,14 @@ function readKeyboardInput() {
 function pressItem() {
   if (getState() !== STATES.RACE || !playerKart) return;
   if (!playerKart.heldItem) return;
+  const used = playerKart.heldItem;
   raceManager.useItem(playerKart);
+  // Feedback: show what you just used (user: item use felt unclear).
+  const LABELS = {
+    mushroom: '🍄 MUSHROOM!', shell: '🐢 SHELL!', red_shell: '🔴 RED SHELL!',
+    banana: '🍌 BANANA!', star: '⭐ STAR!', lightning: '⚡ LIGHTNING!', blue_shell: '🔵 BLUE SHELL!',
+  };
+  if (LABELS[used]) hud.showMessage(LABELS[used]);
 }
 
 window.addEventListener('keydown', (e) => {
