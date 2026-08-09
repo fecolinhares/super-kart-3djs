@@ -18,7 +18,7 @@ export function createScene(container) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, cap));
   if (CONFIG.render.shadows) {
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // soft edges (see sun.shadow.radius = 4 in Environment.js)
   }
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;

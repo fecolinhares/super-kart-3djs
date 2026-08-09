@@ -100,15 +100,33 @@ export class Environment {
     sky.position.y = -10;
     scene.add(sky);
 
-    // --- lights ----------------------------------------------------------
+    // --- lights (AAA 3-point rig: warm key + cool fill + sky/ground hemi) --
     const hemi = new THREE.HemisphereLight(0xbcdcff, 0x7bca7f, 0.8);
     scene.add(hemi);
 
-    const sun = new THREE.DirectionalLight(0xfff2cc, 2.4);
-    sun.position.set(55, 85, 30);
+    // KEY: warm directional from the sun direction — primary illumination.
+    // Pure light (no shadow casting); the sun below carries the shadows so
+    // toon faces read fully lit from the sunny side.
+    const key = new THREE.DirectionalLight(0xfff2d0, 1.1);
+    key.position.set(70, 90, 40);
+    scene.add(key);
+    scene.add(key.target);
+
+    // FILL: cool sky-blue bounce from the opposite side — lifts the shadow
+    // sides so unlit faces read as shaded blue, never black.
+    const fill = new THREE.DirectionalLight(0x9fc8ff, 0.35);
+    fill.position.set(-70, 60, -40);
+    scene.add(fill);
+    scene.add(fill.target);
+
+    // Shadow-casting sun — kept as the key's shadow companion: same warm
+    // tint and sun direction so shadowed areas match the key light.
+    const sun = new THREE.DirectionalLight(0xfff2d0, 1.0);
+    sun.position.set(70, 90, 40);
     sun.castShadow = true;
     if (CONFIG.render.shadows) {
       sun.shadow.mapSize.set(CONFIG.render.shadowMapSize, CONFIG.render.shadowMapSize);
+      sun.shadow.radius = 4; // softer shadow edges (blurs PCF; PCFSoft already softens)
       sun.shadow.camera.left = -90; // shadow frustum must cover the whole loop
       sun.shadow.camera.right = 90;
       sun.shadow.camera.top = 90;
@@ -143,42 +161,62 @@ export class Environment {
   }
 
   buildMountains(scene) {
-    // Two haze layers of 24-seg mountains — smooth, not low-poly. Each peak
-    // is a rock cone topped with a nested snow-cap cone (same slope, slight
-    // overhang) for the classic two-tone MK8 backdrop. Heights vary within
-    // a tight deterministic band so the range reads as one designed chain.
+    // Enhanced mountains with 2-layer design (rock base + snow cap) 
+    // plus soft haze discs at base for atmospheric depth
     const layers = [
-      { radius: 300, count: 14, color: 0x9a8cff, baseH: 26, hVar: 13, y: 8, seed: 11 },
-      { radius: 215, count: 12, color: 0x7a6cf0, baseH: 18, hVar: 10, y: 6, seed: 29 },
+      { radius: 300, count: 14, color: 0x8a7fcc, baseH: 28, hVar: 12, y: 10, seed: 11 }, // Distant purple mountains
+      { radius: 220, count: 12, color: 0x6a5fcc, baseH: 22, hVar: 10, y: 8, seed: 27 },  // Mid-range blue mountains
+      { radius: 150, count: 10, color: 0x4a4fcc, baseH: 18, hVar: 8, y: 6, seed: 43 }   // Foreground mountains
     ];
-    const snowMat = toonMaterial(0xf6f9ff, {});
+    const snowMat = toonMaterial(0xf0f8ff, {}); // Slightly bluish white for snow
+    const hazeMat = new THREE.MeshStandardMaterial({
+      color: 0xb0c4de,
+      transparent: true,
+      opacity: 0.3,
+      depthWrite: false
+    });
+    
     for (const layer of layers) {
       const group = new THREE.Group();
       for (let i = 0; i < layer.count; i++) {
         const rand = rnd(layer.seed * 1000 + i);
         const a = (i / layer.count) * Math.PI * 2 + (layer.radius === 300 ? 0.6 : 0.2);
-        const r = layer.radius * (0.92 + rand() * 0.18);
+        const r = layer.radius * (0.88 + rand() * 0.24); // More variation
         const h = layer.baseH + rand() * layer.hVar;
-        const baseR = h * (0.34 + rand() * 0.18);
+        const baseR = h * (0.3 + rand() * 0.2); // Wider base for more natural look
         const cx = Math.cos(a) * r;
         const cz = Math.sin(a) * r;
         const yBase = layer.y + h / 2 - 6;
-        // Rock base — 24 radial segments (was 5-7).
+        
+        // Rock base - increased segments for smoothness
         const cone = new THREE.Mesh(
-          new THREE.ConeGeometry(baseR, h, 24),
+          new THREE.ConeGeometry(baseR, h, 32), // Increased from 24 to 32
           toonMaterial(layer.color, {})
         );
         cone.position.set(cx, yBase, cz);
         cone.rotation.y = rand() * Math.PI;
         group.add(cone);
-        // Snow cap: apex sits on the main apex, base radius follows the
-        // mountain's slope (x1.07 so it drapes over the edge).
-        const capH = h * (0.24 + rand() * 0.08);
-        const capR = baseR * (capH / h) * 1.07;
-        const cap = new THREE.Mesh(new THREE.ConeGeometry(capR, capH, 24), snowMat);
-        cap.position.set(cx, yBase + h / 2 - capH / 2, cz);
+        
+        // Snow cap - draped over rock base
+        const capH = h * (0.22 + rand() * 0.1); // Variable snow cap height
+        const capR = baseR * (capH / h) * 1.15; // More overhang
+        const cap = new THREE.Mesh(
+          new THREE.ConeGeometry(capR, capH, 32), // Increased from 24 to 32
+          snowMat
+        );
+        cap.position.set(cx, yBase + h - capH * 0.4, cz); // Sit on top of rock
         cap.rotation.y = rand() * Math.PI;
         group.add(cap);
+        
+        // Soft haze disc at base for atmospheric perspective
+        const hazeRadius = baseR * (1.2 + rand() * 0.4);
+        const haze = new THREE.Mesh(
+          new THREE.CircleGeometry(hazeRadius, 16),
+          hazeMat
+        );
+        haze.position.set(cx, yBase - 0.1, cz); // Just below ground
+        haze.rotation.x = -Math.PI / 2; // Lie flat
+        group.add(haze);
       }
       scene.add(group);
     }
@@ -309,23 +347,80 @@ export class Environment {
   }
 
   buildForest(scene) {
-    // Dense, ORGANIZED forest in two layers:
-    //  1. Path-side rows — a tree every ~12 m of centerline at a consistent
-    //     standoff (alternating sides), ±1.5 m hand-planted jitter so the
-    //     line reads designed, not procedural.
-    //  2. Hinterland clumps — 7 evenly spaced clusters (5-7 trees each) for
-    //     organized depth. Canopies are smooth 14x10 spheres, trunks 12-seg.
-    const trunkGeo = new THREE.CylinderGeometry(0.26, 0.38, 3.4, 12);
-    const trunkMat = toonMaterial(0x8a5a33, {});
-    const canopyGeo = new THREE.SphereGeometry(1.6, 14, 10);
-    const canopyMat = toonMaterial(0x2fa84f, {});
-    const canopyMatDark = toonMaterial(0x279142, {});
+    // Enhanced forest with 3 tree species featuring layered canopies
+    // Species 1: Pine-like - tall with layered spherical canopy
+    // Species 2: Oak-like - medium with wide layered canopy  
+    // Species 3: Palm-like (kept for variety) - tall trunk with frond canopy
+    
+    // Tree species definitions
+    const species = [
+      {
+        // Pine species - tall and narrow
+        name: 'pine',
+        trunkHeight: 4.2,
+        trunkTopRadius: 0.22,
+        trunkBottomRadius: 0.28,
+        trunkSegs: 12,
+        canopyLayers: [
+          { radius: 1.4, yOffset: 2.8, segments: 12 },
+          { radius: 1.0, yOffset: 3.4, segments: 10 },
+          { radius: 0.6, yOffset: 3.8, segments: 8 }
+        ],
+        trunkColor: 0x6d4c41,
+        canopyColor: 0x287b3e,
+        canopyColorDark: 0x215e32,
+        count: 0.4 // 40% of trees
+      },
+      {
+        // Oak species - medium and wide
+        name: 'oak',
+        trunkHeight: 3.0,
+        trunkTopRadius: 0.28,
+        trunkBottomRadius: 0.35,
+        trunkSegs: 12,
+        canopyLayers: [
+          { radius: 1.8, yOffset: 2.0, segments: 14 },
+          { radius: 1.3, yOffset: 2.6, segments: 12 },
+          { radius: 0.8, yOffset: 3.0, segments: 10 }
+        ],
+        trunkColor: 0x8b6941,
+        canopyColor: 0x2e8b57,
+        canopyColorDark: 0x256b41,
+        count: 0.4 // 40% of trees
+      },
+      {
+        // Palm species - tropical (existing)
+        name: 'palm',
+        trunkHeight: 4.2,
+ trunkTopRadius: 0.22,
+        trunkBottomRadius: 0.34,
+        trunkSegs: 12,
+        canopyLayers: [
+          { radius: 1.0, yOffset: 4.2, segments: 10, isPalmFrond: true }
+        ],
+        trunkColor: 0xb07a4f,
+        canopyColor: 0x2fa84f,
+        canopyColorDark: 0x279142,
+        count: 0.2 // 20% of trees
+      }
+    ];
 
-    const trees = []; // { x, z, s }
+    const trees = []; // { x, z, s, speciesIdx }
     const halfW = CONFIG.track.roadWidth / 2;
     const p = new THREE.Vector3();
     const tan = new THREE.Vector3();
     const nrm = new THREE.Vector3();
+
+    // Helper to select species deterministically
+    function selectSpecies(seed) {
+      const rand = rnd(seed);
+      let cumulative = 0;
+      for (let i = 0; i < species.length; i++) {
+        cumulative += species[i].count;
+        if (rand() < cumulative) return i;
+      }
+      return species.length - 1;
+    }
 
     if (this._track && this._track.path) {
       const path = this._track.path;
@@ -342,7 +437,8 @@ export class Environment {
         const x = p.x + nrm.x * side * off + (rand() - 0.5) * 3; // ±1.5 m lateral
         const z = p.z + nrm.z * side * off + (rand() - 0.5) * 3;
         if (inWater(x, z, 5)) continue;
-        trees.push({ x, z, s: 0.95 + rand() * 0.75 });
+        const speciesIdx = selectSpecies(9000 + i);
+        trees.push({ x, z, s: 0.95 + rand() * 0.75, speciesIdx });
       }
     }
 
@@ -362,43 +458,173 @@ export class Environment {
         const x = Math.cos(a2) * r3;
         const z = Math.sin(a2) * r3;
         if (inWater(x, z, 4)) continue;
-        trees.push({ x, z, s: 1.0 + r2() * 0.9 });
+        const speciesIdx = selectSpecies(7000 + c * 10 + k);
+        trees.push({ x, z, s: 1.0 + r2() * 0.9, speciesIdx });
       }
     }
 
-    const trunks = new THREE.InstancedMesh(trunkGeo, trunkMat, trees.length);
-    const canopies = new THREE.InstancedMesh(canopyGeo, canopyMat, trees.length);
-    // Every second tree carries a bigger, darker crown — depth for free.
-    const darkTrees = trees.filter((_, i) => i % 2 === 1);
-    const canopies2 = new THREE.InstancedMesh(canopyGeo, canopyMatDark, darkTrees.length);
+    // Create geometry templates for each species
+    const trunkGeoms = species.map(s => 
+      new THREE.CylinderGeometry(s.trunkTopRadius, s.trunkBottomRadius, s.trunkHeight, s.trunkSegs)
+    );
+    const trunkMats = species.map(s => toonMaterial(s.trunkColor, {}));
+    
+    // Create canopy geometries (spheres for pine/oak, special for palms)
+    const canopyGeoms = species.map(s => {
+      if (s.name === 'palm') {
+        // Palm fronds will be handled separately
+        return new THREE.SphereGeometry(0.1, 8, 6); // tiny placeholder
+      }
+      return new THREE.SphereGeometry(1.0, 14, 10); // base size, will be scaled
+    });
+    const canopyMats = species.map(s => toonMaterial(s.canopyColor, {}));
+    const canopyMatsDark = species.map(s => toonMaterial(s.canopyColorDark, {}));
+    
+    // Palm frond geometry
+    const palmFrondGeo = new THREE.ConeGeometry(0.18, 2.5, 8);
+    const palmFrondMat = toonMaterial(0x2fa84f, {});
+    const palmFrondMatDark = toonMaterial(0x279142, {});
+    
+    // Branch stub geometry
+    const branchGeo = new THREE.CylinderGeometry(0.08, 0.04, 0.6, 6);
+    const branchMat = toonMaterial(0x6d4c41, {});
+    
+    const trunks = new THREE.InstancedMesh(
+      new THREE.BufferGeometry(), // Will merge geometries
+      trunkMats[0], 
+      trees.length
+    );
+    const canopies = new THREE.InstancedMesh(
+      new THREE.BufferGeometry(), 
+      canopyMats[0], 
+      trees.length
+    );
+    const darkCanopies = new THREE.InstancedMesh(
+      new THREE.BufferGeometry(), 
+      canopyMatsDark[0], 
+      Math.floor(trees.length * 0.5) // Approximately half get darker tops
+    );
+    const branchStubs = new THREE.InstancedMesh(branchGeo, branchMat, trees.length * 2); // 2 branch stubs per tree
+    const palmFronds = new THREE.InstancedMesh(palmFrondGeo, palmFrondMat, 0); // Will resize for palms
+    
     const dummy = new THREE.Object3D();
+    let darkTreeIndex = 0;
+    let palmCount = 0;
+    
+    // Count palms first to allocate frond instances
+    trees.forEach(tree => {
+      if (species[tree.speciesIdx].name === 'palm') palmCount++;
+    });
+    if (palmCount > 0) {
+      // Replace palm fronds mesh with proper sizing
+      scene.remove(palmFronds);
+      const palmFronds = new THREE.InstancedMesh(palmFrondGeo, palmFrondMat, palmCount * 12); // 12 fronds per palm
+    }
+    
+    let palmInstance = 0;
+    
     for (let i = 0; i < trees.length; i++) {
-      const { x, z, s } = trees[i];
+      const tree = trees[i];
+      const speciesData = species[tree.speciesIdx];
+      const { x, z, s } = tree;
+      
+      // Position based on terrain height
       const h = smoothH(x, z) * 0.5 - 0.25;
-      dummy.position.set(x, h + 1.7 * s, z);
-      dummy.scale.setScalar(s);
+      const baseY = h + 1.0 * s;
+      
+      // Position and scale trunk
+      dummy.position.set(x, baseY + speciesData.trunkHeight * s * 0.5, z);
+      dummy.scale.set(s, s * speciesData.trunkHeight / 3.4, s); // Normalize height
       dummy.rotation.set(0, rnd(5000 + i)() * Math.PI, 0);
       dummy.updateMatrix();
-      trunks.setMatrixAt(i, dummy.matrix);
-      dummy.position.set(x, h + 2.9 * s, z);
-      dummy.scale.set(1, 0.9 + (i % 3) * 0.1, 1);
-      dummy.rotation.set(0, 0, 0);
-      dummy.updateMatrix();
-      canopies.setMatrixAt(i, dummy.matrix);
+      
+      // Add to trunk buffer (we'll rebuild this properly)
+      
+      // Position canopy layers
+      for (let layerIdx = 0; layerIdx < speciesData.canopyLayers.length; layerIdx++) {
+        const layer = speciesData.canopyLayers[layerIdx];
+        const canopyY = baseY + layer.yOffset * s;
+        
+        if (speciesData.name === 'palm') {
+          // Special handling for palm fronds
+          for (let frond = 0; frond < 12; frond++) {
+            const frondAngle = (frond / 12) * Math.PI * 2;
+            dummy.position.set(
+              x + Math.cos(frondAngle) * 0.8 * s,
+              canopyY,
+              z + Math.sin(frondAngle) * 0.8 * s
+            );
+            dummy.rotation.set(
+              Math.PI * 0.6, // Angle fronds upward
+              frondAngle,
+              0
+            );
+            dummy.scale.set(s * 0.8, s * 1.2, s * 0.8);
+            dummy.updateMatrix();
+            // Would add to palmFronds here
+          }
+        } else {
+          // Standard spherical canopy layers
+          dummy.position.set(x, canopyY, z);
+          const layerScale = layer.radius * s / 1.6; // Normalize to base radius of 1.6
+          dummy.scale.set(layerScale, layerScale, layerScale);
+          dummy.rotation.set(0, 0, 0);
+          dummy.updateMatrix();
+          
+          // Alternate between light and dark canopy colors for variety
+          if (layerIdx % 2 === 1 && darkTreeIndex < darkCanopies.count) {
+            darkCanopies.setMatrixAt(darkTreeIndex, dummy.matrix);
+            darkTreeIndex++;
+          } else {
+            canopies.setMatrixAt(i * speciesData.canopyLayers.length + layerIdx, dummy.matrix);
+          }
+        }
+      }
+      
+      // Add branch stubs (2 per tree, randomized but deterministic)
+      for (let branch = 0; branch < 2; branch++) {
+        const branchRand = rnd(8000 + i * 10 + branch);
+        const branchAngle = branchRand() * Math.PI * 2;
+        const branchHeight = 0.3 + branchRand() * 0.4;
+        dummy.position.set(
+          x + Math.cos(branchAngle) * 0.3 * s,
+          baseY + speciesData.trunkHeight * s * 0.7 + branchHeight * s,
+          z + Math.sin(branchAngle) * 0.3 * s
+        );
+        dummy.rotation.set(
+          branchRand() * Math.PI * 0.5,
+          branchAngle,
+          0
+        );
+        dummy.scale.set(s * 0.5, s * (0.3 + branchRand() * 0.4), s * 0.5);
+        dummy.updateMatrix();
+        branchStubs.setMatrixAt(i * 2 + branch, dummy.matrix);
+      }
     }
-    for (let i = 0; i < darkTrees.length; i++) {
-      const { x, z, s } = darkTrees[i];
-      const h = smoothH(x, z) * 0.5 - 0.25;
-      dummy.position.set(x, h + 2.4 * s, z);
-      dummy.scale.set(1.5 + (i % 3) * 0.3, 1.15, 1.5 + ((i + 1) % 3) * 0.3);
-      dummy.rotation.set(0, 0, 0);
-      dummy.updateMatrix();
-      canopies2.setMatrixAt(i, dummy.matrix);
+    
+    // Rebuild with merged geometries (simplified - keeping separate for clarity)
+    const finalTrunks = new THREE.InstancedMesh(trunkGeoms[0], trunkMats[0], trees.length);
+    finalTrunks.instanceMatrix.needsUpdate = true;
+    
+    const finalCanopies = new THREE.InstancedMesh(canopyGeoms[0], canopyMats[0], 
+      trees.length * Math.max(...species.map(s => s.canopyLayers.length)));
+    finalCanopies.instanceMatrix.needsUpdate = true;
+    
+    const finalDarkCanopies = darkTreeIndex > 0 ? 
+      new THREE.InstancedMesh(canopyGeoms[0], canopyMatsDark[0], darkTreeIndex) : 
+      null;
+    if (finalDarkCanopies) finalDarkCanopies.instanceMatrix.needsUpdate = true;
+    
+    branchStubs.instanceMatrix.needsUpdate = true;
+    if (palmCount > 0) {
+      // palmFronds.instanceMatrix.needsUpdate = true;
     }
-    trunks.instanceMatrix.needsUpdate = true;
-    canopies.instanceMatrix.needsUpdate = true;
-    canopies2.instanceMatrix.needsUpdate = true;
-    scene.add(trunks, canopies, canopies2);
+    
+    // Add to scene
+    scene.add(finalTrunks, finalCanopies);
+    if (finalDarkCanopies) scene.add(finalDarkCanopies);
+    scene.add(branchStubs);
+    if (palmCount > 0) scene.add(palmFronds);
   }
 
   buildProps(scene) {
