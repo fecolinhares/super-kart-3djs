@@ -805,6 +805,18 @@ export class Kart {
       });
     }
 
+    // slipstream wake (audit v3 F1 asked for wake particles): faint streaks
+    // trailing the kart while drafting — the visual "you're in the slipstream".
+    if (s.draft && speedAbs > 6 && !s.spinOut) {
+      this._draftAcc = (this._draftAcc || 0) + dt;
+      if (this._draftAcc >= 0.05) {
+        this._draftAcc = 0;
+        this._localToWorld(this._pv, 0, 0.3, -0.7);
+        this._v.copy(this._back).multiplyScalar(2.2);
+        particles.emit('dust', this._pv, { velocity: this._v, spread: 0.3, size: 0.12, color: 0xbfd8ff });
+      }
+    }
+
     // boost flame
     if (s.boost && !s.spinOut) {
       this._localToWorld(this._pv, 0, this._pipeOffset.y, this._pipeOffset.z);

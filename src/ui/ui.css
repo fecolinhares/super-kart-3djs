@@ -673,6 +673,29 @@
   animation: sk3d-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
+.sk3d-draft {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  transform: translateX(-50%);
+  font-family: var(--sk3d-font);
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: #fff;
+  background: rgba(46, 196, 255, 0.85);
+  border-radius: 999px;
+  padding: 4px 18px;
+  text-shadow: 0 2px 0 rgba(27, 42, 65, 0.8);
+  animation: sk3d-draftpulse 0.5s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 4;
+}
+
+@keyframes sk3d-draftpulse {
+  from { transform: translateX(-50%) scale(1); }
+  to { transform: translateX(-50%) scale(1.08); }
+}
+
 /* --- countdown --- */
 
 .sk3d-countdown {

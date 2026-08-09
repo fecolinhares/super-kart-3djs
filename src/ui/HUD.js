@@ -112,6 +112,7 @@ export class HUD {
         </div>
       </div>
       <div class="sk3d-hud-bottom"></div>
+      <div class="sk3d-draft sk3d-hidden">DRAFT</div>
       <div class="sk3d-countdown sk3d-hidden">3</div>
       <div class="sk3d-pause sk3d-hidden">⏸ PAUSED<div class="sk3d-pause-hint">Press P / tap to resume</div></div>
       <div class="sk3d-finish sk3d-hidden">
@@ -146,6 +147,7 @@ export class HUD {
     this.driftFillEl = drift.querySelector('.sk3d-drift-fill');
 
     this.positionEl = this.root.querySelector('.sk3d-position');
+    this.draftEl = this.root.querySelector('.sk3d-draft');
     this.lapEl = this.root.querySelector('.sk3d-lap');
     this.lapTextEl = this.root.querySelector('.sk3d-lap-text');
     this.lapBarFillEl = this.root.querySelector('.sk3d-lap-bar-fill');
@@ -496,6 +498,13 @@ export class HUD {
     // Speedometer.
     const speed = player && player.state ? player.state.speed : 0;
     this.setSpeed(speed);
+
+    // Slipstream indicator (audit v3: drafting had no feedback).
+    const drafting = !!(player && player.state && player.state.draft);
+    if (drafting !== this._drafting) {
+      this._drafting = drafting;
+      this.draftEl.classList.toggle('sk3d-hidden', !drafting);
+    }
 
     // Held item slot.
     const item = player ? player.heldItem : null;
