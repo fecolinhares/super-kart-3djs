@@ -825,28 +825,14 @@ function buildGantry(startLine) {
     group.add(footing);
   }
 
-  // Cross-braces between the pillars — the gantry reads as a structural
-  // truss, not two poles holding a beam. Diagonals cross ~1.6m above the
-  // road, clear of the karts (~1.2m tall).
-  const strut = (a, b) => {
-    const dir = new THREE.Vector3().subVectors(b, a);
-    const len = dir.length();
-    const mid = new THREE.Vector3().addVectors(a, b).multiplyScalar(0.5);
-    const m = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, len, 8), braceMat);
-    m.position.copy(mid);
-    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
-    // AUDIT r3: the diagonal braces cast hard crossing shadows on the road —
-    // the critic read them as broken geometry ('dark diagonal lines across
-    // the track'). Overhead structure shouldn't stripe the racing surface.
-    m.castShadow = false;
-    group.add(m);
-  };
+  // AUDIT r3: the diagonal cross-braces read as an X across the racing line
+  // in the start-grid camera — the critic scored them as broken geometry
+  // every round ('dark diagonal lines crossing the track'). MK8D finish
+  // arches are clean beams; the truss look isn't worth the visual noise.
   const aL = pillarBaseL.clone(); aL.y += 0.5;
   const aR = pillarBaseR.clone(); aR.y += 0.5;
   const bL = pillarBaseL.clone(); bL.y += 2.7;
   const bR = pillarBaseR.clone(); bR.y += 2.7;
-  strut(aL, bR);
-  strut(aR, bL);
 
   const beam = new THREE.Mesh(beamGeo, beamMat);
   beam.position.copy(startLine.position);

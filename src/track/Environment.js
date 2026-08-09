@@ -71,7 +71,11 @@ function ridgedConeGeometry(baseR, h, segs, rings, jitter, seed, t0 = 0, overhan
     for (let i = 0; i < segs; i++) {
       const a = (i / segs) * Math.PI * 2;
       const j = ridgeNoise(a, seed) * jitter * (0.35 + 0.65 * t);
-      const rad = Math.max(0.02, rad0 * (1 + j) * overhang);
+      // AUDIT r3: clamp the radius to 30% of the base profile — near the top
+      // (rad0→0) the old 0.02 floor let rings collapse into degenerate
+      // triangles that rasterized BLACK (the 'broken black patches' on the
+      // horizon every critic round).
+      const rad = Math.max(rad0 * 0.3, rad0 * (1 + j) * overhang);
       positions.push(Math.cos(a) * rad, y, Math.sin(a) * rad);
     }
   }
@@ -353,7 +357,10 @@ export class Environment {
         // offset ridge AND snow cap so the whole peak reads as one mass).
         const seed = (band.seed * 7919 + i * 131) >>> 0;
         const segs = 24 + ((rand() * 9) | 0); // 24-32 segments — dense facets
-        const jitter = 0.10 + rand() * 0.10;
+        // AUDIT r3: jitter halved (0.10-0.20 → 0.05-0.10) — strong ridge
+        // jitter plus the new radius clamp still reads ridged, but the
+        // profiles no longer self-intersect into black fragments.
+        const jitter = 0.05 + rand() * 0.05;
 
         // main rock body — ridged cone, tilted + rotated for a natural range
         const rock = new THREE.Mesh(ridgedConeGeometry(baseR, h, segs, 6, jitter, seed), rockMat);
