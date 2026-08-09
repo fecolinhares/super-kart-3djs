@@ -415,18 +415,37 @@ function buildTireBarriers(path, roadW) {
   if (spots.length === 0) return null;
   const tireGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.3, 12);
   const tireMat = toonMaterial(0x23272e, {});
+  // Hub caps (audit v4 F3: tire stacks read as dark stumps — a bright disc
+  // per side makes them read AS TIRES instantly).
+  const hubGeo = new THREE.CylinderGeometry(0.16, 0.16, 0.06, 10);
+  const hubMat = toonMaterial(0xdfe6ee, {});
   const mesh = new THREE.InstancedMesh(tireGeo, tireMat, spots.length * 3);
+  const hubMesh = new THREE.InstancedMesh(hubGeo, hubMat, spots.length * 6);
   let idx = 0;
+  let hidx = 0;
   for (const s of spots) {
     for (let h = 0; h < 3; h++) {
       dummy.position.set(s.x, s.y + 0.15 + h * 0.3, s.z);
       dummy.rotation.set(0, s.ry, 0); // standing tire ring facing along the road
       dummy.updateMatrix();
       mesh.setMatrixAt(idx++, dummy.matrix);
+      // hub caps on both faces (local X ±0.19 → world via ry rotation)
+      const cx = Math.cos(s.ry);
+      const cz = Math.sin(s.ry);
+      for (const sgn of [-1, 1]) {
+        dummy.position.set(s.x + cx * 0.19 * sgn, s.y + 0.15 + h * 0.3, s.z - cz * 0.19 * sgn);
+        dummy.rotation.set(0, s.ry, 0);
+        dummy.updateMatrix();
+        hubMesh.setMatrixAt(hidx++, dummy.matrix);
+      }
     }
   }
   mesh.instanceMatrix.needsUpdate = true;
-  return mesh;
+  hubMesh.instanceMatrix.needsUpdate = true;
+  const g = new THREE.Group();
+  g.add(mesh);
+  g.add(hubMesh);
+  return g;
 }
 
 export function buildTrack(scene) {
@@ -479,7 +498,10 @@ export function buildTrack(scene) {
   group.add(turbo.mesh);
 
   const ramps = buildRamps(path, length);
-  for (const r of ramps) group.add(r.mesh);
+  for (const r of ramps) {
+    group.add(r.mesh);
+    if (r.chev) group.add(r.chev);
+  }
 
   const startLine = { position: startPos.clone(), direction: startDir.clone(), width: getRoadWidthAt() };
   const gantry = buildGantry(startLine);
@@ -513,7 +535,10 @@ export function buildTrack(scene) {
  */
 function buildRamps(path, length) {
   const ramps = [];
-  const mat = new THREE.MeshStandardMaterial({ color: 0xb5651d, roughness: 0.65, metalness: 0.05 });
+  // Toon ramp body (audit v4 F1: was the only non-toon surface — read as a
+  // flat orange crate) + painted chevrons on the top face.
+  const mat = toonMaterial(0xc96f2c, {});
+  const chevMat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), transparent: true, depthWrite: false, side: THREE.DoubleSide });
   const tan = new THREE.Vector3();
   const p = new THREE.Vector3();
   for (const t of [0.16, 0.56]) {
@@ -528,7 +553,14 @@ function buildRamps(path, length) {
     mesh.rotation.x = 0.3; // slope up along travel direction
     mesh.castShadow = true;
     mesh.receiveShadow = true;
-    ramps.push({ t, point: p.clone(), dir: tan.clone(), mesh });
+    // Chevron decal floating just above the ramp surface (y+0.24, follows
+    // the slope via the same rotation).
+    const chev = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.1), chevMat);
+    chev.position.set(p.x, p.y + 0.26, p.z);
+    chev.rotation.y = Math.atan2(tan.x, tan.z);
+    chev.rotation.x = 0.3;
+    chev.renderOrder = 1;
+    ramps.push({ t, point: p.clone(), dir: tan.clone(), mesh, chev });
   }
   return ramps;
 }

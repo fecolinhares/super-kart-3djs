@@ -205,6 +205,17 @@ export class Kart {
     const white = this._mat(0xf4f6f8);
     const skin = this._mat(0xffd9b3);
     const glass = this._mat(0xbfe8ff, { transparent: true, opacity: 0.35 });
+    // Curved glossy windshield (audit v4 F2: was a flat transparent slab —
+    // the #1 close-up draft cue). Half-cylinder, tinted PBR glass.
+    const glassPBR = new THREE.MeshPhysicalMaterial({
+      color: 0xbfe8ff,
+      roughness: 0.1,
+      metalness: 0,
+      transparent: true,
+      opacity: 0.55,
+      envMapIntensity: 1.6,
+      depthWrite: false,
+    });
     const steel = this._mat(0x5a6472);
     const tip = this._mat(0xff9f45);
 
@@ -283,6 +294,16 @@ export class Kart {
     );
     this._outline(cockpit);
     this._mesh(new THREE.BoxGeometry(0.64, 0.2, 0.04), glass, 0, 1.04, 0.3, { rx: -0.28, cast: false });
+    // Curved windshield dome (half-cylinder, tilts with the cockpit).
+    const wind = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.3, 0.3, 0.62, 14, 1, true, 0, Math.PI),
+      glassPBR
+    );
+    wind.position.set(0, 1.06, 0.32);
+    wind.rotation.x = -0.35;
+    wind.rotation.z = Math.PI / 2;
+    wind.castShadow = false;
+    this.group.add(wind);
     this._mesh(new THREE.BoxGeometry(0.5, 0.44, 0.07), bodyDark, 0, 0.98, -0.44);
 
     // Rear wing / spoiler (the MK8/CTR silhouette cue — reads "racer" from
