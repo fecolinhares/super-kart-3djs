@@ -132,7 +132,28 @@ export class AIController {
     // → positive steer. (Was -err before the steering-sign fix.)
     // Handling stat scales steering authority (audit F2 difficulty curve).
     const hGain = 0.85 + (this.stats?.handling || 7) / 10 * 0.3;
-    const steer = THREE.MathUtils.clamp((err / STEER_FULL_AT) * hGain, -1, 1);
+    let steer = THREE.MathUtils.clamp((err / STEER_FULL_AT) * hGain, -1, 1);
+
+    // Hazard avoidance (audit r3: CPUs were free banana/shell fodder — no
+    // steering response to hazards on their line). Steer away from any live
+    // item within ~5m roughly ahead.
+    const items = this.raceManager?.activeItems;
+    if (items && items.length) {
+      for (const it of items) {
+        const m = it && it.mesh;
+        if (!m) continue;
+        const hx = m.position.x - pos.x;
+        const hz = m.position.z - pos.z;
+        const dist = Math.hypot(hx, hz);
+        if (dist > 5 || dist < 0.01) continue;
+        const dot = (hx / dist) * heading.x + (hz / dist) * heading.y; // ~ahead?
+        if (dot < 0.6) continue;
+        // Cross product sign: >0 → hazard left of the kart → steer right.
+        const side = (heading.x * hz - heading.y * hx) / dist;
+        steer = THREE.MathUtils.clamp(steer + (side > 0 ? 1 : -1) * 0.75, -1, 1);
+        break;
+      }
+    }
 
     let throttle = 1;
     let brake = 0;
