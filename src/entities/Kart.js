@@ -1003,6 +1003,18 @@ export class Kart {
       }
     }
 
+    // speed dust (motion cue — vision critic: no visible movement effects;
+    // MK8 kicks a little tire dust when accelerating hard)
+    if (speedAbs > 30 && !s.spinOut && !s.offRoad && (s.throttle > 0.5 || s.boost)) {
+      this._speedDustAcc = (this._speedDustAcc || 0) + dt;
+      if (this._speedDustAcc >= 0.1) {
+        this._speedDustAcc = 0;
+        this._localToWorld(this._pv, this._sideFlip * 0.55, 0.06, -0.6);
+        this._v.copy(this._back).multiplyScalar(1.0);
+        particles.emit('dust', this._pv, { velocity: this._v, spread: 0.5, size: 0.14, color: 0xd8d4c8, duration: 0.5 });
+      }
+    }
+
     // star rainbow trail
     if (this.starred) {
       this._starAcc += dt;
