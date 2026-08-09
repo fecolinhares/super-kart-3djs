@@ -4,6 +4,18 @@
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
 ### Round 3 — AAA polish loop (auditor-driven, 2026-08-09)
+- **Backward item throw (r7)**: hold ITEM ~0.35s arms rear, release fires
+  shells/bananas backward — the MK8D core skill; touch long-press.
+- **Driver selection (r7)**: character cards with stat bars in the menu —
+  roster speed/accel/handling now apply to the player, persisted.
+- **Post-hit i-frames (r7)**: 2s invincibility after any hit + 2s spawn
+  protection at GO — no chain-stun pinning.
+- **Lighting contrast (r7)**: shadow sun is the sole key, hemi/fill cut —
+  lit/shadow ratio >2:1; soft penumbra shadows (radius 4.5).
+- **Mountain variety (r7)**: per-peak stretch → ridge walls, flat buttes,
+  varied snow lines.
+- **Castle texture (r7)**: stone-block + moss, red tile roofs, emissive
+  windows, logo banner — the landmark reads at race distance.
 - **Item depth (r6)**: second held-item slot + swap key; coin pickups
   (+1% maxSpeed each, cap +10%); triple item boxes (~1/6) with queued
   uses — the MK8 hold/swap + collect economy.
