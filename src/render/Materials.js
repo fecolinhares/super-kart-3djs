@@ -204,7 +204,7 @@ export function grassTexture() {
       }
       ctx.globalAlpha = 1;
     },
-    { repeat: [80, 80] }
+    { repeat: [50, 50] }
   );
   return _grassTex;
 }

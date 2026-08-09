@@ -228,18 +228,21 @@ export class Kart {
     const KC = CONFIG.kart;
 
     // Soft blob shadow under the kart (cartoon contact shadow). depthWrite off
-    // + polygonOffset so it never z-fights the asphalt.
+    // + polygonOffset so it never z-fights the asphalt. Oval (stretched along
+    // the kart) + low opacity — vision critic: a big round dark disc read as
+    // a decal, not a contact shadow.
     const blob = new THREE.Mesh(
-      new THREE.CircleGeometry(1.15, 24),
+      new THREE.CircleGeometry(1.1, 24),
       new THREE.MeshBasicMaterial({
         color: 0x000000,
         transparent: true,
-        opacity: 0.3,
+        opacity: 0.2,
         depthWrite: false,
         polygonOffset: true,
         polygonOffsetFactor: -2,
       })
     );
+    blob.scale.set(1, 1, 0.78); // narrower across the kart, longer along it
     blob.rotation.x = -Math.PI / 2;
     blob.position.y = 0.02;
     blob.renderOrder = 1;
