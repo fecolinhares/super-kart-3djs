@@ -880,9 +880,9 @@ export class Environment {
     };
 
     // --- (a) pond: flat blue disc + darker rim ring + 3 edge rocks ---
-    place(115, -80, () => {
-      const px = 115;
-      const pz = -80;
+    place(88, -62, () => {
+      const px = 88;
+      const pz = -62;
       const baseY = gy(px, pz);
       const water = new THREE.Mesh(
         new THREE.CircleGeometry(4, 24),
