@@ -777,6 +777,8 @@
 }
 
 .sk3d-finish-card {
+  pointer-events: auto; /* CRITICAL: overlays default to pointer-events:none —
+    without this the Race Again / Menu buttons swallow no clicks (user bug!) */
   text-align: center;
   background: rgba(255, 253, 247, 0.96);
   border: 4px solid var(--sk3d-ink);
@@ -909,6 +911,7 @@
 /* --- pause overlay --- */
 
 .sk3d-pause {
+  pointer-events: auto; /* tap-to-resume needs the overlay to receive clicks */
   position: absolute;
   inset: 0;
   z-index: 6;
