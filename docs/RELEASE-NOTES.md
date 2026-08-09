@@ -4,6 +4,14 @@
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
 ### Round 3 — AAA polish loop (auditor-driven, 2026-08-09)
+- **Blue shell ARC (r8)**: flies high with a ground-shadow warning, then
+  dives on the leader — the MK8 doom cue, no more blue-painted red shell.
+- **Off-track rescue (r8)**: 2s stuck off-road + slow → Lakitu respawn on
+  the racing line with a hop.
+- **Lap splits (r8)**: per-lap + best-lap chip under the timer, green
+  flash on a new best.
+- **Mow stripes (r8)**: deterministic terrain vertex-color bands — the
+  field no longer reads as one flat green.
 - **Backward item throw (r7)**: hold ITEM ~0.35s arms rear, release fires
   shells/bananas backward — the MK8D core skill; touch long-press.
 - **Driver selection (r7)**: character cards with stat bars in the menu —
