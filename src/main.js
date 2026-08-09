@@ -390,6 +390,11 @@ function applyDifficulty() {
   // maxSpeed/boostSpeed scales the player AND the AI rubber-band ceiling.
   CONFIG.physics.maxSpeed = BASE_MAX_SPEED * mult;
   CONFIG.physics.boostSpeed = BASE_BOOST_SPEED * mult;
+  // AUDIT r5: gauge scale follows engine class (the needle used to PEG at
+  // 150cc — MAX_KMH was a load-time constant). +10% headroom above top speed.
+  if (typeof hud !== 'undefined' && hud && hud.setMaxKmh) {
+    hud.setMaxKmh(CONFIG.physics.maxSpeed * 2.4 * 1.1);
+  }
 }
 
 /** Apply the player character's stats to physics (audit r3 — roster matters). */

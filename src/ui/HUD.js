@@ -143,6 +143,9 @@ export class HUD {
     this.speedNeedle = speedo.needle;
     this.speedArc = speedo.arc;
     this.speedValueEl = speedo.wrap.querySelector('.sk3d-speedo-value');
+    // AUDIT r5: the gauge scale was a load-time constant (MAX_KMH≈101) so the
+    // needle PEGGED at 150cc. Now dynamic — startRace() calls setMaxKmh().
+    this._maxKmh = MAX_KMH;
     bottom.append(speedo.wrap, this.buildItemSlot());
     // Drift charge meter: a thin bar under the speedometer that fills while
     // drifting (white → yellow → orange, matching the spark colors). Only
@@ -533,14 +536,19 @@ export class HUD {
 
   /** @param {number} speed kart speed in m/s (may be negative while reversing). */
   setSpeed(speed) {
-    const kmh = Math.max(0, Math.min(speed * 2.4, MAX_KMH));
+    const kmh = Math.max(0, Math.min(speed * 2.4, this._maxKmh));
     const rounded = Math.round(kmh);
     if (this.speedValueEl.textContent !== String(rounded)) {
       this.speedValueEl.textContent = String(rounded);
     }
-    const angle = -90 + (kmh / MAX_KMH) * 180;
+    const angle = -90 + (kmh / this._maxKmh) * 180;
     this.speedNeedle.style.transform = `rotate(${angle}deg)`;
-    this.speedArc.style.strokeDashoffset = String(ARC_LENGTH * (1 - kmh / MAX_KMH));
+    this.speedArc.style.strokeDashoffset = String(ARC_LENGTH * (1 - kmh / this._maxKmh));
+  }
+
+  /** Rescale the gauge for the engine class (50/100/150cc). */
+  setMaxKmh(kmh) {
+    this._maxKmh = Math.max(40, Math.round(kmh));
   }
 
   /** @param {string|null} itemType PowerUpType key, or null/undefined for empty. */
