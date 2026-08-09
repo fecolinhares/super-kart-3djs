@@ -12,7 +12,7 @@
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader.js';
@@ -64,10 +64,12 @@ export class PostFX {
       this.composer = new EffectComposer(renderer);
       this.composer.addPass(new RenderPass(scene, camera));
 
-      // BLOOM — the classic BloomPass (threshold + 2-pass blur), NOT
-      // UnrealBloomPass (bisection: Unreal renders BLACK on software GL with
-      // the PBR scene). Even BloomPass fails on software GL — so detect the
-      // software rasterizer and drop bloom there (hardware GPUs keep it).
+      // BLOOM — UnrealBloomPass (proven on real GPUs; the classic BloomPass
+      // rendered BLACK on the user's device — GitHub Pages). Software GL
+      // (SwiftShader/llvmpipe) drops bloom: bisection proved Unreal renders
+      // black there with the PBR scene. ?nobl=1 forces it off everywhere.
+      const params = new URLSearchParams(window.location.search);
+      const forceNoBloom = params.has('nobl');
       const gl = renderer.getContext();
       let softGL = false;
       try {
@@ -75,13 +77,13 @@ export class PostFX {
         const rn = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '';
         softGL = /swiftshader|llvmpipe|softpipe|software/i.test(rn);
       } catch { /* no ext */ }
-      this.bloom = softGL
+      this.bloom = forceNoBloom || softGL
         ? null
-        : new BloomPass(
-            CONFIG.render.bloomStrength * 0.6,
-            1.0,
-            CONFIG.render.bloomThreshold,
-            512
+        : new UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            CONFIG.render.bloomStrength,
+            CONFIG.render.bloomRadius,
+            CONFIG.render.bloomThreshold
           );
       if (this.bloom) this.composer.addPass(this.bloom);
 
@@ -111,16 +113,42 @@ export class PostFX {
   }
 
   setBloom(strength) {
-    // BloomPass has no dynamic strength setter; this is a soft no-op kept
-    // for API compatibility (bloom is disabled on software GL anyway).
-    if (this.bloom && this.bloom.convolution) {
-      this.bloom.convolution.material.uniforms.amount.value = strength;
-    }
+    if (this.bloom) this.bloom.strength = strength;
+  }
+
+  /**
+   * SAFETY NET (user hit a black screen on GitHub Pages): after the first
+   * handful of composer frames, read the CENTER pixel of the canvas. If the
+   * whole frame is black (lum < 8) the post chain is broken on this device
+   * (it constructs fine and only fails at render — try/catch can't see it).
+   * Drop the composer and fall back to plain renderer.render() forever.
+   */
+  _safetyFrame() {
+    if (this._safetyDisabled) return;
+    if (this._safetyN === undefined) this._safetyN = 0;
+    if (++this._safetyN < 4) return; // wait past menu/loading frames
+    this._safetyDisabled = true;
+    const gl = this.renderer.getContext();
+    const px = new Uint8Array(4);
+    try {
+      gl.readPixels(
+        Math.floor(gl.drawingBufferWidth / 2),
+        Math.floor(gl.drawingBufferHeight / 2),
+        1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px
+      );
+      const lum = (px[0] + px[1] + px[2]) / 3;
+      if (lum < 8) {
+        console.warn('[postfx] first frames black — composer disabled on this device');
+        this.enabled = false;
+        this.composer = null;
+      }
+    } catch { /* readPixels can fail on some drivers — assume OK */ }
   }
 
   render() {
     if (this.enabled && this.composer) {
       this.composer.render();
+      this._safetyFrame();
     } else {
       this.renderer.render(this.scene, this.camera);
     }
