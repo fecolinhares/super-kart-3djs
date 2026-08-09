@@ -100,16 +100,47 @@ export class Kart {
     this._startDir = new THREE.Vector3(0, 0, 1);
     this._trickArmed = false;
 
-    // Held-item bubble (audit v5: rivals' shields were invisible — MK8 shows
-    // the item in a bubble behind the kart). Small orb + ring, colored by item.
+    // Held-item bubble (audit v5 #1: a recolored orb isn't the item — MK8
+    // shows the actual item). Mini toon meshes per type + orb fallback.
     this.heldItemGroup = new THREE.Group();
     this.heldItemGroup.position.set(0, 0.72, -0.72);
-    this._heldOrbMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    this.heldItemGroup.add(new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 10), this._heldOrbMat));
+    this._heldMeshes = {};
+    // mushroom: red cap + white stem
+    const mush = new THREE.Group();
+    mush.add(new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 8), this._mat(0xff5a5f)));
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.06, 0.1, 6), this._mat(0xf4f6f8));
+    stem.position.y = -0.1;
+    mush.add(stem);
+    mush.scale.setScalar(0.95);
+    this._heldMeshes.mushroom = mush;
+    // shell family: squashed sphere, tinted per type
+    const mkShell = (c) => {
+      const s = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 8), this._mat(c));
+      s.scale.set(0.75, 1, 1.15);
+      return s;
+    };
+    this._heldMeshes.shell = mkShell(0x43d64b);
+    this._heldMeshes.red_shell = mkShell(0xff3b3b);
+    this._heldMeshes.blue_shell = mkShell(0x1f3fc8);
+    // banana: tilted yellow cylinder
+    const ban = new THREE.Group();
+    const b1 = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.055, 0.24, 8), this._mat(0xffd166));
+    b1.rotation.z = 0.45;
+    ban.add(b1);
+    this._heldMeshes.banana = ban;
+    // star: flattened gold octahedron
+    const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.12, 0), this._mat(0xffd700));
+    star.scale.set(1, 0.7, 1);
+    this._heldMeshes.star = star;
+    // lightning / anything else: colored orb fallback
+    this._heldOrb = new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 10), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    this._heldOrbMat = this._heldOrb.material;
+    this.heldItemGroup.add(this._heldOrb);
     this.heldItemGroup.add(new THREE.Mesh(
       new THREE.TorusGeometry(0.26, 0.02, 8, 20),
       new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55 })
     ));
+    for (const key of Object.keys(this._heldMeshes)) this.heldItemGroup.add(this._heldMeshes[key]);
     this.heldItemGroup.visible = false;
     this.group.add(this.heldItemGroup);
 
@@ -763,13 +794,20 @@ export class Kart {
       this._brakeLampMat.emissiveIntensity += (target - this._brakeLampMat.emissiveIntensity) * Math.min(1, 10 * dt);
     }
     this._tickEffects(dt);
-    // Held-item bubble sync (audit v5): show/hide + recolor the orb.
+    // Held-item bubble sync (audit v5): show the per-type mesh (orb fallback).
     if (this.heldItemGroup) {
       const has = !!this.heldItem;
       this.heldItemGroup.visible = has;
       if (has) {
-        const c = HELD_ITEM_COLORS[this.heldItem] || 0xffffff;
-        if (this._heldOrbMat.color.getHex() !== c) this._heldOrbMat.color.setHex(c);
+        for (const key of Object.keys(this._heldMeshes)) {
+          this._heldMeshes[key].visible = key === this.heldItem;
+        }
+        const hasMesh = !!this._heldMeshes[this.heldItem];
+        if (this._heldOrb) this._heldOrb.visible = !hasMesh;
+        if (!hasMesh) {
+          const c = HELD_ITEM_COLORS[this.heldItem] || 0xffffff;
+          if (this._heldOrbMat.color.getHex() !== c) this._heldOrbMat.color.setHex(c);
+        }
         this.heldItemGroup.rotation.y += dt * 2.4; // gentle spin
       }
     }

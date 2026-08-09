@@ -953,7 +953,16 @@
   cursor: pointer;
 }
 
-/* ---------- touch controls ---------- */
+/* --- touch controls --- */
+
+/* On touch, the ITEM/DRIFT buttons would cover the speedo + item slot +
+   the drift-ready meter (audit v5 F1) — lift the bottom HUD stack above
+   the 88px touch buttons (~140px). */
+@media (pointer: coarse) {
+  .sk3d-hud-bottom {
+    bottom: 148px;
+  }
+}
 
 .sk3d-touch {
   position: fixed;
