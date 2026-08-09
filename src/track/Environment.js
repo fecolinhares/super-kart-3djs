@@ -302,6 +302,7 @@ export class Environment {
       this.buildForest(scene);
       this.buildProps(scene);
       this.buildFieldLandmarks(scene);
+      this.buildInfield(scene, track); // r5: densify the enclosed infield grass
       this.buildRoadsideFlowersAndRocks(scene, track);
       this.buildGrassTufts(scene, track); // 3D blade tufts along the verges
       this.buildLightPoles(scene, track); // meadow light poles
@@ -1379,6 +1380,223 @@ export class Environment {
       scene.add(rotor);
       this.windmillRotors.push(spin); // update() spins the blades
     });
+  }
+
+
+  /**
+   * Infield densification (vision critic r5): the enclosed grass INSIDE the
+   * loop read EMPTY from the chase cam — a flat, under-populated green void.
+   * Adds seeded bush/rock/flower CLUSTERS, bright flower PATCHES and big rock
+   * OUTCROPS, all strictly inside the loop (point-in-polygon on a high-res
+   * centerline sample) and >=9m from the centerline (~4.5m past the guard
+   * rail) so nothing touches the road. Grounded on this._gy (the same rolling
+   * terrain every other prop sits on). Every prop is instanced (4 draw calls
+   * for the whole infield) and placement uses fixed LOCAL seeds — never
+   * Math.random, and the shared this._rand stream is untouched so every
+   * existing builder keeps its bit-identical layout.
+   */
+  buildInfield(scene, track) {
+    if (!track || !track.path) return;
+    const path = track.path;
+    const halfW = CONFIG.track.roadWidth / 2;
+    const dummy = new THREE.Object3D();
+
+    // High-res closed polyline of the centerline: inside-loop test (ray cast)
+    // + exact road clearance (point-to-segment). 60 samples is too coarse to
+    // prove a point sits INSIDE the loop.
+    const LOOP_N = 240;
+    const loop = [];
+    let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+    for (let i = 0; i < LOOP_N; i++) {
+      const p = path.getPointAt(i / LOOP_N);
+      loop.push(p.x, p.z);
+      if (p.x < minX) minX = p.x;
+      if (p.x > maxX) maxX = p.x;
+      if (p.z < minZ) minZ = p.z;
+      if (p.z > maxZ) maxZ = p.z;
+    }
+    const inLoop = (x, z) => {
+      let inside = false;
+      for (let i = 0, j = loop.length - 2; i < loop.length; j = i, i += 2) {
+        const xi = loop[i], zi = loop[i + 1];
+        const xj = loop[j], zj = loop[j + 1];
+        if (zi > z !== zj > z && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) inside = !inside;
+      }
+      return inside;
+    };
+    const distToLoop = (x, z) => {
+      let best = Infinity;
+      for (let i = 0; i < loop.length; i += 2) {
+        const j = (i + 2) % loop.length;
+        const ax = loop[i], az = loop[i + 1];
+        const bx = loop[j], bz = loop[j + 1];
+        const abx = bx - ax, abz = bz - az;
+        const t = Math.max(0, Math.min(1, ((x - ax) * abx + (z - az) * abz) / (abx * abx + abz * abz)));
+        const dx = ax + abx * t - x;
+        const dz = az + abz * t - z;
+        const d2 = dx * dx + dz * dz;
+        if (d2 < best) best = d2;
+      }
+      return Math.sqrt(best);
+    };
+
+    // Feature centers are >=9m from the centerline (road edge is at halfW=4.5,
+    // guard rail at halfW+1.1) and separated from every other feature.
+    const ROAD_CLEAR = 9;
+    const used = [];
+    const trySpot = (rng, minSep, roadClear = ROAD_CLEAR) => {
+      for (let a = 0; a < 160; a++) {
+        const x = minX + rng() * (maxX - minX);
+        const z = minZ + rng() * (maxZ - minZ);
+        if (!inLoop(x, z)) continue;
+        if (distToLoop(x, z) < roadClear) continue;
+        if (inWater(x, z, 4)) continue;
+        let ok = true;
+        for (const u of used) {
+          const dx = x - u.x;
+          const dz = z - u.z;
+          if (dx * dx + dz * dz < minSep * minSep) { ok = false; break; }
+        }
+        if (!ok) continue;
+        used.push({ x, z });
+        return { x, z };
+      }
+      return null;
+    };
+
+    // Shared prop style (mirrors buildProps / buildRoadsideFlowersAndRocks).
+    const bushGeo = new THREE.SphereGeometry(0.85, 12, 8);
+    const bushMat = toonMaterial(0x2f8f43, {});
+    const rockGeo = new THREE.DodecahedronGeometry(0.7, 1);
+    const rockMat = toonMaterial(0xa9a9b8, {});
+    const flowerHeadGeo = new THREE.ConeGeometry(0.11, 0.12, 6); // bright bud
+    const flowerStemGeo = new THREE.CylinderGeometry(0.018, 0.032, 0.42, 5);
+    const flowerHeadMat = toonMaterial(0xffffff, {});
+    const flowerStemMat = toonMaterial(0x2f8f43, {});
+    const flowerPalette = [0xff5a5f, 0xffd166, 0x2ec4ff, 0xc86bff, 0xffffff, 0xff9f45];
+    const bushes = []; // {x,z,gy,s,hScale,ry}
+    const rocks = []; // {x,z,gy,s,rx,ry,rz} — cluster rocks + outcrops + pebbles
+    const flowers = []; // {x,z,gy,s,ry,color}
+
+    // --- 1) clustered vegetation: 11 clusters x 4-8 bushes/rocks/flowers ---
+    const CLUSTERS = 11;
+    for (let c = 0; c < CLUSTERS; c++) {
+      const rand = rnd(52000 + c);
+      const spot = trySpot(rand, 9);
+      if (!spot) continue;
+      const per = 4 + ((rand() * 5) | 0); // 4-8 props per cluster
+      for (let k = 0; k < per; k++) {
+        const r2 = rnd(52000 + c * 13 + k);
+        const ox = spot.x + (r2() - 0.5) * 4.4;
+        const oz = spot.z + (r2() - 0.5) * 4.4;
+        if (distToLoop(ox, oz) < halfW + 6) continue; // every prop clears the rail
+        const gy = this._gy(ox, oz);
+        const roll = r2();
+        if (roll < 0.55) {
+          bushes.push({ x: ox, z: oz, gy, s: 0.9 + r2() * 0.6, hScale: 0.75 + r2() * 0.3, ry: r2() * Math.PI });
+        } else if (roll < 0.85) {
+          rocks.push({ x: ox, z: oz, gy, s: 0.4 + r2() * 0.25, ry: r2() * Math.PI, rx: (r2() - 0.5) * 0.35, rz: (r2() - 0.5) * 0.35 });
+        } else {
+          flowers.push({ x: ox, z: oz, gy, s: 0.9 + r2() * 0.3, ry: r2() * Math.PI, color: flowerPalette[(r2() * flowerPalette.length) | 0] });
+        }
+      }
+    }
+
+    // --- 2) flower patches: 5 patches x ~28-32 bright flowers (disc) -------
+    const PATCHES = 5;
+    for (let p = 0; p < PATCHES; p++) {
+      const rand = rnd(53000 + p);
+      // Centers sit deep (>=halfW+8 from centerline) so even the patch rim
+      // stays >=8m inside the loop — nothing reads near the rail.
+      const spot = trySpot(rand, 7, halfW + 8);
+      if (!spot) continue;
+      const radius = 1.7 + rand() * 1.1;
+      const per = 28 + ((rand() * 5) | 0);
+      for (let k = 0; k < per; k++) {
+        const r2 = rnd(53000 + p * 17 + k);
+        const a = r2() * Math.PI * 2;
+        const rr = Math.sqrt(r2()) * radius; // uniform disc fill
+        const fx = spot.x + Math.cos(a) * rr;
+        const fz = spot.z + Math.sin(a) * rr;
+        flowers.push({ x: fx, z: fz, gy: this._gy(fx, fz), s: 0.85 + r2() * 0.4, ry: r2() * Math.PI, color: flowerPalette[(r2() * flowerPalette.length) | 0] });
+      }
+    }
+
+    // --- 3) rock outcrops: 4 big dodecahedrons (1.5-2.5) + 2 pebbles each ---
+    const OUTCROPS = 4;
+    for (let o = 0; o < OUTCROPS; o++) {
+      const rand = rnd(54000 + o);
+      const spot = trySpot(rand, 8);
+      if (!spot) continue;
+      const ox = spot.x + (rand() - 0.5) * 2.0;
+      const oz = spot.z + (rand() - 0.5) * 2.0;
+      const s = 1.5 + rand() * 1.0; // 1.5-2.5m scale — breaks the flat grass
+      rocks.push({ x: ox, z: oz, gy: this._gy(ox, oz), s, ry: rand() * Math.PI, rx: (rand() - 0.5) * 0.35, rz: (rand() - 0.5) * 0.35 });
+      for (let k = 0; k < 2; k++) {
+        const r2 = rnd(54000 + o * 9 + k);
+        const px = ox + (r2() - 0.5) * 3.4;
+        const pz = oz + (r2() - 0.5) * 3.4;
+        rocks.push({ x: px, z: pz, gy: this._gy(px, pz), s: 0.35 + r2() * 0.4, ry: r2() * Math.PI, rx: (r2() - 0.5) * 0.4, rz: (r2() - 0.5) * 0.4 });
+      }
+    }
+
+    // --- instanced meshes (4 draw calls for the whole infield) -------------
+    if (bushes.length) {
+      const mesh = new THREE.InstancedMesh(bushGeo, bushMat, bushes.length);
+      const col = new THREE.Color();
+      const PAL = [0x3faf4e, 0x4cc25e, 0x379c45, 0x58b368];
+      bushes.forEach((b, i) => {
+        dummy.position.set(b.x, b.gy + 0.55 * b.s, b.z);
+        dummy.scale.set(b.s, b.s * b.hScale, b.s);
+        dummy.rotation.set(0, b.ry, 0);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+        col.setHex(PAL[i % PAL.length]);
+        mesh.setColorAt(i, col);
+      });
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      scene.add(mesh);
+    }
+    if (rocks.length) {
+      const mesh = new THREE.InstancedMesh(rockGeo, rockMat, rocks.length);
+      const col = new THREE.Color();
+      const PAL = [0xa9a9b8, 0x8f93a6, 0x9aa3ad, 0x8d7a5c];
+      rocks.forEach((r, i) => {
+        dummy.position.set(r.x, r.gy + 0.42 * r.s, r.z);
+        dummy.scale.set(r.s, r.s * 0.72, r.s);
+        dummy.rotation.set(r.rx, r.ry, r.rz);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+        col.setHex(PAL[i % PAL.length]);
+        mesh.setColorAt(i, col);
+      });
+      mesh.instanceMatrix.needsUpdate = true;
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      scene.add(mesh);
+    }
+    if (flowers.length) {
+      const heads = new THREE.InstancedMesh(flowerHeadGeo, flowerHeadMat, flowers.length);
+      const stems = new THREE.InstancedMesh(flowerStemGeo, flowerStemMat, flowers.length);
+      const col = new THREE.Color();
+      flowers.forEach((f, i) => {
+        dummy.position.set(f.x, f.gy + 0.22 * f.s, f.z); // stem base at grass
+        dummy.scale.setScalar(f.s);
+        dummy.rotation.set(0, 0, 0);
+        dummy.updateMatrix();
+        stems.setMatrixAt(i, dummy.matrix);
+        dummy.position.set(f.x, f.gy + 0.51 * f.s, f.z); // head on the stem tip
+        dummy.rotation.set(0, f.ry, 0);
+        dummy.updateMatrix();
+        heads.setMatrixAt(i, dummy.matrix);
+        col.setHex(f.color);
+        heads.setColorAt(i, col);
+      });
+      heads.instanceMatrix.needsUpdate = true;
+      if (heads.instanceColor) heads.instanceColor.needsUpdate = true;
+      stems.instanceMatrix.needsUpdate = true;
+      scene.add(heads, stems);
+    }
   }
 
   /**
