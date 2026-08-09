@@ -662,8 +662,13 @@ loop.start((dt, t) => {
         // The 'go' SFX already carries the low-kick punch.
         addShake(0.5, 0.5);
         // Rocket start (audit v5 #1): holding throttle at GO = launch boost —
-        // the MK8/CTR signature opening skill.
+        // the MK8/CTR signature opening skill. AUDIT r3: not free — the
+        // perfect hold at GO = full 900ms; pressing within the next 0.35s
+        // grants a scaled 300-900ms boost (timing reward, misses get nothing).
+        window.__goAt = performance.now();
+        window.__rocketFired = false;
         if (playerKart && playerKart.applyBoost && (input.throttle || isTouchMode())) {
+          window.__rocketFired = true;
           playerKart.applyBoost(900);
           particles.emit('boost', playerKart.group.position, { count: 22, speed: 9, size: 0.32 });
         }
@@ -697,6 +702,17 @@ loop.start((dt, t) => {
       if (!DEMO) {
         readKeyboardInput();
         const steer = isTouchMode() ? touchSteer : input.steer;
+        // Rocket-start timing window (audit r3): a NEW throttle press within
+        // 0.35s of GO (not held at GO) still earns a scaled boost.
+        if (window.__goAt && !window.__rocketFired && input.throttle) {
+          const sinceGo = (performance.now() - window.__goAt) / 1000;
+          if (sinceGo >= 0 && sinceGo < 0.35) {
+            window.__rocketFired = true;
+            const ms = Math.round(300 + (1 - sinceGo / 0.35) * 600); // 900→300ms
+            playerKart.applyBoost(ms);
+            particles.emit('boost', playerKart.group.position, { count: 14, speed: 8, size: 0.28 });
+          }
+        }
         playerKart.setControls({
           steer,
           throttle: isTouchMode() ? 1 : input.throttle || (input.brake ? -1 : 0),
