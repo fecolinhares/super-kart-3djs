@@ -4,6 +4,12 @@
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
 ### Round 3 — AAA polish loop (auditor-driven, 2026-08-09)
+- **Black artifacts eliminated**: snow-cap faces with inverted windings got
+  averaged normals pointing INWARD → weak-emissive faces rasterized black
+  ('jagged black triangular patches on peaks' — every critic round). Ridged
+  cones now use RADIAL normals (outward in XZ) + snow emissive lifted
+  (0.35-0.42). Gantry diagonal cross-braces removed (the X across the
+  racing line read as broken geometry).
 - **Forest instancing fixed**: trees were piled at world origin (matrices
   written into dead meshes) — the visible blob is gone.
 - **AI no longer trains**: lane offsets seeded from roster index (golden-ratio
