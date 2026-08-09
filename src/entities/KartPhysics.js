@@ -320,6 +320,7 @@ export class KartPhysics {
     const baseGroundY = near.groundY + kart.rideHeight;
     let rampLift = 0;
     let onRampNow = false;
+    let readyToLaunch = false;
     if (track.ramps && track.ramps.length) {
       for (const r of track.ramps) {
         const rdx = s.position.x - r.point.x;
@@ -332,7 +333,10 @@ export class KartPhysics {
         if (along > -halfL - 0.5 && along < halfL + 0.5 && lateral < halfW + 0.6) {
           const climb = Math.max(0, Math.min(1, (along + halfL) / (halfL * 2)));
           rampLift = Math.max(rampLift, (r.height ?? 0.55) * climb);
-          onRampNow = along > -halfL - 0.3;
+          onRampNow = true;
+          // Launch near the TOP of the wedge (was: any point within a 2.7m
+          // circle of center — the kart 'popped' at the ramp's foot).
+          if (along > halfL * 0.4) readyToLaunch = true;
         }
       }
     }
@@ -342,11 +346,13 @@ export class KartPhysics {
       for (const r of track.ramps) {
         const dx = r.point.x - s.position.x;
         const dz = r.point.z - s.position.z;
-        // Launch only when actually ON the ramp (was: any kart within a 2.7m
-        // circle of center — a kart beside the 3.5m-wide ramp also popped).
-        if (dx * dx + dz * dz < 7.3 && onRampNow) {
+        // Launch only when actually climbing the top half of the ramp.
+        if (dx * dx + dz * dz < 7.3 && readyToLaunch) {
           s.vY = 6.5; // launch off the ramp (audit v4: 5.4 gave 0.34s air —
-          s.position.y += 0.02; //  below the 0.25s trick-arm window)
+          // CRITICAL: lift the kart PAST the airborne threshold (groundY+0.06)
+          // in the same frame — a fixed += 0.02/0.08 left it 'grounded' and
+          // the else-branch reset vY to 0, so the launch never fired.
+          s.position.y = groundY + 0.1;
           s.onRamp = true;
           break;
         }
