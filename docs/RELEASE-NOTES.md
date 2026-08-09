@@ -4,6 +4,10 @@
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
 ### Round 3 — AAA polish loop (auditor-driven, 2026-08-09)
+- **Round 13 — audit r7 fixes**: AI defensive rear-item play (chased AI
+  drops/throws backward), shell motion trails, start-grid pole numbers,
+  cloud shadows, sun lens flare, finished-kart wheelie + checkered flag,
+  Lakitu toast wired, blue shell leader-only collision.
 - **Round 12 — audit r6 fixes**: crowd figures get volume (2 crossed
   planes, terrain-grounded), 3D grass tufts in the infield, banner
   texture 512px, Lakitu clears the held item, AI rocket start at GO,
