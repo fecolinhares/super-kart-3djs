@@ -129,7 +129,9 @@ function buildRoadRibbon(path, length, opts = {}) {
   const tan = new THREE.Vector3();
   const p = new THREE.Vector3();
   const nrm = new THREE.Vector3();
-  const repeatU = opts.repeatU ?? Math.max(20, length * 0.06);
+  // Higher repeat counts shrink the asphalt texture detail so the tire-wear
+  // bands/cracks read as fine surface noise, not huge tiled bands.
+  const repeatU = opts.repeatU ?? Math.max(24, length * 0.08);
 
   for (let i = 0; i <= segments; i++) {
     const t = i / segments;
@@ -170,7 +172,11 @@ function buildRoadRibbon(path, length, opts = {}) {
   if (opts.texture) {
     const tex = opts.texture().clone();
     tex.needsUpdate = true;
-    tex.repeat.set(opts.repeatU ?? repeatU, opts.repeatV ?? 2);
+    // Non-integer repeatV (2.75) breaks the tire-wear bands in roadTexture()
+    // out of a visible 2-tile grid — they drift across the road instead of
+    // reading as regular horizontal bands (vision critic: "tiled/banded").
+    tex.repeat.set(opts.repeatU ?? repeatU, opts.repeatV ?? 2.75);
+    tex.anisotropy = 8; // sharper speckle/cracks at grazing chase-cam angles
     mat.map = tex;
   }
   // Tint applied AFTER the map so an opts.color darkens the textured asphalt
@@ -295,14 +301,65 @@ function buildSidewalk(path, length, side) {
   return mesh;
 }
 
+/**
+ * Beveled curb profile (cross-section extruded along Z): vertical sides with
+ * chamfered top corners and a flat top. Reads with real thickness from the
+ * chase camera, unlike a plain box (vision critic: kerbs were "flat tiles").
+ * The kerb sits partially embedded in the asphalt, so only the upper band
+ * shows — with the chamfer at the top edge it reads as a rounded kerb stone.
+ */
+function beveledCurbGeometry(width, height, length, chamfer) {
+  const W = width / 2;
+  const H = height;
+  const C = Math.min(chamfer, H / 2, W - 0.02);
+  const L = length / 2;
+  // Cross-section (X-Y), clockwise from bottom-left:
+  //   bottom-left → bottom-right → right chamfer lower → right chamfer upper
+  //   → left chamfer upper → left chamfer lower
+  const prof = [
+    [-W, 0],
+    [W, 0],
+    [W, H - C],
+    [W - C, H],
+    [-W + C, H],
+    [-W, H - C],
+  ];
+  const N = prof.length;
+  const verts = [];
+  for (let i = 0; i < N; i++) {
+    const [x, y] = prof[i];
+    verts.push(x, y, -L, x, y, L); // back ring (z=-L), front ring (z=+L)
+  }
+  const idx = [];
+  for (let i = 0; i < N; i++) {
+    const j = (i + 1) % N;
+    const a = i * 2, b = j * 2, c = j * 2 + 1, d = i * 2 + 1;
+    idx.push(a, c, b, b, c, d); // side wall
+  }
+  // end caps (material is DoubleSide — winding here is belt-and-braces)
+  for (let i = 1; i < N - 1; i++) {
+    idx.push(0, i * 2, (i + 1) * 2); // back cap (z=-L)
+    idx.push(1, (i + 1) * 2 + 1, i * 2 + 1); // front cap (z=+L)
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+  return geo;
+}
+
 function buildCurbs(path, length, side, opts = {}) {
   const roadW = getRoadWidthAt();
   // Continuous kerbs (no gaps): block length ≈ spacing → solid red/white edge.
   const seg = 1.7;
   const count = Math.floor(length / seg);
-  // Narrow across the road (X=0.42), LONG along the track (Z=1.7): after
-  // lookAt aligns Z with the path, the kerb runs along the edge, not across it.
-  const geo = new THREE.BoxGeometry(0.42, 0.14, seg);
+  // Beveled profile: 0.46 wide x 0.17 tall with chamfered top corners. Kerb
+  // top stays at the historical y+0.29 (apex cones keep their footing); the
+  // extra height sinks into the asphalt, so the visible band reads as a thick
+  // rounded kerb instead of a flat painted tile.
+  const curbW = 0.46;
+  const curbH = 0.17;
+  const geo = beveledCurbGeometry(curbW, curbH, seg, 0.06);
 
   // NEON CITY: alternating emissive pink/cyan kerbs. instanceColor can't
   // drive MeshToonMaterial's emissive, so even/odd boxes are split into two
@@ -312,16 +369,16 @@ function buildCurbs(path, length, side, opts = {}) {
     ? [
         new THREE.InstancedMesh(
           geo,
-          toonMaterial(0xff2ec4, { emissive: 0xff2ec4, emissiveIntensity: 0.6 }),
+          toonMaterial(0xff2ec4, { emissive: 0xff2ec4, emissiveIntensity: 0.6, side: THREE.DoubleSide }),
           Math.ceil(count / 2)
         ),
         new THREE.InstancedMesh(
           geo,
-          toonMaterial(0x2ec4ff, { emissive: 0x2ec4ff, emissiveIntensity: 0.6 }),
+          toonMaterial(0x2ec4ff, { emissive: 0x2ec4ff, emissiveIntensity: 0.6, side: THREE.DoubleSide }),
           Math.floor(count / 2)
         ),
       ]
-    : [new THREE.InstancedMesh(geo, toonMaterial(0xffffff, {}), count)];
+    : [new THREE.InstancedMesh(geo, toonMaterial(0xffffff, { side: THREE.DoubleSide }), count)];
   for (const m of meshes) m.castShadow = true;
   const mesh = meshes[0]; // legacy single-mesh path
 
@@ -339,7 +396,7 @@ function buildCurbs(path, length, side, opts = {}) {
     nrm.set(-tan.z, 0, tan.x).normalize();
     dummy.position.set(
       p.x + nrm.x * side * (roadW / 2 + 0.15),
-      p.y + 0.22, // ribbon sits at y+0.18; curb top flush just above it
+      p.y + 0.29 - curbH / 2, // kerb TOP stays at y+0.29; extra height embeds in the asphalt
       p.z + nrm.z * side * (roadW / 2 + 0.15)
     );
     dummy.lookAt(
@@ -430,15 +487,18 @@ function buildEdgeRibbon(path, lateralOffset, yBase, w, h, mat) {
 function buildGuardRail(path, length, side, opts = {}) {
   const roadW = getRoadWidthAt();
   // LOW + FAR from the racing line so the chase camera never clips/obscures:
-  // 0.5m tall rail at road edge +1.1m (vision critic: 0.7m at +0.6 dominated
+  // rail top ~1.05m at road edge +1.1m (vision critic: 0.7m at +0.6 dominated
   // the frame and the camera sat inside it).
   const lateral = side * (roadW / 2 + 1.1);
-  const segLen = 3.9; // short segments, 0.1m joint gap reads as intentional
+  // 3.5m barrier segments leave a ~0.5m slot at every 4m joint — each post
+  // stands in its own slot, so the rail reads as rail + posts (vision critic:
+  // "thin black strip").
+  const segLen = 3.5;
   // Tile the whole loop with ~4m spacing (count = round → spacing = length /
-  // count ≈ 3.99m) so there's no seam gap where the loop closes at start.
+  // count ≈ 4.0m) so there's no seam gap where the loop closes at start.
   const count = Math.max(1, Math.round(length / 4.0));
 
-  const geo = new THREE.BoxGeometry(0.3, 0.5, segLen);
+  const geo = new THREE.BoxGeometry(0.36, 0.55, segLen);
   // NEON CITY: uniform metallic dark barriers (no red/white alternation).
   const mat = opts.neon ? toonMaterial(0x3a4152, {}) : toonMaterial(0xffffff, {});
   const mesh = new THREE.InstancedMesh(geo, mat, count);
@@ -458,7 +518,7 @@ function buildGuardRail(path, length, side, opts = {}) {
     nrm.set(-tan.z, 0, tan.x).normalize();
     dummy.position.set(
       p.x + nrm.x * lateral,
-      p.y + 0.05 + 0.25, // base at path elevation +0.05; box half-height 0.25
+      p.y + 0.05 + 0.275, // base at path elevation +0.05; box half-height 0.275
       p.z + nrm.z * lateral
     );
     dummy.lookAt(
@@ -476,23 +536,53 @@ function buildGuardRail(path, length, side, opts = {}) {
   mesh.instanceMatrix.needsUpdate = true;
   if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
 
+  // Support posts: one per joint (~4m apart), standing from the ground up to
+  // the underside of the top rail. Cylinders are radially symmetric, so no
+  // lookAt is needed — position them at the path normal only.
+  const postGeo = new THREE.CylinderGeometry(0.09, 0.11, 0.7, 8);
+  const postMat = toonMaterial(opts.neon ? 0x2b3240 : 0x232b38, {});
+  const posts = new THREE.InstancedMesh(postGeo, postMat, count);
+  posts.castShadow = true;
+  for (let i = 0; i < count; i++) {
+    const t = i / count; // joints between barrier segments
+    path.getPointAt(t, p);
+    path.getTangentAt(t, tan);
+    nrm.set(-tan.z, 0, tan.x).normalize();
+    dummy.rotation.set(0, 0, 0); // cylinder — clear the barrier's lookAt
+    dummy.position.set(
+      p.x + nrm.x * lateral,
+      p.y + 0.05 + 0.35, // base at path elevation +0.05; half-height 0.35
+      p.z + nrm.z * lateral
+    );
+    dummy.updateMatrix();
+    posts.setMatrixAt(i, dummy.matrix);
+  }
+  posts.instanceMatrix.needsUpdate = true;
+
   // Continuous darker top rail sitting on the segments (no seams between
-  // them). DoubleSide so winding never culls it. NEON CITY: metallic dark
-  // body with an emissive pink strip along the top.
+  // them). DoubleSide so winding never culls it. Thicker profile (0.62 x 0.30)
+  // with a small overhang so it reads as a proper rail cap. NEON CITY:
+  // metallic dark body with an emissive pink strip along the top.
   const railMat = opts.neon
     ? toonMaterial(0x3a4152, { side: THREE.DoubleSide, emissive: 0xff2ec4, emissiveIntensity: 0.8 })
     : toonMaterial(0x232b38, { side: THREE.DoubleSide });
-  const rail = buildEdgeRibbon(path, lateral, 0.05 + 0.7, 0.5, 0.22, railMat);
+  const rail = buildEdgeRibbon(path, lateral, 0.05 + 0.7, 0.62, 0.3, railMat);
 
   const g = new THREE.Group();
-  g.add(mesh, rail);
+  g.add(mesh, posts, rail);
   return g;
 }
 
 function buildLaneDashes(path, length) {
   const count = Math.floor(length / 3.0);
-  const geo = new THREE.BoxGeometry(0.3, 0.04, 2.4);
-  const mat = toonMaterial(0xffd166, {});
+  // Flat plane laid on the asphalt (was a 0.04-thick box that read as a
+  // floating sliver). polygonOffset wins the depth test against the ribbon —
+  // the classic decal technique.
+  const geo = new THREE.PlaneGeometry(0.3, 2.4);
+  const mat = toonMaterial(0xffd166, { side: THREE.DoubleSide });
+  mat.polygonOffset = true;
+  mat.polygonOffsetFactor = -2;
+  mat.polygonOffsetUnits = -2;
   const mesh = new THREE.InstancedMesh(geo, mat, count);
 
   const p = new THREE.Vector3();
@@ -506,8 +596,7 @@ function buildLaneDashes(path, length) {
     // they're buried inside the asphalt (the classic decal-height pitfall).
     dummy.position.set(p.x, p.y + 0.21, p.z);
     dummy.lookAt(p.x + tan.x, p.y, p.z + tan.z);
-    // NOTE: no rotateX here! lookAt already aligns the long axis (Z) with
-    // the path; rotateX(-PI/2) was standing the dashes UP as yellow poles.
+    dummy.rotateX(-Math.PI / 2); // lay flat as paint (lookAt + rotateX like the finish line)
     dummy.updateMatrix();
     mesh.setMatrixAt(i, dummy.matrix);
   }
@@ -529,9 +618,14 @@ function buildTurboPads(path, length) {
   const dt = spacing / length;
   const count = clusters.length * perCluster;
 
-  const geo = new THREE.BoxGeometry(1.2, 0.04, 1.4);
+  // Flat painted decal (was a 0.04 box that read as floating). polygonOffset
+  // keeps it glued to the asphalt at grazing angles.
+  const geo = new THREE.PlaneGeometry(1.2, 1.4);
   // MeshBasicMaterial: unlit so the pad stays bright yellow/white in shadow.
-  const mat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), color: 0xffffff });
+  const mat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), color: 0xffffff, side: THREE.DoubleSide });
+  mat.polygonOffset = true;
+  mat.polygonOffsetFactor = -2;
+  mat.polygonOffsetUnits = -2;
   const mesh = new THREE.InstancedMesh(geo, mat, count);
 
   const p = new THREE.Vector3();
@@ -547,11 +641,13 @@ function buildTurboPads(path, length) {
       const t = Math.min(0.999, Math.max(0.001, c + (k - (perCluster - 1) / 2) * dt));
       path.getPointAt(t, p);
       path.getTangentAt(t, tan);
-      // Road ribbon sits at y+0.18 — pads must sit ABOVE it (y+0.21).
+      // Road ribbon sits at y+0.18 — decals must sit ABOVE it (y+0.21).
       dummy.position.set(p.x, p.y + 0.21, p.z);
-      // NOTE: no rotateX here! lookAt aligns the long axis (Z) with the
-      // path — same convention as buildLaneDashes.
       dummy.lookAt(p.x + tan.x, p.y, p.z + tan.z);
+      dummy.rotateX(-Math.PI / 2); // lay flat as paint
+      // The ">>>" chevrons in turboPadTexture point along the texture's +X —
+      // spin the flat plane so they point along the direction of travel.
+      dummy.rotateZ(-Math.PI / 2);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
       ts.push(t);
@@ -692,11 +788,20 @@ function buildDirectionArrows(path) {
   if (spots.length === 0) return null;
   const geo = new THREE.PlaneGeometry(3.4, 3.4); // big chevrons (MK8-style corner signage)
   const mat = new THREE.MeshBasicMaterial({ map: arrowTexture(), transparent: true, side: THREE.DoubleSide, depthWrite: false });
+  mat.polygonOffset = true;
+  mat.polygonOffsetFactor = -2;
+  mat.polygonOffsetUnits = -2;
   const mesh = new THREE.InstancedMesh(geo, mat, spots.length);
   for (let i = 0; i < spots.length; i++) {
     const s = spots[i];
     dummy.position.set(s.x, s.y + 0.21, s.z); // road ribbon sits at y+0.18
     dummy.lookAt(s.x + s.tx, s.y, s.z + s.tz);
+    // LAY FLAT on the asphalt (was standing vertical — the floating board the
+    // critic saw). Chevron tips point at the texture's top (+Y); after
+    // lookAt+rotateX the plane's +Y faces backward, so spin 180° to point
+    // the arrows along the direction of travel.
+    dummy.rotateX(-Math.PI / 2);
+    dummy.rotateZ(Math.PI);
     dummy.updateMatrix();
     mesh.setMatrixAt(i, dummy.matrix);
   }
@@ -1163,6 +1268,36 @@ function buildRampGeometry(width, height, length) {
   return geo;
 }
 
+/**
+ * Trapezoid side brace for the trick ramp: a thin plate under the tall end
+ * that follows the ramp's slope (the back-top vertex sits ON the top face),
+ * so it reads as structural support without poking through the surface.
+ * Built centered on X=0 with `thickness` in X; instance it at ±(width/2 + m).
+ */
+function buildRampBraceGeometry(rampWidth, rampHeight, rampLen, braceLen, thickness) {
+  const L = rampLen / 2;
+  const H = rampHeight;
+  const yBack = (H * (2 * L - braceLen)) / (2 * L); // ramp surface height at the brace's back edge
+  const t = thickness / 2;
+  const verts = [];
+  const tri = (a, b, c) => verts.push(...a, ...b, ...c);
+  // Two rings at x=±t: back-bottom, front-bottom, front-top, back-top.
+  const bb = [-t, 0, L - braceLen]; const bb2 = [t, 0, L - braceLen];
+  const fb = [-t, 0, L]; const fb2 = [t, 0, L];
+  const ft = [-t, H, L]; const ft2 = [t, H, L];
+  const bt = [-t, yBack, L - braceLen]; const bt2 = [t, yBack, L - braceLen];
+  tri(bb2, fb2, ft2); tri(bb2, ft2, bt2);   // outer face (+X)
+  tri(bb, bt, ft); tri(bb, ft, fb);         // inner face (-X)
+  tri(bb, bb2, fb2); tri(bb, fb2, fb);      // bottom
+  tri(bb, bt, bt2); tri(bb, bt2, bb2);      // back edge
+  tri(fb, fb2, ft2); tri(fb, ft2, ft);      // front edge
+  tri(bt, ft, ft2); tri(bt, ft2, bt2);      // sloped top edge
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  geo.computeVertexNormals();
+  return geo;
+}
+
 function buildRamps(path, length) {
   const ramps = [];
   // Toon ramp body (audit v4 F1: was the only non-toon surface — read as a
@@ -1171,9 +1306,19 @@ function buildRamps(path, length) {
   const chevMat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), transparent: true, depthWrite: false, side: THREE.DoubleSide });
   const tan = new THREE.Vector3();
   const p = new THREE.Vector3();
-  const rampLen = 4.6;
-  const rampHeight = 0.55;
-  const rampGeo = buildRampGeometry(CONFIG.track.roadWidth * 0.78, rampHeight, rampLen);
+  // Taller + longer so the ramp reads as a LAUNCH RAMP, not a speed bump
+  // (vision critic: "too low, almost flush with the road"). r.point stays at
+  // the path point (the ramp's top-center) — the KartPhysics <2.7m trigger
+  // and vY=6.5 launch are untouched. The kart rises ~6.5 m/s vs the ramp's
+  // ~0.14*forwardSpeed climb, so it clears the slope without clipping.
+  const rampLen = 5.4;
+  const rampHeight = 0.75;
+  const rampWidth = CONFIG.track.roadWidth * 0.78;
+  const rampGeo = buildRampGeometry(rampWidth, rampHeight, rampLen);
+  // Side support braces: trapezoid fins under the tall end, flush against the
+  // wedge's side faces (they follow the slope exactly — no poking through).
+  const braceGeo = buildRampBraceGeometry(rampWidth, rampHeight, rampLen, 2.2, 0.1);
+  const braceMat = toonMaterial(0x2b3340, { side: THREE.DoubleSide });
   // Slope of the top face, for the chevron decal to lie flush on it.
   const slopeAngle = Math.atan2(rampHeight, rampLen);
   // Two ramps on the two long straights, evenly split around the lap (0.30
@@ -1191,12 +1336,20 @@ function buildRamps(path, length) {
     mesh.rotation.y = Math.atan2(tan.x, tan.z);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
+    // Side support braces (one per side, just outside the wedge's side faces).
+    for (const sx of [-1, 1]) {
+      const brace = new THREE.Mesh(braceGeo, braceMat);
+      brace.position.set(sx * (rampWidth / 2 + 0.05), 0, 0);
+      brace.castShadow = true;
+      mesh.add(brace);
+    }
     // Chevron decal PARENTED to the ramp: lies flush on the inclined top
-    // face (rotated by the same slopeAngle, offset to the face height at
-    // the center = H/2). The old free-floating plane at world y+0.26 was
-    // buried inside the ramp's top face — invisible at the center.
-    const chev = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.1), chevMat);
-    chev.rotation.x = -Math.PI / 2 + slopeAngle;
+    // face. rotation -PI/2 - slopeAngle makes the plane's normal match the
+    // surface normal (the old +sign tilted it 2*slope off the face — half
+    // buried at the tall end). The Z-spin turns the ">>>" so they point UP
+    // the ramp, along the direction of travel.
+    const chev = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 1.5), chevMat);
+    chev.rotation.set(-Math.PI / 2 - slopeAngle, 0, -Math.PI / 2);
     chev.position.set(0, rampHeight / 2 + 0.006, 0);
     chev.renderOrder = 1;
     mesh.add(chev);

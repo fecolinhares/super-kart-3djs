@@ -159,6 +159,13 @@ export class MusicEngine {
     this._bus = ctx.createGain();
     this._bus.gain.value = 0;
 
+    // Sidechain-style duck gain (AAA groove): the kick dips the whole music
+    // bus ~10% for ~0.12s, so the mix breathes with the beat instead of
+    // sitting flat. Programmed from the scheduler (WebAudio has no cheap
+    // native sidechain path).
+    this._duckGain = ctx.createGain();
+    this._duckGain.gain.value = 1;
+
     // Lo-fi space: short feedback delay.
     this._delay = ctx.createDelay(1.0);
     this._delay.delayTime.value = 0.27;
@@ -166,12 +173,13 @@ export class MusicEngine {
     this._fb.gain.value = 0.3;
     this._wet = ctx.createGain();
     this._wet.gain.value = 0.2;
-    this._bus.connect(this._delay);
+    this._bus.connect(this._duckGain);
+    this._duckGain.connect(this._delay);
     this._delay.connect(this._fb);
     this._fb.connect(this._delay);
     this._delay.connect(this._wet);
     this._wet.connect(this._out);
-    this._bus.connect(this._out);
+    this._duckGain.connect(this._out);
 
     this._vinyl = null;
     this._vinylGain = null;
@@ -459,7 +467,10 @@ export class MusicEngine {
     }
 
     // Drums.
-    if (t.kickPattern[stepInBar]) this._playKick(time, t);
+    if (t.kickPattern[stepInBar]) {
+      this._playKick(time, t);
+      this._scheduleDuck(time); // sidechain-style pump on the kick
+    }
     if (t.snarePattern[stepInBar]) this._playSnare(time, t);
     if (t.hatPattern[stepInBar]) this._playHat(this._swingTime(step, time), t);
 
@@ -568,16 +579,42 @@ export class MusicEngine {
     const ctx = this._ctx;
     const osc = ctx.createOscillator();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(140, time);
-    osc.frequency.exponentialRampToValueAtTime(48, time + 0.09);
+    osc.frequency.setValueAtTime(150, time);
+    osc.frequency.exponentialRampToValueAtTime(46, time + 0.09);
     const g = ctx.createGain();
-    const vol = 0.7 * track.drumVol;
+    const vol = 0.72 * track.drumVol;
     g.gain.setValueAtTime(vol, time);
-    g.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
+    g.gain.exponentialRampToValueAtTime(0.001, time + 0.13);
     osc.connect(g);
     g.connect(this._bus);
     osc.start(time);
-    osc.stop(time + 0.14);
+    osc.stop(time + 0.15);
+    // Click transient (short highpassed noise) — gives the kick a physical
+    // beater attack instead of a pure sine thump.
+    const len = Math.floor(ctx.sampleRate * 0.012);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = (this._rng() * 2 - 1) * (1 - i / len);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 2200;
+    const cg = ctx.createGain();
+    cg.gain.value = 0.1 * track.drumVol;
+    src.connect(hp);
+    hp.connect(cg);
+    cg.connect(this._bus);
+    src.start(time);
+  }
+
+  /** Dips the music bus right on the kick (sidechain pump, ~12%). */
+  _scheduleDuck(time) {
+    const t = this._ctx.currentTime > time ? this._ctx.currentTime : time;
+    this._duckGain.gain.cancelScheduledValues(t);
+    this._duckGain.gain.setValueAtTime(1, t);
+    this._duckGain.gain.linearRampToValueAtTime(0.88, t + 0.015);
+    this._duckGain.gain.linearRampToValueAtTime(1, t + 0.14);
   }
 
   _playSnare(time, track) {
@@ -598,6 +635,19 @@ export class MusicEngine {
     bp.connect(g);
     g.connect(this._bus);
     src.start(time);
+    // Body tone (short sine at ~190Hz) — the snare needs a pitch core or it
+    // reads as pure white-noise hiss.
+    const body = ctx.createOscillator();
+    body.type = 'sine';
+    body.frequency.setValueAtTime(230, time);
+    body.frequency.exponentialRampToValueAtTime(170, time + 0.06);
+    const bg = ctx.createGain();
+    bg.gain.setValueAtTime(0.16 * track.drumVol, time);
+    bg.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
+    body.connect(bg);
+    bg.connect(this._bus);
+    body.start(time);
+    body.stop(time + 0.1);
   }
 
   _playHat(time, track) {

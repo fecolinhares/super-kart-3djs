@@ -49,6 +49,13 @@ export class AudioManager {
    * Creates the AudioContext and master chain. Called on the first
    * user gesture (autoplay policy); idempotent. Applies engine loops
    * and music requests that arrived before init.
+   *
+   * Master chain (USER/VISION FIX — was gain→compressor→destination,
+   * which sounded dry and "8-bit"):
+   *   master gain → EQ (hp 28 / presence 3k / hshelf 11k) → waveshaper
+   *   (soft tanh saturation for warmth) → compressor → destination
+   *   with a subtle CONVOLUTION REVERB send (procedural IR) so SFX and
+   *   music share a believable space instead of playing bone-dry.
    * @returns {AudioContext|null}
    */
   init() {
@@ -64,15 +71,52 @@ export class AudioManager {
     }
     this._ctx = new Ctx();
     this._master = this._ctx.createGain();
+    this._master.gain.value = this._volume;
+
+    // --- EQ (subtractive + presence) ------------------------------------
+    const eq = this._ctx.createBiquadFilter();
+    eq.type = 'highpass';
+    eq.frequency.value = 28; // kill sub rumble below audibility
+    const presence = this._ctx.createBiquadFilter();
+    presence.type = 'peaking';
+    presence.frequency.value = 3200;
+    presence.Q.value = 0.8;
+    presence.gain.value = 1.5; // presence — arcade punch
+    const hshelf = this._ctx.createBiquadFilter();
+    hshelf.type = 'highshelf';
+    hshelf.frequency.value = 11000;
+    hshelf.gain.value = -2; // tame harsh digital highs
+
+    // --- Waveshaper (soft saturation — analog warmth, kills the raw-osc
+    // "8-bit" edge) --------------------------------------------------------
+    const shaper = this._ctx.createWaveShaper();
+    shaper.curve = this._softClipCurve(220);
+
     const comp = this._ctx.createDynamicsCompressor();
     comp.threshold.value = -14;
     comp.knee.value = 18;
     comp.ratio.value = 5;
     comp.attack.value = 0.002;
     comp.release.value = 0.18;
-    this._master.gain.value = this._volume;
-    this._master.connect(comp);
+
+    this._master.connect(eq);
+    eq.connect(presence);
+    presence.connect(hshelf);
+    hshelf.connect(shaper);
+    shaper.connect(comp);
     comp.connect(this._ctx.destination);
+
+    // --- Reverb send (procedural IR — generated, no assets) --------------
+    this._reverb = this._createReverb(this._ctx);
+    const reverbSend = this._ctx.createGain();
+    reverbSend.gain.value = 0.14;
+    const reverbWet = this._ctx.createGain();
+    reverbWet.gain.value = 0.9;
+    this._master.connect(reverbSend);
+    reverbSend.connect(this._reverb);
+    this._reverb.connect(reverbWet);
+    reverbWet.connect(presence); // wet returns before the shaper/compressor
+    this._reverbSend = reverbSend;
 
     // Apply engine loops remembered before init().
     for (const [kartId, speed01] of this._pendingEngine) {
@@ -85,6 +129,35 @@ export class AudioManager {
 
     this._resume();
     return this._ctx;
+  }
+
+  /** Soft tanh-ish clip curve for the master waveshaper (warm saturation). */
+  _softClipCurve(n = 220) {
+    const curve = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      const x = (i / (n - 1)) * 2 - 1;
+      curve[i] = Math.tanh(1.6 * x);
+    }
+    return curve;
+  }
+
+  /** Procedural impulse response: decaying noise burst (2s), stereo-ish. */
+  _createReverb(ctx) {
+    const len = Math.floor(ctx.sampleRate * 2.0);
+    const buffer = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const data = buffer.getChannelData(ch);
+      let last = 0;
+      for (let i = 0; i < len; i++) {
+        // exponentially decaying noise; slight lowpass smoothing per sample
+        const white = Math.random() * 2 - 1;
+        last = last * 0.6 + white * 0.4;
+        data[i] = last * Math.pow(1 - i / len, 2.2) * (ch === 1 ? 1.0 : 0.9);
+      }
+    }
+    const conv = ctx.createConvolver();
+    conv.buffer = buffer;
+    return conv;
   }
 
   _resume() {
@@ -206,12 +279,15 @@ export class AudioManager {
       try {
         loop.base.stop();
         loop.oct.stop();
+        loop.sub?.stop();
         loop.lfo.stop();
         loop.noise?.stop();
       } catch { /* already stopped */ }
       loop.base.disconnect();
       loop.oct.disconnect();
+      loop.sub?.disconnect();
       loop.flt.disconnect();
+      loop.shaper?.disconnect();
       loop.gain.disconnect();
       loop.noise?.disconnect();
       loop.nBand?.disconnect();
@@ -233,9 +309,17 @@ export class AudioManager {
     base.type = 'sawtooth';
     const oct = ctx.createOscillator();
     oct.type = 'square';
+    // Sub oscillator: sine one octave BELOW the base — gives the motor
+    // physical low-end body (USER/VISION FIX: the old 2-osc engine was a
+    // thin synth buzz; a sub + saturation reads as a real combustion engine).
+    const sub = ctx.createOscillator();
+    sub.type = 'sine';
     const flt = ctx.createBiquadFilter();
     flt.type = 'lowpass';
     flt.Q.value = 1.2;
+    // Soft saturation on the motor voice (waveshaper — analog warmth).
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = this._softClipCurve(160);
     const gain = ctx.createGain();
     // Combustion noise: white noise through a bandpass in the motor band.
     const noise = ctx.createBufferSource();
@@ -258,13 +342,16 @@ export class AudioManager {
     lfoGain.connect(base.detune);
     base.connect(flt);
     oct.connect(flt);
-    flt.connect(gain);
+    sub.connect(flt);
+    flt.connect(shaper);
+    shaper.connect(gain);
     gain.connect(this._master);
     base.start();
     oct.start();
+    sub.start();
     noise.start();
     lfo.start();
-    const loop = { base, oct, flt, gain, lfo, noise, nBand, speed01: 0 };
+    const loop = { base, oct, sub, flt, shaper, gain, lfo, noise, nBand, speed01: 0 };
     this._updateEngineLoop(loop, speed01);
     return loop;
   }
@@ -292,9 +379,10 @@ export class AudioManager {
     const baseFreq = 55 + speed01 * 150;
     loop.base.frequency.setTargetAtTime(baseFreq, t, tc);
     loop.oct.frequency.setTargetAtTime(baseFreq * 2.02, t, tc);
+    loop.sub.frequency.setTargetAtTime(baseFreq * 0.5, t, tc);
     loop.flt.frequency.setTargetAtTime(300 + speed01 * 1500, t, tc);
     loop.nBand.frequency.setTargetAtTime(220 + speed01 * 900, t, tc);
-    loop.gain.gain.setTargetAtTime(this._engineVolume * (0.28 + speed01 * 0.6), t, tc);
+    loop.gain.gain.setTargetAtTime(this._engineVolume * (0.30 + speed01 * 0.62), t, tc);
     loop.speed01 = speed01;
   }
 

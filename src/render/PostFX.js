@@ -51,7 +51,16 @@ export class PostFX {
     this.composer = null;
 
     try {
-      this.composer = new EffectComposer(renderer);
+      // MSAA inside the composer: the default EffectComposer target has no
+      // samples, so antialias:true on the renderer is lost the moment bloom
+      // runs. A HalfFloat render target with samples:4 keeps edges clean
+      // through the whole chain (WebGL2; falls back gracefully below).
+      const size = renderer.getSize(new THREE.Vector2());
+      const rt = new THREE.WebGLRenderTarget(size.width, size.height, {
+        type: THREE.HalfFloatType,
+        samples: 4,
+      });
+      this.composer = new EffectComposer(renderer, rt);
       this.composer.addPass(new RenderPass(scene, camera));
 
       this.bloom = new UnrealBloomPass(

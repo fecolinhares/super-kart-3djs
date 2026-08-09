@@ -252,51 +252,66 @@ export function grassTexture() {
   return _grassTex;
 }
 
-/** Asphalt: dark blue-grey with fine speckle + tire wear + cracks, tileable. */
+/** Asphalt: dark blue-grey with fine speckle + tire wear + cracks, tileable.
+ *  USER/VISION FIX: the old tile had CONTINUOUS horizontal wear bands
+ *  (fillRect across the whole tile) that repeated every ~16m and read as
+ *  hard horizontal banding from the chase cam. Wear is now broken into
+ *  irregular dashed ribbons + scattered patches so no straight line repeats.
+ */
 export function roadTexture() {
   if (_roadTex) return _roadTex;
   _roadTex = canvasTexture(
-    256,
+    512,
     (ctx, s) => {
       ctx.fillStyle = '#5a6b7d';
       ctx.fillRect(0, 0, s, s);
       // dense speckle (stone feel)
-      for (let i = 0; i < 2200; i++) {
+      for (let i = 0; i < 6200; i++) {
         ctx.fillStyle = Math.random() > 0.5 ? '#52626f' : '#64768a';
         ctx.fillRect(Math.random() * s, Math.random() * s, 2, 2);
       }
-      // tire wear tracks (two darker ribbons running along the road)
-      ctx.globalAlpha = 0.22;
-      ctx.fillStyle = '#3c4654';
-      ctx.fillRect(0, Math.floor(s * 0.28), s, 5);
-      ctx.fillRect(0, Math.floor(s * 0.66), s, 5);
-      ctx.globalAlpha = 0.12;
-      ctx.fillStyle = '#2f3844';
-      ctx.fillRect(0, Math.floor(s * 0.34), s, 3);
-      ctx.fillRect(0, Math.floor(s * 0.72), s, 3);
-      // large oil/rubber patches (macro contrast — reads in screenshots)
-      ctx.globalAlpha = 0.2;
-      ctx.fillStyle = '#2b3542';
-      for (let i = 0; i < 5; i++) {
+      // Tire wear: TWO dashed ribbons (broken dashes, never a full line) —
+      // the dash gaps break the periodic banding the old fillRect caused.
+      const wearY = [s * 0.27, s * 0.64];
+      for (const wy of wearY) {
+        for (let x = 0; x < s; x += 7 + Math.random() * 10) {
+          const len = 5 + Math.random() * 14;
+          const alpha = 0.10 + Math.random() * 0.12;
+          ctx.fillStyle = '#333d4b';
+          ctx.globalAlpha = alpha;
+          ctx.fillRect(x, wy + (Math.random() - 0.5) * 4, len, 3 + Math.random() * 2);
+          ctx.globalAlpha = alpha * 0.7;
+          ctx.fillStyle = '#2a333f';
+          ctx.fillRect(x, wy + 4 + (Math.random() - 0.5) * 3, len, 2);
+        }
+      }
+      ctx.globalAlpha = 1;
+      // Scattered oil/rubber patches — MEDIUM size, many, low alpha (big
+      // single blobs repeated = visible macro banding; small many = natural).
+      for (let i = 0; i < 26; i++) {
+        ctx.globalAlpha = 0.10 + Math.random() * 0.10;
+        ctx.fillStyle = Math.random() > 0.5 ? '#2b3542' : '#333f4e';
         ctx.beginPath();
-        ctx.ellipse(Math.random() * s, Math.random() * s, 18 + Math.random() * 30, 10 + Math.random() * 18, Math.random() * Math.PI, 0, Math.PI * 2);
+        ctx.ellipse(Math.random() * s, Math.random() * s, 8 + Math.random() * 16, 4 + Math.random() * 9, Math.random() * Math.PI, 0, Math.PI * 2);
         ctx.fill();
       }
-      ctx.globalAlpha = 0.12;
-      ctx.fillStyle = '#6d7f92';
-      for (let i = 0; i < 4; i++) {
+      // Slightly lighter worn sheen patches (rubbered-in racing line).
+      for (let i = 0; i < 18; i++) {
+        ctx.globalAlpha = 0.07;
+        ctx.fillStyle = '#6d7f92';
         ctx.beginPath();
-        ctx.ellipse(Math.random() * s, Math.random() * s, 14 + Math.random() * 24, 8 + Math.random() * 14, Math.random() * Math.PI, 0, Math.PI * 2);
+        ctx.ellipse(Math.random() * s, Math.random() * s, 10 + Math.random() * 18, 5 + Math.random() * 10, Math.random() * Math.PI, 0, Math.PI * 2);
         ctx.fill();
       }
+      ctx.globalAlpha = 1;
       // subtle cracks (short dark jagged strokes)
-      ctx.globalAlpha = 0.16;
+      ctx.globalAlpha = 0.14;
       ctx.strokeStyle = '#2f3844';
       ctx.lineWidth = 1.4;
-      for (let i = 0; i < 40; i++) {
+      for (let i = 0; i < 70; i++) {
         const x = Math.random() * s;
         const y = Math.random() * s;
-        const len = 6 + Math.random() * 16;
+        const len = 8 + Math.random() * 22;
         const a = Math.random() * Math.PI * 2;
         ctx.beginPath();
         ctx.moveTo(x, y);
@@ -305,11 +320,11 @@ export function roadTexture() {
         ctx.stroke();
       }
       ctx.globalAlpha = 1;
-      // subtle white wear flecks
-      ctx.globalAlpha = 0.1;
+      // fine white wear flecks along the racing line
+      ctx.globalAlpha = 0.09;
       ctx.fillStyle = '#ffffff';
-      for (let i = 0; i < 40; i++) {
-        ctx.fillRect(Math.random() * s, Math.floor(s * 0.28) + Math.random() * 6, 3, 1);
+      for (let i = 0; i < 90; i++) {
+        ctx.fillRect(Math.random() * s, s * 0.27 + Math.random() * 8 - 4, 3 + Math.random() * 3, 1);
       }
       ctx.globalAlpha = 1;
     },

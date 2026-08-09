@@ -223,8 +223,8 @@ export function renderSfx(ctx, out, name, opts = {}) {
 
   switch (name) {
     case 'engine': {
-      // Looping tone pair (sawtooth base + square octave) used by
-      // AudioManager.setEngineLoop; here rendered for QA. `speed01`
+      // Looping tone pair (sawtooth base + square octave + sine sub) used
+      // by AudioManager.setEngineLoop; here rendered for QA. `speed01`
       // maps to RPM, `dur` is the QA render window.
       const speed = clamp(opts.speed01 ?? 0.6, 0, 1);
       const d = Math.max(0.3, opts.dur ?? 2.0);
@@ -238,6 +238,10 @@ export function renderSfx(ctx, out, name, opts = {}) {
       osc(ctx, target, {
         type: 'square', freq: base * 2, dur: d, vol: v(lvl * 0.22), at, attack: 0.1, sustain: true, release: 0.08,
         filterType: 'lowpass', filterFreq: cut * 1.4, filterQ: 1.2,
+      });
+      // Sub oscillator — matches the live engine loop (low-end body).
+      osc(ctx, target, {
+        type: 'sine', freq: base * 0.5, dur: d, vol: v(lvl * 0.5), at, attack: 0.1, sustain: true, release: 0.08,
       });
       noise(ctx, target, { dur: d, vol: v(lvl * 0.1), at, filterType: 'bandpass', freq: cut * 0.6, q: 0.5, attack: 0.1, sustain: true, release: 0.08 });
       break;
@@ -290,9 +294,11 @@ export function renderSfx(ctx, out, name, opts = {}) {
     }
 
     case 'uiClick': {
-      // Short tactile blip for menu swatches/toggles.
-      osc(ctx, target, { type: 'triangle', freq: 620 * rate, glideTo: 840 * rate, dur: 0.06, vol: v(0.22), at, attack: 0.001 });
-      noise(ctx, target, { dur: 0.03, vol: v(0.08), at, filterType: 'highpass', freq: 5000 });
+      // Short tactile blip for menu swatches/toggles (USER FIX: triangle
+      // + soft noise instead of a raw square tick — the old one was the
+      // most '8-bit' sound in the game).
+      osc(ctx, target, { type: 'triangle', freq: 620 * rate, glideTo: 840 * rate, dur: 0.07, vol: v(0.2), at, attack: 0.001 });
+      noise(ctx, target, { dur: 0.03, vol: v(0.06), at, filterType: 'highpass', freq: 5000 });
       break;
     }
 
@@ -305,8 +311,9 @@ export function renderSfx(ctx, out, name, opts = {}) {
     }
 
     case 'driftReleaseMiniBoost': {
-      // Satisfying "tick-whoosh" when a charged drift is released.
-      osc(ctx, target, { type: 'square', freq: 320 * rate, glideTo: 980 * rate, dur: 0.14, vol: v(0.3), at, attack: 0.002 });
+      // Satisfying "tick-whoosh" when a charged drift is released
+      // (USER FIX: triangle instead of raw square — warmer).
+      osc(ctx, target, { type: 'triangle', freq: 320 * rate, glideTo: 980 * rate, dur: 0.16, vol: v(0.28), at, attack: 0.002 });
       noise(ctx, target, { dur: 0.22, vol: v(0.2), at: at + 0.01, filterType: 'bandpass', freq: 1400, q: 1.2, glideTo: 3400 });
       chime(ctx, target, { freq: 1568 * rate, dur: 0.25, vol: v(0.18), at: at + 0.06, partials: [1, 2, 3] });
       break;
@@ -334,9 +341,11 @@ export function renderSfx(ctx, out, name, opts = {}) {
     }
 
     case 'useItem': {
-      // Quick upward blip.
-      osc(ctx, target, { type: 'square', freq: 900 * rate, glideTo: 1400 * rate, dur: 0.1, vol: v(0.35), at, attack: 0.002 });
-      osc(ctx, target, { type: 'sine', freq: 1800 * rate, dur: 0.05, vol: v(0.12), at: at + 0.02, attack: 0.002 });
+      // Quick upward blip (USER FIX: triangle glide + sparkle instead of
+      // raw square — reads as a power-up, not a game-boy beep).
+      osc(ctx, target, { type: 'triangle', freq: 800 * rate, glideTo: 1500 * rate, dur: 0.12, vol: v(0.32), at, attack: 0.002 });
+      osc(ctx, target, { type: 'sine', freq: 1800 * rate, dur: 0.06, vol: v(0.12), at: at + 0.02, attack: 0.002 });
+      chime(ctx, target, { freq: 2093 * rate, dur: 0.18, vol: v(0.1), at: at + 0.05, partials: [1, 2, 3] });
       break;
     }
 
@@ -434,16 +443,18 @@ export function renderSfx(ctx, out, name, opts = {}) {
     }
 
     case 'posDown': {
-      // Descending two-tone blip (lost a place).
-      osc(ctx, target, { type: 'square', freq: 520 * rate, glideTo: 300 * rate, dur: 0.12, vol: v(0.3), at, attack: 0.003 });
-      osc(ctx, target, { type: 'square', freq: 300 * rate, glideTo: 180 * rate, dur: 0.12, vol: v(0.28), at: at + 0.1, attack: 0.003 });
+      // Descending two-tone blip (lost a place). USER FIX: triangle + sine
+      // (was raw square — harsh).
+      osc(ctx, target, { type: 'triangle', freq: 520 * rate, glideTo: 300 * rate, dur: 0.14, vol: v(0.28), at, attack: 0.003 });
+      osc(ctx, target, { type: 'sine', freq: 300 * rate, glideTo: 180 * rate, dur: 0.14, vol: v(0.26), at: at + 0.1, attack: 0.003 });
       break;
     }
 
     case 'posUp': {
-      // Ascending two-tone blip (overtook someone).
-      osc(ctx, target, { type: 'square', freq: 380 * rate, glideTo: 560 * rate, dur: 0.1, vol: v(0.3), at, attack: 0.003 });
-      osc(ctx, target, { type: 'square', freq: 620 * rate, glideTo: 820 * rate, dur: 0.12, vol: v(0.28), at: at + 0.08, attack: 0.003 });
+      // Ascending two-tone blip (overtook someone). USER FIX: triangle +
+      // sine (was raw square — harsh).
+      osc(ctx, target, { type: 'triangle', freq: 380 * rate, glideTo: 560 * rate, dur: 0.12, vol: v(0.28), at, attack: 0.003 });
+      osc(ctx, target, { type: 'sine', freq: 620 * rate, glideTo: 820 * rate, dur: 0.14, vol: v(0.26), at: at + 0.08, attack: 0.003 });
       break;
     }
 
@@ -455,9 +466,10 @@ export function renderSfx(ctx, out, name, opts = {}) {
     }
 
     case 'countdown': {
-      // Clean beep for the 3-2-1 countdown.
-      osc(ctx, target, { type: 'square', freq: 660 * rate, dur: 0.16, vol: v(0.4), at, attack: 0.004, sustain: true, release: 0.05 });
-      osc(ctx, target, { type: 'sine', freq: 1320 * rate, dur: 0.14, vol: v(0.1), at: at + 0.005, attack: 0.004, sustain: true, release: 0.04 });
+      // Clean stadium beep for the 3-2-1 countdown. USER FIX: triangle
+      // fundamental + soft octave (was raw square — '8-bit').
+      osc(ctx, target, { type: 'triangle', freq: 660 * rate, dur: 0.18, vol: v(0.4), at, attack: 0.004, sustain: true, release: 0.05 });
+      osc(ctx, target, { type: 'sine', freq: 1320 * rate, dur: 0.16, vol: v(0.12), at: at + 0.005, attack: 0.004, sustain: true, release: 0.04 });
       break;
     }
 
@@ -531,10 +543,10 @@ export function renderSfx(ctx, out, name, opts = {}) {
     }
 
     case 'uiHover': {
-      // Soft hover tick.
-      osc(ctx, target, { type: 'sine', freq: 900 * rate, dur: 0.04, vol: v(0.07), at, attack: 0.002 });
-      // Subtler, higher tick for menu hover.
-      osc(ctx, target, { type: 'square', freq: 1550 * rate, dur: 0.04, vol: v(0.09), at, attack: 0.002 });
+      // Soft hover tick (USER FIX: sine + gentle triangle — the old square
+      // was the sharpest '8-bit' artifact in the menu).
+      osc(ctx, target, { type: 'sine', freq: 900 * rate, dur: 0.05, vol: v(0.06), at, attack: 0.002 });
+      osc(ctx, target, { type: 'triangle', freq: 1500 * rate, dur: 0.04, vol: v(0.07), at, attack: 0.002 });
       break;
     }
 

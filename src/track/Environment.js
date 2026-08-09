@@ -133,7 +133,7 @@ export class Environment {
     // --- lights (AAA 3-point rig: key + fill + sky/ground hemi) ----------
     // NEON CITY swaps the warm sunny rig for dim cool moonlight (the moon
     // disc in buildNeonCity sits on the same axis, so shadows match it).
-    const hemi = new THREE.HemisphereLight(night ? 0x40509a : 0xd8e8ff, night ? 0x141430 : 0x7bca7f, night ? 0.55 : 0.75);
+    const hemi = new THREE.HemisphereLight(night ? 0x40509a : 0xd8e8ff, night ? 0x141430 : 0x7bca7f, night ? 0.55 : 0.85);
     scene.add(hemi);
 
     // KEY: primary illumination — warm day sun, or cool moonlit blue at night.
@@ -141,21 +141,21 @@ export class Environment {
     // toon faces read fully lit from the light side.
     const keyColor = night ? 0x8fa8ff : 0xfff2d0;
     const keyPos = night ? [90, 115, -72] : [70, 90, 40];
-    const key = new THREE.DirectionalLight(keyColor, night ? 0.9 : 1.3);
+    const key = new THREE.DirectionalLight(keyColor, night ? 0.9 : 1.5);
     key.position.set(...keyPos);
     scene.add(key);
     scene.add(key.target);
 
     // FILL: opposite-side bounce — lifts the shadow sides so unlit faces
     // read as shaded blue, never black (deep indigo at night).
-    const fill = new THREE.DirectionalLight(night ? 0x2a3a7a : 0x9fc8ff, night ? 0.3 : 0.35);
+    const fill = new THREE.DirectionalLight(night ? 0x2a3a7a : 0x9fc8ff, night ? 0.3 : 0.45);
     fill.position.set(night ? 80 : -70, 60, night ? 60 : -40);
     scene.add(fill);
     scene.add(fill.target);
 
     // Shadow-casting sun — kept as the key's shadow companion: same tint and
     // direction so shadowed areas match the key light (dim blue at night).
-    const sun = new THREE.DirectionalLight(keyColor, night ? 0.55 : 1.0);
+    const sun = new THREE.DirectionalLight(keyColor, night ? 0.55 : 1.2);
     sun.position.set(...keyPos);
     sun.castShadow = true;
     if (CONFIG.render.shadows) {
@@ -178,7 +178,10 @@ export class Environment {
     if (night) this.buildNeonCity(scene, track);
 
     if (!night) {
-      // --- mountains (two haze layers) -------------------------------------
+      // --- horizon haze (warm rings behind the mountains) ------------------
+      this.buildHorizonHaze(scene);
+
+      // --- mountains (four haze layers) ------------------------------------
       this.buildMountains(scene);
 
       // --- clouds ----------------------------------------------------------
@@ -200,6 +203,8 @@ export class Environment {
       this.buildRoadsideCrowd(scene, track);
       this.buildFlags(scene);
       this.buildBalloons(scene);
+      this.buildTracksideBanners(scene, track);
+      this.buildTireStacks(scene, track);
     } else {
       // City keeps the neon poles (buildLightPoles branches on night) but
       // drops the meadow dressing — a city track must read URBAN, not
@@ -210,95 +215,128 @@ export class Environment {
   }
 
   buildMountains(scene) {
-    // Enhanced mountains with 2-layer design (rock base + snow cap) 
-    // plus soft haze discs at base for atmospheric depth
-    const layers = [
-      { radius: 300, count: 14, color: 0x8a7fcc, baseH: 28, hVar: 12, y: 10, seed: 11 }, // Distant purple mountains
-      { radius: 220, count: 12, color: 0x6a5fcc, baseH: 22, hVar: 10, y: 8, seed: 27 },  // Mid-range blue mountains
-      { radius: 150, count: 10, color: 0x4a4fcc, baseH: 18, hVar: 8, y: 6, seed: 43 }   // Foreground mountains
+    // Layered mountain ranges — FOUR depth bands, each with a DISTINCT hue
+    // + value so the eye reads separate ranges at race distance (vision
+    // critic: 'mountains read as identical purple triangles'). The far band
+    // is a pale haze silhouette, the near bands deepen into saturated
+    // indigo, and every peak carries a bright emissive snow cap that stays
+    // crisp against the sky. Each peak is TWO overlapping cones (main body
+    // + offset ridge) so the silhouette reads as a jagged range, never a
+    // single triangle. All cones are grounded on the real rolling terrain
+    // (terrainHeight via this._gy) — the old fixed-y cones floated.
+    const bands = [
+      { radius: 315, count: 14, rock: 0x8f97c9, snow: 0xeaf2ff, baseH: 34, hVar: 16, seed: 11 }, // farthest haze band
+      { radius: 258, count: 13, rock: 0x5f6fc4, snow: 0xf4f9ff, baseH: 30, hVar: 14, seed: 27 },  // mid blue-purple
+      { radius: 198, count: 12, rock: 0x42509e, snow: 0xfffdf4, baseH: 26, hVar: 12, seed: 43 },  // near indigo
+      { radius: 142, count: 10, rock: 0x2e3a7a, snow: 0xffffff, baseH: 22, hVar: 10, seed: 61 },  // closest, darkest + brightest snow
     ];
-    const snowMat = toonMaterial(0xf0f8ff, {}); // Slightly bluish white for snow
     const hazeMat = new THREE.MeshStandardMaterial({
-      color: 0xb0c4de,
+      color: 0xc3d2ea,
       transparent: true,
-      opacity: 0.3,
-      depthWrite: false
+      opacity: 0.28,
+      depthWrite: false,
     });
-    
-    for (const layer of layers) {
+    const rockGeo = new THREE.ConeGeometry(1, 1, 26); // unit cone, scaled per instance
+    const capGeo = new THREE.ConeGeometry(1, 1, 26);
+    for (const band of bands) {
       const group = new THREE.Group();
-      for (let i = 0; i < layer.count; i++) {
-        const rand = rnd(layer.seed * 1000 + i);
-        const a = (i / layer.count) * Math.PI * 2 + (layer.radius === 300 ? 0.6 : 0.2);
-        const r = layer.radius * (0.88 + rand() * 0.24); // More variation
-        const h = layer.baseH + rand() * layer.hVar;
-        const baseR = h * (0.3 + rand() * 0.2); // Wider base for more natural look
+      const rockMat = toonMaterial(band.rock, {});
+      const snowMat = toonMaterial(band.snow, { emissive: 0xffffff, emissiveIntensity: 0.2 });
+      const rocks = new THREE.InstancedMesh(rockGeo, rockMat, band.count);
+      const ridges = new THREE.InstancedMesh(rockGeo, rockMat, band.count);
+      const caps = new THREE.InstancedMesh(capGeo, snowMat, band.count);
+      const dummy = new THREE.Object3D();
+      for (let i = 0; i < band.count; i++) {
+        const rand = rnd(band.seed * 1000 + i);
+        const a = (i / band.count) * Math.PI * 2 + (band.radius > 250 ? 0.6 : 0.2);
+        const r = band.radius * (0.86 + rand() * 0.28); // more spread per band
+        const h = band.baseH + rand() * band.hVar;
+        const baseR = h * (0.34 + rand() * 0.22); // wider base = chunkier peak
         const cx = Math.cos(a) * r;
         const cz = Math.sin(a) * r;
-        const yBase = layer.y + h / 2 - 6;
-        
-        // Rock base - increased segments for smoothness
-        const cone = new THREE.Mesh(
-          new THREE.ConeGeometry(baseR, h, 32), // Increased from 24 to 32
-          toonMaterial(layer.color, {})
-        );
-        cone.position.set(cx, yBase, cz);
-        cone.rotation.y = rand() * Math.PI;
-        group.add(cone);
-        
-        // Snow cap - draped over rock base
-        const capH = h * (0.22 + rand() * 0.1); // Variable snow cap height
-        const capR = baseR * (capH / h) * 1.15; // More overhang
-        const cap = new THREE.Mesh(
-          new THREE.ConeGeometry(capR, capH, 32), // Increased from 24 to 32
-          snowMat
-        );
-        cap.position.set(cx, yBase + h - capH * 0.4, cz); // Sit on top of rock
-        cap.rotation.y = rand() * Math.PI;
-        group.add(cap);
-        
-        // Soft haze disc at base for atmospheric perspective
-        const hazeRadius = baseR * (1.2 + rand() * 0.4);
+        const yBase = this._gy(cx, cz) - 0.5; // grounded on the rolling field
+
+        // main rock body
+        dummy.position.set(cx, yBase + h / 2, cz);
+        dummy.scale.set(baseR, h, baseR);
+        dummy.rotation.set(0, rand() * Math.PI, 0);
+        dummy.updateMatrix();
+        rocks.setMatrixAt(i, dummy.matrix);
+
+        // offset ridge cone — breaks the single-triangle silhouette
+        dummy.position.set(cx + (rand() - 0.5) * baseR * 1.3, yBase + h * 0.4, cz + (rand() - 0.5) * baseR * 1.3);
+        dummy.scale.set(baseR * 0.6, h * 0.5, baseR * 0.6);
+        dummy.rotation.set(0, rand() * Math.PI, 0);
+        dummy.updateMatrix();
+        ridges.setMatrixAt(i, dummy.matrix);
+
+        // snow cap draped over the summit (slightly overhanging)
+        const capH = h * (0.3 + rand() * 0.12);
+        dummy.position.set(cx, yBase + h - capH * 0.42, cz);
+        dummy.scale.set(baseR * (capH / h) * 1.25, capH, baseR * (capH / h) * 1.25);
+        dummy.rotation.set(0, rand() * Math.PI, 0);
+        dummy.updateMatrix();
+        caps.setMatrixAt(i, dummy.matrix);
+
+        // soft haze disc at the base for atmospheric lift
         const haze = new THREE.Mesh(
-          new THREE.CircleGeometry(hazeRadius, 16),
+          new THREE.CircleGeometry(baseR * (1.3 + rand() * 0.5), 20),
           hazeMat
         );
-        haze.position.set(cx, yBase - 0.1, cz); // Just below ground
-        haze.rotation.x = -Math.PI / 2; // Lie flat
+        haze.rotation.x = -Math.PI / 2;
+        haze.position.set(cx, yBase + 0.05, cz);
         group.add(haze);
       }
+      rocks.instanceMatrix.needsUpdate = true;
+      ridges.instanceMatrix.needsUpdate = true;
+      caps.instanceMatrix.needsUpdate = true;
+      group.add(rocks, ridges, caps);
       scene.add(group);
     }
   }
 
   buildClouds(scene) {
-    // Use a soft standard material so clouds look puffy, not cel-shaded.
+    // Prominent cartoon cumulus: bigger puffs, a soft blue emissive so the
+    // undersides never read black, and fog:false so clouds stay WHITE and
+    // readable past the fog far plane (vision critic: clouds existed but
+    // vanished into the fog wash at distance). Each cloud is 4-6 puffs over
+    // a squashed base fill — the classic flat-bottomed cumulus silhouette.
     const cloudMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      roughness: 1,
-      fog: true,
+      roughness: 0.85,
+      emissive: 0xbfd8ff,
+      emissiveIntensity: 0.24,
+      fog: false,
     });
     const group = new THREE.Group();
-    // Organized sky lanes: clouds every ~34 m along a drift band, staggered
+    // Organized sky lanes: clouds every ~31 m along a drift band, staggered
     // across three z-lanes — a planned parade, not a scatter.
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 14; i++) {
       const rand = rnd(500 + i);
       const c = new THREE.Group();
-      const puffs = 4 + Math.floor(rand() * 2); // 4-5 puffs — dense billow
+      const puffs = 4 + Math.floor(rand() * 3); // 4-6 puffs — dense billow
       for (let p = 0; p < puffs; p++) {
-        const s = 5 + rand() * 5;
+        const s = 6 + rand() * 6; // 6-12 m — big readable puffs
         const puff = new THREE.Mesh(
-          new THREE.SphereGeometry(s, 14, 12), // smooth puffs (no flat facets)
+          new THREE.SphereGeometry(s, 16, 12), // smooth puffs (no flat facets)
           cloudMat
         );
-        puff.position.set(p * s * 0.72 - puffs * s * 0.36, (rand() - 0.5) * 1.4, (rand() - 0.5) * 3);
-        puff.scale.y = 0.55;
+        puff.position.set(p * s * 0.72 - puffs * s * 0.36, (rand() - 0.5) * 1.6, (rand() - 0.5) * 3.4);
+        puff.scale.y = 0.52;
         c.add(puff);
       }
+      // squashed base fill — flattens the underside like a real cumulus
+      const base = new THREE.Mesh(
+        new THREE.SphereGeometry(7 + rand() * 4.5, 14, 10),
+        cloudMat
+      );
+      base.scale.set(1.7, 0.34, 1.25);
+      base.position.y = -1.8;
+      c.add(base);
       c.position.set(
-        -190 + i * 34 + (rand() - 0.5) * 8,
-        44 + rand() * 22,
-        (i % 3) * 46 - 46 + (rand() - 0.5) * 10
+        -215 + i * 31 + (rand() - 0.5) * 10,
+        46 + rand() * 24,
+        (i % 3) * 48 - 48 + (rand() - 0.5) * 12
       );
       c.userData.speed = 0.6 + rand() * 1.4;
       c.userData.baseX = c.position.x;
@@ -316,16 +354,32 @@ export class Environment {
         new THREE.MeshToonMaterial({
           color: 0x3ec6ff,
           transparent: true,
-          opacity: 0.82,
+          opacity: 0.8,
           emissive: 0x1e9bd6,
-          emissiveIntensity: 0.35,
+          emissiveIntensity: 0.5,
         })
       );
       water.rotation.x = -Math.PI / 2;
       water.position.set(x, -0.2 + Math.sin(a) * 0.1, z);
-      water.userData = { baseY: water.position.y, phase: a };
+      water.userData = { baseY: water.position.y, phase: a, baseColor: 0x3ec6ff };
       scene.add(water);
       this.waterMeshes.push(water);
+
+      // deep-water base layer — darker disc half a metre down: the lake now
+      // reads as TWO water planes (depth + shore), not one flat cyan sheet.
+      const deep = new THREE.Mesh(
+        new THREE.CircleGeometry(Math.max(w, d) / 2 + 3, 28),
+        new THREE.MeshToonMaterial({
+          color: 0x1479b8,
+          transparent: true,
+          opacity: 0.6,
+          emissive: 0x0e5a94,
+          emissiveIntensity: 0.3,
+        })
+      );
+      deep.rotation.x = -Math.PI / 2;
+      deep.position.set(x, -0.85 + Math.sin(a) * 0.1, z);
+      scene.add(deep);
 
       // foam edge ring (simple bright rim)
       const foam = new THREE.Mesh(
@@ -923,7 +977,7 @@ export class Environment {
       );
       water.rotation.x = -Math.PI / 2;
       water.position.set(px, baseY + 0.06, pz);
-      water.userData = { baseY: baseY + 0.06, phase: 3.9 };
+      water.userData = { baseY: baseY + 0.06, phase: 3.9, baseColor: 0x3ec6ff };
       scene.add(water);
       this.waterMeshes.push(water); // shimmers with the lakes in update()
       // darker rim ring hugging the disc edge
@@ -1055,6 +1109,171 @@ export class Environment {
       scene.add(rotor);
       this.windmillRotors.push(spin); // update() spins the blades
     });
+  }
+
+  /**
+   * Warm atmospheric haze rings at the horizon, behind the mountain bands —
+   * the sky-terrain seam reads as layered air instead of a hard edge
+   * (vision critic: horizon haze was missing entirely). fog:false keeps the
+   * bands visible past the fog far plane; low opacity keeps them subtle.
+   */
+  buildHorizonHaze(scene) {
+    const bands = [
+      { r: 230, y: 4.5, color: 0xfff2d8, opacity: 0.16 },
+      { r: 285, y: 6.5, color: 0xffe9c9, opacity: 0.14 },
+      { r: 345, y: 8.5, color: 0xd9ecff, opacity: 0.12 },
+    ];
+    for (const b of bands) {
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(b.r - 14, b.r + 14, 72),
+        new THREE.MeshBasicMaterial({
+          color: b.color,
+          transparent: true,
+          opacity: b.opacity,
+          fog: false,
+          depthWrite: false,
+          side: THREE.DoubleSide,
+        })
+      );
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.y = b.y;
+      scene.add(ring);
+    }
+  }
+
+  /**
+   * Sponsor banner strips along the straights, both sides, just outside the
+   * guard-rail (rail at halfW+1.1, banners at halfW+2.4 — beyond rail+1.3,
+   * so the tall poles never clip the chase camera). Bold diagonal racing
+   * stripes + SUPER KART GP text read as trackside life at race distance.
+   */
+  buildTracksideBanners(scene, track) {
+    if (!track || !track.path) return;
+    const path = track.path;
+    const halfW = CONFIG.track.roadWidth / 2;
+    if (!this._bannerTex) {
+      const c = document.createElement('canvas');
+      c.width = 256;
+      c.height = 64;
+      const g = c.getContext('2d');
+      // diagonal racing stripes — reads as a sponsor banner at distance
+      const colors = ['#e2504f', '#f4f6f8', '#2e9be8', '#ffd166'];
+      for (let i = 0; i < 8; i++) {
+        g.fillStyle = colors[i % colors.length];
+        g.beginPath();
+        g.moveTo(i * 32 - 32, 64);
+        g.lineTo(i * 32 + 32, 64);
+        g.lineTo(i * 32 + 64, 0);
+        g.lineTo(i * 32, 0);
+        g.closePath();
+        g.fill();
+      }
+      g.fillStyle = 'rgba(27,42,65,0.85)';
+      g.fillRect(0, 22, 256, 20);
+      g.fillStyle = '#ffffff';
+      g.font = '900 26px "Baloo 2", "Nunito", Arial, sans-serif';
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.fillText('SUPER KART GP', 128, 32);
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      this._bannerTex = tex;
+    }
+    const bannerMat = new THREE.MeshBasicMaterial({ map: this._bannerTex, side: THREE.DoubleSide });
+    const poleMat = toonMaterial(0x8b7a5c, {});
+    const bannerGeo = new THREE.BoxGeometry(5.6, 1.0, 0.08);
+    const poleGeo = new THREE.CylinderGeometry(0.07, 0.09, 3.0, 8);
+    const tan = new THREE.Vector3();
+    const tan2 = new THREE.Vector3();
+    const p = new THREE.Vector3();
+    const nrm = new THREE.Vector3();
+    let made = 0;
+    for (let i = 0; i < 220; i++) {
+      const t = i / 220;
+      path.getTangentAt(t, tan);
+      path.getTangentAt(Math.min(0.999, t + 1 / 220), tan2);
+      const curv = 1 - Math.min(1, Math.max(-1, tan.dot(tan2)));
+      if (curv > 0.0008) continue; // straights only (same gate as light poles)
+      if (i % 6 !== 0) continue; // one banner every ~16m along a straight
+      path.getPointAt(t, p);
+      nrm.set(-tan.z, 0, tan.x).normalize();
+      const side = (i / 6) % 2 === 0 ? 1 : -1;
+      const bx = p.x + nrm.x * side * (halfW + 2.4);
+      const bz = p.z + nrm.z * side * (halfW + 2.4);
+      if (this._onTrack(bx, bz, 2)) continue; // never on the road
+      const by = p.y; // anchor at path elevation (rail base line)
+      for (const off of [-1, 1]) {
+        // poles at the banner's WIDTH ends — along the tangent (the board
+        // is only 0.08m thick laterally, so lateral poles would float)
+        const pole = new THREE.Mesh(poleGeo, poleMat);
+        pole.position.set(bx + tan.x * off * 2.7, by + 1.5, bz + tan.z * off * 2.7);
+        scene.add(pole);
+      }
+      const banner = new THREE.Mesh(bannerGeo, bannerMat);
+      banner.position.set(bx, by + 2.35, bz);
+      banner.lookAt(p.x, by + 2.35, p.z); // face the track
+      banner.rotation.z = 0;
+      scene.add(banner);
+      made++;
+    }
+  }
+
+  /**
+   * Racing tire stacks (3 tires, middle one painted white) along the
+   * straights — the classic paddock dressing that reads instantly as
+   * motorsport. Lateral halfW+2.6 (rail+1.5) so the ~1.3m stacks stay clear
+   * of the chase-camera line, and every stack is _onTrack-guarded.
+   */
+  buildTireStacks(scene, track) {
+    if (!track || !track.path) return;
+    const path = track.path;
+    const len = path.getLength();
+    const halfW = CONFIG.track.roadWidth / 2;
+    const tireGeo = new THREE.TorusGeometry(0.42, 0.2, 10, 18);
+    // white base material — instance colors tint it (dark rubber / white
+    // painted tire). A colored material would multiply and kill the white.
+    const tireMat = toonMaterial(0xffffff, {});
+    const stacks = [];
+    const tan = new THREE.Vector3();
+    const tan2 = new THREE.Vector3();
+    const p = new THREE.Vector3();
+    const nrm = new THREE.Vector3();
+    const n = Math.max(10, Math.round(len / 40));
+    for (let i = 0; i < n; i++) {
+      const t = (i + 0.5) / n;
+      path.getTangentAt(t, tan);
+      path.getTangentAt(Math.min(0.999, t + 1 / n), tan2);
+      const curv = 1 - Math.min(1, Math.max(-1, tan.dot(tan2)));
+      if (curv > 0.0008) continue; // straights only
+      path.getPointAt(t, p);
+      nrm.set(-tan.z, 0, tan.x).normalize();
+      const side = i % 2 === 0 ? 1 : -1;
+      const tx = p.x + nrm.x * side * (halfW + 2.6);
+      const tz = p.z + nrm.z * side * (halfW + 2.6);
+      if (this._onTrack(tx, tz, 2)) continue; // never on the road
+      stacks.push({ x: tx, z: tz, gy: p.y, ry: Math.atan2(tan.x, tan.z) });
+    }
+    if (!stacks.length) return;
+    const tires = new THREE.InstancedMesh(tireGeo, tireMat, stacks.length * 3);
+    const col = new THREE.Color();
+    const dummy = new THREE.Object3D();
+    let idx = 0;
+    for (const s of stacks) {
+      for (let k = 0; k < 3; k++) {
+        dummy.position.set(s.x, s.gy + 0.24 + k * 0.42, s.z);
+        dummy.rotation.set(Math.PI / 2, 0, s.ry); // torus laid flat
+        dummy.scale.set(1, 1, 1);
+        dummy.updateMatrix();
+        tires.setMatrixAt(idx, dummy.matrix);
+        // middle tire painted white — classic racing stack contrast
+        col.setHex(k === 1 ? 0xf4f6f8 : 0x262a33);
+        tires.setColorAt(idx, col);
+        idx++;
+      }
+    }
+    tires.instanceMatrix.needsUpdate = true;
+    if (tires.instanceColor) tires.instanceColor.needsUpdate = true;
+    scene.add(tires);
   }
 
   /**
@@ -1209,11 +1428,11 @@ export class Environment {
     // altitude step — a planned parade, not random dots in the sky.
     this.balloons = [];
     const colors = [0xff5a5f, 0xffd166, 0x6cff8f, 0xc86bff];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 6; i++) {
       const rand = rnd(300 + i);
       const g = new THREE.Group();
       const bal = new THREE.Mesh(
-        new THREE.SphereGeometry(2.6, 16, 14),
+        new THREE.SphereGeometry(2.8, 16, 14),
         toonMaterial(colors[i % colors.length], {})
       );
       bal.scale.set(1, 1.15, 1);
@@ -1241,9 +1460,9 @@ export class Environment {
       rope.position.y = 1.4;
       g.add(rope);
       g.position.set(
-        -150 + i * 92 + (rand() - 0.5) * 14,
+        -180 + i * 72 + (rand() - 0.5) * 14,
         44 + i * 8 + (rand() - 0.5) * 6,
-        -110 + i * 60 + (rand() - 0.5) * 14
+        -130 + i * 52 + (rand() - 0.5) * 14
       );
       g.userData = { baseY: g.position.y, speed: 0.05 + i * 0.012, phase: i * 1.57 };
       scene.add(g);
@@ -1266,6 +1485,28 @@ export class Environment {
       { x: 56, z: 50, ry: 2.2 },
     ];
     const crowdColors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
+    // Painted sponsor fascia (SUPER KART text) — cached once, shared by all
+    // stands. MeshBasicMaterial keeps it readable at race distance.
+    if (!this._fasciaTex) {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 96;
+      const g = c.getContext('2d');
+      g.fillStyle = '#e2504f';
+      g.fillRect(0, 0, 512, 96);
+      g.fillStyle = '#ffd166';
+      g.fillRect(0, 0, 512, 10);
+      g.fillRect(0, 86, 512, 10);
+      g.fillStyle = '#ffffff';
+      g.font = '900 44px "Baloo 2", "Nunito", Arial, sans-serif';
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.fillText('SUPER KART 3D.js', 256, 50);
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      this._fasciaTex = tex;
+    }
+    const fasciaMat = new THREE.MeshBasicMaterial({ map: this._fasciaTex });
     for (const gs of grandstandSpots) {
       // USER BUG FIX (grandstand on the road): only the CENTER was checked
       // against the track — a 16m-wide stand whose center sat ~9m off the
@@ -1281,33 +1522,41 @@ export class Environment {
       }
       if (cornerOnTrack) continue; // grandstand off the road (tight margin)
       const grp = new THREE.Group();
-      // steps (3 tiers)
-      const stepMat = toonMaterial(0xdfe6ee, {});
-      const tier = new THREE.InstancedMesh(new THREE.BoxGeometry(16, 0.8, 2.4), stepMat, 3);
+      // steps (3 tiers) — red / white / blue stadium rows via per-instance
+      // color so the stand reads as SEATING, not grey boxes.
+      const tier = new THREE.InstancedMesh(new THREE.BoxGeometry(16, 0.8, 2.4), toonMaterial(0xffffff, {}), 3);
+      const tierCols = [0xe2504f, 0xf4f6f8, 0x2e9be8];
       const dummy = new THREE.Object3D();
+      const col = new THREE.Color();
       for (let i = 0; i < 3; i++) {
         dummy.position.set(0, 1.0 + i * 1.1, -i * 2.2);
+        dummy.scale.set(1, 1, 1);
+        dummy.rotation.set(0, 0, 0);
         dummy.updateMatrix();
         tier.setMatrixAt(i, dummy.matrix);
+        tier.setColorAt(i, col.setHex(tierCols[i]));
       }
       tier.instanceMatrix.needsUpdate = true;
+      if (tier.instanceColor) tier.instanceColor.needsUpdate = true;
       grp.add(tier);
-      // spectators on each tier: body block (bright color) + white head ball
-      const spec = new THREE.InstancedMesh(new THREE.BoxGeometry(1.05, 1.2, 1.0), toonMaterial(0xffffff, {}), 36);
-      const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.42, 12, 8), toonMaterial(0xf4f6f8, {}), 36);
+      // spectators on each tier: body block (bright color) + white head ball.
+      // 15 per tier x 3 = 45 (was 12 x 3 = 36) — denser packed rows.
+      const N = 45;
+      const spec = new THREE.InstancedMesh(new THREE.BoxGeometry(1.05, 1.2, 1.0), toonMaterial(0xffffff, {}), N);
+      const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.42, 12, 8), toonMaterial(0xf4f6f8, {}), N);
       // Raised arms (cheering people, not blocks with heads).
       const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.75, 8);
-      const armsL = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), 36);
-      const armsR = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), 36);
-      const col = new THREE.Color();
+      const armsL = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), N);
+      const armsR = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), N);
       let sIdx = 0;
-      const baseY = new Array(36);
+      const baseY = new Array(N);
       const headDummy = new THREE.Object3D();
       const armDummy = new THREE.Object3D();
       for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 12; j++) {
-          dummy.position.set(-8.2 + j * 1.5, 1.6 + i * 1.15, -i * 2.2 + 0.3);
+        for (let j = 0; j < 15; j++) {
+          dummy.position.set(-8.2 + j * 1.1, 1.6 + i * 1.15, -i * 2.2 + 0.3);
           dummy.scale.set(1, 0.9 + Math.random() * 0.4, 1);
+          dummy.rotation.set(0, 0, 0);
           baseY[sIdx] = dummy.position.y;
           dummy.updateMatrix();
           spec.setMatrixAt(sIdx, dummy.matrix);
@@ -1315,6 +1564,7 @@ export class Environment {
           spec.setColorAt(sIdx, col);
           headDummy.position.set(dummy.position.x, dummy.position.y + 0.95, dummy.position.z);
           headDummy.scale.set(1, 1, 1);
+          headDummy.rotation.set(0, 0, 0);
           headDummy.updateMatrix();
           heads.setMatrixAt(sIdx, headDummy.matrix);
           // Arms raised outward (cheering silhouette).
@@ -1336,7 +1586,11 @@ export class Environment {
       armsR.instanceMatrix.needsUpdate = true;
       grp.add(spec, heads, armsL, armsR);
       (this.crowdMeshes = this.crowdMeshes || []).push(spec);
-      // striped awning
+      // painted front fascia — sponsor wall in front of the first tier
+      const fascia = new THREE.Mesh(new THREE.BoxGeometry(16.5, 1.4, 0.15), fasciaMat);
+      fascia.position.set(0, 0.7, 1.35);
+      grp.add(fascia);
+      // striped awning (roof) + canvas scallop fringe on its front edge
       const awning = new THREE.Mesh(
         new THREE.BoxGeometry(18, 0.25, 5.4),
         toonMaterial(0xff5a5f, {})
@@ -1352,6 +1606,16 @@ export class Environment {
         bar.position.set(i * 1.1, 4.42, -3.2);
         bar.rotation.x = 0.16;
         grp.add(bar);
+      }
+      // scalloped fringe hanging from the awning's front edge
+      const scallopGeo = new THREE.BoxGeometry(0.6, 0.55, 0.06);
+      const scallopRed = toonMaterial(0xff5a5f, {});
+      const scallopWhite = toonMaterial(0xffffff, {});
+      for (let i = -7; i <= 7; i++) {
+        const scallop = new THREE.Mesh(scallopGeo, i % 2 === 0 ? scallopRed : scallopWhite);
+        scallop.position.set(i * 0.9, 3.92, -0.42);
+        scallop.rotation.x = 0.16;
+        grp.add(scallop);
       }
       // support posts
       const postGeo = new THREE.CylinderGeometry(0.14, 0.14, 4.4, 8);
@@ -1440,12 +1704,14 @@ export class Environment {
     // straight, the back straight, and after turn 1 — so ANY race frame has
     // cheering people beside the road, not just the grid.
     const SEGMENTS = [
-      { t0: 0.945, t1: 0.055, n: 16 }, // start straight (WRAPS past 1.0)
-      { t0: 0.10, t1: 0.15, n: 8 },    // exit of turn 1
-      { t0: 0.19, t1: 0.25, n: 10 },   // turn 1
-      { t0: 0.30, t1: 0.37, n: 8 },    // climb
-      { t0: 0.45, t1: 0.56, n: 12 },   // back straight
-      { t0: 0.62, t1: 0.68, n: 8 },    // descent
+      { t0: 0.945, t1: 0.055, n: 20 }, // start straight (WRAPS past 1.0)
+      { t0: 0.10, t1: 0.15, n: 10 },    // exit of turn 1
+      { t0: 0.19, t1: 0.25, n: 12 },   // turn 1
+      { t0: 0.30, t1: 0.37, n: 10 },    // climb
+      { t0: 0.45, t1: 0.56, n: 14 },   // back straight
+      { t0: 0.62, t1: 0.68, n: 10 },    // descent
+      { t0: 0.72, t1: 0.80, n: 8 },     // turn 4 approach
+      { t0: 0.855, t1: 0.915, n: 8 },   // final esses
     ];
     // Two rows per side. USER BUG FIX: the old offsets (1.35 / 2.9) were
     // only ~1.35m past the road edge — billboard figures 1.1m wide visually
@@ -1931,36 +2197,52 @@ export class Environment {
   }
 
   buildFlags(scene) {
-    // String of small triangular flags over a section of the road.
+    // Strings of small triangular flags along the start-straight grass
+    // corridor — two lines now (the original short one + a second long line
+    // extending the same decoration east). USER FIX: the old posts at
+    // z=-58 sat ~1m from the centerline (ON the asphalt) — both strings are
+    // moved to z=-65, 8m+ off the road (rail at halfW+1.1), and every post
+    // is _onTrack-guarded. All geometry is grounded on terrainHeight.
     const flagMat = toonMaterial(0xffd166, {});
     const flagMat2 = toonMaterial(0x2ec4ff, {});
-    // Support poles at both ends — the rope must not float in mid-air
-    // (auditor HIGH: pennant string had no posts, read as a disconnected
-    // floating line).
     const postGeo = new THREE.CylinderGeometry(0.06, 0.09, 9, 8);
     const postMat = toonMaterial(0x8b7a5c, {});
-    for (const px of [-11, 23]) {
-      const post = new THREE.Mesh(postGeo, postMat);
-      post.position.set(px, 4.5, -58);
-      scene.add(post);
-    }
-    const rope = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.03, 0.03, 34, 6),
-      toonMaterial(0x8b7a5c, {})
-    );
-    rope.position.set(6, 9, -58);
-    rope.rotation.x = Math.PI / 2;
-    scene.add(rope);
-
-    for (let i = 0; i < 11; i++) {
-      const flag = new THREE.Mesh(
-        new THREE.ConeGeometry(0.42, 0.85, 3),
-        i % 2 === 0 ? flagMat : flagMat2
+    const strings = [
+      { x0: -11, x1: 23, z: -65, flags: 11 },
+      { x0: 30, x1: 64, z: -65, flags: 11 },
+    ];
+    for (const s of strings) {
+      const posts = [[s.x0, s.z], [s.x1, s.z]];
+      let skipped = false;
+      for (const [px, pz] of posts) {
+        if (this._onTrack(px, pz, 1.5)) { skipped = true; break; }
+      }
+      if (skipped) continue; // never erect pennant posts on the road
+      for (const [px, pz] of posts) {
+        const post = new THREE.Mesh(postGeo, postMat);
+        post.position.set(px, this._gy(px, pz) + 4.5, pz);
+        scene.add(post);
+      }
+      const span = s.x1 - s.x0;
+      const rope = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.03, 0.03, span + 0.5, 6),
+        toonMaterial(0x8b7a5c, {})
       );
-      flag.position.set(6 - 17 + i * 3.4, 9.2, -58);
-      flag.userData.baseRot = 0;
-      scene.add(flag);
-      this.flagMeshes.push(flag);
+      rope.position.set((s.x0 + s.x1) / 2, this._gy((s.x0 + s.x1) / 2, s.z) + 9, s.z);
+      rope.rotation.x = Math.PI / 2;
+      scene.add(rope);
+
+      for (let i = 0; i < s.flags; i++) {
+        const fx = s.x0 + (span / (s.flags - 1)) * i;
+        const flag = new THREE.Mesh(
+          new THREE.ConeGeometry(0.46, 0.95, 3),
+          i % 2 === 0 ? flagMat : flagMat2
+        );
+        flag.position.set(fx, this._gy(fx, s.z) + 9.3, s.z);
+        flag.userData.baseRot = 0;
+        scene.add(flag);
+        this.flagMeshes.push(flag);
+      }
     }
   }
 
@@ -1980,10 +2262,20 @@ export class Environment {
     for (const r of this.windmillRotors || []) {
       r.rotation.z += dt * 1.5;
     }
-    // Water shimmer
+    // Water shimmer: bob + opacity pulse + hue-hold brightness pulse and a
+    // glow pulse on the emissive, so the surface reads as LIVE water (the
+    // old code only moved the plane — the cyan stayed static and flat).
     for (const w of this.waterMeshes) {
-      w.position.y = w.userData.baseY + Math.sin(t * 1.4 + w.userData.phase) * 0.08;
-      w.material.opacity = 0.78 + Math.sin(t * 1.1 + w.userData.phase) * 0.06;
+      const ph = w.userData.phase || 0;
+      const bob = Math.sin(t * 1.4 + ph);
+      w.position.y = w.userData.baseY + bob * 0.08;
+      w.material.opacity = 0.78 + Math.sin(t * 1.1 + ph) * 0.06;
+      const shim = 0.5 + 0.5 * Math.sin(t * 1.7 + ph * 2);
+      if (w.userData.baseColor !== undefined && w.material.color) {
+        w.material.color.setHex(w.userData.baseColor);
+        w.material.color.offsetHSL(0, 0, (shim - 0.5) * 0.06);
+      }
+      if (w.material.emissive) w.material.emissiveIntensity = 0.3 + shim * 0.35;
     }
     // Flags wave
     for (let i = 0; i < this.flagMeshes.length; i++) {
