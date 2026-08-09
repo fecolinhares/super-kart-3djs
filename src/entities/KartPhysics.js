@@ -254,6 +254,13 @@ export class KartPhysics {
         break;
       }
     }
+    // Draft-exit boost (audit v4 LOW): leaving a wake gives a short kick —
+    // rewards pulling out and overtaking, the MK8 "slingshot" moment.
+    if (!s.draft && kart._wasDrafting && !s.spinOut) {
+      kart.applyBoost(260);
+      kart._onDraftExit?.();
+    }
+    kart._wasDrafting = s.draft;
     s.offRoad = Math.abs(near.lateralDist) > halfW;
     if (s.offRoad) target *= T.offRoadMaxSpeedFactor;
     if (s.spinOut) target = 0;

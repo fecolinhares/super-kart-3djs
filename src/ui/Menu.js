@@ -106,9 +106,14 @@ export class Menu {
     for (const swatch of this.swatches) {
       swatch.addEventListener('click', () => { this.onSound('uiClick'); this.selectColor(swatch); });
     }
-    // Hover feedback (audit minor: 'uiHover' recipe existed but was never wired).
-    for (const el of [this.startBtn, this.helpToggle, ...this.swatches]) {
-      el.addEventListener('pointerenter', () => { this.onSound('uiHover'); });
+    // Hover feedback (audit minor: 'uiHover' recipe existed but was never
+    // wired). Gate to real hover pointers (v4 F6: on touch, pointerenter
+    // fires on tap → hover+click double-tick).
+    const canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+    if (canHover) {
+      for (const el of [this.startBtn, this.helpToggle, this.muteBtn, ...this.swatches]) {
+        el.addEventListener('pointerenter', () => { this.onSound('uiHover'); });
+      }
     }
     this.muteBtn.addEventListener('click', () => { this.toggleMute(); });
   }

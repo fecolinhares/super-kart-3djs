@@ -522,14 +522,9 @@ export function renderSfx(ctx, out, name, opts = {}) {
       break;
     }
 
-    case 'uiClick': {
-      // Short UI tick.
-      osc(ctx, target, { type: 'square', freq: 1150 * rate, dur: 0.05, vol: v(0.14), at, attack: 0.002 });
-      noise(ctx, target, { dur: 0.02, vol: v(0.06), at, filterType: 'highpass', freq: 4500 });
-      break;
-    }
-
     case 'uiHover': {
+      // Soft hover tick.
+      osc(ctx, target, { type: 'sine', freq: 900 * rate, dur: 0.04, vol: v(0.07), at, attack: 0.002 });
       // Subtler, higher tick for menu hover.
       osc(ctx, target, { type: 'square', freq: 1550 * rate, dur: 0.04, vol: v(0.09), at, attack: 0.002 });
       break;

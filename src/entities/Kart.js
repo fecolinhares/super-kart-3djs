@@ -18,6 +18,17 @@ import { KartPhysics } from './KartPhysics.js';
 
 const OUTLINE = 0x1b2a41;
 
+/** Held-item bubble colors (PowerUpType value → orb tint). */
+const HELD_ITEM_COLORS = {
+  mushroom: 0xff5a5f,
+  shell: 0x43d64b,
+  red_shell: 0xff3b3b,
+  banana: 0xffd166,
+  star: 0xffd700,
+  lightning: 0x2ec4ff,
+  blue_shell: 0x1f3fc8,
+};
+
 export class Kart {
   /**
    * @param {object} opts
@@ -88,6 +99,19 @@ export class Kart {
     this._bounceTimer = 0;
     this._startDir = new THREE.Vector3(0, 0, 1);
     this._trickArmed = false;
+
+    // Held-item bubble (audit v5: rivals' shields were invisible — MK8 shows
+    // the item in a bubble behind the kart). Small orb + ring, colored by item.
+    this.heldItemGroup = new THREE.Group();
+    this.heldItemGroup.position.set(0, 0.72, -0.72);
+    this._heldOrbMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    this.heldItemGroup.add(new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 10), this._heldOrbMat));
+    this.heldItemGroup.add(new THREE.Mesh(
+      new THREE.TorusGeometry(0.26, 0.02, 8, 20),
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55 })
+    ));
+    this.heldItemGroup.visible = false;
+    this.group.add(this.heldItemGroup);
 
     this._controls = { steer: 0, throttle: false, brake: false, drift: false, useItem: false };
     this._steerTarget = 0;
@@ -703,6 +727,16 @@ export class Kart {
     this._t += dt;
     const s = this.state;
     this._tickEffects(dt);
+    // Held-item bubble sync (audit v5): show/hide + recolor the orb.
+    if (this.heldItemGroup) {
+      const has = !!this.heldItem;
+      this.heldItemGroup.visible = has;
+      if (has) {
+        const c = HELD_ITEM_COLORS[this.heldItem] || 0xffffff;
+        if (this._heldOrbMat.color.getHex() !== c) this._heldOrbMat.color.setHex(c);
+        this.heldItemGroup.rotation.y += dt * 2.4; // gentle spin
+      }
+    }
     // Trick (MK8 pillar): pressing throttle mid-air arms a trick; landing
     // with it armed grants a mini-boost (the air system is now reachable
     // via the trick ramps).

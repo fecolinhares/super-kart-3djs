@@ -178,6 +178,10 @@ function setPlayerColor(color) {
 
 /** Drift mini-boost drama: SFX + golden spark burst on release (all karts). */
 function wireMiniBoost(kart) {
+  kart._onDraftExit = () => {
+    // Slingshot pop when leaving a wake (player only).
+    if (kart.isPlayer) audio.play('driftReleaseMiniBoost', { volume: 0.5 });
+  };
   kart._onTrick = () => {
     // Trick landing boost — sparkle burst + pop (mostly for the player).
     if (kart.isPlayer) {
