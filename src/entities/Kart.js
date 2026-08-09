@@ -595,10 +595,12 @@ export class Kart {
     this._scaleMs = Math.max(this._scaleMs, 300);
   }
 
-  /** Shell: heavier crash — spin-out + hop + lateral shove. */
-  hitShell() {
+  /** Shell: heavier crash — spin-out + hop + lateral shove.
+   *  opts: { blue } — blue shells BYPASS held-item blocking (MK8 spiny:
+   *  only star/invincibility protects; a held shell can't shield it). */
+  hitShell(opts = {}) {
     if (this.invincible) return;
-    if (this._blockWithHeldItem()) return; // MK8 item-hold blocking pillar
+    if (!opts.blue && this._blockWithHeldItem()) return; // MK8 item-hold pillar
     this._spinMs = 2100;
     this._spinDir = Math.random() < 0.5 ? -1 : 1;
     this.state.speed *= 0.12;
@@ -683,7 +685,7 @@ export class Kart {
     // Trick (MK8 pillar): pressing throttle mid-air arms a trick; landing
     // with it armed grants a mini-boost (the air system is now reachable
     // via the trick ramps).
-    if (this._airTime > 0.35 && this._controls.throttle) this._trickArmed = true;
+    if (this._airTime > 0.25 && this._controls.throttle) this._trickArmed = true; // audit v4: 0.35 was above the ramp's airtime
     if (this._trickArmed && this._airTime <= 0.02 && !this.state.spinOut) {
       this._trickArmed = false;
       this.applyBoost(320);

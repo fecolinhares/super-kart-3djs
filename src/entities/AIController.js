@@ -34,6 +34,10 @@ export class AIController {
     //   handling → steering authority (0.85-1.15 look-ahead steering gain)
     const st = kart.character?.stats || { speed: 7, accel: 7, handling: 7 };
     this.stats = st;
+    // Per-driver lateral lane offset (audit v4 F3: all AI hugged the same
+    // centerline → train formation). Deterministic golden-ratio spread so
+    // rivals hold different lines without random jitter.
+    this.laneOffset = (Math.floor(Math.abs(kart.position) * 13.7 + (kart.index ?? 0) * 0.618) % 1 - 0.5) * CONFIG.track.roadWidth * 0.62;
     this._initPath();
   }
 
@@ -99,6 +103,17 @@ export class AIController {
       const look = Math.max(1, Math.round(CONFIG.ai.steerPredictAhead / this.spacing));
       const idx = (near + look) % this.centerline.length;
       target = this.centerline[idx];
+      // Lateral lane offset: hold a personal racing line (audit v4 F3).
+      if (this.laneOffset) {
+        const p0 = this.centerline[idx];
+        const p1 = this.centerline[(idx + 1) % this.centerline.length];
+        let tx = p1.x - p0.x;
+        let tz = p1.z - p0.z;
+        const tl = Math.hypot(tx, tz) || 1;
+        tx /= tl;
+        tz /= tl;
+        target = { x: p0.x + -tz * this.laneOffset, z: p0.z + tx * this.laneOffset };
+      }
     } else {
       // No path data — dead-reckon straight ahead.
       target = { x: pos.x + heading.x * 10, z: pos.z + heading.y * 10 };
@@ -150,7 +165,7 @@ export class AIController {
       // The driver's speed stat scales the whole cruise envelope (F2 curve).
       const statScale = 0.95 + (this.stats?.speed || 7) / 10 * 0.1;
       if (d > 0.03) {
-        const boost = Math.min(0.22, d * 0.3);
+        const boost = Math.min(0.12, d * 0.3); // audit v4: capped +12% (was +22% — felt like cheating)
         kart.cruiseSpeed = CONFIG.physics.maxSpeed * (1 + boost) * statScale;
       } else {
         kart.cruiseSpeed = CONFIG.physics.maxSpeed * statScale;

@@ -270,6 +270,7 @@ export class ShellProjectile {
 
     const opos = kartPosition(ownerKart);
     const color = this.homing ? (opts.blue ? 0x1f3fc8 : 0xff3b3b) : 0x43d64b;
+    this.blue = !!opts.blue;
     this.mesh = buildShellMesh(color);
     this.mesh.position.set(
       opos.x + this.dir.x * 1.5,
@@ -372,7 +373,7 @@ export class ShellProjectile {
 
   _hit(victim, pos) {
     this.raceManager?.particles?.emit?.('explosion', new THREE.Vector3(pos.x, pos.y + 0.6, pos.z));
-    victim?.hitShell?.();
+    victim?.hitShell?.({ blue: !!this.blue }); // blue shells bypass item-hold (audit v4)
     this.audio?.play?.('crash');
     this.die();
   }

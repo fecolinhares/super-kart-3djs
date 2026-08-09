@@ -309,8 +309,8 @@ export class KartPhysics {
         const dx = r.point.x - s.position.x;
         const dz = r.point.z - s.position.z;
         if (dx * dx + dz * dz < 7.3) {
-          s.vY = 5.4; // launch off the ramp
-          s.position.y += 0.02; // leave the ground this frame
+          s.vY = 6.5; // launch off the ramp (audit v4: 5.4 gave 0.34s air —
+          s.position.y += 0.02; //  below the 0.25s trick-arm window)
           s.onRamp = true;
           break;
         }
