@@ -111,13 +111,18 @@ export class Environment {
       }
     }
     // --- fog & background ------------------------------------------------
-    scene.fog = new THREE.Fog(0xbfe6ff, 70, 430);
+    // trackId 2 (NEON CITY) swaps the sunny meadow for an urban night theme:
+    // night fog color matches the sky horizon so the dome blends seamlessly.
+    const night = this.trackId === 2;
+    scene.fog = new THREE.Fog(night ? 0x1a1a3a : 0xbfe6ff, night ? 80 : 70, night ? 460 : 430);
 
-    // Sky dome (fog-free basic material with gradient texture)
+    // Sky dome (fog-free basic material with gradient texture). Track 2 uses
+    // a dark blue-purple night gradient (0x1a1a3a horizon → 0x3a2a6a zenith)
+    // with a faint star field instead of the sunny blue.
     const sky = new THREE.Mesh(
       new THREE.SphereGeometry(520, 24, 12),
       new THREE.MeshBasicMaterial({
-        map: skyTexture(),
+        map: night ? this._nightSkyTexture() : skyTexture(),
         side: THREE.BackSide,
         fog: false,
       })
@@ -125,29 +130,33 @@ export class Environment {
     sky.position.y = -10;
     scene.add(sky);
 
-    // --- lights (AAA 3-point rig: warm key + cool fill + sky/ground hemi) --
-    const hemi = new THREE.HemisphereLight(0xd8e8ff, 0x7bca7f, 0.75);
+    // --- lights (AAA 3-point rig: key + fill + sky/ground hemi) ----------
+    // NEON CITY swaps the warm sunny rig for dim cool moonlight (the moon
+    // disc in buildNeonCity sits on the same axis, so shadows match it).
+    const hemi = new THREE.HemisphereLight(night ? 0x40509a : 0xd8e8ff, night ? 0x141430 : 0x7bca7f, night ? 0.55 : 0.75);
     scene.add(hemi);
 
-    // KEY: warm directional from the sun direction — primary illumination.
+    // KEY: primary illumination — warm day sun, or cool moonlit blue at night.
     // Pure light (no shadow casting); the sun below carries the shadows so
-    // toon faces read fully lit from the sunny side.
-    const key = new THREE.DirectionalLight(0xfff2d0, 1.3);
-    key.position.set(70, 90, 40);
+    // toon faces read fully lit from the light side.
+    const keyColor = night ? 0x8fa8ff : 0xfff2d0;
+    const keyPos = night ? [90, 115, -72] : [70, 90, 40];
+    const key = new THREE.DirectionalLight(keyColor, night ? 0.9 : 1.3);
+    key.position.set(...keyPos);
     scene.add(key);
     scene.add(key.target);
 
-    // FILL: cool sky-blue bounce from the opposite side — lifts the shadow
-    // sides so unlit faces read as shaded blue, never black.
-    const fill = new THREE.DirectionalLight(0x9fc8ff, 0.35);
-    fill.position.set(-70, 60, -40);
+    // FILL: opposite-side bounce — lifts the shadow sides so unlit faces
+    // read as shaded blue, never black (deep indigo at night).
+    const fill = new THREE.DirectionalLight(night ? 0x2a3a7a : 0x9fc8ff, night ? 0.3 : 0.35);
+    fill.position.set(night ? 80 : -70, 60, night ? 60 : -40);
     scene.add(fill);
     scene.add(fill.target);
 
-    // Shadow-casting sun — kept as the key's shadow companion: same warm
-    // tint and sun direction so shadowed areas match the key light.
-    const sun = new THREE.DirectionalLight(0xfff2d0, 1.0);
-    sun.position.set(70, 90, 40);
+    // Shadow-casting sun — kept as the key's shadow companion: same tint and
+    // direction so shadowed areas match the key light (dim blue at night).
+    const sun = new THREE.DirectionalLight(keyColor, night ? 0.55 : 1.0);
+    sun.position.set(...keyPos);
     sun.castShadow = true;
     if (CONFIG.render.shadows) {
       const testMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('test');
@@ -163,6 +172,10 @@ export class Environment {
     scene.add(sun);
     scene.add(sun.target);
     this.sun = sun;
+
+    // NEON CITY dressing: glowing moon disc + lit-window skyline. (Neon
+    // roadside strips are built inside buildLightPoles below.)
+    if (night) this.buildNeonCity(scene, track);
 
     // --- mountains (two haze layers) -------------------------------------
     this.buildMountains(scene);
@@ -1522,6 +1535,11 @@ export class Environment {
    */
   buildLightPoles(scene, track) {
     if (!track || !track.path) return;
+    // NEON CITY: the day poles are replaced by glowing pink/cyan neon strips.
+    if (this.trackId === 2) {
+      this.buildNeonPoles(scene, track);
+      return;
+    }
     const path = track.path;
     const halfW = CONFIG.track.roadWidth / 2;
     const poleMat = toonMaterial(0x7d8a99, {});
@@ -1554,6 +1572,222 @@ export class Environment {
       head.rotation.z = 0;
       scene.add(head);
       made++;
+    }
+  }
+
+  /** Night sky dome texture: dark blue-purple gradient + faint stars.
+   *  Gradient follows the theme spec: 0x1a1a3a horizon → 0x2a2a5a mid →
+   *  0x3a2a6a zenith (canvas y=0 is the dome top in three's sphere UVs). */
+  _nightSkyTexture() {
+    if (this._nightSkyTex) return this._nightSkyTex;
+    const s = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = s;
+    canvas.height = s;
+    const ctx = canvas.getContext('2d');
+    const g = ctx.createLinearGradient(0, 0, 0, s);
+    g.addColorStop(0, '#3a2a6a'); // zenith
+    g.addColorStop(0.5, '#2a2a5a');
+    g.addColorStop(1, '#1a1a3a'); // horizon — matches the night fog color
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, s, s);
+    // sparse deterministic star field (upper sky only)
+    const rand = rnd(777);
+    for (let i = 0; i < 90; i++) {
+      const x = rand() * s;
+      const y = rand() * s * 0.72;
+      ctx.globalAlpha = 0.25 + rand() * 0.65;
+      ctx.fillStyle = rand() > 0.8 ? '#cfe0ff' : '#ffffff';
+      ctx.beginPath();
+      ctx.arc(x, y, 0.5 + rand() * 1.1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    this._nightSkyTex = new THREE.CanvasTexture(canvas);
+    this._nightSkyTex.colorSpace = THREE.SRGBColorSpace;
+    return this._nightSkyTex;
+  }
+
+  /** Building facade texture: dark blue-grey wall + grid of lit window
+   *  cells. MeshBasicMaterial keeps the facade self-lit at night, and the
+   *  per-instance color tints every lit cell (dark walls × tint stay dark,
+   *  so only the windows glow in orange / electric blue / yellow). */
+  _windowTexture() {
+    if (this._windowTex) return this._windowTex;
+    const s = 256;
+    const canvas = document.createElement('canvas');
+    canvas.width = s;
+    canvas.height = s;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#161c30'; // dark wall base
+    ctx.fillRect(0, 0, s, s);
+    const rand = rnd(4242);
+    const cols = 8;
+    const rows = 7;
+    const cell = 24;
+    const gap = 4;
+    const startX = (s - (cols * cell + (cols - 1) * gap)) / 2;
+    const startY = (s - (rows * cell + (rows - 1) * gap)) / 2;
+    const litTints = ['#ffe9c4', '#cfe4ff', '#fff7cc'];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        ctx.fillStyle = rand() < 0.52
+          ? litTints[(rand() * litTints.length) | 0]
+          : '#0e1426'; // unlit cell
+        ctx.fillRect(
+          startX + c * (cell + gap),
+          startY + r * (cell + gap),
+          cell,
+          cell
+        );
+      }
+    }
+    this._windowTex = new THREE.CanvasTexture(canvas);
+    this._windowTex.colorSpace = THREE.SRGBColorSpace;
+    return this._windowTex;
+  }
+
+  /**
+   * NEON CITY skyline: glowing moon disc + two concentric rows of instanced
+   * towers (12-16 each) 65-90m out. Towers are 6x(12-30)x6 boxes offset
+   * along the outward radial from the loop centroid — that direction always
+   * moves AWAY from the road, so nothing ever spawns on the track (belt &
+   * suspenders: an _onTrack guard runs anyway). Each tower carries the
+   * window-grid texture tinted per-instance with a hot neon color.
+   */
+  buildNeonCity(scene, track) {
+    // --- moon: small glowing white disc + soft halo, high in the night sky.
+    //     fog:false so it stays crisp past the fog far plane.
+    const moon = new THREE.Group();
+    const halo = new THREE.Mesh(
+      new THREE.CircleGeometry(5.4, 24),
+      new THREE.MeshBasicMaterial({ color: 0xaac4ff, transparent: true, opacity: 0.3, fog: false, depthWrite: false })
+    );
+    const disc = new THREE.Mesh(
+      new THREE.CircleGeometry(2.7, 24),
+      new THREE.MeshBasicMaterial({ color: 0xfff4e0, fog: false })
+    );
+    disc.position.z = 0.2; // avoid z-fight with the halo
+    moon.add(halo, disc);
+    moon.position.set(150, 195, -115); // same axis as the night key light
+    moon.lookAt(0, 0, 0); // face the track
+    scene.add(moon);
+
+    // --- building skyline ---
+    if (!track || !track.path) return;
+    const path = track.path;
+    const len = path.getLength();
+    // Loop centroid → outward radial offset is guaranteed road-safe.
+    const cent = new THREE.Vector3();
+    const probe = new THREE.Vector3();
+    for (let i = 0; i < 64; i++) {
+      path.getPointAt(i / 64, probe);
+      cent.add(probe);
+    }
+    cent.multiplyScalar(1 / 64);
+
+    const geo = new THREE.BoxGeometry(6, 12, 6);
+    const mat = new THREE.MeshBasicMaterial({ map: this._windowTexture() });
+    const towers = new THREE.InstancedMesh(geo, mat, 32);
+    const windowColors = [0xff9a3c, 0x3c9aff, 0xffe23c];
+    const dummy = new THREE.Object3D();
+    const dir = new THREE.Vector3();
+    let idx = 0;
+    // Row A hugs the track (65-75m); row B sits behind it (78-90m) so the
+    // skyline reads as a dense city ring, not a single dotted circle.
+    const rows = [
+      { seed: 21000, base: 65, range: 10 },
+      { seed: 22000, base: 78, range: 12 },
+    ];
+    for (const row of rows) {
+      const rand = rnd(row.seed);
+      const count = 12 + Math.floor(rand() * 5); // 12-16 per row
+      for (let i = 0; i < count; i++) {
+        const t = (((i / count + (rand() - 0.5) * (6 / len)) % 1) + 1) % 1; // ±3m along path
+        path.getPointAt(t, probe);
+        dir.copy(probe).sub(cent).setY(0);
+        if (dir.lengthSq() < 1) continue;
+        dir.normalize();
+        const off = row.base + rand() * row.range; // 65-90m out
+        const x = probe.x + dir.x * off;
+        const z = probe.z + dir.z * off;
+        if (this._onTrack(x, z, 6)) continue; // never on the road
+        const h = 12 + rand() * 18; // 12-30m tall
+        const gy = this._gy(x, z);
+        dummy.position.set(x, gy + h / 2, z);
+        dummy.scale.set(1, h / 12, 1);
+        dummy.rotation.set(0, rand() * 0.25, 0);
+        dummy.updateMatrix();
+        towers.setMatrixAt(idx, dummy.matrix);
+        towers.setColorAt(idx, new THREE.Color(windowColors[(rand() * 3) | 0]));
+        idx++;
+      }
+    }
+    if (idx > 0) {
+      towers.count = idx;
+      towers.instanceMatrix.needsUpdate = true;
+      if (towers.instanceColor) towers.instanceColor.needsUpdate = true;
+      towers.castShadow = true;
+      scene.add(towers);
+    }
+  }
+
+  /**
+   * NEON CITY light poles: glowing pink/cyan neon strips instead of day
+   * poles — thin 0.1x4x0.1 emissive boxes every ~40m along the straights,
+   * both road sides at roadW/2 + 2.0 (6.5m from centerline; clears the road
+   * by 2m — beyond the 6.0m minimum). Emissive intensity 2 makes the strips
+   * read as lit neon tubes even under the dim moonlight.
+   */
+  buildNeonPoles(scene, track) {
+    const path = track.path;
+    const len = path.getLength();
+    const halfW = CONFIG.track.roadWidth / 2;
+    const stripGeo = new THREE.BoxGeometry(0.1, 4, 0.1);
+    const pinkMat = toonMaterial(0x0e1220, { emissive: 0xff2ec4, emissiveIntensity: 2 });
+    const cyanMat = toonMaterial(0x0e1220, { emissive: 0x2ec4ff, emissiveIntensity: 2 });
+    const pink = new THREE.InstancedMesh(stripGeo, pinkMat, 24);
+    const cyan = new THREE.InstancedMesh(stripGeo, cyanMat, 24);
+    const dummy = new THREE.Object3D();
+    const p = new THREE.Vector3();
+    const tan = new THREE.Vector3();
+    const tan2 = new THREE.Vector3();
+    const nrm = new THREE.Vector3();
+    let pinkIdx = 0;
+    let cyanIdx = 0;
+    const n = Math.max(10, Math.round(len / 40)); // ~40m intervals
+    for (let i = 0; i < n; i++) {
+      const t = i / n;
+      path.getTangentAt(t, tan);
+      path.getTangentAt(Math.min(0.999, t + 1 / n), tan2);
+      const curv = 1 - Math.min(1, Math.max(-1, tan.dot(tan2)));
+      if (curv > 0.0016) continue; // straights only (same gate as corner signs)
+      path.getPointAt(t, p);
+      nrm.set(-tan.z, 0, tan.x).normalize();
+      for (const side of [-1, 1]) {
+        const off = halfW + 2.0; // roadW/2 + 2.0
+        const x = p.x + nrm.x * side * off;
+        const z = p.z + nrm.z * side * off;
+        dummy.position.set(x, p.y + 2, z); // 4m strip centered 2m up
+        dummy.scale.set(1, 1, 1);
+        dummy.rotation.set(0, 0, 0);
+        dummy.updateMatrix();
+        const toPink = (i + (side === 1 ? 1 : 0)) % 2 === 0;
+        const target = toPink ? pink : cyan;
+        const idx = toPink ? pinkIdx++ : cyanIdx++;
+        if (idx >= target.count) continue;
+        target.setMatrixAt(idx, dummy.matrix);
+      }
+    }
+    if (pinkIdx) {
+      pink.count = pinkIdx;
+      pink.instanceMatrix.needsUpdate = true;
+      scene.add(pink);
+    }
+    if (cyanIdx) {
+      cyan.count = cyanIdx;
+      cyan.instanceMatrix.needsUpdate = true;
+      scene.add(cyan);
     }
   }
 

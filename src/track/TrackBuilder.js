@@ -236,7 +236,7 @@ function buildTerrain(path) {
   return mesh;
 }
 
-function buildCurbs(path, length, side) {
+function buildCurbs(path, length, side, opts = {}) {
   const roadW = getRoadWidthAt();
   // Continuous kerbs (no gaps): block length ≈ spacing → solid red/white edge.
   const seg = 1.7;
@@ -244,15 +244,34 @@ function buildCurbs(path, length, side) {
   // Narrow across the road (X=0.42), LONG along the track (Z=1.7): after
   // lookAt aligns Z with the path, the kerb runs along the edge, not across it.
   const geo = new THREE.BoxGeometry(0.42, 0.14, seg);
-  const mat = toonMaterial(0xffffff, {});
-  const mesh = new THREE.InstancedMesh(geo, mat, count);
-  mesh.castShadow = true;
+
+  // NEON CITY: alternating emissive pink/cyan kerbs. instanceColor can't
+  // drive MeshToonMaterial's emissive, so even/odd boxes are split into two
+  // instanced meshes, one material per neon color (emissive 0.6).
+  const neon = opts.neon;
+  const meshes = neon
+    ? [
+        new THREE.InstancedMesh(
+          geo,
+          toonMaterial(0xff2ec4, { emissive: 0xff2ec4, emissiveIntensity: 0.6 }),
+          Math.ceil(count / 2)
+        ),
+        new THREE.InstancedMesh(
+          geo,
+          toonMaterial(0x2ec4ff, { emissive: 0x2ec4ff, emissiveIntensity: 0.6 }),
+          Math.floor(count / 2)
+        ),
+      ]
+    : [new THREE.InstancedMesh(geo, toonMaterial(0xffffff, {}), count)];
+  for (const m of meshes) m.castShadow = true;
+  const mesh = meshes[0]; // legacy single-mesh path
 
   const p = new THREE.Vector3();
   const tan = new THREE.Vector3();
   const nrm = new THREE.Vector3();
   const dummy = new THREE.Object3D();
   const col = new THREE.Color();
+  const cursor = [0, 0];
 
   for (let i = 0; i < count; i++) {
     const t = (i + 0.5) / count; // center each block on its segment → no overlap
@@ -270,12 +289,24 @@ function buildCurbs(path, length, side) {
       p.z + tan.z + nrm.z * side * (roadW / 2 + 0.15)
     );
     dummy.updateMatrix();
-    mesh.setMatrixAt(i, dummy.matrix);
-    col.setHex(i % 2 === 0 ? 0xff5a5f : 0xffffff);
-    mesh.setColorAt(i, col);
+    if (neon) {
+      const slot = i % 2;
+      meshes[slot].setMatrixAt(cursor[slot]++, dummy.matrix);
+    } else {
+      mesh.setMatrixAt(i, dummy.matrix);
+      col.setHex(i % 2 === 0 ? 0xff5a5f : 0xffffff);
+      mesh.setColorAt(i, col);
+    }
   }
-  mesh.instanceMatrix.needsUpdate = true;
-  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  for (const m of meshes) {
+    m.instanceMatrix.needsUpdate = true;
+    if (m.instanceColor) m.instanceColor.needsUpdate = true;
+  }
+  if (neon) {
+    const g = new THREE.Group();
+    g.add(...meshes);
+    return g;
+  }
   return mesh;
 }
 
@@ -337,7 +368,7 @@ function buildEdgeRibbon(path, lateralOffset, yBase, w, h, mat) {
  * out, at +roadEdge). The whole edge reads as ONE organized structure —
  * asphalt → curbs → guard rail → grass — instead of scattered props.
  */
-function buildGuardRail(path, length, side) {
+function buildGuardRail(path, length, side, opts = {}) {
   const roadW = getRoadWidthAt();
   // LOW + FAR from the racing line so the chase camera never clips/obscures:
   // 0.5m tall rail at road edge +1.1m (vision critic: 0.7m at +0.6 dominated
@@ -349,7 +380,8 @@ function buildGuardRail(path, length, side) {
   const count = Math.max(1, Math.round(length / 4.0));
 
   const geo = new THREE.BoxGeometry(0.3, 0.5, segLen);
-  const mat = toonMaterial(0xffffff, {});
+  // NEON CITY: uniform metallic dark barriers (no red/white alternation).
+  const mat = opts.neon ? toonMaterial(0x3a4152, {}) : toonMaterial(0xffffff, {});
   const mesh = new THREE.InstancedMesh(geo, mat, count);
   mesh.castShadow = true;
   mesh.receiveShadow = true;
@@ -377,15 +409,20 @@ function buildGuardRail(path, length, side) {
     );
     dummy.updateMatrix();
     mesh.setMatrixAt(i, dummy.matrix);
-    col.setHex(i % 2 === 0 ? 0xff5a5f : 0xf4f6f8);
-    mesh.setColorAt(i, col);
+    if (!opts.neon) {
+      col.setHex(i % 2 === 0 ? 0xff5a5f : 0xf4f6f8);
+      mesh.setColorAt(i, col);
+    }
   }
   mesh.instanceMatrix.needsUpdate = true;
   if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
 
   // Continuous darker top rail sitting on the segments (no seams between
-  // them). DoubleSide so winding never culls it.
-  const railMat = toonMaterial(0x232b38, { side: THREE.DoubleSide });
+  // them). DoubleSide so winding never culls it. NEON CITY: metallic dark
+  // body with an emissive pink strip along the top.
+  const railMat = opts.neon
+    ? toonMaterial(0x3a4152, { side: THREE.DoubleSide, emissive: 0xff2ec4, emissiveIntensity: 0.8 })
+    : toonMaterial(0x232b38, { side: THREE.DoubleSide });
   const rail = buildEdgeRibbon(path, lateral, 0.05 + 0.7, 0.5, 0.22, railMat);
 
   const g = new THREE.Group();
@@ -916,6 +953,11 @@ function buildApexCones(path, length, roadW) {
 export function buildTrack(scene, trackPath = TRACK_PATH) {
   const group = new THREE.Group();
 
+  // NEON CITY (track 2, ?track=2) restyles the road dark, the kerbs neon and
+  // the rails metallic. Visual-only: roadWidth, ramps and all placement
+  // logic stay identical, so the kart physics is untouched.
+  const isCity = trackPath === CITY_PATH;
+
   // Closed curve with elevation.
   const pts = trackPath.map((v) => v.clone());
   const path = new THREE.CatmullRomCurve3(pts, true, 'catmullrom', 0.5);
@@ -940,20 +982,24 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   shoulder.receiveShadow = true;
   group.add(shoulder);
 
-  const ribbon = buildRoadRibbon(path, length, { texture: roadTexture });
+  const ribbonOpts = { texture: roadTexture };
+  if (isCity) ribbonOpts.color = 0x2b2f3a; // NEON CITY: dark asphalt (tint keeps roadTexture)
+  const ribbon = buildRoadRibbon(path, length, ribbonOpts);
   ribbon.receiveShadow = true;
   group.add(ribbon);
 
   // Red/white kerbs along both edges (kart-circuit look — was disabled due to
-  // the y+0.11-buried + rotateX bugs; now fixed).
-  const curbL = buildCurbs(path, length, -1);
-  const curbR = buildCurbs(path, length, 1);
+  // the y+0.11-buried + rotateX bugs; now fixed). NEON CITY swaps them for
+  // alternating emissive pink/cyan.
+  const curbL = buildCurbs(path, length, -1, { neon: isCity });
+  const curbR = buildCurbs(path, length, 1, { neon: isCity });
   group.add(curbL, curbR);
 
   // Continuous guard-rails along both edges. Edge hierarchy is now organized:
   // asphalt → curbs → guard rail (roadW/2 + 0.6) → grass. Placed outside the
-  // curb so the racing line is never blocked.
-  group.add(buildGuardRail(path, length, -1), buildGuardRail(path, length, 1));
+  // curb so the racing line is never blocked. NEON CITY: metallic dark rails
+  // with an emissive pink top strip.
+  group.add(buildGuardRail(path, length, -1, { neon: isCity }), buildGuardRail(path, length, 1, { neon: isCity }));
 
   // Track-side density: sponsor boards on the straights, low grass tufts
   // along both edges, and orange apex cones on the inside of the sharpest
