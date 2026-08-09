@@ -39,6 +39,10 @@ export class Menu {
     this.onToggleMute = typeof onToggleMute === 'function' ? onToggleMute : () => {};
     this.muted = false;
     this.selectedColor = CONFIG.kart.playerColors[0];
+    // Difficulty/accessibility state (audit r3): restored from localStorage.
+    this.cc = CONFIG.cc.default;
+    this.autoAccel = CONFIG.assist.autoAccelerate;
+    this.steerAssist = CONFIG.assist.steerAssist;
 
     this.root = document.createElement('div');
     this.root.className = 'sk3d-overlay sk3d-menu sk3d-hidden';
@@ -52,9 +56,12 @@ export class Menu {
     this.swatches = Array.from(this.root.querySelectorAll('.sk3d-color-swatch'));
     this.muteBtn = this.root.querySelector('.sk3d-mute-toggle');
     this.trackSwitch = this.root.querySelector('.sk3d-track-switch');
+    this.ccBtns = Array.from(this.root.querySelectorAll('.sk3d-cc-btn'));
+    this.assistToggles = Array.from(this.root.querySelectorAll('input[data-assist]'));
 
     this.bindEvents();
     document.body.appendChild(this.root);
+    this.restoreSettings(); // persisted difficulty/assist choices (audit r3)
   }
 
   buildHtml() {
@@ -74,6 +81,13 @@ export class Menu {
             color
           )}" aria-label="Select kart color ${i + 1}"></button>`
       )
+      .join('');
+
+    const ccBtns = CONFIG.cc.levels
+      .map((cc) => {
+        const sel = cc === CONFIG.cc.default;
+        return `<button type="button" class="sk3d-btn sk3d-cc-btn" data-cc="${cc}" role="radio" aria-checked="${sel}" style="padding:8px 18px;font-size:1rem;background:${sel ? 'var(--sk3d-yellow)' : 'var(--sk3d-cream)'}">${cc}cc</button>`;
+      })
       .join('');
 
     return `
@@ -96,6 +110,20 @@ export class Menu {
           <span class="sk3d-color-label" id="sk3d-color-label">Kart color</span>
           <div class="sk3d-color-swatches" role="radiogroup" aria-labelledby="sk3d-color-label">${swatches}</div>
         </div>
+        <div class="sk3d-settings" role="group" aria-label="Race settings">
+          <div class="sk3d-setting-row" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <span class="sk3d-color-label" id="sk3d-cc-label">Engine class</span>
+            <div class="sk3d-cc-row" role="radiogroup" aria-labelledby="sk3d-cc-label" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">${ccBtns}</div>
+          </div>
+          <div class="sk3d-assist-row" role="group" aria-label="Driving assists" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <label class="sk3d-btn sk3d-assist-toggle" style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;font-size:0.95rem;">
+              <input type="checkbox" data-assist="autoAccel" /> Auto-accelerate
+            </label>
+            <label class="sk3d-btn sk3d-assist-toggle" style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;font-size:0.95rem;">
+              <input type="checkbox" data-assist="steerAssist" /> Steer assist
+            </label>
+          </div>
+        </div>
         <button type="button" class="sk3d-btn sk3d-mute-toggle" aria-pressed="false">🔊 Sound on</button>
         <button type="button" class="sk3d-btn sk3d-track-switch" id="sk3d-track-switch">🌆 Neon City</button>
         <footer class="sk3d-credit">Made with Three.js — open source</footer>
@@ -108,12 +136,23 @@ export class Menu {
     for (const swatch of this.swatches) {
       swatch.addEventListener('click', () => { this.onSound('uiClick'); this.selectColor(swatch); });
     }
+    // Engine class + assist toggles (difficulty/accessibility layer, audit r3).
+    for (const b of this.ccBtns) {
+      b.addEventListener('click', () => { this.onSound('uiClick'); this.selectCc(Number(b.dataset.cc)); });
+    }
+    for (const input of this.assistToggles) {
+      input.addEventListener('change', () => {
+        this.onSound('uiClick');
+        this[input.dataset.assist] = input.checked;
+        this.saveSettings();
+      });
+    }
     // Hover feedback (audit minor: 'uiHover' recipe existed but was never
     // wired). Gate to real hover pointers (v4 F6: on touch, pointerenter
     // fires on tap → hover+click double-tick).
     const canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
     if (canHover) {
-      for (const el of [this.startBtn, this.helpToggle, this.muteBtn, ...this.swatches]) {
+      for (const el of [this.startBtn, this.helpToggle, this.muteBtn, ...this.swatches, ...this.ccBtns]) {
         el.addEventListener('pointerenter', () => { this.onSound('uiHover'); });
       }
     }
@@ -148,6 +187,54 @@ export class Menu {
     } catch { /* private mode */ }
   }
 
+  /** Pick an engine class (50/100/150cc) — persisted + published (audit r3). */
+  selectCc(cc) {
+    if (!CONFIG.cc.levels.includes(cc)) return;
+    this.cc = cc;
+    for (const b of this.ccBtns) {
+      const sel = Number(b.dataset.cc) === cc;
+      b.setAttribute('aria-checked', String(sel));
+      b.style.background = sel ? 'var(--sk3d-yellow)' : 'var(--sk3d-cream)';
+    }
+    this.saveSettings();
+  }
+
+  /** Persist difficulty/assist choices + publish to window (startRace reads). */
+  saveSettings() {
+    try {
+      localStorage.setItem('sk3d.cc', String(this.cc));
+      localStorage.setItem('sk3d.autoAccel', this.autoAccel ? '1' : '0');
+      localStorage.setItem('sk3d.steerAssist', this.steerAssist ? '1' : '0');
+    } catch { /* private mode */ }
+    this.syncGlobals();
+  }
+
+  /** Live settings on window so main.js reads them at race start. */
+  syncGlobals() {
+    window.__sk3dCc = this.cc;
+    window.__sk3dAutoAccel = this.autoAccel;
+    window.__sk3dSteerAssist = this.steerAssist;
+  }
+
+  /** Restore persisted difficulty/assist choices (constructor → DOM). */
+  restoreSettings() {
+    try {
+      const savedCc = Number(localStorage.getItem('sk3d.cc'));
+      if (CONFIG.cc.levels.includes(savedCc)) this.cc = savedCc;
+      if (localStorage.getItem('sk3d.autoAccel') === '1') this.autoAccel = true;
+      if (localStorage.getItem('sk3d.steerAssist') === '1') this.steerAssist = true;
+    } catch { /* private mode */ }
+    for (const b of this.ccBtns) {
+      const sel = Number(b.dataset.cc) === this.cc;
+      b.setAttribute('aria-checked', String(sel));
+      b.style.background = sel ? 'var(--sk3d-yellow)' : 'var(--sk3d-cream)';
+    }
+    for (const input of this.assistToggles) {
+      input.checked = input.dataset.assist === 'autoAccel' ? this.autoAccel : this.steerAssist;
+    }
+    this.saveSettings();
+  }
+
   toggleHelp() {
     const open = !this.helpPanel.classList.contains('sk3d-hidden');
     this.helpPanel.classList.toggle('sk3d-hidden', open);
@@ -168,6 +255,26 @@ export class Menu {
   /** @returns {number} currently selected kart color (0xRRGGBB). */
   getColor() {
     return this.selectedColor;
+  }
+
+  /** @returns {number} selected engine class (50 | 100 | 150). */
+  getCc() {
+    return this.cc;
+  }
+
+  /** @returns {boolean} auto-accelerate assist enabled. */
+  isAutoAccel() {
+    return this.autoAccel;
+  }
+
+  /** @returns {boolean} steer-assist enabled. */
+  isSteerAssist() {
+    return this.steerAssist;
+  }
+
+  /** @returns {{cc:number, autoAccel:boolean, steerAssist:boolean, color:number}} */
+  getSelection() {
+    return { cc: this.cc, autoAccel: this.autoAccel, steerAssist: this.steerAssist, color: this.selectedColor };
   }
 
   /** Show the menu. Idempotent — DOM is built once in the constructor. */

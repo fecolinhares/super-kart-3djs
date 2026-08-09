@@ -13,6 +13,20 @@ export const CONFIG = {
     raceTimeoutMs: 5 * 60 * 1000,
   },
 
+  cc: {
+    // Engine-class difficulty selector (audit r3: "no difficulty layer").
+    // Multipliers scale CONFIG.physics.maxSpeed/boostSpeed at race start
+    // (main.js). The AI rubber-band ceiling is derived from maxSpeed in
+    // AIController, so the whole field scales together with the player.
+    levels: [50, 100, 150],
+    default: 100,
+    multipliers: {
+      50: 0.78,
+      100: 1.0,
+      150: 1.22,
+    },
+  },
+
   physics: {
     maxSpeed: 42,
     boostSpeed: 64,
@@ -44,8 +58,10 @@ export const CONFIG = {
     playerColors: [0xff5a5f, 0x2ec4ff, 0xffd166, 0x6cff8f, 0xc86bff, 0xff9f45],
     // Roster of 6 drivers — each kart gets a character so karts and their
     // chibi drivers are visually distinct: body color, racing suit, helmet
-    // and a colored helmet stripe (accent). `stats` describe the archetype
-    // (1-10) and are reserved for future tuning — not yet applied to physics.
+    // and a colored helmet stripe (accent). `stats` (1-10) are applied to
+    // physics: speed → top speed (±8% around the 7 baseline), accel →
+    // throttle, handling → steering (main.js for the player; AIController
+    // already scales AI drivers) — roster choice is never cosmetic.
     characters: [
       { name: 'Turbo', color: 0xff5a5f, suitColor: 0xf4f6f8, helmetColor: 0xff5a5f, accentColor: 0xffd166, stats: { speed: 8, accel: 5, handling: 7 } },
       { name: 'Comet', color: 0x2ec4ff, suitColor: 0x1b2a41, helmetColor: 0x2ec4ff, accentColor: 0xffffff, stats: { speed: 9, accel: 4, handling: 5 } },
@@ -89,6 +105,15 @@ export const CONFIG = {
     steerPredictAhead: 6.0,
     itemUseChancePerSec: 0.5,
     crashRecoverMs: 1200,
+  },
+
+  assist: {
+    // Accessibility assists (audit r3) — the menu toggles override these
+    // defaults and persist the choice in localStorage.
+    autoAccelerate: false,      // keep the throttle pinned unless braking
+    steerAssist: false,         // gentle pull toward the track centerline
+    steerAssistGain: 0.5,       // assist strength (fraction of full AI authority)
+    steerAssistAuthority: 1.4,  // player input magnitude at which assist fades out
   },
 
   camera: {

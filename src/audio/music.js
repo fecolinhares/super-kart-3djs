@@ -6,10 +6,17 @@
 // synthesized live with the WebAudio API.
 //
 // Contract (ARCHITECTURE.md):
-//   new MusicEngine(ctx, { volume, onEnded })
-//   start(), stop(), next(), setVolume(v)
+//   new MusicEngine(ctx, { volume, onEnded, menu, intensity })
+//   start(), stop(), next(), setVolume(v), setIntensity(0..1)
 //   static renderOffline(ctx, out, trackName, seed, cycles)
 //   static trackNames(), static trackDuration(name, cycles)
+//
+// Emotional arc (audit r3): setIntensity(0..1) reshapes the arrangement
+// live — 0 is the calm/menu color (pad+bass pulled back), ≥0.7 adds a
+// ghost-hat 16th layer, opens the pad filter (+60% cutoff) and nudges BPM
+// (+4% at max). Values ramp ~0.4s in the scheduler, so the final-lap lift
+// swells instead of snapping. `menu: true` plays a single calm loop
+// (MENU_TRACK, cycles=Infinity) instead of the shuffled race playlist.
 //
 // Scheduler: setInterval(tick, 100) with a 0.35s lookahead;
 // 16th-note steps, swing on odd steps. Tracks loop their chord
@@ -126,6 +133,31 @@ const TRACKS = [
   },
 ];
 
+// Calm menu loop (audit r3) — a laid-back variant of 'Turbo Circuit'
+// (track 1): slow BPM, sparse groove, soft pads. `cycles: Infinity` makes
+// the scheduler loop the progression forever without ever advancing the
+// playlist, so the menu music only ends via stopMenuMusic().
+const MENU_TRACK = {
+  name: 'Menu Cruise',
+  key: 'C',
+  bpm: 86,
+  chords: ['Cmaj7', 'Am7', 'Fmaj7', 'G7'],
+  barsPerChord: 2,
+  cycles: Infinity,
+  padType: 'triangle',
+  padFilter: 900,
+  padWobble: 0.22,
+  padGain: 0.7,
+  chimeVol: 0.09,
+  chimeDensity: 0.3,
+  bassVol: 0.15,
+  drumVol: 0.11,
+  kickPattern: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+  snarePattern: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+  hatPattern: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  bassPattern: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+};
+
 const STEPS_PER_BEAT = 4; // 16th notes
 const SWING = 0.62;       // delayed offbeats (lo-fi groove)
 const LOOKAHEAD = 0.35;   // scheduler lookahead window (s)
@@ -145,11 +177,16 @@ export class MusicEngine {
     const cfg = (ctxOrOpts && typeof ctxOrOpts === 'object' && 'ctx' in ctxOrOpts)
       ? ctxOrOpts
       : { ...opts, ctx: ctxOrOpts };
-    const { ctx, output = null, volume = 0.34, onEnded = null, seed = Date.now() } = cfg;
+    const { ctx, output = null, volume = 0.34, onEnded = null, seed = Date.now(), menu = false, intensity = 0.5 } = cfg;
 
     this._ctx = ctx;
     this._out = output || ctx.destination;
     this._volume = clamp01(volume);
+    // Emotional arc state (audit r3): smoothed toward _intensityTarget in
+    // _tick. 0 = calm (menu), 0.5 = normal race, ≥0.7 = final-lap lift.
+    this._intensityTarget = clamp01(intensity);
+    this._intensity = this._intensityTarget;
+    this._menu = menu;
     this._onEnded = onEnded;
     this._seed = seed >>> 0;
     this._rng = this._mulberry32(this._seed);
@@ -185,7 +222,9 @@ export class MusicEngine {
     this._vinylGain = null;
     this._crackleTimer = null;
 
-    this._playlist = TRACKS.slice();
+    // `menu: true` swaps the shuffled 3-track playlist for the single calm
+    // loop; everything downstream (scheduler, instruments) is identical.
+    this._playlist = menu ? [MENU_TRACK] : TRACKS.slice();
     this._trackIdx = -1;
     this._timer = null;
     this._finishTimer = null;
@@ -272,6 +311,21 @@ export class MusicEngine {
     }
   }
 
+  /**
+   * Emotional intensity 0..1 (audit r3):
+   *   0.0 — calm: pad + bass pulled back (menu / cruise)
+   *   0.5 — normal race arrangement
+   *   ≥0.7 — lift: ghost-hat 16th layer, pad filter opens (+60%), BPM +4%
+   * Values are smoothed toward the target in _tick (~0.4s ramp) so the
+   * final-lap call swells in instead of snapping.
+   * @param {number} v 0..1
+   */
+  setIntensity(v) {
+    this._intensityTarget = clamp01(v);
+    // Before the first notes, snap so the opening color is right (menu).
+    if (!this._playing) this._intensity = this._intensityTarget;
+  }
+
   isPlaying() {
     return this._playing;
   }
@@ -283,7 +337,8 @@ export class MusicEngine {
   /* ---------------- Playlist ---------------- */
 
   _shufflePlaylist() {
-    const list = TRACKS.slice();
+    // Menu mode owns a single infinite loop; races shuffle the playlist.
+    const list = (this._menu ? [MENU_TRACK] : TRACKS).slice();
     for (let i = list.length - 1; i > 0; i--) {
       const j = Math.floor(this._rng() * (i + 1));
       [list[i], list[j]] = [list[j], list[i]];
@@ -338,7 +393,10 @@ export class MusicEngine {
   }
 
   _tick() {
-    const stepDur = 60 / this._currentTrack.bpm / STEPS_PER_BEAT;
+    // Smooth intensity toward its target at ~10Hz (0.25/tick ≈ 0.4s ramp)
+    // so the final-lap lift swells in; BPM follows the smoothed value.
+    this._intensity += (this._intensityTarget - this._intensity) * 0.25;
+    const stepDur = this._stepDuration();
     while (this._nextStepTime < this._ctx.currentTime + LOOKAHEAD) {
       this._scheduleStep(this._step, this._nextStepTime);
       this._step += 1;
@@ -348,6 +406,11 @@ export class MusicEngine {
     if (this._step >= this._totalSteps()) {
       this._finishTrack();
     }
+  }
+
+  /** Effective 16th-step duration — track BPM nudged by intensity (+4% at max). */
+  _stepDuration() {
+    return 60 / (this._currentTrack.bpm * (1 + 0.04 * this._intensity)) / STEPS_PER_BEAT;
   }
 
   _totalSteps() {
@@ -441,7 +504,7 @@ export class MusicEngine {
   _swingTime(step, time) {
     // Offbeats (odd steps) land late — lo-fi swing.
     if (step % 2 === 1) {
-      return time + (60 / this._currentTrack.bpm / STEPS_PER_BEAT) * (SWING - 0.5);
+      return time + this._stepDuration() * (SWING - 0.5);
     }
     return time;
   }
@@ -473,6 +536,10 @@ export class MusicEngine {
     }
     if (t.snarePattern[stepInBar]) this._playSnare(time, t);
     if (t.hatPattern[stepInBar]) this._playHat(this._swingTime(step, time), t);
+    // Intensity lift (audit r3): at ≥0.7 quiet ghost hats fill the 16th
+    // gaps — the groove tightens into a driving double-time feel on the
+    // final lap.
+    else if (this._intensity >= 0.7) this._playHat(this._swingTime(step, time), t, 0.55);
 
     // Bass groove.
     if (t.bassPattern[stepInBar]) {
@@ -484,22 +551,25 @@ export class MusicEngine {
 
   _playPad(chord, time, track, stepsPerChord) {
     const ctx = this._ctx;
-    const dur = stepsPerChord * 60 / track.bpm / STEPS_PER_BEAT + 0.4;
+    const dur = stepsPerChord * this._stepDuration() + 0.4;
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.frequency.value = track.padFilter;
+    // Intensity opens the pad filter up to +60% cutoff (brighter at the lift).
+    const filterFreq = track.padFilter * (1 + 0.6 * this._intensity);
+    filter.frequency.value = filterFreq;
     filter.Q.value = 0.6;
     // Slow ~0.1Hz wobble on the filter cutoff.
     const lfo = ctx.createOscillator();
     lfo.frequency.value = 0.07 + track.padWobble * 0.09;
     const lfoGain = ctx.createGain();
-    lfoGain.gain.value = track.padFilter * 0.16;
+    lfoGain.gain.value = filterFreq * 0.16;
     lfo.connect(lfoGain);
     lfoGain.connect(filter.frequency);
     lfo.start(time);
     lfo.stop(time + dur);
     const g = ctx.createGain();
-    const padVol = 0.085 * track.padGain;
+    // Calm (0) pulls pads back to 0.8x; full hype pushes them to 1.1x.
+    const padVol = 0.085 * track.padGain * (0.8 + 0.3 * this._intensity);
     g.gain.setValueAtTime(0.0001, time);
     g.gain.linearRampToValueAtTime(padVol, time + 0.5);
     g.gain.setValueAtTime(padVol, time + dur - 0.5);
@@ -521,7 +591,7 @@ export class MusicEngine {
         osc2.frequency.value = midiHz(note + 12);
         osc2.detune.value = (this._rng() * 2 - 1) * 4;
         const g2 = ctx.createGain();
-        const bright = 0.035 * track.padGain;
+        const bright = 0.035 * track.padGain * (0.7 + 0.5 * this._intensity);
         g2.gain.setValueAtTime(0.0001, time);
         g2.gain.linearRampToValueAtTime(bright, time + 0.6);
         g2.gain.setValueAtTime(bright, time + dur - 0.6);
@@ -540,7 +610,8 @@ export class MusicEngine {
     osc.type = 'sine';
     osc.frequency.value = midiHz(noteMidi);
     const g = ctx.createGain();
-    const vol = 0.2 * track.bassVol * vel;
+    // Calm (0) pulls the bass back to 0.7x; the lift beefs it up to 1.1x.
+    const vol = 0.2 * track.bassVol * vel * (0.7 + 0.4 * this._intensity);
     g.gain.setValueAtTime(0.0001, time);
     g.gain.linearRampToValueAtTime(vol, time + 0.02);
     g.gain.exponentialRampToValueAtTime(0.001, time + 0.42);
@@ -558,7 +629,7 @@ export class MusicEngine {
     const dur = 0.9;
     const g = ctx.createGain();
     g.gain.setValueAtTime(0.0001, time);
-    g.gain.linearRampToValueAtTime(track.chimeVol, time + 0.01);
+    g.gain.linearRampToValueAtTime(track.chimeVol * (0.6 + 0.5 * this._intensity), time + 0.01);
     g.gain.exponentialRampToValueAtTime(0.001, time + dur);
     g.connect(this._bus);
     for (const partial of [1, 2, 3]) {
@@ -582,7 +653,7 @@ export class MusicEngine {
     osc.frequency.setValueAtTime(150, time);
     osc.frequency.exponentialRampToValueAtTime(46, time + 0.09);
     const g = ctx.createGain();
-    const vol = 0.72 * track.drumVol;
+    const vol = 0.72 * track.drumVol * (0.75 + 0.35 * this._intensity);
     g.gain.setValueAtTime(vol, time);
     g.gain.exponentialRampToValueAtTime(0.001, time + 0.13);
     osc.connect(g);
@@ -601,7 +672,7 @@ export class MusicEngine {
     hp.type = 'highpass';
     hp.frequency.value = 2200;
     const cg = ctx.createGain();
-    cg.gain.value = 0.1 * track.drumVol;
+    cg.gain.value = 0.1 * track.drumVol * (0.75 + 0.35 * this._intensity);
     src.connect(hp);
     hp.connect(cg);
     cg.connect(this._bus);
@@ -630,7 +701,7 @@ export class MusicEngine {
     bp.frequency.value = 1700;
     bp.Q.value = 0.7;
     const g = ctx.createGain();
-    g.gain.value = 0.45 * track.drumVol;
+    g.gain.value = 0.45 * track.drumVol * (0.75 + 0.35 * this._intensity);
     src.connect(bp);
     bp.connect(g);
     g.connect(this._bus);
@@ -642,7 +713,7 @@ export class MusicEngine {
     body.frequency.setValueAtTime(230, time);
     body.frequency.exponentialRampToValueAtTime(170, time + 0.06);
     const bg = ctx.createGain();
-    bg.gain.setValueAtTime(0.16 * track.drumVol, time);
+    bg.gain.setValueAtTime(0.16 * track.drumVol * (0.75 + 0.35 * this._intensity), time);
     bg.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
     body.connect(bg);
     bg.connect(this._bus);
@@ -650,7 +721,7 @@ export class MusicEngine {
     body.stop(time + 0.1);
   }
 
-  _playHat(time, track) {
+  _playHat(time, track, volMult = 1) {
     const ctx = this._ctx;
     const len = Math.floor(ctx.sampleRate * 0.03);
     const buf = ctx.createBuffer(1, len, ctx.sampleRate);
@@ -662,7 +733,7 @@ export class MusicEngine {
     hp.type = 'highpass';
     hp.frequency.value = 6000;
     const g = ctx.createGain();
-    g.gain.value = 0.09 * track.drumVol;
+    g.gain.value = 0.09 * track.drumVol * (0.75 + 0.35 * this._intensity) * volMult;
     src.connect(hp);
     hp.connect(g);
     g.connect(this._bus);
@@ -688,7 +759,7 @@ export class MusicEngine {
     engine._currentTrack = track;
     engine._playing = true;
     engine._bus.gain.value = 1; // offline: no fade-in (pitfall)
-    const stepDur = 60 / track.bpm / STEPS_PER_BEAT;
+    const stepDur = engine._stepDuration();
     const cyc = cycles ?? track.cycles;
     const totalSteps = track.chords.length * track.barsPerChord * 16 * cyc;
     const totalDur = totalSteps * stepDur;

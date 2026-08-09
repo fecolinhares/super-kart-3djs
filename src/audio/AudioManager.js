@@ -14,6 +14,8 @@
 //   init()                      — first user gesture; builds ctx + master
 //   play(name, opts)            — one-shot SFX; safe no-op before init
 //   startMusic()/stopMusic()/nextTrack()
+//   startMenuMusic()/stopMenuMusic() — calm menu loop (audit r3)
+//   setMusicIntensity(0..1) — emotional arc (0.5 race, 0.85 final lap)
 //   setEngineLoop(kartId, speed01, pose?) — continuous engine per kart;
 //                                 pose {x,z,heading?} enables StereoPanner
 //                                 pan + distance rolloff vs the listener;
@@ -27,6 +29,7 @@
 import { CONFIG } from '../config.js';
 import { renderSfx, engineGear } from './sfx.js';
 import { MusicEngine } from './music.js';
+import { onStateChange, STATES } from '../game/GameState.js';
 
 const GESTURE_EVENTS = ['pointerdown', 'keydown', 'touchstart'];
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -41,6 +44,8 @@ export class AudioManager {
 
     this._music = null;
     this._musicRequested = false;
+    this._menuMusic = null;
+    this._menuMusicRequested = false;
     this._engineLoops = new Map();    // kartId -> loop node graph
     this._pendingEngine = new Map();  // kartId -> { speed01, pose } (pre-init)
 
@@ -51,6 +56,20 @@ export class AudioManager {
 
     this._unlock = () => this.init();
     this._attachUnlock();
+    // Menu music follows the game state (audit r3): a calm loop owns the
+    // title screen, the race arrangement owns COUNTDOWN→FINISHED, and a
+    // fresh COUNTDOWN resets the intensity arc (a previous race may have
+    // left it at the 0.85 final-lap lift).
+    onStateChange((next) => {
+      if (next === STATES.MENU) {
+        this.startMenuMusic();
+      } else if (next === STATES.COUNTDOWN) {
+        this.stopMenuMusic();
+        this.setMusicIntensity(0.5);
+      } else {
+        this.stopMenuMusic();
+      }
+    });
   }
 
   /* ---------------- Context + master chain ---------------- */
@@ -134,7 +153,9 @@ export class AudioManager {
     }
     this._pendingEngine.clear();
 
-    // Start music if it was requested before init().
+    // Music requested before init(): the menu loop owns the title screen,
+    // the race playlist owns the race.
+    if (this._menuMusicRequested && !this._musicRequested) this.startMenuMusic();
     if (this._musicRequested) this.startMusic();
 
     this._resume();
@@ -249,7 +270,13 @@ export class AudioManager {
     if (!this._ctx) return;
     if (name === 'countdown' || name === 'go') {
       this._startCrowd();
-    } else if (name === 'posUp' || name === 'finalLap') {
+    } else if (name === 'finalLap') {
+      this.crowdCheer(0.35);
+      // Audit r3: the final lap is the emotional peak — lift the music to
+      // 0.85 (ghost-hat layer, open pads, +BPM). main.js announces it via
+      // play('posUp', { volume: 0.7 }), which _resolveSfxName routes here.
+      this.setMusicIntensity(0.85);
+    } else if (name === 'posUp') {
       this.crowdCheer(0.35);
     } else if (name === 'finish' || name === 'victory') {
       this.crowdCheer(1);
@@ -258,9 +285,10 @@ export class AudioManager {
 
   /* ---------------- Music ---------------- */
 
-  /** Starts the procedural racing playlist. */
+  /** Starts the procedural racing playlist (stops any menu loop first). */
   startMusic() {
     this._musicRequested = true;
+    this.stopMenuMusic();
     if (!this._ctx || !this._master) return; // starts on init()
     if (this._music) return;                 // already running
     this._music = new MusicEngine(this._ctx, {
@@ -270,6 +298,50 @@ export class AudioManager {
     });
     this._music.start();
     this.play('musicIntro', { volume: 0.8 });
+  }
+
+  /**
+   * Starts the calm menu loop — a low-volume variant of track 1
+   * (MusicEngine `menu` mode, intensity 0). Safe before init() (remembered
+   * and started on init()). Stops the race music, so returning to the
+   * title screen after a race actually goes calm.
+   */
+  startMenuMusic() {
+    this._menuMusicRequested = true;
+    if (!this._ctx || !this._master) return; // starts on init()
+    if (this._menuMusic) return;             // already running
+    // Park the race playlist — the menu owns the speakers now.
+    if (this._music) {
+      this._music.stop();
+      this._music = null;
+      this._musicRequested = false;
+    }
+    this._menuMusic = new MusicEngine(this._ctx, {
+      output: this._master,
+      volume: this._musicVolume * 0.55, // calm, low volume
+      menu: true,
+      onEnded: () => {},
+    });
+    this._menuMusic.setIntensity(0); // calm arrangement
+    this._menuMusic.start();
+  }
+
+  /** Stops the menu loop (race start / teardown). */
+  stopMenuMusic() {
+    this._menuMusicRequested = false;
+    if (this._menuMusic) {
+      this._menuMusic.stop();
+      this._menuMusic = null;
+    }
+  }
+
+  /**
+   * Emotional intensity for the race music (0..1): 0.5 is the normal race
+   * arrangement, 0.85 is the final-lap lift (ghost hats, open pads, +BPM).
+   * Safe no-op before the music exists.
+   */
+  setMusicIntensity(v) {
+    if (this._music) this._music.setIntensity(v);
   }
 
   /** Stops the music (fast fade out). */
@@ -656,6 +728,7 @@ export class AudioManager {
   setMusicVolume(v) {
     this._musicVolume = Math.max(0, Math.min(1, v));
     if (this._music) this._music.setVolume(this._musicVolume);
+    if (this._menuMusic) this._menuMusic.setVolume(this._musicVolume * 0.55);
   }
 
   /** True once the context + master chain exist. */
@@ -668,6 +741,7 @@ export class AudioManager {
   destroy() {
     this._detachUnlock();
     this.stopMusic();
+    this.stopMenuMusic();
     this.clearEngineLoops();
     if (this._ctx) {
       try {

@@ -379,7 +379,85 @@ export class Kart {
       this._mesh(new THREE.BoxGeometry(0.03, 0.022, 0.7), dark, s * 0.55, 0.66, -0.12, { cast: false });
     }
     this._mesh(new THREE.BoxGeometry(0.36, 0.02, 0.03), dark, 0, 0.93, 0.42, { cast: false });
-    this._mesh(new THREE.BoxGeometry(0.42, 0.022, 0.03), dark, 0, 0.92, -0.42, { cast: false });
+    // ---- racing graphics (audit r3): accent stripes + side numbers + nose band ----
+    // The shell was a monochrome lozenge — these give it the painted-kart read:
+    // accent bands hug the lathe flanks, a number decal rides each side, and an
+    // accent visor band curves across the nose cowl. All parented to this.group
+    // so they follow the kart; setBodyColor retints only the base paint, so the
+    // accent graphics keep the character's accent color.
+    const accentMat = this._mat(accent);
+    // Hull radius at a given height — linear sample of the lathe profile (the
+    // shell is a surface of revolution, so radius at height y = profile.x).
+    const hullR = (y) => {
+      for (let i = 0; i < hullProfile.length - 1; i++) {
+        const a = hullProfile[i];
+        const b = hullProfile[i + 1];
+        if (y >= a.y && y <= b.y) {
+          const t = (y - a.y) / (b.y - a.y);
+          return a.x + (b.x - a.x) * t;
+        }
+      }
+      return hullProfile[hullProfile.length - 1].x;
+    };
+    // 1) Flank accent stripes — three thin elliptical arc bands wrapping the
+    //    shell's curved flanks. Each is a torus arc in the XZ plane scaled by
+    //    the hull's 1.5x Z elongation, so it hugs the shell profile exactly.
+    const flankArc = (100 * Math.PI) / 180;
+    for (const y of [0.56, 0.64, 0.72]) {
+      const r = hullR(y) + 0.006; // just proud of the paint
+      const flankStripeGeo = new THREE.TorusGeometry(r, 0.02, 10, 24, flankArc);
+      flankStripeGeo.rotateX(Math.PI / 2); // ring in the XZ plane (belt around Y)
+      for (const s of [-1, 1]) {
+        const flankStripe = new THREE.Mesh(flankStripeGeo, accentMat);
+        flankStripe.scale.set(1, 1, 1.5); // match the shell's elongation
+        flankStripe.rotation.y = s > 0 ? 0 : Math.PI; // arc centered on this flank
+        flankStripe.position.set(0, y, 0);
+        flankStripe.castShadow = false;
+        this.group.add(flankStripe);
+      }
+    }
+    // 2) Side number decal — canvas badge (white disc + accent ring + number)
+    //    on a small plane over each flank, tilted to follow the shell surface.
+    const sideNumCanvas = document.createElement('canvas');
+    sideNumCanvas.width = 128;
+    sideNumCanvas.height = 128;
+    const sctx = sideNumCanvas.getContext('2d');
+    sctx.clearRect(0, 0, 128, 128);
+    sctx.fillStyle = '#ffffff';
+    sctx.beginPath();
+    sctx.arc(64, 64, 56, 0, Math.PI * 2);
+    sctx.fill();
+    sctx.strokeStyle = '#' + new THREE.Color(accent).getHexString();
+    sctx.lineWidth = 7;
+    sctx.beginPath();
+    sctx.arc(64, 64, 49, 0, Math.PI * 2);
+    sctx.stroke();
+    sctx.fillStyle = '#1b2a41';
+    sctx.font = '900 74px "Baloo 2", "Nunito", Arial, sans-serif';
+    sctx.textAlign = 'center';
+    sctx.textBaseline = 'middle';
+    sctx.fillText(String(this.number), 64, 68);
+    const sideNumTex = new THREE.CanvasTexture(sideNumCanvas);
+    sideNumTex.colorSpace = THREE.SRGBColorSpace;
+    const sideDecalMat = this._mat(0xffffff, { map: sideNumTex, transparent: true });
+    sideDecalMat.depthWrite = false; // no quad-corner slivers over the shell
+    for (const s of [-1, 1]) {
+      const decal = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.2), sideDecalMat);
+      decal.position.set(s * 0.558, 0.7, 0.15);
+      decal.rotation.y = s * (Math.PI / 2 - 0.12); // tilt to hug the curved flank
+      decal.castShadow = false;
+      this.group.add(decal);
+    }
+    // 3) Nose accent — curved visor band across the nose cowl front, following
+    //    the cowl's squashed cross-section (arc centered on +Z).
+    const noseAccentGeo = new THREE.TorusGeometry(0.34, 0.02, 10, 24, (70 * Math.PI) / 180);
+    noseAccentGeo.rotateX(Math.PI / 2); // ring in the XZ plane
+    noseAccentGeo.rotateY((-55 * Math.PI) / 180); // shift arc to center on +Z (55..125 deg)
+    const noseAccent = new THREE.Mesh(noseAccentGeo, accentMat);
+    noseAccent.scale.set(1, 1, 0.55 / 0.85); // match cowl's Z vs X squash
+    noseAccent.position.set(0, 0.6, 0.62); // nose cowl center
+    noseAccent.castShadow = false;
+    this.group.add(noseAccent);
 
     // Front splitter — dark aero blade under the nose + small end fences.
     this._mesh(new THREE.BoxGeometry(0.92, 0.05, 0.26), dark, 0, 0.3, 0.97, { cast: false });

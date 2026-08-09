@@ -665,32 +665,35 @@ export class Environment {
   }
 
   buildForest(scene) {
-    // Enhanced forest with 3 tree species featuring layered canopies
-    // Species 1: Pine-like - tall with layered spherical canopy
-    // Species 2: Oak-like - medium with wide layered canopy  
+    // Enhanced forest with 3 tree species featuring layered canopies.
+    // Species 1: Pine-like - tall with a stacked-CONE canopy (3 cones,
+    //   radius decreasing up the trunk -> a real pine silhouette)
+    // Species 2: Oak-like - medium with wide layered sphere canopy
     // Species 3: Palm-like (kept for variety) - tall trunk with frond canopy
     
-    // Tree species definitions
+    // Tree species definitions. All three species share the layered-canopy
+    // layout pattern but get DISTINCT canopy GEOMETRY below: pine layers are
+    // cones (radius decreasing up the trunk -> a real stacked-cone pine),
+    // oak layers stay spheres (wide rounded crown), palm keeps fronds.
     const species = [
       {
-        // Pine species - tall and narrow
+        // Pine species - tall and narrow, stacked-CONE canopy
         name: 'pine',
         trunkHeight: 4.2,
         trunkTopRadius: 0.22,
         trunkBottomRadius: 0.28,
         trunkSegs: 12,
         canopyLayers: [
-          { radius: 1.4, yOffset: 2.8, segments: 12 },
-          { radius: 1.0, yOffset: 3.4, segments: 10 },
-          { radius: 0.6, yOffset: 3.8, segments: 8 }
+          { radius: 1.4, yOffset: 2.4, height: 3.4 },   // bottom skirt - widest cone
+          { radius: 1.05, yOffset: 3.3, height: 2.4 },  // middle cone
+          { radius: 0.65, yOffset: 4.3, height: 1.8 }   // apex cone - narrowest
         ],
         trunkColor: 0x6d4c41,
         canopyColor: 0x287b3e,
-        canopyColorDark: 0x215e32,
         count: 0.4 // 40% of trees
       },
       {
-        // Oak species - medium and wide
+        // Oak species - medium and wide, layered SPHERE canopy
         name: 'oak',
         trunkHeight: 3.0,
         trunkTopRadius: 0.28,
@@ -703,14 +706,13 @@ export class Environment {
         ],
         trunkColor: 0x8b6941,
         canopyColor: 0x2e8b57,
-        canopyColorDark: 0x256b41,
         count: 0.4 // 40% of trees
       },
       {
         // Palm species - tropical (existing)
         name: 'palm',
         trunkHeight: 4.2,
- trunkTopRadius: 0.22,
+        trunkTopRadius: 0.22,
         trunkBottomRadius: 0.34,
         trunkSegs: 12,
         canopyLayers: [
@@ -718,7 +720,6 @@ export class Environment {
         ],
         trunkColor: 0xb07a4f,
         canopyColor: 0x2fa84f,
-        canopyColorDark: 0x279142,
         count: 0.2 // 20% of trees
       }
     ];
@@ -786,48 +787,78 @@ export class Environment {
     }
 
     // Create geometry templates for each species
-    const trunkGeoms = species.map(s => 
+    const trunkGeoms = species.map(s =>
       new THREE.CylinderGeometry(s.trunkTopRadius, s.trunkBottomRadius, s.trunkHeight, s.trunkSegs)
     );
     const trunkMats = species.map(s => toonMaterial(s.trunkColor, {}));
-    
-    // Create canopy geometries (spheres for pine/oak, special for palms)
+
+    // Per-species canopy GEOMETRY (AUDIT r3: pine and oak used to share ONE
+    // SphereGeometry, so both were sphere-stacks and the whole forest read
+    // as a single species of lollipop). Pine now gets a unit CONE scaled per
+    // layer into a stacked-cone crown; oak keeps layered spheres; palm keeps
+    // its frond canopy (built separately).
     const canopyGeoms = species.map(s => {
-      if (s.name === 'palm') {
-        // Palm fronds will be handled separately
-        return new THREE.SphereGeometry(0.1, 8, 6); // tiny placeholder
-      }
-      return new THREE.SphereGeometry(1.0, 14, 10); // base size, will be scaled
+      if (s.name === 'pine') return new THREE.ConeGeometry(1.0, 1.0, 10); // unit cone -> stacked-cone pine
+      if (s.name === 'palm') return new THREE.SphereGeometry(0.1, 8, 6); // tiny placeholder, fronds handled separately
+      return new THREE.SphereGeometry(1.0, 14, 10); // oak - layered spheres (kept)
     });
+    // One base canopy material per species. Per-instance HSL lightness jitter
+    // (setColorAt -> instanceColor, ±5%) below replaces the old two fixed
+    // alternating light/dark materials.
     const canopyMats = species.map(s => toonMaterial(s.canopyColor, {}));
-    const canopyMatsDark = species.map(s => toonMaterial(s.canopyColorDark, {}));
-    
+
     // Palm frond geometry
     const palmFrondGeo = new THREE.ConeGeometry(0.18, 2.5, 8);
     const palmFrondMat = toonMaterial(0x2fa84f, {});
-    const palmFrondMatDark = toonMaterial(0x279142, {});
-    
+
     // Branch stub geometry
     const branchGeo = new THREE.CylinderGeometry(0.08, 0.04, 0.6, 6);
     const branchMat = toonMaterial(0x6d4c41, {});
-    
+
     // FINAL instanced meshes (real geometries, the ONLY ones added to the
     // scene). AUDIT FIX: matrices were written into dead meshes holding
     // empty BufferGeometry while these scene meshes never got a matrix —
     // every trunk/canopy rendered piled at world origin (a visible blob).
-    const maxLayers = Math.max(...species.map(s => s.canopyLayers.length));
+    // finalCanopies carries the pine cone-stack, finalDarkCanopies the oak
+    // spheres (names kept for compatibility) — both exact-sized per species
+    // so no instance slot is ever dead.
+    let pineLayerCount = 0;
+    let oakLayerCount = 0;
+    trees.forEach(tree => {
+      const sp = species[tree.speciesIdx];
+      if (sp.name === 'pine') pineLayerCount += sp.canopyLayers.length;
+      else if (sp.name === 'oak') oakLayerCount += sp.canopyLayers.length;
+    });
     const finalTrunks = new THREE.InstancedMesh(trunkGeoms[0], trunkMats[0], trees.length);
-    const finalCanopies = new THREE.InstancedMesh(canopyGeoms[0], canopyMats[0], trees.length * maxLayers);
-    const finalDarkCanopies = new THREE.InstancedMesh(canopyGeoms[0], canopyMatsDark[0], Math.floor(trees.length * 0.5));
+    const finalCanopies = new THREE.InstancedMesh(canopyGeoms[0], canopyMats[0], pineLayerCount);
+    const finalDarkCanopies = new THREE.InstancedMesh(canopyGeoms[1], canopyMats[1], oakLayerCount);
     const branchStubs = new THREE.InstancedMesh(branchGeo, branchMat, trees.length * 2); // 2 branch stubs per tree
     // let: reassigned below with the real frond count (const-in-block shadowed
     // the outer binding → TDZ ReferenceError at scene.remove — user bug #2)
     let palmFronds = new THREE.InstancedMesh(palmFrondGeo, palmFrondMat, 0); // Will resize for palms
-    
+
     const dummy = new THREE.Object3D();
-    let darkTreeIndex = 0;
+    let pineLayer = 0;
+    let oakLayer = 0;
     let palmCount = 0;
-    
+
+    // Reused scratch for per-instance HSL lightness jitter (±5%).
+    const canopyHSL = { h: 0, s: 0, l: 0 };
+    const canopyColor = new THREE.Color();
+
+    // Per-instance HSL lightness jitter around the species' base canopy
+    // color: neighboring same-species trees never share an exact color, so
+    // the forest reads organic instead of cloned. Deterministic per-instance
+    // seed (no Math.random — placement must stay reproducible).
+    function jitterCanopyColor(mesh, index, baseHex, seed) {
+      const rand = rnd(seed);
+      canopyColor.set(baseHex);
+      canopyColor.getHSL(canopyHSL);
+      canopyHSL.l = Math.min(1, Math.max(0, canopyHSL.l + (rand() - 0.5) * 0.1));
+      canopyColor.setHSL(canopyHSL.h, canopyHSL.s, canopyHSL.l);
+      mesh.setColorAt(index, canopyColor);
+    }
+
     // Count palms first to allocate frond instances
     trees.forEach(tree => {
       if (species[tree.speciesIdx].name === 'palm') palmCount++;
@@ -837,30 +868,30 @@ export class Environment {
       scene.remove(palmFronds);
       palmFronds = new THREE.InstancedMesh(palmFrondGeo, palmFrondMat, palmCount * 12); // 12 fronds per palm
     }
-    
+
     let palmInstance = 0;
-    
+
     for (let i = 0; i < trees.length; i++) {
       const tree = trees[i];
       const speciesData = species[tree.speciesIdx];
       const { x, z, s } = tree;
-      
+
       // Position based on terrain height
       const h = this._gy(x, z);
       const baseY = h + 1.0 * s;
-      
+
       // Position and scale trunk
       dummy.position.set(x, baseY + speciesData.trunkHeight * s * 0.5, z);
       dummy.scale.set(s, s * speciesData.trunkHeight / 3.4, s); // Normalize height
       dummy.rotation.set(0, rnd(5000 + i)() * Math.PI, 0);
       dummy.updateMatrix();
       finalTrunks.setMatrixAt(i, dummy.matrix); // AUDIT FIX: was never written
-      
+
       // Position canopy layers
       for (let layerIdx = 0; layerIdx < speciesData.canopyLayers.length; layerIdx++) {
         const layer = speciesData.canopyLayers[layerIdx];
         const canopyY = baseY + layer.yOffset * s;
-        
+
         if (speciesData.name === 'palm') {
           // Special handling for palm fronds
           for (let frond = 0; frond < 12; frond++) {
@@ -877,26 +908,35 @@ export class Environment {
             );
             dummy.scale.set(s * 0.8, s * 1.2, s * 0.8);
             dummy.updateMatrix();
-            palmFronds.setMatrixAt(palmInstance++, dummy.matrix); // AUDIT FIX: fronds were never placed
+            palmFronds.setMatrixAt(palmInstance, dummy.matrix); // AUDIT FIX: fronds were never placed
+            jitterCanopyColor(palmFronds, palmInstance, speciesData.canopyColor, 15000 + i * 3 + frond);
+            palmInstance++;
           }
+        } else if (speciesData.name === 'pine') {
+          // Stacked-CONE canopy: each layer is a cone from the unit pine
+          // geometry scaled to (layer.radius × s, layer.height × s). The
+          // three cones overlap with decreasing radius up the trunk — a
+          // stepped pine silhouette instead of the old sphere stack.
+          dummy.position.set(x, canopyY, z);
+          dummy.rotation.set(0, 0, 0);
+          dummy.scale.set(layer.radius * s, layer.height * s, layer.radius * s);
+          dummy.updateMatrix();
+          finalCanopies.setMatrixAt(pineLayer, dummy.matrix); // AUDIT FIX: was written to a dead mesh
+          jitterCanopyColor(finalCanopies, pineLayer, speciesData.canopyColor, 13000 + i * 7 + layerIdx);
+          pineLayer++;
         } else {
-          // Standard spherical canopy layers
+          // Oak: layered sphere canopy (unchanged silhouette).
           dummy.position.set(x, canopyY, z);
           const layerScale = layer.radius * s / 1.6; // Normalize to base radius of 1.6
           dummy.scale.set(layerScale, layerScale, layerScale);
           dummy.rotation.set(0, 0, 0);
           dummy.updateMatrix();
-          
-          // Alternate between light and dark canopy colors for variety
-          if (layerIdx % 2 === 1 && darkTreeIndex < finalDarkCanopies.count) {
-            finalDarkCanopies.setMatrixAt(darkTreeIndex, dummy.matrix); // AUDIT FIX: was written to a dead mesh
-            darkTreeIndex++;
-          } else {
-            finalCanopies.setMatrixAt(i * maxLayers + layerIdx, dummy.matrix); // AUDIT FIX: was written to a dead mesh
-          }
+          finalDarkCanopies.setMatrixAt(oakLayer, dummy.matrix); // AUDIT FIX: was written to a dead mesh
+          jitterCanopyColor(finalDarkCanopies, oakLayer, speciesData.canopyColor, 14000 + i * 7 + layerIdx);
+          oakLayer++;
         }
       }
-      
+
       // Add branch stubs (2 per tree, randomized but deterministic)
       for (let branch = 0; branch < 2; branch++) {
         const branchRand = rnd(8000 + i * 10 + branch);
@@ -917,19 +957,24 @@ export class Environment {
         branchStubs.setMatrixAt(i * 2 + branch, dummy.matrix);
       }
     }
-    
+
     // All matrices were written into the FINAL meshes above (audit fix).
     finalTrunks.instanceMatrix.needsUpdate = true;
-    finalCanopies.instanceMatrix.needsUpdate = true;
-    if (finalDarkCanopies.count > 0) finalDarkCanopies.instanceMatrix.needsUpdate = true;
+    if (pineLayerCount > 0) finalCanopies.instanceMatrix.needsUpdate = true;
+    if (oakLayerCount > 0) finalDarkCanopies.instanceMatrix.needsUpdate = true;
     branchStubs.instanceMatrix.needsUpdate = true;
     if (palmCount > 0) palmFronds.instanceMatrix.needsUpdate = true;
+    // Per-instance canopy colors (setColorAt created the instanceColor buffers)
+    if (finalCanopies.instanceColor) finalCanopies.instanceColor.needsUpdate = true;
+    if (finalDarkCanopies.instanceColor) finalDarkCanopies.instanceColor.needsUpdate = true;
+    if (palmCount > 0 && palmFronds.instanceColor) palmFronds.instanceColor.needsUpdate = true;
 
     // Add to scene
-    scene.add(finalTrunks, finalCanopies);
-    if (finalDarkCanopies.count > 0) scene.add(finalDarkCanopies);
-    scene.add(branchStubs);
+    scene.add(finalTrunks, branchStubs);
+    if (pineLayerCount > 0) scene.add(finalCanopies);
+    if (oakLayerCount > 0) scene.add(finalDarkCanopies);
     if (palmCount > 0) scene.add(palmFronds);
+
   }
 
   buildProps(scene) {

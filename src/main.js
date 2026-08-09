@@ -22,6 +22,7 @@ import { SkidMarks } from './effects/SkidMarks.js';
 import { Menu } from './ui/Menu.js';
 import { HUD } from './ui/HUD.js';
 import { TouchControls } from './ui/TouchControls.js';
+import { signedAngle } from './entities/PowerUp.js'; // steer-assist steering math (shared with AIController)
 
 // ---------------------------------------------------------------------------
 // Boot
@@ -33,6 +34,12 @@ const DEMO = new URLSearchParams(location.search).has('demo');
 const TEST = new URLSearchParams(location.search).has('test'); // fast no-postfx mode for gameplay testing
 // Track select: ?track=2 → Neon City (defaults to the meadow circuit).
 const TRACK_ID = Number(new URLSearchParams(location.search).get('track')) === 2 ? 2 : 1;
+
+// Difficulty/accessibility (audit r3): the CC selector scales the physics
+// speed envelope through CONFIG.physics, which KartPhysics reads live every
+// frame. Bases are captured BEFORE startRace() mutates them.
+const BASE_MAX_SPEED = CONFIG.physics.maxSpeed;
+const BASE_BOOST_SPEED = CONFIG.physics.boostSpeed;
 
 const env = new Environment();
 env.trackId = TRACK_ID; // theme hook: 1 = sunny meadow, 2 = neon city
@@ -124,6 +131,10 @@ let driftScreechAcc = 0; // drift tire screech accumulator
 let aiScreechAcc = 0;    // AI drift screech accumulator (v4 F5)
 let dustAcc = 0;         // off-road dust accumulator
 let turboParticleAcc = 0; // accumulator: burst once per 0.1s while turbo-boosting
+
+// Difficulty/accessibility settings (audit r3): refreshed by applyDifficulty()
+// at every race start from the menu's live choices (window.__sk3d*).
+let settings = { cc: CONFIG.cc.default, autoAccel: false, steerAssist: false };
 
 // Boot lands on the title menu (menu overlay + orbit camera).
 setState(STATES.MENU);
@@ -368,6 +379,65 @@ function setStartLights(state) {
   });
 }
 
+/** Apply the menu's CC + assist choices to the physics envelope (audit r3). */
+function applyDifficulty() {
+  const cc = Number(window.__sk3dCc) || CONFIG.cc.default;
+  const mult = CONFIG.cc.multipliers[cc] || 1;
+  settings.cc = cc;
+  settings.autoAccel = !!window.__sk3dAutoAccel;
+  settings.steerAssist = !!window.__sk3dSteerAssist;
+  // KartPhysics/AIController read CONFIG.physics live each frame — scaling
+  // maxSpeed/boostSpeed scales the player AND the AI rubber-band ceiling.
+  CONFIG.physics.maxSpeed = BASE_MAX_SPEED * mult;
+  CONFIG.physics.boostSpeed = BASE_BOOST_SPEED * mult;
+}
+
+/** Apply the player character's stats to physics (audit r3 — roster matters). */
+function applyPlayerStats() {
+  if (!playerKart) return;
+  const st = (playerKart.character && playerKart.character.stats) || { speed: 7, accel: 7, handling: 7 };
+  // speed → top speed ±8% around the 7 baseline (roster range 5..9);
+  // accel → throttle (0.85..1.05); handling → steer authority (1.0..1.12).
+  // Mirrors the AI drivers' stat curve in AIController.
+  playerKart._statSpeed = 1 + (st.speed - 7) * 0.04;
+  playerKart._statAccel = 0.6 + (st.accel / 10) * 0.5;
+  playerKart._statSteer = 0.85 + (st.handling / 10) * 0.3;
+  // KartPhysics targets `kart.cruiseSpeed || P.maxSpeed` — the player's
+  // personal top speed. Kart.restart() wipes cruiseSpeed, so restartRace()
+  // re-applies this after every race reset.
+  playerKart.cruiseSpeed = CONFIG.physics.maxSpeed * playerKart._statSpeed;
+}
+
+/**
+ * Steer assist: signed heading error toward the track centerline look-ahead.
+ * Identical math to AIController (sign-verified in-game), returns -1..1.
+ */
+function centerlineAssist() {
+  const cl = raceManager && raceManager.centerline;
+  if (!cl || !cl.length || !playerKart) return 0;
+  const pos = playerKart.state.position;
+  let best = 0;
+  let bestD = Infinity;
+  for (let i = 0; i < cl.length; i++) {
+    const dx = cl[i].x - pos.x;
+    const dz = cl[i].z - pos.z;
+    const d = dx * dx + dz * dz;
+    if (d < bestD) { bestD = d; best = i; }
+  }
+  const spacing = raceManager.centerlineSpacing || 2.5;
+  const look = Math.max(1, Math.round(CONFIG.ai.steerPredictAhead / spacing));
+  const t = cl[(best + look) % cl.length];
+  const dx = t.x - pos.x;
+  const dz = t.z - pos.z;
+  const len = Math.hypot(dx, dz) || 1;
+  const h = playerKart.state.heading;
+  const err = signedAngle(
+    { x: Math.sin(h), y: Math.cos(h) },
+    { x: dx / len, y: dz / len }
+  );
+  return THREE.MathUtils.clamp(err / 0.7, -1, 1);
+}
+
 function startRace() {
   // AUDIT r3: leak fix — Menu→StartRace re-added kart groups without
   // removing the previous ones (unbounded scene growth + draw calls).
@@ -380,7 +450,9 @@ function startRace() {
     scene.remove(k.group);
     k.group.traverse((o) => { if (o.isMesh) { o.geometry?.dispose?.(); if (o.material?.map) o.material.map.dispose(); } });
   }
+  applyDifficulty(); // CC → physics envelope (before karts: stats scale off the CC speed)
   buildKarts();
+  applyPlayerStats(); // character stats → player kart (cruiseSpeed + gains)
   const boxes = createItemBoxes(track);
   raceManager.init({
     track,
@@ -456,6 +528,8 @@ function restartRace() {
   // RaceManager.restart() (single source of truth — AUDIT FIX: the cruise
   // controller used to survive here and fight the player's input).
   raceManager.restart();
+  applyDifficulty();  // re-apply (menu choices may have changed between races)
+  applyPlayerStats(); // Kart.restart() wipes cruiseSpeed — restore the stat target
   skids.clear();
   lastLap = 0;
   finalLapShown = false;
@@ -667,7 +741,7 @@ loop.start((dt, t) => {
         // grants a scaled 300-900ms boost (timing reward, misses get nothing).
         window.__goAt = performance.now();
         window.__rocketFired = false;
-        if (playerKart && playerKart.applyBoost && (input.throttle || isTouchMode())) {
+        if (playerKart && playerKart.applyBoost && (input.throttle || settings.autoAccel || isTouchMode())) {
           window.__rocketFired = true;
           playerKart.applyBoost(900);
           particles.emit('boost', playerKart.group.position, { count: 22, speed: 9, size: 0.32 });
@@ -701,10 +775,18 @@ loop.start((dt, t) => {
       // Player input
       if (!DEMO) {
         readKeyboardInput();
-        const steer = isTouchMode() ? touchSteer : input.steer;
+        let steer = isTouchMode() ? touchSteer : input.steer;
+        // Steer assist (accessibility, audit r3): soft pull toward the track
+        // centerline (same signed-error math as AIController). It fades out as
+        // the player's own input grows, so it nudges but never fights them.
+        if (settings.steerAssist) {
+          const assist = centerlineAssist();
+          const authority = Math.max(0, 1 - Math.abs(steer) * CONFIG.assist.steerAssistAuthority);
+          steer = THREE.MathUtils.clamp(steer + assist * authority * CONFIG.assist.steerAssistGain, -1, 1);
+        }
         // Rocket-start timing window (audit r3): a NEW throttle press within
         // 0.35s of GO (not held at GO) still earns a scaled boost.
-        if (window.__goAt && !window.__rocketFired && input.throttle) {
+        if (window.__goAt && !window.__rocketFired && (input.throttle || settings.autoAccel)) {
           const sinceGo = (performance.now() - window.__goAt) / 1000;
           if (sinceGo >= 0 && sinceGo < 0.35) {
             window.__rocketFired = true;
@@ -713,9 +795,16 @@ loop.start((dt, t) => {
             particles.emit('boost', playerKart.group.position, { count: 14, speed: 8, size: 0.28 });
           }
         }
+        // Auto-accelerate (accessibility): keep the gas pinned unless braking.
+        const rawThrottle = isTouchMode() ? 1 : input.throttle || (input.brake ? -1 : 0);
+        const effThrottle = settings.autoAccel ? (input.brake ? -1 : 1) : rawThrottle;
+        // Character stats → physics (audit r3): accel scales throttle input,
+        // handling scales steer authority; speed is applied as cruiseSpeed.
+        const statAccel = (playerKart && playerKart._statAccel) || 1;
+        const statSteer = (playerKart && playerKart._statSteer) || 1;
         playerKart.setControls({
-          steer,
-          throttle: isTouchMode() ? 1 : input.throttle || (input.brake ? -1 : 0),
+          steer: steer * statSteer,
+          throttle: effThrottle * statAccel,
           brake: input.brake,
           drift: input.drift,
         });
@@ -899,6 +988,7 @@ window.__sk3d = {
   restartRace,
   gotoMenu,
   addShake,
+  settings, // QA: current difficulty/assist settings { cc, autoAccel, steerAssist }
   updateCamera, // QA hook: can be stubbed to freeze the chase camera
   DEMO,
   // QA debug: countdown internals (restart-flow regression tests read these).
