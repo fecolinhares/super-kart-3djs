@@ -109,6 +109,7 @@ export const CONFIG = {
     colorGradeContrast: 1.08,
     shadows: true,
     shadowMapSize: 2048,
+    testShadowMapSize: 1024, // used when ?test is active (QA speed)
     fogDensity: 0.004,
   },
 

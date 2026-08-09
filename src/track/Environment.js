@@ -125,7 +125,8 @@ export class Environment {
     sun.position.set(70, 90, 40);
     sun.castShadow = true;
     if (CONFIG.render.shadows) {
-      sun.shadow.mapSize.set(CONFIG.render.shadowMapSize, CONFIG.render.shadowMapSize);
+      const testMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('test');
+      sun.shadow.mapSize.set(testMode ? CONFIG.render.testShadowMapSize : CONFIG.render.shadowMapSize, testMode ? CONFIG.render.testShadowMapSize : CONFIG.render.shadowMapSize);
       sun.shadow.radius = 4; // softer shadow edges (blurs PCF; PCFSoft already softens)
       sun.shadow.camera.left = -90; // shadow frustum must cover the whole loop
       sun.shadow.camera.right = 90;

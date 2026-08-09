@@ -18,7 +18,10 @@ export function createScene(container) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, cap));
   if (CONFIG.render.shadows) {
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // soft edges (see sun.shadow.radius = 4 in Environment.js)
+    // QA/test mode: cheaper PCF + 1024 map — software GL (SwiftShader) runs
+    // ~4x faster; the real game keeps PCFSoft 2048.
+    const TEST = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('test');
+    renderer.shadowMap.type = TEST ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
   }
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
