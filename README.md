@@ -63,6 +63,10 @@ you get. Drift through corners to charge a **mini-boost**.
   shot), 🐢 Red Shell (homing), 🍌 Banana (trap), ⭐ Star (invincible), ⚡
   Lightning (shrink rivals)
 - **5 AI rivals** with waypoint following, rubber-banding and item usage
+- **2 tracks** (menu switch or `?track=2`): **SUNNY MEADOW** — rolling hills,
+  guard-rails, sponsor boards, field landmarks (pond, hilltop grove, windmill);
+  **NEON CITY** — night circuit with a 48-tower skyline, lit windows, neon
+  pink/cyan kerbs, concrete sidewalks and glowing street signs
 - **Banked, elevated cartoon track** with procedural toon materials, animated
   clouds, water, palm trees, mountains and crowd
 - **Post-processing** — bloom, saturation/contrast grade and vignette
