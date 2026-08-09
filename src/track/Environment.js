@@ -1703,12 +1703,13 @@ export class Environment {
     const dummy = new THREE.Object3D();
     const dir = new THREE.Vector3();
     let idx = 0;
-    // Row A hugs the track (16-26m); row B sits behind it (26-38m) — close
-    // enough that the towers MARGIN the road and read as city scale in the
-    // chase cam (vision critic: 'bring larger buildings close to the track').
+    // Row A hugs the track (16-26m); row B sits behind it (26-38m); row C is
+    // a LOWER midground fill (50-62m) so the city has depth layers (vision
+    // critic: 'few buildings at intermediate and far distances').
     const rows = [
       { seed: 21000, base: 16, range: 10 },
       { seed: 22000, base: 26, range: 12 },
+      { seed: 23000, base: 50, range: 12, low: true },
     ];
     for (const row of rows) {
       const rand = rnd(row.seed);
@@ -1723,7 +1724,7 @@ export class Environment {
         const x = probe.x + dir.x * off;
         const z = probe.z + dir.z * off;
         if (this._onTrack(x, z, 6)) continue; // never on the road
-        const h = 12 + rand() * 18; // 12-30m tall
+        const h = row.low ? 8 + rand() * 8 : 12 + rand() * 18; // midground lower
         const gy = this._gy(x, z);
         dummy.position.set(x, gy + h / 2, z);
         dummy.scale.set(1, h / 12, 1);
@@ -1740,6 +1741,40 @@ export class Environment {
       if (towers.instanceColor) towers.instanceColor.needsUpdate = true;
       towers.castShadow = true;
       scene.add(towers);
+    }
+
+    // --- neon street signs (vision critic: 'street-level detail' — small
+    // glowing billboards on poles along the sidewalks, every ~60m) ---
+    const poleMat = toonMaterial(0x3a4152, {});
+    const signMats = [
+      new THREE.MeshBasicMaterial({ color: 0xff2ec4 }),
+      new THREE.MeshBasicMaterial({ color: 0x2ec4ff }),
+      new THREE.MeshBasicMaterial({ color: 0xffe23c }),
+    ];
+    const sRand = rnd(9917);
+    const signProbe = new THREE.Vector3();
+    const signTan = new THREE.Vector3();
+    const signNrm = new THREE.Vector3();
+    for (let i = 0; i < 24; i++) {
+      const t = (i + 0.5) / 24;
+      path.getPointAt(t, signProbe);
+      path.getTangentAt(t, signTan);
+      signNrm.set(-signTan.z, 0, signTan.x).normalize();
+      const side = sRand() < 0.5 ? -1 : 1;
+      const sx = signProbe.x + signNrm.x * side * (5.6 + sRand() * 2);
+      const sz = signProbe.z + signNrm.z * side * (5.6 + sRand() * 2);
+      if (this._onTrack(sx, sz, 6)) continue;
+      const sy = this._gy(sx, sz);
+      const pole = new THREE.Mesh(new THREE.BoxGeometry(0.14, 3.1, 0.14), poleMat);
+      pole.position.set(sx, sy + 1.55, sz);
+      pole.castShadow = true;
+      scene.add(pole);
+      const sign = new THREE.Mesh(
+        new THREE.BoxGeometry(0.9, 1.8, 0.1),
+        signMats[(sRand() * 3) | 0]
+      );
+      sign.position.set(sx, sy + 3.1, sz);
+      scene.add(sign);
     }
   }
 
