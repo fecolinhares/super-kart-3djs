@@ -323,6 +323,10 @@ export class ShellProjectile {
       this.die();
       return;
     }
+    // AUDIT r5 (CRITICAL FIX): `m` was declared AFTER the blue-arc block —
+    // a thrown blue shell hit the TDZ and threw ReferenceError every frame
+    // for its whole lifetime (froze the race). Hoisted here.
+    const m = this.mesh;
 
     // Homing: steer toward the target kart at shellHomingTurnRate.
     if (this.homing && this.target && !this.target.finished) {
@@ -375,8 +379,7 @@ export class ShellProjectile {
       return;
     }
 
-    // Advance along current heading.
-    const m = this.mesh;
+    // Advance along current heading (m hoisted above the homing block).
     m.position.x += this.dir.x * this.speed * dt;
     m.position.z += this.dir.y * this.speed * dt;
     m.rotation.y = Math.atan2(this.dir.x, this.dir.y);

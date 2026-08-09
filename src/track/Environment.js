@@ -241,11 +241,13 @@ export class Environment {
     scene.add(hemi);
 
     // KEY: primary illumination — warm day sun, or cool moonlit blue at night.
-    // The shadow sun below carries BOTH the light and the shadows now (the
-    // duplicate non-casting key was the wash source — removed).
+    // The shadow sun below carries BOTH the light and the shadows now.
+    // AUDIT r5: this non-casting light sat IDENTICAL to the shadow sun (their
+    // combined 3.35 lit faces clipped ACES) — it's now a zero placeholder
+    // (kept for the night-city headlight rig wiring, not emitted).
     const keyColor = night ? 0x8fa8ff : 0xfff2d0;
     const keyPos = night ? [90, 115, -72] : [70, 90, 40];
-    const key = new THREE.DirectionalLight(keyColor, night ? 1.1 : 1.35);
+    const key = new THREE.DirectionalLight(keyColor, 0);
     key.position.set(...keyPos);
     scene.add(key);
     scene.add(key.target);

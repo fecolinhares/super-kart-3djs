@@ -225,7 +225,9 @@ export class KartPhysics {
     // Turbo pads: within 0.015 of a pad's t (and not already boosting) →
     // start a 1.2s turbo. Guarded so it only fires once per pass (the
     // timer outlasts the trigger window while the kart crosses the pad).
-    if (track.turboPads && track.turboPads.ts && !s.boost && s.turboBoostMs <= 0) {
+    // AUDIT r5: dropped the `!s.boost` gate — MK8D pads fire even mid-boost
+    // (a drift-boost pass over a pad used to get nothing).
+    if (track.turboPads && track.turboPads.ts && s.turboBoostMs <= 0) {
       for (let i = 0; i < track.turboPads.ts.length; i++) {
         if (Math.abs(s.progress01 - track.turboPads.ts[i]) <= 0.015) {
           s.turboBoostMs = 1200;
@@ -304,14 +306,22 @@ export class KartPhysics {
     if (!s.draft && kart._wasDrafting && !s.spinOut) {
       const now = raceManager ? raceManager.elapsed : 0;
       if (!kart._lastDraftExit || now - kart._lastDraftExit > 3) {
-        kart._lastDraftExit = now;
-        kart.applyBoost(600);
-        kart._onDraftExit?.();
+        // AUDIT r5: draft exit-kick is PLAYER-only — AI trains used to chain
+        // free 600ms boosts, quietly widening the rubber band.
+        if (!kart.isPlayer) {
+          kart._wasDrafting = false;
+        } else {
+          kart._lastDraftExit = now;
+          kart.applyBoost(600);
+          kart._onDraftExit?.();
+        }
       }
     }
     kart._wasDrafting = s.draft;
     s.offRoad = Math.abs(near.lateralDist) > halfW;
-    if (s.offRoad) target *= T.offRoadMaxSpeedFactor;
+    // AUDIT r5: boost ignores terrain slowdown (MK8D) — a drift-boost/star
+    // carry over grass no longer gets cut by the 0.45× off-road factor.
+    if (s.offRoad && !s.boost && s.turboBoostMs <= 0) target *= T.offRoadMaxSpeedFactor;
     // AUDIT r3: off-road exit kick — a grass dive that's actually held pays
     // a small recovery boost back on tarmac (risky lines now have a payoff).
     if (s.offRoad) {
@@ -327,7 +337,10 @@ export class KartPhysics {
     if (s.spinOut) target = 0;
 
     if (!s.spinOut) {
-      if (input.throttle) s.speed += P.acceleration * dt * Math.max(0.15, input.throttle); // AI corner-lift 0.3/0.8 scales accel (audit F3)
+      // AUDIT r5: clamp throttle to 1.0 — AI easing passed >1 (up to 1.35)
+      // and KartPhysics scales accel by it, inflating the comeback.
+      const thr = Math.min(1, Math.max(0, input.throttle || 0));
+      if (thr > 0.02) s.speed += P.acceleration * dt * Math.max(0.15, thr); // AI corner-lift 0.3/0.8 scales accel (audit F3)
       if (input.brake) s.speed -= P.braking * dt;
     }
     const fr = P.friction * (s.offRoad ? 1.8 : 1);
