@@ -15,10 +15,14 @@ A complete cartoon arcade kart racer, 100% procedural (zero external assets):
   **Blue Shell** (Spiny-style: homes in on the race leader — the tail-ender's
   anti-leader pressure valve). Holding a shell/banana behind **blocks an
   incoming hit** (MK8 item-hold pillar).
-- **Slipstream drafting**: ride in a rival's wake (~2.5m, +8% top speed) — the
-  core non-item comeback tool.
-- **Trick ramps**: 2 launch ramps on straights; press throttle mid-air to arm
-  a trick → landing mini-boost (the air system is now reachable).
+- **Slipstream drafting**: ride in a rival's wake (~2.5m, +8% top speed) with
+  wake streak particles + a pulsing DRAFT indicator — the core non-item
+  comeback tool.
+- **Trick ramps**: 2 launch ramps on straights (toon orange + painted chevrons);
+  press throttle mid-air to arm a trick → landing mini-boost. Ramp launch and
+  the arm window are tuned so the trick reliably fires.
+- **Blue Shell** bypasses held-item blocking (only star/invincibility protects
+  — MK8 spiny behavior), so the leader can't passively shield it.
 - **Drift mini-boost** charge-scaled (300–750ms by charge) with charge-colored
   sparks and a satisfying release SFX (`driftReleaseMiniBoost`, player + AI
   with stereo pan). Charge-scaled drama: bigger charge = louder pop + more
@@ -47,11 +51,17 @@ A complete cartoon arcade kart racer, 100% procedural (zero external assets):
 - **Quality of life**: Pause (P/Esc or ⏸ button on mobile, tap-to-resume),
   "Race Again" + **"Menu"** buttons on the finish screen, touch **DRIFT
   button** (hold-to-drift on mobile), **kart color + mute state persisted**
-  (localStorage), **audio mute toggle** on the menu, **rising countdown
-  pitch** 3-2-1, UI hover sounds.
+  (localStorage, menu picker stays in sync), **audio mute toggle** on the
+  menu, **rising countdown pitch** 3-2-1, UI hover sounds, one-time drift
+  onboarding tip, drift meter flashes + beeps at the release point, AI drift
+  sounds, mobile perf tier (pixelRatio cap on coarse pointers).
 - **Live minimap**, lap progress bar, medal rank, polished speedometer + item slot.
-- **5 AI rivals** with real rubber-band (cruiseSpeed override → true top-speed
-  comeback), per-driver stats, corner-lift throttle, item usage.
+- **5 AI rivals** with real rubber-band (cruiseSpeed override capped +12%,
+  true top-speed comeback), per-driver stats (speed/accel/handling),
+  per-driver lateral lane offsets (no train formation), corner-lift throttle,
+  item usage, quiet panned drift screech.
+- **Difficulty honesty**: overtakes never feel like cheats — rubber-band is
+  capped and drivers hold personal racing lines.
 - **Finish cruise mode**: after the line, AI drives the player at 60% while music swells.
 - **Audio 100% procedural WebAudio**: engine loops (pitch = speed), 32+ SFX,
   3 music tracks, auto-pause on tab hidden.
