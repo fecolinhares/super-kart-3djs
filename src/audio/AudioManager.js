@@ -630,6 +630,28 @@ export class AudioManager {
     }
   }
 
+  /** Mute toggle (pause overlay Sound button). Restores the last volume. */
+  toggleMute() {
+    if (this._muted) this.setMuted(false);
+    else this.setMuted(true);
+  }
+
+  setMuted(m) {
+    this._muted = !!m;
+    if (!this._ctx || !this._master) return;
+    if (this._muted) {
+      this._master.gain.cancelScheduledValues(this._ctx.currentTime);
+      this._master.gain.setTargetAtTime(0, this._ctx.currentTime, 0.02);
+    } else {
+      this._master.gain.cancelScheduledValues(this._ctx.currentTime);
+      this._master.gain.setTargetAtTime(this._volume, this._ctx.currentTime, 0.02);
+    }
+  }
+
+  get muted() {
+    return !!this._muted;
+  }
+
   /** Sets the music bus volume (0..1), independent of master. */
   setMusicVolume(v) {
     this._musicVolume = Math.max(0, Math.min(1, v));
