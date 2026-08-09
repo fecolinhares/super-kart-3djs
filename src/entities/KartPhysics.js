@@ -186,6 +186,9 @@ function updateLap(kart, near) {
     _fwd.set(Math.sin(s.heading), 0, Math.cos(s.heading));
     if (_fwd.dot(kart._startDir) > 0.35 && !kart.finished) {
       s.lap += 1;
+      // AUDIT r4: lap-split hook — main.js times the lap and feeds the HUD
+      // (current/best lap chip + new-best flash; MK8D consistency feedback).
+      kart._onLap?.({ lap: s.lap });
     }
   }
   kart._lastProgress = p;

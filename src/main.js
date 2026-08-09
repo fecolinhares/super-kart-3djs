@@ -538,6 +538,23 @@ function startRace() {
   applyDifficulty(); // CC → physics envelope (before karts: stats scale off the CC speed)
   buildKarts();
   applyPlayerStats(); // character stats → player kart (cruiseSpeed + gains)
+  // AUDIT r4: lap-split feedback — time each completed lap, track the best,
+  // feed the HUD chip (MK8D consistency reward).
+  playerKart._lastLapAt = 0;
+  playerKart._bestLapMs = null;
+  playerKart._onLap = ({ lap }) => {
+    const now = raceManager.elapsed;
+    const lapMs = Math.round(Math.max(0, now - (playerKart._lastLapAt || 0)) * 1000);
+    playerKart._lastLapAt = now;
+    if (lap === 1) {
+      playerKart._bestLapMs = lapMs;
+      hud.setLapSplit?.(lapMs, lapMs, true);
+      return;
+    }
+    const isBest = lapMs < (playerKart._bestLapMs || Infinity);
+    if (isBest) playerKart._bestLapMs = lapMs;
+    hud.setLapSplit?.(lapMs, playerKart._bestLapMs, isBest);
+  };
   const boxes = createItemBoxes(track);
   raceManager.init({
     track,

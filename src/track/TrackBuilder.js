@@ -360,10 +360,30 @@ function buildTerrain(path, cityMode = false) {
     pos.setY(i, y);
   }
   geo.computeVertexNormals();
+  // AUDIT r4: mow stripes — the field read as one flat green at chase
+  // distance (fine stipple texture vanishes). Deterministic sin-noise bands
+  // tint the terrain vertices ±4%: diagonal mowing arcs + large soft patches.
+  if (!cityMode) {
+    const colors = new Float32Array(pos.count * 3);
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i);
+      const z = pos.getZ(i);
+      const stripe = Math.sin(x * 0.11 + z * 0.07) * 0.5 + 0.5;
+      const mow = 0.94 + stripe * 0.08;
+      const patch = Math.sin(x * 0.028 + 2.0) * Math.cos(z * 0.031) * 0.5 + 0.5;
+      const k = 0.96 + patch * 0.06;
+      const v = mow * k;
+      colors[i * 3] = v;
+      colors[i * 3 + 1] = v;
+      colors[i * 3 + 2] = v;
+    }
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  }
   const mat = toonMaterial(cityMode ? 0x2a2d38 : 0xffffff, {});
   if (!cityMode) {
     mat.map = grassTexture();
     mat.color.set(0xffffff);
+    mat.vertexColors = true; // mow stripes (audit r4)
   } else {
     // Urban concrete (vision critic: flat black void — needs pavement detail).
     mat.map = concreteTexture();

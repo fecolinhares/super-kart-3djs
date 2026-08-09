@@ -591,6 +591,27 @@ export class HUD {
     this._maxKmh = Math.max(40, Math.round(kmh));
   }
 
+  /** Lap-split chip: current + best lap, flashes on a new best (audit r4). */
+  setLapSplit(lapMs, bestLapMs, isBest) {
+    let chip = this.root.querySelector('.sk3d-lapsplit');
+    if (!chip) {
+      chip = document.createElement('div');
+      chip.className = 'sk3d-lapsplit';
+      const timeEl = this.root.querySelector('.sk3d-time');
+      if (timeEl && timeEl.parentNode) timeEl.parentNode.insertBefore(chip, timeEl.nextSibling);
+      else this.root.appendChild(chip);
+    }
+    const fmt = (ms) => {
+      const s = Math.floor(ms / 1000);
+      const m = Math.floor(s / 60);
+      return `${m}:${String(s % 60).padStart(2, '0')}.${String(Math.floor((ms % 1000) / 100))}`;
+    };
+    chip.textContent = `LAP ${fmt(lapMs)} · BEST ${fmt(bestLapMs)}`;
+    chip.classList.toggle('sk3d-lapsplit-best', !!isBest);
+    clearTimeout(this._lapFlashT);
+    this._lapFlashT = setTimeout(() => chip.classList.remove('sk3d-lapsplit-best'), 2600);
+  }
+
   /** @param {string|null} itemType PowerUpType key, or null/undefined for empty.
    *  @param {number} [count=1] stack size — >1 shows a ×N triple badge. */
   setItem(itemType, count = 1) {

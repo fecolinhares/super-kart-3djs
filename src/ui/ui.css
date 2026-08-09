@@ -403,6 +403,27 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Lap-split chip (audit r4): current + best lap under the race timer. */
+.sk3d-lapsplit {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #dbe4f2;
+  background: rgba(12, 18, 30, 0.72);
+  border: 1px solid rgba(120, 160, 255, 0.25);
+  border-radius: 8px;
+  padding: 3px 8px;
+  margin-top: 2px;
+  text-align: center;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.sk3d-lapsplit-best {
+  background: rgba(46, 70, 40, 0.85);
+  border-color: #7dff8a;
+  color: #b6ffc0;
+}
+
 /* --- minimap --- */
 
 .sk3d-minimap {
