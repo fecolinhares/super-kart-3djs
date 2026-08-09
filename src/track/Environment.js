@@ -879,6 +879,50 @@ export class Environment {
       if (!this._onTrack(x, z, 50)) fn();
     };
 
+    // --- (0) START-AREA POND: inside the 50m guard so it shows in the
+    // opening frame (the vision critic keeps missing the far landmarks).
+    // ~20m off the racing line — decorative, never blocks the road.
+    {
+      const px = -30;
+      const pz = -26;
+      if (!this._onTrack(px, pz, 12)) {
+        const baseY = gy(px, pz);
+        const water = new THREE.Mesh(
+          new THREE.CircleGeometry(3.2, 24),
+          new THREE.MeshToonMaterial({
+            color: 0x3ec6ff,
+            transparent: true,
+            opacity: 0.8,
+            emissive: 0x1e9bd6,
+            emissiveIntensity: 0.35,
+          })
+        );
+        water.rotation.x = -Math.PI / 2;
+        water.position.set(px, baseY + 0.06, pz);
+        water.userData = { baseY: baseY + 0.06, phase: 3.1 };
+        scene.add(water);
+        this.waterMeshes.push(water);
+        const rim = new THREE.Mesh(
+          new THREE.RingGeometry(2.6, 3.2, 24),
+          toonMaterial(0x1e8ecf, {})
+        );
+        rim.rotation.x = -Math.PI / 2;
+        rim.position.set(px, baseY + 0.05, pz);
+        scene.add(rim);
+        // 2 rocks on the near edge
+        for (let i = 0; i < 2; i++) {
+          const rock = new THREE.Mesh(
+            new THREE.DodecahedronGeometry(0.5 + i * 0.2, 1),
+            toonMaterial(0x8a8f9a, {})
+          );
+          rock.position.set(px + (i === 0 ? 2.6 : -2.2), baseY + 0.28, pz + (i === 0 ? 0.4 : -0.3));
+          rock.scale.y = 0.75;
+          rock.castShadow = true;
+          scene.add(rock);
+        }
+      }
+    }
+
     // --- (a) pond: flat blue disc + darker rim ring + 3 edge rocks ---
     place(88, -62, () => {
       const px = 88;
