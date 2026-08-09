@@ -275,7 +275,11 @@ export class AIController {
     const kart = this.kart;
     const type = kart.heldItem;
     const player = this.raceManager && this.raceManager.player;
-    const d = player ? progressScore(player) - progressScore(kart) : 0;
+    // AUDIT r3: item decisions were player-relative — an AI in 2nd behind an
+    // AI leader hoarded its shell forever and mid-pack drama died. Now target
+    // the rival IMMEDIATELY ahead in the standings (fallback: the player).
+    const rival = this._rivalAhead() || player;
+    const d = rival ? progressScore(rival) - progressScore(kart) : 0;
 
     switch (type) {
       case PowerUpType.STAR:
@@ -284,14 +288,14 @@ export class AIController {
         if (kart.state && kart.state.offRoad) return true; // recover speed
         if (d > 30) return true; // big catch-up gap
         {
-          const err = this._headingErrorToPlayer();
+          const err = this._headingErrorTo(rival);
           return err !== null && Math.abs(err) < 0.4 && d > 0;
         }
       case PowerUpType.SHELL:
       case PowerUpType.RED_SHELL:
         if (d <= 0) return false; // nobody ahead to hit
         {
-          const err = this._headingErrorToPlayer();
+          const err = this._headingErrorTo(rival);
           return err === null || Math.abs(err) < 1.2;
         }
       case PowerUpType.BANANA:
@@ -303,12 +307,21 @@ export class AIController {
     }
   }
 
-  /** Signed heading error toward the player, or null if no player exists. */
-  _headingErrorToPlayer() {
-    const player = this.raceManager && this.raceManager.player;
-    if (!player) return null;
+  /** The kart one place AHEAD in the standings (null if leading). */
+  _rivalAhead() {
+    const rm = this.raceManager;
+    if (!rm || typeof rm.getStandings !== 'function') return null;
+    const standings = rm.getStandings();
+    const myIdx = standings.findIndex((s) => s.kart === this.kart);
+    if (myIdx > 0) return standings[myIdx - 1].kart;
+    return null;
+  }
+
+  /** Signed heading error toward a kart, or null if no kart given. */
+  _headingErrorTo(targetKart) {
+    if (!targetKart) return null;
     const pos = kartPosition(this.kart);
-    const pp = kartPosition(player);
+    const pp = kartPosition(targetKart);
     const dx = pp.x - pos.x;
     const dz = pp.z - pos.z;
     const l = Math.hypot(dx, dz);

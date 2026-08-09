@@ -491,7 +491,15 @@ function startRace() {
     audio.setMusicVolume(1);
     audio.play('finish');
     // Victory fanfare only for podium (was playing for EVERY finish).
-    if (place <= 3) setTimeout(() => audio.play('victory'), 400);
+    // AUDIT r3: the bare setTimeout fired victory over a fresh race if the
+    // player restarted inside the 400ms window — guard on state + phase.
+    if (place <= 3) {
+      window.__victoryTimer = setTimeout(() => {
+        if (getState() === STATES.FINISHED && raceManager.phase === 'finished') {
+          audio.play('victory');
+        }
+      }, 400);
+    }
     setState(STATES.FINISHED);
   };
   playerKart.position = CONFIG.game.numKarts; // starts last on the grid
