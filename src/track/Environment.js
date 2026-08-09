@@ -234,7 +234,7 @@ export class Environment {
     // --- lights (AAA 3-point rig: key + fill + sky/ground hemi) ----------
     // NEON CITY swaps the warm sunny rig for dim cool moonlight (the moon
     // disc in buildNeonCity sits on the same axis, so shadows match it).
-    const hemi = new THREE.HemisphereLight(night ? 0x40509a : 0xd8e8ff, night ? 0x141430 : 0x7bca7f, night ? 0.55 : 0.72);
+    const hemi = new THREE.HemisphereLight(night ? 0x40509a : 0xd8e8ff, night ? 0x141430 : 0x7bca7f, night ? 0.55 : 0.6);
     scene.add(hemi);
 
     // KEY: primary illumination — warm day sun, or cool moonlit blue at night.
@@ -350,11 +350,10 @@ export class Environment {
       const group = new THREE.Group();
       for (let i = 0; i < band.count; i++) {
         const rand = rnd(band.seed * 1000 + i);
-        // AUDIT r3: per-peak tint — every peak in a band shared ONE flat
-        // color and read as a wall. Unlit stays, but each peak gets a
-        // ±3.5% lightness / ±2% hue jitter (cheap, kills monotony).
+        // AUDIT r3/r5: per-peak tint — ±4% hue / ±6% lightness jitter so the
+        // range reads as varied geology, not a flat wall.
         const rockMat = new THREE.MeshBasicMaterial({
-          color: new THREE.Color(band.rock).offsetHSL((rand() - 0.5) * 0.04, 0, (rand() - 0.5) * 0.07),
+          color: new THREE.Color(band.rock).offsetHSL((rand() - 0.5) * 0.04, 0, (rand() - 0.5) * 0.06),
         });
         const snowMat = new THREE.MeshBasicMaterial({ color: band.snow });
         const a = (i / band.count) * Math.PI * 2 + (band.radius > 250 ? 0.6 : 0.2);
