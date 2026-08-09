@@ -276,14 +276,24 @@ export function roadTexture() {
       for (const wy of wearY) {
         for (let x = 0; x < s; x += 7 + Math.random() * 10) {
           const len = 5 + Math.random() * 14;
-          const alpha = 0.10 + Math.random() * 0.12;
-          ctx.fillStyle = '#333d4b';
+          const alpha = 0.14 + Math.random() * 0.14;
+          ctx.fillStyle = '#2e3846';
           ctx.globalAlpha = alpha;
           ctx.fillRect(x, wy + (Math.random() - 0.5) * 4, len, 3 + Math.random() * 2);
           ctx.globalAlpha = alpha * 0.7;
-          ctx.fillStyle = '#2a333f';
+          ctx.fillStyle = '#252e3a';
           ctx.fillRect(x, wy + 4 + (Math.random() - 0.5) * 3, len, 2);
         }
+      }
+      // Racing-line rubber buildup: a heavier darkened band between the two
+      // tire ribbons (the groove most karts take) — reads as real wear.
+      ctx.globalAlpha = 0.16;
+      ctx.fillStyle = '#3a4554';
+      ctx.fillRect(0, s * 0.44, s, s * 0.12);
+      ctx.globalAlpha = 0.10;
+      ctx.fillStyle = '#313b49';
+      for (let x = 0; x < s; x += 6 + Math.random() * 8) {
+        ctx.fillRect(x, s * 0.45 + (Math.random() - 0.5) * 8, 4 + Math.random() * 8, 2 + Math.random() * 3);
       }
       ctx.globalAlpha = 1;
       // Scattered oil/rubber patches — MEDIUM size, many, low alpha (big

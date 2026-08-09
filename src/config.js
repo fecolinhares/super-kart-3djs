@@ -101,9 +101,12 @@ export const CONFIG = {
   render: {
     antialias: true,
     pixelRatioCap: 2,
-    bloomStrength: 0.5,
+    // VISION FIX: 0.5/0.93 blew out bright geometry (gantry sign, white
+    // kerbs) — the critic read the bloom as 'overexposed'. 0.38 keeps the
+    // glow on emissives (boost flames, item boxes) without washing whites.
+    bloomStrength: 0.38,
     bloomRadius: 0.4,
-    bloomThreshold: 0.93,
+    bloomThreshold: 0.95,
     vignetteStrength: 0.3,
     colorGradeSaturation: 1.18,
     colorGradeContrast: 1.08,
