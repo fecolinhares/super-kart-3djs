@@ -46,8 +46,13 @@
   the ridge — no more plain cones), 3D grass tufts along both verges, hay
   bales, sponsor boards on 3D frames, corner marshal flags, reflective water,
   sun glow billboard.
-- **SSAO pass** in the post chain — karts/props get contact shadows
-  (the critic's "karts look pasted on" gap); contrast 1.15.
+- **Post pipeline stability fix**: UnrealBloomPass AND SSAO rendered BLACK on
+  software GL (SwiftShader/llvmpipe) once the scene moved to PBR — the
+  composer now detects the software rasterizer (WEBGL_debug_renderer_info)
+  and drops bloom there; hardware GPUs keep it. The custom ColorGradeShader
+  was also removed (bloom→colorgrade→vignette chained passes broke software
+  GL) — ACES tone mapping in OutputPass carries the grade. Contact grounding
+  comes from the kart blob shadow + PCF shadow maps.
 - **Kart rebuild (premium MK8D)**: 48-seg molded shell with side intakes,
   front splitter, fender flares + panel-line seams; wheels with tread ribs +
   sidewall stripes + 5-spoke chrome rims + hub caps; curved spoiler blade +

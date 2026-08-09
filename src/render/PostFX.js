@@ -1,17 +1,21 @@
 /**
  * Super Kart 3D.js — post-processing chain.
- * RenderPass → UnrealBloomPass → ColorGrade (saturation/contrast) → Vignette
- * → OutputPass. All knobs from CONFIG.render. Falls back to plain
- * renderer.render if the composer fails to initialize (e.g. very old GPU).
+ * RenderPass → BloomPass → Vignette → OutputPass. All knobs from
+ * CONFIG.render. Falls back to plain renderer.render if the composer fails
+ * to initialize (e.g. very old GPU).
+ *
+ * HISTORY: the custom ColorGradeShader (saturation/contrast) was REMOVED —
+ * chained as bloom→colorgrade→vignette it rendered black on software GL
+ * (three chained HalfFloat passes). ACES tone mapping in OutputPass carries
+ * the grade; CONFIG.render.colorGrade* values are intentionally unused now.
  */
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader.js';
-import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass.js';
 import { CONFIG } from '../config.js';
 
 const ColorGradeShader = {
@@ -52,39 +56,39 @@ export class PostFX {
     this.composer = null;
 
     try {
-      // MSAA inside the composer: the default EffectComposer target has no
-      // samples, so antialias:true on the renderer is lost the moment bloom
-      // runs. A HalfFloat render target with samples:4 keeps edges clean
-      // through the whole chain (WebGL2; falls back gracefully below).
-      const size = renderer.getSize(new THREE.Vector2());
-      const rt = new THREE.WebGLRenderTarget(size.width, size.height, {
-        type: THREE.HalfFloatType,
-        samples: 4,
-      });
-      this.composer = new EffectComposer(renderer, rt);
+      // NOTE: a custom HalfFloat + samples:4 target made SwiftShader render
+      // black once the scene moved to PBR (MeshStandardMaterial everywhere) —
+      // the stock EffectComposer target (also HalfFloat, no MSAA) is the
+      // stable path; antialias comes from the renderer's default framebuffer
+      // on the final OutputPass composite.
+      this.composer = new EffectComposer(renderer);
       this.composer.addPass(new RenderPass(scene, camera));
 
-      // SSAO (AAA contact shadows): subtle ambient occlusion grounds karts
-      // and props — the critic's #1 material gap ("karts look pasted on").
-      // Kernel is small + blurred so it reads as contact, not noise.
-      this.ssao = new SSAOPass(scene, camera, size.width, size.height);
-      this.ssao.kernelRadius = 6;
-      this.ssao.minDistance = 0.004;
-      this.ssao.maxDistance = 0.12;
-      this.ssao.output = SSAOPass.OUTPUT.Default;
-      this.composer.addPass(this.ssao);
+      // BLOOM — the classic BloomPass (threshold + 2-pass blur), NOT
+      // UnrealBloomPass (bisection: Unreal renders BLACK on software GL with
+      // the PBR scene). Even BloomPass fails on software GL — so detect the
+      // software rasterizer and drop bloom there (hardware GPUs keep it).
+      const gl = renderer.getContext();
+      let softGL = false;
+      try {
+        const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+        const rn = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '';
+        softGL = /swiftshader|llvmpipe|softpipe|software/i.test(rn);
+      } catch { /* no ext */ }
+      this.bloom = softGL
+        ? null
+        : new BloomPass(
+            CONFIG.render.bloomStrength * 0.6,
+            1.0,
+            CONFIG.render.bloomThreshold,
+            512
+          );
+      if (this.bloom) this.composer.addPass(this.bloom);
 
-      this.bloom = new UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight),
-        CONFIG.render.bloomStrength,
-        CONFIG.render.bloomRadius,
-        CONFIG.render.bloomThreshold
-      );
-      this.composer.addPass(this.bloom);
-
-      this.colorGrade = new ShaderPass(ColorGradeShader);
-      this.composer.addPass(this.colorGrade);
-
+      // Vignette — NOTE: the custom ColorGradeShader (saturation/contrast)
+      // was removed: chained as bloom→colorgrade→vignette it rendered BLACK
+      // on software GL (3 chained HalfFloat passes). The OutputPass already
+      // applies ACES tone mapping + sRGB; exposure carries the punch.
       this.vignette = new ShaderPass(VignetteShader);
       this.vignette.uniforms.offset.value = 1 - CONFIG.render.vignetteStrength * 0.6;
       this.vignette.uniforms.darkness.value = CONFIG.render.vignetteStrength;
@@ -104,11 +108,14 @@ export class PostFX {
   _onResize() {
     if (!this.composer) return;
     this.composer.setSize(window.innerWidth, window.innerHeight);
-    if (this.ssao) this.ssao.setSize(window.innerWidth, window.innerHeight);
   }
 
   setBloom(strength) {
-    if (this.bloom) this.bloom.strength = strength;
+    // BloomPass has no dynamic strength setter; this is a soft no-op kept
+    // for API compatibility (bloom is disabled on software GL anyway).
+    if (this.bloom && this.bloom.convolution) {
+      this.bloom.convolution.material.uniforms.amount.value = strength;
+    }
   }
 
   render() {

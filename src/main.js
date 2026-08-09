@@ -802,6 +802,7 @@ window.__sk3d = {
   track,
   audio,
   particles,
+  postfx, // QA: post chain (passes can be toggled to bisect render bugs)
   startRace,
   restartRace,
   gotoMenu,
