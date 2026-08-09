@@ -452,6 +452,7 @@ export class Environment {
       this.buildHayBales(scene, track);
       this.buildSponsorBoards(scene, track);
       this.buildCornerFlags(scene, track);
+      this.buildInfieldTufts(scene, track); // r6: 3D tufts inside the enclosed infield — LAST so this._rand() never perturbs earlier builders
     } else {
       // City keeps the neon poles (buildLightPoles branches on night) but
       // drops the meadow dressing — a city track must read URBAN, not
@@ -2246,6 +2247,10 @@ export class Environment {
       grassTuftVariant(0xB1ADE3),
       grassTuftVariant(0xB1ADE4),
     ];
+    // r6: keep the variant geometries for buildInfieldTufts (called LAST in
+    // build(), after every other _rand consumer) so the enclosed infield
+    // reuses these exact tuft shapes without touching the _rand stream.
+    this._tuftVariants = variants;
     const n = Math.max(140, Math.round(len / 2.4));
     const tan = new THREE.Vector3();
     const p = new THREE.Vector3();
@@ -2269,6 +2274,108 @@ export class Environment {
     const baseMat = toonMaterial(0xffffff, {});
     const col = new THREE.Color();
     const PAL = [0x3faf4e, 0x4cc25e, 0x379c45];
+    for (let vi = 0; vi < variants.length; vi++) {
+      const list = spots.filter((s) => s.v === vi);
+      if (!list.length) continue;
+      const grass = new THREE.InstancedMesh(variants[vi], baseMat, list.length);
+      for (let i = 0; i < list.length; i++) {
+        const s = list[i];
+        dummy.position.set(s.x, s.gy, s.z);
+        dummy.rotation.set(0, this._rand() * Math.PI, 0);
+        dummy.scale.set(s.sc, s.sc * (0.9 + this._rand() * 0.35), s.sc);
+        dummy.updateMatrix();
+        grass.setMatrixAt(i, dummy.matrix);
+        col.setHex(PAL[s.c]);
+        grass.setColorAt(i, col);
+      }
+      grass.instanceMatrix.needsUpdate = true;
+      if (grass.instanceColor) grass.instanceColor.needsUpdate = true;
+      scene.add(grass);
+    }
+  }
+
+  /**
+   * r6 (FECO): 3D grass tufts INSIDE the enclosed infield — the infield
+   * grass was flat-texture-only and read as a 16-bit green pancake from
+   * above. Reuses the same tuft variant geometries as buildGrassTufts
+   * (this._tuftVariants) and scatters ~120 tufts deep inside the loop
+   * (>=12m from the centerline, so nothing clips the guard rail), grounded
+   * on _gy and deterministic via this._rand(). Called LAST in build() —
+   * it consumes _rand only after every other builder, so all existing
+   * placements stay bit-identical.
+   */
+  buildInfieldTufts(scene, track) {
+    if (!track || !track.path) return;
+    const path = track.path;
+    // Same 4 variant geometries as the verges (built here as a fallback if
+    // buildGrassTufts never ran — e.g. defensive ordering).
+    const variants = this._tuftVariants || [
+      grassTuftVariant(0xB1ADE1),
+      grassTuftVariant(0xB1ADE2),
+      grassTuftVariant(0xB1ADE3),
+      grassTuftVariant(0xB1ADE4),
+    ];
+    // High-res closed polyline of the centerline: inside-loop ray cast +
+    // exact road clearance (point-to-segment) — mirrors buildInfield.
+    const LOOP_N = 240;
+    const loop = [];
+    let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+    for (let i = 0; i < LOOP_N; i++) {
+      const q = path.getPointAt(i / LOOP_N);
+      loop.push(q.x, q.z);
+      if (q.x < minX) minX = q.x;
+      if (q.x > maxX) maxX = q.x;
+      if (q.z < minZ) minZ = q.z;
+      if (q.z > maxZ) maxZ = q.z;
+    }
+    const inLoop = (x, z) => {
+      let inside = false;
+      for (let i = 0, j = loop.length - 2; i < loop.length; j = i, i += 2) {
+        const xi = loop[i], zi = loop[i + 1];
+        const xj = loop[j], zj = loop[j + 1];
+        if (zi > z !== zj > z && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) inside = !inside;
+      }
+      return inside;
+    };
+    const distToLoop = (x, z) => {
+      let best = Infinity;
+      for (let i = 0; i < loop.length; i += 2) {
+        const j = (i + 2) % loop.length;
+        const ax = loop[i], az = loop[i + 1];
+        const bx = loop[j], bz = loop[j + 1];
+        const abx = bx - ax, abz = bz - az;
+        const t = Math.max(0, Math.min(1, ((x - ax) * abx + (z - az) * abz) / (abx * abx + abz * abz)));
+        const dx = ax + abx * t - x;
+        const dz = az + abz * t - z;
+        const d2 = dx * dx + dz * dz;
+        if (d2 < best) best = d2;
+      }
+      return Math.sqrt(best);
+    };
+    const ROAD_CLEAR = 12; // >=12m from centerline (guard rail sits at halfW+1.1)
+    const TARGET = 120;
+    const spots = [];
+    let guard = 0;
+    while (spots.length < TARGET && guard < 2000) {
+      guard++;
+      const x = minX + this._rand() * (maxX - minX);
+      const z = minZ + this._rand() * (maxZ - minZ);
+      if (!inLoop(x, z)) continue;
+      if (distToLoop(x, z) < ROAD_CLEAR) continue;
+      if (inWater(x, z, 4)) continue;
+      spots.push({
+        x, z,
+        gy: this._gy(x, z),
+        sc: 0.7 + this._rand() * 0.9,
+        v: (this._rand() * variants.length) | 0,
+        c: (this._rand() * 3) | 0,
+      });
+    }
+    if (!spots.length) return;
+    const baseMat = toonMaterial(0xffffff, {});
+    const col = new THREE.Color();
+    const PAL = [0x3faf4e, 0x4cc25e, 0x379c45]; // same green tints as the verges
+    const dummy = new THREE.Object3D();
     for (let vi = 0; vi < variants.length; vi++) {
       const list = spots.filter((s) => s.v === vi);
       if (!list.length) continue;
@@ -2944,6 +3051,9 @@ export class Environment {
     ];
     const figureTextures = FIGURES.map((f) => this._crowdFigureTexture(f.color, f.arms));
     const perFig = new Array(FIGURES.length).fill(0).map(() => []);
+    // r6 (FECO): second CROSSED plane per figure (+90° yaw around Y, same
+    // position/scale/texture) — single billboards vanished edge-on.
+    const perFig2 = new Array(FIGURES.length).fill(0).map(() => []);
     const dummy = new THREE.Object3D();
     const p = new THREE.Vector3();
     const tan = new THREE.Vector3();
@@ -2963,7 +3073,12 @@ export class Environment {
             path.getPointAt(t, p);
             path.getTangentAt(t, tan);
             nrm.set(-tan.z, 0, tan.x).normalize();
-            dummy.position.set(p.x + nrm.x * (side * (halfW + rowOff)), p.y + 0.9, p.z + nrm.z * (side * (halfW + rowOff)));
+            // AUDIT r6 (FECO): ground on the rolling TERRAIN at the figure's
+            // own spot (this._gy), not the path elevation (p.y + 0.9) — path
+            // Y on slopes left figures floating above/below the field.
+            const fx = p.x + nrm.x * (side * (halfW + rowOff));
+            const fz = p.z + nrm.z * (side * (halfW + rowOff));
+            dummy.position.set(fx, this._gy(fx, fz) + 0.9, fz);
             // AUDIT r10 (FECO): explicit roll-free yaw instead of lookAt —
             // lookAt left odd orientations on some segments (figures read as
             // sideways/inverted 'paper'). Face the track center deterministically.
@@ -2975,6 +3090,12 @@ export class Environment {
             dummy.updateMatrix();
             const figIdx = (i + (rowOff === ROWS[0] ? 0 : 3) + (side === 1 ? 1 : 0)) % FIGURES.length;
             perFig[figIdx].push(dummy.matrix.clone());
+            // r6: crossed second plane — same transform, yaw +90° around Y
+            // (roll-free: x/z rotation stay 0), so the figure keeps volume
+            // from every camera angle. No extra _rand() calls.
+            dummy.rotation.y += Math.PI / 2;
+            dummy.updateMatrix();
+            perFig2[figIdx].push(dummy.matrix.clone());
           }
         }
       }
@@ -2982,11 +3103,9 @@ export class Environment {
     for (let f = 0; f < FIGURES.length; f++) {
       const list = perFig[f];
       if (!list.length) continue;
-      const im = new THREE.InstancedMesh(
-        new THREE.PlaneGeometry(1.1, 1.6),
-        toonMaterial(0xffffff, { map: figureTextures[f], transparent: true, side: THREE.DoubleSide, depthWrite: false }),
-        list.length
-      );
+      const geo = new THREE.PlaneGeometry(1.1, 1.6);
+      const mat = toonMaterial(0xffffff, { map: figureTextures[f], transparent: true, side: THREE.DoubleSide, depthWrite: false });
+      const im = new THREE.InstancedMesh(geo, mat, list.length);
       list.forEach((m, i) => im.setMatrixAt(i, m));
       im.instanceMatrix.needsUpdate = true;
       // Record base Y per instance so the crowd-bounce animation (update)
@@ -2994,6 +3113,17 @@ export class Environment {
       im.userData.baseY = list.map((m) => m.elements[13]);
       scene.add(im);
       (this.crowdMeshes = this.crowdMeshes || []).push(im);
+      // r6: the crossed (+90° yaw) plane shares geometry/material — one extra
+      // draw call per figure type; baseY stays in sync so both planes bounce
+      // together in update().
+      const cross = perFig2[f];
+      if (!cross.length) continue;
+      const im2 = new THREE.InstancedMesh(geo, mat, cross.length);
+      cross.forEach((m, i) => im2.setMatrixAt(i, m));
+      im2.instanceMatrix.needsUpdate = true;
+      im2.userData.baseY = cross.map((m) => m.elements[13]);
+      scene.add(im2);
+      (this.crowdMeshes = this.crowdMeshes || []).push(im2);
     }
   }
 

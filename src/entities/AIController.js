@@ -275,16 +275,52 @@ export class AIController {
   /** Accumulate a per-second use chance; fire when it crosses 1. */
   _maybeUseItem(dt) {
     const kart = this.kart;
+    // AUDIT r6 (reserve slot): this used to early-return on an empty primary,
+    // so heldItem2 rotted forever — _blockWithHeldItem consumed the primary
+    // shield and the reserve was never promoted. Promote the reserve into the
+    // primary (existing swapHeldItems API, stack counts included) whenever
+    // the primary is empty.
     if (!kart.heldItem) {
-      this.itemAccum = 0;
-      return;
+      if (!kart.heldItem2) {
+        this.itemAccum = 0;
+        return;
+      }
+      kart.swapHeldItems?.();
+      if (!kart.heldItem) {
+        this.itemAccum = 0;
+        return;
+      }
     }
     this.itemAccum += CONFIG.ai.itemUseChancePerSec * dt;
     if (this.itemAccum < 1) return;
     this.itemAccum = 0;
+    // Dead-weight primary (a block-hold the use check would refuse — shell
+    // with nobody ahead, banana held while not leading): swap the reserve in
+    // BEFORE the use check so it gets a chance instead of rotting. The
+    // unusable item stays in reserve and still works as an item-hold shield.
+    if (kart.heldItem2 && this._primaryDeadWeight()) {
+      kart.swapHeldItems?.();
+    }
     if (this._shouldUseItem()) {
       this.raceManager?.useItem?.(kart);
     }
+  }
+
+  /** AUDIT r6: is the primary a block-hold the use check will refuse forever?
+   *  The _blockWithHeldItem consumables (shell/red/banana) are dead weight
+   *  when the situational check refuses — a shell with nobody ahead can never
+   *  fire, and a banana held mid-pack is only a shield. Comeback items
+   *  (mushroom/star/lightning) are kept: they become usable later. */
+  _primaryDeadWeight() {
+    const kart = this.kart;
+    const type = kart.heldItem;
+    if (type !== PowerUpType.SHELL && type !== PowerUpType.RED_SHELL && type !== PowerUpType.BANANA) {
+      return false;
+    }
+    const rival = this._rivalAhead() || (this.raceManager && this.raceManager.player);
+    const d = rival ? progressScore(rival) - progressScore(kart) : 0;
+    if (type === PowerUpType.BANANA) return d >= -10; // trap only with a safe lead
+    return d <= 0; // shell/red need somebody ahead to hit
   }
 
   /** Smart use conditions — items are held until the moment is right. */

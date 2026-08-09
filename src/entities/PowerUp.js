@@ -354,8 +354,14 @@ export class ShellProjectile {
         this._shadow.renderOrder = 5;
         this.scene?.add(this._shadow);
       }
-      const leader = (this.target && !this.target.finished) ? this.target : (karts || []).find((k) => !k.finished && !k.invincible);
+      // AUDIT r6 (stale target): this.target was locked at throw time — an
+      // overtaken/finished leader kept drawing the dive (or the shell flew
+      // straight and died). MK8D spiny re-targets the CURRENT position-1
+      // every frame, so re-resolve from the live standings here and re-lock
+      // this.target so the descent + post-dive homing follow the new leader.
+      const leader = this._resolveBlueLeader(karts);
       if (leader) {
+        this.target = leader;
         const tp = kartPosition(leader);
         const dx = tp.x - m.position.x;
         const dz = tp.z - m.position.z;
@@ -437,6 +443,42 @@ export class ShellProjectile {
         if (this._isOffTrack()) this.die();
       }
     }
+  }
+
+  /** AUDIT r6: current race leader for the blue-shell dive — re-resolved
+   *  every frame from the live standings (MK8D spiny re-targets position 1),
+   *  never the stale throw-time this.target. Skips finished / invincible
+   *  karts; falls back to a best-progress scan when the manager is absent. */
+  _resolveBlueLeader(karts) {
+    const rm = this.raceManager;
+    if (rm && typeof rm.getStandings === 'function') {
+      const rows = rm.getStandings();
+      if (Array.isArray(rows) && rows.length) {
+        // Standings are sorted by race progress; a kart that finished keeps
+        // its row near the top, so position 1 may be stale — accept the top
+        // kart still racing instead of flying at a finished leader.
+        for (const r of rows) {
+          const k = r && r.kart;
+          if (!k || k.finished || k.invincible) continue;
+          if (r.position === 1) return k;
+        }
+        for (const r of rows) {
+          const k = r && r.kart;
+          if (k && !k.finished && !k.invincible) return k;
+        }
+        return null; // everyone finished / invincible — shell flies straight
+      }
+    }
+    // No standings — best-progress kart still racing (the old fallback just
+    // took the first list entry, which is meaningless mid-race).
+    let best = null;
+    let bestScore = -Infinity;
+    for (const k of karts || []) {
+      if (!k || k.finished || k.invincible) continue;
+      const s = progressScore(k);
+      if (s > bestScore) { bestScore = s; best = k; }
+    }
+    return best;
   }
 
   _rotateDir(delta) {
