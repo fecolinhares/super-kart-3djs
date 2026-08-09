@@ -299,6 +299,13 @@ export class ShellProjectile {
     const opos = kartPosition(ownerKart);
     const color = this.homing ? (opts.blue ? 0x1f3fc8 : 0xff3b3b) : 0x43d64b;
     this.blue = !!opts.blue;
+    // AUDIT r4: blue shell ARC — the spiny flies HIGH with a ground shadow
+    // warning before diving on the leader (MK8 drama, no more blue-painted
+    // red shell). Resets on construction; the update() below drives it.
+    this._arcT = 0;
+    this._vY = 0;
+    this._descended = false;
+    this._shadow = null;
     this.mesh = buildShellMesh(color);
     this.mesh.position.set(
       opos.x + this.dir.x * 1.5,
@@ -328,6 +335,44 @@ export class ShellProjectile {
       const maxTurn = CONFIG.items.shellHomingTurnRate * dt;
       const delta = THREE.MathUtils.clamp(-err, -maxTurn, maxTurn);
       this._rotateDir(delta);
+    }
+
+    // Blue shell ARC phase (audit r4): fly high toward the leader with a
+    // ground shadow warning, then dive. Ground-homing only after descent.
+    if (this.blue && !this._descended) {
+      this._arcT += dt;
+      if (!this._shadow) {
+        this._shadow = new THREE.Mesh(
+          new THREE.CircleGeometry(0.95, 20),
+          new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.4, depthWrite: false })
+        );
+        this._shadow.rotation.x = -Math.PI / 2;
+        this._shadow.renderOrder = 5;
+        this.scene?.add(this._shadow);
+      }
+      const leader = (this.target && !this.target.finished) ? this.target : (karts || []).find((k) => !k.finished && !k.invincible);
+      if (leader) {
+        const tp = kartPosition(leader);
+        const dx = tp.x - m.position.x;
+        const dz = tp.z - m.position.z;
+        const dl = Math.hypot(dx, dz) || 1;
+        const err = signedAngle(this.dir, { x: dx / dl, y: dz / dl });
+        this._rotateDir(THREE.MathUtils.clamp(-err, -1.6 * dt, 1.6 * dt));
+      }
+      m.position.x += this.dir.x * this.speed * 1.7 * dt;
+      m.position.z += this.dir.y * this.speed * 1.7 * dt;
+      if (this._arcT < 0.12) this._vY = CONFIG.items.blueShellLift; // launch pop
+      this._vY -= CONFIG.items.blueShellGravity * dt;
+      m.position.y += this._vY * dt;
+      if (this._shadow) this._shadow.position.set(m.position.x, 0.05, m.position.z);
+      // Descend when falling back near the ground — switch to the normal
+      // homing dive (the shadow warning has done its job).
+      if (m.position.y <= 3.4 && this._arcT > 0.9) {
+        this._descended = true;
+        if (this._shadow) { this.scene?.remove(this._shadow); this._shadow = null; }
+        m.position.y = 1.2;
+      }
+      return;
     }
 
     // Advance along current heading.
@@ -433,6 +478,8 @@ export class ShellProjectile {
     if (this.dead) return;
     this.dead = true;
     this.scene?.remove(this.mesh);
+    // AUDIT r4: drop the arc shadow if it died mid-flight (e.g. timeout).
+    if (this._shadow) { this.scene?.remove(this._shadow); this._shadow = null; }
   }
 
   dispose() {

@@ -91,6 +91,10 @@ export const CONFIG = {
     pickupRadius: 2.8, // generous — at 43 m/s the kart crosses 2.1m per 0.05s frame
     shellSpeed: 46,
     shellHomingTurnRate: 3.2,
+    // AUDIT r4: blue shell ARC — the spiny flies high (telegraph) before
+    // diving. lift 13 m/s launch, gravity 9.8 brings it down in ~2.6s.
+    blueShellLift: 13,
+    blueShellGravity: 9.8,
     bananaRadius: 0.7,
     starDurationMs: 4000,
     lightningDurationMs: 4500,
