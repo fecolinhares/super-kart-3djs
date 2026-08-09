@@ -757,8 +757,10 @@ export class HUD {
     this._hitFlashTimer = setTimeout(() => this.hitFlashEl.classList.add('sk3d-hidden'), 500);
   }
 
-  /** Transient centered toast message (auto-hides). @param {string} text */
-  showMessage(text) {
+  /** Transient centered toast message (auto-hides).
+   *  @param {string} text
+   *  @param {number} [duration=TOAST_MS] how long it stays visible (ms) */
+  showMessage(text, duration = TOAST_MS) {
     this.toastEl.textContent = text;
     this.toastEl.classList.remove('sk3d-hidden', 'sk3d-toast-show');
     void this.toastEl.offsetWidth;
@@ -767,7 +769,17 @@ export class HUD {
     clearTimeout(this.toastTimer);
     this.toastTimer = setTimeout(() => {
       this.toastEl.classList.add('sk3d-hidden');
-    }, TOAST_MS);
+    }, duration);
+  }
+
+  /** One-time rear-throw tip (audit r4). Persisted in localStorage so it shows
+   *  once ever — teaches hold-to-throw-back without nagging. */
+  showRearHint() {
+    try {
+      if (localStorage.getItem('sk3d.rearHintShown') === '1') return;
+      localStorage.setItem('sk3d.rearHintShown', '1');
+    } catch { /* private mode */ }
+    this.showMessage('Hold ITEM to throw back! ↩️', 3600);
   }
 
   /** Show drift charge (0..1) while drifting; hide when not. */

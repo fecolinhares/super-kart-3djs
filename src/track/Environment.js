@@ -372,6 +372,11 @@ export class Environment {
         const r = band.radius * (0.86 + rand() * 0.28); // more spread per band
         const h = band.baseH + rand() * band.hVar;
         const baseR = h * (0.34 + rand() * 0.22); // wider base = chunkier peak
+        // AUDIT r4: per-peak XZ stretch (0.6-1.8) — some peaks elongate into
+        // ridge walls, others stay squat cones; the four bands no longer read
+        // as the same ridged cone at different scales/tints.
+        const sx = 0.6 + rand() * 1.2;
+        const sz = 0.6 + rand() * 1.2;
         const cx = Math.cos(a) * r;
         const cz = Math.sin(a) * r;
         const yBase = this._gy(cx, cz) - 0.5; // grounded on the rolling field
@@ -389,6 +394,7 @@ export class Environment {
         const rock = new THREE.Mesh(ridgedConeGeometry(baseR, h, segs, 6, jitter, seed), rockMat);
         rock.position.set(cx, yBase, cz);
         rock.rotation.set((rand() - 0.5) * 0.10, rand() * Math.PI, (rand() - 0.5) * 0.10);
+        rock.scale.set(sx, 1, sz); // stretch -> ridge-wall / squat-cone variety
         rock.castShadow = false;
         group.add(rock);
 
@@ -401,19 +407,26 @@ export class Environment {
         );
         ridge.position.set(cx + (rand() - 0.5) * baseR * 1.5, yBase, cz + (rand() - 0.5) * baseR * 1.5);
         ridge.rotation.set((rand() - 0.5) * 0.16, rand() * Math.PI, (rand() - 0.5) * 0.16);
+        // companion peak stretches independently (0.7-1.8) so it never
+        // mirrors the main peak's proportions.
+        ridge.scale.set(0.7 + rand() * 1.1, 1, 0.7 + rand() * 1.1);
         group.add(ridge);
 
         // snow cap that FOLLOWS the ridge: same noise seed, t0 = snow line —
         // the cap's base ring shares the rock's radius profile, so it drapes
         // the summit ridge instead of looking like a cone balanced on a cone.
-        const t0 = 0.62 + rand() * 0.12; // snow starts 62-74% up the peak
-        const capH = h * (1 - t0);
+        // AUDIT r4: snow line now varies 0.5-0.8 (was 0.62-0.74) — some peaks
+        // are half-buried in snow, others keep a tiny summit cap. t0 is passed
+        // straight into ridgedConeGeometry so the cap spans t0..1 of the SAME
+        // profile (its base ring still follows the rock ridge line exactly).
+        const t0 = 0.5 + rand() * 0.3; // snow starts 50-80% up the peak
         const cap = new THREE.Mesh(
-          ridgedConeGeometry(baseR * (1 - t0), capH, segs, 3, jitter, seed, 0, 1.18),
+          ridgedConeGeometry(baseR, h, segs, 3, jitter, seed, t0, 1.18),
           snowMat
         );
         cap.position.set(cx, yBase + h * t0, cz);
         cap.rotation.set(rock.rotation.x, rock.rotation.y, rock.rotation.z);
+        cap.scale.set(rock.scale.x, 1, rock.scale.z); // matches the stretched rock
         group.add(cap);
 
         // soft haze disc at the base for atmospheric lift
@@ -424,6 +437,46 @@ export class Environment {
         haze.rotation.x = -Math.PI / 2;
         haze.position.set(cx, yBase + 0.05, cz);
         group.add(haze);
+      }
+      // AUDIT r4: flat-topped buttes (mesas) — 3-4 per band, interleaved
+      // between the peaks: low-segment cylinders with flat caps, same band
+      // palette/snow. A second silhouette language so the range isn't ALL
+      // ridged cones. Dedicated local seed — this._rand stays untouched.
+      const bRand = rnd(band.seed * 1000 + 700);
+      const buttes = 3 + ((bRand() * 2) | 0); // 3-4 mesas per band
+      for (let b = 0; b < buttes; b++) {
+        const ba = ((b + 0.5) / band.count) * Math.PI * 2 + (band.radius > 250 ? 0.6 : 0.2) + (bRand() - 0.5) * 0.5;
+        const br = band.radius * (0.8 + bRand() * 0.34);
+        const bh = band.baseH * (0.45 + bRand() * 0.55);
+        const bBaseR = bh * (0.55 + bRand() * 0.3); // wider than a cone's base
+        const bSegs = 7 + ((bRand() * 3) | 0);      // 7-9 segs — faceted mesa sides
+        const bcx = Math.cos(ba) * br;
+        const bcz = Math.sin(ba) * br;
+        const by = this._gy(bcx, bcz) - 0.5;
+        const bRock = new THREE.MeshBasicMaterial({
+          color: new THREE.Color(band.rock).offsetHSL((bRand() - 0.5) * 0.04, 0, (bRand() - 0.5) * 0.06),
+        });
+        const butte = new THREE.Mesh(new THREE.CylinderGeometry(bBaseR * 0.8, bBaseR, bh, bSegs, 1), bRock);
+        butte.position.set(bcx, by, bcz);
+        butte.scale.set(0.8 + bRand() * 0.8, 1, 0.8 + bRand() * 0.8); // own XZ stretch
+        butte.rotation.y = bRand() * Math.PI;
+        butte.castShadow = false;
+        group.add(butte);
+        // flat cap — overhangs the rim slightly; snowy on ~2/3 of buttes
+        if (bRand() < 0.65) {
+          const bCap = new THREE.Mesh(
+            new THREE.CircleGeometry(bBaseR * 0.83, bSegs),
+            new THREE.MeshBasicMaterial({ color: band.snow })
+          );
+          bCap.rotation.x = -Math.PI / 2;
+          bCap.position.y = bh + 0.02;
+          butte.add(bCap); // child — inherits the butte's XZ stretch
+        }
+        // soft haze disc at the base (same atmospheric lift as the peaks)
+        const bHaze = new THREE.Mesh(new THREE.CircleGeometry(bBaseR * (1.4 + bRand() * 0.6), 20), hazeMat);
+        bHaze.rotation.x = -Math.PI / 2;
+        bHaze.position.set(bcx, by + 0.05, bcz);
+        group.add(bHaze);
       }
       scene.add(group);
     }
@@ -1589,11 +1642,15 @@ export class Environment {
         }
         const gy = this._gy(ccx, ccz);
         const castle = new THREE.Group();
-        // AUDIT r6: darker stone — the pale keep vanished against the green
-        // grass; darker warm stone + lighter trim reads as a fortress.
-        const stoneMat = toonMaterial(0x9d8a6c, {});   // warm stone (darkened)
+        // AUDIT r4: the flat stone merged with the grass — the keep now wears
+        // a procedural stone-block+course canvas texture (tinted per part so
+        // the r6 palette survives: keep darker 0x9d8a6c, walls lighter
+        // 0xc9b38f), the slate roofs become deep-red TILE textures, and the
+        // keep gains emissive windows + a big logo banner on the front wall.
+        const stoneMat = toonMaterial(0x9d8a6c, { map: this._castleStoneTexture([3, 2]) });   // keep + turrets
         const trimMat = toonMaterial(0x8a7a5e, {});    // darker trim + plinth
-        const roofMat = toonMaterial(0x5f7ba0, {});    // slate cone roofs
+        const roofMat = toonMaterial(0xffffff, { map: this._roofTileTexture([3, 1]) });       // keep roof — red tiles
+        const turretRoofMat = toonMaterial(0xffffff, { map: this._roofTileTexture([2, 1]) }); // turret roofs
         const poleMat = toonMaterial(0x5d4e3f, {});    // banner pole (wood)
         const pennantMat = toonMaterial(0xd8433c, {}); // red pennant (bright)
         // base plinth — plants the keep on the rolling turf
@@ -1626,10 +1683,27 @@ export class Environment {
           turret.position.set(tx, gy + 0.6 + 1.4, tz);
           turret.castShadow = true;
           castle.add(turret);
-          const troof = new THREE.Mesh(turretRoofGeo, roofMat);
+          const troof = new THREE.Mesh(turretRoofGeo, turretRoofMat);
           troof.position.set(tx, gy + 0.6 + 2.8 + 0.575, tz);
           troof.castShadow = true;
           castle.add(troof);
+        }
+        // 3 emissive window strips on the keep — warm lit glass so the tower
+        // reads as a lived-in castle, not a blank cylinder. Spread 120° apart
+        // (clear of the 45° corner turrets), slightly proud of the wall face.
+        const winFrameMat = toonMaterial(0x2b3242, {});
+        const winGlassMat = new THREE.MeshBasicMaterial({ color: 0xffe9b0 });
+        for (let k = 0; k < 3; k++) {
+          const wa2 = 0.35 + k * ((Math.PI * 2) / 3);
+          const wy = 1.8 + k * 0.9; // up the keep face (keep spans 0.6..4.4)
+          const frame = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.82, 0.1), winFrameMat);
+          frame.position.set(ccx + Math.cos(wa2) * 1.55, gy + wy, ccz + Math.sin(wa2) * 1.55);
+          frame.rotation.y = Math.PI / 2 - wa2; // faces radially outward
+          castle.add(frame);
+          const glass = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.055), winGlassMat);
+          glass.position.set(ccx + Math.cos(wa2) * 1.61, gy + wy, ccz + Math.sin(wa2) * 1.61);
+          glass.rotation.y = Math.PI / 2 - wa2;
+          castle.add(glass);
         }
         // banner pole + waving pennant on the keep roof
         const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.06, 1.7, 6), poleMat);
@@ -1647,7 +1721,7 @@ export class Environment {
         // battlement ring so the silhouette says CASTLE at race distance.
         // r6b: 1.5 still small in the huge infield — 2.2 reads across it.
         castle.scale.setScalar(2.2);
-        const wallMat = toonMaterial(0xc9b38f, {});
+        const wallMat = toonMaterial(0xc9b38f, { map: this._castleStoneTexture([4, 2]) }); // lighter stone + blocks
         const merlonMat = toonMaterial(0xb3a17e, {});
         const WALL_R = 5.2;
         const wallH = 1.5;
@@ -1672,6 +1746,37 @@ export class Environment {
             merlon.castShadow = true;
             castle.add(merlon);
           }
+        }
+        // ONE large logo banner on the battlement wall FACING THE TRACK —
+        // deep-red field, gold border, white shield + coral wheel (the game's
+        // billboard palette: #ff5a5f / #ffd166 / #2ec4ff / #1b2a41). The
+        // "front" wall is the one whose outward normal points at the nearest
+        // loop point, so the banner greets the karts.
+        {
+          const bannerMat = toonMaterial(0xffffff, { map: this._castleBannerTexture(), side: THREE.DoubleSide });
+          let bd = Infinity;
+          let fnx = loop[0];
+          let fnz = loop[1];
+          for (let qi = 0; qi < loop.length; qi += 2) {
+            const qdx = loop[qi] - ccx;
+            const qdz = loop[qi + 1] - ccz;
+            const qd = qdx * qdx + qdz * qdz;
+            if (qd < bd) { bd = qd; fnx = loop[qi]; fnz = loop[qi + 1]; }
+          }
+          const frontA = Math.atan2(fnz - ccz, fnx - ccx);
+          let fw = 0;
+          let fBest = Infinity;
+          for (let w = 0; w < 8; w++) {
+            const wa = (w / 8) * Math.PI * 2 + Math.PI / 8;
+            let diff = Math.abs(wa - frontA);
+            diff = Math.min(diff, Math.PI * 2 - diff);
+            if (diff < fBest) { fBest = diff; fw = w; }
+          }
+          const wa = (fw / 8) * Math.PI * 2 + Math.PI / 8;
+          const banner = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.1), bannerMat);
+          banner.position.set(ccx + Math.cos(wa) * 5.55, gy + 0.6 + 0.75, ccz + Math.sin(wa) * 5.55);
+          banner.rotation.y = Math.PI / 2 - wa; // same orientation as the wall — faces outward
+          castle.add(banner);
         }
         // 4 turret pennants — BIG red flags on the corner turrets (audit r6:
         // tiny flags were invisible at race distance — these read).
@@ -2709,6 +2814,195 @@ export class Environment {
     this._figCache = this._figCache || {};
     this._figCache[key] = tex;
     return tex;
+  }
+
+  /**
+   * Procedural castle stone texture: block courses with per-block tonal
+   * jitter, dark mortar and translucent moss patches. Drawn near-grayscale
+   * and tinted by the material color, so the r6 palette (darker keep /
+   * lighter walls) survives with the block detail on top. repeat = [x, y]
+   * tile count per mesh, cached per repeat so keep/turrets/walls each get
+   * their own wrap. Uses a dedicated local seed (rnd(56011)) — never touches
+   * this._rand, so every later builder keeps its bit-identical layout.
+   */
+  _castleStoneTexture(repeat) {
+    const key = repeat[0] + 'x' + repeat[1];
+    if (this._stoneTexs?.[key]) return this._stoneTexs[key];
+    if (!this._stoneTexBase) {
+      const s = 512;
+      const c = document.createElement('canvas');
+      c.width = s;
+      c.height = s;
+      const g = c.getContext('2d');
+      const rand = rnd(56011);
+      // dark mortar bed shows through the block gaps
+      g.fillStyle = '#5c5543';
+      g.fillRect(0, 0, s, s);
+      const cols = 6;
+      const rows = 6;
+      const cell = s / cols;
+      const mort = 5;
+      for (let r = 0; r < rows; r++) {
+        for (let col = 0; col < cols; col++) {
+          // per-block tonal jitter (grayscale — the material color tints it)
+          const v = 0.95 + rand() * 0.3;
+          g.fillStyle = `rgb(${(v * 236) | 0},${(v * 228) | 0},${(v * 210) | 0})`;
+          g.fillRect(col * cell + mort, r * cell + mort, cell - mort * 2, cell - mort * 2);
+          // carved lower edge on some blocks
+          if (rand() < 0.45) {
+            g.fillStyle = 'rgba(60,54,40,0.28)';
+            g.fillRect(col * cell + mort, r * cell + cell - mort - 5, cell - mort * 2, 5);
+          }
+        }
+      }
+      // translucent moss patches clustered on the courses
+      for (let i = 0; i < 24; i++) {
+        const mx = rand() * s;
+        const my = rand() * s;
+        g.fillStyle = `rgba(96,122,66,${0.16 + rand() * 0.3})`;
+        g.beginPath();
+        g.arc(mx, my, 3 + rand() * 7, 0, Math.PI * 2);
+        g.fill();
+      }
+      // heavier moss lines along a few horizontal mortar rows
+      for (let i = 0; i < 5; i++) {
+        const ly = (1 + rand() * (rows - 1)) * cell;
+        for (let k = 0; k < 9; k++) {
+          g.fillStyle = `rgba(96,122,66,${0.14 + rand() * 0.24})`;
+          g.fillRect(rand() * s, ly - 2 + rand() * 4, 6 + rand() * 11, 3);
+        }
+      }
+      this._stoneTexBase = c;
+    }
+    const tex = new THREE.CanvasTexture(this._stoneTexBase);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(repeat[0], repeat[1]);
+    tex.anisotropy = 8;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    this._stoneTexs = this._stoneTexs || {};
+    this._stoneTexs[key] = tex;
+    return tex;
+  }
+
+  /**
+   * Deep-red roof tile texture: 8x8 tile grid with per-tile tonal jitter,
+   * occasional darker tiles, a shadow course under each row and a highlight
+   * lip on top — reads as tiled roofing on the cone roofs. Own seed
+   * (rnd(56012)); cached per repeat.
+   */
+  _roofTileTexture(repeat) {
+    const key = repeat[0] + 'x' + repeat[1];
+    if (this._roofTexs?.[key]) return this._roofTexs[key];
+    if (!this._roofTexBase) {
+      const s = 256;
+      const c = document.createElement('canvas');
+      c.width = s;
+      c.height = s;
+      const g = c.getContext('2d');
+      const rand = rnd(56012);
+      g.fillStyle = '#7a241f'; // deep-red mortar bed
+      g.fillRect(0, 0, s, s);
+      const cols = 8;
+      const rows = 8;
+      const cw = s / cols;
+      const ch = s / rows;
+      for (let r = 0; r < rows; r++) {
+        for (let col = 0; col < cols; col++) {
+          const dark = rand() < 0.16;
+          const mul = dark ? 0.68 : 1;
+          const rr = (150 + rand() * 26) * mul;
+          const gg = (52 + rand() * 12) * mul;
+          const bb = (46 + rand() * 10) * mul;
+          g.fillStyle = `rgb(${rr | 0},${gg | 0},${bb | 0})`;
+          g.fillRect(col * cw + 1, r * ch + 1, cw - 2, ch - 2);
+          // shadow course + highlight lip (tile rows)
+          g.fillStyle = 'rgba(60,16,14,0.5)';
+          g.fillRect(col * cw + 1, r * ch + ch - 4, cw - 2, 3);
+          g.fillStyle = 'rgba(255,190,170,0.22)';
+          g.fillRect(col * cw + 1, r * ch + 1, cw - 2, 2);
+        }
+      }
+      this._roofTexBase = c;
+    }
+    const tex = new THREE.CanvasTexture(this._roofTexBase);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(repeat[0], repeat[1]);
+    tex.anisotropy = 8;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    this._roofTexs = this._roofTexs || {};
+    this._roofTexs[key] = tex;
+    return tex;
+  }
+
+  /**
+   * Castle banner texture: deep-red field with a gold border and the game's
+   * billboard palette (white shield + cyan band + coral #ff5a5f wheel + navy
+   * #1b2a41 accents). The emblem is drawn in the middle 128px band of the
+   * square canvas — the banner plane is 2:1, so that band maps 1:1 with no
+   * distortion (the plain red top/bottom thirds squish harmlessly).
+   */
+  _castleBannerTexture() {
+    if (this._bannerTex) return this._bannerTex;
+    const s = 256;
+    const c = document.createElement('canvas');
+    c.width = s;
+    c.height = s;
+    const g = c.getContext('2d');
+    g.fillStyle = '#d8433c'; // matches the pennant red
+    g.fillRect(0, 0, s, s);
+    const x0 = 24;
+    const x1 = 232;
+    const y0 = 64;
+    const y1 = 192;
+    // gold inner border
+    g.strokeStyle = '#ffd166';
+    g.lineWidth = 8;
+    g.strokeRect(x0, y0, x1 - x0, y1 - y0);
+    // white shield + cyan top band
+    g.fillStyle = '#ffffff';
+    g.beginPath();
+    g.moveTo(128, 74);
+    g.lineTo(182, 92);
+    g.lineTo(182, 138);
+    g.lineTo(128, 178);
+    g.lineTo(74, 138);
+    g.lineTo(74, 92);
+    g.closePath();
+    g.fill();
+    g.fillStyle = '#2ec4ff';
+    g.beginPath();
+    g.moveTo(128, 74);
+    g.lineTo(182, 92);
+    g.lineTo(182, 102);
+    g.lineTo(74, 102);
+    g.lineTo(74, 92);
+    g.closePath();
+    g.fill();
+    g.strokeStyle = '#1b2a41';
+    g.lineWidth = 5;
+    g.stroke();
+    // coral steering wheel (game logo color)
+    g.fillStyle = '#ff5a5f';
+    g.beginPath();
+    g.arc(128, 132, 32, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = '#1b2a41';
+    g.beginPath();
+    g.arc(128, 132, 11, 0, Math.PI * 2);
+    g.fill();
+    g.strokeStyle = '#1b2a41';
+    g.lineWidth = 6;
+    for (let k = 0; k < 3; k++) {
+      const a = (k / 3) * Math.PI * 2 + Math.PI / 2;
+      g.beginPath();
+      g.moveTo(128 + Math.cos(a) * 11, 132 + Math.sin(a) * 11);
+      g.lineTo(128 + Math.cos(a) * 30, 132 + Math.sin(a) * 30);
+      g.stroke();
+    }
+    this._bannerTex = new THREE.CanvasTexture(c);
+    this._bannerTex.anisotropy = 8;
+    this._bannerTex.colorSpace = THREE.SRGBColorSpace;
+    return this._bannerTex;
   }
 
   /**

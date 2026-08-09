@@ -121,6 +121,11 @@ const menu = new Menu({
 });
 menu.restoreMute(); // persisted mute state (audit minor)
 const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressItem(), onPause: togglePause, onDrift: (b) => { touchDrift = b; } });
+// AUDIT r4: the touch item button only reports presses — wire the release
+// edges here so hold-to-throw-back works on touch too (pointerup/cancel/leave).
+touch.itemBtn.addEventListener('pointerup', () => releaseItem());
+touch.itemBtn.addEventListener('pointercancel', () => releaseItem());
+touch.itemBtn.addEventListener('pointerleave', () => releaseItem());
 
 // Default player color matches their character's identity color; the menu
 // picker can override it (setPlayerColor → setBodyColor).
@@ -133,6 +138,11 @@ let offroadT = 0.55; // off-road gravel SFX accumulator (feedback audit)
 let lastHeldItem = null;
 let lastHeldItem2 = null; // reserve-slot toast tracker (audit r3 dual-slot)
 let suppressNextItemToast = 0; // swap feedback replaces the pickup fanfare for 1 frame
+// AUDIT r4 (rear throw): hold-to-arm-back input state. itemPressT records when
+// the item button went down (-1 = up); crossing REAR_HOLD_MS while held flips
+// the item bubble (Kart.setItemRear) and the release fires REARWARD.
+let itemPressT = -1;
+let rearArmed = false;
 let lastLap = 0;
 let finalLapShown = false; // FINAL LAP callout (audit v5 #5)
 let driftScreechAcc = 0; // drift tire screech accumulator
@@ -257,16 +267,27 @@ function wireMiniBoost(kart) {
   };
 }
 
+/** Selected driver index from the menu cards (window.__sk3dChar), clamped to
+ *  the roster. Defaults to 0 (Turbo) when unset/invalid. */
+function getPlayerCharIndex() {
+  const n = CONFIG.kart.characters.length;
+  const idx = Number(window.__sk3dChar);
+  return Number.isFinite(idx) && idx >= 0 && idx < n ? idx : 0;
+}
+
 function buildKarts() {
   const slots = buildGridPositions(CONFIG.game.numKarts);
   const characters = CONFIG.kart.characters; // roster: [0] player, [1..5] AI
+  // AUDIT r4: the menu's driver cards pick the player's character (was hard-
+  // coded to characters[0]); applyPlayerStats() turns its stats into physics.
+  const playerCharIdx = getPlayerCharIndex();
   // Player in slot 0 (back row center) unless demo.
   const playerSlot = DEMO ? 1 : 0;
   const playerPos = DEMO ? slots[1] : slots[0];
 
   playerKart = new Kart({
     color: playerColor, // menu picker wins; defaults to character[0].color
-    character: characters[0],
+    character: characters[playerCharIdx],
     isPlayer: true,
     number: 1,
     startPosition: playerPos.position,
@@ -283,19 +304,22 @@ function buildKarts() {
 
   aiKarts = [];
   let aiNum = 2;
-  let charIdx = 1; // AI roster: characters[1..5] (player owns characters[0])
+  // AUDIT r4: AI drive the REST of the roster (never the player's pick — no
+  // duplicate drivers on the grid). Cyclic over the 5 remaining characters.
+  const aiRoster = characters.filter((_, i) => i !== playerCharIdx);
+  let aiCharIdx = 0;
   for (let i = 0; i < CONFIG.game.numKarts; i++) {
     if (!DEMO && i === playerSlot) continue;
     if (DEMO && i === 1) continue; // slot 1 reserved for player visual
     const slot = slots[i];
     const kart = new Kart({
-      character: characters[charIdx % characters.length],
+      character: aiRoster[aiCharIdx % aiRoster.length],
       isPlayer: false,
       number: aiNum++,
       startPosition: slot.position,
       startHeading: slot.heading,
     });
-    charIdx++;
+    aiCharIdx++;
     scene.add(kart.group);
     wireMiniBoost(kart);
     aiKarts.push(kart);
@@ -311,6 +335,8 @@ function buildKarts() {
 // ---------------------------------------------------------------------------
 const input = { steer: 0, throttle: 0, brake: false, drift: false, swapItem: false };
 const keys = new Set();
+const REAR_HOLD_MS = CONFIG.items.rearHoldMs || 350; // hold ITEM to arm a rear throw
+
 let touchSteer = 0;
 let touchDrift = false;
 // AUDIT r3 dual-slot: Tab queues a one-frame swapItem input (consumed by
@@ -343,14 +369,38 @@ function pressItem() {
   // Dual-slot (audit r3): an item in EITHER slot can fire — useItem promotes
   // the reserve into the primary when the primary is empty.
   if (!playerKart.heldItem && !playerKart.heldItem2) return;
+  if (itemPressT >= 0) return; // already holding — ignore repeat presses
+  itemPressT = performance.now();
+}
+
+/** Release of the item button (audit r4): a quick tap throws FORWARD; a hold
+ *  ≥ REAR_HOLD_MS (~0.35s) arms and throws BACK — the MK8D core skill. */
+function releaseItem() {
+  if (itemPressT < 0) return;
+  const held = performance.now() - itemPressT;
+  itemPressT = -1;
+  disarmRear();
+  if (getState() !== STATES.RACE || !playerKart) return;
+  // The item can be knocked away mid-hold (lightning) — release is a no-op.
+  if (!playerKart.heldItem && !playerKart.heldItem2) return;
+  const rear = held >= REAR_HOLD_MS;
+  if (rear) playerKart._rearThrow = true; // consumed by PowerUp.useItem
   const used = playerKart.heldItem || playerKart.heldItem2;
   raceManager.useItem(playerKart);
+  playerKart._rearThrow = false; // cleared even if useItem bailed (no item)
   // Feedback: show what you just used (user: item use felt unclear).
   const LABELS = {
     mushroom: '🍄 MUSHROOM!', shell: '🐢 SHELL!', red_shell: '🔴 RED SHELL!',
     banana: '🍌 BANANA!', star: '⭐ STAR!', lightning: '⚡ LIGHTNING!', blue_shell: '🔵 BLUE SHELL!',
   };
-  if (LABELS[used]) hud.showMessage(LABELS[used]);
+  if (LABELS[used]) hud.showMessage(rear ? `↩️ ${LABELS[used]}` : LABELS[used]);
+}
+
+/** Reset the armed-rear visual when a hold ends, is cancelled or restarted. */
+function disarmRear() {
+  if (!rearArmed) return;
+  rearArmed = false;
+  playerKart?.setItemRear?.(false);
 }
 
 window.addEventListener('keydown', (e) => {
@@ -376,7 +426,11 @@ window.addEventListener('keydown', (e) => {
     togglePause();
   }
 });
-window.addEventListener('keyup', (e) => keys.delete(e.code));
+window.addEventListener('keyup', (e) => {
+  keys.delete(e.code);
+  // AUDIT r4: the item fires on RELEASE (tap = forward, hold = back).
+  if (e.code === 'Space') releaseItem();
+});
 window.addEventListener('pointerdown', () => audio.init(), { once: false });
 window.addEventListener('touchstart', () => audio.init(), { passive: true });
 
@@ -578,6 +632,9 @@ function restartRace() {
   lastHeldItem = null;
   lastHeldItem2 = null;
   suppressNextItemToast = 0;
+  // AUDIT r4: a mid-hold restart must not fire the old item into the new race.
+  itemPressT = -1;
+  disarmRear();
   offroadT = 0.55;
   if (playerKart) playerKart.position = CONFIG.game.numKarts;
   hud.reset();
@@ -851,6 +908,18 @@ loop.start((dt, t) => {
           swapItem: input.swapItem,
         });
       }
+      // Hold-to-throw-back (audit r4): crossing the hold threshold arms the
+      // rear aim — the item bubble flips across the kart as the visual cue.
+      if (itemPressT >= 0) {
+        if (!rearArmed && performance.now() - itemPressT >= REAR_HOLD_MS) {
+          rearArmed = true;
+          playerKart?.setItemRear?.(true);
+          audio.play('uiClick', { volume: 0.5 }); // arm cue
+          hud.showRearHint?.(); // one-time tip (HUD persists the flag)
+        }
+      } else if (rearArmed) {
+        disarmRear();
+      }
       for (const ctrl of raceManager.aiControllers) ctrl.update(dt);
       raceManager.update(dt);
       hud.update(raceManager, playerKart, raceManager.karts);
@@ -1042,6 +1111,7 @@ window.__sk3d = {
   addShake,
   settings, // QA: current difficulty/assist settings { cc, autoAccel, steerAssist }
   updateCamera, // QA hook: can be stubbed to freeze the chase camera
+  playerCharIndex: () => getPlayerCharIndex(), // QA: selected driver (audit r4)
   DEMO,
   // QA debug: countdown internals (restart-flow regression tests read these).
   get countdownT() { return countdownT; },

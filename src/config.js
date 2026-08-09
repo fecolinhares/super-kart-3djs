@@ -96,6 +96,9 @@ export const CONFIG = {
     lightningDurationMs: 4500,
     lightningScale: 0.55,
     mushroomBoostMs: 1500,
+    // AUDIT r4: hold the item button this long to arm a REAR throw (the
+    // MK8D hold-to-throw-back skill — release fires shells/bananas backward).
+    rearHoldMs: 350,
     maxHeldItems: 2, // MK8 dual-slot: primary + reserve (audit r3: "no hold/swap")
     tripleChance: 1 / 6, // ~1 in 6 item boxes grants 3 queued items (MK8 triple)
     coinCount: 10, // gold coins placed near the road edge

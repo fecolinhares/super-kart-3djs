@@ -139,6 +139,11 @@ export function useItem(kart, ctx = {}) {
   const type = kart.heldItem;
   if (!type) return;
   kart.heldItem = null; // consume immediately
+  // AUDIT r4 (rear throw): main.js sets kart._rearThrow before releasing a
+  // hold that crossed the arm threshold. Consumed here so it never leaks
+  // into a later use (ctx.rear is the programmatic path — AI never sets it).
+  const rear = !!(ctx.rear || kart._rearThrow);
+  kart._rearThrow = false;
   const audio = ctx.audio;
 
   switch (type) {
@@ -151,7 +156,7 @@ export function useItem(kart, ctx = {}) {
       break;
 
     case PowerUpType.SHELL: {
-      const proj = new ShellProjectile(kart, { homing: false, ...ctx });
+      const proj = new ShellProjectile(kart, { homing: false, rear, ...ctx });
       ctx.raceManager?.addActiveItem?.(proj);
       audio?.play?.('shell');
       ctx.particles?.emit?.('sparkle', kartPosition(kart), { count: 8, speed: 4, size: 0.22 });
@@ -159,8 +164,10 @@ export function useItem(kart, ctx = {}) {
     }
 
     case PowerUpType.RED_SHELL: {
-      const target = pickRedShellTarget(kart, ctx);
-      const proj = new ShellProjectile(kart, { homing: !!target, targetKart: target, ...ctx });
+      // Rear-thrown red shells home on the nearest rival BEHIND the shooter
+      // (MK8D: backward reds punish chasers).
+      const target = pickRedShellTarget(kart, ctx, rear);
+      const proj = new ShellProjectile(kart, { homing: !!target, targetKart: target, rear, ...ctx });
       ctx.raceManager?.addActiveItem?.(proj);
       audio?.play?.('redShell');
       ctx.particles?.emit?.('sparkle', kartPosition(kart), { count: 8, speed: 4, size: 0.22 });
@@ -175,7 +182,7 @@ export function useItem(kart, ctx = {}) {
         if (k.finished) continue;
         if (!leader || k.position < leader.position) leader = k;
       }
-      const proj = new ShellProjectile(kart, { homing: true, targetKart: leader, blue: true, ...ctx });
+      const proj = new ShellProjectile(kart, { homing: true, targetKart: leader, blue: true, rear, ...ctx });
       ctx.raceManager?.addActiveItem?.(proj);
       audio?.play?.('redShell');
       ctx.particles?.emit?.('sparkle', kartPosition(kart), { count: 12, speed: 5, size: 0.26, color: 0x1f3fc8 });
@@ -183,7 +190,7 @@ export function useItem(kart, ctx = {}) {
     }
 
     case PowerUpType.BANANA: {
-      const banana = new Banana(kart, ctx);
+      const banana = new Banana(kart, { ...ctx, rear });
       ctx.raceManager?.addActiveItem?.(banana);
       audio?.play?.('banana'); // cartoon boing (was generic 'useItem' blip)
       break;
@@ -225,11 +232,13 @@ export function useItem(kart, ctx = {}) {
 }
 
 /** Choose the homing target for a red shell: preferred target if it is ahead
- *  of the owner, otherwise the nearest rival ahead of the owner. */
-function pickRedShellTarget(owner, ctx) {
+ *  of the owner, otherwise the nearest rival ahead of the owner. With
+ *  `behind` (rear throw, audit r4) it picks the nearest rival BEHIND the
+ *  owner instead — backward reds hunt chasers, MK8D-style. */
+function pickRedShellTarget(owner, ctx, behind = false) {
   const karts = ctx.karts || [];
   const preferred = ctx.targetKart;
-  if (preferred && preferred !== owner && !preferred.finished && isAheadOf(owner, preferred)) {
+  if (!behind && preferred && preferred !== owner && !preferred.finished && isAheadOf(owner, preferred)) {
     return preferred;
   }
   const opos = kartPosition(owner);
@@ -242,7 +251,7 @@ function pickRedShellTarget(owner, ctx) {
     const dx = p.x - opos.x;
     const dz = p.z - opos.z;
     const along = dx * dir.x + dz * dir.y; // positive = ahead of owner
-    if (along <= 0) continue;
+    if (behind ? along >= 0 : along <= 0) continue;
     const d = dx * dx + dz * dz;
     if (d < bestD) {
       bestD = d;
@@ -262,7 +271,8 @@ function isAheadOf(a, b) {
 
 /** A shell: green = straight, red = homing. Hits any kart (except the owner
  *  for the first 0.5s) within 1.0m → kart.hitShell(). Lifetime 8s, culled
- *  when it flies off the road. */
+ *  when it flies off the road. `rear` shells (hold-to-throw-back, audit r4)
+ *  spawn at the kart tail and travel against its heading. */
 export class ShellProjectile {
   constructor(ownerKart, opts = {}) {
     this.owner = ownerKart;
@@ -275,7 +285,11 @@ export class ShellProjectile {
     this.life = 8; // seconds
     this.dead = false;
     this.speed = CONFIG.items.shellSpeed;
+    this.rear = !!opts.rear;
     this.dir = headingVector(ownerKart);
+    // Rear throws travel AGAINST the kart's heading (spawn lands at the tail
+    // via the same offset math below — dir is already negated).
+    if (this.rear) this.dir.multiplyScalar(-1);
 
     this.centerline = opts.centerline || this.raceManager?.centerline || null;
     this.spacing = opts.spacing || this.raceManager?.centerlineSpacing || 2.5;
@@ -325,8 +339,8 @@ export class ShellProjectile {
     // Green shell follows the racing line (MK8 behavior): steer toward the
     // nearest centerline tangent so it hugs the track instead of flying off
     // in a straight line and dying in the off-track culling — the classic
-    // "shell does nothing" bug.
-    if (!this.homing && this.centerline && this.centerline.length) {
+    // "shell does nothing" bug. Rear shells fly straight back instead.
+    if (!this.homing && !this.rear && this.centerline && this.centerline.length) {
       const cl = this.centerline;
       const n = cl.length;
       let best = this._nearIdx;
@@ -431,7 +445,8 @@ export class ShellProjectile {
 // ---------------------------------------------------------------------------
 
 /** A banana dropped behind the owner. Collision → kart.hitBanana() (spin-out).
- *  Fades out after 25s so stale hazards don't linger forever. */
+ *  Fades out after 25s so stale hazards don't linger forever. `rear` drops
+ *  (hold-to-throw-back, audit r4) land further back so they read as thrown. */
 export class Banana {
   constructor(ownerKart, opts = {}) {
     this.owner = ownerKart;
@@ -448,7 +463,8 @@ export class Banana {
     this._offAccum = 0;
 
     const opos = kartPosition(ownerKart);
-    const behind = headingVector(ownerKart).multiplyScalar(-1.5);
+    const drop = opts.rear ? -2.2 : -1.5; // rear drops land further behind
+    const behind = headingVector(ownerKart).multiplyScalar(drop);
     this.mesh = buildBananaMesh();
     this.mesh.position.set(opos.x + behind.x, opos.y + 0.3, opos.z + behind.y);
     this.mesh.rotation.y = Math.random() * Math.PI * 2;

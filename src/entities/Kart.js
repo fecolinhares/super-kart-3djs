@@ -74,6 +74,9 @@ export class Kart {
     this.position = 0; // race rank
     this.totalTime = 0;
     this.heldItem = null;
+    // AUDIT r4: rear-throw arm flag — main.js sets it before a release that
+    // crossed the hold threshold; PowerUp.useItem reads + consumes it.
+    this._rearThrow = false;
     // AUDIT r3: second held-item slot (MK8 dual-slot) + triple-item stacks.
     this.heldItem2 = null; // reserve slot (swap key / click swaps with heldItem)
     this._heldItemCount = 1; // stack size for heldItem (1 = single, 3 = triple)
@@ -113,6 +116,7 @@ export class Kart {
     // shows the actual item). Mini toon meshes per type + orb fallback.
     this.heldItemGroup = new THREE.Group();
     this.heldItemGroup.position.set(0, 0.72, -0.72);
+    this._itemRear = false; // AUDIT r4: rear-aim armed (bubble flipped across the kart)
     this._heldMeshes = {};
     // mushroom: red cap + white stem
     const mush = new THREE.Group();
@@ -949,6 +953,21 @@ export class Kart {
     return this._controls;
   }
 
+  /**
+   * Arm/disarm the held item for a REAR throw (audit r4 — MK8D hold-to-throw-
+   * back). The item bubble flips across the kart (position.z sign) and rides a
+   * touch higher as the visible aim cue while armed; PowerUp.useItem spawns
+   * rear projectiles at the kart tail.
+   * @param {boolean} armed
+   */
+  setItemRear(armed) {
+    this._itemRear = !!armed;
+    if (this.heldItemGroup) {
+      this.heldItemGroup.position.z = this._itemRear ? 0.72 : -0.72;
+      this.heldItemGroup.position.y = this._itemRear ? 0.95 : 0.72;
+    }
+  }
+
   /** Full reset for race restart — position, heading, timers, progress. */
   restart() {
     const s = this.state;
@@ -973,6 +992,8 @@ export class Kart {
     this.heldItem2 = null; // dual-slot + triple stacks reset with the race
     this._heldItemCount = 1;
     this._heldItem2Count = 1;
+    this._rearThrow = false; // AUDIT r4: no stale rear-aim into the new race
+    this.setItemRear(false); // item bubble back to its default spot
     this._coins = 0; // coin bonus is per-race (MK8D)
     this.invincible = false;
     this.starred = false;
@@ -1171,6 +1192,8 @@ export class Kart {
           if (this._heldOrbMat.color.getHex() !== c) this._heldOrbMat.color.setHex(c);
         }
         this.heldItemGroup.rotation.y += dt * 2.4; // gentle spin
+        // Rear-armed pulse: the bubble throbs while aimed backward (audit r4).
+        this.heldItemGroup.scale.setScalar(this._itemRear ? 1 + Math.sin(this._t * 12) * 0.1 : 1);
       }
     }
     // Second bubble sync (audit r3): tint by reserve type, scale for triples.
