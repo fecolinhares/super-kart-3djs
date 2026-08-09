@@ -25,7 +25,7 @@ export function createScene(container) {
     renderer.shadowMap.type = TEST ? THREE.PCFShadowMap : THREE.PCFShadowMap;
   }
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.12;
+  renderer.toneMappingExposure = 1.0;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   container.appendChild(renderer.domElement);
 

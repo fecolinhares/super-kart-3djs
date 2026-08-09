@@ -270,8 +270,8 @@ export class Kart {
       c.width = 64; c.height = 64;
       const g = c.getContext('2d');
       const grad = g.createRadialGradient(32, 32, 6, 32, 32, 32);
-      grad.addColorStop(0, 'rgba(0,0,0,0.55)');
-      grad.addColorStop(0.6, 'rgba(0,0,0,0.28)');
+      grad.addColorStop(0, 'rgba(0,0,0,0.62)');
+      grad.addColorStop(0.6, 'rgba(0,0,0,0.32)');
       grad.addColorStop(1, 'rgba(0,0,0,0)');
       g.fillStyle = grad;
       g.fillRect(0, 0, 64, 64);

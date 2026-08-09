@@ -230,7 +230,7 @@ export class Environment {
     // --- lights (AAA 3-point rig: key + fill + sky/ground hemi) ----------
     // NEON CITY swaps the warm sunny rig for dim cool moonlight (the moon
     // disc in buildNeonCity sits on the same axis, so shadows match it).
-    const hemi = new THREE.HemisphereLight(night ? 0x40509a : 0xd8e8ff, night ? 0x141430 : 0x7bca7f, night ? 0.55 : 0.9);
+    const hemi = new THREE.HemisphereLight(night ? 0x40509a : 0xd8e8ff, night ? 0x141430 : 0x7bca7f, night ? 0.55 : 0.72);
     scene.add(hemi);
 
     // KEY: primary illumination — warm day sun, or cool moonlit blue at night.
