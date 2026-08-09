@@ -16,13 +16,18 @@ A complete cartoon arcade kart racer, 100% procedural (zero external assets):
   anti-leader pressure valve). Holding a shell/banana behind **blocks an
   incoming hit** (MK8 item-hold pillar).
 - **Slipstream drafting**: ride in a rival's wake (~2.5m, +8% top speed) with
-  wake streak particles + a pulsing DRAFT indicator — the core non-item
-  comeback tool.
+  wake streak particles + a pulsing DRAFT indicator; **leaving a wake grants
+  a 600ms slingshot boost** (3s cooldown) — the core non-item comeback tool.
+- **Rocket start**: hold throttle at GO for a 900ms launch boost — the
+  MK8/CTR signature opening skill.
 - **Trick ramps**: 2 launch ramps on straights (toon orange + painted chevrons);
   press throttle mid-air to arm a trick → landing mini-boost. Ramp launch and
   the arm window are tuned so the trick reliably fires.
 - **Blue Shell** bypasses held-item blocking (only star/invincibility protects
   — MK8 spiny behavior), so the leader can't passively shield it.
+- **Held-item bubbles** on every kart (colored orb + ring, spinning) — rivals'
+  shields are readable; **brake lights** flare on braking/spin-out; lightning
+  knocks held items away + a shock hop.
 - **Drift mini-boost** charge-scaled (300–750ms by charge) with charge-colored
   sparks and a satisfying release SFX (`driftReleaseMiniBoost`, player + AI
   with stereo pan). Charge-scaled drama: bigger charge = louder pop + more
