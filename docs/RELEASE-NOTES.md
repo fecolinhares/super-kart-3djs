@@ -5,6 +5,23 @@
 
 ## v0.2.0-draft — the AAA pass (2026-08-09)
 
+### Gameplay round-2 (auditor-driven)
+- **Trick ramps now actually launch the kart** — unit test proved the launch
+  never fired (the airborne threshold ate the vY the same frame). Karts now
+  CLIMB the wedge (ground height interpolates the ramp slope) and launch off
+  the top into a real ~0.4s arc — the mid-air trick + landing boost works.
+- **Kart collisions are speed-aware**: rear-ender shoves the front kart less
+  and pays a small speed penalty; finished karts are separated but never
+  accelerated (were rammed like targets).
+- **AI controllers unified** on `raceManager.aiControllers` (single source of
+  truth) — kills the duplicate per-frame AI update and the cruise-controller
+  leak at its root.
+- **Restart hygiene**: `lastHeldItem`/`offroadT` reset so no stale item toast
+  or gravel rumble bleeds into the new race.
+- **Mobile UX**: touch buttons hide on pause (they blocked tap-to-resume) and
+  when returning to the menu (they floated over the card).
+- **Sky dome** 64×32 segments (24 faceted the horizon).
+
 ### Bug fixes (user-reported)
 - **Restart regains player control**: the finish-cruise AIController attached
   to the player kart is now removed on restart (`Race Again` / `R`) — the AI
