@@ -174,8 +174,14 @@ function buildRoadRibbon(path, length, opts = {}) {
     mat.map = tex;
   }
   // Tint applied AFTER the map so an opts.color darkens the textured asphalt
-  // (NEON CITY's 0x2b2f3a) instead of being reset to white by the map block.
+  // (NEON CITY's 0x3c4152) instead of being reset to white by the map block.
   if (opts.color) mat.color.setHex(opts.color);
+  // Night glow (NEON CITY): a faint cool emissive keeps the charcoal asphalt
+  // from reading as pure black under the dim moon key (vision critic 2/10).
+  if (opts.emissive) {
+    mat.emissive.setHex(opts.emissive);
+    mat.emissiveIntensity = opts.emissiveIntensity ?? 0.5;
+  }
 
   return new THREE.Mesh(geo, mat);
 }
@@ -990,7 +996,11 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   group.add(shoulder);
 
   const ribbonOpts = { texture: roadTexture };
-  if (isCity) ribbonOpts.color = 0x3c4152; // NEON CITY: grey-charcoal asphalt (vision critic: near-black absorbed all detail — needs tone + neon sheen)
+  if (isCity) {
+    ribbonOpts.color = 0x4a5062; // charcoal, not black
+    ribbonOpts.emissive = 0x1a2440; // faint cool night sheen on the pavement
+    ribbonOpts.emissiveIntensity = 0.55;
+  }
   const ribbon = buildRoadRibbon(path, length, ribbonOpts);
   ribbon.receiveShadow = true;
   group.add(ribbon);
