@@ -1,10 +1,53 @@
-# Release Notes — Super Kart 3D.js v0.1.0
+# Release Notes — Super Kart 3D.js
 
-**Date:** 2026-08-08 · **Status:** 🚀 Release candidate
+**Date:** 2026-08-09 · **Status:** 🚀 v0.2.0-draft (AAA visual/audio pass)
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
-## What's new
-A complete cartoon arcade kart racer, 100% procedural (zero external assets):
+## v0.2.0-draft — the AAA pass (2026-08-09)
+
+### Bug fixes (user-reported)
+- **Restart regains player control**: the finish-cruise AIController attached
+  to the player kart is now removed on restart (`Race Again` / `R`) — the AI
+  no longer fights your steering after a reset ("the game was driving the car").
+  Regression-tested by signature (`playerAIControlled` false→true→false).
+- **Trick ramps flush with the road**: ramps are now wedges (bottom face flat
+  on the asphalt, slope baked into the geometry) instead of boxes rotated
+  around their center — the low end no longer sinks into the tarmac or floats.
+- **Crowd off the racing line**: fixed the wrap-segment sampling bug that
+  scattered the "start straight" spectators across the whole circuit (and into
+  curves); rows pushed outside the guard-rail line; grandstands check all four
+  corners against the track.
+
+### Visual — MK8D bar
+- **Karts rebuilt**: LatheGeometry molded shell (nose→body→tail lozenge)
+  replaces the box chassis; cockpit tub + seat/headrest; shaped spoiler blade
+  with struts + endplates; wheels with tread ribs, chrome disc rims + hub caps
+  that roll with the tire; chrome metal for rims/exhaust; fine outlines on
+  painted panels so clearcoat shows (envMapIntensity 2.0).
+- **Track**: beveled/chamfered curb profile (rounded kerb stones, not flat
+  tiles); guard rails with support posts every ~4m; trick ramp presence
+  increased; asphalt reworked to 512px with dashed broken tire-wear ribbons
+  (kills the horizontal banding) + racing-line rubber buildup.
+- **Environment**: FOUR depth-banded mountain ranges with distinct hues,
+  warm horizon haze rings, clouds in organized sky lanes (fog:false), two-layer
+  water with shimmer, denser grandstand/crowd.
+- **Post-processing**: composer now renders into a HalfFloat MSAA target
+  (samples:4) — clean edges through bloom; bloom tamed (0.38/0.95) so whites
+  don't blow out; brighter sunny-sky IBL with a hard sun core for defined
+  clearcoat/chrome reflections.
+
+### Audio — no more "8-bit"
+- **Master chain**: EQ (hp28 + presence + high shelf) → soft tanh waveshaper →
+  compressor, plus a procedural convolution reverb send (generated IR) so SFX
+  and music share a believable space.
+- **Engine loops**: sine sub-oscillator + per-voice saturation — real
+  combustion body instead of a thin 2-osc synth buzz.
+- **SFX**: raw squares replaced (hover/click/use-item/pos-change/countdown/
+  mini-boost) with triangle/sine + chime bodies.
+- **Music**: sidechain-style kick duck (~12% pump), kick click transient,
+  snare body tone — the mix breathes.
+
+---
 
 ## 🏁 Track 2: NEON CITY (menu track switch or `?track=2`)
 - Tight urban circuit (649m — long straights + hairpins, same physics).
