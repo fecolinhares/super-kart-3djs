@@ -37,10 +37,12 @@ function rnd(seed) {
 }
 
 // Fixed water bodies (mirrors buildWater) so organized props never spawn
-// inside the lakes.
+// inside the lakes. The field pond (buildFieldLandmarks) is listed here too
+// so generic rocks/bushes/flowers/trees keep clear of its disc and rim.
 const WATER_SPOTS = [
   { x: 120, z: 130, r: 34 },
   { x: -110, z: 110, r: 29 },
+  { x: 115, z: -80, r: 5 },
 ];
 function inWater(x, z, margin = 4) {
   for (const w of WATER_SPOTS) {
@@ -51,12 +53,29 @@ function inWater(x, z, margin = 4) {
   return false;
 }
 
+// Field landmark centers (buildFieldLandmarks) — forest clumps keep a
+// buffer around them so big canopies never clip the hill / rocks / windmill.
+const LANDMARK_SPOTS = [
+  { x: -95, z: -80, r: 20 }, // hilltop grove (hill is 12m radius)
+  { x: -100, z: 75, r: 13 }, // rock formation
+  { x: 90, z: 80, r: 11 },   // windmill (blades sweep ~3m)
+];
+function nearLandmark(x, z, margin = 0) {
+  for (const l of LANDMARK_SPOTS) {
+    const dx = x - l.x;
+    const dz = z - l.z;
+    if (dx * dx + dz * dz < (l.r + margin) * (l.r + margin)) return true;
+  }
+  return false;
+}
+
 export class Environment {
   constructor() {
     this.clouds = [];
     this.balloons = [];
     this.waterMeshes = [];
     this.flagMeshes = [];
+    this.windmillRotors = [];
     this.sun = null;
     this._track = null;
     this._trackSamples = null;
@@ -152,6 +171,7 @@ export class Environment {
     this.buildPalms(scene);
     this.buildForest(scene);
     this.buildProps(scene);
+    this.buildFieldLandmarks(scene);
     this.buildRoadsideFlowersAndRocks(scene, track);
     this.buildLightPoles(scene, track);
     this.buildDistanceMarks(scene); // 100m/200m posts (was dead code — never called)
@@ -302,10 +322,15 @@ export class Environment {
     const leafMat = toonMaterial(0x2fa84f, {});
     const leafMatDark = toonMaterial(0x279142, {});
 
+    // 18 spots, one per ~40° around the loop. The original list had 9 spots
+    // sitting within the road clearance band (they were silently skipped by
+    // _onTrack — half the palms never spawned, and the survivors leaned
+    // south). All spots are now >12.5m from the centerline, N/S balanced
+    // 9/9, L/R 8/10.
     const spots = [
-      [-70, 18], [-52, -50], [30, -66], [68, -30], [62, 24],
-      [36, 62], [-14, 70], [-52, 50], [-40, -14], [0, -40],
-      [24, -20], [-20, 20], [80, 8], [-80, -20], [55, 48],
+      [-74, 32], [-52, -64], [30, -78], [68, -44], [62, 44],
+      [36, 74], [-14, 82], [-52, 62], [-40, -14], [0, -40],
+      [24, -20], [-20, 20], [80, 8], [-80, -20], [55, 60],
       [-30, -66], [10, 36], [90, -8],
     ];
 
@@ -444,14 +469,18 @@ export class Environment {
       }
     }
 
-    const clusterCount = 7;
+    // 8 clumps × 45° fans = one per compass octant. The old 7-fan ring
+    // (0.4 offset) leaned right: 4 fans in x>0 vs 3 in x<0 → 13L/19R trees.
+    // 8 fans rebalance to 4/4; nearLandmark keeps canopies off the field
+    // landmarks (hill / rock formation / windmill).
+    const clusterCount = 8;
     for (let c = 0; c < clusterCount; c++) {
       const rand = rnd(7000 + c);
       const ca = (c / clusterCount) * Math.PI * 2 + 0.4;
       const cr = 92 + rand() * 70; // 92-162 m out
       const cx = Math.cos(ca) * cr;
       const cz = Math.sin(ca) * cr;
-      if (this._onTrack(cx, cz, 18) || inWater(cx, cz, 8)) continue;
+      if (this._onTrack(cx, cz, 18) || inWater(cx, cz, 8) || nearLandmark(cx, cz, 6)) continue;
       const per = 5 + Math.floor(rand() * 3); // 5-7 trees per clump
       for (let k = 0; k < per; k++) {
         const r2 = rnd(7000 + c * 10 + k);
@@ -459,7 +488,7 @@ export class Environment {
         const r3 = cr + (r2() - 0.5) * 12;
         const x = Math.cos(a2) * r3;
         const z = Math.sin(a2) * r3;
-        if (inWater(x, z, 4)) continue;
+        if (inWater(x, z, 4) || nearLandmark(x, z, 4)) continue;
         const speciesIdx = selectSpecies(7000 + c * 10 + k);
         trees.push({ x, z, s: 1.0 + r2() * 0.9, speciesIdx });
       }
@@ -832,6 +861,173 @@ export class Environment {
         scene.add(leg);
       }
     }
+  }
+
+  /**
+   * Distant "points of interest" for the open field (vision audit: beyond
+   * the track verge the field read empty — MK8 fills it with readable
+   * landmarks). Four organized clusters, one per compass quadrant, all
+   * >60m from the centerline (guarded with _onTrack margin 50 so nothing
+   * ever touches the road):
+   *   pond (SE), hilltop grove (SW), rock formation (NW), windmill (NE).
+   * Deterministic seeded rnd; every prop sits at smoothH terrain height.
+   */
+  buildFieldLandmarks(scene) {
+    const gy = (x, z) => smoothH(x, z) * 0.5 - 0.25;
+    // Place only when the spot clears the road (>50m from centerline).
+    const place = (x, z, fn) => {
+      if (!this._onTrack(x, z, 50)) fn();
+    };
+
+    // --- (a) pond: flat blue disc + darker rim ring + 3 edge rocks ---
+    place(115, -80, () => {
+      const px = 115;
+      const pz = -80;
+      const baseY = gy(px, pz);
+      const water = new THREE.Mesh(
+        new THREE.CircleGeometry(4, 24),
+        new THREE.MeshToonMaterial({
+          color: 0x3ec6ff,
+          transparent: true,
+          opacity: 0.8,
+          emissive: 0x1e9bd6,
+          emissiveIntensity: 0.35,
+        })
+      );
+      water.rotation.x = -Math.PI / 2;
+      water.position.set(px, baseY + 0.06, pz);
+      water.userData = { baseY: baseY + 0.06, phase: 3.9 };
+      scene.add(water);
+      this.waterMeshes.push(water); // shimmers with the lakes in update()
+      // darker rim ring hugging the disc edge
+      const rim = new THREE.Mesh(
+        new THREE.RingGeometry(3.2, 4, 24),
+        toonMaterial(0x1e8ecf, {})
+      );
+      rim.rotation.x = -Math.PI / 2;
+      rim.position.set(px, baseY + 0.03, pz);
+      scene.add(rim);
+      // 3 rocks banked on the rim (same dodecahedron style as buildProps)
+      const rockGeo = new THREE.DodecahedronGeometry(0.55, 1);
+      const rockMat = toonMaterial(0x9aa0ad, {});
+      for (let i = 0; i < 3; i++) {
+        const rand = rnd(46000 + i);
+        const a = (i / 3) * Math.PI * 2 + rand() * 1.2;
+        const r = 4.1 + rand() * 0.8;
+        const s = 0.5 + rand() * 0.45;
+        const rock = new THREE.Mesh(rockGeo, rockMat);
+        rock.position.set(px + Math.cos(a) * r, baseY + 0.3 * s, pz + Math.sin(a) * r);
+        rock.scale.setScalar(s);
+        rock.rotation.set((rand() - 0.5) * 0.6, rand() * Math.PI, (rand() - 0.5) * 0.6);
+        rock.castShadow = true;
+        scene.add(rock);
+      }
+    });
+
+    // --- (b) hilltop grove: flattened-cone hill + 6 trees on the slope ---
+    place(-95, -80, () => {
+      const hx = -95;
+      const hz = -80;
+      const baseY = gy(hx, hz);
+      const hill = new THREE.Mesh(
+        new THREE.ConeGeometry(12, 2, 24),
+        toonMaterial(0x3f9e4d, {})
+      );
+      hill.position.set(hx, baseY + 1, hz); // base at ground, 2m tall
+      hill.castShadow = true;
+      hill.receiveShadow = true;
+      scene.add(hill);
+      // 6 compact trees (smaller than forest trees) fanned around the peak
+      const trunkMat = toonMaterial(0x6d4c41, {});
+      const leafMat = toonMaterial(0x2e8b57, {});
+      const leafMatDark = toonMaterial(0x256b41, {});
+      const trunkGeo = new THREE.CylinderGeometry(0.16, 0.22, 2.0, 10);
+      const leafGeo = new THREE.SphereGeometry(0.9, 12, 9);
+      for (let i = 0; i < 6; i++) {
+        const rand = rnd(47000 + i);
+        const a = (i / 6) * Math.PI * 2 + 0.5;
+        const r = 2.5 + rand() * 5.5; // 2.5-8m from the peak
+        const tx = hx + Math.cos(a) * r;
+        const tz = hz + Math.sin(a) * r;
+        const h = 2 * (1 - r / 12); // hill height under the tree
+        const s = 0.8 + rand() * 0.4;
+        const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+        trunk.position.set(tx, baseY + h + 1.0 * s, tz);
+        trunk.rotation.z = (rand() - 0.5) * 0.2;
+        trunk.rotation.x = (rand() - 0.5) * 0.2;
+        trunk.castShadow = true;
+        scene.add(trunk);
+        const leaf = new THREE.Mesh(leafGeo, i % 2 ? leafMatDark : leafMat);
+        leaf.position.set(tx, baseY + h + 2.2 * s, tz);
+        leaf.scale.set(s * 1.05, s * 0.9, s * 1.05);
+        leaf.castShadow = true;
+        scene.add(leaf);
+      }
+    });
+
+    // --- (c) big rock formation: 4 large dodecahedra (1.6-2.4m) grouped ---
+    place(-100, 75, () => {
+      const rx = -100;
+      const rz = 75;
+      const baseY = gy(rx, rz);
+      const geo = new THREE.DodecahedronGeometry(1, 1);
+      const mat = toonMaterial(0xa9a9b8, {});
+      const scales = [2.4, 1.9, 1.6, 2.1];
+      for (let i = 0; i < scales.length; i++) {
+        const rand = rnd(48000 + i);
+        const a = (i / scales.length) * Math.PI * 2 + 0.9;
+        const d = 2.2 + rand() * 2.4; // 2.2-4.6m from the cluster center
+        const s = scales[i];
+        const rock = new THREE.Mesh(geo, mat);
+        rock.position.set(rx + Math.cos(a) * d, baseY + 0.33 * s, rz + Math.sin(a) * d);
+        rock.scale.set(s, s * 0.9, s);
+        rock.rotation.set((rand() - 0.5) * 0.5, rand() * Math.PI, (rand() - 0.5) * 0.5);
+        rock.castShadow = true;
+        scene.add(rock);
+      }
+    });
+
+    // --- (d) windmill: cylinder tower + red cap + 4 box blades on a hub ---
+    place(90, 80, () => {
+      const wx = 90;
+      const wz = 80;
+      const baseY = gy(wx, wz);
+      const tower = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.5, 0.68, 6, 12),
+        toonMaterial(0xf4f0e6, {})
+      );
+      tower.position.set(wx, baseY + 3, wz);
+      tower.castShadow = true;
+      scene.add(tower);
+      const cap = new THREE.Mesh(
+        new THREE.ConeGeometry(0.85, 1.1, 12),
+        toonMaterial(0xe2504f, {}) // red cap reads at race distance
+      );
+      cap.position.set(wx, baseY + 6.5, wz);
+      scene.add(cap);
+      // rotor faces the track; the inner spin group turns the blades
+      const rotor = new THREE.Group();
+      rotor.position.set(wx, baseY + 6.2, wz);
+      rotor.rotation.y = 2.5;
+      const spin = new THREE.Group();
+      const bladeGeo = new THREE.BoxGeometry(0.22, 3.0, 0.09);
+      const bladeMat = toonMaterial(0xf4f0e6, {});
+      for (let i = 0; i < 4; i++) {
+        const blade = new THREE.Mesh(bladeGeo, bladeMat);
+        blade.position.y = 1.5;
+        blade.rotation.z = (i / 4) * Math.PI * 2;
+        blade.castShadow = true;
+        spin.add(blade);
+      }
+      const hub = new THREE.Mesh(
+        new THREE.SphereGeometry(0.34, 10, 8),
+        toonMaterial(0xe2504f, {})
+      );
+      spin.add(hub);
+      rotor.add(spin);
+      scene.add(rotor);
+      this.windmillRotors.push(spin); // update() spins the blades
+    });
   }
 
   /**
@@ -1468,6 +1664,10 @@ export class Environment {
     for (const b of this.balloons || []) {
       b.position.y = b.userData.baseY + Math.sin(t * b.userData.speed + b.userData.phase) * 1.6;
       b.rotation.y += dt * 0.02;
+    }
+    // Windmill blades turn lazily in the breeze.
+    for (const r of this.windmillRotors || []) {
+      r.rotation.z += dt * 1.5;
     }
     // Water shimmer
     for (const w of this.waterMeshes) {

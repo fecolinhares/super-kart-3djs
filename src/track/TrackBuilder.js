@@ -36,11 +36,27 @@ export function getRoadWidthAt() {
 }
 
 // Deterministic smooth pseudo-noise for terrain (no external libs).
+// Returns raw undulation in ~[-0.42, +0.42]. The corridor near the road
+// keeps the historical *0.5 scale (±0.25m — bit-identical to the original
+// build, so the road/shoulders/kerbs and kart physics are untouched);
+// buildTerrain amplifies this with a distance falloff so the open field
+// rolls into gentle hills while the racing surface stays flat.
 function smoothH(x, z) {
   return (
     Math.sin(x * 0.08) * Math.cos(z * 0.1) * 0.18 +
     Math.sin(x * 0.31 + 1.7) * Math.cos(z * 0.23) * 0.09 +
     Math.sin(x * 0.045 + z * 0.06) * 0.15
+  );
+}
+
+// Broad low-frequency landforms for the distance: ~80m wavelength, ±2.0m
+// amplitude. Combined with smoothH's field amplification these become the
+// rolling hills on the horizon. The corridor falloff in buildTerrain keeps
+// them out of the racing surface entirely.
+function broadHill(x, z) {
+  return (
+    Math.sin(x * 0.0785) * Math.cos(z * 0.0785) * 1.4 +
+    Math.sin(x * 0.0314 + z * 0.0471 + 1.3) * 0.6
   );
 }
 
@@ -105,16 +121,52 @@ function buildRoadRibbon(path, length, opts = {}) {
   return new THREE.Mesh(geo, mat);
 }
 
-function buildTerrain() {
+function buildTerrain(path) {
   const size = 460;
   const seg = 72;
   const geo = new THREE.PlaneGeometry(size, size, seg, seg);
   geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position;
+
+  // Pre-sample the track loop so every terrain vertex can measure its
+  // distance to the road corridor. 400 samples ≈ 1.1m spacing — far finer
+  // than the 10m flat zone we need to resolve.
+  const SAMPLE_COUNT = 400;
+  const trackSamples = new Float32Array(SAMPLE_COUNT * 2);
+  const sp = new THREE.Vector3();
+  for (let i = 0; i < SAMPLE_COUNT; i++) {
+    path.getPointAt(i / SAMPLE_COUNT, sp);
+    trackSamples[i * 2] = sp.x;
+    trackSamples[i * 2 + 1] = sp.z;
+  }
+
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i);
     const z = pos.getZ(i);
-    pos.setY(i, smoothH(x, z) * 0.5 - 0.25);
+
+    // Distance to the nearest track sample.
+    let d2 = Infinity;
+    for (let s = 0; s < trackSamples.length; s += 2) {
+      const dx = x - trackSamples[s];
+      const dz = z - trackSamples[s + 1];
+      const dd = dx * dx + dz * dz;
+      if (dd < d2) d2 = dd;
+    }
+    const d = Math.sqrt(d2);
+
+    // Corridor falloff: 0 inside 10m of the track (flat racing surface),
+    // 1 beyond 25m (full rolling field). Smoothstep keeps the join C1
+    // continuous — the vertex mesh stays smooth, no cliffs.
+    const t = Math.min(1, Math.max(0, (d - 10) / 15));
+    const falloff = t * t * (3 - 2 * t);
+
+    // Near the track this reduces to the historical smoothH*0.5 - 0.25
+    // (bit-identical heights → road, shoulders, kerbs, rails, ramps and the
+    // kart's ground sampling are exactly as before). Beyond the corridor the
+    // same noise scales up to ±0.9m and broadHill adds ±2.4m of ~80m
+    // wavelength landforms → ±2.5-3.5m gentle rolling hills on the horizon.
+    const y = -0.25 + smoothH(x, z) * 0.5 * (1 + falloff * 2.5) + broadHill(x, z) * 1.2 * falloff;
+    pos.setY(i, y);
   }
   geo.computeVertexNormals();
   const mat = toonMaterial(0xffffff, {});
@@ -814,7 +866,7 @@ export function buildTrack(scene) {
   const startPos = path.getPointAt(startT);
   const startDir = path.getTangentAt(startT).normalize();
 
-  const terrain = buildTerrain();
+  const terrain = buildTerrain(path);
   group.add(terrain);
 
   // Dirt shoulders either side of the asphalt (softens the road→grass edge).
