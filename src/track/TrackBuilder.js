@@ -167,14 +167,15 @@ function buildRoadRibbon(path, length, opts = {}) {
   geo.computeVertexNormals();
 
   const mat = toonMaterial(0xffffff, {});
-  if (opts.color) mat.color.setHex(opts.color);
   if (opts.texture) {
     const tex = opts.texture().clone();
     tex.needsUpdate = true;
     tex.repeat.set(opts.repeatU ?? repeatU, opts.repeatV ?? 2);
     mat.map = tex;
-    mat.color.set(0xffffff);
   }
+  // Tint applied AFTER the map so an opts.color darkens the textured asphalt
+  // (NEON CITY's 0x2b2f3a) instead of being reset to white by the map block.
+  if (opts.color) mat.color.setHex(opts.color);
 
   return new THREE.Mesh(geo, mat);
 }

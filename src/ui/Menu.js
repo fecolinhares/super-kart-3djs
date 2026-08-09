@@ -51,6 +51,7 @@ export class Menu {
     this.helpPanel = this.root.querySelector('.sk3d-help-panel');
     this.swatches = Array.from(this.root.querySelectorAll('.sk3d-color-swatch'));
     this.muteBtn = this.root.querySelector('.sk3d-mute-toggle');
+    this.trackSwitch = this.root.querySelector('.sk3d-track-switch');
 
     this.bindEvents();
     document.body.appendChild(this.root);
@@ -96,6 +97,7 @@ export class Menu {
           <div class="sk3d-color-swatches" role="radiogroup" aria-labelledby="sk3d-color-label">${swatches}</div>
         </div>
         <button type="button" class="sk3d-btn sk3d-mute-toggle" aria-pressed="false">🔊 Sound on</button>
+        <button type="button" class="sk3d-btn sk3d-track-switch" id="sk3d-track-switch">🌆 Neon City</button>
         <footer class="sk3d-credit">Made with Three.js — open source</footer>
       </div>`;
   }
@@ -116,6 +118,16 @@ export class Menu {
       }
     }
     this.muteBtn.addEventListener('click', () => { this.toggleMute(); });
+    // Track switch: reload with ?track=2 (or back to 1) — simplest robust
+    // way to swap the whole world (track + environment theme).
+    if (this.trackSwitch) {
+      this.trackSwitch.textContent = new URLSearchParams(location.search).get('track') === '2' ? '🌇 Meadow Circuit' : '🌆 Neon City';
+      this.trackSwitch.addEventListener('click', () => {
+        this.onSound('uiSelect');
+        const next = new URLSearchParams(location.search).get('track') === '2' ? '' : '?track=2';
+        location.search = next;
+      });
+    }
   }
 
   /** Flip the audio mute toggle (persisted in localStorage). */

@@ -35,6 +35,7 @@ const TEST = new URLSearchParams(location.search).has('test'); // fast no-postfx
 const TRACK_ID = Number(new URLSearchParams(location.search).get('track')) === 2 ? 2 : 1;
 
 const env = new Environment();
+env.trackId = TRACK_ID; // theme hook: 1 = sunny meadow, 2 = neon city
 const track = buildTrack(scene, TRACK_ID === 2 ? CITY_PATH : TRACK_PATH);
 env.buildEnvironment(scene, track); // track passed so props avoid the road
 // Image-based lighting: chrome + car paint need an env map or metalness
