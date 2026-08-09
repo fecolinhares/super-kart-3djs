@@ -624,8 +624,14 @@ export class HUD {
       this.finishCardEl.classList.add('sk3d-pop');
       this._finishPopRaf = 0;
     });
-    // Safety: if the animation still can't run, the card must remain visible.
-    this.finishCardEl.style.opacity = '1';
+    // Safety: if the animation still can't run (any environment), the card
+    // must remain visible + clickable — force it after the animation window.
+    if (this._finishPopTimer) clearTimeout(this._finishPopTimer);
+    this._finishPopTimer = setTimeout(() => {
+      this.finishCardEl.classList.remove('sk3d-pop');
+      this.finishCardEl.style.transform = 'none';
+      this.finishCardEl.style.opacity = '1';
+    }, 650);
   }
 
   /** Transient centered toast message (auto-hides). @param {string} text */
