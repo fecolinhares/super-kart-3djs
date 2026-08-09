@@ -48,6 +48,12 @@
   sun glow billboard.
 - **SSAO pass** in the post chain — karts/props get contact shadows
   (the critic's "karts look pasted on" gap); contrast 1.15.
+- **Kart rebuild (premium MK8D)**: 48-seg molded shell with side intakes,
+  front splitter, fender flares + panel-line seams; wheels with tread ribs +
+  sidewall stripes + 5-spoke chrome rims + hub caps; curved spoiler blade +
+  splitter + endplates + pylon; driver with bent arms gripping a 3-spoke
+  wheel (9-and-3), helmet visor, bucket seat + headrest; distinct PBR
+  materials (clearcoat paint 2.2 / matte rubber / chrome metal / PBR glass).
 - **Material pipeline rebuilt toon→PBR**: `toonMaterial()` now returns
   `MeshStandardMaterial` (continuous PBR shading, responds to the sunny-sky
   IBL) — the 3-band cel gradient that read as "low poly" is gone; hemi/key

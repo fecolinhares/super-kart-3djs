@@ -1,11 +1,12 @@
 /**
  * Super Kart 3D.js — Kart entity.
- * AAA cartoon kart: low wide toon-shaded chassis with dark inverted-hull
- * outlines, 4 wheels (spin + front steering), cockpit + windshield, spoiler,
- * exhaust pipes, and a chibi driver (round head, big eyes, kart-color helmet).
- * Owns the kart's visual state + effect timers; delegates movement to
- * KartPhysics.step(). Emits juice particles (exhaust / boost flame / drift
- * smoke / star trail / off-road dust) via ctx.particles.
+ * AAA cartoon kart: low wide PBR chassis (glossy clearcoat paint, matte
+ * rubber, polished chrome, transparent glass), 4 wheels (spin + front
+ * steering), molded shell with panel seams + side intakes + splitter,
+ * shaped rear wing, and an expressive driver leaning forward gripping the
+ * steering wheel. Owns the kart's visual state + effect timers; delegates
+ * movement to KartPhysics.step(). Emits juice particles (exhaust / boost
+ * flame / drift smoke / star trail / off-road dust) via ctx.particles.
  *
  * Group origin sits at ground contact (y = 0 = road), so squash & stretch
  * scales up from the wheels — the classic cartoon deformation.
@@ -226,6 +227,40 @@ export class Kart {
 
   _buildMesh(color, character) {
     const KC = CONFIG.kart;
+    const accent = character ? character.accentColor : 0xffd166;
+
+    // ---- PBR materials (distinct surface responses, MK8 pipeline) -----------
+    // Glossy painted plastic for the body shell — the MK8 painted-toy cue:
+    // clearcoat + bumped IBL so the paint visibly reflects.
+    const carPaint = Materials.plasticMaterial(color, { envMapIntensity: 2.2, roughness: 0.2 });
+    const body = this._mat(color);
+    const bodyDark = this._mat(new THREE.Color(color).multiplyScalar(0.82).getHex());
+    // keep refs so the player can repaint (setBodyColor)
+    this._bodyMat = body;
+    this._bodyDarkMat = bodyDark;
+    this._carPaintMat = carPaint;
+    // Matte trim plastic (splitter, intakes, arches, cockpit rim).
+    const dark = this._mat(0x232833);
+    // Dead-flat rubber (tires) — deliberately NOT glossy: roughness 0.95
+    // against the clearcoat paint = the MK8 material separation.
+    const tireMat = new THREE.MeshStandardMaterial({ color: 0x161a20, roughness: 0.95, metalness: 0 });
+    const tireDark = new THREE.MeshStandardMaterial({ color: 0x0a0d11, roughness: 0.98, metalness: 0 });
+    // Polished chrome (rims, hubs, exhaust) — mirror metal vs painted plastic.
+    const chrome = new THREE.MeshPhysicalMaterial({
+      color: 0xdde4ec, metalness: 0.95, roughness: 0.1, envMapIntensity: 2.4,
+    });
+    // Curved transparent PBR glass (windshield).
+    const glassPBR = new THREE.MeshPhysicalMaterial({
+      color: 0xa8d8ff, roughness: 0.06, metalness: 0, transparent: true, opacity: 0.5,
+      envMapIntensity: 2.0, depthWrite: false, clearcoat: 1.0, clearcoatRoughness: 0.1,
+    });
+    const white = this._mat(0xf4f6f8);
+    const skin = this._mat(0xffd9b3);
+    // Subtle emissive headlight lens.
+    const headlightMat = new THREE.MeshStandardMaterial({
+      color: 0xfff6e0, emissive: 0xfff2d0, emissiveIntensity: 0.45, roughness: 0.25,
+    });
+    const tip = this._mat(0xff9f45);
 
     // Soft blob shadow under the kart (cartoon contact shadow). Radial
     // gradient texture (soft edge — a hard circle read as a decal per the
@@ -259,81 +294,44 @@ export class Kart {
     blob.renderOrder = 1;
     this.group.add(blob);
 
-    const body = this._mat(color);
-    // Car paint: glossy PBR clearcoat for the body shell (the MK8
-    // painted-plastic cue). envMapIntensity bumped to 2.0 so the clearcoat
-    // layer visibly reflects — the #1 "reads matte" close-up fix.
-    // Needs scene.environment (set in main.js) to show reflections.
-    const carPaint = Materials.plasticMaterial(color, { envMapIntensity: 2.0 });
-    const bodyDark = this._mat(new THREE.Color(color).multiplyScalar(0.82).getHex());
-    // keep refs so the player can repaint (setBodyColor)
-    this._bodyMat = body;
-    this._bodyDarkMat = bodyDark;
-    this._carPaintMat = carPaint;
-    const dark = this._mat(0x2a2f3a);
-    // Matte rubber (tires) — deliberately NOT toon: dead-flat dark rubber
-    // against glossy paint = the MK8 material separation (paint/rubber/chrome).
-    const tireMat = new THREE.MeshStandardMaterial({ color: 0x1a1e26, roughness: 0.92, metalness: 0.05 });
-    const tireDark = new THREE.MeshStandardMaterial({ color: 0x0f1216, roughness: 0.95, metalness: 0 });
-    // Polished chrome (rims, hubs, exhaust) — mirror metal vs painted plastic.
-    const chrome = new THREE.MeshPhysicalMaterial({
-      color: 0xc8d2de, metalness: 0.95, roughness: 0.18, envMapIntensity: 2.2,
-    });
-    const white = this._mat(0xf4f6f8);
-    const skin = this._mat(0xffd9b3);
-    // Curved glossy windshield (audit v4 F2: was a flat transparent slab —
-    // the #1 close-up draft cue). Half-cylinder, tinted PBR glass.
-    const glassPBR = new THREE.MeshPhysicalMaterial({
-      color: 0xbfe8ff,
-      roughness: 0.1,
-      metalness: 0,
-      transparent: true,
-      opacity: 0.55,
-      envMapIntensity: 1.8,
-      depthWrite: false,
-    });
-    const tip = this._mat(0xff9f45);
-
-    // ---- sculpted shell -------------------------------------------------------
-    // Continuous molded body: a lathe-hull lozenge (nose→body→tail) capped by
-    // smooth nose/tail cowls — ALL in glossy clearcoat paint. No inverted-hull
-    // outlines on the big painted parts: fat outlines read low-poly, and the
-    // PBR clearcoat needs bare surface to show. The toon accessories (fender
-    // arches, dark trim) carry the cartoon read instead.
+    // ---- molded shell (48-segment lathe lozenge) -----------------------------
+    // Continuous molded body: a high-segment lathe hull (nose→body→tail) in
+    // glossy clearcoat paint. No fat inverted-hull outlines on the big painted
+    // parts: PBR needs bare surface, and panel seams carry the detail read.
     const hullProfile = [
-      new THREE.Vector2(0.02, 0.36),
-      new THREE.Vector2(0.28, 0.42),
-      new THREE.Vector2(0.46, 0.52),
-      new THREE.Vector2(0.52, 0.62),
-      new THREE.Vector2(0.53, 0.70), // widest — hips of the shell
-      new THREE.Vector2(0.49, 0.79),
-      new THREE.Vector2(0.40, 0.87),
-      new THREE.Vector2(0.26, 0.93),
-      new THREE.Vector2(0.00, 0.95),
+      new THREE.Vector2(0.02, 0.34),
+      new THREE.Vector2(0.26, 0.40),
+      new THREE.Vector2(0.44, 0.50),
+      new THREE.Vector2(0.52, 0.60),
+      new THREE.Vector2(0.56, 0.70), // widest hips of the shell
+      new THREE.Vector2(0.53, 0.79),
+      new THREE.Vector2(0.42, 0.87),
+      new THREE.Vector2(0.26, 0.925),
+      new THREE.Vector2(0.0, 0.96),
     ];
-    const hull = new THREE.Mesh(new THREE.LatheGeometry(hullProfile, 40), carPaint);
+    const hull = new THREE.Mesh(new THREE.LatheGeometry(hullProfile, 48), carPaint);
     hull.scale.set(1, 1, 1.5); // elongate along the kart axis (footprint ~1.7 x 1.05)
     hull.castShadow = true;
     this.group.add(hull);
-    // Molded nose cowl (rounded prow — the "not a delivery van" cue).
+    // Recessed cockpit tub — a dark dish sunk into the shell top; the driver
+    // sits in it (the MK8 cockpit-opening read instead of a flat deck).
+    const cockpit = new THREE.Mesh(new THREE.SphereGeometry(0.34, 28, 18), dark);
+    cockpit.position.set(0, 0.92, -0.14);
+    cockpit.scale.set(0.95, 0.14, 0.8);
+    cockpit.castShadow = false;
+    this.group.add(cockpit);
+    // Molded nose cowl (rounded prow) + tail cap.
     const nose = new THREE.Mesh(new THREE.SphereGeometry(0.4, 32, 24), carPaint);
     nose.position.set(0, 0.6, 0.62);
     nose.scale.set(0.85, 0.5, 0.55);
     nose.castShadow = true;
     this.group.add(nose);
-    // Rounded tail cap (the chase camera reads the back most of the race).
     const tail = new THREE.Mesh(new THREE.SphereGeometry(0.34, 32, 24), carPaint);
     tail.position.set(0, 0.62, -0.6);
     tail.scale.set(0.85, 0.5, 0.45);
     tail.castShadow = true;
     this.group.add(tail);
-    // Raised cockpit surround — the molded tub the driver sits in.
-    const cowl = new THREE.Mesh(new THREE.SphereGeometry(0.36, 32, 20), carPaint);
-    cowl.position.set(0, 0.82, -0.14);
-    cowl.scale.set(1.0, 0.55, 0.85);
-    cowl.castShadow = true;
-    this.group.add(cowl);
-    // Rear side pods — fill the chase-cam silhouette between the wing struts.
+    // Rear side pods — fill the chase-cam silhouette between wing and body.
     for (const s of [-1, 1]) {
       const pod = new THREE.Mesh(new THREE.SphereGeometry(0.16, 24, 16), carPaint);
       pod.position.set(s * 0.5, 0.6, -0.55);
@@ -342,113 +340,156 @@ export class Kart {
       this.group.add(pod);
     }
 
-    // Fender arches over the wheels — body-dark toon band, the classic
-    // cartoon fender lip (half-torus, convex surface facing the camera).
-    const archGeo = new THREE.TorusGeometry(0.4, 0.05, 10, 24, Math.PI);
-    archGeo.rotateY(Math.PI / 2); // ring in the ZY plane — arcs over the tire
+    // Fender flares — molded PAINTED arches over every wheel (same clearcoat
+    // as the shell = merged bodywork, not stuck-on black) + a dark inner lip
+    // that defines the arch cut line against the tire.
+    const flareGeo = new THREE.TorusGeometry(0.42, 0.055, 12, 28, Math.PI);
+    flareGeo.rotateY(Math.PI / 2); // ring in the ZY plane — arcs over the tire
+    const archLipGeo = new THREE.TorusGeometry(0.36, 0.02, 10, 26, Math.PI);
+    archLipGeo.rotateY(Math.PI / 2);
     for (const sx of [-1, 1]) {
       for (const sz of [-1, 1]) {
-        const arch = new THREE.Mesh(archGeo, bodyDark);
-        arch.position.set(sx * 0.705, 0.34, sz * 0.67);
-        arch.castShadow = true;
-        this.group.add(arch);
+        const flare = new THREE.Mesh(flareGeo, carPaint);
+        flare.position.set(sx * 0.705, 0.37, sz * 0.67);
+        flare.castShadow = true;
+        this.group.add(flare);
+        const lip = new THREE.Mesh(archLipGeo, dark);
+        lip.position.set(sx * 0.705, 0.36, sz * 0.67);
+        lip.castShadow = false;
+        this.group.add(lip);
       }
     }
-    // Side skirts (dark rocker panels under the doors).
+
+    // Side intakes — stepped dark scoops on the flanks (molded vent panels).
     for (const s of [-1, 1]) {
-      this._mesh(new THREE.BoxGeometry(0.06, 0.1, 0.75), dark, s * 0.5, 0.38, 0.12, { cast: false });
-    }
-    // Front bumper — rounded dark bumper bar, not painted.
-    const bumper = new THREE.Mesh(new THREE.SphereGeometry(0.22, 24, 16), dark);
-    bumper.position.set(0, 0.38, 0.98);
-    bumper.scale.set(1.15, 0.8, 0.6);
-    bumper.castShadow = true;
-    this.group.add(bumper);
-    // Headlights: white lens + chrome ring.
-    for (const s of [-1, 1]) {
-      this._mesh(new THREE.SphereGeometry(0.08, 20, 14), white, s * 0.24, 0.52, 0.78);
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.085, 0.014, 8, 24), chrome);
-      ring.rotation.y = Math.PI / 2;
-      ring.position.set(s * 0.24, 0.52, 0.8);
-      this.group.add(ring);
+      const scoop = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.14, 0.34), dark);
+      scoop.position.set(s * 0.57, 0.56, 0.08);
+      scoop.rotation.z = s * -0.14;
+      scoop.castShadow = false;
+      this.group.add(scoop);
+      const vent = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.09, 0.2), tireDark);
+      vent.position.set(s * 0.6, 0.56, 0.08);
+      vent.rotation.z = s * -0.14;
+      vent.castShadow = false;
+      this.group.add(vent);
     }
 
-    // Specular highlight blobs (fake sky reflection — reinforces the gloss
-    // read on the hood + rear deck; subtle, the PBR clearcoat does the rest).
-    const gloss = new THREE.Mesh(
-      new THREE.SphereGeometry(0.4, 18, 12),
-      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, depthWrite: false })
-    );
-    gloss.position.set(-0.14, 0.9, 0.05);
-    gloss.scale.set(0.6, 0.13, 0.75);
-    gloss.renderOrder = 2;
-    this.group.add(gloss);
-    const glossBack = new THREE.Mesh(
-      new THREE.SphereGeometry(0.4, 18, 12),
-      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.28, depthWrite: false })
-    );
-    glossBack.position.set(0, 0.89, -0.55);
-    glossBack.scale.set(0.7, 0.1, 0.6);
-    glossBack.renderOrder = 2;
-    this.group.add(glossBack);
+    // Panel-line seams — thin darker strips (molded bodywork parting lines).
+    for (const s of [-1, 1]) {
+      this._mesh(new THREE.BoxGeometry(0.03, 0.022, 0.7), dark, s * 0.55, 0.66, -0.12, { cast: false });
+    }
+    this._mesh(new THREE.BoxGeometry(0.36, 0.02, 0.03), dark, 0, 0.93, 0.42, { cast: false });
+    this._mesh(new THREE.BoxGeometry(0.42, 0.022, 0.03), dark, 0, 0.92, -0.42, { cast: false });
+
+    // Front splitter — dark aero blade under the nose + small end fences.
+    this._mesh(new THREE.BoxGeometry(0.92, 0.05, 0.26), dark, 0, 0.3, 0.97, { cast: false });
+    for (const s of [-1, 1]) {
+      this._mesh(new THREE.BoxGeometry(0.03, 0.1, 0.2), dark, s * 0.44, 0.29, 0.97, { cast: false });
+    }
+    // Dark lower-nose chin panel (contrast under the painted prow).
+    const chinPanel = new THREE.Mesh(new THREE.SphereGeometry(0.3, 20, 14), dark);
+    chinPanel.position.set(0, 0.44, 0.62);
+    chinPanel.scale.set(0.9, 0.42, 0.5);
+    chinPanel.castShadow = false;
+    this.group.add(chinPanel);
+
+    // Headlights — subtle emissive lenses in chrome bezels.
+    for (const s of [-1, 1]) {
+      const lens = new THREE.Mesh(new THREE.SphereGeometry(0.072, 18, 14), headlightMat);
+      lens.position.set(s * 0.26, 0.56, 0.84);
+      lens.scale.set(0.75, 0.9, 0.5);
+      lens.castShadow = false;
+      this.group.add(lens);
+      const bezel = new THREE.Mesh(new THREE.TorusGeometry(0.078, 0.014, 8, 22), chrome);
+      bezel.rotation.z = Math.PI / 2; // ring in YZ plane (hole along X) — faces fwd
+      bezel.position.set(s * 0.26, 0.56, 0.85);
+      bezel.castShadow = false;
+      this.group.add(bezel);
+    }
 
     // Curved glossy windshield — half-cylinder dome over the cockpit.
     const wind = new THREE.Mesh(
       new THREE.CylinderGeometry(0.28, 0.28, 0.6, 20, 1, true, 0, Math.PI),
       glassPBR
     );
-    wind.position.set(0, 1.02, 0.26);
+    wind.position.set(0, 1.04, 0.26);
     wind.rotation.x = -0.3;
     wind.rotation.z = Math.PI / 2;
     wind.castShadow = false;
     this.group.add(wind);
 
-    // Seat: rounded back + headrest, visible behind the driver.
-    const seat = this._mesh(new THREE.BoxGeometry(0.36, 0.46, 0.12, 2, 4, 2), bodyDark, 0, 0.84, -0.36);
-    seat.rotation.x = 0.1;
-    this._mesh(new THREE.SphereGeometry(0.09, 16, 12), bodyDark, 0, 1.08, -0.38, { cast: false });
-
-    // Tiny rear-view mirror stalks.
+    // Seat: bucket seat + bolsters + headrest (dark leather trim behind driver).
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.48, 0.1, 1, 4, 1), bodyDark);
+    seat.position.set(0, 0.92, -0.36);
+    seat.rotation.x = 0.14;
+    seat.castShadow = true;
+    this.group.add(seat);
     for (const s of [-1, 1]) {
-      this._mesh(new THREE.BoxGeometry(0.03, 0.03, 0.1), dark, s * 0.42, 0.86, -0.26);
-      this._mesh(new THREE.BoxGeometry(0.11, 0.07, 0.03), dark, s * 0.42, 0.86, -0.18, { cast: false });
+      const bolster = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.4, 0.13, 1, 3, 1), bodyDark);
+      bolster.position.set(s * 0.19, 0.9, -0.37);
+      bolster.rotation.x = 0.14;
+      bolster.rotation.z = s * 0.16;
+      bolster.castShadow = false;
+      this.group.add(bolster);
     }
+    const headrest = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 14), bodyDark);
+    headrest.position.set(0, 1.1, -0.42);
+    headrest.scale.set(1, 0.9, 0.75);
+    headrest.castShadow = true;
+    this.group.add(headrest);
 
-    // ---- rear wing: shaped blade + supports + endplates -----------------------
-    // Half-pipe blade (cylinder arc): convex face toward the chase camera —
-    // reads as a molded aero wing, not a flat bar.
-    const bladeGroup = new THREE.Group();
-    bladeGroup.position.set(0, 1.08, -0.88);
-    bladeGroup.rotation.z = -Math.PI / 2; // blade spans X; convex face faces -Z
+    // ---- rear wing: curved blade + dark lower element + endplates + pylon ----
+    // Half-pipe painted blade (convex face toward the chase camera) + a dark
+    // lower blade (split-wing read) — a shaped aero wing, not a plank.
+    const wingGroup = new THREE.Group();
+    wingGroup.position.set(0, 1.1, -0.88);
+    wingGroup.rotation.z = -Math.PI / 2; // blade spans X; convex face faces -Z
     const blade = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.15, 0.15, 1.08, 28, 1, false, 0, Math.PI),
+      new THREE.CylinderGeometry(0.17, 0.17, 1.14, 32, 1, false, Math.PI, Math.PI),
       carPaint
     );
-    blade.rotation.x = -0.1; // angle of attack (leading edge up)
+    blade.rotation.x = 0.12; // slight negative angle (downforce)
     blade.castShadow = true;
-    bladeGroup.add(blade);
-    this.group.add(bladeGroup);
-    // Wingtip endplates.
+    wingGroup.add(blade);
+    const lowerBlade = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.085, 0.085, 1.06, 24, 1, false, Math.PI, Math.PI),
+      dark
+    );
+    lowerBlade.rotation.x = 0.12;
+    lowerBlade.position.y = -0.16;
+    lowerBlade.castShadow = false;
+    wingGroup.add(lowerBlade);
+    this.group.add(wingGroup);
+    // Wingtip endplates (painted) with dark edge trim.
     for (const s of [-1, 1]) {
-      const plate = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.22, 0.42), carPaint);
-      plate.position.set(s * 0.55, 1.08, -0.88);
+      const plate = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.3, 0.5), carPaint);
+      plate.position.set(s * 0.58, 1.1, -0.88);
       plate.castShadow = true;
       this.group.add(plate);
+      const trim = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.52), dark);
+      trim.position.set(s * 0.58, 0.96, -0.88);
+      trim.castShadow = false;
+      this.group.add(trim);
     }
-    // Two solid struts + mount pods + center pylon (molded, not sticks).
-    for (const s of [-1, 1]) {
-      const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.3, 12), dark);
-      strut.position.set(s * 0.4, 0.95, -0.88);
-      this.group.add(strut);
-      const mount = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 10), dark);
-      mount.position.set(s * 0.4, 0.79, -0.88);
-      this.group.add(mount);
-    }
-    const pylon = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.26, 0.14, 1, 4, 1), bodyDark);
-    pylon.position.set(0, 0.96, -0.86);
+    // Center pylon (tapered) + side mount pods (molded, not sticks).
+    const pylon = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.075, 0.32, 14), bodyDark);
+    pylon.position.set(0, 1.0, -0.86);
+    pylon.castShadow = true;
     this.group.add(pylon);
+    for (const s of [-1, 1]) {
+      const mount = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.24, 12), dark);
+      mount.position.set(s * 0.4, 1.0, -0.86);
+      mount.rotation.x = 0.25;
+      mount.castShadow = false;
+      this.group.add(mount);
+      const pod = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 10), dark);
+      pod.position.set(s * 0.4, 0.84, -0.84);
+      pod.castShadow = false;
+      this.group.add(pod);
+    }
 
-    // Brake lights (emissive red tail lamps that flare on brake — update()).
+    // Brake lights (emissive red tail lamps that flare on brake — update())
+    // in chrome bezels + a subtle always-on rear glow bar under the wing.
     this._brakeLampMat = new THREE.MeshStandardMaterial({
       color: 0x7a0000,
       emissive: 0xff2222,
@@ -456,13 +497,23 @@ export class Kart {
       roughness: 0.4,
     });
     for (const s of [-1, 1]) {
-      const stalk = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.1), dark);
-      stalk.position.set(s * 0.36, 0.62, -0.78);
-      this.group.add(stalk);
-      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.065, 16, 12), this._brakeLampMat);
-      lamp.position.set(s * 0.36, 0.66, -0.84);
+      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.07, 18, 14), this._brakeLampMat);
+      lamp.position.set(s * 0.36, 0.74, -0.9);
+      lamp.scale.set(1.15, 1, 0.7);
+      lamp.castShadow = false;
       this.group.add(lamp);
+      const bezel = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.016, 8, 20), chrome);
+      bezel.rotation.z = Math.PI / 2;
+      bezel.position.set(s * 0.36, 0.74, -0.915);
+      bezel.castShadow = false;
+      this.group.add(bezel);
     }
+    const rearGlow = new THREE.MeshStandardMaterial({
+      color: 0x5a0000, emissive: 0xff3322, emissiveIntensity: 0.35, roughness: 0.5,
+    });
+    const glowBar = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.035, 0.025), rearGlow);
+    glowBar.position.set(0, 1.0, -0.93);
+    this.group.add(glowBar);
 
     // Race number badge on the nose tip (kart identity, faces forward).
     const numCanvas = document.createElement('canvas');
@@ -480,7 +531,7 @@ export class Kart {
     numTex.colorSpace = THREE.SRGBColorSpace;
     const plate = new THREE.Mesh(
       new THREE.BoxGeometry(0.28, 0.28, 0.06),
-      new THREE.MeshToonMaterial({ color: 0xffffff })
+      new THREE.MeshStandardMaterial({ color: 0xffffff })
     );
     plate.material.map = numTex;
     plate.position.set(0, 0.66, 0.86);
@@ -488,52 +539,59 @@ export class Kart {
 
     // Rear number plate + dark frame (visible from the chase camera).
     const plateBack = new THREE.Mesh(
-      new THREE.BoxGeometry(0.6, 0.58, 0.07),
-      new THREE.MeshToonMaterial({ color: 0xffffff })
+      new THREE.BoxGeometry(0.5, 0.54, 0.07),
+      new THREE.MeshStandardMaterial({ color: 0xffffff })
     );
     plateBack.material.map = numTex;
-    plateBack.position.set(0, 0.74, -0.8);
+    plateBack.position.set(0, 0.72, -0.78);
     plateBack.rotation.x = 0.12;
     this.group.add(plateBack);
     const plateFrame = new THREE.Mesh(
-      new THREE.BoxGeometry(0.64, 0.62, 0.05),
+      new THREE.BoxGeometry(0.54, 0.58, 0.05),
       new THREE.MeshBasicMaterial({ color: 0x1b2a41 })
     );
-    plateFrame.position.set(0, 0.74, -0.84);
+    plateFrame.position.set(0, 0.72, -0.815);
     plateFrame.rotation.x = 0.12;
     this.group.add(plateFrame);
 
-    // Exhaust pipes — polished chrome barrels + orange tips (the
-    // paint/rubber/chrome/glass material separation).
+    // Exhaust pipes — polished chrome barrels + hot tips (particles spawn here).
     for (const s of [-1, 1]) {
       this._mesh(
         new THREE.CylinderGeometry(0.06, 0.06, 0.26, 16),
-        chrome, s * 0.22, 0.52, -0.94,
+        chrome, s * 0.28, 0.5, -0.94,
         { rx: Math.PI / 2, cast: false }
       );
       this._mesh(
         new THREE.CylinderGeometry(0.075, 0.075, 0.05, 16),
-        tip, s * 0.22, 0.52, -1.06,
+        tip, s * 0.28, 0.5, -1.06,
         { rx: Math.PI / 2, cast: false }
       );
     }
 
-    // ---- wheels (tire + chrome disc rim + hub cap + tread) --------------------
+    // ---- wheels: tire + tread + sidewall stripe + 5-spoke chrome rim --------
     const wR = KC.wheelRadius;
     const wW = KC.wheelWidth;
     const wy = wR;
     const wz = KC.chassisLength / 2 - 0.18;
     const wx = KC.chassisWidth / 2 + 0.18;
-    const tireGeo = new THREE.CylinderGeometry(wR, wR, wW, 20);
-    // Tread ribs: thin torus rings around the circumference (axis X after tilt).
-    const treadGeo = new THREE.TorusGeometry(wR - 0.012, 0.011, 8, 28);
-    // Sidewall accent rings (proud of the tire face, darker rubber).
-    const sidewallGeo = new THREE.TorusGeometry(0.27, 0.014, 8, 24);
-    // Chrome disc rim (sits at the outer face of the tire).
-    const discGeo = new THREE.CylinderGeometry(0.19, 0.19, 0.028, 20);
-    const rimRingGeo = new THREE.TorusGeometry(0.235, 0.02, 8, 28);
-    const hubCapGeo = new THREE.CylinderGeometry(0.075, 0.075, 0.03, 14);
+    const faceX = wW / 2;
+
+    const tireGeo = new THREE.CylinderGeometry(wR, wR, wW, 28);
+    // Raised tread ribs (3 rings around the circumference — readable at close-up).
+    const treadGeo = new THREE.TorusGeometry(wR - 0.006, 0.015, 8, 40);
+    // Deep center groove ring (the "readable tread" cue).
+    const grooveGeo = new THREE.TorusGeometry(wR - 0.002, 0.008, 8, 40);
+    // Sidewall stripe ring — proud ring on the tire face (accent color).
+    const stripeGeo = new THREE.TorusGeometry(0.24, 0.016, 8, 32);
+    // Chrome rim parts (all in the YZ plane — axle along X).
+    const rimDiscGeo = new THREE.CylinderGeometry(0.19, 0.19, 0.022, 24);
+    const rimLipGeo = new THREE.TorusGeometry(0.215, 0.018, 8, 28);
+    const spokeGeo = new THREE.BoxGeometry(0.022, 0.15, 0.05);
+    const hubGeo = new THREE.CylinderGeometry(0.062, 0.062, 0.034, 18);
+    const hubCapGeo = new THREE.SphereGeometry(0.032, 12, 10);
     const lugGeo = new THREE.SphereGeometry(0.016, 8, 6);
+    const stripeMat = character ? this._mat(accent) : white;
+
     this._wheels = [];
     for (const sx of [-1, 1]) {
       for (const sz of [-1, 1]) {
@@ -543,47 +601,63 @@ export class Kart {
         const spin = new THREE.Group(); // rolls around kart X axis
         root.add(spin);
         // CylinderGeometry's axis is Y; tilt the wheel so its axle runs
-        // along X (lateral). Without this the tire stood upright and spun
-        // sideways — the "lying wheels rolling laterally" bug.
+        // along X (lateral).
         const tilt = new THREE.Group();
         tilt.rotation.z = Math.PI / 2;
         spin.add(tilt);
-        tilt.add(new THREE.Mesh(tireGeo, tireMat));
-        // Tread ribs (rotate with the tire — reads as rolling rubber).
-        const t1 = new THREE.Mesh(treadGeo, tireDark);
-        t1.position.x = -0.06;
-        const t2 = new THREE.Mesh(treadGeo, tireDark);
-        t2.position.x = 0.06;
-        tilt.add(t1, t2);
-        // Sidewall rings on both faces.
-        const s1 = new THREE.Mesh(sidewallGeo, tireDark);
-        s1.position.x = wW / 2 - 0.001;
-        const s2 = new THREE.Mesh(sidewallGeo, tireDark);
-        s2.position.x = -(wW / 2 - 0.001);
-        tilt.add(s1, s2);
-        // Chrome disc rim — DIRECT child of spin (axis X) so it rolls with
-        // the wheel. As a child of tilt it kept its Z axis and spun sideways
-        // like a coin (the historic rim bug).
-        const disc = new THREE.Mesh(discGeo, chrome);
+        const tire = new THREE.Mesh(tireGeo, tireMat);
+        tire.castShadow = true;
+        tilt.add(tire);
+        // Tread ribs (roll with the tire — reads as rolling rubber).
+        for (const tx of [-0.08, 0, 0.08]) {
+          const rib = new THREE.Mesh(treadGeo, tireDark);
+          rib.position.x = tx;
+          tilt.add(rib);
+        }
+        const groove = new THREE.Mesh(grooveGeo, tireDark);
+        tilt.add(groove);
+        // Sidewall stripe rings on both faces.
+        const st1 = new THREE.Mesh(stripeGeo, stripeMat);
+        st1.position.x = faceX - 0.002;
+        const st2 = new THREE.Mesh(stripeGeo, stripeMat);
+        st2.position.x = -(faceX - 0.002);
+        tilt.add(st1, st2);
+        // Chrome rim — DIRECT child of spin (axis X) so it rolls with the
+        // wheel (the historic "disc child of tilt spun like a coin" bug).
+        const rimX = faceX + 0.014;
+        const disc = new THREE.Mesh(rimDiscGeo, chrome);
         disc.rotation.z = Math.PI / 2;
-        disc.position.x = wW / 2 + 0.014;
+        disc.position.x = rimX;
         disc.castShadow = false;
         spin.add(disc);
-        const rimRing = new THREE.Mesh(rimRingGeo, chrome);
-        rimRing.rotation.y = Math.PI / 2;
-        rimRing.position.x = wW / 2 + 0.02;
-        rimRing.castShadow = false;
-        spin.add(rimRing);
+        const lip = new THREE.Mesh(rimLipGeo, chrome);
+        lip.rotation.z = Math.PI / 2; // ring in YZ — faces outward, not edge-on
+        lip.position.x = rimX + 0.01;
+        lip.castShadow = false;
+        spin.add(lip);
+        // 5 spokes — thin radial boxes between hub and lip.
+        for (let i = 0; i < 5; i++) {
+          const a = (i / 5) * Math.PI * 2;
+          const spoke = new THREE.Mesh(spokeGeo, chrome);
+          spoke.rotation.x = a;
+          spoke.position.set(rimX + 0.008, Math.cos(a) * 0.12, Math.sin(a) * 0.12);
+          spoke.castShadow = false;
+          spin.add(spoke);
+        }
+        const hub = new THREE.Mesh(hubGeo, chrome);
+        hub.rotation.z = Math.PI / 2;
+        hub.position.x = rimX + 0.016;
+        hub.castShadow = false;
+        spin.add(hub);
         const hubCap = new THREE.Mesh(hubCapGeo, chrome);
-        hubCap.rotation.z = Math.PI / 2;
-        hubCap.position.x = wW / 2 + 0.035;
+        hubCap.position.x = rimX + 0.032;
         hubCap.castShadow = false;
         spin.add(hubCap);
-        // Lug nuts around the hub cap face.
-        for (let i = 0; i < 4; i++) {
-          const a = (i / 4) * Math.PI * 2;
+        // 5 lug nuts matching the spokes.
+        for (let i = 0; i < 5; i++) {
+          const a = (i / 5) * Math.PI * 2;
           const lug = new THREE.Mesh(lugGeo, chrome);
-          lug.position.set(wW / 2 + 0.052, Math.sin(a) * 0.045, Math.cos(a) * 0.045);
+          lug.position.set(rimX + 0.045, Math.cos(a) * 0.088, Math.sin(a) * 0.088);
           lug.castShadow = false;
           spin.add(lug);
         }
@@ -592,97 +666,117 @@ export class Kart {
     }
     this._frontWheels = this._wheels.filter((w) => w.isFront);
 
-    // ---- driver (chibi: torso, arms on the wheel, helmet + visor) -------------
+    // ---- driver: torso + shoulders + arms gripping the wheel -----------------
     const drv = new THREE.Group();
     drv.position.set(0, 0, 0);
-    // Slightly oversized chibi driver (MK8 proportions: the racer is a big
-    // part of the kart silhouette, not a dot behind the wheel).
-    drv.scale.set(1.18, 1.18, 1.18);
+    drv.scale.set(1.12, 1.12, 1.12);
     this.group.add(drv);
 
-    // Racing suit recolored by the character identity (falls back to white).
     const suit = character ? this._mat(character.suitColor) : white;
-    // Torso (rounded capsule) + shoulders.
-    this._mesh(new THREE.CapsuleGeometry(0.14, 0.3, 8, 16), suit, 0, 0.94, -0.02, { parent: drv });
+    const up = new THREE.Vector3(0, 1, 0);
+
+    // Torso — rounded capsule leaned forward into the drive pose.
+    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.135, 0.26, 8, 16), suit);
+    torso.position.set(0, 0.94, -0.06);
+    torso.rotation.x = 0.32;
+    torso.castShadow = true;
+    drv.add(torso);
+    // Racing stripe down the chest (accent color).
+    const chestStripe = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.3, 0.02), this._mat(accent));
+    chestStripe.position.set(0, 0.94, 0.088);
+    chestStripe.rotation.x = 0.32;
+    chestStripe.castShadow = false;
+    drv.add(chestStripe);
+    // Shoulders (suit pads).
     for (const s of [-1, 1]) {
-      this._mesh(new THREE.SphereGeometry(0.09, 14, 10), suit, s * 0.13, 1.0, -0.03, { parent: drv, cast: false });
+      const sh = new THREE.Mesh(new THREE.SphereGeometry(0.085, 16, 12), suit);
+      sh.position.set(s * 0.135, 1.0, -0.09);
+      sh.scale.set(1, 0.88, 1.1);
+      sh.castShadow = false;
+      drv.add(sh);
     }
-    // Arms reaching to the steering wheel (gloved hands on the rim).
-    for (const s of [-1, 1]) {
-      this._mesh(
-        new THREE.CapsuleGeometry(0.05, 0.24, 6, 12),
-        suit, s * 0.15, 0.98, 0.1,
-        { parent: drv, rx: 1.15 }
-      );
-      this._mesh(new THREE.SphereGeometry(0.055, 14, 10), skin, s * 0.15, 0.86, 0.2, { parent: drv, cast: false });
-    }
-    // Steering wheel: rim + 3 spokes + center hub.
-    const wheel = new THREE.Mesh(
-      new THREE.TorusGeometry(0.09, 0.022, 12, 24),
-      dark
-    );
-    wheel.position.set(0, 0.9, 0.26);
-    wheel.rotation.y = Math.PI;
-    wheel.castShadow = false;
-    drv.add(wheel);
+
+    // Steering wheel — 3-spoke, dark leather rim + chrome spokes/hub.
+    const steerGroup = new THREE.Group();
+    steerGroup.position.set(0, 0.92, 0.24);
+    drv.add(steerGroup);
+    const sRim = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.024, 12, 28), dark);
+    sRim.rotation.x = Math.PI / 2; // ring in XY plane — faces the driver
+    sRim.castShadow = false;
+    steerGroup.add(sRim);
     for (let i = 0; i < 3; i++) {
       const a = (i / 3) * Math.PI * 2;
-      const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.085, 0.03), dark);
-      spoke.position.set(Math.sin(a) * 0.05, 0.9 + Math.cos(a) * 0.05, 0.26);
-      spoke.rotation.z = a;
-      spoke.castShadow = false;
-      drv.add(spoke);
+      const sp = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.02, 0.022), chrome);
+      sp.position.set(Math.cos(a) * 0.052, Math.sin(a) * 0.052, 0);
+      sp.rotation.z = a;
+      sp.castShadow = false;
+      steerGroup.add(sp);
     }
-    const hubN = new THREE.Mesh(new THREE.SphereGeometry(0.022, 10, 8), dark);
-    hubN.position.set(0, 0.9, 0.26);
-    hubN.castShadow = false;
-    drv.add(hubN);
+    const hub = new THREE.Mesh(new THREE.SphereGeometry(0.026, 12, 10), chrome);
+    hub.castShadow = false;
+    steerGroup.add(hub);
 
-    // Head + face (bigger, higher, pushed forward — readable from behind).
-    this._mesh(new THREE.SphereGeometry(0.17, 32, 24), skin, 0, 1.2, 0.1, { parent: drv });
-    // Helmet recolored per character (own material so setBodyColor can still
-    // repaint it alongside the body — classic menu color picker behavior).
+    // Arms — upper arm + forearm (bent elbows), gloved hands gripping the rim.
+    for (const s of [-1, 1]) {
+      const shX = s * 0.135, shY = 1.0, shZ = -0.09;
+      const elX = s * 0.16, elY = 0.985, elZ = 0.05;
+      const hX = s * 0.105, hY = 0.92, hZ = 0.24;
+      const ua = new THREE.Mesh(new THREE.CapsuleGeometry(0.045, 0.13, 6, 10), suit);
+      ua.position.set((shX + elX) / 2, (shY + elY) / 2, (shZ + elZ) / 2);
+      ua.quaternion.setFromUnitVectors(up, new THREE.Vector3(elX - shX, elY - shY, elZ - shZ).normalize());
+      ua.castShadow = false;
+      drv.add(ua);
+      const fa = new THREE.Mesh(new THREE.CapsuleGeometry(0.038, 0.15, 6, 10), suit);
+      fa.position.set((elX + hX) / 2, (elY + hY) / 2, (elZ + hZ) / 2);
+      fa.quaternion.setFromUnitVectors(up, new THREE.Vector3(hX - elX, hY - elY, hZ - elZ).normalize());
+      fa.castShadow = false;
+      drv.add(fa);
+      const hand = new THREE.Mesh(new THREE.SphereGeometry(0.042, 14, 12), dark);
+      hand.position.set(hX, hY, hZ);
+      hand.scale.set(1, 1, 1.15);
+      hand.castShadow = false;
+      drv.add(hand);
+    }
+
+    // Neck + helmet (character colored, glossy visor, fine outline).
+    this._mesh(new THREE.SphereGeometry(0.055, 14, 10), skin, 0, 1.14, 0.1, { parent: drv, cast: false });
     const helmetMat = character ? this._mat(character.helmetColor) : body;
     this._helmetMat = helmetMat;
     const helmet = new THREE.Mesh(
-      new THREE.SphereGeometry(0.175, 32, 24),
+      new THREE.SphereGeometry(0.16, 32, 24),
       helmetMat
     );
-    helmet.position.set(0, 1.3, -0.02);
-    helmet.scale.set(1, 0.8, 1);
+    helmet.position.set(0, 1.24, 0.06);
+    helmet.scale.set(1, 0.85, 1.02);
     helmet.castShadow = true;
     drv.add(helmet);
-    this._outline(helmet, 0.03);
-    // Glossy visor band across the helmet brow (dark reflective glass —
-    // the detail that makes it read "helmet", not "head").
+    this._outline(helmet, 0.025);
+    // Glossy visor band across the helmet front (dark reflective glass).
     const visor = new THREE.Mesh(
-      new THREE.SphereGeometry(0.14, 20, 12),
+      new THREE.SphereGeometry(0.13, 22, 14),
       new THREE.MeshPhysicalMaterial({
-        color: 0x14202e, roughness: 0.08, metalness: 0.4,
-        clearcoat: 1.0, envMapIntensity: 2.0,
+        color: 0x0e1a28, roughness: 0.05, metalness: 0.5,
+        clearcoat: 1.0, envMapIntensity: 2.2,
       })
     );
-    visor.position.set(0, 1.3, 0.12);
-    visor.scale.set(1.05, 0.3, 0.6);
+    visor.position.set(0, 1.26, 0.17);
+    visor.scale.set(1.05, 0.28, 0.62);
     visor.castShadow = false;
     drv.add(visor);
-    this._mesh(new THREE.TorusGeometry(0.175, 0.02, 8, 24), bodyDark, 0, 1.2, -0.02, { parent: drv, rx: Math.PI / 2, cast: false });
-    // Helmet accent stripe — the character's color mark instead of a name
-    // decal (no text): a thin ring around the helmet equator, proud of the
-    // shell so it reads from the chase camera.
+    // Chin guard below the visor.
+    const chin = new THREE.Mesh(new THREE.SphereGeometry(0.085, 14, 10), dark);
+    chin.position.set(0, 1.14, 0.18);
+    chin.scale.set(1, 0.55, 0.75);
+    chin.castShadow = false;
+    drv.add(chin);
+    // Helmet accent stripe — the character's color mark (equator ring).
     if (character) {
       this._mesh(
-        new THREE.TorusGeometry(0.178, 0.02, 8, 32),
+        new THREE.TorusGeometry(0.163, 0.016, 8, 32),
         this._mat(character.accentColor),
-        0, 1.3, -0.02,
-        { parent: drv, rx: Math.PI / 2, cast: false }
+        0, 1.24, 0.06,
+        { parent: drv, cast: false }
       );
-    }
-
-    for (const s of [-1, 1]) {
-      this._mesh(new THREE.SphereGeometry(0.055, 14, 10), 0xffffff, s * 0.068, 1.24, 0.22, { parent: drv, cast: false });
-      this._mesh(new THREE.SphereGeometry(0.026, 12, 8), 0x1b2a41, s * 0.068, 1.24, 0.26, { parent: drv, cast: false });
-      this._mesh(new THREE.SphereGeometry(0.01, 8, 6), 0xffffff, s * 0.068 + 0.012, 1.245, 0.273, { parent: drv, cast: false });
     }
   }
 
