@@ -1964,12 +1964,19 @@ export class Environment {
     const col = COLORS[Math.floor(this._rand() * COLORS.length)];
     g.fillStyle = col;
     g.fillRect(0, 0, 256, 128);
-    g.fillStyle = 'rgba(255,255,255,0.92)';
-    g.font = '900 40px "Baloo 2", "Nunito", Arial, sans-serif';
+    // AUDIT r5: the big white 'SUPER KART GP' wordmark read as a jagged
+    // black/white checker from chase distance (the critic flagged it as
+    // corrupted geometry). Smaller, softer wordmark + a subtle dark band.
+    g.fillStyle = 'rgba(0,0,0,0.18)';
+    g.fillRect(0, 96, 256, 32);
+    g.fillStyle = 'rgba(255,255,255,0.85)';
+    g.font = '800 26px "Baloo 2", "Nunito", Arial, sans-serif';
     g.textAlign = 'center';
     g.textBaseline = 'middle';
-    g.fillText('SUPER KART', 128, 46);
-    g.fillText('GP', 128, 92);
+    g.fillText('SK GP', 128, 48);
+    g.fillStyle = 'rgba(255,255,255,0.55)';
+    g.font = '700 14px "Baloo 2", "Nunito", Arial, sans-serif';
+    g.fillText('SUPER KART', 128, 112);
     g.fillStyle = 'rgba(0,0,0,0.35)';
     g.beginPath();
     g.arc(224, 22, 14, 0, Math.PI * 2);
