@@ -4,6 +4,10 @@
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
 ### Round 3 — AAA polish loop (auditor-driven, 2026-08-09)
+- **Round 9 — convergence fixes**: blue-shell ARC TDZ crash (froze the race
+  on every blue shell — fixed + live-tested), AI throttle clamp, turbo pads
+  fire mid-boost, draft exit-kick player-only, boost ignores off-road
+  slowdown, duplicate key light zeroed.
 - **Blue shell ARC (r8)**: flies high with a ground-shadow warning, then
   dives on the leader — the MK8 doom cue, no more blue-painted red shell.
 - **Off-track rescue (r8)**: 2s stuck off-road + slow → Lakitu respawn on
