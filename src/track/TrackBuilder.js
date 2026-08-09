@@ -835,7 +835,10 @@ function buildGantry(startLine) {
     const m = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, len, 8), braceMat);
     m.position.copy(mid);
     m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
-    m.castShadow = true;
+    // AUDIT r3: the diagonal braces cast hard crossing shadows on the road —
+    // the critic read them as broken geometry ('dark diagonal lines across
+    // the track'). Overhead structure shouldn't stripe the racing surface.
+    m.castShadow = false;
     group.add(m);
   };
   const aL = pillarBaseL.clone(); aL.y += 0.5;
