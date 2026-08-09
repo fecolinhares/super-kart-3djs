@@ -411,6 +411,12 @@ function togglePause() {
 
 function restartRace() {
   audio.clearEngineLoops(); // restart engine sounds from scratch (no echo/doubling)
+  // CRITICAL FIX (user bug): the finish handler pushed an AIController onto
+  // the player kart for the post-race cruise. If it survives the restart it
+  // calls kart.setControls() every frame and fights the human input — the
+  // player feels "the game is driving the car". Drop every controller bound
+  // to the player kart before the reset.
+  aiControllers = aiControllers.filter((c) => c.kart !== playerKart);
   raceManager.restart();
   skids.clear();
   lastLap = 0;
@@ -543,8 +549,15 @@ function addShake(mag, duration) {
 // ---------------------------------------------------------------------------
 const loop = new GameLoop();
 let menuAngle = 0;
+let qaFrameN = 0; // QA: frame counter exposed via __sk3d (perf diagnostics)
+window.__qaFrameN = 0;
+// QA profiler: when __profEnabled is true, the loop records per-section ms.
+window.__profEnabled = false;
+window.__prof = {};
 
 loop.start((dt, t) => {
+  qaFrameN++;
+  window.__qaFrameN = qaFrameN;
   // Environment animation (clouds, water, flags).
   env.update(dt, t);
 
@@ -749,6 +762,15 @@ loop.start((dt, t) => {
   particles.update(dt);
   skids.update(dt);
   postfx.render(dt);
+
+  if (window.__profEnabled) {
+    const _now = performance.now();
+    window.__prof.frameN = qaFrameN;
+    window.__prof.state = getState();
+    window.__prof.dtMs = (dt * 1000).toFixed(1);
+    window.__prof.rawMs = (_now - (window.__prof.lastNow || _now)).toFixed(1);
+    window.__prof.lastNow = _now;
+  }
 });
 
 // ---------------------------------------------------------------------------
@@ -770,6 +792,13 @@ window.__sk3d = {
   addShake,
   updateCamera, // QA hook: can be stubbed to freeze the chase camera
   DEMO,
+  // QA debug: countdown internals (restart-flow regression tests read these).
+  get countdownT() { return countdownT; },
+  get countdownIndex() { return countdownIndex; },
+  // QA: AI controller roster — lets tests assert the cruise controller is
+  // removed on restart (the user bug: AI kept driving the player kart).
+  get aiControllerCount() { return aiControllers.length; },
+  get playerAIControlled() { return aiControllers.some((c) => c.kart === playerKart); },
 };
 
 console.log('[Super Kart 3D.js] booted. Demo mode:', DEMO, '| State:', getState());

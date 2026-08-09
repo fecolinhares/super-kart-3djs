@@ -1126,15 +1126,56 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
  * Trick ramps on two straights — the air system (vY/gravity/_airTime) was
  * dead code with nothing ever setting vY > 0. A ramp launches the kart;
  * pressing throttle mid-air arms a trick → landing mini-boost (MK8 pillar).
+ *
+ * Geometry (USER BUG FIX): the old ramp was a plain BoxGeometry rotated
+ * x=0.3 around its CENTER — the low end sank ~0.34m INTO the asphalt and
+ * the high end floated, reading "crooked, half buried". It is now a wedge
+ * (prism) whose bottom face is flat on the asphalt; the slope is built
+ * into the geometry, so the base never penetrates the road.
  */
+function buildRampGeometry(width, height, length) {
+  const geo = new THREE.BufferGeometry();
+  const W = width / 2;
+  const H = height;
+  const L = length / 2;
+  const verts = [];
+  const tri = (a, b, c) => verts.push(...a, ...b, ...c);
+  // Ground corners (y=0) — back at -L, front at +L.
+  const bl = [-W, 0, -L];
+  const br = [W, 0, -L];
+  const fl = [-W, 0, L];
+  const fr = [W, 0, L];
+  // Top corners at the tall (front) end.
+  const tl = [-W, H, L];
+  const tr = [W, H, L];
+  // Ramp surface (inclined top, normal up/forward)
+  tri(bl, tl, tr); tri(bl, tr, br);
+  // Front face (vertical at the tall end, normal +Z)
+  tri(fl, fr, tr); tri(fl, tr, tl);
+  // Left side triangle (normal -X)
+  tri(bl, fl, tl);
+  // Right side triangle (normal +X)
+  tri(br, tr, fr);
+  // Bottom face (normal -Y — sits on the asphalt)
+  tri(bl, br, fr); tri(bl, fr, fl);
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  geo.computeVertexNormals();
+  return geo;
+}
+
 function buildRamps(path, length) {
   const ramps = [];
   // Toon ramp body (audit v4 F1: was the only non-toon surface — read as a
   // flat orange crate) + painted chevrons on the top face.
-  const mat = toonMaterial(0xc96f2c, {});
+  const mat = toonMaterial(0xc96f2c, { side: THREE.DoubleSide });
   const chevMat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), transparent: true, depthWrite: false, side: THREE.DoubleSide });
   const tan = new THREE.Vector3();
   const p = new THREE.Vector3();
+  const rampLen = 4.6;
+  const rampHeight = 0.55;
+  const rampGeo = buildRampGeometry(CONFIG.track.roadWidth * 0.78, rampHeight, rampLen);
+  // Slope of the top face, for the chevron decal to lie flush on it.
+  const slopeAngle = Math.atan2(rampHeight, rampLen);
   // Two ramps on the two long straights, evenly split around the lap (0.30
   // and 0.86 — curvature < 0.001) and clear of the turbo-pad clusters
   // (0.18 / 0.72) and the corner dressing — no more cluster at t=0.16/0.56
@@ -1142,24 +1183,21 @@ function buildRamps(path, length) {
   for (const t of [0.30, 0.86]) {
     path.getPointAt(t, p);
     path.getTangentAt(t, tan);
-    const mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(4.6, 0.45, CONFIG.track.roadWidth * 0.78),
-      mat
-    );
-    // Base sits exactly on the asphalt top (ribbon y+0.18) — the old
-    // y+0.22 center left the bottom third buried under the ribbon.
-    mesh.position.set(p.x, p.y + 0.18 + 0.225, p.z);
+    const mesh = new THREE.Mesh(rampGeo, mat);
+    // Base sits flat on the asphalt top (ribbon y+0.18) + 2mm clearance —
+    // NO rotation.x: the wedge already carries the slope, so neither end
+    // sinks into the road nor floats above it.
+    mesh.position.set(p.x, p.y + 0.18 + 0.02, p.z);
     mesh.rotation.y = Math.atan2(tan.x, tan.z);
-    mesh.rotation.x = 0.3; // slope up along travel direction
     mesh.castShadow = true;
     mesh.receiveShadow = true;
-    // Chevron decal PARENTED to the ramp: local +Y 0.23 = 5mm above the top
-    // face, inherits the slope so it stays flush end-to-end. The old
-    // free-floating plane at world y+0.26 was buried inside the ramp's top
-    // face (y+0.445) — invisible at the center, ghosting at the low end.
+    // Chevron decal PARENTED to the ramp: lies flush on the inclined top
+    // face (rotated by the same slopeAngle, offset to the face height at
+    // the center = H/2). The old free-floating plane at world y+0.26 was
+    // buried inside the ramp's top face — invisible at the center.
     const chev = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 1.1), chevMat);
-    chev.rotation.x = -Math.PI / 2;
-    chev.position.set(0, 0.23, 0);
+    chev.rotation.x = -Math.PI / 2 + slopeAngle;
+    chev.position.set(0, rampHeight / 2 + 0.006, 0);
     chev.renderOrder = 1;
     mesh.add(chev);
     ramps.push({ t, point: p.clone(), dir: tan.clone(), mesh, chev });

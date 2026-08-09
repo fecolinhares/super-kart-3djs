@@ -1267,7 +1267,19 @@ export class Environment {
     ];
     const crowdColors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
     for (const gs of grandstandSpots) {
-      if (this._onTrack(gs.x, gs.z, 3)) continue; // grandstand off the road (tight margin)
+      // USER BUG FIX (grandstand on the road): only the CENTER was checked
+      // against the track — a 16m-wide stand whose center sat ~9m off the
+      // centerline passed the test while one corner still crossed the
+      // asphalt. Check all four corners (rotated by ry) with a margin.
+      const cos = Math.cos(gs.ry);
+      const sin = Math.sin(gs.ry);
+      let cornerOnTrack = false;
+      for (const [lx, lz] of [[8, 2.7], [-8, 2.7], [8, -2.7], [-8, -2.7]]) {
+        const wx = gs.x + lx * cos - lz * sin;
+        const wz = gs.z + lx * sin + lz * cos;
+        if (this._onTrack(wx, wz, 4)) { cornerOnTrack = true; break; }
+      }
+      if (cornerOnTrack) continue; // grandstand off the road (tight margin)
       const grp = new THREE.Group();
       // steps (3 tiers)
       const stepMat = toonMaterial(0xdfe6ee, {});
@@ -1428,14 +1440,20 @@ export class Environment {
     // straight, the back straight, and after turn 1 — so ANY race frame has
     // cheering people beside the road, not just the grid.
     const SEGMENTS = [
-      { t0: 0.945, t1: 0.055, n: 16 }, // start straight
+      { t0: 0.945, t1: 0.055, n: 16 }, // start straight (WRAPS past 1.0)
       { t0: 0.10, t1: 0.15, n: 8 },    // exit of turn 1
       { t0: 0.19, t1: 0.25, n: 10 },   // turn 1
       { t0: 0.30, t1: 0.37, n: 8 },    // climb
       { t0: 0.45, t1: 0.56, n: 12 },   // back straight
       { t0: 0.62, t1: 0.68, n: 8 },    // descent
     ];
-    const ROWS = [1.35, 2.9]; // two rows per side, tight to the road edge
+    // Two rows per side. USER BUG FIX: the old offsets (1.35 / 2.9) were
+    // only ~1.35m past the road edge — billboard figures 1.1m wide visually
+    // spilled ONTO the asphalt, and (worse) the wrap segment below sampled
+    // the WHOLE lap in reverse, scattering spectators into every curve.
+    // Pushed out to 1.9 / 3.5 so the painted crowd clearly stands BEHIND
+    // the guard-rail line (rail at halfW + 1.1, crowd now at halfW + 1.9+).
+    const ROWS = [1.9, 3.5];
     const segN = SEGMENTS.reduce((a, s) => a + s.n, 0);
     const total = segN * ROWS.length * 2;
     // 2.5D crowd: each spectator is a painted figure (head + suit + raised
@@ -1460,7 +1478,14 @@ export class Environment {
       for (let side = -1; side <= 1; side += 2) {
         for (const rowOff of ROWS) {
           for (let i = 0; i < seg.n; i++) {
-            const t = (seg.t0 + (i / seg.n) * (seg.t1 - seg.t0)) % 1;
+            // USER BUG FIX (crowd on the road): the old formula
+            // `(t0 + i/n * (t1 - t0)) % 1` walked BACKWARD from 0.945 to
+            // 0.055 for the wrap segment — i.e. the whole lap in reverse —
+            // scattering spectators into every curve. The correct wrap
+            // length is `(t1 - t0 + 1) % 1`, so 0.945→0.055 spans the
+            // short start-straight arc past 1.0, not the full circuit.
+            const span = (seg.t1 - seg.t0 + 1) % 1;
+            const t = (seg.t0 + (i / seg.n) * span) % 1;
             path.getPointAt(t, p);
             path.getTangentAt(t, tan);
             nrm.set(-tan.z, 0, tan.x).normalize();
