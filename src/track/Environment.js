@@ -177,28 +177,36 @@ export class Environment {
     // roadside strips are built inside buildLightPoles below.)
     if (night) this.buildNeonCity(scene, track);
 
-    // --- mountains (two haze layers) -------------------------------------
-    this.buildMountains(scene);
+    if (!night) {
+      // --- mountains (two haze layers) -------------------------------------
+      this.buildMountains(scene);
 
-    // --- clouds ----------------------------------------------------------
-    this.buildClouds(scene);
+      // --- clouds ----------------------------------------------------------
+      this.buildClouds(scene);
 
-    // --- water -----------------------------------------------------------
-    this.buildWater(scene);
+      // --- water -----------------------------------------------------------
+      this.buildWater(scene);
 
-    // --- palms & props ---------------------------------------------------
-    this.buildPalms(scene);
-    this.buildForest(scene);
-    this.buildProps(scene);
-    this.buildFieldLandmarks(scene);
-    this.buildRoadsideFlowersAndRocks(scene, track);
-    this.buildLightPoles(scene, track);
-    this.buildDistanceMarks(scene); // 100m/200m posts (was dead code — never called)
-    this.buildCornerSigns(scene, track);
-    this.buildGrandstand(scene);
-    this.buildRoadsideCrowd(scene, track);
-    this.buildFlags(scene);
-    this.buildBalloons(scene);
+      // --- palms & props ---------------------------------------------------
+      this.buildPalms(scene);
+      this.buildForest(scene);
+      this.buildProps(scene);
+      this.buildFieldLandmarks(scene);
+      this.buildRoadsideFlowersAndRocks(scene, track);
+      this.buildLightPoles(scene, track); // meadow light poles
+      this.buildDistanceMarks(scene); // 100m/200m posts (was dead code — never called)
+      this.buildCornerSigns(scene, track);
+      this.buildGrandstand(scene);
+      this.buildRoadsideCrowd(scene, track);
+      this.buildFlags(scene);
+      this.buildBalloons(scene);
+    } else {
+      // City keeps the neon poles (buildLightPoles branches on night) but
+      // drops the meadow dressing — a city track must read URBAN, not
+      // "meadow with neon trim" (vision critic, track2 1/10 identity).
+      this.buildLightPoles(scene, track); // neon strips in night mode
+      this.buildRoadsideCrowd(scene, track); // sparse painted crowd still ok
+    }
   }
 
   buildMountains(scene) {
@@ -1693,11 +1701,12 @@ export class Environment {
     const dummy = new THREE.Object3D();
     const dir = new THREE.Vector3();
     let idx = 0;
-    // Row A hugs the track (65-75m); row B sits behind it (78-90m) so the
-    // skyline reads as a dense city ring, not a single dotted circle.
+    // Row A hugs the track (32-42m); row B sits behind it (42-54m) so the
+    // skyline reads as a dense city ring AND shows in the chase-cam frame
+    // (vision critic: 65-90m towers never appeared in stills).
     const rows = [
-      { seed: 21000, base: 65, range: 10 },
-      { seed: 22000, base: 78, range: 12 },
+      { seed: 21000, base: 32, range: 10 },
+      { seed: 22000, base: 42, range: 12 },
     ];
     for (const row of rows) {
       const rand = rnd(row.seed);
