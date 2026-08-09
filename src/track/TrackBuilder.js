@@ -248,6 +248,53 @@ function buildTerrain(path, cityMode = false) {
   return mesh;
 }
 
+/** Sidewalk slab (NEON CITY): a light concrete strip just outside the
+ *  guard-rail — the "street furniture" cue the vision critic asked for. */
+function buildSidewalk(path, length, side) {
+  const roadW = getRoadWidthAt();
+  const offset = side * (roadW / 2 + 1.6); // outside rail (+1.1) + margin
+  const w = 1.1;
+  const segs = 520;
+  const positions = new Float32Array((segs + 1) * 2 * 3);
+  const uvs = new Float32Array((segs + 1) * 2 * 2);
+  const indices = [];
+  const tan = new THREE.Vector3();
+  const p = new THREE.Vector3();
+  const nrm = new THREE.Vector3();
+  for (let i = 0; i <= segs; i++) {
+    const t = i / segs;
+    path.getPointAt(t, p);
+    path.getTangentAt(t, tan);
+    nrm.set(-tan.z, 0, tan.x).normalize();
+    const base = i * 2;
+    positions[base * 3 + 0] = p.x + nrm.x * offset;
+    positions[base * 3 + 1] = p.y + 0.03;
+    positions[base * 3 + 2] = p.z + nrm.z * offset;
+    positions[(base + 1) * 3 + 0] = p.x + nrm.x * (offset + w);
+    positions[(base + 1) * 3 + 1] = p.y + 0.03;
+    positions[(base + 1) * 3 + 2] = p.z + nrm.z * (offset + w);
+    uvs[base * 2] = t * 40;
+    uvs[base * 2 + 1] = 0;
+    uvs[(base + 1) * 2] = t * 40;
+    uvs[(base + 1) * 2 + 1] = 1;
+  }
+  for (let i = 0; i < segs; i++) {
+    const a = i * 2, b = i * 2 + 1, c = i * 2 + 2, d = i * 2 + 3;
+    indices.push(a, c, b, b, c, d);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  const mat = toonMaterial(0x8a90a0, {});
+  mat.map = concreteTexture();
+  mat.color.set(0xffffff);
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
 function buildCurbs(path, length, side, opts = {}) {
   const roadW = getRoadWidthAt();
   // Continuous kerbs (no gaps): block length ≈ spacing → solid red/white edge.
@@ -1011,6 +1058,11 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   const curbL = buildCurbs(path, length, -1, { neon: isCity });
   const curbR = buildCurbs(path, length, 1, { neon: isCity });
   group.add(curbL, curbR);
+
+  // NEON CITY sidewalks (light concrete strips flanking the road).
+  if (isCity) {
+    group.add(buildSidewalk(path, length, -1), buildSidewalk(path, length, 1));
+  }
 
   // Continuous guard-rails along both edges. Edge hierarchy is now organized:
   // asphalt → curbs → guard rail (roadW/2 + 0.6) → grass. Placed outside the
