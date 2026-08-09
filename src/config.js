@@ -96,7 +96,12 @@ export const CONFIG = {
     lightningDurationMs: 4500,
     lightningScale: 0.55,
     mushroomBoostMs: 1500,
-    maxHeldItems: 1,
+    maxHeldItems: 2, // MK8 dual-slot: primary + reserve (audit r3: "no hold/swap")
+    tripleChance: 1 / 6, // ~1 in 6 item boxes grants 3 queued items (MK8 triple)
+    coinCount: 10, // gold coins placed near the road edge
+    coinPickupRadius: 2.4,
+    coinSpeedBonus: 0.01, // +1% maxSpeed per coin collected
+    coinSpeedCap: 0.10, // +10% max coin bonus (10 coins)
   },
 
   ai: {

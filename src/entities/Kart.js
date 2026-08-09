@@ -74,11 +74,19 @@ export class Kart {
     this.position = 0; // race rank
     this.totalTime = 0;
     this.heldItem = null;
+    // AUDIT r3: second held-item slot (MK8 dual-slot) + triple-item stacks.
+    this.heldItem2 = null; // reserve slot (swap key / click swaps with heldItem)
+    this._heldItemCount = 1; // stack size for heldItem (1 = single, 3 = triple)
+    this._heldItem2Count = 1; // stack size for heldItem2
+    this._coins = 0; // coin pickups: +1% maxSpeed each (cap CONFIG.items.coinSpeedCap)
 
     // effect flags / timers (ms)
     this.invincible = false;
     this.starred = false;
-    this.cruiseSpeed = undefined; // AI rubber-band override must not leak across restarts (audit F9)
+    // AI rubber-band override base (must not leak across restarts — audit F9).
+    // The public `cruiseSpeed` getter/setter below folds the coin bonus into
+    // whatever KartPhysics targets every frame (see get/set cruiseSpeed).
+    this._baseCruise = undefined;
     this._boostMs = 0;
     this._starMs = 0;
     this._invMs = 0;
@@ -145,7 +153,22 @@ export class Kart {
     this.heldItemGroup.visible = false;
     this.group.add(this.heldItemGroup);
 
-    this._controls = { steer: 0, throttle: false, brake: false, drift: false, useItem: false };
+    // Second held-item bubble (audit r3 dual-slot): smaller orb behind the
+    // main one, tinted per type; scales up while a triple stack is queued.
+    this.heldItem2Group = new THREE.Group();
+    this.heldItem2Group.position.set(-0.3, 0.52, -0.88);
+    this._held2Orb = new THREE.Mesh(new THREE.SphereGeometry(0.11, 12, 10), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    this._held2OrbMat = this._held2Orb.material;
+    this.heldItem2Group.add(this._held2Orb);
+    this.heldItem2Group.add(new THREE.Mesh(
+      new THREE.TorusGeometry(0.17, 0.015, 8, 20),
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 })
+    ));
+    this.heldItem2Group.visible = false;
+    this.group.add(this.heldItem2Group);
+
+    this._controls = { steer: 0, throttle: false, brake: false, drift: false, useItem: false, swapItem: false };
+    this._swapWasDown = false;
     this._steerTarget = 0;
 
     // particle emitters (local-space offsets, manual world transform — no matrix dependency)
@@ -860,7 +883,7 @@ export class Kart {
 
   // ---- public API -----------------------------------------------------------
 
-  setControls({ steer, throttle, brake, drift, useItem } = {}) {
+  setControls({ steer, throttle, brake, drift, useItem, swapItem } = {}) {
     if (steer !== undefined) this._steerTarget = THREE.MathUtils.clamp(steer, -1, 1);
     // Throttle stays a FLOAT (AI corner-lift 0.3/0.8, rubber-band easing
     // 0.88×) — coercing to boolean killed the AI's designed corner behavior
@@ -869,6 +892,43 @@ export class Kart {
     if (brake !== undefined) this._controls.brake = !!brake;
     if (drift !== undefined) this._controls.drift = !!drift;
     if (useItem !== undefined) this._controls.useItem = !!useItem;
+    if (swapItem !== undefined) this._controls.swapItem = !!swapItem;
+  }
+
+  /** Coin-scaled top speed. KartPhysics targets `kart.cruiseSpeed || P.maxSpeed`
+   *  every frame — the getter returns the base (AI rubber-band override or the
+   *  physics maxSpeed) multiplied by 1 + coins*coinSpeedBonus (capped). Coins
+   *  are stored raw on kart._coins; this keeps the bonus live without touching
+   *  KartPhysics or the AI's cruise override writes. */
+  get cruiseSpeed() {
+    const base = this._baseCruise !== undefined ? this._baseCruise : CONFIG.physics.maxSpeed;
+    const coins = this._coins || 0;
+    const bonus = Math.min(CONFIG.items.coinSpeedCap, coins * CONFIG.items.coinSpeedBonus);
+    return base * (1 + bonus);
+  }
+
+  set cruiseSpeed(v) {
+    this._baseCruise = v;
+  }
+
+  /** Exchange the primary and reserve slots (MK8 hold/swap strategy). */
+  swapHeldItems() {
+    if (!this.heldItem && !this.heldItem2) return;
+    const t = this.heldItem;
+    this.heldItem = this.heldItem2;
+    this.heldItem2 = t;
+    const c = this._heldItemCount;
+    this._heldItemCount = this._heldItem2Count;
+    this._heldItem2Count = c;
+    this._onSwap?.();
+  }
+
+  /** Add coins (max +10% top speed). Returns true when collected. */
+  addCoin() {
+    const maxCoins = Math.max(1, Math.round(CONFIG.items.coinSpeedCap / CONFIG.items.coinSpeedBonus));
+    if ((this._coins || 0) >= maxCoins) return false;
+    this._coins = (this._coins || 0) + 1;
+    return true;
   }
 
   /**
@@ -910,6 +970,10 @@ export class Kart {
     this.totalTime = null;
     this.position = 0;
     this.heldItem = null;
+    this.heldItem2 = null; // dual-slot + triple stacks reset with the race
+    this._heldItemCount = 1;
+    this._heldItem2Count = 1;
+    this._coins = 0; // coin bonus is per-race (MK8D)
     this.invincible = false;
     this.starred = false;
     this._boostMs = 0;
@@ -928,7 +992,8 @@ export class Kart {
     this._offRoadT = 0; // AUDIT r3: no grass-exit kick from the previous race
     this._nudgeVel.set(0, 0, 0);
     this._lastProgress = 0; // avoids a phantom lap on restart
-    this._controls = { steer: 0, throttle: false, brake: false, drift: false, useItem: false };
+    this._controls = { steer: 0, throttle: false, brake: false, drift: false, useItem: false, swapItem: false };
+    this._swapWasDown = false;
     this._steerTarget = 0;
     this.group.position.copy(s.position);
     this.group.rotation.set(0, s.heading, 0);
@@ -995,11 +1060,17 @@ export class Kart {
   }
 
   /** Holding a shell/banana behind blocks an incoming hit (MK8 pillar).
-   *  Consumes the held item. Returns true when the hit was absorbed. */
+   *  Checks the primary slot first, then the reserve (dual-slot, audit r3).
+   *  Consumes the whole slot's stack. Returns true when the hit was absorbed. */
   _blockWithHeldItem() {
-    if (!this.heldItem) return false;
-    if (this.heldItem !== PowerUpType.SHELL && this.heldItem !== PowerUpType.BANANA && this.heldItem !== PowerUpType.RED_SHELL) return false;
-    this.heldItem = null;
+    const slot = this.heldItem
+      ? { key: 'heldItem', countKey: '_heldItemCount' }
+      : this.heldItem2 ? { key: 'heldItem2', countKey: '_heldItem2Count' } : null;
+    if (!slot) return false;
+    const type = this[slot.key];
+    if (type !== PowerUpType.SHELL && type !== PowerUpType.BANANA && type !== PowerUpType.RED_SHELL) return false;
+    this[slot.key] = null;
+    this[slot.countKey] = 1;
     return true;
   }
 
@@ -1043,6 +1114,10 @@ export class Kart {
     this.position = 0;
     this.totalTime = 0;
     this.heldItem = null;
+    this.heldItem2 = null;
+    this._heldItemCount = 1;
+    this._heldItem2Count = 1;
+    this._coins = 0;
     this._boostMs = 0;
     this._starMs = 0;
     this._spinMs = 0;
@@ -1072,6 +1147,10 @@ export class Kart {
       this._brakeLampMat.emissiveIntensity += (target - this._brakeLampMat.emissiveIntensity) * Math.min(1, 10 * dt);
     }
     this._tickEffects(dt);
+    // Swap input (rising edge): Tab / HUD mini-slot click exchange the two
+    // held slots. Consumed here so setControls stays level-triggered.
+    if (this._controls.swapItem && !this._swapWasDown) this.swapHeldItems();
+    this._swapWasDown = !!this._controls.swapItem;
     // Held-item bubble sync (audit v5): show the per-type mesh (orb fallback).
     if (this.heldItemGroup) {
       const has = !!this.heldItem;
@@ -1087,6 +1166,18 @@ export class Kart {
           if (this._heldOrbMat.color.getHex() !== c) this._heldOrbMat.color.setHex(c);
         }
         this.heldItemGroup.rotation.y += dt * 2.4; // gentle spin
+      }
+    }
+    // Second bubble sync (audit r3): tint by reserve type, scale for triples.
+    if (this.heldItem2Group) {
+      const has2 = !!this.heldItem2;
+      this.heldItem2Group.visible = has2;
+      if (has2) {
+        const c2 = HELD_ITEM_COLORS[this.heldItem2] || 0xffffff;
+        if (this._held2OrbMat.color.getHex() !== c2) this._held2OrbMat.color.setHex(c2);
+        const stackScale = (this._heldItem2Count || 1) > 1 ? 1.4 : 1;
+        this.heldItem2Group.scale.setScalar(stackScale);
+        this.heldItem2Group.rotation.y += dt * 2.4; // gentle spin
       }
     }
     // Trick (MK8 pillar): pressing throttle mid-air arms a trick; landing

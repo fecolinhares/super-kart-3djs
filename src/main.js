@@ -99,6 +99,12 @@ const particles = new ParticleSystem(scene);
 const skids = new SkidMarks(scene);
 const raceManager = new RaceManager(scene, camera);
 const hud = new HUD(track);
+// AUDIT r3 dual-slot: the HUD's mini reserve slot is clickable — the touch
+// counterpart to the Tab swap key (Swap itself runs in Kart.swapHeldItems;
+// this just feeds it the click).
+hud.onSwap = () => {
+  if (playerKart && playerKart.swapHeldItems) playerKart.swapHeldItems();
+};
 hud._onPositionChange = (dir) => {
   // Overtake/loss feedback (audit UX-v3 F2): subtle blips, player only.
   audio.play(dir === 'up' ? 'posUp' : 'posDown', { volume: 0.5 });
@@ -125,6 +131,8 @@ let countdownT = 0;
 let countdownIndex = -1;
 let offroadT = 0.55; // off-road gravel SFX accumulator (feedback audit)
 let lastHeldItem = null;
+let lastHeldItem2 = null; // reserve-slot toast tracker (audit r3 dual-slot)
+let suppressNextItemToast = 0; // swap feedback replaces the pickup fanfare for 1 frame
 let lastLap = 0;
 let finalLapShown = false; // FINAL LAP callout (audit v5 #5)
 let driftScreechAcc = 0; // drift tire screech accumulator
@@ -266,6 +274,12 @@ function buildKarts() {
   });
   scene.add(playerKart.group);
   wireMiniBoost(playerKart);
+  // Swap feedback: a click blip + one frame without the pickup fanfare (the
+  // frame-loop toast would otherwise re-announce the item as a fresh pickup).
+  playerKart._onSwap = () => {
+    audio.play('uiClick');
+    suppressNextItemToast = 1;
+  };
 
   aiKarts = [];
   let aiNum = 2;
@@ -295,10 +309,13 @@ function buildKarts() {
 // ---------------------------------------------------------------------------
 // Input (desktop keyboard)
 // ---------------------------------------------------------------------------
-const input = { steer: 0, throttle: 0, brake: false, drift: false };
+const input = { steer: 0, throttle: 0, brake: false, drift: false, swapItem: false };
 const keys = new Set();
 let touchSteer = 0;
 let touchDrift = false;
+// AUDIT r3 dual-slot: Tab queues a one-frame swapItem input (consumed by
+// readKeyboardInput → setControls → Kart.update rising edge).
+let swapQueued = false;
 
 function setTouchSteer(v) {
   touchSteer = v;
@@ -317,12 +334,16 @@ function readKeyboardInput() {
   input.throttle = up ? 1 : 0;
   input.brake = down;
   input.drift = keys.has('ShiftLeft') || keys.has('ShiftRight') || touchDrift;
+  input.swapItem = swapQueued;
+  swapQueued = false;
 }
 
 function pressItem() {
   if (getState() !== STATES.RACE || !playerKart) return;
-  if (!playerKart.heldItem) return;
-  const used = playerKart.heldItem;
+  // Dual-slot (audit r3): an item in EITHER slot can fire — useItem promotes
+  // the reserve into the primary when the primary is empty.
+  if (!playerKart.heldItem && !playerKart.heldItem2) return;
+  const used = playerKart.heldItem || playerKart.heldItem2;
   raceManager.useItem(playerKart);
   // Feedback: show what you just used (user: item use felt unclear).
   const LABELS = {
@@ -342,6 +363,10 @@ window.addEventListener('keydown', (e) => {
   }
   if (e.code === 'KeyP' || e.code === 'Escape') {
     // Pause toggles handled by state machine below.
+  }
+  if (e.code === 'Tab') {
+    e.preventDefault(); // keep Tab from stealing focus
+    swapQueued = true;
   }
   if (e.code === 'KeyR') {
     if (getState() === STATES.FINISHED || getState() === STATES.RACE) restartRace();
@@ -393,7 +418,8 @@ function applyDifficulty() {
   // AUDIT r5: gauge scale follows engine class (the needle used to PEG at
   // 150cc — MAX_KMH was a load-time constant). +10% headroom above top speed.
   if (typeof hud !== 'undefined' && hud && hud.setMaxKmh) {
-    hud.setMaxKmh(CONFIG.physics.maxSpeed * 2.4 * 1.1);
+    // 1.25 headroom: CC scale + coin bonus (+10%) + boost spikes
+    hud.setMaxKmh(CONFIG.physics.maxSpeed * 2.4 * 1.25);
   }
 }
 
@@ -550,6 +576,8 @@ function restartRace() {
   // new race (the loop's `else if (!heldItem)` eventually clears them, but
   // explicit reset avoids a flash of the old item / gravel rumble at GO).
   lastHeldItem = null;
+  lastHeldItem2 = null;
+  suppressNextItemToast = 0;
   offroadT = 0.55;
   if (playerKart) playerKart.position = CONFIG.game.numKarts;
   hud.reset();
@@ -820,6 +848,7 @@ loop.start((dt, t) => {
           throttle: effThrottle * statAccel,
           brake: input.brake,
           drift: input.drift,
+          swapItem: input.swapItem,
         });
       }
       for (const ctrl of raceManager.aiControllers) ctrl.update(dt);
@@ -839,23 +868,33 @@ loop.start((dt, t) => {
         audio.play('posUp', { volume: 0.7 });
       }
       // Toast the item the player just picked up — ICON first, then name.
-      if (playerKart.heldItem && playerKart.heldItem !== lastHeldItem) {
+      // AUDIT r3 dual-slot: watches BOTH slots (a pickup lands in the reserve
+      // when the primary is full) and shows ×N for triple stacks.
+      if (playerKart.heldItem !== lastHeldItem || playerKart.heldItem2 !== lastHeldItem2) {
+        if (suppressNextItemToast > 0) {
+          suppressNextItemToast--; // swap already announced itself
+        } else if (playerKart.heldItem || playerKart.heldItem2) {
+          const primaryChanged = playerKart.heldItem !== lastHeldItem && playerKart.heldItem;
+          const changed = primaryChanged ? playerKart.heldItem : playerKart.heldItem2;
+          const count = changed === playerKart.heldItem
+            ? playerKart._heldItemCount || 1
+            : playerKart._heldItem2Count || 1;
+          audio.play('pickup'); // item fanfare (was silent — UX gap)
+          hud.setItemRoulette(changed, count); // MK8 roulette spin (audit minor)
+          // Keys match PowerUpType VALUES (lowercase): mushroom, shell, red_shell…
+          const ITEMS = {
+            mushroom: ['🍄', 'Mushroom'],
+            shell: ['🐢', 'Green Shell'],
+            red_shell: ['🐢', 'Red Shell'],
+            banana: ['🍌', 'Banana'],
+            star: ['⭐', 'Star'],
+            lightning: ['⚡', 'Lightning'],
+          };
+          const [icon, name] = ITEMS[changed] || ['❓', changed];
+          hud.showMessage(count > 1 ? `${icon} ${name} ×${count}` : `${icon} ${name}`);
+        }
         lastHeldItem = playerKart.heldItem;
-        audio.play('pickup'); // item fanfare (was silent — UX gap)
-        hud.setItemRoulette(playerKart.heldItem); // MK8 roulette spin (audit minor)
-        // Keys match PowerUpType VALUES (lowercase): mushroom, shell, red_shell…
-        const ITEMS = {
-          mushroom: ['🍄', 'Mushroom'],
-          shell: ['🐢', 'Green Shell'],
-          red_shell: ['🐢', 'Red Shell'],
-          banana: ['🍌', 'Banana'],
-          star: ['⭐', 'Star'],
-          lightning: ['⚡', 'Lightning'],
-        };
-        const [icon, name] = ITEMS[playerKart.heldItem] || ['❓', playerKart.heldItem];
-        hud.showMessage(`${icon} ${name}`);
-      } else if (!playerKart.heldItem) {
-        lastHeldItem = null;
+        lastHeldItem2 = playerKart.heldItem2;
       }
     } else {
       // FINISHED — cruise: AI drives the player at reduced speed, engines

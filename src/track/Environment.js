@@ -1545,6 +1545,95 @@ export class Environment {
       }
     }
 
+    // --- 4) CASTLE landmark (vision critic r5: 'iconic structures that
+    // define the location') — the Meadow's identity piece: a warm-stone keep
+    // (0xc9b38f) with 4 corner turrets, slate cone roofs, a darker-stone
+    // plinth/trim (0xb3a17e) and a waving banner pennant on the keep roof.
+    // Centered on the loop CENTROID (deepest point of the infield, ~58m
+    // from the road — reads as the track's landmark from every camera
+    // without ever touching the racing line). Placement uses a fixed LOCAL
+    // seed so the shared this._rand stream stays untouched (every later
+    // builder keeps its bit-identical layout). Grounded on this._gy. ---
+    {
+      const rand = rnd(56000);
+      const n = loop.length / 2;
+      let ccx = 0;
+      let ccz = 0;
+      for (let i = 0; i < loop.length; i += 2) { ccx += loop[i]; ccz += loop[i + 1]; }
+      ccx /= n;
+      ccz /= n;
+      // Small deterministic nudge so the keep isn't dead-on the centroid.
+      ccx += (rand() - 0.5) * 4;
+      ccz += (rand() - 0.5) * 4;
+      // Belt & suspenders: only build when the spot really is deep inside.
+      if (inLoop(ccx, ccz) && distToLoop(ccx, ccz) >= 15) {
+        // Keep the base clear: drop any infield prop within 6m of the keep.
+        const clearR2 = 36;
+        for (const arr of [bushes, rocks, flowers]) {
+          for (let i = arr.length - 1; i >= 0; i--) {
+            const dx = arr[i].x - ccx;
+            const dz = arr[i].z - ccz;
+            if (dx * dx + dz * dz < clearR2) arr.splice(i, 1);
+          }
+        }
+        const gy = this._gy(ccx, ccz);
+        const castle = new THREE.Group();
+        const stoneMat = toonMaterial(0xc9b38f, {});   // warm stone
+        const trimMat = toonMaterial(0xb3a17e, {});    // darker trim + plinth
+        const roofMat = toonMaterial(0x6b84a8, {});    // slate cone roofs
+        const poleMat = toonMaterial(0x6d4c41, {});    // banner pole (wood)
+        const pennantMat = toonMaterial(0xe2504f, {}); // red pennant (windmill red)
+        // base plinth — plants the keep on the rolling turf
+        const plinth = new THREE.Mesh(new THREE.CylinderGeometry(2.7, 3.0, 0.6, 16), trimMat);
+        plinth.position.set(ccx, gy + 0.3, ccz);
+        plinth.castShadow = true;
+        castle.add(plinth);
+        // keep body — the main tower (castleShadow on)
+        const keep = new THREE.Mesh(new THREE.CylinderGeometry(1.35, 1.6, 3.8, 16), stoneMat);
+        keep.position.set(ccx, gy + 0.6 + 1.9, ccz);
+        keep.castShadow = true;
+        castle.add(keep);
+        // darker trim ring just below the parapet
+        const trim = new THREE.Mesh(new THREE.CylinderGeometry(1.42, 1.42, 0.28, 16), trimMat);
+        trim.position.set(ccx, gy + 4.1, ccz);
+        castle.add(trim);
+        // keep roof — slate cone with a slight overhang
+        const keepRoof = new THREE.Mesh(new THREE.ConeGeometry(1.85, 1.3, 16), roofMat);
+        keepRoof.position.set(ccx, gy + 4.4 + 0.65, ccz);
+        keepRoof.castShadow = true;
+        castle.add(keepRoof);
+        // 4 corner turrets (diagonal corners of the keep) + cone roofs
+        const turretGeo = new THREE.CylinderGeometry(0.5, 0.62, 2.8, 12);
+        const turretRoofGeo = new THREE.ConeGeometry(0.78, 1.15, 12);
+        for (let i = 0; i < 4; i++) {
+          const a = (i / 4) * Math.PI * 2 + Math.PI / 4; // corners at 45 deg
+          const tx = ccx + Math.cos(a) * 1.9;
+          const tz = ccz + Math.sin(a) * 1.9;
+          const turret = new THREE.Mesh(turretGeo, stoneMat);
+          turret.position.set(tx, gy + 0.6 + 1.4, tz);
+          turret.castShadow = true;
+          castle.add(turret);
+          const troof = new THREE.Mesh(turretRoofGeo, roofMat);
+          troof.position.set(tx, gy + 0.6 + 2.8 + 0.575, tz);
+          troof.castShadow = true;
+          castle.add(troof);
+        }
+        // banner pole + waving pennant on the keep roof
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.06, 1.7, 6), poleMat);
+        pole.position.set(ccx, gy + 5.7 + 0.85, ccz);
+        castle.add(pole);
+        const pennantPivot = new THREE.Group();
+        const pennant = new THREE.Mesh(new THREE.ConeGeometry(0.5, 0.95, 3), pennantMat);
+        pennant.rotation.z = -Math.PI / 2; // fly horizontally off the pole
+        pennant.position.x = 0.475;        // base at the pole, tip pointing out
+        pennantPivot.add(pennant);
+        pennantPivot.position.set(ccx, gy + 5.7 + 1.7, ccz);
+        castle.add(pennantPivot);
+        this.flagMeshes.push(pennantPivot); // update() waves the pennant
+        scene.add(castle);
+      }
+    }
+
     // --- instanced meshes (4 draw calls for the whole infield) -------------
     if (bushes.length) {
       const mesh = new THREE.InstancedMesh(bushGeo, bushMat, bushes.length);

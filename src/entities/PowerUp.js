@@ -206,7 +206,11 @@ export function useItem(kart, ctx = {}) {
         other.applyScale?.(CONFIG.items.lightningScale, CONFIG.items.lightningDurationMs);
         // MK8-style: lightning knocks the held item away + a small hop
         // (audit v5 #4 — victims kept their shield AND had no shock animation).
+        // AUDIT r3: knocks BOTH held slots (dual-slot) + triple stacks.
         if (other.heldItem) other.heldItem = null;
+        other._heldItemCount = 1;
+        if (other.heldItem2) other.heldItem2 = null;
+        other._heldItem2Count = 1;
         other.state.vY = Math.max(other.state.vY ?? 0, 2.4);
         // Electric burst on each victim (art-bible: drama on hit).
         ctx.particles?.emit?.('lightning', kartPosition(other), { count: 18, speed: 7.5, size: 0.34 });

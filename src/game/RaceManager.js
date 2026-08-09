@@ -7,6 +7,7 @@
  * Kart API is duck-typed wherever possible; Kart is imported only for an
  * instanceof sanity check in init().
  */
+import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { Kart } from '../entities/Kart.js';
 import { AIController } from '../entities/AIController.js';
@@ -26,6 +27,121 @@ const CONTACT_SPIN_MS_MAX = 950;   // rammer spin duration (severe T-bone)
 const CONTACT_RAM_COOLDOWN = 1.1;  // s per kart between spin triggers
 const CONTACT_SFX_COOLDOWN = 0.22; // s between crash SFX (pack collisions)
 
+// ---------------------------------------------------------------------------
+// Coin pickups (audit r3: "no coins") — small gold cylinders near the road
+// edge. Each coin grants +1% top speed (cap +10%, CONFIG.items.coinSpeedCap)
+// via kart.addCoin(); Kart exposes `cruiseSpeed` as base * (1 + coins*0.01),
+// which KartPhysics targets every frame. Placement is deterministic (fixed
+// jitter like createItemBoxes), single-collect per race, reset on restart.
+// ---------------------------------------------------------------------------
+
+class Coin {
+  constructor(track, t, side, jitter) {
+    this.track = track;
+    this.t = t;
+    this.side = side;
+    this.active = true;
+    this.bobPhase = (t * 40 + side * 3) % (Math.PI * 2);
+    this.base = this._computeBase(track, t, side, jitter);
+    this.mesh = this._buildMesh();
+  }
+
+  /** Center point on the road, offset laterally toward the EDGE (off the
+   *  racing line, on the asphalt — MK8 coin rows hug the kerb). */
+  _computeBase(track, t, side, jitter) {
+    const path = track.path;
+    const tt = Math.min(Math.max(t, 0.001), 0.999);
+    const point = path.getPointAt(tt);
+    const tangent = path.getTangentAt(tt);
+    // perpendicular in the XZ plane (same math as ItemBox)
+    const px = -tangent.z;
+    const pz = tangent.x;
+    const pl = Math.hypot(px, pz) || 1;
+    const lateral = CONFIG.track.roadWidth * (0.36 + jitter * 0.08) * side;
+    return {
+      x: point.x + (px / pl) * lateral,
+      y: point.y + 0.45,
+      z: point.z + (pz / pl) * lateral,
+    };
+  }
+
+  _buildMesh() {
+    const mesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.17, 0.17, 0.06, 18),
+      new THREE.MeshToonMaterial({ color: 0xffd166, emissive: 0xffaa00, emissiveIntensity: 0.35 })
+    );
+    mesh.position.set(this.base.x, this.base.y, this.base.z);
+    mesh.castShadow = true;
+    // bright rim so the coin reads as a coin, not a pebble
+    const rim = new THREE.Mesh(
+      new THREE.TorusGeometry(0.17, 0.02, 8, 18),
+      new THREE.MeshBasicMaterial({ color: 0xfff3c4 })
+    );
+    rim.rotation.x = Math.PI / 2;
+    mesh.add(rim);
+    return mesh;
+  }
+
+  reset() {
+    this.active = true;
+    if (this.mesh) this.mesh.visible = true;
+  }
+
+  update(dt, karts, raceManager) {
+    if (!this.active) return;
+    this.bobPhase += dt * 2.6;
+    if (this.mesh) {
+      this.mesh.position.y = this.base.y + Math.sin(this.bobPhase) * 0.12;
+      this.mesh.rotation.y += dt * 3.2; // spinning coin
+    }
+    const list = karts || [];
+    const r = CONFIG.items.coinPickupRadius;
+    const rr = r * r;
+    for (const kart of list) {
+      if (!kart || kart.finished) continue;
+      const p = kart.group ? kart.group.position : kart.state?.position;
+      if (!p) continue;
+      const dx = p.x - this.base.x;
+      const dz = p.z - this.base.z;
+      if (dx * dx + dz * dz < rr) {
+        if (this._collect(kart, raceManager)) break;
+      }
+    }
+  }
+
+  _collect(kart, raceManager) {
+    if (!kart.addCoin || !kart.addCoin()) return false; // capped — coin stays for rivals
+    this.active = false;
+    if (this.mesh) this.mesh.visible = false;
+    // Player gets the sparkle + blip; AI stays quiet (matches item pickups).
+    if (raceManager && kart === raceManager.player) {
+      raceManager.audio?.play?.('itemPickup');
+      raceManager.particles?.emit?.('sparkle', new THREE.Vector3(this.base.x, this.base.y + 0.2, this.base.z), {
+        count: 10, speed: 3.2, size: 0.18, color: 0xffd166,
+      });
+    }
+    return true;
+  }
+
+  dispose() {
+    this.mesh?.geometry?.dispose?.();
+    this.mesh?.material?.dispose?.();
+  }
+}
+
+/** Deterministic coin row: fixed jitter, alternating sides, near the kerb. */
+export function createCoins(track, count = 10) {
+  const coins = [];
+  const n = Math.max(4, count);
+  const jitter = [0.0, 0.5, -0.4, 0.3, -0.5, 0.4, -0.3, 0.5, -0.2, 0.2, -0.6, 0.6];
+  for (let i = 0; i < n; i++) {
+    const t = 0.06 + (i / n) * 0.88 + ((i % 5) - 2) * 0.012;
+    const side = i % 2 === 0 ? 1 : -1;
+    coins.push(new Coin(track, t, side, jitter[i % jitter.length]));
+  }
+  return coins;
+}
+
 export class RaceManager {
   constructor(scene, camera) {
     this.scene = scene;
@@ -34,6 +150,7 @@ export class RaceManager {
     this.karts = [];
     this.aiControllers = [];
     this.itemBoxes = [];
+    this.coins = []; // gold coin pickups (audit r3)
     this.activeItems = []; // ShellProjectile / Banana / StarEffect
 
     this.player = null;
@@ -93,6 +210,19 @@ export class RaceManager {
       }
     }
 
+    // AUDIT r3: coin pickups — drop the previous set (leak-safe), then place
+    // a deterministic row near the road edge from the track path.
+    if (this.coins && this.scene) {
+      for (const c of this.coins) {
+        if (c.mesh) this.scene.remove(c.mesh);
+        c.dispose?.();
+      }
+    }
+    this.coins = track ? createCoins(track, CONFIG.items.coinCount) : [];
+    if (this.scene) {
+      for (const c of this.coins) if (c.mesh) this.scene.add(c.mesh);
+    }
+
     this.aiControllers = (aiKarts || []).map((k, i) => new AIController(k, track, this, i));
 
     // Build the navigation cache for AI + projectile off-track culling.
@@ -129,6 +259,7 @@ export class RaceManager {
     }
     this.activeItems = [];
     for (const box of this.itemBoxes) box.reset?.();
+    for (const coin of this.coins) coin.reset?.();
     // AUDIT FIX (gameplay): the finish handler pushes a cruise controller for
     // the player kart; rebuild would re-randomize AI lanes (kart.position is
     // rank, all reset to numKarts), so instead drop the player's extra
@@ -159,6 +290,10 @@ export class RaceManager {
     this.elapsed += dt;
 
     for (const box of this.itemBoxes) box.update?.(dt, this.karts, this);
+    // Full-primary karts can still grab a box into their RESERVE slot
+    // (ItemBox only picks up into an empty primary — audit r3 dual-slot).
+    this._updateReservePickups();
+    for (const coin of this.coins) coin.update?.(dt, this.karts, this);
     this._updateActiveItems(dt);
 
     if (this.phase === 'countdown') {
@@ -388,25 +523,69 @@ export class RaceManager {
   // -------------------------------------------------------------------------
 
   /** Roll a weighted PowerUpType and hand it to the kart. The roll is
-   *  position-aware: leaders get defensive items, tail-enders get comebacks. */
+   *  position-aware: leaders get defensive items, tail-enders get comebacks.
+   *  AUDIT r3 dual-slot: fills the primary first, the reserve slot otherwise;
+   *  ~1-in-6 boxes grant a TRIPLE (3 identical items queued as a stack —
+   *  using one auto-queues the next via useItem). */
   pickupItem(kart) {
-    if (!kart || kart.heldItem) return null;
+    if (!kart || (kart.heldItem && kart.heldItem2)) return null; // both slots full
     const n = this.karts.length || 6;
     const pos01 = n > 1 ? Math.max(0, Math.min(1, (kart.position - 1) / (n - 1))) : 0.5;
     const type = rollPowerUpType(pos01);
-    kart.heldItem = type;
+    // Triple box: the whole stack rides in ONE slot (MK8: your hold slot
+    // shows ×3 and refills itself as you use it). Reserved for the free slot
+    // so a full primary + empty reserve still queues behind heldItem2.
+    const triple = Math.random() < CONFIG.items.tripleChance;
+    if (kart.heldItem) {
+      kart.heldItem2 = type;
+      kart._heldItem2Count = triple ? 3 : 1;
+    } else {
+      kart.heldItem = type;
+      kart._heldItemCount = triple ? 3 : 1;
+    }
     // Player gets the full 'pickup' fanfare from main.js's heldItem change
     // hook; AI pickups keep a quiet discrete blip (no double chime — audit F2).
     if (kart !== this.player) this.audio?.play?.('itemPickup');
     return type;
   }
 
+  /** Reserve-slot pickup pass: ItemBox.update() skips karts whose PRIMARY
+   *  slot is full, so it can never fill heldItem2. This pass extends box
+   *  eligibility to karts with a full primary + empty reserve (MK8 dual-slot:
+   *  hold a defensive item AND carry a second one for later). */
+  _updateReservePickups() {
+    const r = CONFIG.items.pickupRadius;
+    const rr = r * r;
+    for (const box of this.itemBoxes) {
+      if (!box || !box.active || !box.mesh) continue;
+      for (const kart of this.karts) {
+        if (!kart || kart.finished) continue;
+        if (!kart.heldItem || kart.heldItem2) continue; // only full-primary, empty-reserve
+        const p = kart.group ? kart.group.position : kart.state?.position;
+        if (!p) continue;
+        const dx = p.x - box.mesh.position.x;
+        const dz = p.z - box.mesh.position.z;
+        if (dx * dx + dz * dz < rr) {
+          this.pickupItem(kart); // primary full -> lands in heldItem2
+          box._consume?.();
+          break;
+        }
+      }
+    }
+  }
+
   /** Central item-usage entry point — builds the ctx for PowerUp.useItem.
    *  AI shells/red shells target the nearest rival AHEAD of the shooter
    *  (standings-based, not always the player — audit r2); the player passes
-   *  none (PowerUp then picks the nearest rival ahead itself). */
+   *  none (PowerUp then picks the nearest rival ahead itself).
+   *  AUDIT r3 dual-slot: an empty primary pulls the reserve slot forward
+   *  (Space always works); triple stacks auto-queue the next item after use. */
   useItem(kart) {
-    if (!kart || !kart.heldItem) return;
+    if (!kart || (!kart.heldItem && !kart.heldItem2)) return;
+    if (!kart.heldItem && kart.heldItem2) this._promoteHeldItem(kart);
+    if (!kart.heldItem) return;
+    const stackCount = kart._heldItemCount || 1;
+    const stackType = kart.heldItem;
     const targetKart = kart === this.player ? null : this._pickRivalAhead(kart);
     applyItemEffect(kart, {
       scene: this.scene,
@@ -416,6 +595,24 @@ export class RaceManager {
       particles: this.particles,
       targetKart,
     });
+    // MK8 triple: the next of a triple stack refills the freed hold slot.
+    if (stackType && stackCount > 1) {
+      kart._heldItemCount = stackCount - 1;
+      kart.heldItem = stackType;
+    } else {
+      kart._heldItemCount = 1;
+    }
+  }
+
+  /** Move the reserve slot into the primary (whole stack moves; the primary
+   *  is empty when called). Slot-2 singles promote too, so pressing use with
+   *  only a reserve item still fires it. */
+  _promoteHeldItem(kart) {
+    if (!kart.heldItem2) return;
+    kart.heldItem = kart.heldItem2;
+    kart._heldItemCount = kart._heldItem2Count || 1;
+    kart.heldItem2 = null;
+    kart._heldItem2Count = 1;
   }
 
   /** Nearest rival AHEAD of the shooter by race standings (position 1 =
@@ -449,6 +646,10 @@ export class RaceManager {
     kart.totalTime = null;
     kart.position = 0;
     kart.heldItem = null;
+    kart.heldItem2 = null; // dual-slot + triple stacks reset with the race
+    kart._heldItemCount = 1;
+    kart._heldItem2Count = 1;
+    kart._coins = 0;
     if (typeof kart.restart === 'function') {
       kart.restart();
       return;

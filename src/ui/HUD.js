@@ -109,6 +109,7 @@ export class HUD {
         </div>
         <div class="sk3d-hud-right">
           <div class="sk3d-chip sk3d-time">0:00.0</div>
+          <div class="sk3d-chip sk3d-coins" title="Coin top-speed bonus (max +10%)" style="color:#ffd166;letter-spacing:0.06em;">🪙 <span class="sk3d-coin-count">0</span><span class="sk3d-coin-max">/${Math.round(CONFIG.items.coinSpeedCap / CONFIG.items.coinSpeedBonus)}</span></div>
         </div>
       </div>
       <div class="sk3d-hud-bottom"></div>
@@ -166,6 +167,18 @@ export class HUD {
     this.lapBarFillEl = this.root.querySelector('.sk3d-lap-bar-fill');
     this.timeEl = this.root.querySelector('.sk3d-time');
     this.itemIconEl = this.root.querySelector('.sk3d-item-icon');
+    // AUDIT r3 dual-slot: reserve slot + coin counter refs.
+    this.itemCountEl = this.root.querySelector('.sk3d-item-count');
+    this.item2SlotEl = this.root.querySelector('.sk3d-item2-slot');
+    this.item2IconEl = this.root.querySelector('.sk3d-item2-icon');
+    this.item2CountEl = this.root.querySelector('.sk3d-item2-count');
+    this.coinCountEl = this.root.querySelector('.sk3d-coin-count');
+    this.onSwap = null; // wired by main.js: swap the player's held slots
+    if (this.item2SlotEl) {
+      this.item2SlotEl.addEventListener('click', () => {
+        if (this.onSwap) this.onSwap();
+      });
+    }
     this.countdownEl = this.root.querySelector('.sk3d-countdown');
     this.finishEl = this.root.querySelector('.sk3d-finish');
     this.finishCardEl = this.root.querySelector('.sk3d-finish-card');
@@ -195,6 +208,10 @@ export class HUD {
     this._lapPct = null;
     this._timeText = null;
     this.itemType = null;
+    this._itemCount = 1; // main slot stack size (triple badge)
+    this._item2Type = null; // reserve slot cache
+    this._item2Count = 1;
+    this._coins = 0;
 
     // Circular minimap — sits between the left chips and the race clock.
     this._mm = this.buildMinimap(track);
@@ -297,13 +314,33 @@ export class HUD {
   }
 
   buildItemSlot() {
+    // Stacked pair: the main ITEM slot + a mini RESERVE slot underneath
+    // (audit r3 dual-slot). Clicking the mini slot swaps the two — the touch
+    // counterpart to the Tab swap key. Count badges show triple stacks (×3).
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:6px;';
+
     const slot = document.createElement('div');
     slot.className = 'sk3d-chip sk3d-item-slot';
     slot.innerHTML = `
       <span class="sk3d-item-label">ITEM</span>
       <span class="sk3d-item-icon sk3d-item-empty">?</span>
-      <span class="sk3d-item-name"></span>`;
-    return slot;
+      <span class="sk3d-item-name"></span>
+      <span class="sk3d-item-count sk3d-hidden">×1</span>`;
+    const countEl = slot.querySelector('.sk3d-item-count');
+    countEl.style.cssText = 'position:absolute;bottom:-7px;right:-7px;background:#e53e3e;color:#fff;font-size:0.62rem;font-weight:800;line-height:1;border-radius:8px;padding:3px 6px;border:2px solid rgba(255,255,255,0.65);box-shadow:0 2px 0 rgba(0,0,0,0.3);';
+
+    const mini = document.createElement('div');
+    mini.className = 'sk3d-chip sk3d-item-slot sk3d-item2-slot';
+    mini.setAttribute('title', 'Reserve item — click (or Tab) to swap');
+    mini.style.cssText = 'width:44px;height:44px;font-size:1.3rem;border-width:2px;border-radius:10px;cursor:pointer;opacity:0.95;';
+    mini.innerHTML = `<span class="sk3d-item2-icon sk3d-item-empty">?</span>
+      <span class="sk3d-item2-count sk3d-hidden">×1</span>`;
+    const miniCount = mini.querySelector('.sk3d-item2-count');
+    miniCount.style.cssText = 'position:absolute;bottom:-6px;right:-6px;background:#e53e3e;color:#fff;font-size:0.56rem;font-weight:800;line-height:1;border-radius:7px;padding:2px 5px;border:2px solid rgba(255,255,255,0.65);';
+
+    wrap.append(slot, mini);
+    return wrap;
   }
 
   /**
@@ -526,9 +563,12 @@ export class HUD {
       this.draftEl.classList.toggle('sk3d-hidden', !drafting);
     }
 
-    // Held item slot.
+    // Held item slots (audit r3 dual-slot: primary + reserve + coin counter).
     const item = player ? player.heldItem : null;
-    this.setItem(item);
+    this.setItem(item, player ? player._heldItemCount || 1 : 1);
+    const item2 = player ? player.heldItem2 : null;
+    this.setItem2(item2, player ? player._heldItem2Count || 1 : 1);
+    this.setCoins(player ? player._coins || 0 : 0);
 
     // Minimap dots.
     this._updateMinimap(karts);
@@ -551,10 +591,13 @@ export class HUD {
     this._maxKmh = Math.max(40, Math.round(kmh));
   }
 
-  /** @param {string|null} itemType PowerUpType key, or null/undefined for empty. */
-  setItem(itemType) {
-    if (itemType === this.itemType) return;
+  /** @param {string|null} itemType PowerUpType key, or null/undefined for empty.
+   *  @param {number} [count=1] stack size — >1 shows a ×N triple badge. */
+  setItem(itemType, count = 1) {
+    const n = Math.max(1, Math.round(count || 1));
+    if (itemType === this.itemType && n === this._itemCount) return;
     this.itemType = itemType || null;
+    this._itemCount = n;
 
     const icon = this.itemIconEl;
     const nameEl = this.root.querySelector('.sk3d-item-name');
@@ -570,10 +613,52 @@ export class HUD {
       icon.classList.add('sk3d-item-empty');
       if (nameEl) nameEl.textContent = '';
     }
+    if (this.itemCountEl) {
+      this.itemCountEl.textContent = `×${n}`;
+      this.itemCountEl.classList.toggle('sk3d-hidden', !(this.itemType && n > 1));
+    }
     // Pop whenever the icon changes.
     icon.classList.remove('sk3d-item-pop');
     void icon.offsetWidth;
     icon.classList.add('sk3d-item-pop');
+  }
+
+  /** Reserve slot (mini slot under the main one). Mirrors setItem but is
+   *  quiet (no roulette, no name) — the main slot owns the feedback. */
+  setItem2(itemType, count = 1) {
+    const n = Math.max(1, Math.round(count || 1));
+    if (itemType === this._item2Type && n === this._item2Count) return;
+    this._item2Type = itemType || null;
+    this._item2Count = n;
+    const icon = this.item2IconEl;
+    if (!icon) return;
+    if (this._item2Type && ITEM_ICONS[this._item2Type]) {
+      icon.textContent = ITEM_ICONS[this._item2Type];
+      icon.classList.toggle('sk3d-item-red', this._item2Type === 'red_shell');
+      icon.classList.remove('sk3d-item-empty');
+    } else {
+      icon.textContent = '?';
+      icon.classList.remove('sk3d-item-red');
+      icon.classList.add('sk3d-item-empty');
+    }
+    if (this.item2CountEl) {
+      this.item2CountEl.textContent = `×${n}`;
+      this.item2CountEl.classList.toggle('sk3d-hidden', !(this._item2Type && n > 1));
+    }
+  }
+
+  /** Coin counter chip (🪙 n/max). Pops on change. */
+  setCoins(n) {
+    const v = Math.max(0, Math.round(n || 0));
+    if (v === this._coins) return;
+    this._coins = v;
+    if (this.coinCountEl) this.coinCountEl.textContent = String(v);
+    const chip = this.coinCountEl && this.coinCountEl.closest('.sk3d-coins');
+    if (chip) {
+      chip.classList.remove('sk3d-position-pop'); // reuse the pop animation
+      void chip.offsetWidth;
+      chip.classList.add('sk3d-position-pop');
+    }
   }
 
   /**
@@ -581,7 +666,7 @@ export class HUD {
    * real item (audit minor — pickups were instant-assign).
    * @param {string|null} itemType final PowerUpType key
    */
-  setItemRoulette(itemType) {
+  setItemRoulette(itemType, count = 1) {
     const icons = Object.values(ITEM_ICONS).filter((s) => s && s !== '?');
     let tick = 0;
     if (this._rouletteTimer) clearInterval(this._rouletteTimer);
@@ -592,7 +677,7 @@ export class HUD {
       if (tick > 9) {
         clearInterval(this._rouletteTimer);
         this._rouletteTimer = null;
-        this.setItem(itemType); // reveal the real item (with pop)
+        this.setItem(itemType, count); // reveal the real item (with pop)
         return;
       }
       this.itemIconEl.textContent = icons[Math.floor(Math.random() * icons.length)];
@@ -741,6 +826,8 @@ export class HUD {
 
     this.setSpeed(0);
     this.setItem(null);
+    this.setItem2(null);
+    this.setCoins(0);
 
     this.countdownEl.classList.add('sk3d-hidden');
     this.finishEl.classList.add('sk3d-hidden');
