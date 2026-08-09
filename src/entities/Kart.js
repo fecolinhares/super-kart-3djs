@@ -273,8 +273,10 @@ export class Kart {
     const tireMat = new THREE.MeshStandardMaterial({ color: 0x161a20, roughness: 0.95, metalness: 0 });
     const tireDark = new THREE.MeshStandardMaterial({ color: 0x0a0d11, roughness: 0.98, metalness: 0 });
     // Polished chrome (rims, hubs, exhaust) — mirror metal vs painted plastic.
+    // AUDIT r9: envMapIntensity 2.4 made rims read as broken white flashes on
+    // software GL (no real envmap) — 1.4 keeps them silver, not artifact.
     const chrome = new THREE.MeshPhysicalMaterial({
-      color: 0xdde4ec, metalness: 0.95, roughness: 0.1, envMapIntensity: 2.4,
+      color: 0xdde4ec, metalness: 0.85, roughness: 0.18, envMapIntensity: 1.4,
     });
     // Curved transparent PBR glass (windshield).
     const glassPBR = new THREE.MeshPhysicalMaterial({
