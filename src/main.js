@@ -111,6 +111,7 @@ let countdownIndex = -1;
 let offroadT = 0.55; // off-road gravel SFX accumulator (feedback audit)
 let lastHeldItem = null;
 let lastLap = 0;
+let finalLapShown = false; // FINAL LAP callout (audit v5 #5)
 let driftScreechAcc = 0; // drift tire screech accumulator
 let aiScreechAcc = 0;    // AI drift screech accumulator (v4 F5)
 let dustAcc = 0;         // off-road dust accumulator
@@ -394,6 +395,7 @@ function restartRace() {
   raceManager.restart();
   skids.clear();
   lastLap = 0;
+  finalLapShown = false;
   if (playerKart) playerKart.position = CONFIG.game.numKarts;
   hud.reset();
   hud.show();
@@ -550,6 +552,12 @@ loop.start((dt, t) => {
         // Camera kick on GO (arcade juice: the start feels like a launch).
         // The 'go' SFX already carries the low-kick punch.
         addShake(0.5, 0.5);
+        // Rocket start (audit v5 #1): holding throttle at GO = launch boost —
+        // the MK8/CTR signature opening skill.
+        if (playerKart && playerKart.applyBoost && (input.throttle || isTouchMode())) {
+          playerKart.applyBoost(900);
+          particles.emit('boost', playerKart.group.position, { count: 22, speed: 9, size: 0.32 });
+        }
       }
       if (mark === 0 && raceManager.karts.length) {
         // Start burst: tire smoke at every kart + confetti over the grid.
@@ -596,6 +604,12 @@ loop.start((dt, t) => {
       if (playerKart.state.lap > lastLap) {
         lastLap = playerKart.state.lap;
         audio.play('lap');
+      }
+      // FINAL LAP callout (audit v5 #5): banner + jingle on entering the last lap.
+      if (playerKart.state.lap === CONFIG.game.totalLaps && !finalLapShown) {
+        finalLapShown = true;
+        hud.showMessage('🏁 FINAL LAP!');
+        audio.play('posUp', { volume: 0.7 });
       }
       // Toast the item the player just picked up — ICON first, then name.
       if (playerKart.heldItem && playerKart.heldItem !== lastHeldItem) {

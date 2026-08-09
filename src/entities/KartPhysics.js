@@ -254,11 +254,15 @@ export class KartPhysics {
         break;
       }
     }
-    // Draft-exit boost (audit v4 LOW): leaving a wake gives a short kick —
-    // rewards pulling out and overtaking, the MK8 "slingshot" moment.
+    // Draft-exit boost (audit v4 LOW / v5 #3): leaving a wake gives a real
+    // slingshot (600ms) with a cooldown so it can't be chained.
     if (!s.draft && kart._wasDrafting && !s.spinOut) {
-      kart.applyBoost(260);
-      kart._onDraftExit?.();
+      const now = raceManager ? raceManager.elapsed : 0;
+      if (!kart._lastDraftExit || now - kart._lastDraftExit > 3) {
+        kart._lastDraftExit = now;
+        kart.applyBoost(600);
+        kart._onDraftExit?.();
+      }
     }
     kart._wasDrafting = s.draft;
     s.offRoad = Math.abs(near.lateralDist) > halfW;

@@ -198,6 +198,10 @@ export function useItem(kart, ctx = {}) {
         if (other === kart || other.finished) continue;
         if (other.starred || other.invincible) continue; // audit F4: invincible riders are protected
         other.applyScale?.(CONFIG.items.lightningScale, CONFIG.items.lightningDurationMs);
+        // MK8-style: lightning knocks the held item away + a small hop
+        // (audit v5 #4 — victims kept their shield AND had no shock animation).
+        if (other.heldItem) other.heldItem = null;
+        other.state.vY = Math.max(other.state.vY ?? 0, 2.4);
         // Electric burst on each victim (art-bible: drama on hit).
         ctx.particles?.emit?.('lightning', kartPosition(other), { count: 18, speed: 7.5, size: 0.34 });
       }
