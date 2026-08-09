@@ -1379,3 +1379,377 @@
     transition: none !important;
   }
 }
+
+/* ---------- compact main-menu actions (RACERS / TRACKS) ---------- */
+
+.sk3d-menu-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.sk3d-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  padding: 12px 22px;
+  min-height: 48px; /* touch target >= 44px */
+}
+
+.sk3d-racers-btn {
+  background: var(--sk3d-red);
+}
+
+.sk3d-tracks-btn {
+  background: var(--sk3d-blue);
+}
+
+.sk3d-current-pick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: var(--sk3d-ink);
+  opacity: 0.8;
+}
+
+.sk3d-pick-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid var(--sk3d-ink);
+  display: inline-block;
+  flex: none;
+}
+
+/* ---------- full-screen selection screens (RACERS / TRACKS) ---------- */
+
+.sk3d-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  pointer-events: auto;
+}
+
+.sk3d-screen-card {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(940px, 100%);
+  max-height: calc(100vh - 32px);
+  padding: 18px 20px 24px;
+  background: rgba(255, 253, 247, 0.97);
+  border: var(--sk3d-border);
+  border-radius: 24px;
+  box-shadow:
+    0 10px 0 rgba(27, 42, 65, 0.9),
+    0 30px 70px rgba(0, 0, 0, 0.4);
+}
+
+.sk3d-screen-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sk3d-back-btn {
+  flex: none;
+  min-height: 44px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+}
+
+.sk3d-screen-title {
+  margin: 0;
+  flex: 1;
+  text-align: center;
+  font-size: clamp(1.2rem, 4vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--sk3d-ink);
+}
+
+.sk3d-screen-spacer {
+  width: 96px;
+  flex: none;
+}
+
+.sk3d-carousel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 0;
+}
+
+.sk3d-cards-strip {
+  flex: 1;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 6px 4px 14px;
+  scrollbar-width: none;
+}
+
+.sk3d-cards-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.sk3d-arrow-btn {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px; /* touch target >= 44px */
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.7rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sk3d-yellow);
+}
+
+/* --- racer cards --- */
+
+.sk3d-char-card {
+  scroll-snap-align: center;
+  flex: 0 0 min(300px, 76vw);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  padding: 16px 14px 14px;
+  border-radius: 18px;
+  border: 3px solid rgba(27, 42, 65, 0.25);
+  background: #ffffff;
+  color: var(--sk3d-ink);
+  font-family: var(--sk3d-font);
+  cursor: pointer;
+  transition: transform 0.1s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sk3d-char-card:hover {
+  transform: translateY(-2px);
+}
+
+.sk3d-char-card.is-selected {
+  border-color: var(--sk3d-yellow);
+  background: rgba(255, 209, 102, 0.16);
+  box-shadow: 0 6px 0 rgba(27, 42, 65, 0.28);
+  transform: translateY(-3px);
+}
+
+.sk3d-char-canvas {
+  width: 200px;
+  max-width: 100%;
+  height: auto;
+}
+
+.sk3d-char-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.sk3d-char-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--sk3d-ink);
+  display: inline-block;
+  flex: none;
+}
+
+.sk3d-stats {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sk3d-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #52617a;
+  line-height: 1;
+}
+
+.sk3d-stat-label {
+  width: 34px;
+  text-align: right;
+  flex: none;
+}
+
+.sk3d-stat-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(27, 42, 65, 0.15);
+  overflow: hidden;
+}
+
+.sk3d-stat-fill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--sk3d-yellow), var(--sk3d-orange));
+}
+
+.sk3d-stat-val {
+  width: 16px;
+  text-align: left;
+  flex: none;
+}
+
+/* --- track cards --- */
+
+.sk3d-track-card {
+  scroll-snap-align: center;
+  flex: 0 0 min(430px, 82vw);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 18px;
+  border: 3px solid rgba(27, 42, 65, 0.25);
+  background: #ffffff;
+  color: var(--sk3d-ink);
+  font-family: var(--sk3d-font);
+  cursor: pointer;
+  transition: transform 0.1s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sk3d-track-card:hover {
+  transform: translateY(-2px);
+}
+
+.sk3d-track-card.is-selected {
+  border-color: var(--sk3d-yellow);
+  background: rgba(255, 209, 102, 0.16);
+  box-shadow: 0 6px 0 rgba(27, 42, 65, 0.28);
+  transform: translateY(-3px);
+}
+
+.sk3d-track-canvas {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 2px solid rgba(27, 42, 65, 0.18);
+  background: #fdfaf0;
+}
+
+.sk3d-track-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.sk3d-track-desc {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #52617a;
+  line-height: 1.35;
+}
+
+/* --- SELECT + screen entrance --- */
+
+.sk3d-select-btn {
+  align-self: center;
+  min-height: 52px;
+  padding: 12px 46px;
+  font-size: 1.3rem;
+}
+
+.sk3d-screen-anim .sk3d-screen-card {
+  animation: sk3d-fade-up 0.3s ease both;
+}
+
+.sk3d-menu-anim .sk3d-menu-actions {
+  animation: sk3d-fade-up 0.5s 0.34s ease both;
+}
+
+.sk3d-menu-anim .sk3d-current-pick {
+  animation: sk3d-fade-up 0.5s 0.4s ease both;
+}
+
+/* --- selection-screen responsiveness --- */
+
+@media (max-width: 768px) {
+  .sk3d-screen-card {
+    padding: 14px 12px 20px;
+    gap: 12px;
+    max-height: calc(100vh - 20px);
+  }
+
+  .sk3d-screen-spacer {
+    display: none;
+  }
+
+  .sk3d-screen-title {
+    text-align: left;
+  }
+
+  .sk3d-carousel {
+    gap: 6px;
+  }
+
+  .sk3d-arrow-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px; /* still >= 44px touch target */
+    font-size: 1.5rem;
+  }
+
+  .sk3d-char-card {
+    flex-basis: min(280px, 68vw);
+  }
+
+  .sk3d-select-btn {
+    min-height: 48px;
+    padding: 10px 34px;
+    font-size: 1.15rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sk3d-action-btn {
+    flex: 1 1 130px;
+    min-height: 52px;
+    font-size: 1rem;
+  }
+
+  .sk3d-char-canvas {
+    width: 160px;
+  }
+
+  .sk3d-char-name {
+    font-size: 1.15rem;
+  }
+}

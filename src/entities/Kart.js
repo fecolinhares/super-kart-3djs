@@ -252,9 +252,112 @@ export class Kart {
     return m;
   }
 
+  /** Expressive driver face drawn on the helmet visor (canvas texture).
+   *  The face is painted at the sphere's front band (u ≈ 0.25, the +Z face
+   *  of SphereGeometry) with eyes (accent irises) + mouth + brows. The
+   *  expression variant is DETERMINISTIC — hashed from the character name
+   *  (no Math.random). @returns {THREE.CanvasTexture} */
+  _visorTexture(character, accent) {
+    const w = 256, h = 128;
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    const g = c.getContext('2d');
+    // Dark reflective visor glass (vertical gradient).
+    const vg = g.createLinearGradient(0, 0, 0, h);
+    vg.addColorStop(0, '#0a1420');
+    vg.addColorStop(0.45, '#14293e');
+    vg.addColorStop(0.6, '#0e1e30');
+    vg.addColorStop(1, '#0a1420');
+    g.fillStyle = vg;
+    g.fillRect(0, 0, w, h);
+    // Sheen streak (glass reflection).
+    g.fillStyle = 'rgba(255,255,255,0.12)';
+    g.beginPath();
+    g.ellipse(w * 0.6, h * 0.3, w * 0.16, h * 0.06, -0.1, 0, Math.PI * 2);
+    g.fill();
+    // Deterministic expression variant from the character name.
+    const name = (character && character.name) || '';
+    let seed = 7;
+    for (let i = 0; i < name.length; i++) seed = (seed * 31 + name.charCodeAt(i)) | 0;
+    const variant = Math.abs(seed) % 3; // 0 confident smile · 1 open grin · 2 focused
+    const accentCss = '#' + new THREE.Color(accent).getHexString();
+    const fx = w * 0.25; // sphere front (+Z) band center
+    const eyeY = h * 0.44;
+    const eyeDX = 8; // eyes 16px apart (≈22° around the visor front)
+    const ink = '#b9c9da'; // light stroke reads on the dark glass
+    // Eyebrows (above the eyes, angled per variant).
+    g.strokeStyle = ink;
+    g.lineWidth = 2.5;
+    g.lineCap = 'round';
+    for (const s of [-1, 1]) {
+      const bx = fx + s * eyeDX;
+      const tilt = variant === 2 ? 0.15 : variant === 1 ? -0.3 : 0.22;
+      const browY = eyeY - 8 - (variant === 1 ? 3 : 0);
+      g.beginPath();
+      g.moveTo(bx - 5, browY);
+      g.lineTo(bx + 5, browY + tilt * 6);
+      g.stroke();
+    }
+    // Eyes — white sclera + accent iris + dark pupil + glint.
+    for (const s of [-1, 1]) {
+      const ex = fx + s * eyeDX;
+      g.fillStyle = '#f4f8ff';
+      g.beginPath();
+      g.ellipse(ex, eyeY, 4.5, 5.5, 0, 0, Math.PI * 2);
+      g.fill();
+      g.fillStyle = accentCss;
+      g.beginPath();
+      g.arc(ex, eyeY + 0.5, 2.6, 0, Math.PI * 2);
+      g.fill();
+      g.fillStyle = '#10151c';
+      g.beginPath();
+      g.arc(ex, eyeY + 0.5, 1.4, 0, Math.PI * 2);
+      g.fill();
+      g.fillStyle = 'rgba(255,255,255,0.9)';
+      g.beginPath();
+      g.arc(ex - 1.2, eyeY - 1.2, 1.1, 0, Math.PI * 2);
+      g.fill();
+    }
+    // Mouth — variant styling.
+    const mx = fx, my = h * 0.55;
+    g.strokeStyle = ink;
+    g.lineWidth = 2.6;
+    g.lineCap = 'round';
+    if (variant === 0) {
+      g.beginPath();
+      g.arc(mx, my - 1, 4.5, 0.15 * Math.PI, 0.85 * Math.PI);
+      g.stroke();
+    } else if (variant === 1) {
+      g.fillStyle = '#060a10';
+      g.beginPath();
+      g.ellipse(mx, my, 4.6, 3.6, 0, 0, Math.PI * 2);
+      g.fill();
+      g.lineWidth = 1.6;
+      g.stroke();
+      g.fillStyle = '#e2695e';
+      g.beginPath();
+      g.ellipse(mx, my + 1.4, 3.2, 1.8, 0, 0, Math.PI * 2);
+      g.fill();
+    } else {
+      g.beginPath();
+      g.arc(mx, my, 2.6, 0, Math.PI * 2);
+      g.stroke();
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    return tex;
+  }
+
   _buildMesh(color, character) {
     const KC = CONFIG.kart;
     const accent = character ? character.accentColor : 0xffd166;
+    // Premium pass — expose identity colors to the driver/rim visuals
+    // (gloves, hub caps, visor irises). bodyColor = kart paint, accent =
+    // character accent; both stay live for setBodyColor consumers.
+    this.bodyColor = color;
+    this.accent = accent;
 
     // ---- PBR materials (distinct surface responses, MK8 pipeline) -----------
     // Glossy painted plastic for the body shell — the MK8 painted-toy cue:
@@ -287,9 +390,15 @@ export class Kart {
     const skin = this._mat(0xffd9b3);
     // Subtle emissive headlight lens.
     const headlightMat = new THREE.MeshStandardMaterial({
-      color: 0xfff6e0, emissive: 0xfff2d0, emissiveIntensity: 0.45, roughness: 0.25,
+      color: 0xfff6e0, emissive: 0xfff2d0, emissiveIntensity: 1.0, roughness: 0.25,
     });
     const tip = this._mat(0xff9f45);
+    // Premium pass materials — accent gloves + hub caps, red brake calipers,
+    // and the dark fake-AO chassis (barely visible under the molded hull).
+    const gloveMat = this._mat(accent);
+    const hubCapMat = this._mat(accent);
+    const caliperMat = new THREE.MeshStandardMaterial({ color: 0xc22a24, roughness: 0.45, metalness: 0.25 });
+    const chassisMat = new THREE.MeshStandardMaterial({ color: 0x0b0e13, roughness: 0.9, metalness: 0.1 });
 
     // Soft blob shadow under the kart (cartoon contact shadow). Radial
     // gradient texture (soft edge — a hard circle read as a decal per the
@@ -369,6 +478,20 @@ export class Kart {
       this.group.add(pod);
     }
 
+    // Fake AO under the shell — a dark chassis tub + side skirts, barely
+    // visible in the shadow gap below the molded hull. Reads as a grounded
+    // dark underside (cheap ambient occlusion) instead of floating paint.
+    const aoChassis = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.16, 1.4), chassisMat);
+    aoChassis.position.set(0, 0.25, -0.02);
+    aoChassis.castShadow = false;
+    this.group.add(aoChassis);
+    for (const s of [-1, 1]) {
+      const skirt = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.17, 1.15), chassisMat);
+      skirt.position.set(s * 0.44, 0.27, -0.05);
+      skirt.castShadow = false;
+      this.group.add(skirt);
+    }
+
     // Fender flares — molded PAINTED arches over every wheel (same clearcoat
     // as the shell = merged bodywork, not stuck-on black) + a dark inner lip
     // that defines the arch cut line against the tire.
@@ -408,6 +531,17 @@ export class Kart {
       this._mesh(new THREE.BoxGeometry(0.03, 0.022, 0.7), dark, s * 0.55, 0.66, -0.12, { cast: false });
     }
     this._mesh(new THREE.BoxGeometry(0.36, 0.02, 0.03), dark, 0, 0.93, 0.42, { cast: false });
+    // More subtle panel lines (premium pass): cockpit rim ring + nose cowl
+    // seam + tailcap seam — molded-plastic parting lines read as assembled
+    // bodywork instead of one blob.
+    const cockpitRim = new THREE.Mesh(new THREE.TorusGeometry(0.33, 0.012, 8, 32), dark);
+    cockpitRim.rotation.x = Math.PI / 2; // belt around Y
+    cockpitRim.position.set(0, 0.955, -0.14);
+    cockpitRim.scale.set(1, 1, 0.8);
+    cockpitRim.castShadow = false;
+    this.group.add(cockpitRim);
+    this._mesh(new THREE.BoxGeometry(0.026, 0.12, 0.05), dark, 0, 0.56, 0.86, { cast: false, rx: 0.2 });
+    this._mesh(new THREE.BoxGeometry(0.62, 0.02, 0.035), dark, 0, 0.5, -0.585, { cast: false });
     // ---- racing graphics (audit r3): accent stripes + side numbers + nose band ----
     // The shell was a monochrome lozenge — these give it the painted-kart read:
     // accent bands hug the lathe flanks, a number decal rides each side, and an
@@ -500,6 +634,23 @@ export class Kart {
     chinPanel.castShadow = false;
     this.group.add(chinPanel);
 
+    // Front canards — small angled strakes on the nose flanks (aero detail,
+    // accent edge for the premium read).
+    for (const s of [-1, 1]) {
+      const canard = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.026, 0.1), dark);
+      canard.position.set(s * 0.37, 0.5, 0.72);
+      canard.rotation.z = s * -0.3;
+      canard.rotation.x = s * 0.28;
+      canard.castShadow = false;
+      this.group.add(canard);
+      const canardEdge = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.006, 0.1), accentMat);
+      canardEdge.position.set(s * 0.37, 0.515, 0.72);
+      canardEdge.rotation.z = s * -0.3;
+      canardEdge.rotation.x = s * 0.28;
+      canardEdge.castShadow = false;
+      this.group.add(canardEdge);
+    }
+
     // Headlights — subtle emissive lenses in chrome bezels.
     for (const s of [-1, 1]) {
       const lens = new THREE.Mesh(new THREE.SphereGeometry(0.072, 18, 14), headlightMat);
@@ -512,6 +663,36 @@ export class Kart {
       bezel.position.set(s * 0.26, 0.56, 0.85);
       bezel.castShadow = false;
       this.group.add(bezel);
+    }
+    // Headlight glow — soft additive halos just ahead of the lenses (the
+    // emissive lens alone read flat; a halo sells the "lights on" state).
+    const glowTex = (() => {
+      const c = document.createElement('canvas');
+      c.width = 64; c.height = 64;
+      const g = c.getContext('2d');
+      const grad = g.createRadialGradient(32, 32, 2, 32, 32, 32);
+      grad.addColorStop(0, 'rgba(255,240,200,0.85)');
+      grad.addColorStop(0.5, 'rgba(255,225,160,0.28)');
+      grad.addColorStop(1, 'rgba(255,220,150,0)');
+      g.fillStyle = grad;
+      g.fillRect(0, 0, 64, 64);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    })();
+    const glowMat = new THREE.MeshBasicMaterial({
+      map: glowTex,
+      transparent: true,
+      opacity: 0.55,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    for (const s of [-1, 1]) {
+      const glow = new THREE.Mesh(new THREE.CircleGeometry(0.15, 20), glowMat);
+      glow.position.set(s * 0.26, 0.56, 0.93);
+      glow.renderOrder = 2;
+      glow.castShadow = false;
+      this.group.add(glow);
     }
 
     // Curved glossy windshield — half-cylinder dome over the cockpit.
@@ -577,6 +758,11 @@ export class Kart {
       trim.position.set(s * 0.58, 0.96, -0.88);
       trim.castShadow = false;
       this.group.add(trim);
+      // Premium: accent edge stripe on the outer endplate face.
+      const accentEdge = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.28, 0.03), accentMat);
+      accentEdge.position.set(s * 0.6125, 1.1, -0.88);
+      accentEdge.castShadow = false;
+      this.group.add(accentEdge);
     }
     // Center pylon (tapered) + side mount pods (molded, not sticks).
     const pylon = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.075, 0.32, 14), bodyDark);
@@ -675,6 +861,24 @@ export class Kart {
       );
     }
 
+    // Side exhaust pipes — polished chrome barrels running along the rear
+    // pod flanks (the center twin pipes stay; these add the wide-body read).
+    for (const s of [-1, 1]) {
+      this._mesh(
+        new THREE.CylinderGeometry(0.042, 0.05, 0.42, 14),
+        chrome, s * 0.52, 0.46, -0.38,
+        { rx: Math.PI / 2, cast: false }
+      );
+      const sideTipGroup = new THREE.Group();
+      sideTipGroup.position.set(s * 0.53, 0.46, -0.6);
+      sideTipGroup.rotation.x = Math.PI / 2; // barrel axis along Z
+      const sideTip = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.062, 0.1, 14), tip);
+      sideTip.rotation.y = s * -0.35; // flare outward (in the tilted frame)
+      sideTip.castShadow = false;
+      sideTipGroup.add(sideTip);
+      this.group.add(sideTipGroup);
+    }
+
     // ---- wheels: tire + tread + sidewall stripe + 5-spoke chrome rim --------
     const wR = KC.wheelRadius;
     const wW = KC.wheelWidth;
@@ -690,6 +894,9 @@ export class Kart {
     const grooveGeo = new THREE.TorusGeometry(wR - 0.002, 0.008, 8, 40);
     // Sidewall stripe ring — proud ring on the tire face (accent color).
     const stripeGeo = new THREE.TorusGeometry(0.24, 0.016, 8, 32);
+    // Darker tire-wall band — sits just outside the accent stripe (rubber
+    // sidewall break between tread shoulder and painted stripe).
+    const wallBandGeo = new THREE.TorusGeometry(0.27, 0.013, 8, 36);
     // Chrome rim parts (all in the YZ plane — axle along X).
     const rimDiscGeo = new THREE.CylinderGeometry(0.19, 0.19, 0.022, 24);
     const rimLipGeo = new THREE.TorusGeometry(0.215, 0.018, 8, 28);
@@ -729,6 +936,12 @@ export class Kart {
         const st2 = new THREE.Mesh(stripeGeo, stripeMat);
         st2.position.x = -(faceX - 0.002);
         tilt.add(st1, st2);
+        // Darker tire-wall band outside the accent stripe (both faces).
+        const wb1 = new THREE.Mesh(wallBandGeo, tireDark);
+        wb1.position.x = faceX - 0.002;
+        const wb2 = new THREE.Mesh(wallBandGeo, tireDark);
+        wb2.position.x = -(faceX - 0.002);
+        tilt.add(wb1, wb2);
         // Chrome rim — DIRECT child of spin (axis X) so it rolls with the
         // wheel (the historic "disc child of tilt spun like a coin" bug).
         const rimX = faceX + 0.014;
@@ -756,8 +969,9 @@ export class Kart {
         hub.position.x = rimX + 0.016;
         hub.castShadow = false;
         spin.add(hub);
-        const hubCap = new THREE.Mesh(hubCapGeo, chrome);
+        const hubCap = new THREE.Mesh(hubCapGeo, hubCapMat);
         hubCap.position.x = rimX + 0.032;
+        hubCap.scale.set(1.2, 1.2, 1.2); // accent cap, proud of the chrome hub
         hubCap.castShadow = false;
         spin.add(hubCap);
         // 5 lug nuts matching the spokes.
@@ -767,6 +981,19 @@ export class Kart {
           lug.position.set(rimX + 0.045, Math.cos(a) * 0.088, Math.sin(a) * 0.088);
           lug.castShadow = false;
           spin.add(lug);
+        }
+        // Brake caliper — red bracket straddling the disc edge on REAR
+        // wheels (visible from the chase cam; the premium mechanical read).
+        if (sz < 0) {
+          const caliper = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.085, 0.07), caliperMat);
+          caliper.position.set(rimX - 0.004, 0.15, 0);
+          caliper.rotation.z = 0.12;
+          caliper.castShadow = false;
+          spin.add(caliper);
+          const calBracket = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.05, 0.03), caliperMat);
+          calBracket.position.set(rimX + 0.012, 0.115, 0);
+          calBracket.castShadow = false;
+          spin.add(calBracket);
         }
         this._wheels.push({ root, spin, isFront: sz > 0 });
       }
@@ -838,11 +1065,18 @@ export class Kart {
       fa.quaternion.setFromUnitVectors(up, new THREE.Vector3(hX - elX, hY - elY, hZ - elZ).normalize());
       fa.castShadow = false;
       drv.add(fa);
-      const hand = new THREE.Mesh(new THREE.SphereGeometry(0.042, 14, 12), dark);
+      // Gloved hands — accent racing gloves with a dark wrist cuff, wrapped
+      // over the wheel rim (premium pass: no more anonymous dark blobs).
+      const hand = new THREE.Mesh(new THREE.SphereGeometry(0.046, 14, 12), gloveMat);
       hand.position.set(hX, hY, hZ);
       hand.scale.set(1, 1, 1.15);
       hand.castShadow = false;
       drv.add(hand);
+      const cuff = new THREE.Mesh(new THREE.SphereGeometry(0.047, 12, 10), dark);
+      cuff.position.set(hX * 0.75 + shX * 0.25, hY * 0.75 + shY * 0.25, hZ * 0.75 + shZ * 0.25);
+      cuff.scale.set(1, 1.25, 1.25);
+      cuff.castShadow = false;
+      drv.add(cuff);
     }
 
     // Neck + helmet (character colored, glossy visor, fine outline).
@@ -858,12 +1092,16 @@ export class Kart {
     helmet.castShadow = true;
     drv.add(helmet);
     this._outline(helmet, 0.025);
-    // Glossy visor band across the helmet front (dark reflective glass).
+    // Glossy visor band with an EXPRESSIVE CANVAS FACE (eyes + mouth drawn
+    // at the sphere's +Z front band, u≈0.25 on SphereGeometry) so the driver
+    // reads as a character, not a blank helmet. Material color is white so
+    // the canvas carries the dark glass; clearcoat keeps the glassy sheen.
     const visor = new THREE.Mesh(
       new THREE.SphereGeometry(0.13, 22, 14),
       new THREE.MeshPhysicalMaterial({
-        color: 0x0e1a28, roughness: 0.05, metalness: 0.5,
+        color: 0xffffff, roughness: 0.05, metalness: 0.5,
         clearcoat: 1.0, envMapIntensity: 2.2,
+        map: this._visorTexture(character, accent),
       })
     );
     visor.position.set(0, 1.26, 0.17);

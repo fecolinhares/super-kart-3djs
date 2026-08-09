@@ -32,8 +32,14 @@ const { scene, camera, renderer } = createScene(container);
 
 const DEMO = new URLSearchParams(location.search).has('demo');
 const TEST = new URLSearchParams(location.search).has('test'); // fast no-postfx mode for gameplay testing
-// Track select: ?track=2 → Neon City (defaults to the meadow circuit).
-const TRACK_ID = Number(new URLSearchParams(location.search).get('track')) === 2 ? 2 : 1;
+// Track select: the menu's TRACKS screen publishes window.__sk3dTrack
+// before reloading with ?track=2, so the persisted choice wins on boot and
+// the query param covers the very first load (defaults to the meadow circuit).
+let savedTrackId = 0;
+try { savedTrackId = Number(localStorage.getItem('sk3d.track')); } catch { /* private mode */ }
+const TRACK_ID =
+  Number(window.__sk3dTrack) === 2 || savedTrackId === 2 ||
+  Number(new URLSearchParams(location.search).get('track')) === 2 ? 2 : 1;
 
 // Difficulty/accessibility (audit r3): the CC selector scales the physics
 // speed envelope through CONFIG.physics, which KartPhysics reads live every

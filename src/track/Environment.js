@@ -101,33 +101,154 @@ function ridgedConeGeometry(baseR, h, segs, rings, jitter, seed, t0 = 0, overhan
   return geo;
 }
 
-/** Small 3D grass tuft: 4 crossed lean blades baked into ONE geometry (so
- *  a full meadow of tufts is a single InstancedMesh draw call). */
-function grassTuftGeometry() {
+/** One 3D grass blade: a TAPERED BOX (thin stretched box — not a flat quad).
+ *  w wide along its lean azimuth, th thick across, h tall, leaning `lean`·h
+ *  toward azimuth az. 8 corners + 4 side faces; the tip cap is skipped (it is
+ *  sub-centimetre, invisible, and saves 2 tris). A box cross-section reads 3D
+ *  from every angle — the old flat billboard quads were the 16-bit cue. */
+function grassBladeBox(positions, indices, v, w, th, h, lean, az) {
+  const dx = Math.cos(az);
+  const dz = Math.sin(az);
+  const px = -dz; // thickness axis (perpendicular to the lean azimuth)
+  const pz = dx;
+  const tipX = dx * lean * h;
+  const tipZ = dz * lean * h;
+  const hw = w / 2;
+  const ht = th / 2;
+  const tw = w * 0.22; // narrowed tip
+  const thh = th * 0.55;
+  // base ring: ±hw along the azimuth, ±ht across (a real box cross-section)
+  positions.push(hw * dx + ht * px, 0, hw * dz + ht * pz);
+  positions.push(hw * dx - ht * px, 0, hw * dz - ht * pz);
+  positions.push(-hw * dx - ht * px, 0, -hw * dz - ht * pz);
+  positions.push(-hw * dx + ht * px, 0, -hw * dz + ht * pz);
+  // tip ring: narrowed, shifted toward the lean direction
+  positions.push(tipX + tw * dx + thh * px, h, tipZ + tw * dz + thh * pz);
+  positions.push(tipX + tw * dx - thh * px, h, tipZ + tw * dz - thh * pz);
+  positions.push(tipX - tw * dx - thh * px, h, tipZ - tw * dz - thh * pz);
+  positions.push(tipX - tw * dx + thh * px, h, tipZ - tw * dz + thh * pz);
+  // 4 side quads (base ring -> tip ring)
+  indices.push(v, v + 4, v + 5, v, v + 5, v + 1);
+  indices.push(v + 1, v + 5, v + 6, v + 1, v + 6, v + 2);
+  indices.push(v + 2, v + 6, v + 7, v + 2, v + 7, v + 3);
+  indices.push(v + 3, v + 7, v + 4, v + 3, v + 4, v);
+  return v + 8;
+}
+
+/** One 3D grass tuft variant: 3-6 tapered-box blades arranged in TWO CROSSED
+ *  planes (azimuths 90° apart, per-blade jitter ±10° so they never fan into a
+ *  flat paper silhouette) with varied height / lean / width / thickness.
+ *  Each variant is one geometry; 4 variants x ~90 InstancedMesh instances =
+ *  ~4 draw calls for the whole verge. Deterministic per seed. */
+function grassTuftVariant(seed) {
+  const r = rnd(seed);
   const positions = [];
   const indices = [];
   let v = 0;
-  for (let k = 0; k < 4; k++) {
-    const a = (k / 4) * Math.PI * 2 + 0.4;
-    const h = 0.34 + (k % 2) * 0.1;
-    const lean = 0.1 + (k % 3) * 0.035;
-    const w = 0.09;
-    const dx = Math.cos(a);
-    const dz = Math.sin(a);
-    const px = -dz;
-    const pz = dx;
-    const tipX = dx * lean * h;
-    const tipZ = dz * lean * h;
-    // base A/B, narrowed tip C/D — a single leaning blade
-    positions.push(-px * w, 0, -pz * w);
-    positions.push(px * w, 0, pz * w);
-    positions.push(tipX + px * w * 0.35, h, tipZ + pz * w * 0.35);
-    positions.push(tipX - px * w * 0.35, h, tipZ - pz * w * 0.35);
-    indices.push(v, v + 1, v + 2, v, v + 2, v + 3);
-    v += 4;
+  const n = 3 + ((r() * 4) | 0); // 3-6 blades per tuft
+  const a0 = r() * Math.PI * 2;
+  for (let k = 0; k < n; k++) {
+    // alternate between the two crossed planes (a0, a0 + PI/2) + jitter
+    const az = (k % 2 === 0 ? a0 : a0 + Math.PI / 2) + (r() - 0.5) * 0.35;
+    const h = 0.3 + r() * 0.4;      // 0.30-0.70m tall
+    const lean = 0.1 + r() * 0.18;  // lean 10-28% of height
+    const w = 0.05 + r() * 0.045;   // 5-9.5cm wide
+    const th = 0.016 + r() * 0.014; // 1.6-3cm thick
+    v = grassBladeBox(positions, indices, v, w, th, h, lean, az);
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+// ---------------------------------------------------------------------------
+// Gravel verge texture (local to Environment.js — Materials.js untouched).
+// Warm dry gravel: tan/grey base with dense pebble speckle + occasional larger
+// stones + worn moist patches. Rendered at LOW OPACITY over the dirt shoulder
+// ribbon it reads as a soft gravel transition band between asphalt and grass
+// (FECO: the verge read as a flat 16-bit strip).
+// ---------------------------------------------------------------------------
+let _gravelTex = null;
+function gravelTexture() {
+  if (_gravelTex) return _gravelTex;
+  const c = document.createElement('canvas');
+  c.width = 256;
+  c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = '#b8a183';
+  g.fillRect(0, 0, 256, 256);
+  // dense pebble speckle — varied warm greys/tans (2-4px stones)
+  for (let i = 0; i < 2600; i++) {
+    const roll = Math.random();
+    g.fillStyle = roll < 0.3 ? '#a08c6f' : roll < 0.55 ? '#c4ae8d' : roll < 0.8 ? '#8f7c62' : '#6f6150';
+    const s = 1 + ((Math.random() * 2.5) | 0);
+    g.fillRect(Math.random() * 256, Math.random() * 256, s, s);
+  }
+  // occasional larger stones
+  for (let i = 0; i < 70; i++) {
+    g.fillStyle = Math.random() > 0.5 ? '#cbb697' : '#7d6e58';
+    g.beginPath();
+    g.arc(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 2.5, 0, Math.PI * 2);
+    g.fill();
+  }
+  // worn darker patches (moist gravel)
+  g.globalAlpha = 0.18;
+  for (let i = 0; i < 10; i++) {
+    g.fillStyle = '#6f6150';
+    g.beginPath();
+    g.arc(Math.random() * 256, Math.random() * 256, 12 + Math.random() * 20, 0, Math.PI * 2);
+    g.fill();
+  }
+  g.globalAlpha = 1;
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.anisotropy = 8;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  _gravelTex = tex;
+  return tex;
+}
+
+/** Triangle-strip ribbon following the track path (mirrors TrackBuilder's
+ *  buildRoadRibbon geometry so it sits exactly on the shoulder plane) — used
+ *  for the gravel verge band. Up-facing normals, UVs 0..1 along path/across
+ *  width; the material sets the texture repeat. */
+function vergeRibbonGeometry(path, width, segments = 520) {
+  const positions = new Float32Array((segments + 1) * 2 * 3);
+  const uvs = new Float32Array((segments + 1) * 2 * 2);
+  const indices = [];
+  const tan = new THREE.Vector3();
+  const p = new THREE.Vector3();
+  const nrm = new THREE.Vector3();
+  const half = width / 2;
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments;
+    path.getPointAt(t, p);
+    path.getTangentAt(t, tan);
+    nrm.set(-tan.z, 0, tan.x).normalize();
+    const b = i * 2;
+    positions[b * 3 + 0] = p.x + nrm.x * half;
+    positions[b * 3 + 1] = p.y;
+    positions[b * 3 + 2] = p.z + nrm.z * half;
+    positions[(b + 1) * 3 + 0] = p.x - nrm.x * half;
+    positions[(b + 1) * 3 + 1] = p.y;
+    positions[(b + 1) * 3 + 2] = p.z - nrm.z * half;
+    uvs[b * 2 + 0] = t;
+    uvs[b * 2 + 1] = 1;
+    uvs[(b + 1) * 2 + 0] = t;
+    uvs[(b + 1) * 2 + 1] = 0;
+  }
+  for (let i = 0; i < segments; i++) {
+    const a = i * 2;
+    const b = i * 2 + 1;
+    const c = i * 2 + 2;
+    const d = i * 2 + 3;
+    indices.push(a, c, b, b, c, d); // up-facing winding (same as buildRoadRibbon)
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
   geo.setIndex(indices);
   geo.computeVertexNormals();
   return geo;
@@ -317,6 +438,7 @@ export class Environment {
       this.buildFieldLandmarks(scene);
       this.buildInfield(scene, track); // r5: densify the enclosed infield grass
       this.buildRoadsideFlowersAndRocks(scene, track);
+      this.buildVergeGravel(scene, track); // soft gravel verge band (FECO: flat 16-bit verge)
       this.buildGrassTufts(scene, track); // 3D blade tufts along the verges
       this.buildLightPoles(scene, track); // meadow light poles
       this.buildDistanceMarks(scene); // 100m/200m posts (was dead code — never called)
@@ -1144,19 +1266,31 @@ export class Environment {
     }
     const bushes = new THREE.InstancedMesh(bushGeo, bushMat, bushSpots.length);
     bushes.castShadow = true; // AUDIT r5: contact shadows
+    const bushCol = new THREE.Color();
+    const BUSH_TONES = [0x2f8f43, 0x3faf4e, 0x4cc25e]; // 3-tone undergrowth (FECO: flat green)
     bushSpots.forEach((b, i) => {
       dummy.position.set(b.x, this._gy(b.x, b.z) + 0.55 * b.s, b.z);
       dummy.scale.set(b.s, b.s * (0.75 + rnd(6100 + i)() * 0.25), b.s);
       dummy.rotation.y = b.ry;
       dummy.updateMatrix();
       bushes.setMatrixAt(i, dummy.matrix);
+      bushCol.setHex(BUSH_TONES[i % BUSH_TONES.length]);
+      bushes.setColorAt(i, bushCol);
     });
     bushes.instanceMatrix.needsUpdate = true;
+    if (bushes.instanceColor) bushes.instanceColor.needsUpdate = true;
     scene.add(bushes);
 
     // Roadside greenery: dense bushes hugging the track edge (known spots).
+    // FECO fix: 3-tone per-instance greens + tiny bright flower dots on some
+    // bushes so the undergrowth reads as layered vegetation, not flat color.
     const roadside = new THREE.InstancedMesh(bushGeo, bushMat, 40);
     roadside.castShadow = true; // AUDIT r5: contact shadows
+    const ROAD_TONES = [0x2f8f43, 0x3faf4e, 0x4cc25e];
+    const dotGeo = new THREE.SphereGeometry(0.09, 8, 6); // flower dot on the canopy
+    const dotMat = toonMaterial(0xffffff, {});
+    const dotColors = [0xff5a5f, 0xffd166, 0xffffff, 0xff9f45];
+    const dotSpots = [];
     const edgeSpots = [
       [-58, 14], [-40, -44], [-14, -60], [26, -62], [52, -42], [64, -10],
       [56, 26], [30, 52], [-6, 60], [-36, 48], [-58, 26], [-24, -30],
@@ -1179,9 +1313,36 @@ export class Environment {
       dummy.rotation.y = this._rand() * Math.PI;
       dummy.updateMatrix();
       roadside.setMatrixAt(i, dummy.matrix);
+      roadside.setColorAt(i, new THREE.Color(ROAD_TONES[i % ROAD_TONES.length]));
+      // flower dots on ~60% of bushes (dedicated seeds — shared _rand untouched)
+      const dr = rnd(7500 + i);
+      if (dr() < 0.6) {
+        dotSpots.push({
+          x: bx + (dr() - 0.5) * 0.7,
+          z: bz + (dr() - 0.5) * 0.7,
+          y: this._gy(bx, bz) + 0.95 + dr() * 0.45,
+          s: 0.7 + dr() * 0.7,
+          color: dotColors[(dr() * dotColors.length) | 0],
+        });
+      }
     }
     roadside.instanceMatrix.needsUpdate = true;
+    if (roadside.instanceColor) roadside.instanceColor.needsUpdate = true;
     scene.add(roadside);
+    if (dotSpots.length) {
+      const dots = new THREE.InstancedMesh(dotGeo, dotMat, dotSpots.length);
+      dotSpots.forEach((d, i) => {
+        dummy.position.set(d.x, d.y, d.z);
+        dummy.scale.setScalar(d.s);
+        dummy.rotation.set(0, 0, 0);
+        dummy.updateMatrix();
+        dots.setMatrixAt(i, dummy.matrix);
+        dots.setColorAt(i, new THREE.Color(d.color));
+      });
+      dots.instanceMatrix.needsUpdate = true;
+      if (dots.instanceColor) dots.instanceColor.needsUpdate = true;
+      scene.add(dots);
+    }
 
     // Wildflowers: tight clustered patches (5-8 heads per patch, ~1.5 m
     // spread) — the meadow reads designed, never random confetti. Each
@@ -2030,17 +2191,59 @@ export class Environment {
     scene.add(tires);
   }
 
+  /** Soft gravel verge band (FECO fix: the verge read as a flat 16-bit
+   *  color strip). A ribbon slightly WIDER than the dirt shoulder (shoulder =
+   *  roadW + 3.4, this = roadW + 5.4) laid 5mm above it with a low-opacity
+   *  gravel texture, so asphalt -> shoulder -> grass reads as a graded gravel
+   *  verge. Transparent + depthWrite off + polygonOffset blends it over the
+   *  shoulder/terrain without z-fighting; the guard-rail footings (top 0.16)
+   *  still poke through (0.145). */
+  buildVergeGravel(scene, track) {
+    if (!track || !track.path) return;
+    const path = track.path;
+    const len = path.getLength();
+    const width = CONFIG.track.roadWidth + 5.4; // 2m wider than the dirt shoulder
+    const geo = vergeRibbonGeometry(path, width);
+    const tex = gravelTexture().clone();
+    tex.needsUpdate = true;
+    tex.repeat.set(Math.max(20, len / 4), width / 4); // ~4m square gravel tiles
+    const mat = new THREE.MeshStandardMaterial({
+      map: tex,
+      transparent: true,
+      opacity: 0.38,
+      depthWrite: false,
+      roughness: 1.0,
+      metalness: 0,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -2,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.y = 0.145; // 5mm above the dirt shoulder (0.14)
+    mesh.renderOrder = 1;
+    scene.add(mesh);
+  }
+
   /**
-   * 3D grass tufts along both verges (AAA REBUILD: the meadow was a smooth
-   * green sheet — the critic's #1 ground cue). One InstancedMesh per color,
-   * offset OUTSIDE the guard rail, grounded on the rolling terrain.
+   * 3D grass tufts along both verges (FECO fix: the old crossed flat quads
+   * read as 16-bit billboards). Each tuft is 3-6 TAPERED-BOX blades arranged
+   * in 2 crossed planes (grassTuftVariant) — a real 3D silhouette from every
+   * camera angle. 4 variant geometries round-robined along the path, ~4
+   * InstancedMesh draw calls for the whole loop, per-instance green tint /
+   * yaw / scale. Deterministic: same _rand call count/order as before, so
+   * downstream builders keep their exact placements.
    */
   buildGrassTufts(scene, track) {
     if (!track || !track.path) return;
     const path = track.path;
     const len = path.getLength();
     const halfW = CONFIG.track.roadWidth / 2;
-    const geo = grassTuftGeometry();
+    const variants = [
+      grassTuftVariant(0xB1ADE1),
+      grassTuftVariant(0xB1ADE2),
+      grassTuftVariant(0xB1ADE3),
+      grassTuftVariant(0xB1ADE4),
+    ];
     const n = Math.max(140, Math.round(len / 2.4));
     const tan = new THREE.Vector3();
     const p = new THREE.Vector3();
@@ -2057,27 +2260,31 @@ export class Environment {
         const tx = p.x + nrm.x * side * off;
         const tz = p.z + nrm.z * side * off;
         if (this._onTrack(tx, tz, 2)) continue;
-        spots.push({ x: tx, z: tz, gy: this._gy(tx, tz), sc: 0.8 + this._rand() * 0.8, c: (i + (side === 1 ? 1 : 0)) % 3 });
+        spots.push({ x: tx, z: tz, gy: this._gy(tx, tz), sc: 0.8 + this._rand() * 0.8, v: (i + (side === 1 ? 1 : 0)) % variants.length, c: (i + (side === 1 ? 1 : 0)) % 3 });
       }
     }
     if (!spots.length) return;
     const baseMat = toonMaterial(0xffffff, {});
-    const grass = new THREE.InstancedMesh(geo, baseMat, spots.length);
     const col = new THREE.Color();
     const PAL = [0x3faf4e, 0x4cc25e, 0x379c45];
-    for (let i = 0; i < spots.length; i++) {
-      const s = spots[i];
-      dummy.position.set(s.x, s.gy, s.z);
-      dummy.rotation.set(0, this._rand() * Math.PI, 0);
-      dummy.scale.set(s.sc, s.sc * (0.9 + this._rand() * 0.35), s.sc);
-      dummy.updateMatrix();
-      grass.setMatrixAt(i, dummy.matrix);
-      col.setHex(PAL[s.c]);
-      grass.setColorAt(i, col);
+    for (let vi = 0; vi < variants.length; vi++) {
+      const list = spots.filter((s) => s.v === vi);
+      if (!list.length) continue;
+      const grass = new THREE.InstancedMesh(variants[vi], baseMat, list.length);
+      for (let i = 0; i < list.length; i++) {
+        const s = list[i];
+        dummy.position.set(s.x, s.gy, s.z);
+        dummy.rotation.set(0, this._rand() * Math.PI, 0);
+        dummy.scale.set(s.sc, s.sc * (0.9 + this._rand() * 0.35), s.sc);
+        dummy.updateMatrix();
+        grass.setMatrixAt(i, dummy.matrix);
+        col.setHex(PAL[s.c]);
+        grass.setColorAt(i, col);
+      }
+      grass.instanceMatrix.needsUpdate = true;
+      if (grass.instanceColor) grass.instanceColor.needsUpdate = true;
+      scene.add(grass);
     }
-    grass.instanceMatrix.needsUpdate = true;
-    if (grass.instanceColor) grass.instanceColor.needsUpdate = true;
-    scene.add(grass);
   }
 
   /** Hay bales (racing venue cue) laid flat along the straights. */
