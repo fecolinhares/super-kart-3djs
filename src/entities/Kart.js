@@ -344,6 +344,36 @@ export class Kart {
       this.group.add(strut);
     }
 
+    // Brake lights (audit v5 #2): emissive red tail lamps that flare on brake.
+    this._brakeLampMat = new THREE.MeshStandardMaterial({
+      color: 0x7a0000,
+      emissive: 0xff2222,
+      emissiveIntensity: 0.0,
+      roughness: 0.4,
+    });
+    for (const s of [-1, 1]) {
+      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), this._brakeLampMat);
+      lamp.position.set(s * 0.34, KC.wheelRadius + 0.42, -0.98);
+      this.group.add(lamp);
+    }
+    // Rounded rear side pods (audit v5 #3: the chase view was a plain slab
+    // between the spoiler struts — pods fill the silhouette).
+    for (const s of [-1, 1]) {
+      const pod = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), carPaint);
+      pod.position.set(s * 0.5, KC.wheelRadius + 0.26, -0.62);
+      pod.scale.set(0.8, 0.75, 1.5);
+      this.group.add(pod);
+    }
+    // Tiny rear-view mirror stalks (audit v5 #3).
+    for (const s of [-1, 1]) {
+      const stalk = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.1), dark);
+      stalk.position.set(s * 0.4, KC.wheelRadius + 0.55, -0.28);
+      this.group.add(stalk);
+      const mirror = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.07, 0.03), dark);
+      mirror.position.set(s * 0.4, KC.wheelRadius + 0.55, -0.2);
+      this.group.add(mirror);
+    }
+
     // Race number plate on the nose (kart identity).
     const numCanvas = document.createElement('canvas');
     numCanvas.width = 128;
@@ -726,6 +756,12 @@ export class Kart {
   update(dt, ctx = {}) {
     this._t += dt;
     const s = this.state;
+    // Brake lights flare (audit v5 #2).
+    if (this._brakeLampMat) {
+      const braking = this._controls.brake || s.spinOut;
+      const target = braking ? 1.4 : 0;
+      this._brakeLampMat.emissiveIntensity += (target - this._brakeLampMat.emissiveIntensity) * Math.min(1, 10 * dt);
+    }
     this._tickEffects(dt);
     // Held-item bubble sync (audit v5): show/hide + recolor the orb.
     if (this.heldItemGroup) {
