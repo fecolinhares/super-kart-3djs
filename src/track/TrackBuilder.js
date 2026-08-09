@@ -52,11 +52,13 @@ function smoothH(x, z) {
 // Broad low-frequency landforms for the distance: ~80m wavelength, ±2.0m
 // amplitude. Combined with smoothH's field amplification these become the
 // rolling hills on the horizon. The corridor falloff in buildTerrain keeps
-// them out of the racing surface entirely.
+// them out of the racing surface entirely. (Amplitude raised 1.4→3.4 after
+// the vision critic called 2.4m hills 'essentially flat' — the eye needs
+// real elevation to read 'rolling'.)
 function broadHill(x, z) {
   return (
-    Math.sin(x * 0.0785) * Math.cos(z * 0.0785) * 1.4 +
-    Math.sin(x * 0.0314 + z * 0.0471 + 1.3) * 0.6
+    Math.sin(x * 0.0785) * Math.cos(z * 0.0785) * 3.4 +
+    Math.sin(x * 0.0314 + z * 0.0471 + 1.3) * 1.4
   );
 }
 
