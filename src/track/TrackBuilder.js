@@ -564,6 +564,244 @@ function buildTireBarriers(path, roadW) {
   return g;
 }
 
+// ---------------------------------------------------------------------------
+// Track-side density ("dense world, not sparse"): organized, LOW, non-blocking
+// props layered OUTSIDE the guard-rail hierarchy:
+//   asphalt → curbs (+0.15) → guard rail (+1.1) → grass tufts (+1.8) →
+//   tire stacks (corners, +1.5) → sponsor boards (+2.6).
+// ---------------------------------------------------------------------------
+
+/** Deterministic 0..1 hash for per-instance jitter (no RNG → stable layout). */
+function hash01(...args) {
+  let h = 2166136261;
+  for (const a of args) {
+    h ^= (a | 0);
+    h = Math.imul(h, 16777619);
+  }
+  return ((h >>> 0) % 10000) / 10000;
+}
+
+/** Procedural billboard face: toon base color + 3 diagonal stripes + dark frame. */
+function billboardTexture(baseHex, stripeHex) {
+  const c = document.createElement('canvas');
+  c.width = 128;
+  c.height = 64;
+  const g = c.getContext('2d');
+  g.fillStyle = '#' + baseHex.toString(16).padStart(6, '0');
+  g.fillRect(0, 0, 128, 64);
+  g.fillStyle = '#' + stripeHex.toString(16).padStart(6, '0');
+  g.beginPath();
+  for (let i = 0; i < 3; i++) {
+    const x = 14 + i * 34;
+    g.moveTo(x, 0);
+    g.lineTo(x + 12, 0);
+    g.lineTo(x - 20, 64);
+    g.lineTo(x - 32, 64);
+    g.closePath();
+  }
+  g.fill();
+  g.strokeStyle = 'rgba(18,28,44,0.9)';
+  g.lineWidth = 4;
+  g.strokeRect(2, 2, 124, 60);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+/**
+ * Sponsor boards: 4 small roadside billboards (2.2x1.1x0.15 board on a 2.2m
+ * pole) on the low-curvature straights (t = 0.05 / 0.28 / 0.55 / 0.82, all
+ * curv < 0.0012), alternating sides so both edges read. Placed OUTSIDE the
+ * guard-rail at roadW/2 + 2.6, boards face the road. Alternate 3 stripe
+ * color schemes for organized variation.
+ */
+function buildSponsorBoards(path) {
+  const halfW = getRoadWidthAt() / 2;
+  const lateral = halfW + 2.6;
+  const SPOTS = [
+    { t: 0.05, side: 1, scheme: 0 },
+    { t: 0.28, side: -1, scheme: 1 },
+    { t: 0.55, side: 1, scheme: 2 },
+    { t: 0.82, side: -1, scheme: 0 },
+  ];
+  const SCHEMES = [
+    { base: 0x2ec4ff, stripe: 0xffffff }, // cyan / white
+    { base: 0xff5a5f, stripe: 0xffffff }, // red / white
+    { base: 0xffd166, stripe: 0x1b2a41 }, // yellow / navy
+  ];
+  const boardGeo = new THREE.BoxGeometry(2.2, 1.1, 0.15);
+  const poleGeo = new THREE.CylinderGeometry(0.09, 0.12, 2.2, 8);
+  const poleMat = toonMaterial(0x2b3340, {});
+  const p = new THREE.Vector3();
+  const tan = new THREE.Vector3();
+  const nrm = new THREE.Vector3();
+  const group = new THREE.Group();
+  for (const s of SPOTS) {
+    path.getPointAt(s.t, p);
+    path.getTangentAt(s.t, tan);
+    nrm.set(-tan.z, 0, tan.x).normalize();
+    const bx = p.x + nrm.x * lateral * s.side;
+    const bz = p.z + nrm.z * lateral * s.side;
+    const scheme = SCHEMES[s.scheme];
+    const mat = toonMaterial(0xffffff, { map: billboardTexture(scheme.base, scheme.stripe) });
+    const board = new THREE.Mesh(boardGeo, mat);
+    const by = p.y + 2.25 + 0.55; // pole top (2.2) + board half-height (0.55)
+    board.position.set(bx, by, bz);
+    // Face the road center at the SAME elevation → yaw only, board stays
+    // vertical (no pitch from the track slope).
+    board.lookAt(p.x, by, p.z);
+    board.castShadow = true;
+    group.add(board);
+    cartoonOutline(board, 0x1b2a41, 0.035);
+    const pole = new THREE.Mesh(poleGeo, poleMat);
+    pole.position.set(bx, p.y + 0.05 + 1.1, bz); // base in the grass, top meets board
+    pole.castShadow = true;
+    group.add(pole);
+  }
+  return group;
+}
+
+/**
+ * Roadside grass tufts: instanced clusters of 4 thin green cones (~0.08r x
+ * 0.48h) every ~6m along BOTH edges, just outside the guard-rail at
+ * roadW/2 + 1.8. Deliberately low (max ~0.58m, under the 0.6m camera
+ * clearance) so they dress the ground without ever entering the view.
+ * One InstancedMesh, per-instance green shade / yaw / scale jitter.
+ */
+function buildGrassTufts(path, length) {
+  const halfW = getRoadWidthAt() / 2;
+  const lateral = halfW + 1.8;
+  const clusterCount = Math.max(1, Math.round(length / 6.0)); // ~6m spacing
+  const perCluster = 4;
+  const total = clusterCount * 2 * perCluster; // both sides
+  const geo = new THREE.ConeGeometry(0.08, 0.48, 6);
+  const mat = toonMaterial(0xffffff, {});
+  const mesh = new THREE.InstancedMesh(geo, mat, total);
+  const GREENS = [0x3fae4f, 0x57c05e, 0x2f8f3e, 0x6ccf6a];
+  const p = new THREE.Vector3();
+  const tan = new THREE.Vector3();
+  const nrm = new THREE.Vector3();
+  const dummy = new THREE.Object3D();
+  const col = new THREE.Color();
+  let idx = 0;
+  for (let i = 0; i < clusterCount; i++) {
+    const t = (i + 0.5) / clusterCount;
+    // Keep the start/finish straight clear (gantry pillars sit at t≈0).
+    if (t < 0.025 || t > 0.975) continue;
+    path.getPointAt(t, p);
+    path.getTangentAt(t, tan);
+    nrm.set(-tan.z, 0, tan.x).normalize();
+    for (const side of [-1, 1]) {
+      const baseX = p.x + nrm.x * lateral * side;
+      const baseZ = p.z + nrm.z * lateral * side;
+      for (let k = 0; k < perCluster; k++) {
+        const jLat = (hash01(i, side, k, 0) - 0.5) * 0.9; // ±0.45m lateral
+        const jFwd = (hash01(i, side, k, 1) - 0.5) * 1.1; // ±0.55m along track
+        const hScale = 0.7 + hash01(i, side, k, 2) * 0.5; // 0.34..0.58m < 0.6m
+        dummy.position.set(
+          baseX + nrm.x * jLat + tan.x * jFwd,
+          p.y + (0.48 * hScale) / 2 + (hash01(i, side, k, 3) - 0.5) * 0.06,
+          baseZ + nrm.z * jLat + tan.z * jFwd
+        );
+        dummy.rotation.set(0, hash01(i, side, k, 4) * Math.PI * 2, 0);
+        dummy.scale.set(hScale, hScale, hScale);
+        dummy.updateMatrix();
+        mesh.setMatrixAt(idx, dummy.matrix);
+        col.setHex(GREENS[(i + side + k) % GREENS.length]);
+        mesh.setColorAt(idx, col);
+        idx++;
+      }
+    }
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  mesh.count = idx; // skip unused slots (start-straight clearance)
+  return mesh;
+}
+
+/**
+ * Apex cone markers: small orange cones + white base rings along the kerb
+ * (roadW/2 + 0.2) on the INSIDE edge of the 3 sharpest corners (curvature
+ * scan → top local maxima), 5 cones per corner spaced 3m. Visual-only
+ * (no collider) so they never block the kart.
+ */
+function buildApexCones(path, length, roadW) {
+  const SAMPLES = 160;
+  const dt = 1 / SAMPLES;
+  const tan = new THREE.Vector3();
+  const tan2 = new THREE.Vector3();
+  const rows = [];
+  for (let i = 0; i < SAMPLES; i++) {
+    const t = i / SAMPLES;
+    path.getTangentAt(t, tan);
+    path.getTangentAt(Math.min(1, t + dt), tan2);
+    const curv = 1 - Math.min(1, Math.max(-1, tan.dot(tan2)));
+    rows.push({ t, curv });
+  }
+  const peaks = [];
+  for (let i = 1; i < SAMPLES - 1; i++) {
+    const r = rows[i];
+    if (r.curv > 0.0022 && r.curv >= rows[i - 1].curv && r.curv >= rows[i + 1].curv) {
+      peaks.push(r);
+    }
+  }
+  peaks.sort((a, b) => b.curv - a.curv);
+  const apexes = [];
+  for (const pk of peaks) {
+    if (apexes.every((o) => Math.min(Math.abs(o.t - pk.t), 1 - Math.abs(o.t - pk.t)) > 0.1)) {
+      apexes.push(pk);
+      if (apexes.length === 3) break;
+    }
+  }
+  if (apexes.length === 0) return null;
+
+  const halfW = roadW / 2;
+  const perCorner = 5;
+  const dtSpacing = 3 / length; // 3m along the path
+  const coneGeo = new THREE.ConeGeometry(0.16, 0.4, 8);
+  const ringGeo = new THREE.CylinderGeometry(0.185, 0.185, 0.06, 12);
+  const coneMat = toonMaterial(0xff7b2e, {});
+  const ringMat = toonMaterial(0xffffff, {});
+  const total = apexes.length * perCorner;
+  const cones = new THREE.InstancedMesh(coneGeo, coneMat, total);
+  const rings = new THREE.InstancedMesh(ringGeo, ringMat, total);
+  const p = new THREE.Vector3();
+  const nrm = new THREE.Vector3();
+  const dummy = new THREE.Object3D();
+  let idx = 0;
+  for (const apex of apexes) {
+    // Inside edge = side the curvature center lies on. Signed 2D cross of
+    // tangents: cross<0 → path bends toward -nrm → inside is the -nrm side
+    // (verified: dot(centerDir, nrm*inside) ≈ 1 at every apex).
+    path.getTangentAt(apex.t, tan);
+    path.getTangentAt(Math.min(1, apex.t + dt), tan2);
+    const inside = tan.x * tan2.z - tan.z * tan2.x < 0 ? -1 : 1;
+    for (let k = 0; k < perCorner; k++) {
+      const t = Math.min(0.999, Math.max(0.001, apex.t + (k - (perCorner - 1) / 2) * dtSpacing));
+      path.getPointAt(t, p);
+      path.getTangentAt(t, tan);
+      nrm.set(-tan.z, 0, tan.x).normalize();
+      const cx = p.x + nrm.x * inside * (halfW + 0.2);
+      const cz = p.z + nrm.z * inside * (halfW + 0.2);
+      const baseY = p.y + 0.29; // kerb top (curb box center 0.22 + half-height 0.07)
+      dummy.rotation.set(0, 0, 0);
+      dummy.scale.set(1, 1, 1);
+      dummy.position.set(cx, baseY + 0.2, cz); // cone center = base + half 0.4
+      dummy.updateMatrix();
+      cones.setMatrixAt(idx, dummy.matrix);
+      dummy.position.set(cx, baseY + 0.03, cz); // white ring collar around the base
+      dummy.updateMatrix();
+      rings.setMatrixAt(idx, dummy.matrix);
+      idx++;
+    }
+  }
+  cones.instanceMatrix.needsUpdate = true;
+  rings.instanceMatrix.needsUpdate = true;
+  const g = new THREE.Group();
+  g.add(cones, rings);
+  return g;
+}
+
 export function buildTrack(scene) {
   const group = new THREE.Group();
 
@@ -605,6 +843,14 @@ export function buildTrack(scene) {
   // asphalt → curbs → guard rail (roadW/2 + 0.6) → grass. Placed outside the
   // curb so the racing line is never blocked.
   group.add(buildGuardRail(path, length, -1), buildGuardRail(path, length, 1));
+
+  // Track-side density: sponsor boards on the straights, low grass tufts
+  // along both edges, and orange apex cones on the inside of the sharpest
+  // corners — all OUTSIDE the racing line (visual-only, no colliders).
+  group.add(buildSponsorBoards(path));
+  group.add(buildGrassTufts(path, length));
+  const apexCones = buildApexCones(path, length, getRoadWidthAt());
+  if (apexCones) group.add(apexCones);
 
   const dashes = buildLaneDashes(path, length);
   group.add(dashes);

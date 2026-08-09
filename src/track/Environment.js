@@ -152,6 +152,7 @@ export class Environment {
     this.buildPalms(scene);
     this.buildForest(scene);
     this.buildProps(scene);
+    this.buildRoadsideFlowersAndRocks(scene, track);
     this.buildLightPoles(scene, track);
     this.buildDistanceMarks(scene); // 100m/200m posts (was dead code — never called)
     this.buildCornerSigns(scene, track);
@@ -830,6 +831,151 @@ export class Environment {
         leg.position.set(s.x + side * 2.0, smoothH(s.x, s.z) * 0.5 - 0.25 + 0.75, s.z);
         scene.add(leg);
       }
+    }
+  }
+
+  /**
+   * Dense, ORGANIZED roadside dressing (vision audit: flowers/bushes too
+   * sparse near the track): wildflower patches every ~12m along BOTH road
+   * edges just outside the guard-rail, plus 8-10 rock groups alternating
+   * sides. Everything is sampled from the real track path (like
+   * buildRoadsideCrowd) so it follows every curve, anchors at the path
+   * elevation like the rail/crowd/poles, and stays under 0.8m tall so the
+   * chase-camera line is never blocked. Offsets clear the guard rail
+   * (rail sits at roadW/2 + 1.1) — nothing spawns on the road or inside it.
+   */
+  buildRoadsideFlowersAndRocks(scene, track) {
+    if (!track || !track.path) return;
+    const path = track.path;
+    const len = path.getLength();
+    const halfW = CONFIG.track.roadWidth / 2;
+    const RAIL = halfW + 1.1; // guard-rail lateral offset (TrackBuilder)
+    const p = new THREE.Vector3();
+    const tan = new THREE.Vector3();
+    const nrm = new THREE.Vector3();
+    const dummy = new THREE.Object3D();
+
+    // Same prop geometry/style as buildProps wildflowers & rocks.
+    const flowerGeo = new THREE.SphereGeometry(0.16, 8, 6);
+    const stemGeo = new THREE.CylinderGeometry(0.025, 0.045, 0.55, 6);
+    const flowerMat = toonMaterial(0xffffff, {});
+    const stemMat = toonMaterial(0x2f8f43, {});
+    const flowerColors = [0xff5a5f, 0xffd166, 0x2ec4ff, 0xc86bff, 0xffffff, 0xff9f45];
+    const rockGeo = new THREE.DodecahedronGeometry(0.7, 1);
+    const rockMat = toonMaterial(0xa9a9b8, {});
+
+    // t-ranges where the painted crowd stands (buildRoadsideCrowd) — flower
+    // patches skip those slots so nothing spawns inside a spectator.
+    const crowdSegs = [
+      [0.945, 0.055], [0.10, 0.15], [0.19, 0.25],
+      [0.30, 0.37], [0.45, 0.56], [0.62, 0.68],
+    ];
+    const inCrowd = (t) => {
+      for (const [a, b] of crowdSegs) {
+        if (a <= b) { if (t >= a && t <= b) return true; }
+        else if (t >= a || t <= b) return true; // wraps past 1.0
+      }
+      return false;
+    };
+
+    // --- flower patches: one every ~12m, BOTH sides, 1.2-2.0m off the rail.
+    const flowerSpots = [];
+    const n = Math.floor(len / 12);
+    for (let i = 0; i < n; i++) {
+      const rand = rnd(33000 + i);
+      const t = (((i / n + (rand() - 0.5) * (2.5 / len)) % 1) + 1) % 1; // ±1.25m along path
+      if (inCrowd(t)) continue;
+      path.getPointAt(t, p);
+      path.getTangentAt(t, tan);
+      nrm.set(-tan.z, 0, tan.x).normalize();
+      const gy = p.y; // anchor at path elevation (rail base line)
+      for (const side of [1, -1]) {
+        const off = RAIL + 1.2 + rand() * 0.8; // 6.8-7.6m from centerline
+        const cx = p.x + nrm.x * side * off + (rand() - 0.5) * 1.2;
+        const cz = p.z + nrm.z * side * off + (rand() - 0.5) * 1.2;
+        if (inWater(cx, cz, 4)) continue;
+        // 2 sub-clusters × 3-5 flowers = 6-10 per patch, colored variety.
+        for (let c = 0; c < 2; c++) {
+          const r2 = rnd(33000 + i * 10 + c * 5 + (side === 1 ? 1 : 0));
+          const per = 3 + ((r2() * 3) | 0);
+          const scx = cx + (r2() - 0.5) * 1.1;
+          const scz = cz + (r2() - 0.5) * 1.1;
+          for (let k = 0; k < per; k++) {
+            const r3 = rnd(33000 + i * 10 + c * 5 + k * 3 + (side === 1 ? 2 : 0));
+            flowerSpots.push({
+              x: scx + (r3() - 0.5) * 0.7,
+              z: scz + (r3() - 0.5) * 0.7,
+              gy,
+              s: 0.85 + r3() * 0.3, // head ≤ 0.67m — under the camera line
+              ry: r3() * Math.PI,
+              color: flowerColors[(r3() * flowerColors.length) | 0],
+            });
+          }
+        }
+      }
+    }
+    if (flowerSpots.length) {
+      const flowers = new THREE.InstancedMesh(flowerGeo, flowerMat, flowerSpots.length);
+      const stems = new THREE.InstancedMesh(stemGeo, stemMat, flowerSpots.length);
+      flowerSpots.forEach((f, i) => {
+        dummy.position.set(f.x, f.gy + 0.3 * f.s, f.z);
+        dummy.scale.set(f.s, f.s, f.s);
+        dummy.rotation.set(0, f.ry, 0);
+        dummy.updateMatrix();
+        stems.setMatrixAt(i, dummy.matrix);
+        dummy.position.set(f.x, f.gy + 0.58 * f.s, f.z);
+        dummy.scale.setScalar(f.s);
+        dummy.rotation.set(0, 0, 0);
+        dummy.updateMatrix();
+        flowers.setMatrixAt(i, dummy.matrix);
+        flowers.setColorAt(i, new THREE.Color(f.color));
+      });
+      flowers.instanceMatrix.needsUpdate = true;
+      if (flowers.instanceColor) flowers.instanceColor.needsUpdate = true;
+      stems.instanceMatrix.needsUpdate = true;
+      scene.add(flowers, stems);
+    }
+
+    // --- rock groups: 8-10 groups, alternating sides, 3-5m off the rail.
+    const rockSpots = [];
+    const groups = Math.min(10, Math.max(8, Math.round(len / 25)));
+    for (let g = 0; g < groups; g++) {
+      const rand = rnd(34000 + g);
+      const t = (((g / groups + (rand() - 0.5) * (1.5 / len)) % 1) + 1) % 1; // ±0.75m along path
+      const side = g % 2 === 0 ? 1 : -1;
+      path.getPointAt(t, p);
+      path.getTangentAt(t, tan);
+      nrm.set(-tan.z, 0, tan.x).normalize();
+      const off = RAIL + 3 + rand() * 2; // 8.6-10.6m from centerline
+      const gx = p.x + nrm.x * side * off + (rand() - 0.5) * 1.0;
+      const gz = p.z + nrm.z * side * off + (rand() - 0.5) * 1.0;
+      if (inWater(gx, gz, 4)) continue;
+      const gy = p.y;
+      const per = 2 + ((rand() * 2) | 0); // 2-3 rocks per group
+      for (let k = 0; k < per; k++) {
+        const r2 = rnd(34000 + g * 7 + k);
+        rockSpots.push({
+          x: gx + (r2() - 0.5) * 2.0,
+          z: gz + (r2() - 0.5) * 2.0,
+          gy,
+          s: 0.42 + r2() * 0.16, // squat → top ≤ 0.55m — under the camera line
+          ry: r2() * Math.PI,
+          rx: (r2() - 0.5) * 0.3,
+          rz: (r2() - 0.5) * 0.3,
+        });
+      }
+    }
+    if (rockSpots.length) {
+      const rocks = new THREE.InstancedMesh(rockGeo, rockMat, rockSpots.length);
+      rockSpots.forEach((r, i) => {
+        dummy.position.set(r.x, r.gy + 0.42 * r.s, r.z);
+        dummy.scale.set(r.s, r.s * 0.72, r.s); // low profile near the rail
+        dummy.rotation.set(r.rx, r.ry, r.rz);
+        dummy.updateMatrix();
+        rocks.setMatrixAt(i, dummy.matrix);
+      });
+      rocks.instanceMatrix.needsUpdate = true;
+      scene.add(rocks);
     }
   }
 
