@@ -112,6 +112,7 @@ export class HUD {
         </div>
       </div>
       <div class="sk3d-hud-bottom"></div>
+      <div class="sk3d-hitflash sk3d-hidden" aria-hidden="true"></div>
       <div class="sk3d-draft sk3d-hidden">DRAFT</div>
       <div class="sk3d-countdown sk3d-hidden">3</div>
       <div class="sk3d-pause sk3d-hidden">⏸ PAUSED<div class="sk3d-pause-hint">Press P / tap to resume</div></div>
@@ -148,6 +149,7 @@ export class HUD {
 
     this.positionEl = this.root.querySelector('.sk3d-position');
     this.draftEl = this.root.querySelector('.sk3d-draft');
+    this.hitFlashEl = this.root.querySelector('.sk3d-hitflash');
     this.lapEl = this.root.querySelector('.sk3d-lap');
     this.lapTextEl = this.root.querySelector('.sk3d-lap-text');
     this.lapBarFillEl = this.root.querySelector('.sk3d-lap-bar-fill');
@@ -632,6 +634,18 @@ export class HUD {
       this.finishCardEl.style.transform = 'none';
       this.finishCardEl.style.opacity = '1';
     }, 650);
+  }
+
+  /** Red screen flash when the player is hit (user feedback: hits were
+   *  unreadable). Re-triggers via animation restart. */
+  showHitFlash() {
+    if (!this.hitFlashEl) return;
+    this.hitFlashEl.classList.remove('sk3d-hidden');
+    this.hitFlashEl.classList.remove('sk3d-hitflash-on');
+    void this.hitFlashEl.offsetWidth;
+    this.hitFlashEl.classList.add('sk3d-hitflash-on');
+    clearTimeout(this._hitFlashTimer);
+    this._hitFlashTimer = setTimeout(() => this.hitFlashEl.classList.add('sk3d-hidden'), 500);
   }
 
   /** Transient centered toast message (auto-hides). @param {string} text */

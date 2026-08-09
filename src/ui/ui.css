@@ -705,6 +705,25 @@
   to { transform: translateX(-50%) scale(1.08); }
 }
 
+.sk3d-hitflash {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 45%, rgba(255, 40, 40, 0) 40%, rgba(255, 30, 30, 0.55) 100%);
+  opacity: 0;
+}
+
+.sk3d-hitflash-on {
+  animation: sk3d-hitflash 0.5s ease-out;
+}
+
+@keyframes sk3d-hitflash {
+  0% { opacity: 0; }
+  18% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 /* --- countdown --- */
 
 .sk3d-countdown {

@@ -699,6 +699,7 @@ export class Kart {
     this.state.speed *= 0.3;
     this._scaleTarget = 0.92;
     this._scaleMs = Math.max(this._scaleMs, 300);
+    this._onHit?.('banana'); // player hit feedback hook (screen flash + label)
   }
 
   /** Shell: heavier crash — spin-out + hop + lateral shove.
@@ -714,6 +715,7 @@ export class Kart {
     this._nudgeVel.set(Math.random() - 0.5, 0, Math.random() - 0.5).normalize().multiplyScalar(5);
     this._scaleTarget = 0.9;
     this._scaleMs = Math.max(this._scaleMs, 380);
+    this._onHit?.(opts.blue ? 'blue' : 'shell'); // player hit feedback hook
   }
 
   /** Holding a shell/banana behind blocks an incoming hit (MK8 pillar).

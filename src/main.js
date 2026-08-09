@@ -179,6 +179,15 @@ function setPlayerColor(color) {
 
 /** Drift mini-boost drama: SFX + golden spark burst on release (all karts). */
 function wireMiniBoost(kart) {
+  kart._onHit = (type) => {
+    // PLAYER hit feedback (user request): red screen flash + label + shake —
+    // getting hit by a banana/shell was unreadable before.
+    if (!kart.isPlayer) return;
+    hud.showHitFlash();
+    const label = type === 'banana' ? '💥 BANANA!' : type === 'blue' ? '💥 BLUE SHELL!' : '💥 SHELL HIT!';
+    hud.showMessage(label);
+    addShake(0.5, 0.5);
+  };
   kart._onDraftExit = () => {
     // Slingshot pop when leaving a wake (player only).
     if (kart.isPlayer) audio.play('driftReleaseMiniBoost', { volume: 0.5 });
