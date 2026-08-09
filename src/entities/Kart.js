@@ -227,16 +227,27 @@ export class Kart {
   _buildMesh(color, character) {
     const KC = CONFIG.kart;
 
-    // Soft blob shadow under the kart (cartoon contact shadow). depthWrite off
-    // + polygonOffset so it never z-fights the asphalt. Oval (stretched along
-    // the kart) + low opacity — vision critic: a big round dark disc read as
-    // a decal, not a contact shadow.
+    // Soft blob shadow under the kart (cartoon contact shadow). Radial
+    // gradient texture (soft edge — a hard circle read as a decal per the
+    // vision critic). depthWrite off + polygonOffset so it never z-fights.
+    const blobTex = (() => {
+      const c = document.createElement('canvas');
+      c.width = 64; c.height = 64;
+      const g = c.getContext('2d');
+      const grad = g.createRadialGradient(32, 32, 6, 32, 32, 32);
+      grad.addColorStop(0, 'rgba(0,0,0,0.55)');
+      grad.addColorStop(0.6, 'rgba(0,0,0,0.28)');
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = grad;
+      g.fillRect(0, 0, 64, 64);
+      const t = new THREE.CanvasTexture(c);
+      return t;
+    })();
     const blob = new THREE.Mesh(
-      new THREE.CircleGeometry(1.1, 24),
+      new THREE.CircleGeometry(1.15, 24),
       new THREE.MeshBasicMaterial({
-        color: 0x000000,
+        map: blobTex,
         transparent: true,
-        opacity: 0.2,
         depthWrite: false,
         polygonOffset: true,
         polygonOffsetFactor: -2,
