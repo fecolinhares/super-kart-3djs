@@ -1634,7 +1634,8 @@ export class Environment {
         this.flagMeshes.push(pennantPivot); // update() waves the pennant
         // AUDIT r6: the keep read as a gazebo — scale the mass up and add a
         // battlement ring so the silhouette says CASTLE at race distance.
-        castle.scale.setScalar(1.5);
+        // r6b: 1.5 still small in the huge infield — 2.2 reads across it.
+        castle.scale.setScalar(2.2);
         const wallMat = toonMaterial(0xc9b38f, {});
         const merlonMat = toonMaterial(0xb3a17e, {});
         const WALL_R = 5.2;
