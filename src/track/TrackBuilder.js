@@ -356,9 +356,12 @@ function buildTerrain(path, cityMode = false) {
     // Near the track this reduces to the historical smoothH*0.5 - 0.25
     // (bit-identical heights → road, shoulders, kerbs, rails, ramps and the
     // kart's ground sampling are exactly as before). Beyond the corridor the
-    // same noise scales up to ±0.9m and broadHill adds ±2.4m of ~80m
-    // wavelength landforms → ±2.5-3.5m gentle rolling hills on the horizon.
-    const y = -0.25 + smoothH(x, z) * 0.5 * (1 + falloff * 2.5) + broadHill(x, z) * 1.2 * falloff;
+    // same noise scales up to ±0.9m and broadHill adds ±4m of ~80m
+    // wavelength landforms → ~±5m rolling hills on the horizon.
+    // AUDIT r19-FIX: MUST match terrainHeight() (×0.7) — the r19 fix only
+    // scaled the physics sample function, leaving the mesh at ×1.2 (±8.4m);
+    // the divergence made off-road karts sink/float on the visible hills.
+    const y = -0.25 + smoothH(x, z) * 0.5 * (1 + falloff * 2.5) + broadHill(x, z) * 0.7 * falloff;
     pos.setY(i, y);
   }
   geo.computeVertexNormals();
