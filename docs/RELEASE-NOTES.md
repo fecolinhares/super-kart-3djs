@@ -279,6 +279,19 @@
 - **Verified**: AI-hit uses the real banana sfx (bananaBoing was dead code), unmute
   ack plays after the gain ramp.
 
+## 🐛 User bug fixes (2026-08-10)
+- **Kart sinks under the track at corners**: the kart body rode the path height
+  (y=0) while the visible ribbon sits at y+0.18 — the body sank into the asphalt,
+  and the MK8 banking pushed the outer wheel ~0.4m below the surface in corners.
+  On-road groundY now rides the ribbon; off-road groundY is clamped 0.6m below
+  the track so the rolling terrain can't swallow a corner-cut.
+- **Menu/HUD bigger than the screen (mobile Chrome)**: the menu card had no
+  height cap — 736px on a 640px viewport with the top (logo) cut off. Capped at
+  `100dvh - 16px` with an internal scroll.
+- **Pause button dead**: `.sk3d-touch-pause` had no `pointer-events:auto` — the
+  touch container is `pointer-events:none` and this button isn't `.sk3d-touch-btn`,
+  so taps never reached it. Reproduced headless, fixed, re-verified (tap → paused).
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
