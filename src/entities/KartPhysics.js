@@ -232,7 +232,16 @@ export class KartPhysics {
     // samples are flat; beyond the corridor the field rolls ±5m and a kart
     // shoved into the grass would bury or float up to 5m without this.
     if (Math.abs(near.lateralDist) > halfW + 0.5) {
-      near.groundY = terrainHeight(s.position.x, s.position.z, track.path);
+      // Off-road: ride the rolling terrain, but CLAMP the sink so a kart at
+      // the track edge can't drop into the floor (user bug: 'falling into
+      // the subsoil at track corners' — the far field rolls to -5m).
+      near.groundY = Math.max(terrainHeight(s.position.x, s.position.z, track.path), sp.y - 0.6);
+    } else {
+      // ON-ROAD: the visible road ribbon sits at path.y + 0.18 (buildRoadRibbon
+      // yOff). Without this offset the kart body sank 0.18m INTO the asphalt,
+      // and the MK8 banking (8deg roll) pushed the outer wheel ~0.4m below the
+      // surface in corners — the reported 'falling into the subsoil'.
+      near.groundY = sp.y + 0.18;
     }
 
     s.progress01 = near.progress01;

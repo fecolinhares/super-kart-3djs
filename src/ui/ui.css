@@ -92,6 +92,13 @@
   padding: 42px 52px 26px;
   max-width: 580px;
   width: calc(100% - 32px);
+  /* AUDIT FIX (user bug: menu bigger than the screen on mobile): the card
+     grew past small viewports (736px on a 640px screen) and the centered
+     top got cut off (logo at y=-135). Cap it at the viewport + internal
+     scroll so the top is always reachable. */
+  max-height: calc(100dvh - 16px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: rgba(255, 253, 247, 0.94);
   border: var(--sk3d-border);
   border-radius: 26px;
@@ -1140,6 +1147,10 @@
 }
 
 .sk3d-touch-pause {
+  /* AUDIT FIX (user bug: 'pause button does not work'): the touch container
+     has pointer-events:none and this button is NOT .sk3d-touch-btn — without
+     pointer-events:auto the tap never reached it. */
+  pointer-events: auto;
   position: absolute;
   top: 84px; /* below the lap/time chips row (was 12px — overlapped them) */
   left: 12px;
