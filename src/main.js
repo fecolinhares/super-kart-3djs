@@ -284,7 +284,7 @@ function wireMiniBoost(kart) {
       // AUDIT MED: AI hits were INVISIBLE — a small spark burst + quiet thud
       // so the player sees the rival got hit (their spin already shows).
       particles?.burst?.(kart.group.position, { count: 8, color: 0xffd23c, speed: 3, size: 0.18, spread: 0.4, life: 0.4 });
-      audio?.play?.('bananaBoing', { volume: 0.25 });
+      audio?.play?.('banana', { volume: 0.25 }); // AUDIT v4: bananaBoing was dead code (no sfx case) — use the real recipe
       return;
     }
     hud.showHitFlash();
