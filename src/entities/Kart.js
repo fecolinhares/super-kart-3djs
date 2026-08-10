@@ -292,8 +292,11 @@ export class Kart {
     this.group.add(this._finishFlag);
 
     // AUDIT r8: floating rank arrow (MK8D) — canvas arrow + ordinal above the
-    // kart (y 2.2), parented to this.group so it follows every move/tumble.
+    // kart, parented to this.group so it follows every move/tumble.
     // Hidden until RaceManager reveals it mid-race via setRankVisible().
+    // AUDIT r9 (vision critic): the arrows dominated the frame and hid the
+    // karts — scale 1.0 → 0.62, raised 2.2 → 2.6 so they read without
+    // covering the vehicles.
     this._rankVisible = false;
     this._rankPos = 0;
     this._rankArrow = new THREE.Sprite(new THREE.SpriteMaterial({
@@ -302,8 +305,8 @@ export class Kart {
       depthTest: false,
       depthWrite: false,
     }));
-    this._rankArrow.scale.set(1.0, 1.0, 1);
-    this._rankArrow.position.set(0, 2.2, 0);
+    this._rankArrow.scale.set(0.62, 0.62, 1);
+    this._rankArrow.position.set(0, 2.6, 0);
     this._rankArrow.renderOrder = 10; // draws above scenery (MK8D arrows stay readable)
     this._rankArrow.visible = false;
     this.group.add(this._rankArrow);
