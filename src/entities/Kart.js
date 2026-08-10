@@ -1087,7 +1087,11 @@ export class Kart {
         disc.castShadow = false;
         spin.add(disc);
         const lip = new THREE.Mesh(rimLipGeo, rimChrome);
-        lip.rotation.z = Math.PI / 2; // ring in YZ — faces outward, not edge-on
+        // AUDIT (user: 'one ring still out of place' — the chrome rim lip was
+        // rotating in its own plane (rotation.z), leaving the ring EDGE-ON to
+        // the wheel. This mesh lives in `spin` (no tilt), so rotation.y=PI/2
+        // puts the torus plane on YZ — the wheel face.)
+        lip.rotation.y = Math.PI / 2;
         lip.position.x = rimX + 0.01;
         lip.castShadow = false;
         spin.add(lip);
