@@ -277,9 +277,9 @@ function wireMiniBoost(kart) {
     }
   };
   kart._onDriftTier = (tier = 1) => {
-    // Drift charge tier cue (audit r2): beep + small spark burst at 0.33/0.66
-    // (tier 1 = white→yellow tick, tier 2 = yellow→orange blip; the HUD's
-    // driftReady chime covers the 0.75 release flash for the player).
+    // Drift charge tier cue (audit r2/r9): beep + spark burst at 0.33/0.66/0.9
+    // (tier 1 = blue tick, tier 2 = orange blip, tier 3 = purple flash —
+    // MK8D's three spark colors).
     const v = kart.isPlayer ? 0.5 : 0.26;
     audio.play(tier === 1 ? 'uiClick' : 'posUp', {
       volume: v,
@@ -287,8 +287,9 @@ function wireMiniBoost(kart) {
     });
     if (particles) {
       particles.emit('sparkle', kart.state.position.clone().add(new THREE.Vector3(0, 0.6, 0)), {
-        count: tier === 1 ? 6 : 10, speed: 3.2, size: 0.18,
-        spread: 1.0, color: tier === 1 ? 0x9adcff : 0xffd166,
+        count: tier === 1 ? 6 : tier === 2 ? 10 : 16, speed: 3.2, size: 0.18,
+        spread: 1.0 + tier * 0.2,
+        color: tier === 1 ? 0x9adcff : tier === 2 ? 0xffa64d : 0xc86bff,
       });
     }
   };

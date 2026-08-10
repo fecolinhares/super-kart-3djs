@@ -87,6 +87,15 @@ export class PostFX {
           );
       if (this.bloom) this.composer.addPass(this.bloom);
 
+      // AUDIT r9: the color-grade (saturation 1.2 / contrast 1.15) was
+      // removed because bloom→grade→vignette chained THREE HalfFloat passes
+      // rendered black on software GL. Real GPUs handle it fine, and the
+      // MK8 punchy grade only matters there — so the pass comes back ONLY on
+      // non-software GL (same gate as bloom). Software keeps the safe chain.
+      if (!softGL && !forceNoBloom) {
+        this.composer.addPass(new ShaderPass(ColorGradeShader));
+      }
+
       // Vignette — NOTE: the custom ColorGradeShader (saturation/contrast)
       // was removed: chained as bloom→colorgrade→vignette it rendered BLACK
       // on software GL (3 chained HalfFloat passes). The OutputPass already

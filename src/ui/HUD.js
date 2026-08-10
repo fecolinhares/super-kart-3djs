@@ -144,6 +144,14 @@ export class HUD {
     this.speedNeedle = speedo.needle;
     this.speedArc = speedo.arc;
     this.speedValueEl = speedo.wrap.querySelector('.sk3d-speedo-value');
+    // AUDIT r9: high-speed wind streaks (MK8D) — a full-screen canvas overlay
+    // of radial speed lines, opacity ramps in above 80% top speed.
+    this.speedlineCanvas = document.createElement('canvas');
+    this.speedlineCanvas.className = 'sk3d-speedlines';
+    this.speedlineCanvas.width = window.innerWidth;
+    this.speedlineCanvas.height = window.innerHeight;
+    this.speedlineCtx = this.speedlineCanvas.getContext('2d');
+    this.root.appendChild(this.speedlineCanvas);
     // AUDIT r5: the gauge scale was a load-time constant (MAX_KMH≈101) so the
     // needle PEGGED at 150cc. Now dynamic — startRace() calls setMaxKmh().
     this._maxKmh = MAX_KMH;
@@ -588,6 +596,38 @@ export class HUD {
     const angle = -90 + (kmh / this._maxKmh) * 180;
     this.speedNeedle.style.transform = `rotate(${angle}deg)`;
     this.speedArc.style.strokeDashoffset = String(ARC_LENGTH * (1 - kmh / this._maxKmh));
+    // AUDIT r9: wind streaks ramp in above 80% of the gauge (MK8D velocity cue).
+    this._drawSpeedlines(kmh / this._maxKmh);
+  }
+
+  /** Radial speed lines on a full-screen overlay — opacity ∝ speed01 (0.8+). */
+  _drawSpeedlines(speed01) {
+    const ctx = this.speedlineCtx;
+    if (!ctx) return;
+    const a = speed01 > 0.8 ? Math.min(0.5, (speed01 - 0.8) * 2.2) : 0;
+    const w = this.speedlineCanvas.width;
+    const h = this.speedlineCanvas.height;
+    ctx.clearRect(0, 0, w, h);
+    if (a <= 0.01) return;
+    ctx.globalAlpha = a;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    // ~14 radial streaks near the frame edges, flickering slightly per call
+    // (deterministic-ish: seeded by time bucket so it shimmers without noise).
+    const t = Math.floor(performance.now() / 90);
+    for (let i = 0; i < 14; i++) {
+      const ang = (i / 14) * Math.PI * 2 + t * 0.02;
+      const r0 = Math.min(w, h) * (0.42 + ((i * 37 + t) % 7) * 0.012);
+      const r1 = r0 + 30 + ((i * 53 + t * 3) % 40);
+      const cx = w / 2 + Math.cos(ang) * (w * 0.05);
+      const cy = h / 2 + Math.sin(ang) * (h * 0.05);
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(ang) * r0, cy + Math.sin(ang) * r0);
+      ctx.lineTo(cx + Math.cos(ang) * r1, cy + Math.sin(ang) * r1);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
   }
 
   /** Rescale the gauge for the engine class (50/100/150cc). */

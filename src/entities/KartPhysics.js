@@ -116,6 +116,7 @@ function approach(cur, target, step) {
 // without manual release (re-holding chains the next drift).
 const DRIFT_TIER_1 = 0.33;
 const DRIFT_TIER_2 = 0.66;
+const DRIFT_TIER_3 = 0.9; // AUDIT r9: MK8D's third (purple) spark tier
 const DRIFT_AUTO_FIRE_GRACE = 0.7; // seconds at full charge before auto-fire
 // (audit r3: 0.5 made full-charge chains too easy; MK8D cadence ~2.6s total)
 const DRIFT_AUTO_BOOST_MS = 750;   // auto-fire boost (matches full-charge manual)
@@ -131,16 +132,21 @@ function updateDrift(kart, input, dt, speedAbs) {
       kart._driftFullT = 0;
       kart._driftTier1 = false;
       kart._driftTier2 = false;
+      kart._driftTier3 = false; // AUDIT r9: MK8D's third (purple) spark tier
     }
     s.driftCharge = Math.min(1, s.driftCharge + P.driftChargeRate * dt * (1 + Math.abs(input.steer) * 0.6));
-    // Charge tiers (audit r2): one-shot spark + beep cue at 0.33 / 0.66,
-    // matching the HUD meter's white→yellow→orange steps (MK8 spark levels).
+    // Charge tiers (audit r2/r9): one-shot spark + beep cue at 0.33 / 0.66 /
+    // 0.9 (MK8 spark levels: blue/orange/purple). Tier 3 near full charge
+    // rewards the longest holds.
     if (!kart._driftTier1 && s.driftCharge >= DRIFT_TIER_1) {
       kart._driftTier1 = true;
       kart._onDriftTier?.(1);
     } else if (kart._driftTier1 && !kart._driftTier2 && s.driftCharge >= DRIFT_TIER_2) {
       kart._driftTier2 = true;
       kart._onDriftTier?.(2);
+    } else if (kart._driftTier2 && !kart._driftTier3 && s.driftCharge >= DRIFT_TIER_3) {
+      kart._driftTier3 = true;
+      kart._onDriftTier?.(3);
     }
     // Full charge: short grace window, then AUTO-RELEASE a full mini-boost
     // without manual release (MK8D: holding past the top fires the turbo for

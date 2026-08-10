@@ -559,6 +559,25 @@ export class ShellProjectile {
   _hit(victim, pos) {
     this.raceManager?.particles?.emit?.('explosion', new THREE.Vector3(pos.x, pos.y + 0.6, pos.z));
     victim?.hitShell?.({ blue: !!this.blue }); // blue shells bypass item-hold (audit v4)
+    // AUDIT r9: the spiny's explosion also knocks karts NEAR the leader
+    // (MK8D splash) — small spin to anyone within 3.5m of the blast.
+    if (this.blue && this.raceManager && this.raceManager.karts) {
+      for (const k of this.raceManager.karts) {
+        if (k === victim || k.finished || k.invincible || k.starred) continue;
+        const kp = k.state?.position;
+        if (!kp) continue;
+        const dx = kp.x - pos.x;
+        const dz = kp.z - pos.z;
+        if (dx * dx + dz * dz < 12.25) { // 3.5m radius
+          if (typeof k._spinMs === 'number') {
+            k._spinMs = Math.max(k._spinMs || 0, 700);
+            k._spinDir = Math.random() < 0.5 ? -1 : 1;
+          } else {
+            k.state.spinOut = true;
+          }
+        }
+      }
+    }
     this.audio?.play?.('crash');
     this.die();
   }
