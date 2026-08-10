@@ -150,7 +150,9 @@ export class AIController {
         if (dot < 0.6) continue;
         // Cross product sign: >0 → hazard left of the kart → steer right.
         const side = (heading.x * hz - heading.y * hx) / dist;
-        steer = THREE.MathUtils.clamp(steer + (side > 0 ? 1 : -1) * 0.75, -1, 1);
+        // AUDIT MED: 0.75 = perfect dodge — bananas never worked vs AI. MK8D
+        // CPUs CLIP hazards; 0.3 still swerves visibly but bananas land.
+        steer = THREE.MathUtils.clamp(steer + (side > 0 ? 1 : -1) * 0.3, -1, 1);
         break;
       }
     }
@@ -357,7 +359,7 @@ export class AIController {
           return err === null || Math.abs(err) < 1.2;
         }
       case PowerUpType.BANANA:
-        return d < -10; // lead is safe → drop a trap
+        return d < -0.12; // AUDIT MED: -10 = a LAP ahead (never fires in-lap); -0.12 = clear lead → drop a trap
       case PowerUpType.LIGHTNING:
         return d > 5 && d < 150; // rival close ahead → shrink them
       default:

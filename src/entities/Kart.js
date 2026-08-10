@@ -159,6 +159,8 @@ export class Kart {
     // physics private state (mutated by KartPhysics)
     this._scaleTarget = 1;
     this._scaleMs = 0;
+    this._slowFactor = 1; // lightning-only slow (AUDIT: squash visual must not tax speed)
+    this._slowMs = 0;
     this._latVel = 0;
     this._airTime = 0;
     this._nudgeVel = new THREE.Vector3();
@@ -1273,7 +1275,10 @@ export class Kart {
     const base = this._baseCruise !== undefined ? this._baseCruise : CONFIG.physics.maxSpeed;
     const coins = this._coins || 0;
     const bonus = Math.min(CONFIG.items.coinSpeedCap, coins * CONFIG.items.coinSpeedBonus);
-    return base * (1 + bonus);
+    // AUDIT MED: rubber-band (≤+12%) and coins (≤+10%) stacked multiplicatively
+    // → a caught-up 10-coin AI ran ~+23% over maxSpeed. Cap the TOTAL.
+    const raw = base * (1 + bonus);
+    return Math.min(raw, CONFIG.physics.maxSpeed * (1 + CONFIG.physics.rubberBandCap));
   }
 
   set cruiseSpeed(v) {
@@ -1477,6 +1482,14 @@ export class Kart {
 
   /** Lightning shrink / growth juice. */
   applyScale(scale, durationMs) {
+    // AUDIT HIGH-1: _scaleTarget is the shared VISUAL squash field (landing,
+    // wall scrape, banana, shell all write 0.9-0.94) — using it for the speed
+    // tax made every jump silently cut top speed. Lightning slow now lives in
+    // its own _slowFactor/_slowMs; the visual squash stays visual.
+    if (scale < 1) {
+      this._slowFactor = scale;
+      this._slowMs = Math.max(this._slowMs, durationMs);
+    }
     this._scaleTarget = scale;
     this._scaleMs = Math.max(this._scaleMs, durationMs);
   }

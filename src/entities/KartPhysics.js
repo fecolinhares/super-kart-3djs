@@ -175,8 +175,9 @@ function updateDrift(kart, input, dt, speedAbs) {
       kart.applyBoost(ms);
       kart._onMiniBoost?.(charge01); // drama hook (SFX + spark burst) wired in main.js
     } else if (s.driftCharge > 0.15) {
-      // Sub-threshold release: small feedback cue so the release isn't silent.
-      kart._onMiniBoost?.(s.driftCharge * 0.5);
+      // Sub-threshold release: no boost, so NO boost feedback (AUDIT MED:
+      // the old cue played mini-boost SFX + gold sparks while applyBoost
+      // never ran — a fake reward. MK8D keeps sub-threshold releases quiet.)
     }
     s.drifting = false;
     s.driftCharge = 0;
@@ -285,10 +286,11 @@ export class KartPhysics {
 
     // ---- speed -------------------------------------------------------------
     let target = (s.boost || s.turboBoostMs > 0) ? P.boostSpeed : (kart.cruiseSpeed || P.maxSpeed);
-    // Lightning: victims are shrunk AND slowed (was cosmetic — scale only
-    // touched the visual _scaleTarget; gameplay had no teeth).
-    if (kart._scaleMs > 0 && kart._scaleTarget < 1) {
-      target *= kart._scaleTarget;
+    // Lightning: victims are shrunk AND slowed. The slow uses the DEDICATED
+    // _slowFactor (set only by lightning) — the visual _scaleTarget squash
+    // (landing/wall/banana/shell) must NEVER tax speed (AUDIT HIGH-1).
+    if (kart._slowMs > 0) {
+      target *= kart._slowFactor;
     }
     // Slipstream/drafting (MK8 core comeback): a kart riding in the wake of
     // another (same heading, behind by ~1-3m, lateral < 2.2m) gets a +8% top
@@ -474,6 +476,8 @@ export class KartPhysics {
     // ---- squash & stretch -------------------------------------------------------
     if (kart._scaleMs > 0) kart._scaleMs -= dt * 1000;
     else kart._scaleTarget = 1;
+    if (kart._slowMs > 0) kart._slowMs -= dt * 1000;
+    else kart._slowFactor = 1;
     const sy = kart.group.scale.y;
     kart.group.scale.y = sy + (kart._scaleTarget - sy) * Math.min(1, 10 * dt);
     kart.group.scale.x = 1;

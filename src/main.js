@@ -250,6 +250,17 @@ function setPlayerColor(color) {
 })();
 
 /** Drift mini-boost drama: SFX + golden spark burst on release (all karts). */
+function wireGrassExit(kart) {
+  // AUDIT MED: the off-road exit kick was real but SILENT — no listener on
+  // _onGrassExit anywhere. Give it a pop + dust burst like the drift boost.
+  kart._onGrassExit = () => {
+    if (kart.isPlayer) {
+      audio?.play('driftReleaseMiniBoost', { volume: 0.5 });
+    }
+    particles?.burst?.(kart.group.position, { count: 10, color: 0xb8a37a, speed: 4, size: 0.22, spread: 0.5, life: 0.5 });
+  };
+}
+
 function wireMiniBoost(kart) {
   kart._onHit = (type) => {
     // PLAYER hit feedback (user request): red screen flash + label + shake —
@@ -372,6 +383,7 @@ function buildKarts() {
     });
     aiCharIdx++;
     scene.add(kart.group);
+    wireGrassExit(kart);
     wireMiniBoost(kart);
     aiKarts.push(kart);
   }

@@ -29,6 +29,7 @@ export const CONFIG = {
 
   physics: {
     maxSpeed: 42,
+    rubberBandCap: 0.12, // AI total speed ceiling over player maxSpeed (cap coins+rubber combined)
     boostSpeed: 64,
     reverseSpeed: -12,
     acceleration: 26,

@@ -212,7 +212,12 @@ export class HUD {
     const pr = this.root.querySelector('.sk3d-pause-restart');
     if (pr) pr.addEventListener('click', () => window.__sk3d?.restartRace?.());
     const ps = this.root.querySelector('.sk3d-pause-sound');
-    if (ps) ps.addEventListener('click', () => window.__sk3d?.audio?.toggleMute?.());
+    if (ps) ps.addEventListener('click', (e) => {
+      // AUDIT HIGH-2: the click bubbled to .sk3d-pause → togglePause(), so
+      // tapping Sound while paused silently RESUMED the race. Stop the bubble.
+      e.stopPropagation();
+      window.__sk3d?.audio?.toggleMute?.();
+    });
     const pm = this.root.querySelector('.sk3d-pause-menu');
     if (pm) pm.addEventListener('click', () => window.__sk3d?.gotoMenu?.());
     this.finishTimeEl = this.root.querySelector('.sk3d-finish-time');
