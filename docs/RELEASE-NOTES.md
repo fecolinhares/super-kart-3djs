@@ -244,6 +244,18 @@
 - **UX MED**: mute unified + persisted, finish fanfare uses a temporary duck (no volume
   leak), touch controls hidden at FINISHED, help table lists Tab swap item.
 
+## AUDIT v2+v3 — verification + polish
+- **11/11 prior fixes verified by code signature** (gameplay 6/6, visual 5/5, UX 5/5).
+- **NEW**: menu mute label reconciles with audio on show (no stale "Sound on" after
+  pause-mute); reserve/swap slot 44→56px on touch (only swap path); swap tap always
+  acknowledges (uiClick — empty-reserve swap was silent).
+- **NEON CITY: 5.0 → 6.5/10** (vision STRICT CRITIC): night IBL moon killed the
+  daylight cue on karts (8/10), 10 neon point lights give full-circuit colored light
+  (8/10), skyline footprint variation reads less procedural (6.5/10).
+- **Neon spill pass**: point lights 3.0/66m (bounce lands on karts/road), asphalt
+  spill 9 radial patches at 0.5 alpha, night fog carries a purple hue — the "color
+  never lands on geometry" gap.
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
