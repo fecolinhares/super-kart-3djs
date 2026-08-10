@@ -1056,21 +1056,27 @@ export class Kart {
         for (const tx of [-0.08, 0, 0.08]) {
           const rib = new THREE.Mesh(treadGeo, tireDark);
           rib.position.x = tx;
+          rib.rotation.x = Math.PI / 2; // AUDIT: torus in the group XZ plane → tilt(z=PI/2) maps it to the scene YZ = wheel face // AUDIT: torus rings must encircle the X axle (tire), not sit 'sideways' in the XY plane
           tilt.add(rib);
         }
         const groove = new THREE.Mesh(grooveGeo, tireDark);
+        groove.rotation.x = Math.PI / 2; // AUDIT: same — encircle the tire
         tilt.add(groove);
         // Sidewall stripe rings on both faces.
         const st1 = new THREE.Mesh(stripeGeo, stripeMat);
         st1.position.x = faceX - 0.002;
+        st1.rotation.x = Math.PI / 2; // AUDIT: sidewall ring in the wheel-face plane (YZ)
         const st2 = new THREE.Mesh(stripeGeo, stripeMat);
         st2.position.x = -(faceX - 0.002);
+        st2.rotation.x = Math.PI / 2;
         tilt.add(st1, st2);
         // Darker tire-wall band outside the accent stripe (both faces).
         const wb1 = new THREE.Mesh(wallBandGeo, tireDark);
         wb1.position.x = faceX - 0.002;
+        wb1.rotation.x = Math.PI / 2;
         const wb2 = new THREE.Mesh(wallBandGeo, tireDark);
         wb2.position.x = -(faceX - 0.002);
+        wb2.rotation.x = Math.PI / 2;
         tilt.add(wb1, wb2);
         // Chrome rim — DIRECT child of spin (axis X) so it rolls with the
         // wheel (the historic "disc child of tilt spun like a coin" bug).
