@@ -179,13 +179,13 @@ export function cityRoadTexture() {
       // neon spill: WIDE soft radial gradients — light reflecting on the
       // pavement, not painted stripes (vision critic: streaks read as
       // track decorations, not integrated city light).
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < 9; i++) {
         const x = Math.random() * s;
         const y = Math.random() * s;
         const r = 22 + Math.random() * 30;
         const col = Math.random() > 0.5 ? '255,46,196' : '46,196,255';
         const g = ctx.createRadialGradient(x, y, 2, x, y, r);
-        g.addColorStop(0, 'rgba(' + col + ',0.34)');
+        g.addColorStop(0, 'rgba(' + col + ',0.5)');
         g.addColorStop(0.55, 'rgba(' + col + ',0.12)');
         g.addColorStop(1, 'rgba(' + col + ',0)');
         ctx.fillStyle = g;

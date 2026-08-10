@@ -490,7 +490,8 @@ export class Environment {
     // trackId 2 (NEON CITY) swaps the sunny meadow for an urban night theme:
     // night fog color matches the sky horizon so the dome blends seamlessly.
     const night = this.trackId === 2;
-    scene.fog = new THREE.Fog(night ? 0x1a1a3a : 0xbfe6ff, night ? 80 : 70, night ? 460 : 430);
+    // AUDIT: night haze carries a purple tint so distance reads neon-lit, not void-black
+    scene.fog = new THREE.Fog(night ? 0x251a3a : 0xbfe6ff, night ? 80 : 70, night ? 460 : 430);
 
     // Sky dome (fog-free basic material with gradient texture). Track 2 uses
     // a dark blue-purple night gradient (0x1a1a3a horizon → 0x3a2a6a zenith)
@@ -3880,7 +3881,7 @@ export class Environment {
         { color: 0x2ec4ff, pos: [-5, 4.2, 100] },
       ];
       for (const nl of neonLights) {
-        const pl = new THREE.PointLight(nl.color, 2.4, 60, 1.5);
+        const pl = new THREE.PointLight(nl.color, 3.0, 66, 1.4); // AUDIT: spill onto karts/road (critic: color reads but never lands on geometry)
         pl.position.set(...nl.pos);
         scene.add(pl);
       }
