@@ -3723,6 +3723,8 @@ export class Environment {
     const geo = new THREE.BoxGeometry(10, 14, 8);
     const antGeo = new THREE.CylinderGeometry(0.06, 0.1, 3.2, 5);
     const antMat = new THREE.MeshBasicMaterial({ color: 0x8892b8 });
+    const tankGeo = new THREE.CylinderGeometry(0.5, 0.55, 1.1, 8);
+    const tankMat = new THREE.MeshBasicMaterial({ color: 0x3a4152 });
     const windowColors = [0xff9a3c, 0x3c9aff, 0xffe23c];
     const dummy = new THREE.Object3D();
     const dir = new THREE.Vector3();
@@ -3771,6 +3773,10 @@ export class Environment {
           const ant = new THREE.Mesh(antGeo, antMat);
           ant.position.set(x, gy + h + 1.6, z);
           scene.add(ant);
+          // AUDIT: rooftop machinery — a water tank beside the antenna
+          const tank = new THREE.Mesh(tankGeo, tankMat);
+          tank.position.set(x + (sx * 2.6), gy + h + 1.1, z);
+          scene.add(tank);
         }
         dummy.rotation.set(0, rand() * 0.25, 0);
         dummy.updateMatrix();
@@ -3859,6 +3865,37 @@ export class Environment {
           pole.position.set(b.p[0] + dx, b.p[1] - 1.0, b.p[2]);
           scene.add(pole);
         }
+      }
+    }
+
+    // --- construction cranes (AUDIT set dressing: distinctive city
+    // silhouettes — the critic asked for rooftop machinery/cranes) ---
+    {
+      const craneMat = toonMaterial(0xd24a2a, {}); // safety-orange boom
+      const craneDark = toonMaterial(0x2a2d38, {});
+      const craneSpots = [
+        { p: [-86, 0, 2], ry: 0.5 },
+        { p: [86, 0, 108], ry: -0.6 },
+      ];
+      for (const cs of craneSpots) {
+        const gy = this._gy(cs.p[0], cs.p[2]);
+        const mast = new THREE.Mesh(new THREE.BoxGeometry(0.8, 26, 0.8), craneDark);
+        mast.position.set(cs.p[0], gy + 13, cs.p[2]);
+        mast.rotation.y = cs.ry;
+        mast.castShadow = true;
+        scene.add(mast);
+        const boom = new THREE.Mesh(new THREE.BoxGeometry(18, 0.7, 0.7), craneMat);
+        boom.position.set(cs.p[0] + Math.cos(cs.ry) * 8, gy + 24.5, cs.p[2] + Math.sin(cs.ry) * 8);
+        boom.rotation.y = cs.ry;
+        boom.castShadow = true;
+        scene.add(boom);
+        const cab = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.4, 1.2), craneMat);
+        cab.position.set(cs.p[0], gy + 23.4, cs.p[2]);
+        cab.rotation.y = cs.ry;
+        scene.add(cab);
+        const line = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 6, 3), craneDark);
+        line.position.set(cs.p[0] + Math.cos(cs.ry) * 13, gy + 21.5, cs.p[2] + Math.sin(cs.ry) * 13);
+        scene.add(line);
       }
     }
 
