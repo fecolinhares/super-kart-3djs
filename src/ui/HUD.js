@@ -137,6 +137,7 @@ export class HUD {
           <div class="sk3d-finish-trophy" aria-hidden="true">🏆</div>
           <div class="sk3d-finish-title">FINISHED <span class="sk3d-finish-place">1st</span>!</div>
           <div class="sk3d-finish-time">0:00.0</div>
+          <div class="sk3d-finish-results" aria-label="Final standings"></div>
           <button type="button" class="sk3d-finish-btn">Race Again</button>
           <button type="button" class="sk3d-menu-btn">Menu</button>
           <div class="sk3d-finish-hint">or press R</div>
@@ -833,10 +834,25 @@ export class HUD {
     }, go ? COUNTDOWN_GO_MS : COUNTDOWN_NUMBER_MS);
   }
 
-  /** @param {number} place race rank (1-6) @param {number} time total time in seconds */
-  showFinish(place, time) {
+  /** @param {number} place race rank (1-6) @param {number} time total time in seconds
+   *  @param {Array} [standings] final order [{ position, kart, totalTime }] — AUDIT r21 */
+  showFinish(place, time, standings) {
     this.finishPlaceEl.textContent = ordinal(place);
     this.finishTimeEl.textContent = formatTime(time);
+    const listEl = this.root.querySelector('.sk3d-finish-results');
+    if (listEl) {
+      listEl.innerHTML = '';
+      const rows = (standings && standings.length ? standings : [{ position: place, kart: null, totalTime: time }]);
+      for (const row of rows) {
+        const line = document.createElement('div');
+        line.className = 'sk3d-finish-row';
+        const name = row.kart?.character?.name || 'Racer';
+        line.innerHTML = `<span class="sk3d-finish-row-pos">${ordinal(row.position)}</span>` +
+          `<span class="sk3d-finish-row-name">${name}</span>` +
+          `<span class="sk3d-finish-row-time">${row.totalTime ? formatTime(row.totalTime) : '—'}</span>`;
+        listEl.append(line);
+      }
+    }
     this.finishEl.classList.remove('sk3d-hidden');
 
     // Re-trigger the pop animation on the NEXT frame — remove+void+add in the

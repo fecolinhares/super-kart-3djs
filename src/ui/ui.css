@@ -961,6 +961,42 @@
   opacity: 0.65;
 }
 
+/* Final standings table (audit r21 — MK8D results screen) */
+.sk3d-finish-results {
+  width: 100%;
+  margin: 10px 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sk3d-finish-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.85rem;
+}
+
+.sk3d-finish-row-pos {
+  font-weight: 800;
+  min-width: 30px;
+  text-align: center;
+  color: var(--sk3d-accent, #ffd166);
+}
+
+.sk3d-finish-row-name {
+  flex: 1;
+  text-align: left;
+}
+
+.sk3d-finish-row-time {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+
 .sk3d-finish-btn {
   margin-top: 18px;
   font-family: var(--sk3d-font);

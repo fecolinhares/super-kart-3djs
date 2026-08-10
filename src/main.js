@@ -606,7 +606,14 @@ function startRace() {
     hud.showMessage(tip);
   }
   raceManager.onPlayerFinish = (place, time) => {
-    hud.showFinish(place, time);
+    // AUDIT r21: the finish card now shows the FULL final standings
+    // (position + driver + time) like MK8D's results screen, not just the
+    // player's place.
+    hud.showFinish(place, time, raceManager.getStandings().map((r) => ({
+      position: r.position,
+      kart: r.kart,
+      totalTime: r.kart?.totalTime,
+    })));
     // Celebration burst as the player crosses the line (art-bible: reward juice).
     if (playerKart && playerKart.state) {
       const p = playerKart.state.position.clone();
