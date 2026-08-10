@@ -3720,6 +3720,8 @@ export class Environment {
     cent.multiplyScalar(1 / 64);
 
     const geo = new THREE.BoxGeometry(10, 14, 8);
+    const antGeo = new THREE.CylinderGeometry(0.06, 0.1, 3.2, 5);
+    const antMat = new THREE.MeshBasicMaterial({ color: 0x8892b8 });
     const windowColors = [0xff9a3c, 0x3c9aff, 0xffe23c];
     const dummy = new THREE.Object3D();
     const dir = new THREE.Vector3();
@@ -3730,7 +3732,7 @@ export class Environment {
     // color multiplied toward the night fog so depth reads (the shared
     // material flattened the far row into the near one).
     const rows = [
-      { seed: 21000, base: 16, range: 10, haze: 0.0 },
+      { seed: 21000, base: 11, range: 8, haze: 0.0 }, // AUDIT MED: hug the roadside (was 16m — 9m dead band)
       { seed: 22000, base: 26, range: 12, haze: 0.35 },
       { seed: 23000, base: 50, range: 12, low: true, haze: 0.6 },
       { seed: 24000, base: 74, range: 16, low: true, haze: 0.85 }, // far silhouette layer
@@ -3759,7 +3761,16 @@ export class Environment {
         const h = row.low ? 8 + rand() * 8 : 12 + rand() * 18; // midground lower
         const gy = this._gy(x, z);
         dummy.position.set(x, gy + h / 2, z);
-        dummy.scale.set(1, h / 12, 1);
+        // AUDIT MED: vary the footprint so towers are blocks, not identical
+        // monoliths; roof antennas on the tallest.
+        const sx = 0.55 + rand() * 0.95;
+        const sz = 0.55 + rand() * 0.95;
+        dummy.scale.set(sx, h / 12, sz);
+        if (h > 22) {
+          const ant = new THREE.Mesh(antGeo, antMat);
+          ant.position.set(x, gy + h + 1.6, z);
+          scene.add(ant);
+        }
         dummy.rotation.set(0, rand() * 0.25, 0);
         dummy.updateMatrix();
         towers.setMatrixAt(idx, dummy.matrix);
@@ -3861,6 +3872,12 @@ export class Environment {
         { color: 0x2ec4ff, pos: [40, 4.2, -20] },
         { color: 0xff2ec4, pos: [-70, 4.2, -8] },
         { color: 0x2ec4ff, pos: [-56, 4.2, 2] },
+        // AUDIT MED: east+north arc had ZERO colored light (67-138m from the
+        // nearest light) — the frame went dark there. 4 lights along the arc.
+        { color: 0xff2ec4, pos: [70, 4.2, 45] },
+        { color: 0x2ec4ff, pos: [90, 4.2, 90] },
+        { color: 0xff2ec4, pos: [45, 4.2, 115] },
+        { color: 0x2ec4ff, pos: [-5, 4.2, 100] },
       ];
       for (const nl of neonLights) {
         const pl = new THREE.PointLight(nl.color, 2.4, 60, 1.5);

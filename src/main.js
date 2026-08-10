@@ -91,24 +91,39 @@ function buildSkyEnv(renderer) {
     g.fillStyle = grad;
     g.fillRect(0, 0, 512, 256);
   }
-  // bright sun disc — BRIGHTER than ambient so clearcoat/chrome get a
-  // strong, defined reflection (vision critic: gloss reads but is weak).
-  g.fillStyle = '#fffbe0';
-  g.beginPath();
-  g.arc(128, 40, 30, 0, Math.PI * 2);
-  g.fill();
-  // hard sun core (sharp reflection highlight)
-  g.fillStyle = '#ffffff';
-  g.beginPath();
-  g.arc(128, 40, 14, 0, Math.PI * 2);
-  g.fill();
-  // soft sun glow
-  g.globalAlpha = 0.45;
-  g.fillStyle = '#fff3c0';
-  g.beginPath();
-  g.arc(128, 40, 70, 0, Math.PI * 2);
-  g.fill();
-  g.globalAlpha = 1;
+  if (TRACK_ID === 2) {
+    // NEON CITY: a MOON disc (warm white, small) — the daylight sun specular
+    // on clearcoat under moonlight was a glaring day cue (audit MED).
+    g.fillStyle = '#e8ecf8';
+    g.beginPath();
+    g.arc(128, 48, 18, 0, Math.PI * 2);
+    g.fill();
+    g.globalAlpha = 0.35;
+    g.fillStyle = '#aab4e8';
+    g.beginPath();
+    g.arc(128, 48, 44, 0, Math.PI * 2);
+    g.fill();
+    g.globalAlpha = 1;
+  } else {
+    // bright sun disc — BRIGHTER than ambient so clearcoat/chrome get a
+    // strong, defined reflection (vision critic: gloss reads but is weak).
+    g.fillStyle = '#fffbe0';
+    g.beginPath();
+    g.arc(128, 40, 30, 0, Math.PI * 2);
+    g.fill();
+    // hard sun core (sharp reflection highlight)
+    g.fillStyle = '#ffffff';
+    g.beginPath();
+    g.arc(128, 40, 14, 0, Math.PI * 2);
+    g.fill();
+    // soft sun glow
+    g.globalAlpha = 0.45;
+    g.fillStyle = '#fff3c0';
+    g.beginPath();
+    g.arc(128, 40, 70, 0, Math.PI * 2);
+    g.fill();
+    g.globalAlpha = 1;
+  }
   const tex = new THREE.CanvasTexture(skyCanvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   skyMat.map = tex;
