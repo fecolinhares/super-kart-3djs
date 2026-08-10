@@ -868,6 +868,12 @@ export class HUD {
     // must remain visible + clickable — force it after the animation window.
     if (this._finishPopTimer) clearTimeout(this._finishPopTimer);
     this._finishPopTimer = setTimeout(() => {
+      // Cancel the pending rAF BEFORE forcing the card visible — on a slow
+      // frame (<1fps SwiftShader) the rAF could land AFTER this timer and
+      // re-add sk3d-pop → the card freezes at scale(0) again (user bug: the
+      // Race Again button disappeared on slow machines).
+      if (this._finishPopRaf) cancelAnimationFrame(this._finishPopRaf);
+      this._finishPopRaf = 0;
       this.finishCardEl.classList.remove('sk3d-pop');
       this.finishCardEl.style.transform = 'none';
       this.finishCardEl.style.opacity = '1';
