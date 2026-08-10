@@ -4,6 +4,9 @@
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
 ### Round 3 — AAA polish loop (auditor-driven, 2026-08-09)
+- **Round 15 — audit r9 fixes**: third drift spark tier (purple @ 0.9),
+  blue-shell splash (knocks karts near the leader), color-grade restored
+  on real GPUs (software GL stays safe), high-speed wind streaks.
 - **Round 14 — audit r8 fixes**: coin drop on hit (up to 3, respawned),
   blue-shell dodge counterplay (trick/item-box invincibility window),
   item roulette anticipation (0.45s shuffle), floating rank arrows
