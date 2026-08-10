@@ -35,6 +35,10 @@
     no sink/float), camera 5.7m (no bottom crop), minimap darker bg,
     mountain mid-band haze reduced, gantry pillar flush (y3.05),
     5-lamp start countdown (MK8D), night skyline per-row haze.
+  - **Round 22 — results screen**: the finish card now shows the FULL
+    final standings (position + driver + time) from getStandings —
+    MK8D's results screen. (Audit r21: 2 of 3 MEDs were false
+    positives — the rocket start exists and no glider code is dead.)
 - **Round 15 — audit r9 fixes**: third drift spark tier (purple @ 0.9),
   blue-shell splash (knocks karts near the leader), color-grade restored
   on real GPUs (software GL stays safe), high-speed wind streaks.
