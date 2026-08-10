@@ -3803,6 +3803,45 @@ export class Environment {
       }
     }
 
+    // --- LARGE billboards (vision critic: 'no readable signage' — MK8 city
+    // tracks have big illuminated ad panels; bars read as fake text) ---
+    {
+      const bbTex = (bg, fg) => {
+        const cv = document.createElement('canvas');
+        cv.width = 128; cv.height = 64;
+        const c = cv.getContext('2d');
+        c.fillStyle = bg; c.fillRect(0, 0, 128, 64);
+        c.fillStyle = fg;
+        c.fillRect(14, 14, 100, 12);
+        c.fillRect(22, 32, 84, 8);
+        c.fillRect(30, 44, 60, 7);
+        const t = new THREE.CanvasTexture(cv);
+        t.colorSpace = THREE.SRGBColorSpace;
+        return t;
+      };
+      const bbMats = [
+        new THREE.MeshBasicMaterial({ map: bbTex('#141030', '#ff2ec4') }),
+        new THREE.MeshBasicMaterial({ map: bbTex('#1a1440', '#2ec4ff') }),
+      ];
+      const bbPos = [
+        { p: [-70, 5.4, 18], r: [0, Math.PI / 2.4, 0], m: 0 },
+        { p: [-40, 5.4, -52], r: [0, -Math.PI / 2.2, 0], m: 1 },
+      ];
+      for (const b of bbPos) {
+        const board = new THREE.Mesh(new THREE.BoxGeometry(7, 3.4, 0.4), bbMats[b.m]);
+        board.position.set(...b.p);
+        board.rotation.set(...b.r);
+        scene.add(board);
+        // light poles flanking the board (street-level mass)
+        const poleMat2 = toonMaterial(0x3a4152, {});
+        for (const dx of [-3.4, 3.4]) {
+          const pole = new THREE.Mesh(new THREE.BoxGeometry(0.25, 5.4, 0.25), poleMat2);
+          pole.position.set(b.p[0] + dx, b.p[1] - 1.0, b.p[2]);
+          scene.add(pole);
+        }
+      }
+    }
+
     // --- neon point lights: pink + cyan LIGHTS near the road so the
     // pavement actually receives colored bounce (vision critic: neon was
     // only emissive strips, never illuminating anything) ---
