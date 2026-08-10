@@ -230,6 +230,20 @@
   signs on the close towers, night IBL so clearcoat/chrome reflect the city,
   and its own **Neon Nights** soundtrack (dark Dm sawtooth, 142bpm).
 
+## AUDIT round — gameplay + visual + UX fixes (real findings, verified)
+- **HIGH gameplay**: landing squash no longer taxes speed (lightning slow moved to a
+  dedicated `_slowFactor` — every jump used to cut top speed 6-8% via the shared
+  visual squash field).
+- **HIGH ux**: pause "Sound" button no longer resumes the race (click bubble stopped).
+- **Gameplay MED**: AI hazard dodge weakened (bananas land now), leading AI drops
+  bananas in-lap (was lap-ahead only), AI coins+rubber capped at +12% total, off-road
+  exit kick now audible (+dust), sub-threshold drift release no fake boost cue.
+- **Visual MED**: night IBL reflects a moon (not a day sun), 4 neon lights added to the
+  east/north arc (full circuit coverage), skyline footprint variation + roof antennas,
+  first tower row pulled to 11m (no dead band).
+- **UX MED**: mute unified + persisted, finish fanfare uses a temporary duck (no volume
+  leak), touch controls hidden at FINISHED, help table lists Tab swap item.
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
