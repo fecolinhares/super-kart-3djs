@@ -241,7 +241,7 @@ export class KartPhysics {
       // yOff). Without this offset the kart body sank 0.18m INTO the asphalt,
       // and the MK8 banking (8deg roll) pushed the outer wheel ~0.4m below the
       // surface in corners — the reported 'falling into the subsoil'.
-      near.groundY = sp.y + 0.18;
+      near.groundY += 0.18; // sp.y (the path height) was already in groundY from nearestSample
     }
 
     s.progress01 = near.progress01;
