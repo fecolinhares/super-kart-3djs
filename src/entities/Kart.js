@@ -498,6 +498,13 @@ export class Kart {
     const chrome = new THREE.MeshPhysicalMaterial({
       color: 0xdde4ec, metalness: 0.85, roughness: 0.18, envMapIntensity: 1.4,
     });
+    // AUDIT r11 (FECO real-GPU): the mirror-chrome rim spokes reflected the
+    // environment differently per spoke → 'aro bagunçado, elementos em
+    // direção diferente'. MK8 rims are SATIN silver, not mirrors. The rim
+    // parts get a flatter metal; chrome stays for the exhaust.
+    const rimChrome = new THREE.MeshPhysicalMaterial({
+      color: 0xc9d0d8, metalness: 0.5, roughness: 0.38, envMapIntensity: 0.7,
+    });
     // Curved transparent PBR glass (windshield).
     const glassPBR = new THREE.MeshPhysicalMaterial({
       color: 0xa8d8ff, roughness: 0.06, metalness: 0, transparent: true, opacity: 0.5,
@@ -1063,12 +1070,12 @@ export class Kart {
         // Chrome rim — DIRECT child of spin (axis X) so it rolls with the
         // wheel (the historic "disc child of tilt spun like a coin" bug).
         const rimX = faceX + 0.014;
-        const disc = new THREE.Mesh(rimDiscGeo, chrome);
+        const disc = new THREE.Mesh(rimDiscGeo, rimChrome);
         disc.rotation.z = Math.PI / 2;
         disc.position.x = rimX;
         disc.castShadow = false;
         spin.add(disc);
-        const lip = new THREE.Mesh(rimLipGeo, chrome);
+        const lip = new THREE.Mesh(rimLipGeo, rimChrome);
         lip.rotation.z = Math.PI / 2; // ring in YZ — faces outward, not edge-on
         lip.position.x = rimX + 0.01;
         lip.castShadow = false;
@@ -1076,13 +1083,13 @@ export class Kart {
         // 5 spokes — thin radial boxes between hub and lip.
         for (let i = 0; i < 5; i++) {
           const a = (i / 5) * Math.PI * 2;
-          const spoke = new THREE.Mesh(spokeGeo, chrome);
+          const spoke = new THREE.Mesh(spokeGeo, rimChrome);
           spoke.rotation.x = a;
           spoke.position.set(rimX + 0.008, Math.cos(a) * 0.12, Math.sin(a) * 0.12);
           spoke.castShadow = false;
           spin.add(spoke);
         }
-        const hub = new THREE.Mesh(hubGeo, chrome);
+        const hub = new THREE.Mesh(hubGeo, rimChrome);
         hub.rotation.z = Math.PI / 2;
         hub.position.x = rimX + 0.016;
         hub.castShadow = false;
