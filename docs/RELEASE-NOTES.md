@@ -256,6 +256,17 @@
   spill 9 radial patches at 0.5 alpha, night fog carries a purple hue — the "color
   never lands on geometry" gap.
 
+## AUDIT v2b+v3 — verification + new fixes
+- **Verified**: 11/11 v2 fixes by signature + 3/3 v3 MEDs + terrain sanity (±5m matches intent).
+- **HIGH**: reserve/swap slot stays 56px on phones — a later `(max-width:768px)` query was
+  re-declaring it at 36px (below the 48px min), silently reverting the touch fix.
+- **MED game**: rubber-band cap no longer erases the difficulty-150 speed curve (cap now
+  relative to base, which carries the AI statScale); neon light fixtures (visible lamp
+  poles at every light — no more light from empty air); AI hits got a spark burst + thud
+  (hits on rivals were invisible).
+- **MED ux**: mute button plays uiClick (unmuting gave zero confirmation); dead
+  `fogDensity` config removed.
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
