@@ -615,7 +615,9 @@ export class Environment {
       // drops the meadow dressing — a city track must read URBAN, not
       // "meadow with neon trim" (vision critic, track2 1/10 identity).
       this.buildLightPoles(scene, track); // neon strips in night mode
-      this.buildRoadsideCrowd(scene, track); // sparse painted crowd still ok
+      // (no meadow roadside crowd — the city reads as empty street, which is
+      // correct for a night circuit; the crowd was the top 'placeholder'
+      // complaint from the vision critic)
     }
   }
 
@@ -3798,6 +3800,23 @@ export class Environment {
         sign.position.set(sx, sy + 3.4 + s2Rand() * 2, sz);
         sign.lookAt(shopProbe.x, sign.position.y, shopProbe.z);
         scene.add(sign);
+      }
+    }
+
+    // --- neon point lights: pink + cyan LIGHTS near the road so the
+    // pavement actually receives colored bounce (vision critic: neon was
+    // only emissive strips, never illuminating anything) ---
+    {
+      const neonLights = [
+        { color: 0xff2ec4, pos: [-66, 4.2, 12] },
+        { color: 0x2ec4ff, pos: [-52, 4.2, -34] },
+        { color: 0xff2ec4, pos: [8, 4.2, -70] },
+        { color: 0x2ec4ff, pos: [40, 4.2, -20] },
+      ];
+      for (const nl of neonLights) {
+        const pl = new THREE.PointLight(nl.color, 1.4, 46, 1.6);
+        pl.position.set(...nl.pos);
+        scene.add(pl);
       }
     }
 
