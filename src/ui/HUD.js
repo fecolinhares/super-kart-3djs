@@ -196,6 +196,9 @@ export class HUD {
     this.onSwap = null; // wired by main.js: swap the player's held slots
     if (this.item2SlotEl) {
       this.item2SlotEl.addEventListener('click', () => {
+        // AUDIT MED-3: always acknowledge the tap — a swap with an EMPTY
+        // reserve was a silent no-op (players thought the tap missed).
+        window.__sk3d?.audio?.play?.('uiClick', { volume: 0.5 });
         if (this.onSwap) this.onSwap();
       });
     }
