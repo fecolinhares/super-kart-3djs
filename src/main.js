@@ -161,6 +161,12 @@ const menu = new Menu({
   onColor: setPlayerColor,
   onSound: (n) => audio.play(n),
   onToggleMute: (muted) => audio.setMuted(muted), // AUDIT MED: single mute source (sets _muted + master + persists) — pause Sound and menu stay in sync
+  onVolume: (v) => {
+    // AUDIT v5 MED: master volume slider — also updates the unmute restore
+    // target so unmuting returns to the USER's level, not the default 0.8.
+    CONFIG.audio.masterVolume = v;
+    audio.setMasterVolume(v);
+  },
 });
 menu.restoreMute(); // persisted mute state (audit minor)
 const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressItem(), onPause: togglePause, onDrift: (b) => { touchDrift = b; } });

@@ -1904,3 +1904,8 @@
     font-size: 1.15rem;
   }
 }
+
+/* AUDIT v5 MED: master volume slider */
+.sk3d-volume-row { display: flex; align-items: center; gap: 8px; justify-content: center; margin-top: 6px; }
+.sk3d-volume-label { font-size: 0.8rem; color: rgba(255,255,255,0.75); }
+.sk3d-volume { width: 120px; accent-color: #2ec4ff; height: 22px; }

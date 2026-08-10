@@ -282,11 +282,12 @@ export class Menu {
    * @param {(name: string) => void} [opts.onSound] played on UI interaction
    * @param {(muted: boolean) => void} [opts.onToggleMute] called when the sound toggle is pressed
    */
-  constructor({ onStart, onColor, onSound, onToggleMute } = {}) {
+  constructor({ onStart, onColor, onSound, onToggleMute, onVolume } = {}) {
     this.onStart = typeof onStart === 'function' ? onStart : () => {};
     this.onColor = typeof onColor === 'function' ? onColor : () => {};
     this.onSound = typeof onSound === 'function' ? onSound : () => {};
     this.onToggleMute = typeof onToggleMute === 'function' ? onToggleMute : () => {};
+    this.onVolume = typeof onVolume === 'function' ? onVolume : () => {};
     this.muted = false;
     this.selectedColor = CONFIG.kart.playerColors[0];
     this.selectedChar = 0; // driver index into CONFIG.kart.characters
@@ -307,6 +308,7 @@ export class Menu {
     this.helpToggle = this.root.querySelector('.sk3d-help-toggle');
     this.helpPanel = this.root.querySelector('.sk3d-help-panel');
     this.muteBtn = this.root.querySelector('.sk3d-mute-toggle');
+    this.volumeInput = this.root.querySelector('.sk3d-volume');
     this.ccBtns = Array.from(this.root.querySelectorAll('.sk3d-cc-btn'));
     this.assistToggles = Array.from(this.root.querySelectorAll('input[data-assist]'));
 
@@ -330,6 +332,14 @@ export class Menu {
 
     this.bindEvents();
     document.body.appendChild(this.root);
+    // AUDIT v5 MED: restore the master volume slider (persisted)
+    try {
+      const v = parseFloat(localStorage.getItem('sk3d.volume'));
+      if (v >= 0 && v <= 1 && this.volumeInput) {
+        this.volumeInput.value = String(Math.round(v * 100));
+        this.onVolume(v);
+      }
+    } catch { /* */ }
     this.restoreSettings(); // persisted difficulty/assist/track choices
     this.drawAllCanvases();
     this.refreshPickLine();
@@ -425,6 +435,10 @@ export class Menu {
             </label>
           </div>
         </div>
+        <div class="sk3d-volume-row">
+          <span class="sk3d-volume-label">Vol</span>
+          <input type="range" class="sk3d-volume" min="0" max="100" value="80" aria-label="Master volume" />
+        </div>
         <button type="button" class="sk3d-btn sk3d-mute-toggle" aria-pressed="false">🔊 Sound on</button>
         <footer class="sk3d-credit">Made with Three.js — open source</footer>
       </div>
@@ -519,6 +533,13 @@ export class Menu {
       ]) {
         el.addEventListener('pointerenter', () => { this.onSound('uiHover'); });
       }
+    }
+    if (this.volumeInput) {
+      this.volumeInput.addEventListener('input', () => {
+        const v = Number(this.volumeInput.value) / 100;
+        try { localStorage.setItem('sk3d.volume', String(v)); } catch { /* */ }
+        this.onVolume(v);
+      });
     }
     this.muteBtn.addEventListener('click', () => {
       // AUDIT v4: the ack must play AFTER the master gain returns (setMuted
