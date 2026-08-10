@@ -195,6 +195,13 @@ function buildRoadRibbon(path, length, opts = {}) {
   // Tint applied AFTER the map so an opts.color darkens the textured asphalt
   // (NEON CITY's 0x3c4152) instead of being reset to white by the map block.
   if (opts.color) mat.color.setHex(opts.color);
+  // AUDIT (vision 7/10): the baked neon PATCHES must glow, not just the
+  // uniform tint — emissiveMap = the same texture, so the pink/cyan spill
+  // reads as light spreading across the racing surface.
+  if (opts.emissiveMap) {
+    mat.emissiveMap = mat.map;
+    mat.emissive.setHex(opts.emissive || 0xffffff);
+  }
   // Night glow (NEON CITY): a faint cool emissive keeps the charcoal asphalt
   // from reading as pure black under the dim moon key (vision critic 2/10).
   if (opts.emissive) {
@@ -1599,6 +1606,7 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   const ribbonOpts = { texture: roadTexture };
   if (isCity) {
     ribbonOpts.texture = cityRoadTexture; // baked neon spill on the asphalt
+    ribbonOpts.emissiveMap = true; // the spill patches GLOW (vision 7/10 pass)
     ribbonOpts.color = 0x4a5062; // charcoal, not black
     ribbonOpts.emissive = 0x2a1c4a; // cool night sheen WITH a hint of neon
     ribbonOpts.emissiveIntensity = 1.15; // AUDIT: spill must READ on the still — emissive carries the baked neon, light alone lost it
