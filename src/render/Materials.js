@@ -416,8 +416,10 @@ export function roadTexture() {
       // Scattered oil/rubber patches — MEDIUM size, many, low alpha (big
       // single blobs repeated = visible macro banding; small many = natural).
       for (let i = 0; i < 26; i++) {
-        ctx.globalAlpha = 0.10 + Math.random() * 0.10;
-        ctx.fillStyle = Math.random() > 0.5 ? '#2b3542' : '#333f4e';
+        // AUDIT (vision): dark circular marks read as ARTIFACTS — lower the
+        // alpha + soften the colors so they stay as subtle wear, not blobs.
+        ctx.globalAlpha = 0.05 + Math.random() * 0.07;
+        ctx.fillStyle = Math.random() > 0.5 ? '#3a4454' : '#414d5e';
         ctx.beginPath();
         ctx.ellipse(Math.random() * s, Math.random() * s, 8 + Math.random() * 16, 4 + Math.random() * 9, Math.random() * Math.PI, 0, Math.PI * 2);
         ctx.fill();
