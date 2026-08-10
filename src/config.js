@@ -129,10 +129,12 @@ export const CONFIG = {
   },
 
   camera: {
-    fov: 62,
-    followDistance: 7.2,
-    followHeight: 3.4,
-    lookAhead: 4.5,
+    fov: 68, // AUDIT r17 (Feco real-GPU): the 7.2m/3.4m chase made the kart
+    // tiny in frame and the FINISH gantry dominate. MK8D keeps the kart
+    // ~25-30% of the frame: closer (5.2m), lower (2.6m), wider FOV 68.
+    followDistance: 5.2,
+    followHeight: 2.6,
+    lookAhead: 5.0,
     lookHeight: 1.2,
     lerp: 5.0,
     shakeIntensity: 0.02,
@@ -148,8 +150,10 @@ export const CONFIG = {
     bloomRadius: 0.4,
     bloomThreshold: 0.95,
     vignetteStrength: 0.3,
-    colorGradeSaturation: 1.2,
-    colorGradeContrast: 1.15,
+    colorGradeSaturation: 1.06, // AUDIT r17 (Feco real-GPU critic): 1.2
+    // over-saturated EVERYTHING — no visual hierarchy. MK8D grade is rich
+    // but modulated: lower saturation + stronger contrast = depth + punch.
+    colorGradeContrast: 1.28,
     shadows: true,
     shadowMapSize: 2048,
     testShadowMapSize: 1024, // used when ?test is active (QA speed)

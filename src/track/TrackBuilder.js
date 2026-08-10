@@ -68,15 +68,15 @@ function smoothH(x, z) {
   );
 }
 
-// Broad low-frequency landforms for the distance: ~80m wavelength, ±2.0m
+// Broad low-frequency landforms for the distance: ~80m wavelength, ±5.0m
 // amplitude. Combined with smoothH's field amplification these become the
 // rolling hills on the horizon. The corridor falloff in buildTerrain keeps
 // them out of the racing surface entirely. (Amplitude raised 1.4→3.4 after
-// the vision critic called 2.4m hills 'essentially flat' — the eye needs
-// real elevation to read 'rolling'.)
+// the vision critic called 2.4m hills 'essentially flat'; 3.4→5.0 after
+// the Feco real-GPU critic read the field as a 'smooth neon carpet'.)
 function broadHill(x, z) {
   return (
-    Math.sin(x * 0.0785) * Math.cos(z * 0.0785) * 3.4 +
+    Math.sin(x * 0.0785) * Math.cos(z * 0.0785) * 5.0 +
     Math.sin(x * 0.0314 + z * 0.0471 + 1.3) * 1.4
   );
 }
@@ -823,7 +823,7 @@ function buildGantry(startLine) {
   const roadW = getRoadWidthAt();
   const nrm = new THREE.Vector3(-startLine.direction.z, 0, startLine.direction.x).normalize();
 
-  const pillarGeo = new THREE.CylinderGeometry(0.28, 0.36, 5.6, 10);
+  const pillarGeo = new THREE.CylinderGeometry(0.28, 0.36, 6.1, 10);
   const pillarMat = toonMaterial(0xff5a5f, {});
   const footingGeo = new THREE.BoxGeometry(0.95, 0.16, 0.95);
   const footingMat = toonMaterial(0x2b3340, {});
@@ -867,7 +867,7 @@ function buildGantry(startLine) {
     [beamMat, beamMat, beamMat, beamMat, beamCheckerMat, beamCheckerMat]
   );
   beam.position.copy(startLine.position);
-  beam.position.y = 5.4; // lowered so the banner sits in the driver's view
+  beam.position.y = 5.85; // AUDIT r17: raised so the gantry reads as structure, not a wall
   beam.lookAt(startLine.position.clone().add(startLine.direction));
   group.add(beam);
   cartoonOutline(beam, 0x1b2a41, 0.02);
@@ -881,12 +881,15 @@ function buildGantry(startLine) {
   // segmentation never distorts the texture).
   // MeshBasicMaterial: the toon gradient was washing the checker out.
   const banner = new THREE.Mesh(
-    new THREE.PlaneGeometry(roadW + 2, 2.1, 14, 1),
+    new THREE.PlaneGeometry(roadW + 1.4, 1.55, 14, 1),
     new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })
   );
   banner.material.map = finishBannerTexture();
   banner.position.copy(startLine.position);
-  banner.position.y = 4.3; // top touches beam underside (5.4 - 0.25); IN VIEW
+  // AUDIT r17 (Feco critic): the 2.1m banner at y 4.3 dominated the frame
+  // and read as the subject. Smaller (1.55m) + higher (y 5.15, top at the
+  // 5.85 beam) so it stays a finish structure, not a billboard wall.
+  banner.position.y = 5.15;
   // Explicit yaw: normal +Z faces the START CAMERA (-direction), so the
   // DoubleSide material shows the text un-mirrored from the player's view.
   banner.rotation.y = Math.atan2(-startLine.direction.x, -startLine.direction.z);
