@@ -39,11 +39,12 @@ function rnd(seed) {
 }
 
 // ---------------------------------------------------------------------------
-// Ridged-cone mountain geometry (MK8-style alpine silhouette)
+// Structural mountain geometry (MK8-style alpine backdrop)
 // ---------------------------------------------------------------------------
 // Deterministic angular noise for the ridge: a pure function of angle (and
-// seed) so the snow cap can reuse the SAME noise and sit exactly on the rock
-// ridge line. Octave mix keeps the profile jagged but never spiky.
+// seed) so every layer of a mountain (rock bands, snowline, summit crest)
+// can reuse the SAME noise family and stay glued to one ridgeline. Octave
+// mix keeps the profile jagged but never spiky.
 function ridgeNoise(a, seed) {
   const s = seed * 0.01;
   return (
@@ -54,49 +55,131 @@ function ridgeNoise(a, seed) {
 }
 
 /**
- * Deformed/ridged cone geometry. t0 = snow line (0 = full cone, >0 = a cap
- * spanning the top t0..1 of the same profile). Radius at height t:
- *   baseR * (1-t) * (1 + jitter * ridgeNoise(a, seed))
- * — the shared noise/seed makes the cap's base ring follow the rock ridge,
- * so the snowcap drapes the summit instead of sitting on it as a plain cone.
- * overhang (1.0-1.1) lets the cap lip wrap the ridge line.
+ * One mountain as a SINGLE columnar mesh (no cone + cap pair): per-vertex
+ * color layers + a per-segment broken snowline, so the range reads as
+ * geology instead of repeated triangles.
+ *
+ * Structural differences vs the old ridged cone + straight-cut cap:
+ *  - CONE PROFILE: small radial jitter (0.05-0.10) from ridgeNoise, growing
+ *    toward the summit (0.3 + 0.7t), clamped to 5% of baseR so rings never
+ *    collapse into degenerate triangles that rasterize black.
+ *  - SUMMIT CREST: the top ring is a tiny loop whose HEIGHT varies per
+ *    segment (apexH = 1 + peakAmp * noise) — the silhouette is a broken
+ *    crest line, never a single triangle apex.
+ *  - 3 VALUE-CONTRAST LAYERS via a 'color' attribute: dark rock base → mid
+ *    rock → snow cap. The snow boundary is NOT a horizontal cut: every
+ *    segment gets its own threshold snowT[i] (two noise octaves), so the
+ *    snowline zigzags down the gullies and up the ridges — a BROKEN edge.
+ *    The dark/mid boundary is likewise noise-modulated, so the bands read
+ *    as shaded ridge flanks, not stripes.
+ *  - profile: 'peak' (cone), 'dome' (rounded, cosine falloff) or 'butte'
+ *    (flat summit plateau + snow cap fan).
+ * Hand-computed RADIAL normals (point outward in XZ) — vertex jitter
+ * inverts some windings and computeVertexNormals averaged those inward,
+ * rasterizing black; the caller also uses DoubleSide. Unlit
+ * MeshBasicMaterial ignores normals anyway (backdrop), but the attribute
+ * stays correct. Deterministic: every value derives from the passed seeds.
  */
-function ridgedConeGeometry(baseR, h, segs, rings, jitter, seed, t0 = 0, overhang = 1) {
+function mountainGeometry(baseR, h, segs, rings, opts = {}) {
+  const {
+    jitter = 0.07,
+    seed = 1,
+    profile = 'peak',
+    snowT0 = 0.6,
+    snowAmp = 0.12,
+    snowSeed = 2,
+    midT0 = 0.36,
+    midAmp = 0.1,
+    midSeed = 3,
+    peakAmp = 0.1,
+    colors = null, // { dark, mid, snow } — THREE.Color
+  } = opts;
   const positions = [];
   const normals = [];
+  const colArr = [];
   const indices = [];
+  const s0 = seed * 0.01;
+  const s1 = snowSeed * 0.013;
+  const s2 = midSeed * 0.017;
+
+  // Vertical radius profile (fraction of baseR at height t: 0 = ground,
+  // 1 = summit). Cone tapers straight; dome keeps a fat base and rounds
+  // over; butte holds a near-constant rim then a thin skirt.
+  const radFn = (t) => {
+    if (profile === 'butte') {
+      const bt = 0.82;
+      const rim = 0.82;
+      return t < bt
+        ? 1 - (1 - rim) * (t / bt)
+        : rim * (1 - 0.06 * ((t - bt) / (1 - bt)));
+    }
+    if (profile === 'dome') return Math.pow(Math.cos(t * Math.PI * 0.5), 0.8);
+    return 1 - t;
+  };
+
+  // Per-segment broken boundaries + crest heights (computed once per column).
+  const snowT = new Array(segs);
+  const midT = new Array(segs);
+  const apexH = new Array(segs);
+  for (let i = 0; i < segs; i++) {
+    const a = (i / segs) * Math.PI * 2;
+    const nS = Math.sin(a * 5 + s1 * 13.1) * 0.6 + Math.sin(a * 11 + s1 * 29.7) * 0.4;
+    const nM = Math.sin(a * 4 + s2 * 11.3) * 0.55 + Math.sin(a * 9 + s2 * 23.9) * 0.45;
+    snowT[i] = Math.min(0.95, Math.max(0.18, snowT0 + nS * snowAmp));
+    midT[i] = Math.min(snowT[i] - 0.1, Math.max(0.06, midT0 + nM * midAmp));
+    apexH[i] = 1 + peakAmp * (Math.sin(a * 6 + s0 * 17.3) * 0.65 + Math.sin(a * 13 + s0 * 31.9) * 0.35);
+  }
+
   for (let r = 0; r <= rings; r++) {
-    const t = t0 + (1 - t0) * (r / rings);
-    const y = h * t;
-    const rad0 = baseR * (1 - t);
+    const t = r / rings;
+    const yBase = h * t;
     for (let i = 0; i < segs; i++) {
       const a = (i / segs) * Math.PI * 2;
-      const j = ridgeNoise(a, seed) * jitter * (0.35 + 0.65 * t);
-      // AUDIT r3: clamp the radius to 30% of the base profile — near the top
-      // (rad0→0) the old 0.02 floor let rings collapse into degenerate
-      // triangles that rasterized BLACK (the 'broken black patches' on the
-      // horizon every critic round).
-      const rad = Math.max(rad0 * 0.3, rad0 * (1 + j) * overhang);
+      const j = ridgeNoise(a, seed) * jitter * (0.3 + 0.7 * t);
+      const rad = Math.max(baseR * 0.05, baseR * radFn(t) * (1 + j));
+      const y = yBase * apexH[i];
       positions.push(Math.cos(a) * rad, y, Math.sin(a) * rad);
-      // RADIAL normals (point outward in XZ), not computeVertexNormals: the
-      // jitter inverts some windings and the averaged normals pointed INWARD
-      // on those faces — with a weak emissive they rasterized BLACK (the
-      // 'jagged black triangular patches' the critic kept seeing on peaks).
+      // RADIAL normals (outward in XZ) — never computeVertexNormals here.
       normals.push(Math.cos(a), 0, Math.sin(a));
+      if (colors) {
+        const col = t >= snowT[i] ? colors.snow : t >= midT[i] ? colors.mid : colors.dark;
+        colArr.push(col.r, col.g, col.b);
+      }
     }
   }
+  // Ring-column quads, CORRECTLY indexed: (r,i)->(r+1,i)->(r,i+1)->(r+1,i+1).
+  // The old cone builder used d = b + (i+1)%segs, which overran the last
+  // ring (dropped triangles at the summit) and twisted the wrap column
+  // (degenerate b,b,c) — invisible slivers at a cone apex, but holes along a
+  // dome/butte rim. d is now the true (r+1, i+1) vertex: in-range every ring.
   for (let r = 0; r < rings; r++) {
     for (let i = 0; i < segs; i++) {
-      const a = r * segs + i;
-      const b = a + segs;
-      const c = r * segs + (i + 1) % segs;
-      const d = b + (i + 1) % segs;
+      const ni = (i + 1) % segs;      // next segment (wraps)
+      const a = r * segs + i;         // (r, i)
+      const b = a + segs;             // (r+1, i)
+      const c = r * segs + ni;        // (r, i+1)
+      const d = (r + 1) * segs + ni;  // (r+1, i+1) — always in range
       indices.push(a, b, c, b, d, c);
+    }
+  }
+  // Flat snow summit for buttes: the top ring is a wide plateau loop, so
+  // close it with a fan (snow color, up-facing normal).
+  if (profile === 'butte' && colors) {
+    const ci = positions.length / 3;
+    positions.push(0, h, 0);
+    normals.push(0, 1, 0);
+    colArr.push(colors.snow.r, colors.snow.g, colors.snow.b);
+    const top0 = rings * segs;
+    for (let i = 0; i < segs; i++) {
+      const t0 = top0 + i;
+      const t1 = top0 + ((i + 1) % segs);
+      indices.push(ci, t1, t0);
     }
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
   geo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+  if (colors) geo.setAttribute('color', new THREE.Float32BufferAttribute(colArr, 3));
   geo.setIndex(indices);
   return geo;
 }
@@ -538,97 +621,120 @@ export class Environment {
 
   buildMountains(scene) {
     // MK8D layered ranges — FOUR depth bands with true ATMOSPHERIC
-    // PERSPECTIVE: the farthest band is nearly desaturated blue-white (pure
-    // haze silhouette), each nearer band gains saturation + darkens, the
-    // closest is deep saturated indigo with the brightest snow. Every peak
-    // is a RIDGED cone (vertex-jittered silhouette, 24-32 segs) + a second
-    // smaller offset peak + a snow cap built from the SAME noise seed so it
-    // follows the ridge line (never a plain cone on a cone). All grounded
-    // on the real rolling terrain (this._gy) — the old fixed-y cones floated.
+    // PERSPECTIVE: each band's three layer colors are mixed toward the fog
+    // color by distance (band.haze), so far bands are pale desaturated
+    // silhouettes and the near band keeps full value contrast (dark slate
+    // base / mid rock / snow-white cap). Every mountain is ONE columnar
+    // mesh with a per-segment BROKEN snowline, a jagged summit crest and a
+    // per-peak profile roll (jagged cone / rounded dome / flat-top butte)
+    // with aggressive height + width spread — no two peaks share a
+    // silhouette. All grounded on the rolling terrain (this._gy). Unlit
+    // MeshBasicMaterial (backdrop-safe) with vertexColors for the 3 value
+    // layers and DoubleSide so jitter-inverted windings never rasterize
+    // black. Deterministic local rnd() — this._rand is never touched.
     const bands = [
-      { radius: 318, count: 14, rock: 0xc9d6f2, snow: 0xf4f8ff, baseH: 38, hVar: 18, seed: 11, haze: 0.32, snowEm: 0.35 }, // farthest — pale haze
-      { radius: 260, count: 13, rock: 0x8a9ad9, snow: 0xf2f7ff, baseH: 33, hVar: 16, seed: 27, haze: 0.26, snowEm: 0.35 },  // mid blue-purple
-      { radius: 200, count: 12, rock: 0x4f61b8, snow: 0xfffdf4, baseH: 28, hVar: 14, seed: 43, haze: 0.20, snowEm: 0.38 },  // near indigo
-      { radius: 144, count: 10, rock: 0x2e3a7a, snow: 0xffffff, baseH: 24, hVar: 12, seed: 61, haze: 0.12, snowEm: 0.42 },  // closest — deepest + brightest
+      { radius: 318, count: 14, rock: 0xcfdcf2, dark: 0x8fa6cf, snow: 0xf4f8ff, baseH: 40, seed: 11, offset: 0.6, haze: 0.55 }, // farthest — pale haze silhouette
+      { radius: 262, count: 13, rock: 0x93a5e0, dark: 0x5b6aa8, snow: 0xf0f6ff, baseH: 34, seed: 27, offset: 0.2, haze: 0.42 }, // mid blue-purple
+      { radius: 202, count: 12, rock: 0x5d70c4, dark: 0x36428c, snow: 0xfffdf4, baseH: 28, seed: 43, offset: 0.2, haze: 0.28 }, // near indigo
+      { radius: 146, count: 10, rock: 0x39468e, dark: 0x1c2658, snow: 0xffffff, baseH: 24, seed: 61, offset: 0.2, haze: 0.12 },  // closest — deepest + brightest
     ];
-    const hazeMat = new THREE.MeshStandardMaterial({
-      color: 0xc3d2ea,
-      transparent: true,
-      opacity: 0.22,
-      depthWrite: false,
-    });
+    // Day fog color = the atmospheric haze target (scene.fog is 0xbfe6ff).
+    const fogCol = new THREE.Color(0xbfe6ff);
     for (const band of bands) {
       const group = new THREE.Group();
+      // Per-band haze tint (mixed toward the sky/fog color) for the base discs.
+      const hazeMat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(band.rock).lerp(fogCol, band.haze),
+        transparent: true,
+        opacity: 0.22,
+        depthWrite: false,
+      });
       for (let i = 0; i < band.count; i++) {
         const rand = rnd(band.seed * 1000 + i);
-        // AUDIT r3/r5: per-peak tint — ±4% hue / ±6% lightness jitter so the
-        // range reads as varied geology, not a flat wall.
-        const rockMat = new THREE.MeshBasicMaterial({
-          color: new THREE.Color(band.rock).offsetHSL((rand() - 0.5) * 0.04, 0, (rand() - 0.5) * 0.06),
-        });
-        const snowMat = new THREE.MeshBasicMaterial({ color: band.snow });
-        const a = (i / band.count) * Math.PI * 2 + (band.radius > 250 ? 0.6 : 0.2);
-        const r = band.radius * (0.86 + rand() * 0.28); // more spread per band
-        const h = band.baseH + rand() * band.hVar;
-        const baseR = h * (0.34 + rand() * 0.22); // wider base = chunkier peak
-        // AUDIT r4: per-peak XZ stretch (0.6-1.8) — some peaks elongate into
-        // ridge walls, others stay squat cones; the four bands no longer read
-        // as the same ridged cone at different scales/tints.
-        const sx = 0.6 + rand() * 1.2;
-        const sz = 0.6 + rand() * 1.2;
+        // Profile roll: ~28% flat-top buttes (can be TALL), ~24% low rounded
+        // domes (wide), the rest jagged peaks — three silhouette languages.
+        const roll = rand();
+        const profile = roll < 0.28 ? 'butte' : roll < 0.52 ? 'dome' : 'peak';
+        // Angle jitter breaks the even ring spacing — no two neighbors sit at
+        // the same angular step, so the range never reads as repeated peaks.
+        const a = (i / band.count + (rand() - 0.5) * 0.3) * Math.PI * 2 + band.offset;
+        const r = band.radius * (0.78 + rand() * 0.44);
+        let h;
+        if (profile === 'dome') h = band.baseH * (0.5 + rand() * 0.5);       // low rounded hills
+        else if (profile === 'butte') h = band.baseH * (0.9 + rand() * 0.85); // tall buttes
+        else h = band.baseH * (0.7 + rand() * 0.9);                           // mixed peaks
+        const baseR = h * (0.34 + rand() * 0.22) * (profile === 'dome' ? 1.15 : 1);
+        // Aggressive XZ stretch: some peaks elongate into ridge walls, domes
+        // sit wide, buttes can be narrow towers.
+        const wide = profile === 'dome' ? 1.25 : 1;
+        const sx = wide * (0.5 + rand() * 1.6);
+        const sz = wide * (0.5 + rand() * 1.6);
         const cx = Math.cos(a) * r;
         const cz = Math.sin(a) * r;
-        const yBase = this._gy(cx, cz) - 0.5; // grounded on the rolling field
+        const yBase = this._gy(cx, cz) - 0.5;
 
-        // Per-peak ridged geometry: seed + jitter amount (shared by rock,
-        // offset ridge AND snow cap so the whole peak reads as one mass).
         const seed = (band.seed * 7919 + i * 131) >>> 0;
-        const segs = 24 + ((rand() * 9) | 0); // 24-32 segments — dense facets
-        // AUDIT r3: jitter halved (0.10-0.20 → 0.05-0.10) — strong ridge
-        // jitter plus the new radius clamp still reads ridged, but the
-        // profiles no longer self-intersect into black fragments.
-        const jitter = 0.05 + rand() * 0.05;
+        const segs = 24 + ((rand() * 9) | 0); // 24-32 dense facets
+        const jitter = 0.05 + rand() * 0.05;  // small radial ridge (0.05-0.10)
 
-        // main rock body — ridged cone, tilted + rotated for a natural range
-        const rock = new THREE.Mesh(ridgedConeGeometry(baseR, h, segs, 6, jitter, seed), rockMat);
+        // 3 VALUE-CONTRAST layers, mixed toward the fog color by distance so
+        // far bands separate as haze: dark slate base / mid rock / snow cap.
+        const dark = new THREE.Color(band.dark).lerp(fogCol, band.haze);
+        const mid = new THREE.Color(band.rock).lerp(fogCol, band.haze);
+        const snow = new THREE.Color(band.snow).lerp(fogCol, band.haze * 0.85);
+        const layerColors = { dark, mid, snow };
+        // Unlit backdrop material: vertexColors for the layers, DoubleSide so
+        // jitter-inverted windings never rasterize black.
+        const rockMat = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide });
+
+        const geo = mountainGeometry(baseR, h, segs, 12, {
+          jitter,
+          seed,
+          profile,
+          peakAmp: profile === 'peak' ? 0.14 + rand() * 0.1 : profile === 'dome' ? 0.05 : 0.03,
+          snowT0: 0.5 + rand() * 0.25,
+          snowAmp: 0.1 + rand() * 0.1,
+          snowSeed: (seed + 7) >>> 0,
+          midT0: 0.34 + rand() * 0.12,
+          midAmp: 0.08 + rand() * 0.08,
+          midSeed: (seed + 13) >>> 0,
+          colors: layerColors,
+        });
+        const rock = new THREE.Mesh(geo, rockMat);
         rock.position.set(cx, yBase, cz);
-        rock.rotation.set((rand() - 0.5) * 0.10, rand() * Math.PI, (rand() - 0.5) * 0.10);
-        rock.scale.set(sx, 1, sz); // stretch -> ridge-wall / squat-cone variety
+        rock.rotation.set((rand() - 0.5) * 0.08, rand() * Math.PI, (rand() - 0.5) * 0.08);
+        rock.scale.set(sx, 1, sz);
         rock.castShadow = false;
         group.add(rock);
 
-        // offset second peak — breaks the single-triangle silhouette
-        const r2 = baseR * (0.5 + rand() * 0.22);
-        const h2 = h * (0.45 + rand() * 0.28);
-        const ridge = new THREE.Mesh(
-          ridgedConeGeometry(r2, h2, Math.max(18, segs - 6), 5, jitter * 0.85, seed + 101),
-          rockMat
-        );
-        ridge.position.set(cx + (rand() - 0.5) * baseR * 1.5, yBase, cz + (rand() - 0.5) * baseR * 1.5);
-        ridge.rotation.set((rand() - 0.5) * 0.16, rand() * Math.PI, (rand() - 0.5) * 0.16);
-        // companion peak stretches independently (0.7-1.8) so it never
-        // mirrors the main peak's proportions.
-        ridge.scale.set(0.7 + rand() * 1.1, 1, 0.7 + rand() * 1.1);
-        group.add(ridge);
+        // Companion mass on jagged peaks only — a lower rounded shoulder
+        // offset from the main body breaks the single-peak triangle silhouette.
+        if (profile === 'peak') {
+          const r2 = baseR * (0.35 + rand() * 0.45);
+          const h2 = h * (0.3 + rand() * 0.55);
+          const cSeed = (seed + 101) >>> 0;
+          const cGeo = mountainGeometry(r2, h2, Math.max(18, segs - 6), 9, {
+            jitter: jitter * 0.9,
+            seed: cSeed,
+            profile: 'dome',
+            peakAmp: 0.08 + rand() * 0.08,
+            snowT0: 0.55 + rand() * 0.3,
+            snowAmp: 0.1 + rand() * 0.08,
+            snowSeed: (cSeed + 7) >>> 0,
+            midT0: 0.34,
+            midAmp: 0.08,
+            midSeed: (cSeed + 13) >>> 0,
+            colors: layerColors,
+          });
+          const ridge = new THREE.Mesh(cGeo, rockMat);
+          ridge.position.set(cx + (rand() - 0.5) * baseR * 1.5, yBase, cz + (rand() - 0.5) * baseR * 1.5);
+          ridge.rotation.set((rand() - 0.5) * 0.14, rand() * Math.PI, (rand() - 0.5) * 0.14);
+          ridge.scale.set(0.7 + rand() * 1.1, 1, 0.7 + rand() * 1.1);
+          group.add(ridge);
+        }
 
-        // snow cap that FOLLOWS the ridge: same noise seed, t0 = snow line —
-        // the cap's base ring shares the rock's radius profile, so it drapes
-        // the summit ridge instead of looking like a cone balanced on a cone.
-        // AUDIT r4: snow line now varies 0.5-0.8 (was 0.62-0.74) — some peaks
-        // are half-buried in snow, others keep a tiny summit cap. t0 is passed
-        // straight into ridgedConeGeometry so the cap spans t0..1 of the SAME
-        // profile (its base ring still follows the rock ridge line exactly).
-        const t0 = 0.5 + rand() * 0.3; // snow starts 50-80% up the peak
-        const cap = new THREE.Mesh(
-          ridgedConeGeometry(baseR, h, segs, 3, jitter, seed, t0, 1.18),
-          snowMat
-        );
-        cap.position.set(cx, yBase + h * t0, cz);
-        cap.rotation.set(rock.rotation.x, rock.rotation.y, rock.rotation.z);
-        cap.scale.set(rock.scale.x, 1, rock.scale.z); // matches the stretched rock
-        group.add(cap);
-
-        // soft haze disc at the base for atmospheric lift
+        // Soft haze disc at the base — atmospheric lift that fades the foot
+        // of each mountain into the distance.
         const haze = new THREE.Mesh(
           new THREE.CircleGeometry(baseR * (1.4 + rand() * 0.6), 20),
           hazeMat
@@ -636,46 +742,6 @@ export class Environment {
         haze.rotation.x = -Math.PI / 2;
         haze.position.set(cx, yBase + 0.05, cz);
         group.add(haze);
-      }
-      // AUDIT r4: flat-topped buttes (mesas) — 3-4 per band, interleaved
-      // between the peaks: low-segment cylinders with flat caps, same band
-      // palette/snow. A second silhouette language so the range isn't ALL
-      // ridged cones. Dedicated local seed — this._rand stays untouched.
-      const bRand = rnd(band.seed * 1000 + 700);
-      const buttes = 3 + ((bRand() * 2) | 0); // 3-4 mesas per band
-      for (let b = 0; b < buttes; b++) {
-        const ba = ((b + 0.5) / band.count) * Math.PI * 2 + (band.radius > 250 ? 0.6 : 0.2) + (bRand() - 0.5) * 0.5;
-        const br = band.radius * (0.8 + bRand() * 0.34);
-        const bh = band.baseH * (0.45 + bRand() * 0.55);
-        const bBaseR = bh * (0.55 + bRand() * 0.3); // wider than a cone's base
-        const bSegs = 7 + ((bRand() * 3) | 0);      // 7-9 segs — faceted mesa sides
-        const bcx = Math.cos(ba) * br;
-        const bcz = Math.sin(ba) * br;
-        const by = this._gy(bcx, bcz) - 0.5;
-        const bRock = new THREE.MeshBasicMaterial({
-          color: new THREE.Color(band.rock).offsetHSL((bRand() - 0.5) * 0.04, 0, (bRand() - 0.5) * 0.06),
-        });
-        const butte = new THREE.Mesh(new THREE.CylinderGeometry(bBaseR * 0.8, bBaseR, bh, bSegs, 1), bRock);
-        butte.position.set(bcx, by, bcz);
-        butte.scale.set(0.8 + bRand() * 0.8, 1, 0.8 + bRand() * 0.8); // own XZ stretch
-        butte.rotation.y = bRand() * Math.PI;
-        butte.castShadow = false;
-        group.add(butte);
-        // flat cap — overhangs the rim slightly; snowy on ~2/3 of buttes
-        if (bRand() < 0.65) {
-          const bCap = new THREE.Mesh(
-            new THREE.CircleGeometry(bBaseR * 0.83, bSegs),
-            new THREE.MeshBasicMaterial({ color: band.snow })
-          );
-          bCap.rotation.x = -Math.PI / 2;
-          bCap.position.y = bh + 0.02;
-          butte.add(bCap); // child — inherits the butte's XZ stretch
-        }
-        // soft haze disc at the base (same atmospheric lift as the peaks)
-        const bHaze = new THREE.Mesh(new THREE.CircleGeometry(bBaseR * (1.4 + bRand() * 0.6), 20), hazeMat);
-        bHaze.rotation.x = -Math.PI / 2;
-        bHaze.position.set(bcx, by + 0.05, bcz);
-        group.add(bHaze);
       }
       scene.add(group);
     }

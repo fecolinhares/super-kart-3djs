@@ -101,18 +101,25 @@ export class HUD {
     this.root.innerHTML = `
       <div class="sk3d-hud-top">
         <div class="sk3d-hud-left">
-          <div class="sk3d-chip sk3d-position">--</div>
           <div class="sk3d-chip sk3d-lap">
             <span class="sk3d-lap-text">LAP 1/${CONFIG.game.totalLaps}</span>
             <span class="sk3d-lap-bar"><span class="sk3d-lap-bar-fill"></span></span>
           </div>
+          <div class="sk3d-chip sk3d-time">0:00.0</div>
         </div>
         <div class="sk3d-hud-right">
-          <div class="sk3d-chip sk3d-time">0:00.0</div>
           <div class="sk3d-chip sk3d-coins" title="Coin top-speed bonus (max +10%)" style="color:#ffd166;letter-spacing:0.06em;">🪙 <span class="sk3d-coin-count">0</span><span class="sk3d-coin-max">/${Math.round(CONFIG.items.coinSpeedCap / CONFIG.items.coinSpeedBonus)}</span></div>
         </div>
       </div>
-      <div class="sk3d-hud-bottom"></div>
+      <!-- MK8D bottom HUD: rank plate + item slots bottom-LEFT (item slots
+           stacked ABOVE the rank chip), speedo + drift meter bottom-RIGHT. -->
+      <div class="sk3d-hud-bottom">
+        <div class="sk3d-hud-bottom-left">
+          <div class="sk3d-item-zone"></div>
+          <div class="sk3d-chip sk3d-position">--</div>
+        </div>
+        <div class="sk3d-hud-bottom-right"></div>
+      </div>
       <div class="sk3d-hitflash sk3d-hidden" aria-hidden="true"></div>
       <div class="sk3d-draft sk3d-hidden">DRAFT</div>
       <div class="sk3d-countdown sk3d-hidden">3</div>
@@ -137,8 +144,11 @@ export class HUD {
       </div>
       <div class="sk3d-toast sk3d-hidden" role="status"></div>`;
 
-    // Speedometer + item slot
+    // MK8D bottom HUD: speedo + drift meter bottom-RIGHT; item slots + rank
+    // plate bottom-LEFT (items stacked ABOVE the rank chip).
     const bottom = this.root.querySelector('.sk3d-hud-bottom');
+    const bottomRight = this.root.querySelector('.sk3d-hud-bottom-right');
+    const itemZone = this.root.querySelector('.sk3d-item-zone');
     const speedo = this.buildSpeedometer();
     this.speedoWrap = speedo.wrap;
     this.speedNeedle = speedo.needle;
@@ -155,7 +165,8 @@ export class HUD {
     // AUDIT r5: the gauge scale was a load-time constant (MAX_KMH≈101) so the
     // needle PEGGED at 150cc. Now dynamic — startRace() calls setMaxKmh().
     this._maxKmh = MAX_KMH;
-    bottom.append(speedo.wrap, this.buildItemSlot());
+    bottomRight.append(speedo.wrap);
+    itemZone.append(this.buildItemSlot());
     // Drift charge meter: a thin bar under the speedometer that fills while
     // drifting (white → yellow → orange, matching the spark colors). Only
     // visible while the player is actually drifting.
@@ -163,7 +174,7 @@ export class HUD {
     drift.className = 'sk3d-drift-meter sk3d-hidden';
     // Tick at the mini-boost release threshold (75%) so the player knows when to let go.
     drift.innerHTML = '<div class="sk3d-drift-fill"></div><div class="sk3d-drift-tick"></div><span class="sk3d-drift-label">DRIFT</span>';
-    bottom.append(drift);
+    bottomRight.append(drift);
     this.driftMeterEl = drift;
     this.driftFillEl = drift.querySelector('.sk3d-drift-fill');
 
@@ -224,8 +235,8 @@ export class HUD {
     // Circular minimap — sits between the left chips and the race clock.
     this._mm = this.buildMinimap(track);
     if (this._mm) {
-      // Minimap sits in the TOP-RIGHT corner group (left of the timer), so it
-      // never covers the finish gantry / action in screen center.
+      // Minimap sits in the TOP-RIGHT corner group (left of the coin counter),
+      // so it never covers the finish gantry / action in screen center.
       const right = this.root.querySelector('.sk3d-hud-right');
       right.prepend(this._mm.wrap);
     }
@@ -325,8 +336,11 @@ export class HUD {
     // Stacked pair: the main ITEM slot + a mini RESERVE slot underneath
     // (audit r3 dual-slot). Clicking the mini slot swaps the two — the touch
     // counterpart to the Tab swap key. Count badges show triple stacks (×3).
+    // All styling lives in ui.css (.sk3d-item-wrap / .sk3d-item-badge) so the
+    // slot family shares the HUD card language (translucent dark + light
+    // stroke + rounded).
     const wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:6px;';
+    wrap.className = 'sk3d-item-wrap';
 
     const slot = document.createElement('div');
     slot.className = 'sk3d-chip sk3d-item-slot';
@@ -334,18 +348,13 @@ export class HUD {
       <span class="sk3d-item-label">ITEM</span>
       <span class="sk3d-item-icon sk3d-item-empty">?</span>
       <span class="sk3d-item-name"></span>
-      <span class="sk3d-item-count sk3d-hidden">×1</span>`;
-    const countEl = slot.querySelector('.sk3d-item-count');
-    countEl.style.cssText = 'position:absolute;bottom:-7px;right:-7px;background:#e53e3e;color:#fff;font-size:0.62rem;font-weight:800;line-height:1;border-radius:8px;padding:3px 6px;border:2px solid rgba(255,255,255,0.65);box-shadow:0 2px 0 rgba(0,0,0,0.3);';
+      <span class="sk3d-item-count sk3d-item-badge sk3d-hidden">×1</span>`;
 
     const mini = document.createElement('div');
     mini.className = 'sk3d-chip sk3d-item-slot sk3d-item2-slot';
     mini.setAttribute('title', 'Reserve item — click (or Tab) to swap');
-    mini.style.cssText = 'width:44px;height:44px;font-size:1.3rem;border-width:2px;border-radius:10px;cursor:pointer;opacity:0.95;';
     mini.innerHTML = `<span class="sk3d-item2-icon sk3d-item-empty">?</span>
-      <span class="sk3d-item2-count sk3d-hidden">×1</span>`;
-    const miniCount = mini.querySelector('.sk3d-item2-count');
-    miniCount.style.cssText = 'position:absolute;bottom:-6px;right:-6px;background:#e53e3e;color:#fff;font-size:0.56rem;font-weight:800;line-height:1;border-radius:7px;padding:2px 5px;border:2px solid rgba(255,255,255,0.65);';
+      <span class="sk3d-item2-count sk3d-item-badge sk3d-item-badge-mini sk3d-hidden">×1</span>`;
 
     wrap.append(slot, mini);
     return wrap;
@@ -512,7 +521,8 @@ export class HUD {
   update(raceManager, player, karts) {
     if (this.root.classList.contains('sk3d-hidden')) return;
 
-    // Position pips (medal emoji + ordinal + medal-colored chip).
+    // MK8D rank plate (bottom-left): big bold ordinal on a gold/silver/
+    // bronze/white plate; pops (sk3d-position-pop) + blips on change.
     const pos = player && typeof player.position === 'number' ? player.position : 0;
     if (pos !== this._pos) {
       const prev = this._pos; // capture BEFORE the write (audit v4 F1: the

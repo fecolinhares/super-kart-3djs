@@ -20,6 +20,11 @@
   --sk3d-radius: 16px;
   --sk3d-border: 3px solid var(--sk3d-ink);
   --sk3d-hard-shadow: 0 5px 0 var(--sk3d-ink);
+  /* Unified HUD card language (MK8D): translucent dark plate + light stroke
+     + rounded corners. Every in-race panel reads from these. */
+  --sk3d-card-bg: rgba(16, 25, 45, 0.78);
+  --sk3d-card-stroke: 2px solid rgba(255, 255, 255, 0.38);
+  --sk3d-card-radius: 14px;
 }
 
 /* ---------- shared ---------- */
@@ -52,11 +57,11 @@
 .sk3d-chip {
   font-family: var(--sk3d-font);
   font-weight: 800;
-  color: var(--sk3d-ink);
-  background: rgba(255, 253, 247, 0.94);
-  border: var(--sk3d-border);
-  border-radius: 14px;
-  box-shadow: 0 4px 0 rgba(27, 42, 65, 0.85);
+  color: var(--sk3d-cream);
+  background: var(--sk3d-card-bg);
+  border: var(--sk3d-card-stroke);
+  border-radius: var(--sk3d-card-radius);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35), 0 12px 24px rgba(0, 0, 0, 0.28);
   padding: 6px 14px;
   white-space: nowrap;
 }
@@ -356,10 +361,19 @@
 }
 
 .sk3d-position {
-  font-size: 1.15rem;
-  min-width: 64px;
+  font-size: 2.4rem;
+  line-height: 1;
+  min-width: 96px;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  background: var(--sk3d-cream);
+  color: var(--sk3d-ink);
+  background: #ffffff;
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.4), 0 14px 28px rgba(0, 0, 0, 0.35);
 }
 
 .sk3d-position-1 { background: var(--sk3d-yellow); }
@@ -383,8 +397,8 @@
   width: 76px;
   height: 7px;
   display: block;
-  background: rgba(27, 42, 65, 0.16);
-  border: 2px solid var(--sk3d-ink);
+  background: rgba(255, 255, 255, 0.14);
+  border: 2px solid rgba(255, 255, 255, 0.45);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -409,9 +423,9 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   color: #dbe4f2;
-  background: rgba(12, 18, 30, 0.72);
-  border: 1px solid rgba(120, 160, 255, 0.25);
-  border-radius: 8px;
+  background: var(--sk3d-card-bg);
+  border: 1px solid rgba(120, 160, 255, 0.3);
+  border-radius: var(--sk3d-card-radius);
   padding: 3px 8px;
   margin-top: 2px;
   text-align: center;
@@ -448,8 +462,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: rgba(27, 42, 65, 0.88);
-  border-color: rgba(255, 253, 247, 0.4);
+  background: var(--sk3d-card-bg);
+  border: var(--sk3d-card-stroke);
   box-shadow:
     0 4px 0 rgba(0, 0, 0, 0.45),
     0 12px 26px rgba(0, 0, 0, 0.35);
@@ -506,20 +520,38 @@
 
 .sk3d-hud-bottom {
   position: absolute;
+  left: 16px;
   right: 16px;
   bottom: 16px;
   display: flex;
+  justify-content: space-between;
   align-items: flex-end;
   gap: 12px;
+}
+
+/* MK8D bottom-left group: item slots stacked ABOVE the rank plate. */
+.sk3d-hud-bottom-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Bottom-right group: speedometer + drift meter. */
+.sk3d-hud-bottom-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
 }
 
 /* --- speedometer --- */
 
 .sk3d-speedo {
   width: 152px;
-  background: rgba(27, 42, 65, 0.85);
-  border: 3px solid rgba(255, 255, 255, 0.35);
-  border-radius: 16px;
+  background: var(--sk3d-card-bg);
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--sk3d-card-radius);
   padding: 6px 8px 4px;
   box-shadow: 0 6px 0 rgba(0, 0, 0, 0.35), 0 16px 30px rgba(0, 0, 0, 0.3);
 }
@@ -600,8 +632,7 @@
   position: relative;
   width: 104px;
   height: 15px;
-  margin-bottom: 12px; /* sits under the speedometer in the bottom-right stack */
-  background: rgba(27, 42, 65, 0.85);
+  background: var(--sk3d-card-bg);
   border: 2px solid rgba(255, 255, 255, 0.35);
   border-radius: 999px;
   overflow: hidden;
@@ -657,18 +688,63 @@
 
 /* --- item slot --- */
 
+.sk3d-item-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: auto; /* the reserve mini-slot is click-to-swap */
+}
+
 .sk3d-item-slot {
   position: relative;
   width: 72px;
   height: 72px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 3px;
   font-size: 2.15rem;
-  background: rgba(38, 60, 92, 0.92);
-  border: 3px solid rgba(255, 255, 255, 0.55);
-  border-radius: 16px;
+  background: var(--sk3d-card-bg);
+  border: 3px solid rgba(255, 255, 255, 0.45);
+  border-radius: var(--sk3d-card-radius);
   box-shadow: 0 6px 0 rgba(0, 0, 0, 0.35), 0 16px 30px rgba(0, 0, 0, 0.3), inset 0 0 18px rgba(46, 196, 255, 0.12);
+}
+
+/* Reserve (swap) mini-slot — sizing formerly inline in HUD.js. */
+.sk3d-item2-slot {
+  width: 44px;
+  height: 44px;
+  font-size: 1.3rem;
+  border-width: 2px;
+  border-radius: 10px;
+  cursor: pointer;
+  opacity: 0.95;
+}
+
+/* ×N stack badges (red pill, bottom-right of a slot). */
+.sk3d-item-badge {
+  position: absolute;
+  bottom: -7px;
+  right: -7px;
+  background: #e53e3e;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1;
+  border-radius: 8px;
+  padding: 3px 6px;
+  border: 2px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.sk3d-item-badge-mini {
+  bottom: -6px;
+  right: -6px;
+  font-size: 0.56rem;
+  border-radius: 7px;
+  padding: 2px 5px;
 }
 
 .sk3d-item-label {
@@ -694,7 +770,7 @@
   font-size: 11px;
   line-height: 1.1;
   letter-spacing: 0.02em;
-  color: var(--sk3d-ink);
+  color: rgba(255, 255, 255, 0.85);
   text-transform: uppercase;
   max-width: 96px;
   text-align: center;
@@ -937,8 +1013,8 @@
 
 .sk3d-toast {
   position: absolute;
-  /* Above the item slot (bottom-right HUD) — NOT screen-center, so it never
-     blocks the view of the race. */
+  /* Above the speedo stack (bottom-right HUD) — NOT screen-center, so it
+     never blocks the view of the race. */
   right: 16px;
   bottom: 150px;
   z-index: 4;
@@ -949,9 +1025,9 @@
   text-align: center;
   color: var(--sk3d-cream);
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
-  background: rgba(27, 42, 65, 0.85);
-  border: 3px solid rgba(255, 255, 255, 0.35);
-  border-radius: 999px;
+  background: var(--sk3d-card-bg);
+  border: var(--sk3d-card-stroke);
+  border-radius: var(--sk3d-card-radius);
   padding: 10px 22px;
   box-shadow: 0 6px 0 rgba(0, 0, 0, 0.35), 0 16px 30px rgba(0, 0, 0, 0.3);
 }
@@ -1026,7 +1102,7 @@
 
 .sk3d-touch-pause {
   position: absolute;
-  top: 84px; /* below the position/lap chips row (was 12px — overlapped them) */
+  top: 84px; /* below the lap/time chips row (was 12px — overlapped them) */
   left: 12px;
   width: 52px;
   height: 52px;
@@ -1050,7 +1126,12 @@
    the 88px touch buttons (~140px). */
 @media (pointer: coarse) {
   .sk3d-hud-bottom {
-    bottom: 148px;
+    bottom: 148px; /* clear the 88px touch buttons on both corners */
+  }
+  /* The lifted speedo stack now tops out ~260px — float the toast above it
+     (it used to overlap the gauge on tablets). */
+  .sk3d-toast {
+    bottom: 270px;
   }
 }
 
@@ -1287,17 +1368,20 @@
   }
 
   .sk3d-position {
-    font-size: 0.92rem;
-    min-width: 52px;
+    font-size: 1.7rem;
+    min-width: 64px;
+    min-height: 46px;
   }
 
   .sk3d-hud-bottom {
-    top: 58px;
+    left: 8px;
     right: 8px;
-    bottom: auto;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
+    /* no `bottom` here — the pointer:coarse lift (148px) must survive on
+       phones so the row clears the touch buttons */
+  }
+
+  .sk3d-hud-bottom-left {
+    gap: 6px;
   }
 
   .sk3d-toast {
@@ -1335,6 +1419,12 @@
     width: 56px;
     height: 56px;
     font-size: 1.8rem;
+  }
+
+  .sk3d-item2-slot {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
   }
 }
 

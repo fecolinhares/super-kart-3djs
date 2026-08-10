@@ -150,10 +150,12 @@ export const CONFIG = {
     bloomRadius: 0.4,
     bloomThreshold: 0.95,
     vignetteStrength: 0.3,
-    colorGradeSaturation: 1.06, // AUDIT r17 (Feco real-GPU critic): 1.2
-    // over-saturated EVERYTHING — no visual hierarchy. MK8D grade is rich
-    // but modulated: lower saturation + stronger contrast = depth + punch.
-    colorGradeContrast: 1.28,
+    colorGradeSaturation: 1.45, // AUDIT r17 (Feco real-GPU + pixel-measured
+    // critic): ACES tone mapping in OutputPass DESSATURATES — the grade
+    // must fight it. Measured: sat 87/255 mean + 21% dead-grey on the real
+    // GPU frame = washed. 1.45 restores the MK8 punch AFTER the ACES eats
+    // its share. (Headless QA never sees this — no grade there.)
+    colorGradeContrast: 1.25,
     shadows: true,
     shadowMapSize: 2048,
     testShadowMapSize: 1024, // used when ?test is active (QA speed)
