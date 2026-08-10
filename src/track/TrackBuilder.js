@@ -13,7 +13,7 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { toonMaterial, cartoonOutline, roadTexture, dirtTexture, grassTexture, concreteTexture, checkerTexture, bannerCheckerTexture, turboPadTexture, arrowTexture, finishLineTexture } from '../render/Materials.js';
+import { toonMaterial, cartoonOutline, roadTexture, dirtTexture, grassTexture, concreteTexture, checkerTexture, bannerCheckerTexture, finishBannerTexture, turboPadTexture, arrowTexture, finishLineTexture } from '../render/Materials.js';
 
 // Control points forming the closed loop (X, Y=elevation, Z).
 const CONTROL_POINTS = [
@@ -830,6 +830,10 @@ function buildGantry(startLine) {
   const braceMat = toonMaterial(0x2b3340, {});
   const beamGeo = new THREE.BoxGeometry(roadW + 5, 0.5, 0.7);
   const beamMat = toonMaterial(0x2ec4ff, {});
+  // AUDIT r11 (FECO): crisp checkered trim on the beam's track-facing
+  // faces — the classic MK8D arch edge. MeshBasicMaterial keeps it unlit
+  // and readable like the banner (groups 4/5 = +/-Z in BoxGeometry).
+  const beamCheckerMat = new THREE.MeshBasicMaterial({ map: bannerCheckerTexture() });
 
   // Pillars now run from the ground (y 0.0) up to the beam — no more
   // floating poles — each with a visible footing plate set into the shoulder.
@@ -858,21 +862,29 @@ function buildGantry(startLine) {
   const bL = pillarBaseL.clone(); bL.y += 2.7;
   const bR = pillarBaseR.clone(); bR.y += 2.7;
 
-  const beam = new THREE.Mesh(beamGeo, beamMat);
+  const beam = new THREE.Mesh(
+    beamGeo,
+    [beamMat, beamMat, beamMat, beamMat, beamCheckerMat, beamCheckerMat]
+  );
   beam.position.copy(startLine.position);
   beam.position.y = 5.4; // lowered so the banner sits in the driver's view
   beam.lookAt(startLine.position.clone().add(startLine.direction));
   group.add(beam);
   cartoonOutline(beam, 0x1b2a41, 0.02);
 
-  // Checkered banner hanging from the beam, with a bold FINISH word.
-  // Segmented width so main.js can wave it like fabric (not a rigid board).
-  // MeshBasicMaterial: the toon gradient was washing the checker pattern out.
+  // FINISH banner hanging from the beam. finishBannerTexture is a 512x128
+  // canvas aspect-matched to this ~4.7:1 plane (roadW+2 x 2.1m), so the
+  // navy field, glyphs and checkered bands map 1:1 — no stretching (AUDIT
+  // r11 FECO: the old square 512px canvas read 4.7x wider than tall).
+  // The 14 width segments are REQUIRED: main.js waves them like fabric
+  // (a segmented plane's UVs still span 0..1 across the whole face, so
+  // segmentation never distorts the texture).
+  // MeshBasicMaterial: the toon gradient was washing the checker out.
   const banner = new THREE.Mesh(
     new THREE.PlaneGeometry(roadW + 2, 2.1, 14, 1),
     new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })
   );
-  banner.material.map = bannerCheckerTexture();
+  banner.material.map = finishBannerTexture();
   banner.position.copy(startLine.position);
   banner.position.y = 4.3; // top touches beam underside (5.4 - 0.25); IN VIEW
   // Explicit yaw: normal +Z faces the START CAMERA (-direction), so the

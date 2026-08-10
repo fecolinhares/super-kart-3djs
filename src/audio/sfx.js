@@ -1,7 +1,14 @@
 // ============================================================
 // Super Kart 3D.js — sfx.js
-// Pure procedural SFX recipes (cartoon racing theme), 100%
+// Pure procedural SFX recipes (fat modern arcade racing theme), 100%
 // synthesized with the WebAudio API — no samples, no assets.
+//
+// Palette (FECO r2 pass): every beep-type SFX was rebuilt from raw
+// chiptune tones into layered, filtered, punchy hits — sub-kick thumps,
+// noise bursts with filter sweeps, lowpassed square bodies, sparkle
+// layers. The AudioManager master chain (EQ → saturation → glue
+// compressor → makeup → limiter, with a shared convolver reverb send)
+// seats them all in one fat arcade space.
 //
 // Contract (ARCHITECTURE.md):
 //   renderSfx(ctx, out, name, opts)
@@ -216,6 +223,20 @@ function noise(ctx, out, {
 }
 
 /**
+ * Punchy sub kick — the modern arcade impact body (no samples):
+ * a sine thump with a fast exponential pitch drop + a 2ms highpassed
+ * noise "beater" click for attack. Used to fatten hits, pickups and
+ * boost launches instead of raw beeps.
+ */
+function kick(ctx, out, { at = 0, vol = 0.6, freq = 140, glideTo = 40, dur = 0.22, click = 0.35 }) {
+  osc(ctx, out, {
+    type: 'sine', freq: Math.max(30, freq), glideTo: Math.max(30, glideTo),
+    dur, vol, at, attack: 0.001,
+  });
+  noise(ctx, out, { dur: 0.012, vol: vol * click, at, filterType: 'highpass', freq: 6000 });
+}
+
+/**
  * Bell chime: fundamental + harmonic partials + a detuned pair for
  * shimmer. Uses setTargetAtTime tails (long natural decay).
  */
@@ -295,16 +316,18 @@ export function renderSfx(ctx, out, name, opts = {}) {
     }
 
     case 'boost': {
-      // Whoosh up + flame roar: rising filtered noise, dropping
-      // sawtooth roar, fire crackle on top, kick at the start.
+      // Turbo launch (modern arcade): kick thump + RISING noise whoosh
+      // (bandpass sweep 300→3600) + a growling saw that rises in pitch
+      // AND opens its lowpass (the flame body) + fire crackle + sub drop.
       const d = 1.0;
+      kick(ctx, target, { at, vol: v(0.58), freq: 150, glideTo: 45, dur: 0.22 });
+      noise(ctx, target, { dur: d, vol: v(0.38), at, filterType: 'bandpass', freq: 300, q: 1.1, glideTo: 3600, attack: 0.05, sustain: true, release: 0.12 });
       osc(ctx, target, {
-        type: 'sawtooth', freq: 130 * rate, glideTo: 55 * rate, dur: d, vol: v(0.5), at, attack: 0.02,
-        filterType: 'lowpass', filterFreq: 800, filterQ: 0.7, filterGlideTo: 300,
+        type: 'sawtooth', freq: 95 * rate, glideTo: 210 * rate, dur: d * 0.9, vol: v(0.36), at, attack: 0.02,
+        filterType: 'lowpass', filterFreq: 400, filterQ: 1, filterGlideTo: 3200,
       });
-      noise(ctx, target, { dur: d, vol: v(0.4), at, filterType: 'bandpass', freq: 300, q: 0.9, glideTo: 3400, attack: 0.18, sustain: true, release: 0.12 });
-      noise(ctx, target, { dur: d, vol: v(0.12), at: at + 0.05, filterType: 'highpass', freq: 5000, attack: 0.05, sustain: true, release: 0.08 });
-      osc(ctx, target, { type: 'sine', freq: 120 * rate, glideTo: 45 * rate, dur: 0.18, vol: v(0.6), at, attack: 0.003 });
+      noise(ctx, target, { dur: d, vol: v(0.12), at: at + 0.06, filterType: 'highpass', freq: 5200, attack: 0.06, sustain: true, release: 0.08 });
+      osc(ctx, target, { type: 'sine', freq: 120 * rate, glideTo: 40 * rate, dur: 0.3, vol: v(0.6), at, attack: 0.003 });
       break;
     }
 
@@ -341,27 +364,33 @@ export function renderSfx(ctx, out, name, opts = {}) {
     }
 
     case 'uiClick': {
-      // Short tactile blip for menu swatches/toggles (USER FIX: triangle
-      // + soft noise instead of a raw square tick — the old one was the
-      // most '8-bit' sound in the game).
-      osc(ctx, target, { type: 'triangle', freq: 620 * rate, glideTo: 840 * rate, dur: 0.07, vol: v(0.2), at, attack: 0.001 });
-      noise(ctx, target, { dur: 0.03, vol: v(0.06), at, filterType: 'highpass', freq: 5000 });
+      // Soft tactile click (no raw squares): a lowpassed triangle blip
+      // through a gentle bandpass + a micro noise tick — feels like a
+      // console menu, not a game-boy beep.
+      osc(ctx, target, {
+        type: 'triangle', freq: 520 * rate, glideTo: 760 * rate, dur: 0.06, vol: v(0.16), at, attack: 0.001,
+        filterType: 'lowpass', filterFreq: 2400, filterQ: 0.8,
+      });
+      noise(ctx, target, { dur: 0.02, vol: v(0.05), at, filterType: 'bandpass', freq: 3200, q: 1.5 });
       break;
     }
 
     case 'uiSelect': {
-      // Confirming two-tone for "Start Race".
-      osc(ctx, target, { type: 'triangle', freq: 523.25 * rate, dur: 0.09, vol: v(0.26), at, attack: 0.001 });
-      osc(ctx, target, { type: 'triangle', freq: 783.99 * rate, dur: 0.16, vol: v(0.26), at: at + 0.07, attack: 0.001 });
+      // Confirming two-tone for "Start Race" — soft lowpassed body tones
+      // (no raw square) + a chime sparkle on top.
+      osc(ctx, target, { type: 'triangle', freq: 523.25 * rate, dur: 0.09, vol: v(0.2), at, attack: 0.002, filterType: 'lowpass', filterFreq: 2600 });
+      osc(ctx, target, { type: 'square', freq: 783.99 * rate, dur: 0.14, vol: v(0.12), at: at + 0.07, attack: 0.002, filterType: 'lowpass', filterFreq: 3200, filterQ: 1 });
       chime(ctx, target, { freq: 1046.5 * rate, dur: 0.3, vol: v(0.14), at: at + 0.12, partials: [1, 2, 3] });
       break;
     }
 
     case 'driftReleaseMiniBoost': {
-      // Satisfying "tick-whoosh" when a charged drift is released
-      // (USER FIX: triangle instead of raw square — warmer).
-      osc(ctx, target, { type: 'triangle', freq: 320 * rate, glideTo: 980 * rate, dur: 0.16, vol: v(0.28), at, attack: 0.002 });
-      noise(ctx, target, { dur: 0.22, vol: v(0.2), at: at + 0.01, filterType: 'bandpass', freq: 1400, q: 1.2, glideTo: 3400 });
+      // Drift-release pop: kick tick + quick rising blip + tight whoosh
+      // (bandpass noise sweep) + a sparkle on top — the arcade
+      // "release the boost" feel, not a beep.
+      kick(ctx, target, { at, vol: v(0.5), freq: 190, glideTo: 55, dur: 0.12 });
+      osc(ctx, target, { type: 'triangle', freq: 320 * rate, glideTo: 1100 * rate, dur: 0.16, vol: v(0.28), at, attack: 0.002 });
+      noise(ctx, target, { dur: 0.24, vol: v(0.22), at: at + 0.01, filterType: 'bandpass', freq: 1300, q: 1.2, glideTo: 3800, attack: 0.02, timeConstant: 0.08 });
       chime(ctx, target, { freq: 1568 * rate, dur: 0.25, vol: v(0.18), at: at + 0.06, partials: [1, 2, 3] });
       break;
     }
@@ -374,22 +403,24 @@ export function renderSfx(ctx, out, name, opts = {}) {
     }
 
     case 'itemPickup': {
-      // Sparkle chime arpeggio up: C6-E6-G6-C7 + air shimmer.
-      // Polish: add an attack "pop" + brighter partials + fuller shimmer.
-      osc(ctx, target, { type: 'sine', freq: 200 * rate, glideTo: 800 * rate, dur: 0.09, vol: v(0.35), at, attack: 0.002 });
+      // Item-box pickup: sub pop + bright chime arpeggio C6-E6-G6-C7 +
+      // air shimmer. The pop gives it physical weight (layered pickup).
+      kick(ctx, target, { at, vol: v(0.26), freq: 200, glideTo: 60, dur: 0.14 });
+      osc(ctx, target, { type: 'sine', freq: 200 * rate, glideTo: 800 * rate, dur: 0.09, vol: v(0.26), at, attack: 0.002 });
       const notes = [N.C6, N.E6, N.G6, N.C7];
       let t = at;
       for (const n of notes) {
-        chime(ctx, target, { freq: n * rate, dur: 0.24, vol: v(0.5), at: t, partials: [1, 2, 3, 4, 5] });
-        t += 0.06;
+        chime(ctx, target, { freq: n * rate, dur: 0.24, vol: v(0.36), at: t, partials: [1, 2, 3, 4, 5] });
+        t += 0.055;
       }
       noise(ctx, target, { dur: 0.45, vol: v(0.16), at: t, filterType: 'highpass', freq: 7500, timeConstant: 0.12 });
       break;
     }
 
     case 'useItem': {
-      // Quick upward blip (USER FIX: triangle glide + sparkle instead of
-      // raw square — reads as a power-up, not a game-boy beep).
+      // Power-up equip: sub pop + bright upward blip + sparkle — reads
+      // as a punchy item grab, not a game-boy beep.
+      kick(ctx, target, { at, vol: v(0.35), freq: 220, glideTo: 70, dur: 0.1 });
       osc(ctx, target, { type: 'triangle', freq: 800 * rate, glideTo: 1500 * rate, dur: 0.12, vol: v(0.32), at, attack: 0.002 });
       osc(ctx, target, { type: 'sine', freq: 1800 * rate, dur: 0.06, vol: v(0.12), at: at + 0.02, attack: 0.002 });
       chime(ctx, target, { freq: 2093 * rate, dur: 0.18, vol: v(0.1), at: at + 0.05, partials: [1, 2, 3] });
@@ -420,22 +451,26 @@ export function renderSfx(ctx, out, name, opts = {}) {
     }
 
     case 'banana': {
-      // Cartoon boing: pitch drops, springs back, settles.
-      const f0 = 210 * rate;
+      // Slip-slap: filtered noise impact sweep + springy boing on a fat
+      // sine body + a high "slip!" blip. Keeps the cartoon spring but
+      // the slap gives it physical weight.
+      noise(ctx, target, { dur: 0.09, vol: v(0.4), at, filterType: 'bandpass', freq: 1500, q: 1.4, glideTo: 320, attack: 0.001, timeConstant: 0.05 });
+      const f0 = 235 * rate;
       const o = ctx.createOscillator();
       o.type = 'triangle';
       o.frequency.setValueAtTime(Math.max(30, f0), at);
-      o.frequency.exponentialRampToValueAtTime(Math.max(30, f0 * 0.42), at + 0.07);
-      o.frequency.exponentialRampToValueAtTime(Math.max(30, f0 * 0.82), at + 0.15);
-      o.frequency.exponentialRampToValueAtTime(Math.max(30, f0 * 0.55), at + 0.24);
-      o.frequency.exponentialRampToValueAtTime(Math.max(30, f0 * 0.7), at + 0.34);
+      o.frequency.exponentialRampToValueAtTime(Math.max(30, f0 * 0.4), at + 0.06);
+      o.frequency.exponentialRampToValueAtTime(Math.max(30, f0 * 0.85), at + 0.13);
+      o.frequency.exponentialRampToValueAtTime(Math.max(30, f0 * 0.52), at + 0.22);
+      o.frequency.exponentialRampToValueAtTime(Math.max(30, f0 * 0.72), at + 0.32);
       const g = ctx.createGain();
-      env(g, { at, peak: v(0.5), attack: 0.005, timeConstant: 0.16 });
+      env(g, { at, peak: v(0.45), attack: 0.004, timeConstant: 0.18 });
       o.connect(g);
       g.connect(target);
       o.start(at);
       o.stop(at + 0.6);
-      noise(ctx, target, { dur: 0.04, vol: v(0.12), at, filterType: 'bandpass', freq: 1200, q: 2 });
+      osc(ctx, target, { type: 'sine', freq: Math.max(30, f0 * 0.5), glideTo: Math.max(30, f0 * 0.25), dur: 0.3, vol: v(0.35), at, attack: 0.002, timeConstant: 0.15 });
+      osc(ctx, target, { type: 'sine', freq: 1700 * rate, dur: 0.05, vol: v(0.16), at: at + 0.01, attack: 0.002 });
       break;
     }
 
@@ -471,74 +506,95 @@ export function renderSfx(ctx, out, name, opts = {}) {
     }
 
     case 'crash': {
-      // Impact thump + noise burst + metallic clank.
-      osc(ctx, target, { type: 'sine', freq: 150 * rate, glideTo: 42 * rate, dur: 0.28, vol: v(0.8), at, attack: 0.002 });
-      noise(ctx, target, { dur: 0.45, vol: v(0.55), at, filterType: 'lowpass', freq: 1800, q: 0.7, glideTo: 180, attack: 0.002, timeConstant: 0.12 });
-      osc(ctx, target, {
-        type: 'square', freq: 820 * rate, glideTo: 480 * rate, dur: 0.12, vol: v(0.25), at: at + 0.005, attack: 0.002,
-        filterType: 'bandpass', filterFreq: 1600, filterQ: 2,
+      // FAT impact (arcade, not 8-bit): sub kick body (sine 120→38Hz) +
+      // lowpassed noise burst with a pitch-drop sweep + a metallic clank
+      // (bandpassed square gliding down) + a fast shard-hiss layer.
+      kick(ctx, target, { at, vol: v(0.65), freq: 120, glideTo: 38, dur: 0.3 });
+      noise(ctx, target, {
+        dur: 0.42, vol: v(0.45), at, filterType: 'lowpass', freq: 6000, q: 0.6,
+        glideTo: 160, attack: 0.001, timeConstant: 0.14,
       });
+      osc(ctx, target, {
+        type: 'square', freq: 920 * rate, glideTo: 300 * rate, dur: 0.16, vol: v(0.22), at: at + 0.004, attack: 0.001,
+        filterType: 'bandpass', filterFreq: 1500, filterQ: 2.2, filterGlideTo: 450,
+      });
+      noise(ctx, target, { dur: 0.2, vol: v(0.16), at: at + 0.01, filterType: 'bandpass', freq: 3200, q: 2, glideTo: 900, attack: 0.002, timeConstant: 0.05 });
       break;
     }
 
     case 'driftReady': {
       // Distinct rising chime when the drift charge hits the release point
       // (audit v5 F5: was reusing the overtake blip — same sound, two events).
+      // Now with a soft noise tick for presence.
       osc(ctx, target, { type: 'sine', freq: 660 * rate, glideTo: 990 * rate, dur: 0.09, vol: v(0.3), at, attack: 0.002 });
       osc(ctx, target, { type: 'sine', freq: 1320 * rate, dur: 0.06, vol: v(0.12), at: at + 0.05, attack: 0.002 });
+      noise(ctx, target, { dur: 0.03, vol: v(0.05), at, filterType: 'highpass', freq: 5500 });
       break;
     }
 
     case 'posDown': {
-      // Descending two-tone blip (lost a place). USER FIX: triangle + sine
-      // (was raw square — harsh).
-      osc(ctx, target, { type: 'triangle', freq: 520 * rate, glideTo: 300 * rate, dur: 0.14, vol: v(0.28), at, attack: 0.003 });
+      // Descending two-tone (lost a place): triangle lead + lowpassed
+      // square body for weight (not a raw square — filtered and fat).
+      osc(ctx, target, { type: 'triangle', freq: 520 * rate, glideTo: 300 * rate, dur: 0.14, vol: v(0.26), at, attack: 0.003 });
+      osc(ctx, target, { type: 'square', freq: 520 * rate, glideTo: 300 * rate, dur: 0.14, vol: v(0.14), at, attack: 0.003, filterType: 'lowpass', filterFreq: 1800 });
       osc(ctx, target, { type: 'sine', freq: 300 * rate, glideTo: 180 * rate, dur: 0.14, vol: v(0.26), at: at + 0.1, attack: 0.003 });
       break;
     }
 
     case 'posUp': {
-      // Ascending two-tone blip (overtook someone). USER FIX: triangle +
-      // sine (was raw square — harsh).
-      osc(ctx, target, { type: 'triangle', freq: 380 * rate, glideTo: 560 * rate, dur: 0.12, vol: v(0.28), at, attack: 0.003 });
+      // Ascending two-tone (overtook someone): triangle lead + lowpassed
+      // square body for weight + sine tail.
+      osc(ctx, target, { type: 'triangle', freq: 380 * rate, glideTo: 560 * rate, dur: 0.12, vol: v(0.26), at, attack: 0.003 });
+      osc(ctx, target, { type: 'square', freq: 380 * rate, glideTo: 560 * rate, dur: 0.12, vol: v(0.14), at, attack: 0.003, filterType: 'lowpass', filterFreq: 1800 });
       osc(ctx, target, { type: 'sine', freq: 620 * rate, glideTo: 820 * rate, dur: 0.14, vol: v(0.26), at: at + 0.08, attack: 0.003 });
       break;
     }
 
     case 'landing': {
-      // Soft impact thump when a kart touches down (audit UX-F3).
-      osc(ctx, target, { type: 'sine', freq: 110 * rate, glideTo: 55 * rate, dur: 0.16, vol: v(0.5), at, attack: 0.003 });
+      // Touchdown (audit UX-F3): sub thump + filtered noise puff — a
+      // grounded impact, not a beep.
+      kick(ctx, target, { at, vol: v(0.5), freq: 120, glideTo: 50, dur: 0.16, click: 0.2 });
       noise(ctx, target, { dur: 0.18, vol: v(0.2), at, filterType: 'lowpass', freq: 900, attack: 0.003, timeConstant: 0.06 });
       break;
     }
 
     case 'countdown': {
-      // Clean stadium beep for the 3-2-1 countdown. USER FIX: triangle
-      // fundamental + soft octave (was raw square — '8-bit').
-      osc(ctx, target, { type: 'triangle', freq: 660 * rate, dur: 0.18, vol: v(0.4), at, attack: 0.004, sustain: true, release: 0.05 });
-      osc(ctx, target, { type: 'sine', freq: 1320 * rate, dur: 0.16, vol: v(0.12), at: at + 0.005, attack: 0.004, sustain: true, release: 0.04 });
+      // Stadium countdown tone: fat lowpassed square + sine sub body +
+      // soft octave — a full enveloped tone, not a thin beep.
+      const f = 660 * rate;
+      osc(ctx, target, {
+        type: 'square', freq: f, dur: 0.26, vol: v(0.3), at, attack: 0.006, sustain: true, release: 0.06,
+        filterType: 'lowpass', filterFreq: 1800, filterQ: 0.9,
+      });
+      osc(ctx, target, { type: 'sine', freq: Math.max(30, f * 0.5), dur: 0.26, vol: v(0.35), at, attack: 0.006, sustain: true, release: 0.06 });
+      osc(ctx, target, { type: 'sine', freq: Math.max(30, f * 2), dur: 0.2, vol: v(0.1), at: at + 0.005, attack: 0.006, sustain: true, release: 0.04 });
       break;
     }
 
     case 'go': {
-      // Bright horn-like two-tone: E5 -> A5, then a sparkle.
-      // Polish: add a low kick punch for race-start impact.
+      // Race start: kick punch + fat horn blast E5 -> A5 with sub body
+      // and crowd-air on top — the arcade launch, not a beep.
+      kick(ctx, target, { at, vol: v(0.58), freq: 170, glideTo: 50, dur: 0.25 });
       osc(ctx, target, { type: 'sine', freq: 160 * rate, glideTo: 60 * rate, dur: 0.22, vol: v(0.5), at, attack: 0.002 });
-      horn(ctx, target, at, 659.25 * rate, 0.5, v(0.34));
-      horn(ctx, target, at + 0.16, 880 * rate, 0.62, v(0.34));
+      horn(ctx, target, at, 659.25 * rate, 0.5, v(0.36));
+      horn(ctx, target, at + 0.16, 880 * rate, 0.62, v(0.36));
       chime(ctx, target, { freq: 1318.51 * rate, dur: 0.5, vol: v(0.12), at: at + 0.2, partials: [1, 2, 3] });
       noise(ctx, target, { dur: 0.25, vol: v(0.07), at: at + 0.2, filterType: 'highpass', freq: 7000, timeConstant: 0.1 });
       break;
     }
 
     case 'pickup': {
-      // Happy rising arpeggio (C-E-G-C) — the "you got an item" fanfare.
-      const notes = [523.25, 659.25, 783.99, 1046.5];
-      let tt = at;
-      for (const n of notes) {
-        chime(ctx, target, { freq: n * rate, dur: 0.22, vol: v(0.4), at: tt, partials: [1, 2, 3, 5] });
-        tt += 0.055;
-      }
+      // Modern coin pickup: two bright lowpassed-square blips with fast
+      // decay + a high sine sparkle — reads as a reward, not a beep.
+      const coin = [880 * rate, 1318.51 * rate];
+      coin.forEach((f, i) => {
+        osc(ctx, target, {
+          type: 'square', freq: Math.max(30, f), dur: 0.14, vol: v(0.32), at: at + i * 0.07, attack: 0.002,
+          filterType: 'lowpass', filterFreq: 5200, filterQ: 0.8,
+        });
+      });
+      osc(ctx, target, { type: 'sine', freq: 2093 * rate, dur: 0.22, vol: v(0.14), at: at + 0.09, attack: 0.002, timeConstant: 0.06 });
+      noise(ctx, target, { dur: 0.12, vol: v(0.05), at: at + 0.12, filterType: 'highpass', freq: 8000 });
       break;
     }
 
@@ -602,10 +658,10 @@ export function renderSfx(ctx, out, name, opts = {}) {
       const notes = [N.C5, N.E5, N.G5, N.C6, N.E6];
       let t = at;
       for (const n of notes) {
-        horn(ctx, target, t, n * rate, 0.22, v(0.34));
+        horn(ctx, target, t, n * rate, 0.22, v(0.3));
         t += 0.11;
       }
-      horn(ctx, target, t, N.G6 * rate, 0.7, v(0.38));
+      horn(ctx, target, t, N.G6 * rate, 0.7, v(0.34));
       chime(ctx, target, { freq: N.C7 * rate, dur: 0.8, vol: v(0.22), at: t, partials: [1, 2, 3, 4, 5] });
       noise(ctx, target, { dur: 0.6, vol: v(0.08), at: t, filterType: 'highpass', freq: 8000, timeConstant: 0.15 });
       break;

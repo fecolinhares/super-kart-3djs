@@ -247,42 +247,6 @@ function getCloudShadowParts() {
   return { geo: _cloudShadowGeo, mat: _cloudShadowMat };
 }
 
-// ---------------------------------------------------------------------------
-// Fake-AO grounding disc (FECO 'flat props'): a soft dark radial blob laid
-// flat on the field under every tree/bush — MK8-style contact grounding so
-// foliage reads as PLANTED, never pasted. One shared circle geometry + one
-// shared radial-gradient texture; each disc is one InstancedMesh instance.
-// ---------------------------------------------------------------------------
-let _aoDiscTex = null;
-let _aoDiscGeo = null;
-let _aoDiscMat = null;
-function getAODiscParts() {
-  if (!_aoDiscTex) {
-    const c = document.createElement('canvas');
-    c.width = 128;
-    c.height = 128;
-    const g = c.getContext('2d');
-    const grad = g.createRadialGradient(64, 64, 4, 64, 64, 62);
-    grad.addColorStop(0, 'rgba(10,22,14,0.42)');
-    grad.addColorStop(0.55, 'rgba(10,22,14,0.26)');
-    grad.addColorStop(1, 'rgba(10,22,14,0)');
-    g.fillStyle = grad;
-    g.fillRect(0, 0, 128, 128);
-    _aoDiscTex = new THREE.CanvasTexture(c);
-    _aoDiscGeo = new THREE.CircleGeometry(1, 20);
-    _aoDiscMat = new THREE.MeshBasicMaterial({
-      map: _aoDiscTex,
-      transparent: true,
-      depthWrite: false,
-      fog: true,
-      polygonOffset: true,
-      polygonOffsetFactor: -2,
-      polygonOffsetUnits: -2,
-    });
-  }
-  return { geo: _aoDiscGeo, mat: _aoDiscMat };
-}
-
 /** Triangle-strip ribbon following the track path (mirrors TrackBuilder's
  *  buildRoadRibbon geometry so it sits exactly on the shoulder plane) — used
  *  for the gravel verge band. Up-facing normals, UVs 0..1 along path/across
@@ -1074,12 +1038,12 @@ export class Environment {
     // layer into a stacked-cone crown; oak keeps layered spheres; palm keeps
     // its frond canopy (built separately).
     const canopyGeoms = species.map(s => {
-      if (s.name === 'pine') return new THREE.ConeGeometry(1.0, 1.0, 14); // unit cone -> stacked-cone pine (r11: 10->14 segs)
+      if (s.name === 'pine') return new THREE.ConeGeometry(1.0, 1.0, 10); // unit cone -> stacked-cone pine
       if (s.name === 'palm') return new THREE.SphereGeometry(0.1, 8, 6); // tiny placeholder, fronds handled separately
-      return new THREE.SphereGeometry(1.0, 18, 12); // oak - layered spheres (r11: 14->18 segs)
+      return new THREE.SphereGeometry(1.0, 14, 10); // oak - layered spheres (kept)
     });
     // One base canopy material per species. Per-instance HSL lightness jitter
-    // (setColorAt -> instanceColor, ±8%) below replaces the old two fixed
+    // (setColorAt -> instanceColor, ±5%) below replaces the old two fixed
     // alternating light/dark materials.
     const canopyMats = species.map(s => toonMaterial(s.canopyColor, {}));
 
@@ -1113,19 +1077,12 @@ export class Environment {
     // the outer binding → TDZ ReferenceError at scene.remove — user bug #2)
     let palmFronds = new THREE.InstancedMesh(palmFrondGeo, palmFrondMat, 0); // Will resize for palms
 
-    // Fake-AO grounding discs (FECO 'flat foliage'): a soft dark radial blob
-    // laid flat under EVERY tree — MK8-style contact grounding so trunks read
-    // as planted, not pasted. One shared circle geometry + texture, one
-    // InstancedMesh for the whole forest (deterministic per tree).
-    const { geo: aoDiscGeo, mat: aoDiscMat } = getAODiscParts();
-    const aoDiscs = new THREE.InstancedMesh(aoDiscGeo, aoDiscMat, trees.length);
-
     const dummy = new THREE.Object3D();
     let pineLayer = 0;
     let oakLayer = 0;
     let palmCount = 0;
 
-    // Reused scratch for per-instance HSL lightness jitter (±8%).
+    // Reused scratch for per-instance HSL lightness jitter (±5%).
     const canopyHSL = { h: 0, s: 0, l: 0 };
     const canopyColor = new THREE.Color();
 
@@ -1137,7 +1094,7 @@ export class Environment {
       const rand = rnd(seed);
       canopyColor.set(baseHex);
       canopyColor.getHSL(canopyHSL);
-      canopyHSL.l = Math.min(1, Math.max(0, canopyHSL.l + (rand() - 0.5) * 0.16)); // r11: ±5% -> ±8% tone spread
+      canopyHSL.l = Math.min(1, Math.max(0, canopyHSL.l + (rand() - 0.5) * 0.1));
       canopyColor.setHSL(canopyHSL.h, canopyHSL.s, canopyHSL.l);
       mesh.setColorAt(index, canopyColor);
     }
@@ -1239,16 +1196,6 @@ export class Environment {
         dummy.updateMatrix();
         branchStubs.setMatrixAt(i * 2 + branch, dummy.matrix);
       }
-
-      // Grounding disc: radius tracks the species' widest canopy layer so the
-      // shadow hugs the skirt. Laid flat (rotation.x = -PI/2 turns the circle
-      // up), just above the terrain, deterministic per tree.
-      const discR = (speciesData.name === 'oak' ? 2.1 : speciesData.name === 'palm' ? 1.3 : 1.6) * s;
-      dummy.position.set(x, h + 0.03, z);
-      dummy.rotation.set(-Math.PI / 2, 0, 0);
-      dummy.scale.set(discR, discR, 1);
-      dummy.updateMatrix();
-      aoDiscs.setMatrixAt(i, dummy.matrix);
     }
 
     // All matrices were written into the FINAL meshes above (audit fix).
@@ -1267,8 +1214,6 @@ export class Environment {
     if (pineLayerCount > 0) scene.add(finalCanopies);
     if (oakLayerCount > 0) scene.add(finalDarkCanopies);
     if (palmCount > 0) scene.add(palmFronds);
-    aoDiscs.instanceMatrix.needsUpdate = true;
-    scene.add(aoDiscs);
 
   }
 
@@ -1319,7 +1264,6 @@ export class Environment {
     const midMat = toonMaterial(0x2f8f43, {});
     const midSpots = [];
     const MID_N = 70;
-    const aoSpots = []; // fake-AO disc placements (mid-ring + bushes + roadside)
     for (let c = 0; c < MID_N; c++) {
       const mr = rnd(9000 + c);
       const ma = (c / MID_N) * Math.PI * 2 + 0.55;
@@ -1329,8 +1273,6 @@ export class Environment {
       if (this._onTrack(mx, mz, 14) || inWater(mx, mz, 5)) continue;
       midSpots.push({ x: mx, z: mz, s: 0.5 + mr() * 0.8, ry: mr() * Math.PI });
     }
-    // r11: fake-AO grounding disc under every mid-ring prop.
-    midSpots.forEach((r) => aoSpots.push({ x: r.x, z: r.z, r: 0.85 * r.s, ry: r.ry }));
     if (midSpots.length) {
       const mids = new THREE.InstancedMesh(midGeo, midMat, midSpots.length);
       mids.castShadow = true; // AUDIT r5: contact shadows
@@ -1374,37 +1316,13 @@ export class Environment {
         });
       }
     }
-    // r11 (FECO 'flat bushes'): each bush SPOT becomes a CLUSTER of 2-3
-    // overlapping spheres (offset lobes, smaller + slightly higher — the MK8
-    // undergrowth look) instead of one lone sphere. Still ONE InstancedMesh,
-    // per-sphere tone variation, plus a fake-AO disc under each cluster.
-    const bushLobes = []; // flat list of sphere instances
-    bushSpots.forEach((b, i) => {
-      const hScale = 0.75 + rnd(6100 + i)() * 0.25; // original per-spot shape rng (kept)
-      const cr = rnd(6150 + i); // dedicated cluster rng (deterministic)
-      const n = 2 + ((cr() * 2) | 0); // 2-3 overlapping spheres
-      const a0 = cr() * Math.PI * 2;
-      for (let k = 0; k < n; k++) {
-        const off = k === 0 ? 0 : 0.34 + cr() * 0.14; // lobe offset (frac of s)
-        const a = k === 0 ? 0 : a0 + k * 2.1;         // spread lobes around
-        bushLobes.push({
-          x: b.x + Math.cos(a) * off * b.s,
-          z: b.z + Math.sin(a) * off * b.s,
-          s: b.s * (k === 0 ? 1 : 0.7 + cr() * 0.18), // lobes shrink outward
-          hScale,
-          ry: b.ry,
-          lift: k * 0.1 * b.s, // back lobes sit higher (depth cue)
-        });
-      }
-      aoSpots.push({ x: b.x, z: b.z, r: 1.1 * b.s, ry: b.ry });
-    });
-    const bushes = new THREE.InstancedMesh(bushGeo, bushMat, bushLobes.length);
+    const bushes = new THREE.InstancedMesh(bushGeo, bushMat, bushSpots.length);
     bushes.castShadow = true; // AUDIT r5: contact shadows
     const bushCol = new THREE.Color();
     const BUSH_TONES = [0x2f8f43, 0x3faf4e, 0x4cc25e]; // 3-tone undergrowth (FECO: flat green)
-    bushLobes.forEach((b, i) => {
-      dummy.position.set(b.x, this._gy(b.x, b.z) + 0.55 * b.s + b.lift, b.z);
-      dummy.scale.set(b.s, b.s * b.hScale, b.s);
+    bushSpots.forEach((b, i) => {
+      dummy.position.set(b.x, this._gy(b.x, b.z) + 0.55 * b.s, b.z);
+      dummy.scale.set(b.s, b.s * (0.75 + rnd(6100 + i)() * 0.25), b.s);
       dummy.rotation.y = b.ry;
       dummy.updateMatrix();
       bushes.setMatrixAt(i, dummy.matrix);
@@ -1418,6 +1336,8 @@ export class Environment {
     // Roadside greenery: dense bushes hugging the track edge (known spots).
     // FECO fix: 3-tone per-instance greens + tiny bright flower dots on some
     // bushes so the undergrowth reads as layered vegetation, not flat color.
+    const roadside = new THREE.InstancedMesh(bushGeo, bushMat, 40);
+    roadside.castShadow = true; // AUDIT r5: contact shadows
     const ROAD_TONES = [0x2f8f43, 0x3faf4e, 0x4cc25e];
     const dotGeo = new THREE.SphereGeometry(0.09, 8, 6); // flower dot on the canopy
     const dotMat = toonMaterial(0xffffff, {});
@@ -1429,9 +1349,6 @@ export class Environment {
       [8, -44], [44, -20], [18, 24], [-16, 12], [36, 8], [-48, -8],
       [12, 44], [-30, 36],
     ];
-    // r11: roadside bushes are CLUSTERS of 2-3 overlapping spheres too (the
-    // ones closest to the camera — lone spheres read as flat green blobs).
-    const roadClusters = [];
     for (let i = 0; i < edgeSpots.length; i++) {
       const [x, z] = edgeSpots[i];
       // Try growing offsets until the bush clears the road.
@@ -1443,66 +1360,27 @@ export class Environment {
         bz = z + off * 0.7;
         if (!this._onTrack(bx, bz, 6)) break;
       }
-      const gy = this._gy(bx, bz);
-      const ry = this._rand() * Math.PI;
-      const hScale = 0.9 + this._rand() * 0.5; // same _rand() call order as before
-      const cr = rnd(7650 + i); // dedicated cluster rng (deterministic)
-      const n = 2 + ((cr() * 2) | 0);
-      const a0 = cr() * Math.PI * 2;
-      for (let k = 0; k < n; k++) {
-        const offD = k === 0 ? 0 : 0.34 + cr() * 0.14;
-        const a = k === 0 ? 0 : a0 + k * 2.1;
-        const lobeS = k === 0 ? 1.2 : 1.2 * (0.7 + cr() * 0.18);
-        roadClusters.push({
-          x: bx + Math.cos(a) * offD * 1.2,
-          z: bz + Math.sin(a) * offD * 1.2,
-          s: lobeS,
-          hScale,
-          ry,
-          lift: k * 0.1 * 1.2,
-        });
-      }
-      aoSpots.push({ x: bx, z: bz, r: 1.3, ry: 0 }); // fake-AO under the cluster
+      dummy.position.set(bx, this._gy(bx, bz) + 0.55, bz);
+      dummy.scale.set(1.2, 0.9 + this._rand() * 0.5, 1.2);
+      dummy.rotation.y = this._rand() * Math.PI;
+      dummy.updateMatrix();
+      roadside.setMatrixAt(i, dummy.matrix);
+      roadside.setColorAt(i, new THREE.Color(ROAD_TONES[i % ROAD_TONES.length]));
       // flower dots on ~60% of bushes (dedicated seeds — shared _rand untouched)
       const dr = rnd(7500 + i);
       if (dr() < 0.6) {
         dotSpots.push({
           x: bx + (dr() - 0.5) * 0.7,
           z: bz + (dr() - 0.5) * 0.7,
-          y: gy + 0.95 + dr() * 0.45,
+          y: this._gy(bx, bz) + 0.95 + dr() * 0.45,
           s: 0.7 + dr() * 0.7,
           color: dotColors[(dr() * dotColors.length) | 0],
         });
       }
     }
-    const roadside = new THREE.InstancedMesh(bushGeo, bushMat, roadClusters.length);
-    roadside.castShadow = true; // AUDIT r5: contact shadows
-    roadClusters.forEach((c, i) => {
-      dummy.position.set(c.x, this._gy(c.x, c.z) + 0.55 * c.s + c.lift, c.z);
-      dummy.scale.set(c.s, c.s * c.hScale, c.s);
-      dummy.rotation.y = c.ry;
-      dummy.updateMatrix();
-      roadside.setMatrixAt(i, dummy.matrix);
-      roadside.setColorAt(i, new THREE.Color(ROAD_TONES[i % ROAD_TONES.length]));
-    });
     roadside.instanceMatrix.needsUpdate = true;
     if (roadside.instanceColor) roadside.instanceColor.needsUpdate = true;
     scene.add(roadside);
-
-    // Fake-AO grounding discs under every bush (mid-ring + ring clusters +
-    // roadside) — soft dark radial blobs laid flat on the field so the
-    // undergrowth reads as planted, not floating (FECO 'flat props').
-    const { geo: aoDiscGeo, mat: aoDiscMat } = getAODiscParts();
-    const aoDiscs = new THREE.InstancedMesh(aoDiscGeo, aoDiscMat, aoSpots.length);
-    aoSpots.forEach((d, i) => {
-      dummy.position.set(d.x, this._gy(d.x, d.z) + 0.03, d.z);
-      dummy.rotation.set(-Math.PI / 2, 0, 0);
-      dummy.scale.set(d.r, d.r, 1);
-      dummy.updateMatrix();
-      aoDiscs.setMatrixAt(i, dummy.matrix);
-    });
-    aoDiscs.instanceMatrix.needsUpdate = true;
-    scene.add(aoDiscs);
     if (dotSpots.length) {
       const dots = new THREE.InstancedMesh(dotGeo, dotMat, dotSpots.length);
       dotSpots.forEach((d, i) => {
@@ -3181,12 +3059,8 @@ export class Environment {
   }
 
   /**
-   * Spectator line along the start straight and the key corners (both sides
-   * of the road, just outside the ribbon). r11 (FECO 'paper crowd'): the
-   * painted canvas BILLBOARDS are gone — every fan is now a REAL 3D figure
-   * (instanced body box + head sphere + raised arms, the same build as
-   * buildGrandstand), so the crowd reads dense and volumetric from every
-   * camera angle instead of flat paper cutouts.
+   * Spectator line along the start straight (both sides of the road, just
+   * outside the ribbon) — the finish frame finally shows a living crowd.
    */
   buildRoadsideCrowd(scene, track) {
     if (!track || !track.path) return;
@@ -3194,113 +3068,154 @@ export class Environment {
     const halfW = CONFIG.track.roadWidth / 2;
     // Spectator segments along the track (t0..t1 wraps at 1.0): the start
     // straight, the back straight, and after turn 1 — so ANY race frame has
-    // cheering people beside the road, not just the grid. n bumped ~40%
-    // again (r11): 3D figures are cheap (4 instanced meshes total), so the
-    // crowd packs in like MK8D instead of a sparse scatter.
+    // cheering people beside the road, not just the grid.
     const SEGMENTS = [
-      { t0: 0.945, t1: 0.055, n: 39 }, // start straight (WRAPS past 1.0)
-      { t0: 0.10, t1: 0.15, n: 20 },    // exit of turn 1
-      { t0: 0.19, t1: 0.25, n: 22 },   // turn 1
-      { t0: 0.30, t1: 0.37, n: 20 },    // climb
-      { t0: 0.45, t1: 0.56, n: 25 },   // back straight
-      { t0: 0.62, t1: 0.68, n: 20 },    // descent
-      { t0: 0.72, t1: 0.80, n: 17 },     // turn 4 approach
-      { t0: 0.855, t1: 0.915, n: 17 },   // final esses
+      { t0: 0.945, t1: 0.055, n: 28 }, // start straight (WRAPS past 1.0)
+      { t0: 0.10, t1: 0.15, n: 14 },    // exit of turn 1
+      { t0: 0.19, t1: 0.25, n: 16 },   // turn 1
+      { t0: 0.30, t1: 0.37, n: 14 },    // climb
+      { t0: 0.45, t1: 0.56, n: 18 },   // back straight
+      { t0: 0.62, t1: 0.68, n: 14 },    // descent
+      { t0: 0.72, t1: 0.80, n: 12 },     // turn 4 approach
+      { t0: 0.855, t1: 0.915, n: 12 },   // final esses
     ];
-    // 3 rows deep per side (kept from r10).
+    // AUDIT r10 (vision critic): crowd read sparse — 2 rows → 3 rows, more
+    // figures per segment (~40% denser). Still instanced (1 extra draw call).
     const ROWS = [1.9, 3.5, 5.1];
     const segN = SEGMENTS.reduce((a, s) => a + s.n, 0);
     const total = segN * ROWS.length * 2;
-    const crowdColors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
-    // 3D spectator parts — one InstancedMesh per part for the WHOLE crowd
-    // (4 draw calls): body box + head sphere + two raised arms, exactly the
-    // figure buildGrandstand uses, so the roadside fans match the stands.
-    const bodyGeo = new THREE.BoxGeometry(1.05, 1.2, 1.0);
-    const headGeo = new THREE.SphereGeometry(0.42, 12, 8);
-    const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.75, 8);
-    const bodyMat = toonMaterial(0xffffff, {}); // per-instance suit colors below
-    const skinMat = toonMaterial(0xffd9b3, {});
-    const bodies = new THREE.InstancedMesh(bodyGeo, bodyMat, total);
-    const heads = new THREE.InstancedMesh(headGeo, skinMat, total);
-    const armsL = new THREE.InstancedMesh(armGeo, skinMat, total);
-    const armsR = new THREE.InstancedMesh(armGeo, skinMat, total);
+    // 2.5D crowd: each spectator is a painted figure (head + suit + raised
+    // arms) on a canvas plane — like MK8's billboard crowds. A painted person
+    // stays readable at race distance, where 3D blocks collapse into blobs.
+    const FIGURES = [
+      { color: 0xff5a5f, arms: 1 },
+      { color: 0xffd166, arms: 1 },
+      { color: 0x6cff8f, arms: 1 },
+      { color: 0x2ec4ff, arms: 1 },
+      { color: 0xc86bff, arms: 1 },
+      { color: 0xff9f45, arms: 0 },
+      { color: 0xf4f6f8, arms: 1 },
+    ];
+    const figureTextures = FIGURES.map((f) => this._crowdFigureTexture(f.color, f.arms));
+    const perFig = new Array(FIGURES.length).fill(0).map(() => []);
+    // r6 (FECO): second CROSSED plane per figure (+90° yaw around Y, same
+    // position/scale/texture) — single billboards vanished edge-on.
+    const perFig2 = new Array(FIGURES.length).fill(0).map(() => []);
     const dummy = new THREE.Object3D();
     const p = new THREE.Vector3();
     const tan = new THREE.Vector3();
     const nrm = new THREE.Vector3();
-    const col = new THREE.Color();
-    // baseY per part keeps the crowd-bounce (update()) in sync: instance i
-    // of every part is the SAME spectator, so the whole figure bobs as one.
-    const bodyBaseY = new Array(total);
-    const headBaseY = new Array(total);
-    const armBaseY = new Array(total);
-    let idx = 0;
     for (const seg of SEGMENTS) {
       for (let side = -1; side <= 1; side += 2) {
         for (const rowOff of ROWS) {
           for (let i = 0; i < seg.n; i++) {
-            // The wrap segment spans the SHORT arc past 1.0 (0.945→0.055),
-            // not the whole circuit (USER BUG FIX kept from r6).
+            // USER BUG FIX (crowd on the road): the old formula
+            // `(t0 + i/n * (t1 - t0)) % 1` walked BACKWARD from 0.945 to
+            // 0.055 for the wrap segment — i.e. the whole lap in reverse —
+            // scattering spectators into every curve. The correct wrap
+            // length is `(t1 - t0 + 1) % 1`, so 0.945→0.055 spans the
+            // short start-straight arc past 1.0, not the full circuit.
             const span = (seg.t1 - seg.t0 + 1) % 1;
             const t = (seg.t0 + (i / seg.n) * span) % 1;
             path.getPointAt(t, p);
             path.getTangentAt(t, tan);
             nrm.set(-tan.z, 0, tan.x).normalize();
-            // Ground on the rolling TERRAIN at the figure's own spot.
+            // AUDIT r6 (FECO): ground on the rolling TERRAIN at the figure's
+            // own spot (this._gy), not the path elevation (p.y + 0.9) — path
+            // Y on slopes left figures floating above/below the field.
             const fx = p.x + nrm.x * (side * (halfW + rowOff));
             const fz = p.z + nrm.z * (side * (halfW + rowOff));
-            const gy = this._gy(fx, fz);
-            // Roll-free yaw facing the track (box +Z = the figure's front).
+            dummy.position.set(fx, this._gy(fx, fz) + 0.9, fz);
+            // AUDIT r10 (FECO): explicit roll-free yaw instead of lookAt —
+            // lookAt left odd orientations on some segments (figures read as
+            // sideways/inverted 'paper'). Face the track center deterministically.
+            // The +Z of the plane (the figure's face) points toward -side*nrm.
             const faceX = -side * nrm.x;
             const faceZ = -side * nrm.z;
-            const yaw = Math.atan2(faceX, faceZ);
-            // Per-figure height jitter (organic), FEET grounded on the field.
-            const sy = 0.9 + this._rand() * 0.4;
-            const bodyY = gy + 0.6 * sy;
-            // Body — per-instance suit color from the crowd palette.
-            dummy.position.set(fx, bodyY, fz);
-            dummy.rotation.set(0, yaw, 0);
-            dummy.scale.set(1, sy, 1);
+            dummy.rotation.set(0, Math.atan2(faceX, faceZ), 0);
+            dummy.scale.set(0.9 + this._rand() * 0.3, 0.85 + this._rand() * 0.3, 1);
             dummy.updateMatrix();
-            bodies.setMatrixAt(idx, dummy.matrix);
-            col.setHex(crowdColors[Math.floor(this._rand() * crowdColors.length)]);
-            bodies.setColorAt(idx, col);
-            bodyBaseY[idx] = bodyY;
-            // Head (skin tone).
-            dummy.position.set(fx, bodyY + 0.95, fz);
-            dummy.rotation.set(0, 0, 0);
-            dummy.scale.set(1, 1, 1);
+            const figIdx = (i + (rowOff === ROWS[0] ? 0 : 3) + (side === 1 ? 1 : 0)) % FIGURES.length;
+            perFig[figIdx].push(dummy.matrix.clone());
+            // r6: crossed second plane — same transform, yaw +90° around Y
+            // (roll-free: x/z rotation stay 0), so the figure keeps volume
+            // from every camera angle. No extra _rand() calls.
+            dummy.rotation.y += Math.PI / 2;
             dummy.updateMatrix();
-            heads.setMatrixAt(idx, dummy.matrix);
-            headBaseY[idx] = bodyY + 0.95;
-            // Raised arms (cheering silhouette): tilted outward in the
-            // figure's local X-Y plane, yawed with the body.
-            dummy.position.set(fx - 0.46 * Math.cos(yaw), bodyY + 0.72, fz + 0.46 * Math.sin(yaw));
-            dummy.rotation.set(0, yaw, -0.9);
-            dummy.scale.set(1, 1, 1);
-            dummy.updateMatrix();
-            armsL.setMatrixAt(idx, dummy.matrix);
-            dummy.position.set(fx + 0.46 * Math.cos(yaw), bodyY + 0.72, fz - 0.46 * Math.sin(yaw));
-            dummy.rotation.set(0, yaw, 0.9);
-            dummy.updateMatrix();
-            armsR.setMatrixAt(idx, dummy.matrix);
-            armBaseY[idx] = bodyY + 0.72;
-            idx++;
+            perFig2[figIdx].push(dummy.matrix.clone());
           }
         }
       }
     }
-    bodies.instanceMatrix.needsUpdate = true;
-    if (bodies.instanceColor) bodies.instanceColor.needsUpdate = true;
-    heads.instanceMatrix.needsUpdate = true;
-    armsL.instanceMatrix.needsUpdate = true;
-    armsR.instanceMatrix.needsUpdate = true;
-    bodies.userData.baseY = bodyBaseY;
-    heads.userData.baseY = headBaseY;
-    armsL.userData.baseY = armBaseY;
-    armsR.userData.baseY = armBaseY;
-    scene.add(bodies, heads, armsL, armsR);
-    (this.crowdMeshes = this.crowdMeshes || []).push(bodies, heads, armsL, armsR);
+    for (let f = 0; f < FIGURES.length; f++) {
+      const list = perFig[f];
+      if (!list.length) continue;
+      const geo = new THREE.PlaneGeometry(1.1, 1.6);
+      const mat = toonMaterial(0xffffff, { map: figureTextures[f], transparent: true, side: THREE.DoubleSide, depthWrite: false });
+      const im = new THREE.InstancedMesh(geo, mat, list.length);
+      list.forEach((m, i) => im.setMatrixAt(i, m));
+      im.instanceMatrix.needsUpdate = true;
+      // Record base Y per instance so the crowd-bounce animation (update)
+      // can wave these billboard figures too.
+      im.userData.baseY = list.map((m) => m.elements[13]);
+      scene.add(im);
+      (this.crowdMeshes = this.crowdMeshes || []).push(im);
+      // r6: the crossed (+90° yaw) plane shares geometry/material — one extra
+      // draw call per figure type; baseY stays in sync so both planes bounce
+      // together in update().
+      const cross = perFig2[f];
+      if (!cross.length) continue;
+      const im2 = new THREE.InstancedMesh(geo, mat, cross.length);
+      cross.forEach((m, i) => im2.setMatrixAt(i, m));
+      im2.instanceMatrix.needsUpdate = true;
+      im2.userData.baseY = cross.map((m) => m.elements[13]);
+      scene.add(im2);
+      (this.crowdMeshes = this.crowdMeshes || []).push(im2);
+    }
+  }
+
+  /** Painted cheering figure (head + suit + raised arms) on a 128x192 canvas. */
+  _crowdFigureTexture(color, arms) {
+    const key = 'fig_' + color.toString(16) + '_' + (arms ? 'a' : 'n');
+    if (this._figCache?.[key]) return this._figCache[key];
+    const w = 128;
+    const h = 192;
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const g = canvas.getContext('2d');
+    g.clearRect(0, 0, w, h);
+    const c = new THREE.Color(color);
+    const css = '#' + c.getHexString();
+    // Legs
+    g.fillStyle = '#2b3242';
+    g.fillRect(52, 138, 10, 44);
+    g.fillRect(66, 138, 10, 44);
+    // Suit body (rounded torso)
+    g.fillStyle = css;
+    g.beginPath();
+    g.roundRect(36, 74, 56, 72, 14);
+    g.fill();
+    // Arms raised (cheering) or hanging
+    g.strokeStyle = css;
+    g.lineWidth = 12;
+    g.lineCap = 'round';
+    if (arms) {
+      g.beginPath(); g.moveTo(42, 88); g.lineTo(14, 44); g.stroke();
+      g.beginPath(); g.moveTo(86, 88); g.lineTo(114, 44); g.stroke();
+    } else {
+      g.beginPath(); g.moveTo(40, 92); g.lineTo(24, 128); g.stroke();
+      g.beginPath(); g.moveTo(88, 92); g.lineTo(104, 128); g.stroke();
+    }
+    // Head (skin) + hair cap hint
+    g.fillStyle = '#ffd9b3';
+    g.beginPath(); g.arc(64, 46, 20, 0, Math.PI * 2); g.fill();
+    // Dark cartoon outline around the whole figure reads at distance.
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    this._figCache = this._figCache || {};
+    this._figCache[key] = tex;
+    return tex;
   }
 
   /**

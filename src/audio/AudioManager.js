@@ -3,9 +3,12 @@
 // Thin manager over the pure synthesis in sfx.js / music.js:
 //   - Lazy AudioContext (autoplay policy) created on init(), which
 //     runs on the first user gesture (also auto-attached).
-//   - Master chain: volume gain (CONFIG.audio.masterVolume) →
-//     DynamicsCompressor (threshold -14, knee 18, ratio 5) →
-//     destination.
+//   - Master chain (FECO r2 pass): volume gain (CONFIG.audio.masterVolume)
+//     → HP filter → lowshelf (low-end body) → presence → highshelf →
+//     waveshaper saturation → glue compressor → makeup gain → safety
+//     limiter → destination, with a shared gentle CONVOLVER REVERB send
+//     (procedural IR, dark return) so SFX, music and crowd sit together
+//     in one fat arcade space instead of playing bone-dry.
 //   - One-shot SFX via renderSfx(), procedural music via MusicEngine,
 //     continuous per-kart engine loops.
 //
@@ -79,12 +82,14 @@ export class AudioManager {
    * user gesture (autoplay policy); idempotent. Applies engine loops
    * and music requests that arrived before init.
    *
-   * Master chain (USER/VISION FIX — was gain→compressor→destination,
-   * which sounded dry and "8-bit"):
-   *   master gain → EQ (hp 28 / presence 3k / hshelf 11k) → waveshaper
-   *   (soft tanh saturation for warmth) → compressor → destination
-   *   with a subtle CONVOLUTION REVERB send (procedural IR) so SFX and
-   *   music share a believable space instead of playing bone-dry.
+   * Master chain (FECO r2 pass — tuned from the original dry
+   * gain→compressor→destination):
+   *   master gain → EQ (hp 28 / lowshelf 150Hz +3dB body / presence
+   *   3.2k / hshelf 11k) → waveshaper (gentle tanh saturation) → glue
+   *   compressor (soft knee, low ratio) → makeup gain → safety limiter
+   *   → destination, with a CONVOLUTION REVERB send (procedural IR with
+   *   pre-delay + dark return) so SFX and music share a fat, glued
+   *   arcade space instead of playing bone-dry.
    * @returns {AudioContext|null}
    */
   init() {
@@ -102,10 +107,14 @@ export class AudioManager {
     this._master = this._ctx.createGain();
     this._master.gain.value = this._volume;
 
-    // --- EQ (subtractive + presence) ------------------------------------
+    // --- EQ (subtractive + low-end body + presence) ---------------------
     const eq = this._ctx.createBiquadFilter();
     eq.type = 'highpass';
     eq.frequency.value = 28; // kill sub rumble below audibility
+    const lowshelf = this._ctx.createBiquadFilter();
+    lowshelf.type = 'lowshelf';
+    lowshelf.frequency.value = 150;
+    lowshelf.gain.value = 3; // low-end body — the "fat" arcade bottom
     const presence = this._ctx.createBiquadFilter();
     presence.type = 'peaking';
     presence.frequency.value = 3200;
@@ -117,34 +126,56 @@ export class AudioManager {
     hshelf.gain.value = -2; // tame harsh digital highs
 
     // --- Waveshaper (soft saturation — analog warmth, kills the raw-osc
-    // "8-bit" edge) --------------------------------------------------------
+    // "8-bit" edge; slightly gentler curve so it glues rather than fuzzes)
     const shaper = this._ctx.createWaveShaper();
     shaper.curve = this._softClipCurve(220);
 
+    // --- Glue compressor (bus glue, not pumping): soft knee, low ratio,
+    // fast attack — tucks every layer together like a mixing-bus.
     const comp = this._ctx.createDynamicsCompressor();
-    comp.threshold.value = -14;
-    comp.knee.value = 18;
-    comp.ratio.value = 5;
-    comp.attack.value = 0.002;
-    comp.release.value = 0.18;
+    comp.threshold.value = -16;
+    comp.knee.value = 22;
+    comp.ratio.value = 3.5;
+    comp.attack.value = 0.004;
+    comp.release.value = 0.22;
+
+    // --- Makeup gain + safety limiter (the loud, fat arcade finish) ------
+    const makeup = this._ctx.createGain();
+    makeup.gain.value = 1.9; // recover the glue compressor's gain (+~5.6dB)
+    const limiter = this._ctx.createDynamicsCompressor();
+    limiter.threshold.value = -3;
+    limiter.knee.value = 2;
+    limiter.ratio.value = 20;
+    limiter.attack.value = 0.001;
+    limiter.release.value = 0.06;
 
     this._master.connect(eq);
-    eq.connect(presence);
+    eq.connect(lowshelf);
+    lowshelf.connect(presence);
     presence.connect(hshelf);
     hshelf.connect(shaper);
     shaper.connect(comp);
-    comp.connect(this._ctx.destination);
+    comp.connect(makeup);
+    makeup.connect(limiter);
+    limiter.connect(this._ctx.destination);
 
     // --- Reverb send (procedural IR — generated, no assets) --------------
+    // Gentle shared space: send is modest, the return is dark (lowpassed)
+    // and joins BEFORE the glue compressor so the tail sits IN the mix
+    // instead of splashing on top of it.
     this._reverb = this._createReverb(this._ctx);
     const reverbSend = this._ctx.createGain();
-    reverbSend.gain.value = 0.14;
+    reverbSend.gain.value = 0.18;
+    const wetTone = this._ctx.createBiquadFilter();
+    wetTone.type = 'lowpass';
+    wetTone.frequency.value = 6500; // dark tail — no harsh reverb sparkle
     const reverbWet = this._ctx.createGain();
-    reverbWet.gain.value = 0.9;
+    reverbWet.gain.value = 0.75;
     this._master.connect(reverbSend);
     reverbSend.connect(this._reverb);
-    this._reverb.connect(reverbWet);
-    reverbWet.connect(presence); // wet returns before the shaper/compressor
+    this._reverb.connect(wetTone);
+    wetTone.connect(reverbWet);
+    reverbWet.connect(comp); // wet joins the glue compressor input
     this._reverbSend = reverbSend;
 
     // Apply engine loops remembered before init().
@@ -162,28 +193,44 @@ export class AudioManager {
     return this._ctx;
   }
 
-  /** Soft tanh-ish clip curve for the master waveshaper (warm saturation). */
+  /**
+   * Soft tanh-ish clip curve for the waveshaper (warm saturation).
+   * 1.35 = gentle glue; aggressive curves fuzz the highs and fight the
+   * compressor. Shared by the master chain and the engine-loop voice.
+   */
   _softClipCurve(n = 220) {
     const curve = new Float32Array(n);
     for (let i = 0; i < n; i++) {
       const x = (i / (n - 1)) * 2 - 1;
-      curve[i] = Math.tanh(1.6 * x);
+      curve[i] = Math.tanh(1.35 * x);
     }
     return curve;
   }
 
-  /** Procedural impulse response: decaying noise burst (2s), stereo-ish. */
+  /**
+   * Procedural impulse response: 2.2s exponentially-decaying lowpassed
+   * noise with a 20ms pre-delay, per-channel decorrelation and a slight
+   * early-reflection energy bump. Sounds like a believable small hall,
+   * not a spring reverb.
+   */
   _createReverb(ctx) {
-    const len = Math.floor(ctx.sampleRate * 2.0);
-    const buffer = ctx.createBuffer(2, len, ctx.sampleRate);
+    const sr = ctx.sampleRate;
+    const len = Math.floor(sr * 2.2);
+    const preDelay = Math.floor(sr * 0.02); // 20ms — dry transient first
+    const buffer = ctx.createBuffer(2, len, sr);
     for (let ch = 0; ch < 2; ch++) {
       const data = buffer.getChannelData(ch);
       let last = 0;
       for (let i = 0; i < len; i++) {
-        // exponentially decaying noise; slight lowpass smoothing per sample
+        if (i < preDelay) {
+          data[i] = 0;
+          continue;
+        }
+        const t = (i - preDelay) / (len - preDelay); // 0..1 tail position
         const white = Math.random() * 2 - 1;
-        last = last * 0.6 + white * 0.4;
-        data[i] = last * Math.pow(1 - i / len, 2.2) * (ch === 1 ? 1.0 : 0.9);
+        last = last * 0.55 + white * 0.45; // lowpass the noise — warm tail
+        const decay = Math.pow(1 - t, 2.6) * (ch === 1 ? 0.86 : 1.0);
+        data[i] = last * decay * (t < 0.02 ? 1.6 : 1); // early-reflection bump
       }
     }
     const conv = ctx.createConvolver();

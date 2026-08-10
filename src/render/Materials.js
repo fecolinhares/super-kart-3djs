@@ -399,11 +399,13 @@ export function roadTexture() {
 /** Checkered start line (2x8 squares, classic black/white). 2 across the
  *  short axis (3.2m travel length) x 8 along the road width (7.8m) — the
  *  box UVs stretch U along X (short) and V along Z (wide), so 2x8 gives
- *  near-square checker squares on the asphalt. */
+ *  near-square checker squares on the asphalt.
+ *  AUDIT r11 (FECO): 128px -> 512px so painted checkers read crisp, not
+ *  blocky, at chase-cam distance. */
 export function checkerTexture() {
   if (_checkerTex) return _checkerTex;
   _checkerTex = canvasTexture(
-    128,
+    512,
     (ctx, s) => {
       const cw = s / 2;
       const ch = s / 8;
@@ -418,33 +420,73 @@ export function checkerTexture() {
   return _checkerTex;
 }
 
-/** Gantry banner checker: 8x2 (8 along the wide banner, 2 tall). */
+/** Gantry edge checker: crisp 8x2 (8 along, 2 tall) black/white checker,
+ *  256px. PURE pattern — the FINISH text lives in finishBannerTexture.
+ *  AUDIT r11 (FECO): the old 512px SQUARE canvas baked 118px glyphs that
+ *  mapped ~4.7x wider than tall across the wide banner plane — the
+ *  'stretched low-res' banner. Used now as the checkered trim on the
+ *  gantry beam's track-facing faces. */
 export function bannerCheckerTexture() {
   if (_bannerCheckerTex) return _bannerCheckerTex;
   _bannerCheckerTex = canvasTexture(
-    512,
+    256,
     (ctx, s) => {
       const cw = s / 8;
       const ch = s / 2;
       for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 2; j++) {
-          ctx.fillStyle = (i + j) % 2 === 0 ? '#ffffff' : '#1b2a41';
+          ctx.fillStyle = (i + j) % 2 === 0 ? '#ffffff' : '#0f1218';
           ctx.fillRect(i * cw, j * ch, cw, ch);
         }
       }
-      // Bold FINISH word across the middle of the banner, on a solid band
-      // so it stays readable over the checker pattern. 512px canvas keeps
-      // the glyphs crisp even from the chase camera.
-      ctx.fillStyle = '#1b2a41';
-      ctx.fillRect(0, s * 0.28, s, s * 0.44);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '900 118px "Baloo 2", "Nunito", Arial, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('FINISH', s / 2, s / 2 + 4);
     }
   );
   return _bannerCheckerTex;
+}
+
+/** Gantry FINISH banner: 512x128 — aspect-matched to the ~9.8m x 2.1m
+ *  banner plane (~4.7:1), so the artwork maps 1:1 with NO stretching
+ *  (AUDIT r11 FECO: the old square 512px canvas made the FINISH glyphs
+ *  4.7x wider than tall — the stretched low-res look). Navy field, big
+ *  white FINISH, crisp checkered bands top + bottom — MK8D style. */
+let _finishBannerTex = null;
+export function finishBannerTexture() {
+  if (_finishBannerTex) return _finishBannerTex;
+  const c = document.createElement('canvas');
+  c.width = 512;
+  c.height = 128;
+  const g = c.getContext('2d');
+  // Navy field.
+  g.fillStyle = '#14213d';
+  g.fillRect(0, 0, 512, 128);
+  // Checkered bands (top + bottom edges): 16 crisp cells across.
+  const bandH = 22;
+  const cells = 16;
+  const cw = 512 / cells;
+  for (const by of [0, 128 - bandH]) {
+    for (let i = 0; i < cells; i++) {
+      g.fillStyle = i % 2 === 0 ? '#ffffff' : '#0f1218';
+      g.fillRect(i * cw, by, cw, bandH);
+    }
+  }
+  // Pinstripe separators so the bands read as a designed border.
+  g.fillStyle = '#3d4f78';
+  g.fillRect(0, bandH, 512, 2);
+  g.fillRect(0, 128 - bandH - 2, 512, 2);
+  // Big white FINISH centered on the navy field, dark offset copy behind
+  // for contrast so it stays crisp from the chase camera.
+  g.font = '900 76px "Baloo 2", "Nunito", Arial, sans-serif';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillStyle = '#0a1120';
+  g.fillText('FINISH', 258, 66);
+  g.fillStyle = '#ffffff';
+  g.fillText('FINISH', 256, 64);
+  const tex = new THREE.CanvasTexture(c);
+  tex.anisotropy = 8;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  _finishBannerTex = tex;
+  return _finishBannerTex;
 }
 
 /** Direction arrow painted on the road at sharp corners (white chevron on
@@ -480,13 +522,13 @@ export function arrowTexture() {
 }
 
 /** Finish-line painted on the asphalt: classic 8x2 checker band.
- *  AUDIT r10 (FECO): was 256px + 6x2 — read as a stretched low-res strip
- *  on the ~8.8m plane. 512px + 8x2 gives crisp ~1.1m squares. */
+ *  AUDIT r11 (FECO): 1024px + 8x2 — the ~1.1m squares stay razor crisp
+ *  across the ~8.8m plane under the gantry (no stretched low-res strip). */
 let _finishTex = null;
 export function finishLineTexture() {
   if (_finishTex) return _finishTex;
   _finishTex = canvasTexture(
-    512,
+    1024,
     (ctx, s) => {
       const cw = s / 8;
       const ch = s / 2;
