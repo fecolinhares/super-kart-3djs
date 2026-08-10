@@ -3733,11 +3733,12 @@ export class Environment {
       { seed: 21000, base: 16, range: 10, haze: 0.0 },
       { seed: 22000, base: 26, range: 12, haze: 0.35 },
       { seed: 23000, base: 50, range: 12, low: true, haze: 0.6 },
+      { seed: 24000, base: 74, range: 16, low: true, haze: 0.85 }, // far silhouette layer
     ];
     const fogCol = new THREE.Color(0x1a2436); // night haze target
     for (const row of rows) {
       const rand = rnd(row.seed);
-      const count = 18 + Math.floor(rand() * 5); // 18-22 per row (denser skyline — vision critic: sparse)
+      const count = 24 + Math.floor(rand() * 5); // 24-28 per row (denser skyline — vision critic: sparse)
       const rowMat = new THREE.MeshBasicMaterial({
         map: this._windowTexture(),
         color: new THREE.Color(1, 1, 1).lerp(fogCol, row.haze),
@@ -3824,8 +3825,8 @@ export class Environment {
         new THREE.MeshBasicMaterial({ map: bbTex('#1a1440', '#2ec4ff') }),
       ];
       const bbPos = [
-        { p: [-70, 5.4, 18], r: [0, Math.PI / 2.4, 0], m: 0 },
-        { p: [-40, 5.4, -52], r: [0, -Math.PI / 2.2, 0], m: 1 },
+        { p: [-48, 5.4, -18], r: [0, Math.PI / 3.2, 0], m: 0 },
+        { p: [-30, 5.4, -44], r: [0, Math.PI / 2.6, 0], m: 1 },
       ];
       for (const b of bbPos) {
         const board = new THREE.Mesh(new THREE.BoxGeometry(7, 3.4, 0.4), bbMats[b.m]);
@@ -3851,9 +3852,11 @@ export class Environment {
         { color: 0x2ec4ff, pos: [-52, 4.2, -34] },
         { color: 0xff2ec4, pos: [8, 4.2, -70] },
         { color: 0x2ec4ff, pos: [40, 4.2, -20] },
+        { color: 0xff2ec4, pos: [-70, 4.2, -8] },
+        { color: 0x2ec4ff, pos: [-56, 4.2, 2] },
       ];
       for (const nl of neonLights) {
-        const pl = new THREE.PointLight(nl.color, 1.4, 46, 1.6);
+        const pl = new THREE.PointLight(nl.color, 2.4, 60, 1.5);
         pl.position.set(...nl.pos);
         scene.add(pl);
       }
