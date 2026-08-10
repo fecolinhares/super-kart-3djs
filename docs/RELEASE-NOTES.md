@@ -4,6 +4,16 @@
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
 ### Round 3 — AAA polish loop (auditor-driven, 2026-08-09)
+- **Round 16 — FECO critical pass (vs MK8D/Sonic Team Racing)**:
+  - Crowd: paper billboards REPLACED by dense 3D spectators (instanced
+    body + head + raised arms, 3 rows, grounded, bounce preserved).
+  - Foliage: canopy segments up (pine 14), per-tree tone jitter ±8%,
+    bushes as 2-3 sphere clusters, fake-AO base discs under trees.
+  - Banners: gantry FINISH rebuilt as crisp 512px canvas, finish checker
+    1024px, banner/flag textures 512px — no stretched look.
+  - Audio: 8-bit beeps replaced by fat modern arcade SFX (noise sweeps,
+    layered hits, filter sweeps, reverb + master compressor).
+  - Rims: satin silver (no per-spoke mirror reflections).
 - **Round 15 — audit r9 fixes**: third drift spark tier (purple @ 0.9),
   blue-shell splash (knocks karts near the leader), color-grade restored
   on real GPUs (software GL stays safe), high-speed wind streaks.
