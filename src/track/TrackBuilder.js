@@ -13,7 +13,7 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { toonMaterial, cartoonOutline, roadTexture, dirtTexture, grassTexture, concreteTexture, checkerTexture, bannerCheckerTexture, finishBannerTexture, turboPadTexture, arrowTexture, finishLineTexture } from '../render/Materials.js';
+import { toonMaterial, cartoonOutline, roadTexture, cityRoadTexture, dirtTexture, grassTexture, concreteTexture, checkerTexture, bannerCheckerTexture, finishBannerTexture, turboPadTexture, arrowTexture, finishLineTexture } from '../render/Materials.js';
 
 // Control points forming the closed loop (X, Y=elevation, Z).
 const CONTROL_POINTS = [
@@ -1598,6 +1598,7 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
 
   const ribbonOpts = { texture: roadTexture };
   if (isCity) {
+    ribbonOpts.texture = cityRoadTexture; // baked neon spill on the asphalt
     ribbonOpts.color = 0x4a5062; // charcoal, not black
     ribbonOpts.emissive = 0x1a2440; // faint cool night sheen on the pavement
     ribbonOpts.emissiveIntensity = 0.55;

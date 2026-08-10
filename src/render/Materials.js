@@ -156,7 +156,56 @@ export function canvasTexture(size, drawFn, opts = {}) {
 // Shared procedural textures (cached, created lazily)
 // ---------------------------------------------------------------------------
 let _grassTex = null;
+let _cityRoadTex = null;
+/** NEON CITY asphalt: dark charcoal + subtle pink/cyan neon light spill baked
+ *  into the texture (vision critic: 'the road needs to visibly receive the
+ *  surrounding neon' — flat dark read as a void). */
+export function cityRoadTexture() {
+  if (_cityRoadTex) return _cityRoadTex;
+  _cityRoadTex = canvasTexture(
+    256,
+    (ctx, s) => {
+      ctx.fillStyle = '#33364a';
+      ctx.fillRect(0, 0, s, s);
+      // fine grit
+      for (let i = 0; i < 900; i++) {
+        ctx.fillStyle = Math.random() > 0.5 ? '#3d4156' : '#2a2d3e';
+        ctx.fillRect(Math.random() * s, Math.random() * s, 1.5, 1.5);
+      }
+      // tire wear (dark ribbons — the racing line)
+      ctx.globalAlpha = 0.3;
+      ctx.fillStyle = '#22242f';
+      for (let i = 0; i < 3; i++) ctx.fillRect(s * (0.18 + i * 0.22), 0, 8, s);
+      // neon spill: soft pink + cyan streaks reflecting onto the pavement
+      ctx.globalAlpha = 0.22;
+      for (let i = 0; i < 10; i++) {
+        const x = Math.random() * s;
+        const w = 6 + Math.random() * 14;
+        ctx.fillStyle = Math.random() > 0.5 ? '#ff2ec4' : '#2ec4ff';
+        ctx.beginPath();
+        ctx.ellipse(x, Math.random() * s, w, 2.2, Math.random() * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      // cracks
+      ctx.strokeStyle = '#23252f';
+      ctx.lineWidth = 1.2;
+      for (let i = 0; i < 8; i++) {
+        const x = Math.random() * s;
+        const y = Math.random() * s;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + 14 + Math.random() * 20, y + Math.random() * 14 - 7);
+        ctx.stroke();
+      }
+    },
+    { repeat: [40, 40] }
+  );
+  return _cityRoadTex;
+}
+
 let _roadTex = null;
+
 let _concreteTex = null;
 /** Urban concrete: grey pavement with speckle, expansion lines + patches.
  *  Used by NEON CITY's ground (vision critic: flat black void needs detail). */
