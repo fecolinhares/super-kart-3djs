@@ -176,18 +176,31 @@ export function cityRoadTexture() {
       ctx.globalAlpha = 0.3;
       ctx.fillStyle = '#22242f';
       for (let i = 0; i < 3; i++) ctx.fillRect(s * (0.18 + i * 0.22), 0, 8, s);
-      // neon spill: soft pink + cyan streaks reflecting onto the pavement
-      // (ellipse STROKES — thin glowing streaks, not filled blobs)
-      ctx.globalAlpha = 0.22;
-      for (let i = 0; i < 10; i++) {
+      // neon spill: WIDE soft radial gradients — light reflecting on the
+      // pavement, not painted stripes (vision critic: streaks read as
+      // track decorations, not integrated city light).
+      for (let i = 0; i < 7; i++) {
         const x = Math.random() * s;
-        const w = 6 + Math.random() * 14;
-        ctx.strokeStyle = i % 2 ? '#ff2ec4' : '#2ec4ff';
-        ctx.lineWidth = 1.8 + Math.random() * 1.2;
+        const y = Math.random() * s;
+        const r = 22 + Math.random() * 30;
+        const col = Math.random() > 0.5 ? '255,46,196' : '46,196,255';
+        const g = ctx.createRadialGradient(x, y, 2, x, y, r);
+        g.addColorStop(0, 'rgba(' + col + ',0.34)');
+        g.addColorStop(0.55, 'rgba(' + col + ',0.12)');
+        g.addColorStop(1, 'rgba(' + col + ',0)');
+        ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.ellipse(x, Math.random() * s, w, 2.2, (Math.random() - 0.5) * 0.6, 0, Math.PI * 2);
-        ctx.stroke();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
       }
+      // subtle wet sheen along the racing line
+      ctx.globalAlpha = 0.1;
+      const lg = ctx.createLinearGradient(0, 0, 0, s);
+      lg.addColorStop(0, 'rgba(140,170,255,0)');
+      lg.addColorStop(0.5, 'rgba(140,170,255,0.5)');
+      lg.addColorStop(1, 'rgba(140,170,255,0)');
+      ctx.fillStyle = lg;
+      ctx.fillRect(0, 0, s, s);
       ctx.globalAlpha = 1;
       // cracks
       ctx.strokeStyle = '#23252f';

@@ -3775,7 +3775,7 @@ export class Environment {
     // --- glowing shop signs on the CLOSE tower row (street-level neon
     // signage — MK8 city courses are lined with lit storefronts) ---
     {
-      const signGeo = new THREE.BoxGeometry(2.6, 0.5, 0.12);
+      const signGeo = new THREE.BoxGeometry(3.4, 0.8, 0.14);
       const signCols = [0xff2ec4, 0x2ec4ff, 0xffe23c, 0x3cff9a];
       const s2Rand = rnd(5551);
       for (let i = 0; i < 12; i++) {
@@ -3801,10 +3801,25 @@ export class Environment {
     // --- neon street signs (vision critic: 'street-level detail' — small
     // glowing billboards on poles along the sidewalks, every ~60m) ---
     const poleMat = toonMaterial(0x3a4152, {});
+    // Sign textures with a fake 2-line 'text' (bars) so they READ as
+    // signage, not as props on poles (vision critic: small flat boards
+    // were indistinguishable from crowd props).
+    const signTex = (bg, bar1, bar2) => {
+      const cv = document.createElement('canvas');
+      cv.width = 64; cv.height = 96;
+      const c = cv.getContext('2d');
+      c.fillStyle = bg; c.fillRect(0, 0, 64, 96);
+      c.fillStyle = bar1; c.fillRect(8, 22, 48, 14);
+      c.fillStyle = bar2; c.fillRect(12, 48, 40, 10);
+      c.fillStyle = bar1; c.fillRect(8, 66, 30, 10);
+      const t = new THREE.CanvasTexture(cv);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    };
     const signMats = [
-      new THREE.MeshBasicMaterial({ color: 0xff2ec4 }),
-      new THREE.MeshBasicMaterial({ color: 0x2ec4ff }),
-      new THREE.MeshBasicMaterial({ color: 0xffe23c }),
+      new THREE.MeshBasicMaterial({ map: signTex('#ff2ec4', '#fff', '#2ec4ff') }),
+      new THREE.MeshBasicMaterial({ map: signTex('#2ec4ff', '#fff', '#ff2ec4') }),
+      new THREE.MeshBasicMaterial({ map: signTex('#ffd23c', '#141030', '#ff2ec4') }),
     ];
     const sRand = rnd(9917);
     const signProbe = new THREE.Vector3();
@@ -3825,10 +3840,10 @@ export class Environment {
       pole.castShadow = true;
       scene.add(pole);
       const sign = new THREE.Mesh(
-        new THREE.BoxGeometry(0.9, 1.8, 0.1),
+        new THREE.BoxGeometry(1.4, 2.4, 0.12),
         signMats[(sRand() * 3) | 0]
       );
-      sign.position.set(sx, sy + 3.1, sz);
+      sign.position.set(sx, sy + 3.4, sz);
       scene.add(sign);
     }
   }

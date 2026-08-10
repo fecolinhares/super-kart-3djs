@@ -1634,10 +1634,15 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   // Track-side density: sponsor boards on the straights, low grass tufts
   // along both edges, and orange apex cones on the inside of the sharpest
   // corners — all OUTSIDE the racing line (visual-only, no colliders).
-  group.add(buildSponsorBoards(path));
-  group.add(buildGrassTufts(path, length));
-  const apexCones = buildApexCones(path, length, getRoadWidthAt());
-  if (apexCones) group.add(apexCones);
+  // Meadow dressing (grass tufts, sponsor boards, apex cones) is SUNNY-MEADOW
+  // specific — NEON CITY must read urban, not 'meadow with neon trim'
+  // (vision critic: repeated spherical tufts read as procedural placeholders).
+  if (!isCity) {
+    group.add(buildSponsorBoards(path));
+    group.add(buildGrassTufts(path, length));
+    const apexCones = buildApexCones(path, length, getRoadWidthAt());
+    if (apexCones) group.add(apexCones);
+  }
 
   // Painted sponsor decals on the asphalt near the straights (real circuits
   // paint their sponsors on the road surface — large faded blocks).
