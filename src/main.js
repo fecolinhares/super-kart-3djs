@@ -725,7 +725,9 @@ let shakeTimer = 0;
 let shakeMag = 0;
 // Camera feel (audit r2): drift swing, speed pull-back, mini-boost kick.
 const CAM_DRIFT_SWING = 1.7;     // lateral offset ∝ steer while drifting
-const CAM_SPEED_PULLBACK = 0.35; // follow distance scales with speed01
+const CAM_SPEED_PULLBACK = 0.15; // AUDIT r18-FIX: 0.35 pushed the chase
+// 5.2→7.0m at top speed — the kart shrank to ~12-15% of the frame, killing
+// the MK8D 25-30% composition the r17 camera pass added.
 const CAM_BOOST_KICK = 0.9;      // extra pull-back on boost start
 let camSwing = 0;                // smoothed lateral camera swing
 let camBoostKick = 0;            // decaying boost kick

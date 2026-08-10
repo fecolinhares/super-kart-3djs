@@ -116,7 +116,9 @@ export function terrainHeight(x, z, path) {
   const d = Math.sqrt(d2);
   const raw = Math.min(1, Math.max(0, (d - 10) / 15));
   const falloff = raw * raw * (3 - 2 * raw); // C1 smoothstep
-  return -0.25 + smoothH(x, z) * 0.5 * (1 + falloff * 2.5) + broadHill(x, z) * 1.2 * falloff;
+  // AUDIT r18-FIX (gameplay auditor): broadHill 5.0/1.4 × 1.2 delivered
+  // ±8.4m — ridge walls that occluded the track ahead. Scale to ~±5m.
+  return -0.25 + smoothH(x, z) * 0.5 * (1 + falloff * 2.5) + broadHill(x, z) * 0.7 * falloff;
 }
 
 function buildRoadRibbon(path, length, opts = {}) {

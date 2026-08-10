@@ -19,6 +19,9 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
+// AUDIT r18-FIX (gameplay auditor): terrain now rolls ±5m beyond the
+// corridor — off-road karts must ride it or they bury/float on the hills.
+import { terrainHeight } from '../track/TrackBuilder.js';
 
 const SAMPLES = 192; // points around the loop for nearest-sample search
 
@@ -224,6 +227,12 @@ export class KartPhysics {
     const near = nearestSample(kart, samples);
     const halfW = roadHalfWidth(track, near.t);
     const wallAt = halfW + (T.roadEdge ?? 0.9);
+    // AUDIT r18-FIX: off-road karts ride the rolling terrain — the path
+    // samples are flat; beyond the corridor the field rolls ±5m and a kart
+    // shoved into the grass would bury or float up to 5m without this.
+    if (Math.abs(near.lateralDist) > halfW + 0.5) {
+      near.groundY = terrainHeight(s.position.x, s.position.z, track.path);
+    }
 
     s.progress01 = near.progress01;
     updateLap(kart, near);
