@@ -305,8 +305,10 @@ export class Kart {
       depthTest: false,
       depthWrite: false,
     }));
-    this._rankArrow.scale.set(0.62, 0.62, 1);
-    this._rankArrow.position.set(0, 2.6, 0);
+    // AUDIT r9 (vision critic): arrows still prominent — 0.62 → 0.5 keeps
+    // the cue without competing with the karts/banner.
+    this._rankArrow.scale.set(0.5, 0.5, 1);
+    this._rankArrow.position.set(0, 2.7, 0);
     this._rankArrow.renderOrder = 10; // draws above scenery (MK8D arrows stay readable)
     this._rankArrow.visible = false;
     this.group.add(this._rankArrow);
