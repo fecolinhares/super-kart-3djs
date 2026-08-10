@@ -1170,6 +1170,13 @@
   .sk3d-toast {
     bottom: 270px;
   }
+  /* AUDIT MED-2: reserve/swap slot 44px is the ONLY touch path to swap the
+     dual item slots — below the 48/56px minimum, miss-prone mid-race. */
+  .sk3d-item2-slot {
+    width: 56px;
+    height: 56px;
+    font-size: 1.6rem;
+  }
 }
 
 .sk3d-touch {

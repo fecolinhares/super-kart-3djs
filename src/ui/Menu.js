@@ -534,6 +534,19 @@ export class Menu {
     this.onToggleMute(this.muted);
   }
 
+  /** AUDIT MED-1: reconcile the menu mute label with the real audio state.
+   *  Muting from the pause overlay left the menu showing 'Sound on' (stale),
+   *  so the first menu click looked dead (needed two). */
+  reconcileMute() {
+    const aud = window.__sk3d?.audio;
+    if (!aud) return;
+    this.muted = !!aud.muted;
+    if (this.muteBtn) {
+      this.muteBtn.setAttribute('aria-pressed', String(this.muted));
+      this.muteBtn.textContent = this.muted ? '🔇 Sound off' : '🔊 Sound on';
+    }
+  }
+
   /** Restore the persisted mute state. */
   restoreMute() {
     try {
@@ -777,6 +790,7 @@ export class Menu {
 
   /** Show the menu. Idempotent — DOM is built once in the constructor. */
   show() {
+    this.reconcileMute(); // AUDIT MED-1: menu mute label went stale after pause-mute
     this.closeScreens();
     this.refreshPickLine();
     this.root.classList.remove('sk3d-hidden');
