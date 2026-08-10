@@ -307,6 +307,12 @@
   floated inside the r=0.34 tire — 8 small rings per kart read as stray
   artifacts. Moved to the tire-wall edge (r 0.30/0.32).
 
+## 🔄 Wheel rings orientation — fixed
+- All torus rings on the wheels (tread ribs, groove, sidewall stripe, wall
+  band) spun SIDEWAYS: the default torus encircles the Z axis but the tire
+  rolls on X. `rotation.x = PI/2` (in the wheel group) maps the ring onto the
+  wheel face. Verified by world-matrix: all wheel-ring normals are ~X.
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
