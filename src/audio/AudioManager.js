@@ -758,6 +758,8 @@ export class AudioManager {
 
   setMuted(m) {
     this._muted = !!m;
+    const localStorage2 = (typeof localStorage !== 'undefined') ? localStorage : null;
+    if (localStorage2) localStorage2.setItem('sk3d.muted', m ? '1' : '0'); // AUDIT MED: single persistence source
     if (!this._ctx || !this._master) return;
     if (this._muted) {
       this._master.gain.cancelScheduledValues(this._ctx.currentTime);
@@ -777,6 +779,20 @@ export class AudioManager {
     this._musicVolume = Math.max(0, Math.min(1, v));
     if (this._music) this._music.setVolume(this._musicVolume);
     if (this._menuMusic) this._menuMusic.setVolume(this._musicVolume * 0.55);
+  }
+
+  /** Temporary music duck (AUDIT MED): raises volume for a moment (finish
+   *  fanfare) WITHOUT writing _musicVolume — the old setMusicVolume(1) leaked
+   *  every later race starting at full volume. */
+  duckMusic(v, ms) {
+    if (this._music) this._music.setVolume(v);
+    if (this._menuMusic) this._menuMusic.setVolume(v * 0.55);
+    if (ms) {
+      setTimeout(() => {
+        if (this._music) this._music.setVolume(this._musicVolume);
+        if (this._menuMusic) this._menuMusic.setVolume(this._musicVolume * 0.55);
+      }, ms);
+    }
   }
 
   /** True once the context + master chain exist. */

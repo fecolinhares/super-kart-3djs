@@ -160,7 +160,7 @@ const menu = new Menu({
   onStart: startRace,
   onColor: setPlayerColor,
   onSound: (n) => audio.play(n),
-  onToggleMute: (muted) => audio.setMasterVolume(muted ? 0 : CONFIG.audio.masterVolume), // v4 F4: unmute restores design volume (0.8), not 1
+  onToggleMute: (muted) => audio.setMuted(muted), // AUDIT MED: single mute source (sets _muted + master + persists) — pause Sound and menu stay in sync
 });
 menu.restoreMute(); // persisted mute state (audit minor)
 const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressItem(), onPause: togglePause, onDrift: (b) => { touchDrift = b; } });
@@ -655,6 +655,9 @@ function startRace() {
     hud.showMessage(tip);
   }
   raceManager.onPlayerFinish = (place, time) => {
+    // AUDIT MED: hide touch controls at FINISHED — the DRIFT button (z 120)
+    // sat over the finish card (z 3) and stole taps from Race Again/Menu.
+    touch.hide?.();
     // AUDIT r21: the finish card now shows the FULL final standings
     // (position + driver + time) like MK8D's results screen, not just the
     // player's place.
@@ -675,7 +678,7 @@ function startRace() {
     // reduced speed, engine hums quietly and the music swells over the SFX.
     playerKart.cruiseSpeed = CONFIG.physics.maxSpeed * 0.6;
     raceManager.aiControllers.push(new AIController(playerKart, track, raceManager));
-    audio.setMusicVolume(1);
+    audio.duckMusic(1, 2600); // AUDIT MED: temporary duck, no _musicVolume leak
     audio.play('finish');
     // Victory fanfare only for podium (was playing for EVERY finish).
     // AUDIT r3: the bare setTimeout fired victory over a fresh race if the

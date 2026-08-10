@@ -31,6 +31,7 @@ const CONTROL_ROWS = [
   ['Drift', 'Shift (hold)', '🧲 DRIFT button'],
   ['Use item', 'Space', '🎁 button'],
   ['Throw item back', 'Hold Space, release', 'Hold 🎁, release'],
+  ['Swap item', 'Tab', 'Tap 🎁 reserve slot'],
   ['Restart', 'R', '—'],
   ['Pause', 'P / Esc', '⏸ button'],
 ];
