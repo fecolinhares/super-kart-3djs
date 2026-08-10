@@ -292,6 +292,13 @@
   touch container is `pointer-events:none` and this button isn't `.sk3d-touch-btn`,
   so taps never reached it. Reproduced headless, fixed, re-verified (tap → paused).
 
+## 📱 RACERS/TRACKS screens cut on mobile — fixed
+- The carousel strips showed the FIRST card at x=0 so the NEXT card poked in
+  half-cut from the right edge; the JS center only ran on user clicks (and
+  clamped to 0 for card 0). Strips now pad inline to center the first card.
+- Track cards capped at 74vw (82vw poked 20px past a 360px screen).
+- Screen cards use 100dvh (mobile Chrome toolbar makes 100vh overshoot).
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
