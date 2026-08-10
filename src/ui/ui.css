@@ -1611,7 +1611,7 @@
   flex-direction: column;
   gap: 16px;
   width: min(940px, 100%);
-  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px); /* 100dvh: mobile Chrome toolbar — 100vh overshoots */
   padding: 18px 20px 24px;
   background: rgba(255, 253, 247, 0.97);
   border: var(--sk3d-border);
@@ -1662,7 +1662,12 @@
   gap: 16px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  padding: 6px 4px 14px;
+  /* AUDIT FIX (user bug: racer/map screens still cut on mobile): with the
+     first card at x=0 the NEXT card pokes in half-cut from the right edge.
+     Inline padding centers the first card, so each snap target sits fully
+     in view (the JS _centerCard clamps to 0 for card 0 — this fixes it). */
+  padding: 6px max(4px, calc(50% - min(150px, 37vw))) 14px;
+  scroll-padding-inline: max(4px, calc(50% - min(150px, 37vw)));
   scrollbar-width: none;
 }
 
@@ -1790,7 +1795,7 @@
 
 .sk3d-track-card {
   scroll-snap-align: center;
-  flex: 0 0 min(430px, 82vw);
+  flex: 0 0 min(430px, 74vw); /* AUDIT: 82vw on a 360px screen = 295px — the card poked past the right edge; 74vw keeps it fully in view */
   display: flex;
   flex-direction: column;
   gap: 6px;
