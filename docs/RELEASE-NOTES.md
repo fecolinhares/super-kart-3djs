@@ -27,6 +27,10 @@
   - Mountains: irregular ridgelines, broken snowlines, 3 value-contrast
     layers, distance haze.
   - Grid: wider spacing (row 4.6m / col 3.4m) — no more wheel-merge.
+  - **Round 19 — fix-check regressions**: terrain scaled to ~±5m (was
+    ±8.4m — ridge walls), off-road karts ride the rolling terrain
+    (terrainHeight beyond the corridor), camera pullback 0.35→0.15
+    (kart keeps the MK8D frame share at top speed).
 - **Round 15 — audit r9 fixes**: third drift spark tier (purple @ 0.9),
   blue-shell splash (knocks karts near the leader), color-grade restored
   on real GPUs (software GL stays safe), high-speed wind streaks.
