@@ -436,7 +436,8 @@ export class Environment {
     if (CONFIG.render.shadows) {
       const testMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('test');
       sun.shadow.mapSize.set(testMode ? CONFIG.render.testShadowMapSize : CONFIG.render.shadowMapSize, testMode ? CONFIG.render.testShadowMapSize : CONFIG.render.shadowMapSize);
-      sun.shadow.radius = 4.5; // softer shadow edges (penumbra)
+      sun.shadow.radius = 4.5; // penumbra assist (inert with PCFSoftShadowMap —
+      // the PCFSoft kernel already softens; kept for PCF/other shadow maps)
       sun.shadow.camera.left = -28; // TIGHT frustum following the player
       sun.shadow.camera.right = 28; // (audit r2: ±90m gave ~9cm texels →
       sun.shadow.camera.top = 28; //  blurry blob shadows; ±28m gives ~2.7cm)

@@ -39,12 +39,14 @@ const ColorGradeShader = {
     uniform float saturation;
     uniform float contrast;
     varying vec2 vUv;
+    // AUDIT r10: modern GLSL — texture()/out color (WebGL2-safe).
+    out vec4 outColor;
     void main() {
-      vec4 c = texture2D(tDiffuse, vUv);
+      vec4 c = texture(tDiffuse, vUv);
       float l = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722));
       vec3 sat = mix(vec3(l), c.rgb, saturation);
       vec3 con = (sat - 0.5) * contrast + 0.5;
-      gl_FragColor = vec4(con, c.a);
+      outColor = vec4(con, c.a);
     }
   `,
 };

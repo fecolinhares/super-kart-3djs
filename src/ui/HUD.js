@@ -604,6 +604,14 @@ export class HUD {
   _drawSpeedlines(speed01) {
     const ctx = this.speedlineCtx;
     if (!ctx) return;
+    // AUDIT r10: resize the canvas if the window changed since construction
+    // (cheap guard — the HUD rebuilds per race anyway).
+    const iw = window.innerWidth;
+    const ih = window.innerHeight;
+    if (this.speedlineCanvas.width !== iw || this.speedlineCanvas.height !== ih) {
+      this.speedlineCanvas.width = iw;
+      this.speedlineCanvas.height = ih;
+    }
     const a = speed01 > 0.8 ? Math.min(0.5, (speed01 - 0.8) * 2.2) : 0;
     const w = this.speedlineCanvas.width;
     const h = this.speedlineCanvas.height;
