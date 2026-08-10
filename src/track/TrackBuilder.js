@@ -384,7 +384,7 @@ function buildTerrain(path, cityMode = false) {
     }
     geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
   }
-  const mat = toonMaterial(cityMode ? 0x2a2d38 : 0xffffff, {});
+  const mat = toonMaterial(cityMode ? 0x2a2d38 : 0xffffff, cityMode ? { emissive: 0x151a30, emissiveIntensity: 0.35 } : {}); // AUDIT: city floor carries a faint cool glow — not void-black
   if (!cityMode) {
     mat.map = grassTexture();
     mat.color.set(0xffffff);
@@ -1601,7 +1601,7 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
     ribbonOpts.texture = cityRoadTexture; // baked neon spill on the asphalt
     ribbonOpts.color = 0x4a5062; // charcoal, not black
     ribbonOpts.emissive = 0x2a1c4a; // cool night sheen WITH a hint of neon
-    ribbonOpts.emissiveIntensity = 0.7;
+    ribbonOpts.emissiveIntensity = 1.15; // AUDIT: spill must READ on the still — emissive carries the baked neon, light alone lost it
   }
   const ribbon = buildRoadRibbon(path, length, ribbonOpts);
   ribbon.receiveShadow = true;
