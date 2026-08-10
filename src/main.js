@@ -667,7 +667,7 @@ function startRace() {
   hud.show();
   hud.reset();
   if (isTouchMode()) touch.show();
-  audio.startMusic();
+  audio.startMusic(TRACK_ID === 2 ? 'Neon Nights' : undefined);
   countdownT = 0;
   countdownIndex = -1;
   setState(STATES.COUNTDOWN);

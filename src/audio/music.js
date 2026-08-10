@@ -131,6 +131,26 @@ const TRACKS = [
     hatPattern: [1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1],
     bassPattern: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
   },
+  {
+    name: 'Neon Nights',
+    key: 'Dm',
+    bpm: 142,
+    chords: ['Dm7', 'Bbmaj7', 'Fmaj7', 'E7'],
+    barsPerChord: 1,
+    cycles: 8,
+    padType: 'sawtooth',
+    padFilter: 700,
+    padWobble: 0.6,
+    padGain: 1.0,
+    chimeVol: 0.12,
+    chimeDensity: 0.45,
+    bassVol: 0.3,
+    drumVol: 0.24,
+    kickPattern: [1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0],
+    snarePattern: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+    hatPattern: [1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    bassPattern: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+  },
 ];
 
 // Calm menu loop (audit r3) — a laid-back variant of 'Turbo Circuit'
@@ -177,7 +197,7 @@ export class MusicEngine {
     const cfg = (ctxOrOpts && typeof ctxOrOpts === 'object' && 'ctx' in ctxOrOpts)
       ? ctxOrOpts
       : { ...opts, ctx: ctxOrOpts };
-    const { ctx, output = null, volume = 0.34, onEnded = null, seed = Date.now(), menu = false, intensity = 0.5 } = cfg;
+    const { ctx, output = null, volume = 0.34, onEnded = null, seed = Date.now(), track = null, menu = false, intensity = 0.5 } = cfg;
 
     this._ctx = ctx;
     this._out = output || ctx.destination;
@@ -225,6 +245,12 @@ export class MusicEngine {
     // `menu: true` swaps the shuffled 3-track playlist for the single calm
     // loop; everything downstream (scheduler, instruments) is identical.
     this._playlist = menu ? [MENU_TRACK] : TRACKS.slice();
+    // `track` option pins the FIRST song (per-track identity — NEON CITY
+    // opens with 'Neon Nights'; then the playlist continues shuffled).
+    if (track) {
+      const ti = this._playlist.findIndex((t) => t.name === track);
+      if (ti > 0) this._playlist.unshift(this._playlist.splice(ti, 1)[0]);
+    }
     this._trackIdx = -1;
     this._timer = null;
     this._finishTimer = null;

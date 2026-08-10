@@ -333,7 +333,7 @@ export class AudioManager {
   /* ---------------- Music ---------------- */
 
   /** Starts the procedural racing playlist (stops any menu loop first). */
-  startMusic() {
+  startMusic(trackName) {
     this._musicRequested = true;
     this.stopMenuMusic();
     if (!this._ctx || !this._master) return; // starts on init()
@@ -341,6 +341,7 @@ export class AudioManager {
     this._music = new MusicEngine(this._ctx, {
       output: this._master,
       volume: this._musicVolume,
+      track: trackName, // per-track opening song (e.g. 'Neon Nights' on city)
       onEnded: () => {}, // the engine advances the playlist itself
     });
     this._music.start();
