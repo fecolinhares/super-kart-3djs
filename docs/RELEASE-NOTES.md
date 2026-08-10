@@ -31,6 +31,10 @@
     ±8.4m — ridge walls), off-road karts ride the rolling terrain
     (terrainHeight beyond the corridor), camera pullback 0.35→0.15
     (kart keeps the MK8D frame share at top speed).
+  - **Round 20-21 — auditor MEDs**: terrain mesh matches physics (×0.7,
+    no sink/float), camera 5.7m (no bottom crop), minimap darker bg,
+    mountain mid-band haze reduced, gantry pillar flush (y3.05),
+    5-lamp start countdown (MK8D), night skyline per-row haze.
 - **Round 15 — audit r9 fixes**: third drift spark tier (purple @ 0.9),
   blue-shell splash (knocks karts near the leader), color-grade restored
   on real GPUs (software GL stays safe), high-speed wind streaks.
