@@ -235,7 +235,7 @@ export class KartPhysics {
       // Off-road: ride the rolling terrain, but CLAMP the sink so a kart at
       // the track edge can't drop into the floor (user bug: 'falling into
       // the subsoil at track corners' — the far field rolls to -5m).
-      near.groundY = Math.max(terrainHeight(s.position.x, s.position.z, track.path), sp.y - 0.6);
+      near.groundY = Math.max(terrainHeight(s.position.x, s.position.z, track.path), near.groundY - 0.6); // near.groundY IS sp.y (from nearestSample) — sp is not in step scope
     } else {
       // ON-ROAD: the visible road ribbon sits at path.y + 0.18 (buildRoadRibbon
       // yOff). Without this offset the kart body sank 0.18m INTO the asphalt,
