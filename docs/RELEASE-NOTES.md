@@ -267,6 +267,12 @@
 - **MED ux**: mute button plays uiClick (unmuting gave zero confirmation); dead
   `fogDensity` config removed.
 
+## NEON CITY emissive pass — 7/10 peak
+- Asphalt emissive 1.15 + emissiveMap (the baked neon patches GLOW across the
+  surface — light alone lost it under the dim night key), city floor faint cool
+  glow, cranes flank the start straight. Vision range 4.5-7/10 across frames
+  (night identity 9/10, floor 8/10 on the best frame).
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
