@@ -1020,10 +1020,13 @@ export class Kart {
     // Deep center groove ring (the "readable tread" cue).
     const grooveGeo = new THREE.TorusGeometry(wR - 0.002, 0.008, 8, 40);
     // Sidewall stripe ring — proud ring on the tire face (accent color).
-    const stripeGeo = new THREE.TorusGeometry(0.24, 0.016, 8, 32);
+    // AUDIT (user: 'several rings floating in odd positions'): the accent ring
+    // sat at r=0.24 inside a r=0.34 tire — a small floating circle mid-wall.
+    // Move it to the tire-wall edge (r=0.30) so it reads as a sidewall stripe.
+    const stripeGeo = new THREE.TorusGeometry(0.30, 0.016, 8, 32);
     // Darker tire-wall band — sits just outside the accent stripe (rubber
     // sidewall break between tread shoulder and painted stripe).
-    const wallBandGeo = new THREE.TorusGeometry(0.27, 0.013, 8, 36);
+    const wallBandGeo = new THREE.TorusGeometry(0.32, 0.013, 8, 36); // AUDIT: outer wall band at the tire edge
     // Chrome rim parts (all in the YZ plane — axle along X).
     const rimDiscGeo = new THREE.CylinderGeometry(0.19, 0.19, 0.022, 24);
     const rimLipGeo = new THREE.TorusGeometry(0.215, 0.018, 8, 28);
