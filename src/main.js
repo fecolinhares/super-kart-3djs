@@ -63,12 +63,34 @@ function buildSkyEnv(renderer) {
   skyCanvas.height = 256;
   const g = skyCanvas.getContext('2d');
   const grad = g.createLinearGradient(0, 0, 0, 256);
-  grad.addColorStop(0, '#3f9fe8');   // deep sky
-  grad.addColorStop(0.55, '#8fd0f7'); // mid sky
-  grad.addColorStop(0.78, '#e8f4ff'); // horizon haze
-  grad.addColorStop(1, '#b8e6b8');   // ground tint
-  g.fillStyle = grad;
-  g.fillRect(0, 0, 512, 256);
+  if (TRACK_ID === 2) {
+    // NEON CITY IBL: deep purple night sky so clearcoat/chrome reflect the
+    // city, not the meadow day (vision critic: karts showed no neon).
+    grad.addColorStop(0, '#141030');
+    grad.addColorStop(0.55, '#26204e');
+    grad.addColorStop(0.78, '#3a2a6a');
+    grad.addColorStop(1, '#0e0e24');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 512, 256);
+    // neon light clusters — bright pink/cyan points that read as city signs
+    // in the reflections (small + intense = hard clearcoat highlights).
+    const neon = ['#ff2ec4', '#2ec4ff', '#ffe23c'];
+    for (let i = 0; i < 14; i++) {
+      g.fillStyle = neon[i % 3];
+      g.globalAlpha = 0.9;
+      g.beginPath();
+      g.arc(40 + Math.random() * 430, 30 + Math.random() * 120, 5 + Math.random() * 7, 0, Math.PI * 2);
+      g.fill();
+    }
+    g.globalAlpha = 1;
+  } else {
+    grad.addColorStop(0, '#3f9fe8');   // deep sky
+    grad.addColorStop(0.55, '#8fd0f7'); // mid sky
+    grad.addColorStop(0.78, '#e8f4ff'); // horizon haze
+    grad.addColorStop(1, '#b8e6b8');   // ground tint
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 512, 256);
+  }
   // bright sun disc — BRIGHTER than ambient so clearcoat/chrome get a
   // strong, defined reflection (vision critic: gloss reads but is weak).
   g.fillStyle = '#fffbe0';

@@ -177,14 +177,16 @@ export function cityRoadTexture() {
       ctx.fillStyle = '#22242f';
       for (let i = 0; i < 3; i++) ctx.fillRect(s * (0.18 + i * 0.22), 0, 8, s);
       // neon spill: soft pink + cyan streaks reflecting onto the pavement
+      // (ellipse STROKES — thin glowing streaks, not filled blobs)
       ctx.globalAlpha = 0.22;
       for (let i = 0; i < 10; i++) {
         const x = Math.random() * s;
         const w = 6 + Math.random() * 14;
-        ctx.fillStyle = Math.random() > 0.5 ? '#ff2ec4' : '#2ec4ff';
+        ctx.strokeStyle = i % 2 ? '#ff2ec4' : '#2ec4ff';
+        ctx.lineWidth = 1.8 + Math.random() * 1.2;
         ctx.beginPath();
-        ctx.ellipse(x, Math.random() * s, w, 2.2, Math.random() * 0.6, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.ellipse(x, Math.random() * s, w, 2.2, (Math.random() - 0.5) * 0.6, 0, Math.PI * 2);
+        ctx.stroke();
       }
       ctx.globalAlpha = 1;
       // cracks
