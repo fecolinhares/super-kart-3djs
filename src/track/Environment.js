@@ -3807,26 +3807,33 @@ export class Environment {
     // --- LARGE billboards (vision critic: 'no readable signage' — MK8 city
     // tracks have big illuminated ad panels; bars read as fake text) ---
     {
-      const bbTex = (bg, fg) => {
+      const bbTex = (bg, fg, accent) => {
         const cv = document.createElement('canvas');
         cv.width = 128; cv.height = 64;
         const c = cv.getContext('2d');
         c.fillStyle = bg; c.fillRect(0, 0, 128, 64);
+        // bold logo disc + bars — reads as a brand mark at race distance
         c.fillStyle = fg;
-        c.fillRect(14, 14, 100, 12);
-        c.fillRect(22, 32, 84, 8);
-        c.fillRect(30, 44, 60, 7);
+        c.beginPath(); c.arc(30, 32, 16, 0, Math.PI * 2); c.fill();
+        c.fillStyle = accent;
+        c.beginPath(); c.arc(30, 32, 8, 0, Math.PI * 2); c.fill();
+        c.fillStyle = fg;
+        c.fillRect(54, 18, 62, 12);
+        c.fillRect(60, 36, 56, 9);
+        c.fillRect(54, 50, 40, 8);
         const t = new THREE.CanvasTexture(cv);
         t.colorSpace = THREE.SRGBColorSpace;
         return t;
       };
       const bbMats = [
-        new THREE.MeshBasicMaterial({ map: bbTex('#141030', '#ff2ec4') }),
-        new THREE.MeshBasicMaterial({ map: bbTex('#1a1440', '#2ec4ff') }),
+        new THREE.MeshBasicMaterial({ map: bbTex('#141030', '#ff2ec4', '#fff') }),
+        new THREE.MeshBasicMaterial({ map: bbTex('#1a1440', '#2ec4ff', '#fff') }),
+        new THREE.MeshBasicMaterial({ map: bbTex('#23103a', '#ffd23c', '#fff') }),
       ];
       const bbPos = [
         { p: [-48, 5.4, -18], r: [0, Math.PI / 3.2, 0], m: 0 },
         { p: [-30, 5.4, -44], r: [0, Math.PI / 2.6, 0], m: 1 },
+        { p: [-76, 5.4, -30], r: [0, Math.PI / 4, 0], m: 2 },
       ];
       for (const b of bbPos) {
         const board = new THREE.Mesh(new THREE.BoxGeometry(7, 3.4, 0.4), bbMats[b.m]);

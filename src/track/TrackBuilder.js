@@ -1600,8 +1600,8 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   if (isCity) {
     ribbonOpts.texture = cityRoadTexture; // baked neon spill on the asphalt
     ribbonOpts.color = 0x4a5062; // charcoal, not black
-    ribbonOpts.emissive = 0x1a2440; // faint cool night sheen on the pavement
-    ribbonOpts.emissiveIntensity = 0.55;
+    ribbonOpts.emissive = 0x2a1c4a; // cool night sheen WITH a hint of neon
+    ribbonOpts.emissiveIntensity = 0.7;
   }
   const ribbon = buildRoadRibbon(path, length, ribbonOpts);
   ribbon.receiveShadow = true;
