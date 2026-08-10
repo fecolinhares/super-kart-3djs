@@ -4,10 +4,12 @@
  * CONFIG.render. Falls back to plain renderer.render if the composer fails
  * to initialize (e.g. very old GPU).
  *
- * HISTORY: the custom ColorGradeShader (saturation/contrast) was REMOVED —
- * chained as bloom→colorgrade→vignette it rendered black on software GL
- * (three chained HalfFloat passes). ACES tone mapping in OutputPass carries
- * the grade; CONFIG.render.colorGrade* values are intentionally unused now.
+ * HISTORY: the custom ColorGradeShader (saturation/contrast) was REMOVED
+ * because chained as bloom→colorgrade→vignette it rendered black on
+ * software GL (three chained HalfFloat passes). AUDIT r9: re-added GATED
+ * on non-software GL (GPU only) — real GPUs handle the HalfFloat chain and
+ * get the MK8 punchy grade; software keeps the safe chain. ACES tone
+ * mapping in OutputPass still carries the base grade.
  */
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
@@ -96,10 +98,8 @@ export class PostFX {
         this.composer.addPass(new ShaderPass(ColorGradeShader));
       }
 
-      // Vignette — NOTE: the custom ColorGradeShader (saturation/contrast)
-      // was removed: chained as bloom→colorgrade→vignette it rendered BLACK
-      // on software GL (3 chained HalfFloat passes). The OutputPass already
-      // applies ACES tone mapping + sRGB; exposure carries the punch.
+      // Vignette — the color-grade pass above is gated to real GPUs (audit
+      // r9); software GL never saw the HalfFloat chain that broke it.
       this.vignette = new ShaderPass(VignetteShader);
       this.vignette.uniforms.offset.value = 1 - CONFIG.render.vignetteStrength * 0.6;
       this.vignette.uniforms.darkness.value = CONFIG.render.vignetteStrength;
