@@ -299,6 +299,14 @@
 - Track cards capped at 74vw (82vw poked 20px past a 360px screen).
 - Screen cards use 100dvh (mobile Chrome toolbar makes 100vh overshoot).
 
+## 🐛 Crash + wheel fixes (2026-08-10)
+- **Freeze right after the start**: the off-road groundY clamp referenced a
+  variable local to another function (`sp`) — the moment any kart left the
+  track the step threw, killing the render loop. Fixed (near.groundY - 0.6).
+- **Wheel sidewall rings**: the accent + wall-band torus rings (r 0.24/0.27)
+  floated inside the r=0.34 tire — 8 small rings per kart read as stray
+  artifacts. Moved to the tire-wall edge (r 0.30/0.32).
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
