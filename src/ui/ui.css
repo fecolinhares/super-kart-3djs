@@ -1925,3 +1925,19 @@
 .sk3d-volume-row { display: flex; align-items: center; gap: 8px; justify-content: center; margin-top: 6px; }
 .sk3d-volume-label { font-size: 0.8rem; color: rgba(255,255,255,0.75); }
 .sk3d-volume { width: 120px; accent-color: #2ec4ff; height: 22px; }
+
+/* AUDIT FIX (user: engine-class buttons glued to Auto-accelerate): the
+   .sk3d-settings wrapper had no layout — its two rows (Engine class + driving
+   assists) sat as stacked blocks with zero gap. A small flex column with a
+   clear gap reads as separate groups; the menu card scrolls, so it still fits
+   small viewports. */
+.sk3d-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+}
+.sk3d-assist-row {
+  row-gap: 10px;
+}
