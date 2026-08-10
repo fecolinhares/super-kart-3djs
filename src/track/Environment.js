@@ -3772,6 +3772,32 @@ export class Environment {
       }
     }
 
+    // --- glowing shop signs on the CLOSE tower row (street-level neon
+    // signage — MK8 city courses are lined with lit storefronts) ---
+    {
+      const signGeo = new THREE.BoxGeometry(2.6, 0.5, 0.12);
+      const signCols = [0xff2ec4, 0x2ec4ff, 0xffe23c, 0x3cff9a];
+      const s2Rand = rnd(5551);
+      for (let i = 0; i < 12; i++) {
+        const t = (i + 0.5) / 12;
+        path.getPointAt(t, signProbe);
+        path.getTangentAt(t, signTan);
+        signNrm.set(-signTan.z, 0, signTan.x).normalize();
+        const side = s2Rand() < 0.5 ? -1 : 1;
+        const sx = signProbe.x + signNrm.x * side * (20 + s2Rand() * 4);
+        const sz = signProbe.z + signNrm.z * side * (20 + s2Rand() * 4);
+        if (this._onTrack(sx, sz, 8)) continue;
+        const sy = this._gy(sx, sz);
+        const sign = new THREE.Mesh(
+          signGeo,
+          new THREE.MeshBasicMaterial({ color: signCols[(s2Rand() * 4) | 0] })
+        );
+        sign.position.set(sx, sy + 3.4 + s2Rand() * 2, sz);
+        sign.lookAt(signProbe.x, sign.position.y, signProbe.z);
+        scene.add(sign);
+      }
+    }
+
     // --- neon street signs (vision critic: 'street-level detail' — small
     // glowing billboards on poles along the sidewalks, every ~60m) ---
     const poleMat = toonMaterial(0x3a4152, {});
