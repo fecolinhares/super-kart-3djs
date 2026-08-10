@@ -3778,14 +3778,17 @@ export class Environment {
       const signGeo = new THREE.BoxGeometry(3.4, 0.8, 0.14);
       const signCols = [0xff2ec4, 0x2ec4ff, 0xffe23c, 0x3cff9a];
       const s2Rand = rnd(5551);
+      const shopProbe = new THREE.Vector3();
+      const shopTan = new THREE.Vector3();
+      const shopNrm = new THREE.Vector3();
       for (let i = 0; i < 12; i++) {
         const t = (i + 0.5) / 12;
-        path.getPointAt(t, signProbe);
-        path.getTangentAt(t, signTan);
-        signNrm.set(-signTan.z, 0, signTan.x).normalize();
+        path.getPointAt(t, shopProbe);
+        path.getTangentAt(t, shopTan);
+        shopNrm.set(-shopTan.z, 0, shopTan.x).normalize();
         const side = s2Rand() < 0.5 ? -1 : 1;
-        const sx = signProbe.x + signNrm.x * side * (20 + s2Rand() * 4);
-        const sz = signProbe.z + signNrm.z * side * (20 + s2Rand() * 4);
+        const sx = shopProbe.x + shopNrm.x * side * (20 + s2Rand() * 4);
+        const sz = shopProbe.z + shopNrm.z * side * (20 + s2Rand() * 4);
         if (this._onTrack(sx, sz, 8)) continue;
         const sy = this._gy(sx, sz);
         const sign = new THREE.Mesh(
@@ -3793,7 +3796,7 @@ export class Environment {
           new THREE.MeshBasicMaterial({ color: signCols[(s2Rand() * 4) | 0] })
         );
         sign.position.set(sx, sy + 3.4 + s2Rand() * 2, sz);
-        sign.lookAt(signProbe.x, sign.position.y, signProbe.z);
+        sign.lookAt(shopProbe.x, sign.position.y, shopProbe.z);
         scene.add(sign);
       }
     }
