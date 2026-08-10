@@ -1699,7 +1699,9 @@ export class Kart {
     // lean into turns, nose-up on accel
     const speed01 = Math.min(1, Math.abs(s.speed) / CONFIG.physics.maxSpeed);
     const steerVis = this._controls.steer * speed01;
-    const rollTarget = -steerVis * 0.09 - (s.drifting ? this._controls.steer * 0.035 : 0);
+    // AUDIT: MK8D banking — 0.09 rad (~5°) read as 'no suspension movement';
+    // raise to ~8° lean + stronger drift tilt so cornering reads on the body.
+    const rollTarget = -steerVis * 0.14 - (s.drifting ? this._controls.steer * 0.06 : 0);
     this.group.rotation.z = THREE.MathUtils.lerp(this.group.rotation.z, rollTarget, Math.min(1, 6 * dt));
     let pitchTarget = s.spinOut ? 0 : (this._controls.throttle ? 0.05 : (this._controls.brake ? -0.04 : 0));
     // AUDIT r7: finished-kart celebration — a quick wheelie hop (nose up,
