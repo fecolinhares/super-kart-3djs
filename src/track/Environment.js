@@ -3874,8 +3874,8 @@ export class Environment {
       const craneMat = toonMaterial(0xd24a2a, {}); // safety-orange boom
       const craneDark = toonMaterial(0x2a2d38, {});
       const craneSpots = [
-        { p: [-86, 0, 2], ry: 0.5 },
-        { p: [86, 0, 108], ry: -0.6 },
+        { p: [-78, 0, 10], ry: 0.5 },  // AUDIT: were off-frame; now flank the start straight
+        { p: [-40, 0, -50], ry: -0.5 },
       ];
       for (const cs of craneSpots) {
         const gy = this._gy(cs.p[0], cs.p[2]);

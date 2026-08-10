@@ -165,7 +165,7 @@ export function cityRoadTexture() {
   _cityRoadTex = canvasTexture(
     256,
     (ctx, s) => {
-      ctx.fillStyle = '#33364a';
+      ctx.fillStyle = '#3a3e54'; // AUDIT: lighter base — flat navy absorbed the spill
       ctx.fillRect(0, 0, s, s);
       // fine grit
       for (let i = 0; i < 900; i++) {
@@ -185,7 +185,7 @@ export function cityRoadTexture() {
         const r = 22 + Math.random() * 30;
         const col = Math.random() > 0.5 ? '255,46,196' : '46,196,255';
         const g = ctx.createRadialGradient(x, y, 2, x, y, r);
-        g.addColorStop(0, 'rgba(' + col + ',0.5)');
+        g.addColorStop(0, 'rgba(' + col + ',0.7)'); // AUDIT: spill must READ on the still
         g.addColorStop(0.55, 'rgba(' + col + ',0.12)');
         g.addColorStop(1, 'rgba(' + col + ',0)');
         ctx.fillStyle = g;
