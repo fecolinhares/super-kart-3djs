@@ -3069,22 +3069,18 @@ export class Environment {
     // straight, the back straight, and after turn 1 — so ANY race frame has
     // cheering people beside the road, not just the grid.
     const SEGMENTS = [
-      { t0: 0.945, t1: 0.055, n: 20 }, // start straight (WRAPS past 1.0)
-      { t0: 0.10, t1: 0.15, n: 10 },    // exit of turn 1
-      { t0: 0.19, t1: 0.25, n: 12 },   // turn 1
-      { t0: 0.30, t1: 0.37, n: 10 },    // climb
-      { t0: 0.45, t1: 0.56, n: 14 },   // back straight
-      { t0: 0.62, t1: 0.68, n: 10 },    // descent
-      { t0: 0.72, t1: 0.80, n: 8 },     // turn 4 approach
-      { t0: 0.855, t1: 0.915, n: 8 },   // final esses
+      { t0: 0.945, t1: 0.055, n: 28 }, // start straight (WRAPS past 1.0)
+      { t0: 0.10, t1: 0.15, n: 14 },    // exit of turn 1
+      { t0: 0.19, t1: 0.25, n: 16 },   // turn 1
+      { t0: 0.30, t1: 0.37, n: 14 },    // climb
+      { t0: 0.45, t1: 0.56, n: 18 },   // back straight
+      { t0: 0.62, t1: 0.68, n: 14 },    // descent
+      { t0: 0.72, t1: 0.80, n: 12 },     // turn 4 approach
+      { t0: 0.855, t1: 0.915, n: 12 },   // final esses
     ];
-    // Two rows per side. USER BUG FIX: the old offsets (1.35 / 2.9) were
-    // only ~1.35m past the road edge — billboard figures 1.1m wide visually
-    // spilled ONTO the asphalt, and (worse) the wrap segment below sampled
-    // the WHOLE lap in reverse, scattering spectators into every curve.
-    // Pushed out to 1.9 / 3.5 so the painted crowd clearly stands BEHIND
-    // the guard-rail line (rail at halfW + 1.1, crowd now at halfW + 1.9+).
-    const ROWS = [1.9, 3.5];
+    // AUDIT r10 (vision critic): crowd read sparse — 2 rows → 3 rows, more
+    // figures per segment (~40% denser). Still instanced (1 extra draw call).
+    const ROWS = [1.9, 3.5, 5.1];
     const segN = SEGMENTS.reduce((a, s) => a + s.n, 0);
     const total = segN * ROWS.length * 2;
     // 2.5D crowd: each spectator is a painted figure (head + suit + raised
