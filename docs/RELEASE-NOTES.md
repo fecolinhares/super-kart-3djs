@@ -313,6 +313,11 @@
   rolls on X. `rotation.x = PI/2` (in the wheel group) maps the ring onto the
   wheel face. Verified by world-matrix: all wheel-ring normals are ~X.
 
+## 🔧 Chrome rim lip ring — fixed
+- The chrome rim LIP ring (r=0.215) sat EDGE-ON: `rotation.z` spins a torus in
+  its own plane. Under the `spin` group it needs `rotation.y = PI/2` (the
+  wheel-face plane). Verified by world matrix — all wheel rings now ~X.
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
