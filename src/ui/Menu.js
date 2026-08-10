@@ -520,7 +520,7 @@ export class Menu {
         el.addEventListener('pointerenter', () => { this.onSound('uiHover'); });
       }
     }
-    this.muteBtn.addEventListener('click', () => { this.toggleMute(); });
+    this.muteBtn.addEventListener('click', () => { this.onSound('uiClick'); this.toggleMute(); }); // AUDIT MED: mute had no sound ack, unlike every other menu control
   }
 
   /** Flip the audio mute toggle (persisted in localStorage). */

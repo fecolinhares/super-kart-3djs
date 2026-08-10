@@ -1278,7 +1278,11 @@ export class Kart {
     // AUDIT MED: rubber-band (≤+12%) and coins (≤+10%) stacked multiplicatively
     // → a caught-up 10-coin AI ran ~+23% over maxSpeed. Cap the TOTAL.
     const raw = base * (1 + bonus);
-    return Math.min(raw, CONFIG.physics.maxSpeed * (1 + CONFIG.physics.rubberBandCap));
+    // AUDIT MED: the rubber-band cap must NOT erase the difficulty-150 speed
+    // curve — the AI statScale (1.22 @150cc) lives inside _baseCruise (base).
+    // Cap RELATIVE to base (which carries difficulty + rubber-band), so the
+    // coins bonus (+10%) can't stack above the ceiling but difficulty can.
+    return Math.min(raw, base * (1 + CONFIG.physics.rubberBandCap));
   }
 
   set cruiseSpeed(v) {

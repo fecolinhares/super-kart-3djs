@@ -280,7 +280,13 @@ function wireMiniBoost(kart) {
   kart._onHit = (type) => {
     // PLAYER hit feedback (user request): red screen flash + label + shake —
     // getting hit by a banana/shell was unreadable before.
-    if (!kart.isPlayer) return;
+    if (!kart.isPlayer) {
+      // AUDIT MED: AI hits were INVISIBLE — a small spark burst + quiet thud
+      // so the player sees the rival got hit (their spin already shows).
+      particles?.burst?.(kart.group.position, { count: 8, color: 0xffd23c, speed: 3, size: 0.18, spread: 0.4, life: 0.4 });
+      audio?.play?.('bananaBoing', { volume: 0.25 });
+      return;
+    }
     hud.showHitFlash();
     const label = type === 'banana' ? '💥 BANANA!' : type === 'blue' ? '💥 BLUE SHELL!' : '💥 SHELL HIT!';
     hud.showMessage(label);

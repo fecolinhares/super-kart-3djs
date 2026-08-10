@@ -1466,9 +1466,12 @@
   }
 
   .sk3d-item2-slot {
-    width: 36px;
-    height: 36px;
-    font-size: 1.1rem;
+    /* AUDIT HIGH (v3): this 768px rule re-declared the slot at 36px AFTER the
+       (pointer:coarse) 56px — equal specificity, later wins → phones reverted
+       to 36px (below the 48px min). Keep it at the coarse size on phones. */
+    width: 56px;
+    height: 56px;
+    font-size: 1.6rem;
   }
 }
 

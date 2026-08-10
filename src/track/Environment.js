@@ -3921,6 +3921,14 @@ export class Environment {
         const pl = new THREE.PointLight(nl.color, 3.0, 66, 1.4); // AUDIT: spill onto karts/road (critic: color reads but never lands on geometry)
         pl.position.set(...nl.pos);
         scene.add(pl);
+        // AUDIT MED: every light needs a visible FIXTURE — a glowing lamp
+        // pole so the light comes from something, not empty air.
+        const lamp = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.09, 0.12, 3.4, 6),
+          new THREE.MeshBasicMaterial({ color: nl.color })
+        );
+        lamp.position.set(nl.pos[0], 1.7, nl.pos[2]);
+        scene.add(lamp);
       }
     }
 

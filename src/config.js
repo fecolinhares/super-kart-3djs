@@ -162,7 +162,6 @@ export const CONFIG = {
     shadows: true,
     shadowMapSize: 2048,
     testShadowMapSize: 1024, // used when ?test is active (QA speed)
-    fogDensity: 0.004,
   },
 
   audio: {
