@@ -14,6 +14,19 @@
   - Audio: 8-bit beeps replaced by fat modern arcade SFX (noise sweeps,
     layered hits, filter sweeps, reverb + master compressor).
   - Rims: satin silver (no per-spoke mirror reflections).
+- **Round 17-18 — Feco structural pass (3 critical vision agents)**:
+  - Camera: MK8D chase (5.2m/2.6m/FOV 68) — the kart fills the frame;
+    the gantry no longer dominates.
+  - Color grade: saturation 1.45 / contrast 1.25 — ACES tone mapping was
+    eating the grade (measured washed 87/255 + 21% dead-grey on the real
+    GPU); the grade now fights ACES for the MK8 punch.
+  - Gantry: banner 1.55m raised to y5.15, pillars 6.1m — reads as a
+    finish structure, not a wall in the driver's face.
+  - Terrain: broad hills ±5.0m — rolling field, not a carpet.
+  - HUD: rank + item slots BOTTOM-LEFT (MK8D), unified card language.
+  - Mountains: irregular ridgelines, broken snowlines, 3 value-contrast
+    layers, distance haze.
+  - Grid: wider spacing (row 4.6m / col 3.4m) — no more wheel-merge.
 - **Round 15 — audit r9 fixes**: third drift spark tier (purple @ 0.9),
   blue-shell splash (knocks karts near the leader), color-grade restored
   on real GPUs (software GL stays safe), high-speed wind streaks.

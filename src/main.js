@@ -193,8 +193,9 @@ function buildGridPositions(count) {
     const row = Math.floor(i / 3);
     const pos = track.startLine.position
       .clone()
-      .addScaledVector(dir, -(row + 1) * 3.6)
-      .addScaledVector(perp, (col - 1) * 2.7);
+      .addScaledVector(dir, -(row + 1) * 4.6) // AUDIT r18: 3.6→4.6 row,
+      .addScaledVector(perp, (col - 1) * 3.4); // 2.7→3.4 col — the vision
+    // critic read the pack as 'cramped / wheels merge'. MK8 grid gaps.
     pos.y += 0.1;
     out.push({ position: pos, heading: Math.atan2(dir.x, dir.z) });
   }
