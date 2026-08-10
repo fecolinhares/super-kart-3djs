@@ -3735,7 +3735,7 @@ export class Environment {
     const fogCol = new THREE.Color(0x1a2436); // night haze target
     for (const row of rows) {
       const rand = rnd(row.seed);
-      const count = 12 + Math.floor(rand() * 5); // 12-16 per row
+      const count = 18 + Math.floor(rand() * 5); // 18-22 per row (denser skyline — vision critic: sparse)
       const rowMat = new THREE.MeshBasicMaterial({
         map: this._windowTexture(),
         color: new THREE.Color(1, 1, 1).lerp(fogCol, row.haze),
