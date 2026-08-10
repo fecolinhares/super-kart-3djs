@@ -847,7 +847,10 @@ function buildGantry(startLine) {
   for (const base of [pillarBaseL, pillarBaseR]) {
     const pillar = new THREE.Mesh(pillarGeo, pillarMat);
     pillar.position.copy(base);
-    pillar.position.y = 2.8; // height 5.6 → spans 0.0..5.6 (beam top is 5.65)
+    // AUDIT r20-FIX: 6.1m pillar centered at y 2.8 sank its base 0.25m
+    // into the grass — center at 3.05 so it spans 0.0..6.1 flush with
+    // the footing and the beam top (6.1).
+    pillar.position.y = 3.05;
     pillar.castShadow = true;
     group.add(pillar);
     cartoonOutline(pillar, 0x1b2a41, 0.03);
@@ -900,16 +903,17 @@ function buildGantry(startLine) {
   banner.rotation.y = Math.atan2(-startLine.direction.x, -startLine.direction.z);
   group.add(banner);
 
-  // Start lights (3 lamps on the beam) — raceManager/main animate them:
-  // red lamps light up during countdown, all green on GO.
+  // Start lights (5 lamps on the beam — AUDIT r20-FIX: MK8D's signature
+  // 5-light countdown, was 3) — raceManager/main animate them: red lamps
+  // light up during countdown, all green on GO.
   const startLights = [];
-  const lampGeo = new THREE.SphereGeometry(0.22, 12, 10);
+  const lampGeo = new THREE.SphereGeometry(0.2, 12, 10);
   const lampOff = toonMaterial(0x3a4252, { emissive: 0x000000, emissiveIntensity: 0 });
   const lampMat = lampOff;
-  for (let i = -1; i <= 1; i++) {
+  for (let i = -2; i <= 2; i++) {
     const lamp = new THREE.Mesh(lampGeo, lampMat);
-    lamp.position.copy(startLine.position).addScaledVector(nrm, i * 1.1);
-    lamp.position.y = 5.68; // mounted ON the beam (top face 5.4+0.25) — was 7.7 (floating 2.3m above!)
+    lamp.position.copy(startLine.position).addScaledVector(nrm, i * 0.95);
+    lamp.position.y = 6.08; // mounted on the beam TOP (beam top face = 6.1)
     group.add(lamp);
     startLights.push(lamp);
   }

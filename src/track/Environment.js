@@ -3718,23 +3718,31 @@ export class Environment {
     cent.multiplyScalar(1 / 64);
 
     const geo = new THREE.BoxGeometry(10, 14, 8);
-    const mat = new THREE.MeshBasicMaterial({ map: this._windowTexture() });
-    const towers = new THREE.InstancedMesh(geo, mat, 48);
     const windowColors = [0xff9a3c, 0x3c9aff, 0xffe23c];
     const dummy = new THREE.Object3D();
     const dir = new THREE.Vector3();
-    let idx = 0;
     // Row A hugs the track (16-26m); row B sits behind it (26-38m); row C is
     // a LOWER midground fill (50-62m) so the city has depth layers (vision
     // critic: 'few buildings at intermediate and far distances').
+    // AUDIT r20-FIX: per-row haze — one InstancedMesh per row, material
+    // color multiplied toward the night fog so depth reads (the shared
+    // material flattened the far row into the near one).
     const rows = [
-      { seed: 21000, base: 16, range: 10 },
-      { seed: 22000, base: 26, range: 12 },
-      { seed: 23000, base: 50, range: 12, low: true },
+      { seed: 21000, base: 16, range: 10, haze: 0.0 },
+      { seed: 22000, base: 26, range: 12, haze: 0.35 },
+      { seed: 23000, base: 50, range: 12, low: true, haze: 0.6 },
     ];
+    const fogCol = new THREE.Color(0x1a2436); // night haze target
     for (const row of rows) {
       const rand = rnd(row.seed);
       const count = 12 + Math.floor(rand() * 5); // 12-16 per row
+      const rowMat = new THREE.MeshBasicMaterial({
+        map: this._windowTexture(),
+        color: new THREE.Color(1, 1, 1).lerp(fogCol, row.haze),
+        fog: false,
+      });
+      const towers = new THREE.InstancedMesh(geo, rowMat, count);
+      let idx = 0;
       for (let i = 0; i < count; i++) {
         const t = (((i / count + (rand() - 0.5) * (6 / len)) % 1) + 1) % 1; // ±3m along path
         path.getPointAt(t, probe);
@@ -3755,13 +3763,13 @@ export class Environment {
         towers.setColorAt(idx, new THREE.Color(windowColors[(rand() * 3) | 0]));
         idx++;
       }
-    }
-    if (idx > 0) {
-      towers.count = idx;
-      towers.instanceMatrix.needsUpdate = true;
-      if (towers.instanceColor) towers.instanceColor.needsUpdate = true;
-      towers.castShadow = true;
-      scene.add(towers);
+      if (idx > 0) {
+        towers.count = idx;
+        towers.instanceMatrix.needsUpdate = true;
+        if (towers.instanceColor) towers.instanceColor.needsUpdate = true;
+        towers.castShadow = false;
+        scene.add(towers);
+      }
     }
 
     // --- neon street signs (vision critic: 'street-level detail' — small
