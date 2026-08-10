@@ -131,8 +131,10 @@ export const CONFIG = {
   camera: {
     fov: 68, // AUDIT r17 (Feco real-GPU): the 7.2m/3.4m chase made the kart
     // tiny in frame and the FINISH gantry dominate. MK8D keeps the kart
-    // ~25-30% of the frame: closer (5.2m), lower (2.6m), wider FOV 68.
-    followDistance: 5.2,
+    // ~25-30% of the frame: closer (5.7m), lower (2.6m), wider FOV 68.
+    // (r20: 5.2 cropped the kart at the bottom edge — 5.7 keeps the size
+    // without the heavy crop.)
+    followDistance: 5.7,
     followHeight: 2.6,
     lookAhead: 5.0,
     lookHeight: 1.2,

@@ -476,7 +476,8 @@
 }
 
 .sk3d-minimap-bg {
-  fill: rgba(255, 255, 255, 0.1);
+  fill: rgba(12, 18, 30, 0.45); /* AUDIT r20: darker bg so the white route
+  actually reads — the light card bg washed the polyline out */
 }
 
 .sk3d-minimap-ring {

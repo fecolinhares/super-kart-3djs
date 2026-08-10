@@ -634,8 +634,8 @@ export class Environment {
     // black. Deterministic local rnd() — this._rand is never touched.
     const bands = [
       { radius: 318, count: 14, rock: 0xcfdcf2, dark: 0x8fa6cf, snow: 0xf4f8ff, baseH: 40, seed: 11, offset: 0.6, haze: 0.55 }, // farthest — pale haze silhouette
-      { radius: 262, count: 13, rock: 0x93a5e0, dark: 0x5b6aa8, snow: 0xf0f6ff, baseH: 34, seed: 27, offset: 0.2, haze: 0.42 }, // mid blue-purple
-      { radius: 202, count: 12, rock: 0x5d70c4, dark: 0x36428c, snow: 0xfffdf4, baseH: 28, seed: 43, offset: 0.2, haze: 0.28 }, // near indigo
+      { radius: 262, count: 13, rock: 0x93a5e0, dark: 0x5b6aa8, snow: 0xf0f6ff, baseH: 34, seed: 27, offset: 0.2, haze: 0.3 }, // AUDIT r20: 0.42 washed the snow patches out — 0.3 keeps the ridge contrast
+      { radius: 202, count: 12, rock: 0x5d70c4, dark: 0x36428c, snow: 0xfffdf4, baseH: 28, seed: 43, offset: 0.2, haze: 0.18 }, // AUDIT r20: 0.28 → 0.18
       { radius: 146, count: 10, rock: 0x39468e, dark: 0x1c2658, snow: 0xffffff, baseH: 24, seed: 61, offset: 0.2, haze: 0.12 },  // closest — deepest + brightest
     ];
     // Day fog color = the atmospheric haze target (scene.fog is 0xbfe6ff).
