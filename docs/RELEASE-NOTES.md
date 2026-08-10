@@ -273,6 +273,12 @@
   glow, cranes flank the start straight. Vision range 4.5-7/10 across frames
   (night identity 9/10, floor 8/10 on the best frame).
 
+## AUDIT v5 — volume + feedback
+- **Master volume slider** in the menu (persisted `sk3d.volume`, updates the unmute
+  restore target) — audio was binary mute-only.
+- **Verified**: AI-hit uses the real banana sfx (bananaBoing was dead code), unmute
+  ack plays after the gain ramp.
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
