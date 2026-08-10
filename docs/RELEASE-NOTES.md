@@ -224,8 +224,11 @@
 ## 🏁 Track 2: NEON CITY (menu track switch or `?track=2`)
 - Tight urban circuit (649m — long straights + hairpins, same physics).
 - Night theme: dark purple-blue sky + glowing moon, building skyline with
-  lit windows, neon pink/cyan poles, dark asphalt, neon kerbs, metallic
-  guard-rails with emissive top strip.
+  lit windows (3 depth layers, 48+ towers), neon pink/cyan poles, dark asphalt
+  with BAKED neon spill (cityRoadTexture), neon kerbs, metallic guard-rails
+  with emissive top strip, concrete sidewalks, glowing street signs + shop
+  signs on the close towers, night IBL so clearcoat/chrome reflect the city,
+  and its own **Neon Nights** soundtrack (dark Dm sawtooth, 142bpm).
 
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
