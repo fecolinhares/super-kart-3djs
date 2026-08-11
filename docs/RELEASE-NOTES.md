@@ -365,6 +365,10 @@
 - Seated pose variant, per-pose bounce amplitude, clumped gap runs, and a
   raised berm strip — the crowd stands on a visible bank with feet planted.
 
+## 🧍 Crowd — full agent pass (round 6)
+- Positional jitter (no picket fence), family-clustered heights, striped
+  shirts on 30% of the crowd. All multi-agent proposals applied.
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
