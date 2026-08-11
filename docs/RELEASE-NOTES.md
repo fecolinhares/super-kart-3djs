@@ -318,6 +318,11 @@
   its own plane. Under the `spin` group it needs `rotation.y = PI/2` (the
   wheel-face plane). Verified by world matrix — all wheel rings now ~X.
 
+## 🌱 Track-edge sink — fixed
+- Roadside terrain base -0.25 → -0.05 (the 0.43m step below the road read as
+  karts diving into the earth at the edge; now a kerb-like ~0.23m step).
+- Off-road physics sink clamp -0.6 → -0.3m.
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
