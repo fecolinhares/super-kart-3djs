@@ -448,7 +448,29 @@ export class HUD {
     svg.append(dotsGroup);
     wrap.append(svg);
 
-    return { wrap, dotsGroup, scale, offX, offZ, dots: new Map(), kartsRef: null };
+    return { wrap, dotsGroup, scale, offX, offZ, dots: new Map(), itemDots: new Map(), kartsRef: null };
+  }
+
+  /** Create the minimap dot for one ACTIVE ITEM (banana/shell) — AUDIT
+   *  (Feco, 2026-08-11): 'a banana não dá pra ver no mapa' — the minimap
+   *  only drew karts, so dropped hazards were invisible on it. */
+  _addMinimapItemDot(item) {
+    const mm = this._mm;
+    if (!mm) return null;
+    const cls = item.constructor && item.constructor.name;
+    let color = '#ffd23f'; // banana
+    if (cls === 'ShellProjectile') {
+      color = item.blue ? '#4aa8ff' : item.homing ? '#ff5252' : '#43d64b';
+    }
+    const dot = svgEl('circle', {
+      cx: MINIMAP_SIZE / 2,
+      cy: MINIMAP_SIZE / 2,
+      r: '3.4',
+      class: 'sk3d-minimap-dot-item',
+    });
+    dot.style.fill = color;
+    mm.dotsGroup.append(dot);
+    return dot;
   }
 
   /** Create the minimap dot for one kart (called once per kart identity). */
@@ -481,7 +503,7 @@ export class HUD {
    * kart identity (cached); only cx/cy/r attributes are touched per frame.
    * @param {object[]} [karts] raceManager.karts (player first, then AI)
    */
-  _updateMinimap(karts) {
+  _updateMinimap(raceManager, karts) {
     const mm = this._mm;
     if (!mm || !karts || karts.length === 0) return;
 
@@ -509,6 +531,31 @@ export class HUD {
         const hDeg = ((kart.state.heading || 0) * 180) / Math.PI;
         const deg = 180 - hDeg;
         mm.playerCone.setAttribute('transform', `translate(${cx.toFixed(1)},${cy.toFixed(1)}) rotate(${deg.toFixed(1)})`);
+      }
+    }
+
+    // Active items (dropped bananas, flying shells) — AUDIT (Feco): hazards
+    // are now readable on the minimap. StarEffect has no mesh, so it's skipped
+    // by the mesh check; dead/removed items get their dot cleaned up.
+    const items = raceManager && Array.isArray(raceManager.activeItems) ? raceManager.activeItems : null;
+    if (items) {
+      for (const [it, dot] of mm.itemDots) {
+        if (!it || it.dead || !items.includes(it)) {
+          dot.remove();
+          mm.itemDots.delete(it);
+        }
+      }
+      for (const it of items) {
+        if (!it || it.dead || !it.mesh || !it.mesh.position) continue;
+        let dot = mm.itemDots.get(it);
+        if (!dot) {
+          dot = this._addMinimapItemDot(it);
+          if (!dot) continue;
+          mm.itemDots.set(it, dot);
+        }
+        const ip = it.mesh.position;
+        dot.setAttribute('cx', String(mm.offX + ip.x * mm.scale));
+        dot.setAttribute('cy', String(mm.offZ + ip.z * mm.scale));
       }
     }
   }
@@ -601,8 +648,8 @@ export class HUD {
     if (coins < this._coins) this.flashCoinLoss(this._coins - coins);
     this.setCoins(coins);
 
-    // Minimap dots.
-    this._updateMinimap(karts);
+    // Minimap dots (karts + active items).
+    this._updateMinimap(raceManager, karts);
   }
 
   /** @param {number} speed kart speed in m/s (may be negative while reversing). */
