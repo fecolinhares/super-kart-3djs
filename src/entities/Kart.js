@@ -1778,6 +1778,23 @@ export class Kart {
       this._starMs = Math.max(0, this._starMs - ms);
       if (this._starMs <= 0) this.starred = false;
     }
+    // AUDIT (power-up audit, 2026-08-11): MK8D star karts FLASH rainbow —
+    // the star was only a particle trail, the kart paint stayed static.
+    // Hue-cycle the body material (saturate + rotate hue) while starred and
+    // restore the exact base hex when it ends.
+    if (this.starred) {
+      if (!this._bodyBaseHex && this._bodyMat) this._bodyBaseHex = this._bodyMat.color.getHex();
+      this._starT = (this._starT || 0) + dt;
+      if (this._bodyMat && this._bodyMat.color && this._bodyBaseHex) {
+        const base = new THREE.Color(this._bodyBaseHex);
+        const hsl = { h: 0, s: 0, l: 0 };
+        base.getHSL(hsl);
+        this._bodyMat.color.setHSL((hsl.h + this._starT * 0.8) % 1, Math.max(0.85, hsl.s), hsl.l);
+      }
+    } else if (this._bodyMat && this._bodyBaseHex && this._starT) {
+      this._bodyMat.color.setHex(this._bodyBaseHex);
+      this._starT = 0;
+    }
     if (this._invMs > 0) {
       this._invMs = Math.max(0, this._invMs - ms);
       if (this._invMs <= 0) {
