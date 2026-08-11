@@ -311,6 +311,13 @@ export class ShellProjectile {
     this._descended = false;
     this._shadow = null;
     this.mesh = buildShellMesh(color);
+    // AUDIT (Feco, 2026-08-11): 'casco verde estático sem animação' — MK8
+    // shells SPIN around their travel axis while flying. The mesh root holds
+    // the yaw (rotation.y = heading), so body+spikes move into an inner
+    // group that rolls on local +Z (the shell's forward axis).
+    this._spin = new THREE.Group();
+    while (this.mesh.children.length) this._spin.add(this.mesh.children[0]);
+    this.mesh.add(this._spin);
     this.mesh.position.set(
       opos.x + this.dir.x * 1.5,
       opos.y + 0.35,
@@ -399,6 +406,7 @@ export class ShellProjectile {
     m.position.x += this.dir.x * this.speed * dt;
     m.position.z += this.dir.y * this.speed * dt;
     m.rotation.y = Math.atan2(this.dir.x, this.dir.y);
+    if (this._spin) this._spin.rotation.z += dt * 16; // visible travel-axis spin
     this._emitTrail();
 
     // Green shell follows the racing line (MK8 behavior): steer toward the

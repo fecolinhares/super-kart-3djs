@@ -90,7 +90,11 @@ export const CONFIG = {
     // every frame, MK8D item boxes are ~1.4m and read as pickups, not props)
     boxBobSpeed: 2.0,
     pickupRadius: 2.8, // generous — at 43 m/s the kart crosses 2.1m per 0.05s frame
-    shellSpeed: 46,
+    // AUDIT (Feco, 2026-08-11): 'a velocidade que ele é arremessado é lenta' —
+    // 46 m/s vs a kart at ~42 was a ~4 m/s relative gain: a thrown shell barely
+    // outran its owner. MK8 shells are thrown ~1.6-1.8x kart speed; 72 m/s
+    // (~1.7x) makes the throw read as a proper shot while still dodgeable.
+    shellSpeed: 72,
     shellHomingTurnRate: 3.2,
     // AUDIT r4: blue shell ARC — the spiny flies high (telegraph) before
     // diving. lift 13 m/s launch, gravity 9.8 brings it down in ~2.6s.
