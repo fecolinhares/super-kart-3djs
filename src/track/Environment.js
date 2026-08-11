@@ -3290,7 +3290,7 @@ export class Environment {
     const crowdColors = [0xe74c4c, 0xf4a93e, 0x5cb85c, 0x4a90d9, 0x9b6fd4, 0xe8789a, 0xf5f5f5, 0x7b8a9e, 0x34495e];
     // AUDIT (agent: 'repeated in nearly identical poses'): 4 pose variants.
     const POSES = [
-      { armL: -1.25, armR: 1.25, armY: 0.7, armX: 0.4, bodyOff: 0.36, bob: 0.2 },   // cheer
+      { armL: -1.25, armR: 1.25, armY: 0.7, armX: 0.4, bodyOff: 0.36, bob: 0.26 },   // cheer (audit F3: 0.2 -> 0.26, 22% of body height)
       { armL: -0.15, armR: 0.15, armY: 0.62, armX: 0.32, bodyOff: 0.36, bob: 0.08 }, // relaxed
       { armL: -1.25, armR: 0.18, armY: 0.72, armX: 0.4, bodyOff: 0.36, bob: 0.13 },  // wave
       { armL: -0.35, armR: 0.35, armY: 0.52, armX: 0.3, bodyOff: 0.3, bob: 0.05 },   // seated (lower)
@@ -3361,6 +3361,7 @@ export class Environment {
     const neckBaseY = new Array(total);
     const footBaseY = new Array(total);
     const bobArr = new Array(total);
+    const phaseArr = new Array(total);
     let idx = 0;
     for (const seg of SEGMENTS) {
       for (let side = -1; side <= 1; side += 2) {
@@ -3403,6 +3404,7 @@ export class Environment {
             bodies.setColorAt(idx, col);
             bodyBaseY[idx] = bodyY;
             bobArr[idx] = pose.bob;
+            phaseArr[idx] = this._rand() * Math.PI * 2; // per-figure jump phase (audit F4)
             // Berm under the figure — visible earth bank.
             dummy.position.set(fx, gy + 0.15, fz);
             dummy.rotation.set(0, yaw, 0);
@@ -3493,16 +3495,37 @@ export class Environment {
     shadows.instanceMatrix.needsUpdate = true;
     berms.instanceMatrix.needsUpdate = true;
     stripes.instanceMatrix.needsUpdate = true;
+    // AUDIT F3 (crowd audit): bob/phase arrays are shared by ALL parts so a
+    // spectator's head/arms/legs move with its body — previously only the
+    // body had bobArr and the head/arms fell back to 0.18 (head bobbed 2.25x
+    // the body, or detached from a static torso).
     bodies.userData.baseY = bodyBaseY;
     bodies.userData.bob = bobArr;
+    bodies.userData.phase = phaseArr;
     heads.userData.baseY = headBaseY;
+    heads.userData.bob = bobArr;
+    heads.userData.phase = phaseArr;
     armsL.userData.baseY = armBaseY;
+    armsL.userData.bob = bobArr;
+    armsL.userData.phase = phaseArr;
     armsR.userData.baseY = armBaseY;
+    armsR.userData.bob = bobArr;
+    armsR.userData.phase = phaseArr;
     legsL.userData.baseY = legBaseY;
+    legsL.userData.bob = bobArr;
+    legsL.userData.phase = phaseArr;
     legsR.userData.baseY = legBaseY;
+    legsR.userData.bob = bobArr;
+    legsR.userData.phase = phaseArr;
     necks.userData.baseY = neckBaseY;
+    necks.userData.bob = bobArr;
+    necks.userData.phase = phaseArr;
     feetL.userData.baseY = footBaseY;
+    feetL.userData.bob = bobArr;
+    feetL.userData.phase = phaseArr;
     feetR.userData.baseY = footBaseY;
+    feetR.userData.bob = bobArr;
+    feetR.userData.phase = phaseArr;
     scene.add(bodies, heads, armsL, armsR, legsL, legsR, necks, feetL, feetR, shadows, berms, stripes);
     (this.crowdMeshes = this.crowdMeshes || []).push(bodies, heads, armsL, armsR, legsL, legsR, necks, feetL, feetR);
   }
@@ -4333,7 +4356,14 @@ export class Environment {
       const f = this.flagMeshes[i];
       f.rotation.z = Math.sin(t * 5 + i * 0.7) * 0.28;
     }
-    // Crowd cheer bounce (subtle Y wave across the grandstands).
+    // Crowd cheer bounce (Y wave across the grandstands).
+    // AUDIT (Feco, 2026-08-11): 'a velocidade que o público pula está meio
+    // lenta, não natural como um humano' — the old sine ran at t*3.2 rad/s =
+    // 0.51 Hz, i.e. ONE jump every ~2s (a float, not a jump). A natural
+    // human cheer jump is ~1.7-2.5 Hz (~0.4-0.55s per cycle). Now 12.6 rad/s
+    // (~2 Hz) with a half-sine (max(0, sin)) so each spectator has a clear
+    // airborne phase and a grounded pause — reads as hopping, not levitating.
+    // Phase offset i*0.9 keeps the wave traveling through the stands.
     // NOTE: never rebuild the instance matrix from position/quaternion here —
     // the dummy's position is (0,0,0) so recomposing would zero every figure's
     // X/Z and rotation (all spectators teleported to world origin). Adjust the
@@ -4341,11 +4371,18 @@ export class Environment {
     for (const spec of this.crowdMeshes || []) {
       const base = spec.userData.baseY;
       if (!base) continue;
+      const bobArr = spec.userData.bob;
+      const phaseArr = spec.userData.phase;
       const dummy = (spec.userData._dummy = spec.userData._dummy || new THREE.Object3D());
       for (let i = 0; i < spec.count; i++) {
         spec.getMatrixAt(i, dummy.matrix);
-        const bobAmp = spec.userData.bob ? spec.userData.bob[i] : 0.18;
-        dummy.matrix.elements[13] = base[i] + Math.sin(t * 3.2 + i * 0.9) * bobAmp;
+        const bobAmp = bobArr ? bobArr[i] : 0.18;
+        const ph = phaseArr ? phaseArr[i] : i * 0.9;
+        // AUDIT F2 (crowd audit): a rectified pulse (max(0, sin)^0.7) instead
+        // of a pure sine — grounded pause + gravity-shaped rise/hang/fall.
+        const s = Math.sin(t * 12.566 + ph);
+        const rise = s > 0 ? Math.pow(s, 0.7) : 0;
+        dummy.matrix.elements[13] = base[i] + rise * bobAmp;
         spec.setMatrixAt(i, dummy.matrix);
       }
       spec.instanceMatrix.needsUpdate = true;
