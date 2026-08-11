@@ -91,7 +91,13 @@ export class AIController {
     // backward at up to reverseSpeed for a full second — the visible
     // 'running backwards' right after a crash.
     if (st.spinOut) {
-      this.crashUntil = now + CONFIG.ai.crashRecoverMs;
+      // AUDIT (Feco, 2026-08-11): UNIT BUG — crashRecoverMs is in
+      // MILLISECONDS but `now` (raceManager.elapsed) is in SECONDS. The old
+      // `now + crashRecoverMs` set crashUntil ~1200 SECONDS in the future
+      // (20 minutes): after ANY spin/hit the AI released controls forever
+      // and the kart froze in place — the 'bots travados' bug. Divide by
+      // 1000 so the recovery window is 1.2 real seconds.
+      this.crashUntil = now + CONFIG.ai.crashRecoverMs / 1000;
       kart.setControls?.({ steer: 0, throttle: 0, brake: 0, drift: false, useItem: false });
       return;
     }
