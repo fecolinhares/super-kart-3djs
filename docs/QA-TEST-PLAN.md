@@ -33,6 +33,8 @@ audio lifecycle, HUD, mobile basics, performance budget.
 | T19 | Item box | 256px texture, pure white panel, #ef233c glyph, gold trim | code + screenshot | ✅ PASS |
 | T20 | Crowd jump | 2.0 Hz rectified pulse, per-part bob/phase sync, organic phases | code audit (Environment) | ✅ PASS |
 | T21 | Items FX | Shell: PBR+outline+spin+84 m/s; banana: 0.72m+hop+minimap dot; lightning: 3-axis shrink+electric flash; star: rainbow paint | code + harness (0 events) | ✅ PASS |
+| T22 | Neon redesign | '2' layout: start left straight UP (+Z), clockwise, 630m, 0 crossings, corners 4-8m (drift-clean) | `scripts/city-layout-probe.mjs` + harness | ✅ PASS |
+| T23 | Neon props | Ramps curvature-checked on straights; turbo 0.78 bottom straight; item boxes off corners; lights/billboards/cranes path-driven | code probe (buildNeonCity) | ✅ PASS |
 
 ## 3. Regression notes (this release)
 - **2026-08-11 — "opponents run backwards" fix (16 commits)**: steering is

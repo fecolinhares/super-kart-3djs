@@ -3,6 +3,14 @@
 **Date:** 2026-08-09 · **Status:** 🚀 v0.2.0-draft (AAA visual/audio pass)
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
+### Round 6 — Neon City redesign to the '2' layout (Feco reference, 2026-08-11)
+- New CITY_PATH: start on the LEFT straight (x=-70) launching UP (+Z), clockwise — top straight, upper-right return, mid-upper straight, mid-left return, mid-lower straight, lower-right corner, bottom straight, 90° lower-left corner. Seam at t=0 mid-start-straight (colinear, no fold). 630m, 0 self-crossings, corners 4-8m radius (AI drifts them cleanly at 40+ m/s; harness 0 backwards events).
+- Ramp ts moved off the corner (0.30 was inside the new top-right return!) to straights (0.20/0.57) + curvature-checked per track.
+- Turbo cluster 0.72 (corner apex) -> 0.78 (bottom straight); item boxes off the corner apexes.
+- City props (neon lights, billboards, cranes) now PATH-DRIVEN — two lamps had landed dead-center on the new asphalt, four in the void.
+- `scripts/city-layout-probe.mjs`: reusable geometry gate for track designs.
+- Kerb stones spaced on the KERB EDGE arc-length (inner corners no longer pile 0.6m stones 0.4m into each other); finish-line checker 12x2 (0.75m square cells, opacity 0.9).
+
 ### Round 5 — Visual/feedback pass (Feco screenshot QA, 2026-08-11, 9 commits)
 - **Kerbs**: root cause of the "holes" was a lookAt pitch bug (every stone tilted ~11° nose-down); now yaw-only (verified 0.00° up-vector at matrix level). Proportions corrected to MK8D slabs (0.9 lat × 0.6 long × 0.17), saturated zebra palette with tight ±5% tint, jitter trimmed, and stones overlap 10% so curves and the start seam have no gaps.
 - **Finish line**: checker cells were 1.25×0.8m (stretched); now 9×2.25m plane → square 1.125m cells, opacity 1.0.
