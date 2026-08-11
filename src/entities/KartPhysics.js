@@ -233,11 +233,11 @@ export class KartPhysics {
     // the rail. Clamp the wall to just inside the rail position so the kart
     // can never pierce it.
     const railAt = (T.roadWidth ?? 9) / 2 + 1.05;
-    // AUDIT (user STILL sees karts through the rail): the wall limited the kart
-    // CENTER to 5.4, but the body is 1.05m wide — its left side reached 5.9,
-    // 0.3m THROUGH the rail (5.6). Pull the wall in by the body half-width so
-    // the chassis never crosses the barrier.
-    const wallAt = Math.min(halfW + (T.roadEdge ?? 0.9), railAt) - (T.kartBodyHalf ?? 0.53);
+    // AUDIT (user STILL sees a slight clip): the OUTER WHEEL edge reaches
+    // 1.04m from the kart center (axle 0.7 + tire radius 0.34) — much wider
+    // than the 0.53 body half. Wall pulled in by 0.85 so the tire just
+    // clears the rail (5.59 < 5.6) while the shoulder stays drivable.
+    const wallAt = Math.min(halfW + (T.roadEdge ?? 0.9), railAt) - 0.85;
     // AUDIT r18-FIX: off-road karts ride the rolling terrain — the path
     // samples are flat; beyond the corridor the field rolls ±5m and a kart
     // shoved into the grass would bury or float up to 5m without this.
