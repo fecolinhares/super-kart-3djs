@@ -3291,10 +3291,27 @@ export class Environment {
     // AUDIT (user: 'the crowd look like deformed dolls'): the 1.05x1.2 body
     // box read as tall square blocks with a tiny head. Human-proportioned
     // torso: narrow shoulders, shorter, head scaled to match.
+    // AUDIT (vision: 'cream-white blobs, heads as big as the body'): the 0.3
+    // head was half the torso width. Smaller head + neck + feet + a contact
+    // shadow makes the figure read as a tiny person standing on the grass.
     const bodyGeo = new THREE.BoxGeometry(0.6, 0.85, 0.4);
-    const headGeo = new THREE.SphereGeometry(0.3, 12, 8);
-    const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.55, 8); // AUDIT: thicker arms read as limbs, not rods
-    const legGeo = new THREE.CylinderGeometry(0.055, 0.065, 0.5, 8); // AUDIT: two separate legs make figures read as PEOPLE
+    const headGeo = new THREE.SphereGeometry(0.22, 12, 8);
+    const neckGeo = new THREE.CylinderGeometry(0.045, 0.055, 0.1, 8);
+    const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.55, 8);
+    const legGeo = new THREE.CylinderGeometry(0.055, 0.065, 0.5, 8);
+    const footGeo = new THREE.CylinderGeometry(0.07, 0.08, 0.035, 8);
+    // Contact shadow (kart blob-shadow pattern): radial gradient disc.
+    const shadowCanvas = document.createElement('canvas');
+    shadowCanvas.width = shadowCanvas.height = 64;
+    const sg = shadowCanvas.getContext('2d');
+    const grad = sg.createRadialGradient(32, 32, 4, 32, 32, 32);
+    grad.addColorStop(0, 'rgba(0,0,0,0.42)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    sg.fillStyle = grad;
+    sg.fillRect(0, 0, 64, 64);
+    const shadowTex = new THREE.CanvasTexture(shadowCanvas);
+    const shadowGeo = new THREE.CircleGeometry(0.42, 20);
+    const shadowMat = new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false });
     const bodyMat = toonMaterial(0xffffff, {}); // per-instance suit colors below
     const skinMat = toonMaterial(0xffd9b3, {});
     const bodies = new THREE.InstancedMesh(bodyGeo, bodyMat, total);
@@ -3303,6 +3320,10 @@ export class Environment {
     const armsR = new THREE.InstancedMesh(armGeo, skinMat, total);
     const legsL = new THREE.InstancedMesh(legGeo, skinMat, total);
     const legsR = new THREE.InstancedMesh(legGeo, skinMat, total);
+    const necks = new THREE.InstancedMesh(neckGeo, skinMat, total);
+    const feetL = new THREE.InstancedMesh(footGeo, skinMat, total);
+    const feetR = new THREE.InstancedMesh(footGeo, skinMat, total);
+    const shadows = new THREE.InstancedMesh(shadowGeo, shadowMat, total);
     const dummy = new THREE.Object3D();
     const p = new THREE.Vector3();
     const tan = new THREE.Vector3();
@@ -3345,13 +3366,25 @@ export class Environment {
             col.setHex(crowdColors[Math.floor(this._rand() * crowdColors.length)]);
             bodies.setColorAt(idx, col);
             bodyBaseY[idx] = bodyY;
-            // Head (skin tone).
-            dummy.position.set(fx, bodyY + 0.95, fz);
+            // Contact shadow on the grass — anchors the figure (no floating).
+            dummy.position.set(fx, gy + 0.012, fz);
+            dummy.rotation.set(-Math.PI / 2, 0, 0);
+            dummy.scale.set(1, 1, 1);
+            dummy.updateMatrix();
+            shadows.setMatrixAt(idx, dummy.matrix);
+            // Neck between torso top (0.425) and head.
+            dummy.position.set(fx, bodyY + 0.47, fz);
+            dummy.rotation.set(0, 0, 0);
+            dummy.scale.set(1, 1, 1);
+            dummy.updateMatrix();
+            necks.setMatrixAt(idx, dummy.matrix);
+            // Head (skin tone) — smaller, sits on the neck.
+            dummy.position.set(fx, bodyY + 0.63, fz);
             dummy.rotation.set(0, 0, 0);
             dummy.scale.set(1, 1, 1);
             dummy.updateMatrix();
             heads.setMatrixAt(idx, dummy.matrix);
-            headBaseY[idx] = bodyY + 0.95;
+            headBaseY[idx] = bodyY + 0.63;
             // Raised arms (cheering silhouette) — angled UP so they read as
             // limbs with a shoulder, not straight rods poking sideways.
             dummy.position.set(fx - 0.4 * Math.cos(yaw), bodyY + 0.7, fz + 0.4 * Math.sin(yaw));
@@ -3374,6 +3407,16 @@ export class Environment {
             dummy.rotation.set(0, yaw, -0.12);
             dummy.updateMatrix();
             legsR.setMatrixAt(idx, dummy.matrix);
+            // Feet — flattened under each leg.
+            dummy.position.set(fx - 0.12 * Math.cos(yaw), bodyY - 0.575, fz + 0.12 * Math.sin(yaw));
+            dummy.rotation.set(0, yaw, 0);
+            dummy.scale.set(1, 1, 1);
+            dummy.updateMatrix();
+            feetL.setMatrixAt(idx, dummy.matrix);
+            dummy.position.set(fx + 0.12 * Math.cos(yaw), bodyY - 0.575, fz - 0.12 * Math.sin(yaw));
+            dummy.rotation.set(0, yaw, 0);
+            dummy.updateMatrix();
+            feetR.setMatrixAt(idx, dummy.matrix);
             idx++;
           }
         }
@@ -3386,14 +3429,21 @@ export class Environment {
     armsR.instanceMatrix.needsUpdate = true;
     legsL.instanceMatrix.needsUpdate = true;
     legsR.instanceMatrix.needsUpdate = true;
+    necks.instanceMatrix.needsUpdate = true;
+    feetL.instanceMatrix.needsUpdate = true;
+    feetR.instanceMatrix.needsUpdate = true;
+    shadows.instanceMatrix.needsUpdate = true;
     bodies.userData.baseY = bodyBaseY;
     heads.userData.baseY = headBaseY;
     armsL.userData.baseY = armBaseY;
     armsR.userData.baseY = armBaseY;
     legsL.userData.baseY = bodyBaseY;
     legsR.userData.baseY = bodyBaseY;
-    scene.add(bodies, heads, armsL, armsR, legsL, legsR);
-    (this.crowdMeshes = this.crowdMeshes || []).push(bodies, heads, armsL, armsR, legsL, legsR);
+    necks.userData.baseY = bodyBaseY;
+    feetL.userData.baseY = bodyBaseY;
+    feetR.userData.baseY = bodyBaseY;
+    scene.add(bodies, heads, armsL, armsR, legsL, legsR, necks, feetL, feetR, shadows);
+    (this.crowdMeshes = this.crowdMeshes || []).push(bodies, heads, armsL, armsR, legsL, legsR, necks, feetL, feetR);
   }
 
   /**
