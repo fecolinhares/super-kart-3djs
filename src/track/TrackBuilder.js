@@ -506,16 +506,22 @@ function beveledCurbGeometry(width, height, length, chamfer) {
 
 function buildCurbs(path, length, side, opts = {}) {
   const roadW = getRoadWidthAt();
-  // Continuous kerbs (no gaps): block length ≈ spacing → solid red/white edge.
-  const seg = 0.85; // AUDIT (user: 'were these supposed to be the zebra kerbs? they look weird') — 1.7m stones read as odd blocks; classic racing kerbs are short zebra slabs
+  // AUDIT (Feco visual QA + kerb audit, 2026-08-11): 'faixas fora de
+  // proporção, com buracos e desalinhadas'. Three root causes fixed:
+  //  - proportions were INVERTED vs MK8D (0.46 wide x 0.85 long — stripes
+  //    longer than wide). MK8 kerb slabs are ~8-10% of road width and wider
+  //    than long: 0.9 lateral x 0.6 longitudinal x 0.17 tall.
+  //  - the per-block dummy.lookAt aimed at p.y while the block center sits at
+  //    p.y+0.195 — every stone pitched ~11deg nose-down, raising the rear
+  //    edge 8cm and dropping the front below asphalt: dark slivers at every
+  //    joint read as HOLES. Now yaw-only (rotation.set(0, atan2, 0)).
+  //  - per-stone jitter (latJ 0.03m / yJ 0.02m) and tint noise (0.78-1.13)
+  //    zigzagged the road edge and turned the zebra patchy.
+  const seg = 0.6;
   const count = Math.floor(length / seg);
-  // Beveled profile: 0.46 wide x 0.17 tall with chamfered top corners. Kerb
-  // top stays at the historical y+0.29 (apex cones keep their footing); the
-  // extra height sinks into the asphalt, so the visible band reads as a thick
-  // rounded kerb instead of a flat painted tile.
-  const curbW = 0.46;
+  const curbW = 0.9;
   const curbH = 0.17;
-  const geo = beveledCurbGeometry(curbW, curbH, seg, 0.06);
+  const geo = beveledCurbGeometry(curbW, curbH, seg, 0.05);
 
   // NEON CITY: alternating emissive pink/cyan kerbs. instanceColor can't
   // drive MeshToonMaterial's emissive, so even/odd boxes are split into two
@@ -542,7 +548,9 @@ function buildCurbs(path, length, side, opts = {}) {
   // set into the ground, not a flat repetitive tile strip (vision critic).
   // AUDIT: classic red/white ZEBRA kerb (the 4-color worn palette read as
   // weird blocks, not a kerb). Per-instance dirt tint still adds wear.
-  const KERB_PALETTE = [0xff5a5f, 0xf4f6f8];
+  // Saturated classic zebra (audit F3): pure racing red + near-white, with a
+  // TIGHT per-stone dirt tint (±5%) so the strip stays crisp at a distance.
+  const KERB_PALETTE = [0xe63b3b, 0xf8f9fb];
 
   const p = new THREE.Vector3();
   const tan = new THREE.Vector3();
@@ -558,18 +566,16 @@ function buildCurbs(path, length, side, opts = {}) {
     nrm.set(-tan.z, 0, tan.x).normalize();
     // Per-stone jitter (height + lateral) so the kerb reads as stones set
     // into the ground; top now at y+0.28 (±0.01) — recessed 1cm from 0.29.
-    const yJ = (hash01(i, 7) - 0.5) * 0.02;
-    const latJ = (hash01(i, 8) - 0.5) * 0.03;
+    const yJ = (hash01(i, 7) - 0.5) * 0.008;
+    const latJ = (hash01(i, 8) - 0.5) * 0.004;
     dummy.position.set(
       p.x + nrm.x * side * (roadW / 2 + 0.15 + latJ),
       p.y + 0.28 - curbH / 2 + yJ,
       p.z + nrm.z * side * (roadW / 2 + 0.15 + latJ)
     );
-    dummy.lookAt(
-      p.x + tan.x + nrm.x * side * (roadW / 2 + 0.15),
-      p.y,
-      p.z + tan.z + nrm.z * side * (roadW / 2 + 0.15)
-    );
+    // Yaw-only alignment — lookAt pitched every stone ~11deg nose-down
+    // (block center sits above p.y), which read as gaps/misalignment.
+    dummy.rotation.set(0, Math.atan2(tan.x, tan.z), 0);
     dummy.updateMatrix();
     if (neon) {
       const slot = i % 2;
@@ -577,7 +583,7 @@ function buildCurbs(path, length, side, opts = {}) {
     } else {
       mesh.setMatrixAt(i, dummy.matrix);
       const base = KERB_PALETTE[Math.floor(hash01(i, 9) * KERB_PALETTE.length)];
-      col.setHex(base).multiplyScalar(0.78 + hash01(i, 10) * 0.35); // dirtied/worn tint
+      col.setHex(base).multiplyScalar(0.95 + hash01(i, 10) * 0.1); // tight dirt tint (audit F3)
       mesh.setColorAt(i, col);
     }
   }
@@ -962,9 +968,15 @@ function buildGantry(startLine) {
  * not as a loose floating slab (the old decal had the wrong orientation).
  */
 function buildFinishLine(startLine) {
-  const w = getRoadWidthAt() + 1;
-  const geo = new THREE.PlaneGeometry(w, 1.6);
-  const mat = new THREE.MeshBasicMaterial({ map: finishLineTexture(), transparent: true, opacity: 0.9, side: THREE.DoubleSide });
+  const w = getRoadWidthAt();
+  // AUDIT (Feco visual QA + finish audit, 2026-08-11): 'a faixa de chegada
+  // está fora de proporção' — the 8x2 texture on a 10x1.6 plane made cells
+  // 1.25 x 0.8m (1.56:1, stretched) and the decal sat under the kerb tops
+  // (cut edges). Now the plane is exactly roadWidth x roadWidth/8*2 (9 x
+  // 2.25m) → cells are SQUARE (1.125 x 1.125m), opacity 1.0, and the
+  // 1024px texture gives 128px per cell (anisotropy 8) — crisp.
+  const geo = new THREE.PlaneGeometry(w, (w / 8) * 2);
+  const mat = new THREE.MeshBasicMaterial({ map: finishLineTexture(), transparent: true, opacity: 1.0, side: THREE.DoubleSide });
   // polygonOffset wins the depth test against the road ribbon at grazing
   // angles (classic decal technique — plain y-offset z-fights).
   mat.polygonOffset = true;
