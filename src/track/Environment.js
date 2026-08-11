@@ -3041,6 +3041,9 @@ export class Environment {
       { x: -10, z: -72, ry: -0.3 },
       { x: 56, z: 50, ry: 2.2 },
     ];
+    // AUDIT (agent: palette was flat/loud neon): cloth-toned shirts in
+    // saturated-but-wearable colors — red, orange, green, blue, purple, pink,
+    // white, steel, navy — reads as a dressed crowd, not candy blobs.
     const crowdColors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
     // Painted sponsor fascia (SUPER KART text) — cached once, shared by all
     // stands. MeshBasicMaterial keeps it readable at race distance.
@@ -3284,7 +3287,14 @@ export class Environment {
     const ROWS = [1.9, 3.5, 5.1];
     const segN = SEGMENTS.reduce((a, s) => a + s.n, 0);
     const total = segN * ROWS.length * 2;
-    const crowdColors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
+    const crowdColors = [0xe74c4c, 0xf4a93e, 0x5cb85c, 0x4a90d9, 0x9b6fd4, 0xe8789a, 0xf5f5f5, 0x7b8a9e, 0x34495e];
+    // AUDIT (agent: 'repeated in nearly identical poses'): 4 pose variants.
+    const POSES = [
+      { armL: -1.25, armR: 1.25, armY: 0.7, armX: 0.4 },  // cheer (arms up)
+      { armL: 0.12, armR: -0.12, armY: 0.55, armX: 0.32 }, // relaxed at sides
+      { armL: -0.6, armR: 0.35, armY: 0.64, armX: 0.36 },  // waving one arm
+      { armL: 0.85, armR: -0.85, armY: 0.62, armX: 0.34 }, // leaning forward
+    ];
     // 3D spectator parts — one InstancedMesh per part for the WHOLE crowd
     // (4 draw calls): body box + head sphere + two raised arms, exactly the
     // figure buildGrandstand uses, so the roadside fans match the stands.
@@ -3372,48 +3382,52 @@ export class Environment {
             dummy.scale.set(1, 1, 1);
             dummy.updateMatrix();
             shadows.setMatrixAt(idx, dummy.matrix);
-            // Neck between torso top (0.425) and head.
-            dummy.position.set(fx, bodyY + 0.47, fz);
+            // Neck between torso top (0.425) and head — scaled with the figure.
+            dummy.position.set(fx, bodyY + 0.47 * sy, fz);
             dummy.rotation.set(0, 0, 0);
-            dummy.scale.set(1, 1, 1);
+            dummy.scale.set(1, sy, 1);
             dummy.updateMatrix();
             necks.setMatrixAt(idx, dummy.matrix);
-            // Head (skin tone) — smaller, sits on the neck.
-            dummy.position.set(fx, bodyY + 0.63, fz);
+            // Head (skin tone) — smaller, sits on the neck, scaled with body.
+            dummy.position.set(fx, bodyY + 0.63 * sy, fz);
             dummy.rotation.set(0, 0, 0);
-            dummy.scale.set(1, 1, 1);
+            dummy.scale.set(1, sy, 1);
             dummy.updateMatrix();
             heads.setMatrixAt(idx, dummy.matrix);
-            headBaseY[idx] = bodyY + 0.63;
-            // Raised arms (cheering silhouette) — angled UP so they read as
-            // limbs with a shoulder, not straight rods poking sideways.
-            dummy.position.set(fx - 0.4 * Math.cos(yaw), bodyY + 0.7, fz + 0.4 * Math.sin(yaw));
-            dummy.rotation.set(0, yaw, -1.25);
-            dummy.scale.set(1, 1, 1);
+            headBaseY[idx] = bodyY + 0.63 * sy;
+            // Arms — pose from the table (cheer/relax/wave/lean), so the crowd
+            // reads as individuals instead of clones.
+            const pose = POSES[(this._rand() * POSES.length) | 0];
+            dummy.position.set(fx - pose.armX * Math.cos(yaw), bodyY + pose.armY * sy, fz + pose.armX * Math.sin(yaw));
+            dummy.rotation.set(0, yaw, pose.armL);
+            dummy.scale.set(1, sy, 1);
             dummy.updateMatrix();
             armsL.setMatrixAt(idx, dummy.matrix);
-            dummy.position.set(fx + 0.4 * Math.cos(yaw), bodyY + 0.7, fz - 0.4 * Math.sin(yaw));
-            dummy.rotation.set(0, yaw, 1.25);
+            dummy.position.set(fx + pose.armX * Math.cos(yaw), bodyY + pose.armY * sy, fz - pose.armX * Math.sin(yaw));
+            dummy.rotation.set(0, yaw, pose.armR);
             dummy.updateMatrix();
             armsR.setMatrixAt(idx, dummy.matrix);
-            armBaseY[idx] = bodyY + 0.7;
-            // Two separate legs under the torso — figures read as PEOPLE.
-            dummy.position.set(fx - 0.13 * Math.cos(yaw), bodyY - 0.55, fz + 0.13 * Math.sin(yaw));
+            armBaseY[idx] = bodyY + pose.armY * sy;
+            // Two separate legs — stretched so they reach the clamped feet.
+            const legLen = Math.max(0.3, bodyY - 0.55 - gy);
+            dummy.position.set(fx - 0.13 * Math.cos(yaw), gy + legLen * 0.5, fz + 0.13 * Math.sin(yaw));
             dummy.rotation.set(0, yaw, 0.12);
-            dummy.scale.set(1, 1, 1);
+            dummy.scale.set(1, legLen / 0.5, 1);
             dummy.updateMatrix();
             legsL.setMatrixAt(idx, dummy.matrix);
-            dummy.position.set(fx + 0.13 * Math.cos(yaw), bodyY - 0.55, fz - 0.13 * Math.sin(yaw));
+            dummy.position.set(fx + 0.13 * Math.cos(yaw), gy + legLen * 0.5, fz - 0.13 * Math.sin(yaw));
             dummy.rotation.set(0, yaw, -0.12);
             dummy.updateMatrix();
             legsR.setMatrixAt(idx, dummy.matrix);
-            // Feet — flattened under each leg.
-            dummy.position.set(fx - 0.12 * Math.cos(yaw), bodyY - 0.575, fz + 0.12 * Math.sin(yaw));
+            // Feet — flattened under each leg, CLAMPED to the terrain so a
+            // short figure (sy 0.9) never sinks its feet into the grass.
+            const footY = Math.max(bodyY - 0.55, gy + 0.02);
+            dummy.position.set(fx - 0.12 * Math.cos(yaw), footY, fz + 0.12 * Math.sin(yaw));
             dummy.rotation.set(0, yaw, 0);
             dummy.scale.set(1, 1, 1);
             dummy.updateMatrix();
             feetL.setMatrixAt(idx, dummy.matrix);
-            dummy.position.set(fx + 0.12 * Math.cos(yaw), bodyY - 0.575, fz - 0.12 * Math.sin(yaw));
+            dummy.position.set(fx + 0.12 * Math.cos(yaw), footY, fz - 0.12 * Math.sin(yaw));
             dummy.rotation.set(0, yaw, 0);
             dummy.updateMatrix();
             feetR.setMatrixAt(idx, dummy.matrix);
