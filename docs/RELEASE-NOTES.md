@@ -3,6 +3,16 @@
 **Date:** 2026-08-09 · **Status:** 🚀 v0.2.0-draft (AAA visual/audio pass)
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
+### Round 5 — Visual/feedback pass (Feco screenshot QA, 2026-08-11, 9 commits)
+- **Kerbs**: root cause of the "holes" was a lookAt pitch bug (every stone tilted ~11° nose-down); now yaw-only (verified 0.00° up-vector at matrix level). Proportions corrected to MK8D slabs (0.9 lat × 0.6 long × 0.17), saturated zebra palette with tight ±5% tint, jitter trimmed, and stones overlap 10% so curves and the start seam have no gaps.
+- **Finish line**: checker cells were 1.25×0.8m (stretched); now 9×2.25m plane → square 1.125m cells, opacity 1.0.
+- **Item box**: 256px texture, pure white panel with gold trim, vivid #ef233c '?' (was beige, blurred halo).
+- **Crowd**: jump frequency 0.51 Hz → 2.0 Hz rectified pulse (grounded pause + gravity rise); per-part bob/phase sync so heads don't detach; organic per-figure phases; cheer amplitude 0.26.
+- **Green shell**: PBR toon + outline, 24×16 segments, MK8 spike layout, 3 rev/s travel-axis spin, speed 46 → 84 m/s (~2× kart).
+- **Banana**: 0.72m with outline + PBR sheen, 130ms pop-in + throw hop; MINIMAP now draws active items (yellow bananas, colored shells).
+- **Lightning**: shrink on all 3 axes (was Y-only pancake) + electric screen flash/thunder/shake for the player.
+- **Star**: kart body hue-cycles rainbow while active.
+
 ### Round 4 — AI reliability (Feco bug report, 2026-08-11, 16 commits)
 - **"Adversários correm pra trás" ELIMINADO** — 3 root causes:
   1. Steering reference was a rolling distance window that lagged behind the

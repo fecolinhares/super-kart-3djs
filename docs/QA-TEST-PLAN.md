@@ -28,6 +28,11 @@ audio lifecycle, HUD, mobile basics, performance budget.
 | T14 | AI lanes | Lane adherence / wall bounces within stable corridor | `scripts/lane-probe.mjs` | ✅ PASS |
 | T15 | AI passing | City standings change > 100/60s (no procession) | `scripts/procession-probe.mjs` (580/3600 frames) | ✅ PASS |
 | T16 | Browser smoke | `?test` boots, race runs, NO page errors (headless Chromium) | `scripts/sk3d-qa.cjs` | ✅ PASS |
+| T17 | Kerbs | Yaw-only alignment (0.0° up-vector deviation), MK8D proportions 0.9×0.6×0.17, 10% overlap (no curve/seam gaps) | geometry probe (`_kerb-probe`) | ✅ PASS |
+| T18 | Finish line | Checker cells SQUARE (9×2.25m plane → 1.125m cells), opacity 1.0 | geometry probe | ✅ PASS |
+| T19 | Item box | 256px texture, pure white panel, #ef233c glyph, gold trim | code + screenshot | ✅ PASS |
+| T20 | Crowd jump | 2.0 Hz rectified pulse, per-part bob/phase sync, organic phases | code audit (Environment) | ✅ PASS |
+| T21 | Items FX | Shell: PBR+outline+spin+84 m/s; banana: 0.72m+hop+minimap dot; lightning: 3-axis shrink+electric flash; star: rainbow paint | code + harness (0 events) | ✅ PASS |
 
 ## 3. Regression notes (this release)
 - **2026-08-11 — "opponents run backwards" fix (16 commits)**: steering is
