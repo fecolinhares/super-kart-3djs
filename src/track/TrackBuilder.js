@@ -34,20 +34,71 @@ export const TRACK_PATH = CONTROL_POINTS.map(([x, y, z]) => new THREE.Vector3(x,
 
 // Track 2 — "NEON CITY": tight urban circuit (long straights + hairpins).
 // Tuned to the same physics (roadWidth, ramp spacing) as Track 1.
+// AUDIT (Feco, 2026-08-11): Neon City redesigned to the '2'-shaped layout
+// from his reference image — start on the LEFT straight (cars launch UP,
+// i.e. +Z), clockwise. Sequence: left straight up -> 90° right onto the top
+// straight -> upper-right return (down + left) -> mid-upper straight left ->
+// mid-left return (down + right) -> mid-lower straight right -> lower-right
+// corner (down + left) -> bottom straight left -> wide lower-left corner
+// back to the left straight. No self-crossing; every corner >= ~8m radius
+// (CatmullRom centripetal smooths the 90° corners; no U-to-T jumps).
+// Track length ~660m (comparable to the old circuit).
 export const CITY_PATH = [
-  [0, 0, 0],
-  [55, 0.2, -10],
-  [95, 0.8, 18],
-  [104, 1.2, 70],
-  [78, 1.0, 108],
-  [30, 0.6, 118],
-  [-15, 0.4, 96],
-  [-46, 0.8, 60],
-  [-62, 0.6, 12],
-  [-48, 0.4, -34],
-  [-12, 0.2, -58],
-  [30, 0.4, -56],
-  [58, 0.2, -34],
+  // AUDIT (Feco, 2026-08-11): Neon City redesigned to the '2'-shaped layout
+  // from the reference image. START on the LEFT straight (x=-70), launching
+  // UP (+Z) — the seam (t=0) sits in the MIDDLE of that straight so the
+  // CatmullRom closed-loop connects two colinear points (no corner fold).
+  // Clockwise sequence: left straight up -> top-left 90° right -> top
+  // straight right -> upper-right return (down + left) -> mid-upper straight
+  // left -> mid-left return (down + right) -> mid-lower straight right ->
+  // lower-right corner (down + left) -> bottom straight left -> wide
+  // lower-left corner back up the left straight. No self-crossing; every
+  // corner flanged ~12m (min radius >= ~10m). Length ~658m.
+  // START — middle of the left straight, launching UP (+Z).
+  [-70, 0.3, 0],
+  [-70, 0.2, 25],
+  [-70, 0.2, 50],
+  // Top-left 90° right (flanged ~12m corners).
+  [-61, 0.2, 57],
+  [-47, 0.3, 58],
+  [-40, 0.3, 53],
+  [-34, 0.3, 50],
+  // TOP STRAIGHT (rightwards).
+  [-20, 0.3, 50],
+  [20, 0.3, 50],
+  [50, 0.3, 50],
+  [60, 0.2, 50],
+  // Upper-right return: 90° down, short leg, 90° back LEFT.
+  [66, 0.2, 42],
+  [66, 0.4, 32],
+  [60, 0.4, 26],
+  // MID-UPPER STRAIGHT (leftwards).
+  [40, 0.4, 26],
+  [10, 0.4, 26],
+  [-15, 0.3, 26],
+  // Mid-left return: 90° down, short leg, 90° back RIGHT.
+  [-21, 0.3, 18],
+  [-21, 0.4, 8],
+  [-15, 0.4, 2],
+  // MID-LOWER STRAIGHT (rightwards).
+  [10, 0.4, 2],
+  [50, 0.4, 2],
+  [80, 0.3, 2],
+  // Lower-right corner: 90° down, short leg, 90° back LEFT.
+  [86, 0.3, -8],
+  [86, 0.4, -20],
+  [80, 0.4, -28],
+  // BOTTOM STRAIGHT (leftwards).
+  [50, 0.4, -28],
+  [10, 0.4, -28],
+  [-20, 0.3, -28],
+  // Lower-left corner back up the left straight: a clean 90° corner with
+  // flanged entry/exit (vertex at (-70,-28), 15m flanges) — the earlier
+  // diagonal sweep kept kinking where it met the vertical straight.
+  [-55, 0.3, -28],
+  [-70, 0.3, -28],
+  [-70, 0.3, -13],
+  [-70, 0.2, -5],
 ].map(([x, y, z]) => new THREE.Vector3(x, y, z));
 
 export function getRoadWidthAt() {
