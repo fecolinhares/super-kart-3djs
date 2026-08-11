@@ -569,7 +569,12 @@ function buildCurbs(path, length, side, opts = {}) {
   //    joint read as HOLES. Now yaw-only (rotation.set(0, atan2, 0)).
   //  - per-stone jitter (latJ 0.03m / yJ 0.02m) and tint noise (0.78-1.13)
   //    zigzagged the road edge and turned the zebra patchy.
-  const seg = 0.6;
+  const seg = 0.5;
+  // AUDIT (Feco follow-up 2, 2026-08-11): 0.9m-wide stones read as chunky
+  // segmented slabs ('blocos largos e grosseiros'). Slimmed to MK8D kerb
+  // proportions: 0.55 wide x 0.5 long x 0.14 tall, gentler chamfer — a thin
+  // painted zebra edge, not a curb wall. Arc-length-on-the-edge placement
+  // (below) still guarantees uniform spacing.
   // AUDIT (kerb probe + Feco follow-up, 2026-08-11): stones placed by
   // CENTERLINE arc-length still overlap on the INSIDE of corners and gap on
   // the OUTSIDE (a corner of radius R moves the inner kerb by (R-offset)/R —
@@ -629,9 +634,9 @@ function buildCurbs(path, length, side, opts = {}) {
     const f = s1 > s0 ? (target - s0) / (s1 - s0) : 0;
     return arcT[lo - 1] + (arcT[lo] - arcT[lo - 1]) * f;
   };
-  const curbW = 0.9;
-  const curbH = 0.17;
-  const geo = beveledCurbGeometry(curbW, curbH, seg, 0.05);
+  const curbW = 0.55;
+  const curbH = 0.14;
+  const geo = beveledCurbGeometry(curbW, curbH, seg, 0.04);
 
   // NEON CITY: alternating emissive pink/cyan kerbs. instanceColor can't
   // drive MeshToonMaterial's emissive, so even/odd boxes are split into two
@@ -1625,6 +1630,12 @@ function roadDecalTexture(baseHex, accentHex) {
  * transparent so the asphalt grain shows through the paint.
  */
 function buildRoadSponsorDecals(path) {
+  // AUDIT (Feco, 2026-08-11, 2x): 'marcações estranhas com texto no chão' —
+  // the painted 'sponsor' decals read as smudged lettering on the asphalt
+  // ("MARIO KART" at speed) and break the clean road. Real MK8 surfaces don't
+  // put text on the racing line; removed entirely (the call site no-ops).
+  return null;
+  /* eslint-disable no-unreachable */
   const halfW = getRoadWidthAt() / 2;
   const SCHEMES = [
     { base: 0x1fa8d8, accent: 0xffffff },
