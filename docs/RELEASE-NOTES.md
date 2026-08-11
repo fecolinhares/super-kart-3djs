@@ -346,6 +346,11 @@
 - Spectators human-proportioned (was tall square blocks with small heads).
 - Tree geometry quality bumped (pine 18 segs, oak 20x14, palm 10x8).
 
+## 🧍 Crowd + kart polish (vision-guided)
+- Spectators now have TWO LEGS + angled arms — they read as people, not
+  colored blocks with heads.
+- Kart exhaust barrels darkened (chrome read as floating white rings).
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
