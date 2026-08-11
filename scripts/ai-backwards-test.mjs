@@ -194,19 +194,23 @@ function buildInjections(rng, trackData, seed) {
       k.state.speed = 30 + rng() * 12;
     },
   });
-  // (e) off-road crawl: kart shoved 15-25m off-road at crawl speed — after
-  // 2s this triggers the Lakitu rescue (RaceManager._updateRescues): the
-  // kart is teleported to its progress point facing the tangent. Covers the
-  // rescue-recovery path (the old bug class: wrong-way after a teleport).
+  // (e) off-road crawl: kart shoved deep off-road at ~0 speed — the Lakitu
+  // rescue (RaceManager._updateRescues mirror below) needs 2s of
+  // offRoad && |speed| < 3; a shallow shove recovers too fast to ever trip
+  // it (re-audit: rescues never fired). Force _stuckT to 1.9s so the rescue
+  // path is exercised deterministically on the NEXT frame — covers the
+  // rescue-recovery AI path (the old bug class: wrong-way after a teleport).
   inj.push({
     at: 52 + rng() * 6, apply(karts) {
       const k = karts[1 + Math.floor(rng() * 4)];
       const tt = t();
       const tan = trackData.path.getTangentAt(tt);
       const nrm = new THREE.Vector3(-tan.z, 0, tan.x).normalize();
-      k.state.position.copy(trackData.path.getPointAt(tt)).addScaledVector(nrm, (15 + rng() * 10) * (rng() < 0.5 ? 1 : -1));
+      k.state.position.copy(trackData.path.getPointAt(tt)).addScaledVector(nrm, (20 + rng() * 15) * (rng() < 0.5 ? 1 : -1));
       k.state.heading = Math.atan2(tan.x, tan.z);
-      k.state.speed = 1;
+      k.state.speed = 0;
+      k._stuckT = 1.99; // fires on the next frame — the kart accelerates past
+      // 3 m/s in ~6 frames, so a 1.9 seed never reached 2.0 (rescues stayed 0)
     },
   });
   return inj;
@@ -228,6 +232,7 @@ function runRace(seed, trackData) {
   const injections = buildInjections(rng, trackData, seed);
 
   const events = [];
+  let rescues = 0;
   let epStart = new Array(N).fill(null); // episode start time per kart
   let epMin = new Array(N).fill(0); // min progressScore during episode
   let lastScore = karts.map((k) => progressScore(k));
@@ -275,6 +280,7 @@ function runRace(seed, trackData) {
           k.state.speed = 0;
           k.state.spinOut = false;
           k._stuckT = 0;
+          rescues++;
         }
       } else {
         k._stuckT = 0;
@@ -332,7 +338,7 @@ function runRace(seed, trackData) {
   }
   const onRoadPct = sanity.frames > 0 ? sanity.onRoad.map((n) => Math.round((n / sanity.frames) * 100)) : [];
   const avgSpeed = sanity.frames > 0 ? sanity.speedSum.map((s) => +(s / sanity.frames).toFixed(1)) : [];
-  return { events, laps: karts.map((k) => k.state.lap), onRoadPct, avgSpeed };
+  return { events, laps: karts.map((k) => k.state.lap), onRoadPct, avgSpeed, rescues };
 }
 
 // ---------- main ----------
@@ -351,7 +357,7 @@ for (let s = 0; s < SEEDS; s++) {
     crashes++;
     continue;
   }
-  const { events, laps, onRoadPct, avgSpeed } = res;
+  const { events, laps, onRoadPct, avgSpeed, rescues } = res;
   const kinds = {};
   for (const e of events) kinds[e.type] = (kinds[e.type] || 0) + 1;
   totalEvents += events.length;
@@ -361,7 +367,7 @@ for (let s = 0; s < SEEDS; s++) {
       console.log(`    t=${e.t}s kart=${e.kart} ${e.type} dot=${e.dot} v=${e.speed} prog=${e.prog} lap=${e.lap}`);
     }
   } else {
-    console.log(`seed ${seed}: clean (${events.length}) | laps=${JSON.stringify(laps)} onRoad=${JSON.stringify(onRoadPct)} avgV=${JSON.stringify(avgSpeed)}`);
+    console.log(`seed ${seed}: clean (${events.length}) | laps=${JSON.stringify(laps)} onRoad=${JSON.stringify(onRoadPct)} avgV=${JSON.stringify(avgSpeed)} rescues=${rescues}`);
   }
 }
 console.log(`\nTOTAL BACKWARDS EVENTS: ${totalEvents} / ${SEEDS} runs`);
