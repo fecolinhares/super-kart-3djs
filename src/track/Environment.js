@@ -4006,11 +4006,26 @@ export class Environment {
         new THREE.MeshBasicMaterial({ map: bbTex('#1a1440', '#2ec4ff', '#fff') }),
         new THREE.MeshBasicMaterial({ map: bbTex('#23103a', '#ffd23c', '#fff') }),
       ];
-      const bbPos = [
-        { p: [-48, 5.4, -18], r: [0, Math.PI / 3.2, 0], m: 0 },
-        { p: [-30, 5.4, -44], r: [0, Math.PI / 2.6, 0], m: 1 },
-        { p: [-76, 5.4, -30], r: [0, Math.PI / 4, 0], m: 2 },
-      ];
+      // AUDIT (city redesign, 2026-08-11): billboards follow the path too
+      // (old hardcoded spots sat 10-16m into the infield of the new layout).
+      const _bp = new THREE.Vector3();
+      const _bt = new THREE.Vector3();
+      const _bn = new THREE.Vector3();
+      const _cityPath = this._trackPath || (this._track && this._track.path) || (track && track.path);
+      const _BB_TS = [0.28, 0.52, 0.82];
+      const bbPos = [];
+      for (let bi = 0; bi < _BB_TS.length; bi++) {
+        const tt = _BB_TS[bi];
+        _cityPath.getPointAt(tt, _bp);
+        _cityPath.getTangentAt(tt, _bt);
+        _bn.set(-_bt.z, 0, _bt.x).normalize();
+        const bside = bi % 2 === 0 ? 1 : -1;
+        bbPos.push({
+          p: [_bp.x + _bn.x * bside * (CONFIG.track.roadWidth / 2 + 11), 5.4, _bp.z + _bn.z * bside * (CONFIG.track.roadWidth / 2 + 11)],
+          r: [0, Math.PI / 3.2, 0],
+          m: bi,
+        });
+      }
       for (const b of bbPos) {
         const board = new THREE.Mesh(new THREE.BoxGeometry(7, 3.4, 0.4), bbMats[b.m]);
         board.position.set(...b.p);
@@ -4031,10 +4046,22 @@ export class Environment {
     {
       const craneMat = toonMaterial(0xd24a2a, {}); // safety-orange boom
       const craneDark = toonMaterial(0x2a2d38, {});
-      const craneSpots = [
-        { p: [-78, 0, 10], ry: 0.5 },  // AUDIT: were off-frame; now flank the start straight
-        { p: [-40, 0, -50], ry: -0.5 },
-      ];
+      // AUDIT (city redesign, 2026-08-11): cranes follow the path (old spots
+      // landed 22m from the new road / in the void).
+      const _cp = new THREE.Vector3();
+      const _ct = new THREE.Vector3();
+      const _cn = new THREE.Vector3();
+      const _cityPath = this._trackPath || (this._track && this._track.path) || (track && track.path);
+      const _CRANE_TS = [0.06, 0.46];
+      const craneSpots = [];
+      for (let ci = 0; ci < _CRANE_TS.length; ci++) {
+        const tt = _CRANE_TS[ci];
+        _cityPath.getPointAt(tt, _cp);
+        _cityPath.getTangentAt(tt, _ct);
+        _cn.set(-_ct.z, 0, _ct.x).normalize();
+        const cside = ci % 2 === 0 ? 1 : -1;
+        craneSpots.push({ p: [_cp.x + _cn.x * cside * 26, 0, _cp.z + _cn.z * cside * 26], ry: cside * 0.5 });
+      }
       for (const cs of craneSpots) {
         const gy = this._gy(cs.p[0], cs.p[2]);
         const mast = new THREE.Mesh(new THREE.BoxGeometry(0.8, 26, 0.8), craneDark);
@@ -4061,20 +4088,29 @@ export class Environment {
     // pavement actually receives colored bounce (vision critic: neon was
     // only emissive strips, never illuminating anything) ---
     {
-      const neonLights = [
-        { color: 0xff2ec4, pos: [-66, 4.2, 12] },
-        { color: 0x2ec4ff, pos: [-52, 4.2, -34] },
-        { color: 0xff2ec4, pos: [8, 4.2, -70] },
-        { color: 0x2ec4ff, pos: [40, 4.2, -20] },
-        { color: 0xff2ec4, pos: [-70, 4.2, -8] },
-        { color: 0x2ec4ff, pos: [-56, 4.2, 2] },
-        // AUDIT MED: east+north arc had ZERO colored light (67-138m from the
-        // nearest light) — the frame went dark there. 4 lights along the arc.
-        { color: 0xff2ec4, pos: [70, 4.2, 45] },
-        { color: 0x2ec4ff, pos: [90, 4.2, 90] },
-        { color: 0xff2ec4, pos: [45, 4.2, 115] },
-        { color: 0x2ec4ff, pos: [-5, 4.2, 100] },
-      ];
+      // AUDIT (city redesign, 2026-08-11): the hardcoded old-city light
+      // positions put lamps DEAD CENTER on the new start straight (0.0m) and
+      // ON the asphalt, plus 4 lights in the void (old layout ran to z~118).
+      // Lights are now placed ALONG THE PATH (t-sampled, lateral offset) so
+      // they follow every current/future city layout: 8 lamps alternating
+      // pink/cyan around the circuit, ~5.5m outside the kerb.
+      const _lp = new THREE.Vector3();
+      const _lt = new THREE.Vector3();
+      const _ln = new THREE.Vector3();
+      const _cityPath = this._trackPath || (this._track && this._track.path) || (track && track.path);
+      const _LIGHT_TS = [0.03, 0.14, 0.26, 0.40, 0.52, 0.64, 0.76, 0.90];
+      const neonLights = [];
+      for (let li = 0; li < _LIGHT_TS.length; li++) {
+        const tt = _LIGHT_TS[li];
+        _cityPath.getPointAt(tt, _lp);
+        _cityPath.getTangentAt(tt, _lt);
+        _ln.set(-_lt.z, 0, _lt.x).normalize();
+        const lside = li % 2 === 0 ? 1 : -1;
+        neonLights.push({
+          color: li % 2 === 0 ? 0xff2ec4 : 0x2ec4ff,
+          pos: [_lp.x + _ln.x * lside * (CONFIG.track.roadWidth / 2 + 5.5), 4.2, _lp.z + _ln.z * lside * (CONFIG.track.roadWidth / 2 + 5.5)],
+        });
+      }
       for (const nl of neonLights) {
         const pl = new THREE.PointLight(nl.color, 3.0, 66, 1.4); // AUDIT: spill onto karts/road (critic: color reads but never lands on geometry)
         pl.position.set(...nl.pos);

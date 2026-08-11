@@ -291,13 +291,15 @@ export class ItemBox {
  */
 export function createItemBoxes(track, count = 12) {
   const boxes = [];
-  // Start pair: two boxes across the road right before turn 1.
-  boxes.push(new ItemBox(track, 0.055, 1));
-  boxes.push(new ItemBox(track, 0.085, -1));
+  // Start pair: two boxes across the road on the START STRAIGHT (the old
+  // 0.085 sat on the new city's top-left corner apex — AUDIT 2026-08-11).
+  boxes.push(new ItemBox(track, 0.045, 1));
+  boxes.push(new ItemBox(track, 0.07, -1));
   const jitter = [0.0, 0.016, -0.024, 0.031, -0.018, 0.022, -0.027, 0.014, -0.02, 0.026];
   const rest = Math.max(0, count - 2);
   for (let i = 0; i < rest; i++) {
-    const t = 0.14 + (i / rest) * 0.82 + jitter[i % jitter.length];
+    // 0.16 start: clears the top-left corner (0.14 was on its apex).
+    const t = 0.16 + (i / rest) * 0.78 + jitter[i % jitter.length];
     const side = i % 2 === 0 ? 1 : -1;
     boxes.push(new ItemBox(track, Math.min(Math.max(t, 0.001), 0.999), side));
   }

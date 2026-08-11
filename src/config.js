@@ -82,7 +82,10 @@ export const CONFIG = {
     offRoadMaxSpeedFactor: 0.45,
     // Turbo pad cluster centers (normalized path positions). KartPhysics
     // triggers a boost when a kart's progress01 is within 0.015 of one.
-    turboPadTs: [0.18, 0.72],
+    // AUDIT (city redesign, 2026-08-11): 0.72 sat on the lower-right corner
+    // apex of the new '2' layout (boost mid-corner shoves karts wide);
+    // 0.78 is mid-bottom-straight.
+    turboPadTs: [0.18, 0.78],
   },
 
   items: {

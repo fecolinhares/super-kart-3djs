@@ -53,7 +53,8 @@ export const CITY_PATH = [
   // left -> mid-left return (down + right) -> mid-lower straight right ->
   // lower-right corner (down + left) -> bottom straight left -> wide
   // lower-left corner back up the left straight. No self-crossing; every
-  // corner flanged ~12m (min radius >= ~10m). Length ~658m.
+  // corner flanged ~13m (measured radii 4-8m — the AI drifts them cleanly
+  // at 40+ m/s; see harness). Length ~630m.
   // START — middle of the left straight, launching UP (+Z).
   [-70, 0.3, 0],
   [-70, 0.2, 25],
@@ -1636,7 +1637,7 @@ function buildRoadSponsorDecals(path) {
   // Low-curvature straights, clear of the start grid (t<0.07), the ramps
   // (0.30/0.86) and the turbo clusters (0.18/0.72).
   const CANDIDATES = [0.08, 0.46, 0.50, 0.62, 0.80, 0.92];
-  const RAMP_TS = [0.30, 0.86];
+  const RAMP_TS = [0.30, 0.86]; // sponsor-decals clearance (historical ts)
   const TURBO_TS = CONFIG.track.turboPadTs || [];
   const tan = new THREE.Vector3();
   const tan2 = new THREE.Vector3();
@@ -1795,7 +1796,21 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   const turbo = buildTurboPads(path, length);
   group.add(turbo.mesh);
 
-  const ramps = buildRamps(path, length);
+  // AUDIT (city redesign, 2026-08-11): the old hardcoded ts [0.30, 0.86]
+  // put a ramp INSIDE the new top-right return corner (curvature ~0.08-0.10,
+  // not <0.001 as the old comment claimed) — a vY=6.5 launch there flies
+  // ~40m across the rail. New ts sit mid-straights (0.13 = top straight,
+  // 0.84 = bottom straight) AND every candidate is curvature-checked
+  // (skipped unless the local radius is straight enough).
+  const RAMP_TS = [0.20, 0.57]; // top straight + mid straight (curv ~0)
+  const rampT = [];
+  for (const rt of RAMP_TS) {
+    const ta = path.getTangentAt(Math.max(0.001, rt - 0.005));
+    const tb = path.getTangentAt(Math.min(0.999, rt + 0.005));
+    const curv = ta.angleTo(tb) / 0.01; // rad per meter
+    if (curv < 0.03) rampT.push(rt); // straight enough to launch
+  }
+  const ramps = buildRamps(path, length, rampT);
   for (const r of ramps) {
     group.add(r.mesh);
     // chev is parented to r.mesh now (stays flush on the slope) — it must
@@ -1905,7 +1920,7 @@ function buildRampBraceGeometry(rampWidth, rampHeight, rampLen, braceLen, thickn
   return geo;
 }
 
-function buildRamps(path, length) {
+function buildRamps(path, length, rampTs) {
   const ramps = [];
   // Toon ramp body (audit v4 F1: was the only non-toon surface — read as a
   // flat orange crate) + painted chevrons on the top face.
@@ -1928,11 +1943,9 @@ function buildRamps(path, length) {
   const braceMat = toonMaterial(0x2b3340, { side: THREE.DoubleSide });
   // Slope of the top face, for the chevron decal to lie flush on it.
   const slopeAngle = Math.atan2(rampHeight, rampLen);
-  // Two ramps on the two long straights, evenly split around the lap (0.30
-  // and 0.86 — curvature < 0.001) and clear of the turbo-pad clusters
-  // (0.18 / 0.72) and the corner dressing — no more cluster at t=0.16/0.56
-  // (the old 0.56 ramp sat on the corner entry, c≈0.0015).
-  for (const t of [0.30, 0.86]) {
+  // Ramps on the long straights, placed + curvature-checked by the caller
+  // (buildTrack filters to straight candidates; clear of turbo clusters).
+  for (const t of rampTs || []) {
     path.getPointAt(t, p);
     path.getTangentAt(t, tan);
     const mesh = new THREE.Mesh(rampGeo, mat);
