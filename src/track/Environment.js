@@ -3135,15 +3135,7 @@ export class Environment {
           armDummy.rotation.set(0, 0, 1.25);
           armDummy.updateMatrix();
           armsR.setMatrixAt(sIdx, armDummy.matrix);
-          // Two separate legs under the torso.
-          legDummy.position.set(dummy.position.x - 0.13, dummy.position.y - 0.55, dummy.position.z);
-          legDummy.rotation.set(0, 0, 0.12);
-          legDummy.updateMatrix();
-          legsL.setMatrixAt(sIdx, legDummy.matrix);
-          legDummy.position.set(dummy.position.x + 0.13, dummy.position.y - 0.55, dummy.position.z);
-          legDummy.rotation.set(0, 0, -0.12);
-          legDummy.updateMatrix();
-          legsR.setMatrixAt(sIdx, legDummy.matrix);
+
           armsR.setMatrixAt(sIdx, armDummy.matrix);
           sIdx++;
         }
@@ -3360,18 +3352,28 @@ export class Environment {
             dummy.updateMatrix();
             heads.setMatrixAt(idx, dummy.matrix);
             headBaseY[idx] = bodyY + 0.95;
-            // Raised arms (cheering silhouette): tilted outward in the
-            // figure's local X-Y plane, yawed with the body.
-            dummy.position.set(fx - 0.46 * Math.cos(yaw), bodyY + 0.72, fz + 0.46 * Math.sin(yaw));
-            dummy.rotation.set(0, yaw, -0.9);
+            // Raised arms (cheering silhouette) — angled UP so they read as
+            // limbs with a shoulder, not straight rods poking sideways.
+            dummy.position.set(fx - 0.4 * Math.cos(yaw), bodyY + 0.7, fz + 0.4 * Math.sin(yaw));
+            dummy.rotation.set(0, yaw, -1.25);
             dummy.scale.set(1, 1, 1);
             dummy.updateMatrix();
             armsL.setMatrixAt(idx, dummy.matrix);
-            dummy.position.set(fx + 0.46 * Math.cos(yaw), bodyY + 0.72, fz - 0.46 * Math.sin(yaw));
-            dummy.rotation.set(0, yaw, 0.9);
+            dummy.position.set(fx + 0.4 * Math.cos(yaw), bodyY + 0.7, fz - 0.4 * Math.sin(yaw));
+            dummy.rotation.set(0, yaw, 1.25);
             dummy.updateMatrix();
             armsR.setMatrixAt(idx, dummy.matrix);
-            armBaseY[idx] = bodyY + 0.72;
+            armBaseY[idx] = bodyY + 0.7;
+            // Two separate legs under the torso — figures read as PEOPLE.
+            dummy.position.set(fx - 0.13 * Math.cos(yaw), bodyY - 0.55, fz + 0.13 * Math.sin(yaw));
+            dummy.rotation.set(0, yaw, 0.12);
+            dummy.scale.set(1, 1, 1);
+            dummy.updateMatrix();
+            legsL.setMatrixAt(idx, dummy.matrix);
+            dummy.position.set(fx + 0.13 * Math.cos(yaw), bodyY - 0.55, fz - 0.13 * Math.sin(yaw));
+            dummy.rotation.set(0, yaw, -0.12);
+            dummy.updateMatrix();
+            legsR.setMatrixAt(idx, dummy.matrix);
             idx++;
           }
         }
@@ -3382,10 +3384,14 @@ export class Environment {
     heads.instanceMatrix.needsUpdate = true;
     armsL.instanceMatrix.needsUpdate = true;
     armsR.instanceMatrix.needsUpdate = true;
+    legsL.instanceMatrix.needsUpdate = true;
+    legsR.instanceMatrix.needsUpdate = true;
     bodies.userData.baseY = bodyBaseY;
     heads.userData.baseY = headBaseY;
     armsL.userData.baseY = armBaseY;
     armsR.userData.baseY = armBaseY;
+    legsL.userData.baseY = bodyBaseY;
+    legsR.userData.baseY = bodyBaseY;
     scene.add(bodies, heads, armsL, armsR, legsL, legsR);
     (this.crowdMeshes = this.crowdMeshes || []).push(bodies, heads, armsL, armsR, legsL, legsR);
   }
