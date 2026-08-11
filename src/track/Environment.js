@@ -3290,10 +3290,10 @@ export class Environment {
     const crowdColors = [0xe74c4c, 0xf4a93e, 0x5cb85c, 0x4a90d9, 0x9b6fd4, 0xe8789a, 0xf5f5f5, 0x7b8a9e, 0x34495e];
     // AUDIT (agent: 'repeated in nearly identical poses'): 4 pose variants.
     const POSES = [
-      { armL: -1.25, armR: 1.25, armY: 0.7, armX: 0.4 },  // cheer (arms up)
-      { armL: 0.12, armR: -0.12, armY: 0.55, armX: 0.32 }, // relaxed at sides
-      { armL: -0.6, armR: 0.35, armY: 0.64, armX: 0.36 },  // waving one arm
-      { armL: 0.85, armR: -0.85, armY: 0.62, armX: 0.34 }, // leaning forward
+      { armL: -1.25, armR: 1.25, armY: 0.7, armX: 0.4, bodyOff: 0.36, bob: 0.2 },   // cheer
+      { armL: -0.15, armR: 0.15, armY: 0.62, armX: 0.32, bodyOff: 0.36, bob: 0.08 }, // relaxed
+      { armL: -1.25, armR: 0.18, armY: 0.72, armX: 0.4, bodyOff: 0.36, bob: 0.13 },  // wave
+      { armL: -0.35, armR: 0.35, armY: 0.52, armX: 0.3, bodyOff: 0.3, bob: 0.05 },   // seated (lower)
     ];
     // 3D spectator parts — one InstancedMesh per part for the WHOLE crowd
     // (4 draw calls): body box + head sphere + two raised arms, exactly the
@@ -3338,6 +3338,11 @@ export class Environment {
     const feetL = new THREE.InstancedMesh(footGeo, shoeMat, total);
     const feetR = new THREE.InstancedMesh(footGeo, shoeMat, total);
     const shadows = new THREE.InstancedMesh(shadowGeo, shadowMat, total);
+    // Raised BERM strip — the crowd stands on a visible earth bank (agent-1
+    // grounding: figures were floating over the grass with no base).
+    const bermGeo = new THREE.BoxGeometry(2.2, 0.3, 1.4);
+    const bermMat = toonMaterial(0x6b8e4e, {});
+    const berms = new THREE.InstancedMesh(bermGeo, bermMat, total);
     const dummy = new THREE.Object3D();
     const p = new THREE.Vector3();
     const tan = new THREE.Vector3();
@@ -3351,11 +3356,15 @@ export class Environment {
     const legBaseY = new Array(total);
     const neckBaseY = new Array(total);
     const footBaseY = new Array(total);
+    const bobArr = new Array(total);
     let idx = 0;
     for (const seg of SEGMENTS) {
       for (let side = -1; side <= 1; side += 2) {
         for (const rowOff of ROWS) {
+          let _gap = 0;
           for (let i = 0; i < seg.n; i++) {
+            if (_gap > 0) { _gap--; continue; }
+            if (this._rand() < 0.12) _gap = 1 + Math.floor(this._rand() * 3);
             // The wrap segment spans the SHORT arc past 1.0 (0.945→0.055),
             // not the whole circuit (USER BUG FIX kept from r6).
             const span = (seg.t1 - seg.t0 + 1) % 1;
@@ -3373,7 +3382,8 @@ export class Environment {
             const yaw = Math.atan2(faceX, faceZ);
             // Per-figure height jitter (organic), FEET grounded on the field.
             const sy = 0.9 + this._rand() * 0.4;
-            const bodyY = gy + 0.36 * sy; // torso center for the 0.6 body
+            const pose = POSES[(this._rand() * POSES.length) | 0];
+            const bodyY = gy + 0.30 + pose.bodyOff * sy; // ON the berm
             // Body — per-instance suit color from the crowd palette.
             dummy.position.set(fx, bodyY, fz);
             dummy.rotation.set(0, yaw, 0);
@@ -3383,8 +3393,15 @@ export class Environment {
             col.setHex(crowdColors[Math.floor(this._rand() * crowdColors.length)]);
             bodies.setColorAt(idx, col);
             bodyBaseY[idx] = bodyY;
-            // Contact shadow on the grass — anchors the figure (no floating).
-            dummy.position.set(fx, gy + 0.012, fz);
+            bobArr[idx] = pose.bob;
+            // Berm under the figure — visible earth bank.
+            dummy.position.set(fx, gy + 0.15, fz);
+            dummy.rotation.set(0, yaw, 0);
+            dummy.scale.set(1, 1, 1);
+            dummy.updateMatrix();
+            berms.setMatrixAt(idx, dummy.matrix);
+            // Contact shadow ON the berm top.
+            dummy.position.set(fx, gy + 0.315, fz);
             dummy.rotation.set(-Math.PI / 2, 0, 0);
             dummy.scale.set(1, 1, 1);
             dummy.updateMatrix();
@@ -3403,9 +3420,7 @@ export class Environment {
             dummy.updateMatrix();
             heads.setMatrixAt(idx, dummy.matrix);
             headBaseY[idx] = bodyY + 0.46 * sy;
-            // Arms — pose from the table (cheer/relax/wave/lean), so the crowd
-            // reads as individuals instead of clones.
-            const pose = POSES[(this._rand() * POSES.length) | 0];
+            // Arms — pose from the table (cheer/relax/wave/seated).
             dummy.position.set(fx - pose.armX * Math.cos(yaw), bodyY + (pose.armY - 0.54) * sy, fz + pose.armX * Math.sin(yaw));
             dummy.rotation.set(0, yaw, pose.armL);
             dummy.scale.set(1, sy, 1);
@@ -3417,7 +3432,7 @@ export class Environment {
             armsR.setMatrixAt(idx, dummy.matrix);
             armBaseY[idx] = bodyY + (pose.armY - 0.54) * sy;
             // Two separate legs — from the ground up to the torso bottom.
-            const legLen = Math.max(0.3, bodyY - gy - 0.05);
+            const legLen = Math.max(0.3, bodyY - gy - 0.05); // legs hang to the berm top
             dummy.position.set(fx - 0.13 * Math.cos(yaw), gy + legLen * 0.5, fz + 0.13 * Math.sin(yaw));
             dummy.rotation.set(0, yaw, 0.12);
             dummy.scale.set(1, legLen / 0.5, 1);
@@ -3431,7 +3446,7 @@ export class Environment {
             legBaseY[idx] = gy + legLen * 0.5;
             // Feet — flattened under each leg, CLAMPED to the terrain so a
             // short figure (sy 0.9) never sinks its feet into the grass.
-            const footY = Math.max(bodyY - 0.55, gy + 0.02);
+            const footY = Math.max(bodyY - 0.55, gy + 0.32); // feet on the berm
             dummy.position.set(fx - 0.12 * Math.cos(yaw), footY, fz + 0.12 * Math.sin(yaw));
             dummy.rotation.set(0, yaw, 0);
             dummy.scale.set(1, 1, 1);
@@ -3459,7 +3474,9 @@ export class Environment {
     feetL.instanceMatrix.needsUpdate = true;
     feetR.instanceMatrix.needsUpdate = true;
     shadows.instanceMatrix.needsUpdate = true;
+    berms.instanceMatrix.needsUpdate = true;
     bodies.userData.baseY = bodyBaseY;
+    bodies.userData.bob = bobArr;
     heads.userData.baseY = headBaseY;
     armsL.userData.baseY = armBaseY;
     armsR.userData.baseY = armBaseY;
@@ -3468,7 +3485,7 @@ export class Environment {
     necks.userData.baseY = neckBaseY;
     feetL.userData.baseY = footBaseY;
     feetR.userData.baseY = footBaseY;
-    scene.add(bodies, heads, armsL, armsR, legsL, legsR, necks, feetL, feetR, shadows);
+    scene.add(bodies, heads, armsL, armsR, legsL, legsR, necks, feetL, feetR, shadows, berms);
     (this.crowdMeshes = this.crowdMeshes || []).push(bodies, heads, armsL, armsR, legsL, legsR, necks, feetL, feetR);
   }
 
@@ -4309,7 +4326,8 @@ export class Environment {
       const dummy = (spec.userData._dummy = spec.userData._dummy || new THREE.Object3D());
       for (let i = 0; i < spec.count; i++) {
         spec.getMatrixAt(i, dummy.matrix);
-        dummy.matrix.elements[13] = base[i] + Math.sin(t * 3.2 + i * 0.9) * 0.18;
+        const bobAmp = spec.userData.bob ? spec.userData.bob[i] : 0.18;
+        dummy.matrix.elements[13] = base[i] + Math.sin(t * 3.2 + i * 0.9) * bobAmp;
         spec.setMatrixAt(i, dummy.matrix);
       }
       spec.instanceMatrix.needsUpdate = true;
