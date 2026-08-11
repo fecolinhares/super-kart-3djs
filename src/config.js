@@ -94,7 +94,7 @@ export const CONFIG = {
     // 46 m/s vs a kart at ~42 was a ~4 m/s relative gain: a thrown shell barely
     // outran its owner. MK8 shells are thrown ~1.6-1.8x kart speed; 72 m/s
     // (~1.7x) makes the throw read as a proper shot while still dodgeable.
-    shellSpeed: 72,
+    shellSpeed: 84,
     shellHomingTurnRate: 3.2,
     // AUDIT r4: blue shell ARC — the spiny flies high (telegraph) before
     // diving. lift 13 m/s launch, gravity 9.8 brings it down in ~2.6s.

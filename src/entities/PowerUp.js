@@ -9,6 +9,7 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
+import { toonMaterial, cartoonOutline } from '../render/Materials.js';
 
 // ---------------------------------------------------------------------------
 // Item types & weighted roll
@@ -211,6 +212,7 @@ export function useItem(kart, ctx = {}) {
         if (other === kart || other.finished) continue;
         if (other.starred || other.invincible) continue; // audit F4: invincible riders are protected
         other.applyScale?.(CONFIG.items.lightningScale, CONFIG.items.lightningDurationMs);
+        other._onLightning?.(); // player feedback hook: electric flash + thunder
         // MK8-style: lightning knocks the held item away + a small hop
         // (audit v5 #4 — victims kept their shield AND had no shock animation).
         // AUDIT r3: knocks BOTH held slots (dual-slot) + triple stacks.
@@ -345,6 +347,15 @@ export class ShellProjectile {
       const e = 1 - (1 - this._popT) * (1 - this._popT);
       this.mesh.scale.setScalar(Math.max(0.001, e));
     }
+    // Throw hop: toss up, gravity back down, settle at road level.
+    if (this._vY) {
+      m.position.y += this._vY * dt;
+      this._vY -= 9.8 * dt;
+      if (m.position.y <= 0.3) {
+        m.position.y = 0.3;
+        this._vY = 0;
+      }
+    }
     // AUDIT r5 (CRITICAL FIX): `m` was declared AFTER the blue-arc block —
     // a thrown blue shell hit the TDZ and threw ReferenceError every frame
     // for its whole lifetime (froze the race). Hoisted here.
@@ -412,7 +423,7 @@ export class ShellProjectile {
     m.position.x += this.dir.x * this.speed * dt;
     m.position.z += this.dir.y * this.speed * dt;
     m.rotation.y = Math.atan2(this.dir.x, this.dir.y);
-    if (this._spin) this._spin.rotation.z += dt * 16; // visible travel-axis spin
+    if (this._spin) this._spin.rotation.z += dt * 18; // ~3 rev/s travel-axis spin
     this._emitTrail();
 
     // Green shell follows the racing line (MK8 behavior): steer toward the
@@ -699,6 +710,10 @@ export class Banana {
     // ease-out so the drop reads as a thrown object, not a materialization.
     this._popT = 0;
     this.mesh.scale.setScalar(0.001);
+    // AUDIT (power-up audit): 'não dá pra ver quando arremessa' — a small
+    // throw HOP (vY 2.2, gravity 9.8) makes the drop read as a tossed banana
+    // landing on the road instead of materializing.
+    this._vY = 2.2;
     this.scene?.add(this.mesh);
   }
 
@@ -713,6 +728,15 @@ export class Banana {
       this._popT = Math.min(1, this._popT + dt * 8);
       const e = 1 - (1 - this._popT) * (1 - this._popT);
       this.mesh.scale.setScalar(Math.max(0.001, e));
+    }
+    // Throw hop: toss up, gravity back down, settle at road level.
+    if (this._vY) {
+      m.position.y += this._vY * dt;
+      this._vY -= 9.8 * dt;
+      if (m.position.y <= 0.3) {
+        m.position.y = 0.3;
+        this._vY = 0;
+      }
     }
     // Blink in the final seconds as a fair-play warning.
     if (this.age > this.life - 2.5) {
@@ -822,24 +846,27 @@ export class StarEffect {
 
 function buildShellMesh(color) {
   const g = new THREE.Group();
-  const bodyMat = new THREE.MeshToonMaterial({
-    color,
-    emissive: color,
-    emissiveIntensity: 0.25,
-  });
-  const body = new THREE.Mesh(new THREE.SphereGeometry(0.34, 10, 8), bodyMat);
-  body.scale.set(1, 0.85, 1.5);
+  // AUDIT (power-up audit, 2026-08-11): the old mesh was a 10x8 sphere with
+  // 6-sided cones — raw MeshToonMaterial, no outline; read as a draft. Now
+  // higher segments, the shared PBR toon pipeline (smooth shading + sheen)
+  // and a cartoon outline; spikes spread like MK8 shells (3 top, 2 rear).
+  const bodyMat = toonMaterial(color, { emissive: color, emissiveIntensity: 0.25 });
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.34, 24, 16), bodyMat);
+  body.scale.set(1.05, 0.85, 1.55);
+  cartoonOutline(body, 0x1b2a41, 0.05);
   g.add(body);
 
-  const spikeMat = new THREE.MeshToonMaterial({
-    color: 0xffffff,
-    emissive: 0xffffff,
-    emissiveIntensity: 0.15,
-  });
-  const spikeGeo = new THREE.ConeGeometry(0.09, 0.26, 6);
+  const spikeMat = toonMaterial(0xffffff, { emissive: 0xffffff, emissiveIntensity: 0.15 });
+  const spikeGeo = new THREE.ConeGeometry(0.09, 0.26, 8);
   for (let i = 0; i < 3; i++) {
     const spike = new THREE.Mesh(spikeGeo, spikeMat);
     spike.position.set((i - 1) * 0.26, 0.3, 0);
+    g.add(spike);
+  }
+  // Two smaller rear spikes on the shell's tail (MK8 silhouette).
+  for (let i = 0; i < 2; i++) {
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.18, 8), spikeMat);
+    spike.position.set((i - 0.5) * 0.2, 0.28, 0.62);
     g.add(spike);
   }
   return g;
@@ -847,11 +874,7 @@ function buildShellMesh(color) {
 
 function buildBananaMesh() {
   const g = new THREE.Group();
-  const peelMat = new THREE.MeshToonMaterial({
-    color: 0xffd23f,
-    emissive: 0xffaa00,
-    emissiveIntensity: 0.3,
-  });
+  const peelMat = toonMaterial(0xffd23f, { emissive: 0xffaa00, emissiveIntensity: 0.3, roughness: 0.6 });
   // AUDIT (Feco, 2026-08-11): 'a banana não dá pra ver no mapa, nem quando
   // arremessa' — the 0.26m-radius torus was a tiny pale crescent on asphalt.
   // Bigger (0.36 radius, thicker tube ~0.72m banana, MK8D scale), hotter
@@ -869,7 +892,7 @@ function buildBananaMesh() {
   arc.rotation.x = Math.PI / 2;
   g.add(arc);
 
-  const tipMat = new THREE.MeshToonMaterial({ color: 0xc98a24, emissive: 0x7a4a00, emissiveIntensity: 0.2 });
+  const tipMat = toonMaterial(0xc98a24, { emissive: 0x7a4a00, emissiveIntensity: 0.2, roughness: 0.65 });
   const tip1 = new THREE.Mesh(new THREE.SphereGeometry(0.14, 10, 8), tipMat);
   tip1.position.set(0.36, 0.06, 0.12);
   g.add(tip1);
