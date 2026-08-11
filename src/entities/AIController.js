@@ -39,8 +39,15 @@ export class AIController {
     // centerline → train formation). Deterministic golden-ratio spread seeded
     // from the roster index (NOT kart.position — that was 0 at construction,
     // so every rival got the identical offset and drove one behind the other).
+    // AUDIT F2 (game-design audit): the raw golden-ratio spread reached
+    // ±2.79m — beyond the stable corridor on clockwise tracks (inside of
+    // right-hand corners = right side), so LEFT lanes oscillated and the
+    // largest offsets pinned karts into the guard rail (41 wall bounces/90s
+    // in the sim). Clamp to ±1.2m: keeps the personal-lane differentiation
+    // (anti-train) without the wall pinning. Rivals that can't hold a left
+    // line naturally fall onto the racing line (MK8D CPUs do the same).
     this.laneOffset = aiIndex !== undefined && aiIndex !== null
-      ? (aiIndex * 0.61803398875 - Math.floor(aiIndex * 0.61803398875) - 0.5) * CONFIG.track.roadWidth * 0.62
+      ? THREE.MathUtils.clamp((aiIndex * 0.61803398875 - Math.floor(aiIndex * 0.61803398875) - 0.5) * CONFIG.track.roadWidth * 0.62, -1.2, 1.2)
       : 0;
     this._initPath();
   }
@@ -115,6 +122,10 @@ export class AIController {
       const idx = (near + look) % this.centerline.length;
       target = this.centerline[idx];
       // Lateral lane offset: hold a personal racing line (audit v4 F3).
+      // AUDIT #4 (code audit): on very tight hairpins the offset point can
+      // sit BEHIND the kart (err > 90°) — skip the offset when the raw
+      // heading error to the centerline target is already extreme; the
+      // corner is taken on the centerline and the lane resumes after.
       if (this.laneOffset) {
         const p0 = this.centerline[idx];
         const p1 = this.centerline[(idx + 1) % this.centerline.length];
@@ -123,7 +134,10 @@ export class AIController {
         const tl = Math.hypot(tx, tz) || 1;
         tx /= tl;
         tz /= tl;
-        target = { x: p0.x + -tz * this.laneOffset, z: p0.z + tx * this.laneOffset };
+        const baseErr = signedAngle(heading, { x: tx, y: tz });
+        if (Math.abs(baseErr) <= 0.9) {
+          target = { x: p0.x + -tz * this.laneOffset, z: p0.z + tx * this.laneOffset };
+        }
       }
     } else {
       // No path data — dead-reckon straight ahead.
