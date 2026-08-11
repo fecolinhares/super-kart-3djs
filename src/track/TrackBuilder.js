@@ -118,7 +118,7 @@ export function terrainHeight(x, z, path) {
   const falloff = raw * raw * (3 - 2 * raw); // C1 smoothstep
   // AUDIT r18-FIX (gameplay auditor): broadHill 5.0/1.4 × 1.2 delivered
   // ±8.4m — ridge walls that occluded the track ahead. Scale to ~±5m.
-  return -0.25 + smoothH(x, z) * 0.5 * (1 + falloff * 2.5) + broadHill(x, z) * 0.7 * falloff;
+  return -0.05 + smoothH(x, z) * 0.5 * (1 + falloff * 2.5) + broadHill(x, z) * 0.7 * falloff; // AUDIT: match the mesh (-0.05) — roadside step 0.43->0.23m
 }
 
 function buildRoadRibbon(path, length, opts = {}) {
@@ -368,7 +368,11 @@ function buildTerrain(path, cityMode = false) {
     // AUDIT r19-FIX: MUST match terrainHeight() (×0.7) — the r19 fix only
     // scaled the physics sample function, leaving the mesh at ×1.2 (±8.4m);
     // the divergence made off-road karts sink/float on the visible hills.
-    const y = -0.25 + smoothH(x, z) * 0.5 * (1 + falloff * 2.5) + broadHill(x, z) * 0.7 * falloff;
+    // AUDIT (user: karts at the track edge sink below ground): the old -0.25
+    // base made the roadside 0.43m below the 0.18 road — a visible step where
+    // karts appeared to dive into the earth. -0.05 keeps a small kerb-like
+    // step (~0.23m) without the 'sinking' read.
+    const y = -0.05 + smoothH(x, z) * 0.5 * (1 + falloff * 2.5) + broadHill(x, z) * 0.7 * falloff;
     pos.setY(i, y);
   }
   geo.computeVertexNormals();
