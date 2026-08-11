@@ -334,6 +334,11 @@
 - The wall limited the kart CENTER to 5.4m but the 1.05m-wide body reached
   0.3m through the rail. The wall now pulls in by the body half-width.
 
+## 🛡️ Guard rail — tire-width fix
+- The outer WHEEL edge is 1.04m from center (axle + tire radius) — wider than
+  the body. The wall pulls in 0.85m so the tire clears the rail (5.59 < 5.6)
+  while the shoulder stays drivable.
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
