@@ -139,7 +139,7 @@ export class ItemBox {
     mesh.castShadow = true;
     // Dark cartoon outline (inverted hull) so the box pops from the road.
     const outline = new THREE.Mesh(
-      new THREE.BoxGeometry(this.size * 1.045, this.size * 1.045, this.size * 1.045),
+      new THREE.BoxGeometry(this.size * 1.06, this.size * 1.06, this.size * 1.06),
       new THREE.MeshBasicMaterial({ color: 0x1b2a41, side: THREE.BackSide })
     );
     mesh.add(outline);
@@ -181,7 +181,12 @@ export class ItemBox {
       // the white-cream texture mustard (seen repeatedly in QA). A magic
       // pickup box reads as self-lit, so MeshBasicMaterial shows the exact
       // MK8-style colors: white panel, bold red '?'.
-      return new THREE.MeshBasicMaterial({ map: tex, color: 0xffffff });
+      // AUDIT (2026-08-11): single flat material read as a PLACARD from the
+      // chase camera — per-face shading (material array) gives each side a
+      // different value so the cube reads 3D while staying self-lit.
+      const mk = (color) => new THREE.MeshBasicMaterial({ map: tex, color });
+      // BoxGeometry material order: +x, -x, +y, -y, +z, -z
+      return [mk(0xffffff), mk(0xbfbfbf), mk(0xcccccc), mk(0x8c8c8c), mk(0xe6e6e6), mk(0xa6a6a6)];
     }
     const opts = {
       color: 0xffb703,
@@ -201,8 +206,8 @@ export class ItemBox {
     const old = this.mesh.material;
     this.mesh.material = this._makeMaterial();
     if (old) {
-      old.map = null; // the '?' texture is shared — never dispose it here
-      old.dispose?.();
+      const mats = Array.isArray(old) ? old : [old];
+      for (const m of mats) { m.map = null; m.dispose?.(); } // '?' shared — never dispose it
     }
   }
 

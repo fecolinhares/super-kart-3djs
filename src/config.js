@@ -124,7 +124,7 @@ export const CONFIG = {
     targetSpeedError: 8,
     steerPredictAhead: 10.0, // AUDIT F3: 6m was 143ms at max speed — too short for clean cornering on the tight city circuit (heading err dropped 16->6 deg); 10m keeps turn-in early without over-rotating.
     itemUseChancePerSec: 0.5,
-    crashRecoverMs: 1200,
+    crashRecoverMs: 500, // AI re-grips 0.5s after a spin ends (was 1200: long idle)
   },
 
   assist: {

@@ -180,6 +180,20 @@ function buildInjections(rng, trackData, seed) {
       k.state.speed = 20 + rng() * 15;
     },
   });
+  // (d2) REAL ITEM HIT (AUDIT 2026-08-11): the old spin injection only used
+  // 550-950ms, but hitShell spins 2100ms / hitBanana 1500ms — a real hit
+  // keeps the kart under 1 m/s for ~2.1s spin + recovery, which is why the
+  // STUCK detector must exempt post-hit recovery. This injection exercises
+  // the full long-spin + recovery path.
+  inj.push({
+    at: 44 + rng() * 6, apply(karts) {
+      const k = karts[1 + Math.floor(rng() * 4)];
+      k.state.spinOut = true;
+      k._spinMs = 1500 + rng() * 600;
+      k._spinDir = rng() < 0.5 ? -1 : 1;
+      k.state.speed = 18 + rng() * 12;
+    },
+  });
   // (d) rear-end at speed: kart pushed 8-14m forward AND off-road
   inj.push({
     at: 48 + rng() * 8, apply(karts) {
@@ -294,7 +308,7 @@ function runRace(seed, trackData) {
     // em certo ponto da pista'). Report the exact spot.
     for (let i = 0; i < karts.length; i++) {
       const k = karts[i];
-      if (k.finished || k.state.spinOut) { stuckT[i] = 0; stuckPos[i] = null; continue; }
+      if (k.finished || k.state.spinOut || k._ctrl.crashRecovering) { stuckT[i] = 0; stuckPos[i] = null; continue; }
       const sp = Math.abs(k.state.speed);
       if (sp < 1) {
         stuckT[i] += DT;
