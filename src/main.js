@@ -591,13 +591,24 @@ function centerlineAssist() {
   const cl = raceManager && raceManager.centerline;
   if (!cl || !cl.length || !playerKart) return 0;
   const pos = playerKart.state.position;
-  let best = 0;
-  let bestD = Infinity;
-  for (let i = 0; i < cl.length; i++) {
-    const dx = cl[i].x - pos.x;
-    const dz = cl[i].z - pos.z;
-    const d = dx * dx + dz * dz;
-    if (d < bestD) { bestD = d; best = i; }
+  // AUDIT r11 (#7, code audit): the old full-scan picked the nearest sample
+  // IN SPACE — after a spin/off-road excursion on a curved loop that can be
+  // a DIFFERENT track segment (tangent pointing the opposite way), so the
+  // assist could nudge the player the WRONG way. Anchor on race progress
+  // (same progress-anchored pattern as AIController._findNearest): the
+  // assist only ever pulls toward the player's own race progress + look.
+  const prog = playerKart.state && playerKart.state.progress01;
+  let best = -1;
+  if (typeof prog === 'number' && prog >= 0 && prog <= 1) {
+    best = Math.min(cl.length - 1, Math.max(0, Math.round(prog * cl.length)));
+  } else {
+    let bestD = Infinity;
+    for (let i = 0; i < cl.length; i++) {
+      const dx = cl[i].x - pos.x;
+      const dz = cl[i].z - pos.z;
+      const d = dx * dx + dz * dz;
+      if (d < bestD) { bestD = d; best = i; }
+    }
   }
   const spacing = raceManager.centerlineSpacing || 2.5;
   const look = Math.max(1, Math.round(CONFIG.ai.steerPredictAhead / spacing));
