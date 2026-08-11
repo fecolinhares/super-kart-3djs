@@ -1028,8 +1028,11 @@ export class Kart {
     // sidewall break between tread shoulder and painted stripe).
     const wallBandGeo = new THREE.TorusGeometry(0.32, 0.013, 8, 36); // AUDIT: outer wall band at the tire edge
     // Chrome rim parts (all in the YZ plane — axle along X).
-    const rimDiscGeo = new THREE.CylinderGeometry(0.19, 0.19, 0.022, 24);
-    const rimLipGeo = new THREE.TorusGeometry(0.215, 0.018, 8, 28);
+    // AUDIT (user: 'a gray ring spinning at the rear, looks misplaced'): the
+    // rim was 0.19/0.215 inside a 0.34 tire — a small ring floating mid-wheel
+    // with a visible gap. Enlarge so it reads as a proper rim filling the tire.
+    const rimDiscGeo = new THREE.CylinderGeometry(0.275, 0.275, 0.022, 24);
+    const rimLipGeo = new THREE.TorusGeometry(0.29, 0.016, 8, 32);
     const spokeGeo = new THREE.BoxGeometry(0.022, 0.15, 0.05);
     const hubGeo = new THREE.CylinderGeometry(0.062, 0.062, 0.034, 18);
     const hubCapGeo = new THREE.SphereGeometry(0.032, 12, 10);

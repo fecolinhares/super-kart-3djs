@@ -507,7 +507,7 @@ function beveledCurbGeometry(width, height, length, chamfer) {
 function buildCurbs(path, length, side, opts = {}) {
   const roadW = getRoadWidthAt();
   // Continuous kerbs (no gaps): block length ≈ spacing → solid red/white edge.
-  const seg = 1.7;
+  const seg = 0.85; // AUDIT (user: 'were these supposed to be the zebra kerbs? they look weird') — 1.7m stones read as odd blocks; classic racing kerbs are short zebra slabs
   const count = Math.floor(length / seg);
   // Beveled profile: 0.46 wide x 0.17 tall with chamfered top corners. Kerb
   // top stays at the historical y+0.29 (apex cones keep their footing); the
@@ -540,7 +540,9 @@ function buildCurbs(path, length, side, opts = {}) {
   // Worn kerb palette (classic track): 4 alternating stone colors + a
   // per-instance dirtied tint so the kerb reads as individual worn stones
   // set into the ground, not a flat repetitive tile strip (vision critic).
-  const KERB_PALETTE = [0xff5a5f, 0xf4f6f8, 0xd2d9e1, 0xe05054];
+  // AUDIT: classic red/white ZEBRA kerb (the 4-color worn palette read as
+  // weird blocks, not a kerb). Per-instance dirt tint still adds wear.
+  const KERB_PALETTE = [0xff5a5f, 0xf4f6f8];
 
   const p = new THREE.Vector3();
   const tan = new THREE.Vector3();

@@ -153,7 +153,7 @@ export class ItemBox {
         depthWrite: false,
       })
     );
-    beam.position.set(this.base.x, this.base.y - this.size * 1.35, this.base.z);
+    beam.position.set(this.base.x, Math.max(this.base.y - this.size * 1.35, 0.18), this.base.z); // AUDIT: the light beam must end AT the road (0.18), not pierce below ground
     this.beam = beam;
     // Glowing golden ring around the box (MK8 pickup readability — replaces
     // the old orbiting arrow cones which read as sketchy placeholders).
@@ -236,7 +236,7 @@ export class ItemBox {
     // Continuous slow spin (MK8 pickup box) + a little wobble.
     this.mesh.rotation.y = this.base.yaw + Math.sin(this.wobble) * 0.1 + this.bobPhase * 0.55;
     if (this.beam) {
-      this.beam.position.y = this.base.y - this.size * 1.35 + bob;
+      this.beam.position.y = Math.max(this.base.y - this.size * 1.35, 0.18) + bob;
       const pulse = 0.3 + Math.sin(this.bobPhase * 1.3) * 0.1;
       this.beam.material.opacity = pulse;
     }

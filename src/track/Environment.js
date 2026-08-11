@@ -1143,9 +1143,9 @@ export class Environment {
     // layer into a stacked-cone crown; oak keeps layered spheres; palm keeps
     // its frond canopy (built separately).
     const canopyGeoms = species.map(s => {
-      if (s.name === 'pine') return new THREE.ConeGeometry(1.0, 1.0, 14); // unit cone -> stacked-cone pine (r11: 10->14 segs)
-      if (s.name === 'palm') return new THREE.SphereGeometry(0.1, 8, 6); // tiny placeholder, fronds handled separately
-      return new THREE.SphereGeometry(1.0, 18, 12); // oak - layered spheres (r11: 14->18 segs)
+      if (s.name === 'pine') return new THREE.ConeGeometry(1.0, 1.0, 18); // AUDIT: 14 segs read as low-quality cones — bump to 18
+      if (s.name === 'palm') return new THREE.SphereGeometry(0.1, 10, 8); // tiny placeholder, fronds handled separately
+      return new THREE.SphereGeometry(1.0, 20, 14); // oak — smoother crown
     });
     // One base canopy material per species. Per-instance HSL lightness jitter
     // (setColorAt -> instanceColor, ±8%) below replaces the old two fixed
@@ -3284,9 +3284,12 @@ export class Environment {
     // 3D spectator parts — one InstancedMesh per part for the WHOLE crowd
     // (4 draw calls): body box + head sphere + two raised arms, exactly the
     // figure buildGrandstand uses, so the roadside fans match the stands.
-    const bodyGeo = new THREE.BoxGeometry(1.05, 1.2, 1.0);
-    const headGeo = new THREE.SphereGeometry(0.42, 12, 8);
-    const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.75, 8);
+    // AUDIT (user: 'the crowd look like deformed dolls'): the 1.05x1.2 body
+    // box read as tall square blocks with a tiny head. Human-proportioned
+    // torso: narrow shoulders, shorter, head scaled to match.
+    const bodyGeo = new THREE.BoxGeometry(0.6, 0.85, 0.4);
+    const headGeo = new THREE.SphereGeometry(0.3, 12, 8);
+    const armGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.6, 8);
     const bodyMat = toonMaterial(0xffffff, {}); // per-instance suit colors below
     const skinMat = toonMaterial(0xffd9b3, {});
     const bodies = new THREE.InstancedMesh(bodyGeo, bodyMat, total);
@@ -3325,7 +3328,7 @@ export class Environment {
             const yaw = Math.atan2(faceX, faceZ);
             // Per-figure height jitter (organic), FEET grounded on the field.
             const sy = 0.9 + this._rand() * 0.4;
-            const bodyY = gy + 0.6 * sy;
+            const bodyY = gy + 0.42 * sy; // torso center for the 0.85 body
             // Body — per-instance suit color from the crowd palette.
             dummy.position.set(fx, bodyY, fz);
             dummy.rotation.set(0, yaw, 0);
