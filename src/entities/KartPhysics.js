@@ -227,15 +227,27 @@ export class KartPhysics {
     const samples = ensureSamples(kart, track);
     const near = nearestSample(kart, samples);
     const halfW = roadHalfWidth(track, near.t);
-    const wallAt = halfW + (T.roadEdge ?? 0.9);
+    // AUDIT (user: karts drive THROUGH the guard rail): the rail is placed at
+    // roadWidth/2 + 1.1 (fixed base width) but halfW uses the LOCAL width —
+    // on wide sections the old wallAt (halfW + 0.9) reached 6.9m, 1.3m past
+    // the rail. Clamp the wall to just inside the rail position so the kart
+    // can never pierce it.
+    const railAt = (T.roadWidth ?? 9) / 2 + 1.05;
+    const wallAt = Math.min(halfW + (T.roadEdge ?? 0.9), railAt);
     // AUDIT r18-FIX: off-road karts ride the rolling terrain — the path
     // samples are flat; beyond the corridor the field rolls ±5m and a kart
     // shoved into the grass would bury or float up to 5m without this.
     if (Math.abs(near.lateralDist) > halfW + 0.5) {
-      // Off-road: ride the rolling terrain, but CLAMP the sink so a kart at
-      // the track edge can't drop into the floor (user bug: 'falling into
-      // the subsoil at track corners' — the far field rolls to -5m).
-      near.groundY = Math.max(terrainHeight(s.position.x, s.position.z, track.path), near.groundY - 0.3); // AUDIT: hard clamp — never more than 0.3m below the path (karts used to dive 0.6m) // near.groundY IS sp.y (from nearestSample) — sp is not in step scope
+      // AUDIT (user: 'still sinks a little'): the dirt SHOULDER ribbon is
+      // visible at y=0.14 (width roadW+3.4), but off-road karts rode the
+      // terrain (-0.05) → 0.19m below the shoulder. Ride the shoulder while
+      // on it, then the terrain beyond it.
+      const shoulderEdge = halfW + 1.7;
+      if (Math.abs(near.lateralDist) < shoulderEdge) {
+        near.groundY = 0.14;
+      } else {
+        near.groundY = Math.max(terrainHeight(s.position.x, s.position.z, track.path), near.groundY - 0.3); // AUDIT: hard clamp — never more than 0.3m below the path (karts used to dive 0.6m) // near.groundY IS sp.y (from nearestSample) — sp is not in step scope
+      }
     } else {
       // ON-ROAD: the visible road ribbon sits at path.y + 0.18 (buildRoadRibbon
       // yOff). Without this offset the kart body sank 0.18m INTO the asphalt,
