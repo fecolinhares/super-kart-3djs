@@ -3304,12 +3304,16 @@ export class Environment {
     // AUDIT (vision: 'cream-white blobs, heads as big as the body'): the 0.3
     // head was half the torso width. Smaller head + neck + feet + a contact
     // shadow makes the figure read as a tiny person standing on the grass.
-    const bodyGeo = new THREE.BoxGeometry(0.6, 0.85, 0.4);
-    const headGeo = new THREE.SphereGeometry(0.22, 12, 8);
+    // AUDIT (agent-0 human proportions): torso narrower+shorter, legs wear
+    // navy pants (not skin), feet wear dark shoes — a dressed little person.
+    const bodyGeo = new THREE.BoxGeometry(0.52, 0.6, 0.34);
+    const headGeo = new THREE.SphereGeometry(0.18, 12, 8);
     const neckGeo = new THREE.CylinderGeometry(0.045, 0.055, 0.1, 8);
     const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.55, 8);
     const legGeo = new THREE.CylinderGeometry(0.055, 0.065, 0.5, 8);
     const footGeo = new THREE.CylinderGeometry(0.07, 0.08, 0.035, 8);
+    const pantsMat = toonMaterial(0x334155, {});
+    const shoeMat = toonMaterial(0x1e293b, {});
     // Contact shadow (kart blob-shadow pattern): radial gradient disc.
     const shadowCanvas = document.createElement('canvas');
     shadowCanvas.width = shadowCanvas.height = 64;
@@ -3328,11 +3332,11 @@ export class Environment {
     const heads = new THREE.InstancedMesh(headGeo, skinMat, total);
     const armsL = new THREE.InstancedMesh(armGeo, skinMat, total);
     const armsR = new THREE.InstancedMesh(armGeo, skinMat, total);
-    const legsL = new THREE.InstancedMesh(legGeo, skinMat, total);
-    const legsR = new THREE.InstancedMesh(legGeo, skinMat, total);
+    const legsL = new THREE.InstancedMesh(legGeo, pantsMat, total);
+    const legsR = new THREE.InstancedMesh(legGeo, pantsMat, total);
     const necks = new THREE.InstancedMesh(neckGeo, skinMat, total);
-    const feetL = new THREE.InstancedMesh(footGeo, skinMat, total);
-    const feetR = new THREE.InstancedMesh(footGeo, skinMat, total);
+    const feetL = new THREE.InstancedMesh(footGeo, shoeMat, total);
+    const feetR = new THREE.InstancedMesh(footGeo, shoeMat, total);
     const shadows = new THREE.InstancedMesh(shadowGeo, shadowMat, total);
     const dummy = new THREE.Object3D();
     const p = new THREE.Vector3();
@@ -3344,6 +3348,9 @@ export class Environment {
     const bodyBaseY = new Array(total);
     const headBaseY = new Array(total);
     const armBaseY = new Array(total);
+    const legBaseY = new Array(total);
+    const neckBaseY = new Array(total);
+    const footBaseY = new Array(total);
     let idx = 0;
     for (const seg of SEGMENTS) {
       for (let side = -1; side <= 1; side += 2) {
@@ -3366,7 +3373,7 @@ export class Environment {
             const yaw = Math.atan2(faceX, faceZ);
             // Per-figure height jitter (organic), FEET grounded on the field.
             const sy = 0.9 + this._rand() * 0.4;
-            const bodyY = gy + 0.42 * sy; // torso center for the 0.85 body
+            const bodyY = gy + 0.36 * sy; // torso center for the 0.6 body
             // Body — per-instance suit color from the crowd palette.
             dummy.position.set(fx, bodyY, fz);
             dummy.rotation.set(0, yaw, 0);
@@ -3382,43 +3389,46 @@ export class Environment {
             dummy.scale.set(1, 1, 1);
             dummy.updateMatrix();
             shadows.setMatrixAt(idx, dummy.matrix);
-            // Neck between torso top (0.425) and head — scaled with the figure.
-            dummy.position.set(fx, bodyY + 0.47 * sy, fz);
+            // Neck between torso top and head — scaled with the figure.
+            dummy.position.set(fx, bodyY + 0.32 * sy, fz);
             dummy.rotation.set(0, 0, 0);
             dummy.scale.set(1, sy, 1);
             dummy.updateMatrix();
             necks.setMatrixAt(idx, dummy.matrix);
+            neckBaseY[idx] = bodyY + 0.47 * sy;
             // Head (skin tone) — smaller, sits on the neck, scaled with body.
-            dummy.position.set(fx, bodyY + 0.63 * sy, fz);
+            dummy.position.set(fx, bodyY + 0.46 * sy, fz);
             dummy.rotation.set(0, 0, 0);
             dummy.scale.set(1, sy, 1);
             dummy.updateMatrix();
             heads.setMatrixAt(idx, dummy.matrix);
-            headBaseY[idx] = bodyY + 0.63 * sy;
+            headBaseY[idx] = bodyY + 0.46 * sy;
             // Arms — pose from the table (cheer/relax/wave/lean), so the crowd
             // reads as individuals instead of clones.
             const pose = POSES[(this._rand() * POSES.length) | 0];
-            dummy.position.set(fx - pose.armX * Math.cos(yaw), bodyY + pose.armY * sy, fz + pose.armX * Math.sin(yaw));
+            dummy.position.set(fx - pose.armX * Math.cos(yaw), bodyY + (pose.armY - 0.54) * sy, fz + pose.armX * Math.sin(yaw));
             dummy.rotation.set(0, yaw, pose.armL);
             dummy.scale.set(1, sy, 1);
             dummy.updateMatrix();
             armsL.setMatrixAt(idx, dummy.matrix);
-            dummy.position.set(fx + pose.armX * Math.cos(yaw), bodyY + pose.armY * sy, fz - pose.armX * Math.sin(yaw));
+            dummy.position.set(fx + pose.armX * Math.cos(yaw), bodyY + (pose.armY - 0.54) * sy, fz - pose.armX * Math.sin(yaw));
             dummy.rotation.set(0, yaw, pose.armR);
             dummy.updateMatrix();
             armsR.setMatrixAt(idx, dummy.matrix);
-            armBaseY[idx] = bodyY + pose.armY * sy;
-            // Two separate legs — stretched so they reach the clamped feet.
-            const legLen = Math.max(0.3, bodyY - 0.55 - gy);
+            armBaseY[idx] = bodyY + (pose.armY - 0.54) * sy;
+            // Two separate legs — from the ground up to the torso bottom.
+            const legLen = Math.max(0.3, bodyY - gy - 0.05);
             dummy.position.set(fx - 0.13 * Math.cos(yaw), gy + legLen * 0.5, fz + 0.13 * Math.sin(yaw));
             dummy.rotation.set(0, yaw, 0.12);
             dummy.scale.set(1, legLen / 0.5, 1);
             dummy.updateMatrix();
             legsL.setMatrixAt(idx, dummy.matrix);
+            legBaseY[idx] = gy + legLen * 0.5;
             dummy.position.set(fx + 0.13 * Math.cos(yaw), gy + legLen * 0.5, fz - 0.13 * Math.sin(yaw));
             dummy.rotation.set(0, yaw, -0.12);
             dummy.updateMatrix();
             legsR.setMatrixAt(idx, dummy.matrix);
+            legBaseY[idx] = gy + legLen * 0.5;
             // Feet — flattened under each leg, CLAMPED to the terrain so a
             // short figure (sy 0.9) never sinks its feet into the grass.
             const footY = Math.max(bodyY - 0.55, gy + 0.02);
@@ -3427,10 +3437,12 @@ export class Environment {
             dummy.scale.set(1, 1, 1);
             dummy.updateMatrix();
             feetL.setMatrixAt(idx, dummy.matrix);
+            footBaseY[idx] = footY;
             dummy.position.set(fx + 0.12 * Math.cos(yaw), footY, fz - 0.12 * Math.sin(yaw));
             dummy.rotation.set(0, yaw, 0);
             dummy.updateMatrix();
             feetR.setMatrixAt(idx, dummy.matrix);
+            footBaseY[idx] = footY;
             idx++;
           }
         }
@@ -3451,11 +3463,11 @@ export class Environment {
     heads.userData.baseY = headBaseY;
     armsL.userData.baseY = armBaseY;
     armsR.userData.baseY = armBaseY;
-    legsL.userData.baseY = bodyBaseY;
-    legsR.userData.baseY = bodyBaseY;
-    necks.userData.baseY = bodyBaseY;
-    feetL.userData.baseY = bodyBaseY;
-    feetR.userData.baseY = bodyBaseY;
+    legsL.userData.baseY = legBaseY;
+    legsR.userData.baseY = legBaseY;
+    necks.userData.baseY = neckBaseY;
+    feetL.userData.baseY = footBaseY;
+    feetR.userData.baseY = footBaseY;
     scene.add(bodies, heads, armsL, armsR, legsL, legsR, necks, feetL, feetR, shadows);
     (this.crowdMeshes = this.crowdMeshes || []).push(bodies, heads, armsL, armsR, legsL, legsR, necks, feetL, feetR);
   }
