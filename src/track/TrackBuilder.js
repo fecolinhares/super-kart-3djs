@@ -518,7 +518,13 @@ function buildCurbs(path, length, side, opts = {}) {
   //  - per-stone jitter (latJ 0.03m / yJ 0.02m) and tint noise (0.78-1.13)
   //    zigzagged the road edge and turned the zebra patchy.
   const seg = 0.6;
-  const count = Math.floor(length / seg);
+  // AUDIT (kerb probe, 2026-08-11): centering stones at uniform (i+0.5)/count
+  // left gaps up to 0.23m between stones where the path's U-to-T mapping
+  // compresses (tight curves) — visible as 'holes'. Space the centers 10%
+  // SHORTER than the stone (0.54m) so every stone overlaps the next by 6cm:
+  // covers the curve wedge gaps and the start-line seam. Count goes up.
+  const segEff = seg * 0.9;
+  const count = Math.ceil(length / segEff);
   const curbW = 0.9;
   const curbH = 0.17;
   const geo = beveledCurbGeometry(curbW, curbH, seg, 0.05);
@@ -560,7 +566,7 @@ function buildCurbs(path, length, side, opts = {}) {
   const cursor = [0, 0];
 
   for (let i = 0; i < count; i++) {
-    const t = (i + 0.5) / count; // center each block on its segment → no overlap
+    const t = Math.min(0.9999, (i * segEff + segEff / 2) / length); // 10% overlap
     path.getPointAt(t, p);
     path.getTangentAt(t, tan);
     nrm.set(-tan.z, 0, tan.x).normalize();
