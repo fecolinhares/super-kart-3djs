@@ -243,9 +243,12 @@ export class RaceManager {
     }
     this.droppedCoins = [];
 
-    this.aiControllers = (aiKarts || []).map((k, i) => new AIController(k, track, this, i));
-
-    // Build the navigation cache for AI + projectile off-track culling.
+    // AUDIT r11 (#2, code audit): the navigation cache MUST exist BEFORE the
+    // AIController constructors run — _initPath() reads rm.centerline at
+    // construction and never re-runs. With the old order (controllers first)
+    // every rival fell back to the coarse 90-point track.waypoints and the
+    // 240-point arc-length cache (progress-anchored steering, seam-slice)
+    // was dead code in the real game; only the harness exercised it.
     if (track && track.path && typeof track.path.getSpacedPoints === 'function') {
       // AUDIT r11: getSpacedPoints(240) returns 241 points on a CLOSED curve
       // — the last is an exact duplicate of the first (seam). Slice it off:
@@ -260,6 +263,8 @@ export class RaceManager {
       const len = track.length || 500;
       this.centerlineSpacing = Math.max(1.5, len / track.waypoints.length);
     }
+
+    this.aiControllers = (aiKarts || []).map((k, i) => new AIController(k, track, this, i));
 
     // AUDIT r8: rank arrows only exist during a live race — hidden in menu.
     this._setRankArrowsVisible(false);
