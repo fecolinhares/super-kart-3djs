@@ -401,6 +401,32 @@ export class RaceManager {
         continue;
       }
       const st = kart.state || {};
+      // AUDIT (Jarvis QA loop 2026-08-11): OUT-OF-BOUNDS rescue — a kart
+      // flung past the map edge (hard shove/boost at a tight corner) used to
+      // drive away forever (SIM seed 2918: z went to -126, v=4.6 never
+      // triggered the <3 m/s stuck rescue). Any kart beyond the world bounds
+      // gets the Lakitu IMMEDIATELY (1s grace), no speed threshold.
+      const oob = Math.abs(st.position?.x || 0) > 95 || Math.abs(st.position?.z || 0) > 62;
+      if (oob) {
+        kart._stuckT = (kart._stuckT || 0) + dt;
+        if (kart._stuckT >= 1) {
+          const pR = this.track.path.getPointAt(Math.min(0.999, Math.max(0.001, st.progress01 || 0)));
+          const tanR = this.track.path.getTangentAt(Math.min(0.999, Math.max(0.001, st.progress01 || 0)));
+          if (pR) {
+            st.position.set(pR.x, pR.y + 0.5, pR.z);
+            st.heading = Math.atan2(tanR.x, tanR.z);
+            st.speed = 0;
+            st.vY = 3.5;
+            st.spinOut = false;
+            if (typeof st.progress01 === 'number') {
+              kart._sampleIndex = Math.min(191, Math.max(0, Math.round(st.progress01 * 192)));
+            }
+            kart._stuckT = 0;
+            kart._onRescue?.();
+          }
+        }
+        continue;
+      }
       if (st.offRoad && Math.abs(st.speed) < 3 && typeof st.progress01 === 'number') {
         kart._stuckT = (kart._stuckT || 0) + dt;
         if (kart._stuckT >= 2) {

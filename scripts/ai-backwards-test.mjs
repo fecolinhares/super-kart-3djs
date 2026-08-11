@@ -285,6 +285,23 @@ function runRace(seed, trackData) {
     for (let i = 0; i < karts.length; i++) {
       const k = karts[i];
       if (k.finished || k.state.spinOut) { k._stuckT = 0; continue; }
+      // OOB rescue mirror (RaceManager._updateRescues)
+      const oobK = Math.abs(k.state.position.x) > 95 || Math.abs(k.state.position.z) > 62;
+      if (oobK) {
+        k._stuckT = (k._stuckT || 0) + DT;
+        if (k._stuckT >= 1) {
+          const ttR = Math.min(Math.max(k.state.progress01, 0.001), 0.999);
+          const pR = trackData.path.getPointAt(ttR);
+          const tanR = trackData.path.getTangentAt(ttR);
+          k.state.position.set(pR.x, pR.y + 0.5, pR.z);
+          k.state.heading = Math.atan2(tanR.x, tanR.z);
+          k.state.speed = 0;
+          k.state.spinOut = false;
+          k._stuckT = 0;
+          rescues++;
+        }
+        continue;
+      }
       if (k.state.offRoad && Math.abs(k.state.speed) < 3 && typeof k.state.progress01 === 'number') {
         k._stuckT = (k._stuckT || 0) + DT;
         if (k._stuckT >= 2) {
@@ -321,6 +338,30 @@ function runRace(seed, trackData) {
       } else {
         stuckT[i] = 0;
         stuckPos[i] = null;
+      }
+    }
+
+    // LOST-KART detection (AUDIT 2026-08-11, Jarvis QA loop): a kart that
+    // leaves the track and keeps driving AWAY (progress frozen, speed > 2)
+    // is neither stuck (<1 m/s) nor backwards (dot < -0.45) — the old harness
+    // reported '0 events' while city seeds showed laps=[3,0,...] (kart flew
+    // off the map). Track off-road time + progress stagnation per kart.
+    for (let i = 0; i < karts.length; i++) {
+      const k = karts[i];
+      if (k.finished || k.state.spinOut) { k._lostT = 0; continue; }
+      const progNow = typeof k.state.progress01 === 'number' ? k.state.progress01 : 0;
+      if (k.state.offRoad && Math.abs(k.state.speed) > 2) {
+        if (!k._lostProg) k._lostProg = progNow;
+        k._lostT = (k._lostT || 0) + DT;
+        // frozen progress (stalled for >0.5s) OR out of map bounds → lost
+        const frozen = Math.abs(progNow - k._lostProg) < 0.001;
+        const oob = Math.abs(k.state.position.x) > 95 || Math.abs(k.state.position.z) > 62;
+        if ((frozen && k._lostT > 0.5) || (oob && k._lostT > 1.0)) {
+          events.push({ type: 'lost', kart: i, t: t.toFixed(2), pos: [k.state.position.x.toFixed(1), k.state.position.z.toFixed(1)], prog: progNow.toFixed(3), v: Math.abs(k.state.speed).toFixed(1), offRoadS: k._lostT.toFixed(1) });
+          k._lostT = 0; k._lostProg = null;
+        }
+      } else {
+        k._lostT = 0; k._lostProg = null;
       }
     }
 
@@ -398,6 +439,12 @@ for (let s = 0; s < SEEDS; s++) {
   const kinds = {};
   for (const e of events) kinds[e.type] = (kinds[e.type] || 0) + 1;
   totalEvents += events.length;
+  if (events.filter(e => e.type === 'lost').length) {
+    const lostStr = events.filter(e => e.type === 'lost').map(function (e) {
+      return 'kart' + e.kart + '@' + e.t + 's (' + e.pos[0] + ',' + e.pos[1] + ') prog=' + e.prog + ' v=' + e.v + ' offRoad=' + e.offRoadS + 's';
+    }).join(' | ');
+    console.log('  LOST: ' + lostStr);
+  }
   if (events.length) {
     console.log(`seed ${seed}: ${events.length} EVENT(S) ${JSON.stringify(kinds)} | laps=${JSON.stringify(laps)} onRoad=${JSON.stringify(onRoadPct)} avgV=${JSON.stringify(avgSpeed)}`);
     for (const e of events.slice(0, 3)) {
@@ -407,6 +454,7 @@ for (let s = 0; s < SEEDS; s++) {
     console.log(`seed ${seed}: clean (${events.length}) | laps=${JSON.stringify(laps)} onRoad=${JSON.stringify(onRoadPct)} avgV=${JSON.stringify(avgSpeed)} rescues=${rescues}`);
   }
 }
-console.log(`\nTOTAL BACKWARDS EVENTS: ${totalEvents} / ${SEEDS} runs`);
+console.log(`\nTOTAL LOST EVENTS: ${events.filter(e => e.type === 'lost').length}
+TOTAL BACKWARDS EVENTS: ${totalEvents} / ${SEEDS} runs`);
 console.log(`\nCRASHES: ${crashes}`);
 process.exit(totalEvents > 0 || crashes > 0 ? 1 : 0);
