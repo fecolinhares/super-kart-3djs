@@ -976,14 +976,17 @@ export class Kart {
 
     // Exhaust pipes — polished chrome barrels + hot tips (particles spawn here).
     for (const s of [-1, 1]) {
+      // AUDIT (vision: 'two bright white rings floating on the rear panel'): the
+      // chrome exhaust barrels read as glowing white circles. Dark carbon
+      // barrels + dark tips integrate with the body instead of popping.
       this._mesh(
         new THREE.CylinderGeometry(0.06, 0.06, 0.26, 16),
-        chrome, s * 0.28, 0.5, -0.94,
+        dark, s * 0.28, 0.5, -0.94,
         { rx: Math.PI / 2, cast: false }
       );
       this._mesh(
         new THREE.CylinderGeometry(0.075, 0.075, 0.05, 16),
-        tip, s * 0.28, 0.5, -1.06,
+        dark, s * 0.28, 0.5, -1.06,
         { rx: Math.PI / 2, cast: false }
       );
     }

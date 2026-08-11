@@ -3109,6 +3109,7 @@ export class Environment {
       const baseY = new Array(N);
       const headDummy = new THREE.Object3D();
       const armDummy = new THREE.Object3D();
+      const legDummy = new THREE.Object3D();
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 15; j++) {
           dummy.position.set(-8.2 + j * 1.1, 1.6 + i * 1.15, -i * 2.2 + 0.3);
@@ -3124,14 +3125,25 @@ export class Environment {
           headDummy.rotation.set(0, 0, 0);
           headDummy.updateMatrix();
           heads.setMatrixAt(sIdx, headDummy.matrix);
-          // Arms raised outward (cheering silhouette).
-          armDummy.position.set(dummy.position.x - 0.46, dummy.position.y + 0.72, dummy.position.z);
-          armDummy.rotation.set(0, 0, -0.9);
+          // Arms raised outward (cheering silhouette) — angled UP so they read
+          // as limbs with a shoulder, not straight rods poking sideways.
+          armDummy.position.set(dummy.position.x - 0.4, dummy.position.y + 0.7, dummy.position.z);
+          armDummy.rotation.set(0, 0, -1.25);
           armDummy.updateMatrix();
           armsL.setMatrixAt(sIdx, armDummy.matrix);
-          armDummy.position.set(dummy.position.x + 0.46, dummy.position.y + 0.72, dummy.position.z);
-          armDummy.rotation.set(0, 0, 0.9);
+          armDummy.position.set(dummy.position.x + 0.4, dummy.position.y + 0.7, dummy.position.z);
+          armDummy.rotation.set(0, 0, 1.25);
           armDummy.updateMatrix();
+          armsR.setMatrixAt(sIdx, armDummy.matrix);
+          // Two separate legs under the torso.
+          legDummy.position.set(dummy.position.x - 0.13, dummy.position.y - 0.55, dummy.position.z);
+          legDummy.rotation.set(0, 0, 0.12);
+          legDummy.updateMatrix();
+          legsL.setMatrixAt(sIdx, legDummy.matrix);
+          legDummy.position.set(dummy.position.x + 0.13, dummy.position.y - 0.55, dummy.position.z);
+          legDummy.rotation.set(0, 0, -0.12);
+          legDummy.updateMatrix();
+          legsR.setMatrixAt(sIdx, legDummy.matrix);
           armsR.setMatrixAt(sIdx, armDummy.matrix);
           sIdx++;
         }
@@ -3289,13 +3301,16 @@ export class Environment {
     // torso: narrow shoulders, shorter, head scaled to match.
     const bodyGeo = new THREE.BoxGeometry(0.6, 0.85, 0.4);
     const headGeo = new THREE.SphereGeometry(0.3, 12, 8);
-    const armGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.6, 8);
+    const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.55, 8); // AUDIT: thicker arms read as limbs, not rods
+    const legGeo = new THREE.CylinderGeometry(0.055, 0.065, 0.5, 8); // AUDIT: two separate legs make figures read as PEOPLE
     const bodyMat = toonMaterial(0xffffff, {}); // per-instance suit colors below
     const skinMat = toonMaterial(0xffd9b3, {});
     const bodies = new THREE.InstancedMesh(bodyGeo, bodyMat, total);
     const heads = new THREE.InstancedMesh(headGeo, skinMat, total);
     const armsL = new THREE.InstancedMesh(armGeo, skinMat, total);
     const armsR = new THREE.InstancedMesh(armGeo, skinMat, total);
+    const legsL = new THREE.InstancedMesh(legGeo, skinMat, total);
+    const legsR = new THREE.InstancedMesh(legGeo, skinMat, total);
     const dummy = new THREE.Object3D();
     const p = new THREE.Vector3();
     const tan = new THREE.Vector3();
@@ -3371,8 +3386,8 @@ export class Environment {
     heads.userData.baseY = headBaseY;
     armsL.userData.baseY = armBaseY;
     armsR.userData.baseY = armBaseY;
-    scene.add(bodies, heads, armsL, armsR);
-    (this.crowdMeshes = this.crowdMeshes || []).push(bodies, heads, armsL, armsR);
+    scene.add(bodies, heads, armsL, armsR, legsL, legsR);
+    (this.crowdMeshes = this.crowdMeshes || []).push(bodies, heads, armsL, armsR, legsL, legsR);
   }
 
   /**
