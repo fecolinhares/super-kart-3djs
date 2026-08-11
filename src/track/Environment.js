@@ -3340,6 +3340,10 @@ export class Environment {
     const shadows = new THREE.InstancedMesh(shadowGeo, shadowMat, total);
     // Raised BERM strip — the crowd stands on a visible earth bank (agent-1
     // grounding: figures were floating over the grass with no base).
+    // Striped-shirt band (agent-2): a white sash across ~30% of torsos.
+    const stripeGeo = new THREE.BoxGeometry(0.56, 0.13, 0.37);
+    const stripeMat = toonMaterial(0xf5f5f5, {});
+    const stripes = new THREE.InstancedMesh(stripeGeo, stripeMat, total);
     const bermGeo = new THREE.BoxGeometry(2.2, 0.3, 1.4);
     const bermMat = toonMaterial(0x6b8e4e, {});
     const berms = new THREE.InstancedMesh(bermGeo, bermMat, total);
@@ -3368,7 +3372,8 @@ export class Environment {
             // The wrap segment spans the SHORT arc past 1.0 (0.945→0.055),
             // not the whole circuit (USER BUG FIX kept from r6).
             const span = (seg.t1 - seg.t0 + 1) % 1;
-            const t = (seg.t0 + (i / seg.n) * span) % 1;
+            // AUDIT (agent-2): positional jitter breaks the picket-fence grid.
+            const t = (seg.t0 + ((i + (this._rand() - 0.5) * 0.6) / seg.n) * span + 1) % 1;
             path.getPointAt(t, p);
             path.getTangentAt(t, tan);
             nrm.set(-tan.z, 0, tan.x).normalize();
@@ -3381,7 +3386,11 @@ export class Environment {
             const faceZ = -side * nrm.z;
             const yaw = Math.atan2(faceX, faceZ);
             // Per-figure height jitter (organic), FEET grounded on the field.
-            const sy = 0.9 + this._rand() * 0.4;
+            // Family-clustered height (agent-2): random walk — neighbours share
+            // a height band instead of every figure being independently random.
+            if (idx % 5 === 0) this._crowdH = this._rand();
+            this._crowdH = Math.min(1.4, Math.max(0.85, this._crowdH + (this._rand() - 0.5) * 0.09));
+            const sy = this._crowdH;
             const pose = POSES[(this._rand() * POSES.length) | 0];
             const bodyY = gy + 0.30 + pose.bodyOff * sy; // ON the berm
             // Body — per-instance suit color from the crowd palette.
@@ -3400,6 +3409,14 @@ export class Environment {
             dummy.scale.set(1, 1, 1);
             dummy.updateMatrix();
             berms.setMatrixAt(idx, dummy.matrix);
+            // Striped-shirt sash (30% of the crowd).
+            if (this._rand() < 0.3) {
+              dummy.position.set(fx, bodyY - 0.02 * sy, fz);
+              dummy.rotation.set(0, yaw, 0);
+              dummy.scale.set(1, sy, 1);
+              dummy.updateMatrix();
+              stripes.setMatrixAt(idx, dummy.matrix);
+            }
             // Contact shadow ON the berm top.
             dummy.position.set(fx, gy + 0.315, fz);
             dummy.rotation.set(-Math.PI / 2, 0, 0);
@@ -3475,6 +3492,7 @@ export class Environment {
     feetR.instanceMatrix.needsUpdate = true;
     shadows.instanceMatrix.needsUpdate = true;
     berms.instanceMatrix.needsUpdate = true;
+    stripes.instanceMatrix.needsUpdate = true;
     bodies.userData.baseY = bodyBaseY;
     bodies.userData.bob = bobArr;
     heads.userData.baseY = headBaseY;
@@ -3485,7 +3503,7 @@ export class Environment {
     necks.userData.baseY = neckBaseY;
     feetL.userData.baseY = footBaseY;
     feetR.userData.baseY = footBaseY;
-    scene.add(bodies, heads, armsL, armsR, legsL, legsR, necks, feetL, feetR, shadows, berms);
+    scene.add(bodies, heads, armsL, armsR, legsL, legsR, necks, feetL, feetR, shadows, berms, stripes);
     (this.crowdMeshes = this.crowdMeshes || []).push(bodies, heads, armsL, armsR, legsL, legsR, necks, feetL, feetR);
   }
 
