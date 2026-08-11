@@ -422,6 +422,7 @@ function runRace(seed, trackData) {
 // ---------- main ----------
 const trackData = buildTrackData(TRACK_ID);
 let totalEvents = 0;
+let totalLost = 0;
 let crashes = 0;
 const byScenario = {};
 console.log(`Track ${TRACK_ID} | seeds=${SEEDS} | dt=${DT}s | ${DURATION_S}s/run | detection: dot<${BACK_DOT} & |v|>${BACK_MIN_SPEED} for ${BACK_PERSIST_S}s`);
@@ -439,6 +440,7 @@ for (let s = 0; s < SEEDS; s++) {
   const kinds = {};
   for (const e of events) kinds[e.type] = (kinds[e.type] || 0) + 1;
   totalEvents += events.length;
+  totalLost += events.filter(e => e.type === 'lost').length;
   if (events.filter(e => e.type === 'lost').length) {
     const lostStr = events.filter(e => e.type === 'lost').map(function (e) {
       return 'kart' + e.kart + '@' + e.t + 's (' + e.pos[0] + ',' + e.pos[1] + ') prog=' + e.prog + ' v=' + e.v + ' offRoad=' + e.offRoadS + 's';
@@ -454,7 +456,7 @@ for (let s = 0; s < SEEDS; s++) {
     console.log(`seed ${seed}: clean (${events.length}) | laps=${JSON.stringify(laps)} onRoad=${JSON.stringify(onRoadPct)} avgV=${JSON.stringify(avgSpeed)} rescues=${rescues}`);
   }
 }
-console.log(`\nTOTAL LOST EVENTS: ${events.filter(e => e.type === 'lost').length}
+console.log(`\nTOTAL LOST EVENTS: ${totalLost}
 TOTAL BACKWARDS EVENTS: ${totalEvents} / ${SEEDS} runs`);
 console.log(`\nCRASHES: ${crashes}`);
 process.exit(totalEvents > 0 || crashes > 0 ? 1 : 0);

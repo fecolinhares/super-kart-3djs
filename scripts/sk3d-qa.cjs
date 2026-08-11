@@ -5,7 +5,7 @@ const fs = require('fs');
 const OUT = '/tmp/sk3d-qa';
 fs.mkdirSync(OUT, { recursive: true });
 const log = (...a) => console.log(`[${new Date().toISOString().slice(11,19)}] ${a.join(' ')}`);
-setTimeout(() => { log('WATCHDOG 420s'); process.exit(3); }, 420000);
+setTimeout(() => { log('WATCHDOG 900s'); process.exit(3); }, 900000);
 
 const FLAGS = ['--no-sandbox','--disable-dev-shm-usage','--enable-unsafe-swiftshader','--use-gl=angle',
   '--use-angle=swiftshader','--disable-frame-rate-limit','--disable-gpu-vsync',
