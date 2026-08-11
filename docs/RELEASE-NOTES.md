@@ -351,6 +351,14 @@
   colored blocks with heads.
 - Kart exhaust barrels darkened (chrome read as floating white rings).
 
+## 🧍 Crowd — human-read loop (multi-agent, 3 rounds)
+- Spectators: smaller head (0.22) + neck + feet + per-figure contact shadow —
+  they stand on the grass, not float.
+- 4 pose variants (cheer/relax/wave/lean) + cloth-tone palette — a dressed
+  crowd, not clones or candy blobs.
+- Leg/grounding bug fixed (short figures no longer sink their feet).
+- Grandstand crowd matches the roadside proportions.
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
