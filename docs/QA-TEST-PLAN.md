@@ -37,6 +37,9 @@ audio lifecycle, HUD, mobile basics, performance budget.
 | T23 | Neon props | Ramps curvature-checked on straights; turbo 0.78 bottom straight; item boxes off corners; lights/billboards/cranes path-driven | code probe (buildNeonCity) | ✅ PASS |
 | T24 | Bots stuck | NO kart crawls <1 m/s for 2.5s+ (was: crashUntil ms-vs-s bug froze bots forever after any hit) | harness STUCK detection, 100 seeds × 2 tracks | ✅ PASS |
 | T25 | Road clean | No painted text/logo decals on the asphalt (sponsor decals removed); kerbs slimmed to 0.55×0.5×0.14 | screenshot + code | ✅ PASS |
+| T26 | City arcs | '2' layout rebuilt from straights + true circle arcs (R=14m): centerline ≥12m, kerb-edge folds 0/0 (inner kerb no longer crosses), start UP, 0 self-crossings, 677m | city-layout-probe (fold gate) + harness 30×2 | ✅ PASS |
+| T27 | Item box 3D | Per-face shading (6-tone material array) + outline 1.06 — reads as a cube from the chase camera, not a placard | code + vision | ✅ PASS |
+| T28 | Crash recovery | crashRecoverMs 500 (AI re-grips 0.5s after spin); harness injects real 1500-2100ms item hits; STUCK exempts post-hit recovery | harness 40×2 (long spins) | ✅ PASS |
 
 ## 3. Regression notes (this release)
 - **2026-08-11 — "opponents run backwards" fix (16 commits)**: steering is

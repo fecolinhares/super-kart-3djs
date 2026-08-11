@@ -3,6 +3,13 @@
 **Date:** 2026-08-09 · **Status:** 🚀 v0.2.0-draft (AAA visual/audio pass)
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
+### Round 8 — City arcs + recovery tuning + item-box depth (audit loop, 2026-08-11)
+- Neon City rebuilt from straights + true 90° circle arcs (R=14m): the flanged-vertex version had centerline radius dipping to 2.5m at apexes (CatmullRom concentrates curvature at sharp vertices) — smaller than the 4.65m kerb offset, so the INNER kerb edge self-intersected (stones crossed every lap). Now ≥12m everywhere; kerb-edge folds 0/0; city-layout-probe gains a permanent fold gate.
+- crashRecoverMs 1200→500: AI re-grips 0.5s after a spin (MK8-like). Harness injects REAL item-hit spins (1500-2100ms, was 550-950ms) and the STUCK detector exempts post-hit recovery (no false positives).
+- Item box: per-face shading (6-tone material array) + thicker outline — reads 3D from the chase camera.
+- Audit sweep found + fixed the same ms-vs-s bug class in the race timeout (elapsed vs raceTimeoutMs fired after 83 HOURS — now 5 min).
+- Verified: 0 backwards / 0 stuck / 0 crashes across every stress batch this session (600+ simulated races).
+
 ### Round 7 — Bots frozen fix + road cleanup (Feco QA, 2026-08-11)
 - **CRITICAL — bots froze forever after any hit**: `crashUntil = now + crashRecoverMs` mixed SECONDS (raceManager.elapsed) with MILLISECONDS (1200) — the recovery window became ~1200 SECONDS (20 min), so after a spin/hit the AI released controls permanently and the kart stood still (throttle 0, steer 0). New harness STUCK detection (|speed|<1 for 2.5s) reproduced it: 320 stuck events / 80 seeds × 2 tracks → **0 after the fix** (`crashRecoverMs / 1000`). The previously-frozen kart's avgV rose 28.5 → 38.4.
 - **Road cleanup**: painted 'sponsor' decals (read as smudged "MARIO KART" text on the racing line) removed entirely; kerbs slimmed 0.9×0.6×0.17 → 0.55×0.5×0.14 (thin MK8D zebra edge, still arc-length-spaced on the kerb edge).
