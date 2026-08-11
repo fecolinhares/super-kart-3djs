@@ -379,7 +379,10 @@ export class RaceManager {
     if (this.phase === 'race') {
       this._updateStandings();
       this._checkFinishes();
-      if (this.elapsed >= CONFIG.game.raceTimeoutMs) this._forceFinish();
+      // AUDIT (2026-08-11, same unit-bug class as crashUntil): raceTimeoutMs
+      // is MILLISECONDS (300000) but elapsed is SECONDS — the old compare
+      // fired after ~83 HOURS, so the race-timeout force-finish never ran.
+      if (this.elapsed >= CONFIG.game.raceTimeoutMs / 1000) this._forceFinish();
       if (this.raceOver) {
         this.phase = 'finished';
         this._setRankArrowsVisible(false); // AUDIT r8: arrows retire at the flag
