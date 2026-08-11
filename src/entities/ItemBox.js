@@ -41,42 +41,43 @@ function questionTexture() {
   // plain toon material instead; the '?' still reads via emissive tint.
   if (typeof document === 'undefined') return null;
   if (_questionTex) return _questionTex;
-  const size = 128;
+  const size = 256;
   const canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;
   const g = canvas.getContext('2d');
 
-  // Clean white-cream base with a whisper of warmth (MK8 pickup panel).
+  // AUDIT (Feco visual QA + item-box audit, 2026-08-11): 'a cor dos cubos
+  // de power up não está legal' — the cream bottom (#fbf3de) tinted the box
+  // beige under ACES and the 16px white halo blurred the glyph. MK8D boxes
+  // are PURE WHITE panels with a bold red '?': crisp white-to-cool-white
+  // gradient, saturated #ef233c glyph with a tight dark outline, no halo.
   const grad = g.createLinearGradient(0, 0, 0, size);
   grad.addColorStop(0, '#ffffff');
-  grad.addColorStop(1, '#fbf3de');
+  grad.addColorStop(1, '#eef2f7');
   g.fillStyle = grad;
   g.fillRect(0, 0, size, size);
-  // Rounded inner border (cream highlight on cream) — reads as a panel.
-  g.strokeStyle = '#fffdf4';
-  g.lineWidth = 10;
-  g.strokeRect(8, 8, size - 16, size - 16);
-  g.strokeStyle = '#e0c98f';
-  g.lineWidth = 2;
-  g.strokeRect(13, 13, size - 26, size - 26);
-  // Big red '?' with a white halo + dark outline (the unmistakable pickup glyph,
-  // readable even in compressed frames).
+  // Rounded inner border — gold MK8-style trim reads as a pickup panel.
+  g.strokeStyle = '#ffd166';
+  g.lineWidth = 14;
+  g.strokeRect(16, 16, size - 32, size - 32);
+  g.strokeStyle = '#c9a227';
+  g.lineWidth = 4;
+  g.strokeRect(26, 26, size - 52, size - 52);
+  // Big red '?' with a tight dark outline (no white halo — it blurred the
+  // glyph at 128px).
   g.textAlign = 'center';
   g.textBaseline = 'middle';
-  g.font = '900 96px "Baloo 2", "Nunito", Arial, sans-serif';
-  g.lineWidth = 6;
-  g.strokeStyle = '#b02a2a';
-  g.strokeText('?', size / 2, size / 2 + 4);
-  g.lineWidth = 16;
-  g.strokeStyle = '#ffffff';
-  g.strokeText('?', size / 2, size / 2 + 4);
-  g.fillStyle = '#e53e3e';
-  g.fillText('?', size / 2, size / 2 + 4);
+  g.font = '900 188px "Baloo 2", "Nunito", Arial, sans-serif';
+  g.lineWidth = 14;
+  g.strokeStyle = '#7f1d1d';
+  g.strokeText('?', size / 2, size / 2 + 8);
+  g.fillStyle = '#ef233c';
+  g.fillText('?', size / 2, size / 2 + 8);
   // Tiny highlight dot on the '?' for gloss.
-  g.fillStyle = 'rgba(255,255,255,0.55)';
+  g.fillStyle = 'rgba(255,255,255,0.6)';
   g.beginPath();
-  g.arc(size * 0.44, size * 0.34, 7, 0, Math.PI * 2);
+  g.arc(size * 0.44, size * 0.34, 14, 0, Math.PI * 2);
   g.fill();
 
   const tex = new THREE.CanvasTexture(canvas);
