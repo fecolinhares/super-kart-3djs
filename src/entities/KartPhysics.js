@@ -404,16 +404,22 @@ export class KartPhysics {
     }
     if (s.spinOut) target = 0;
 
+    const maxAbs = Math.abs(target);
     if (!s.spinOut) {
       // AUDIT r5: clamp throttle to 1.0 — AI easing passed >1 (up to 1.35)
       // and KartPhysics scales accel by it, inflating the comeback.
       const thr = Math.min(1, Math.max(0, input.throttle || 0));
-      if (thr > 0.02) s.speed += P.acceleration * dt * Math.max(0.15, thr); // AI corner-lift 0.3/0.8 scales accel (audit F3)
+      // AUDIT r11-F1 (code + game-design audits): the over-target approach
+      // step (14*dt) is SMALLER than full accel (26*dt), so full-throttle
+      // speed crept PAST maxSpeed indefinitely (sim: 86-113 m/s vs 42) —
+      // the cap leaked, the rubber-band/coin ceiling (cruiseSpeed ≤ ~47) was
+      // meaningless and rivals became rockets. Gate accel on the cap: once
+      // at/over target speed, only friction + approach act (hard ceiling).
+      if (thr > 0.02 && Math.abs(s.speed) < maxAbs) s.speed += P.acceleration * dt * Math.max(0.15, thr); // AI corner-lift 0.3/0.8 scales accel (audit F3)
       if (input.brake) s.speed -= P.braking * dt;
     }
     const fr = P.friction * (s.offRoad ? 1.8 : 1);
     s.speed -= Math.sign(s.speed) * Math.min(speedAbs, fr * dt);
-    const maxAbs = Math.abs(target);
     if (Math.abs(s.speed) > maxAbs) {
       s.speed = approach(s.speed, Math.sign(s.speed) * maxAbs, (s.offRoad ? 22 : 14) * dt);
     }
