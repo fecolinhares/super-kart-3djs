@@ -3,6 +3,32 @@
 **Date:** 2026-08-09 · **Status:** 🚀 v0.2.0-draft (AAA visual/audio pass)
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
+### Round 4 — AI reliability (Feco bug report, 2026-08-11, 16 commits)
+- **"Adversários correm pra trás" ELIMINADO** — 3 root causes:
+  1. Steering reference was a rolling distance window that lagged behind the
+     kart after shoves/ramp launches/off-road excursions → the look-ahead
+     target sat BEHIND the kart and the AI drove backwards. Now
+     PROGRESS-ANCHORED: the target derives from the kart's arc-length
+     `progress01` and can never sit behind race progress.
+  2. Crash recovery BRAKED after a spin — in this physics brake = REVERSE, so
+     karts reversed at -12 m/s for ~1.2s. Now controls are released (brake 0).
+  3. The nearest-sample full-scan was distance-only — a 30m+ lateral offset on
+     a curved loop picked the WRONG track segment (inverted tangent), corrupting
+     progress01. Now heading-biased. (Bonus: the old fallback referenced an
+     out-of-scope variable — a latent freeze, never exercised.)
+- **Hard speed cap** — accel was out-running the over-target approach step, so
+  speed crept past 42 m/s (sim: 86-113 m/s); rubber-band/coins were meaningless.
+- **AI-vs-AI rubber band** — City order used to freeze into a procession
+  (45 standings changes / 4500 frames); now 580 / 3600 (verified by
+  `scripts/procession-probe.mjs`).
+- **Lane offsets scaled to ±1.2m** (clamping collapsed two rivals onto one lane);
+  look-ahead 6m → 10m (cleaner cornering, esp. Neon City); speed-stat spread
+  restored for leaders; steer-assist progress-anchored; single AI update per frame.
+- **Deterministic QA harnesses** added to `scripts/` (sim + lane + procession +
+  browser smoke); sim: **0 backwards events / 80 seeds × 2 tracks**, detector
+  re-validated against the original brake bug.
+- Shipped as 16 atomic commits, main `747f42a` (previously `02d7fc8`).
+
 ### Round 3 — AAA polish loop (auditor-driven, 2026-08-09)
 - **Round 16 — FECO critical pass (vs MK8D/Sonic Team Racing)**:
   - Crowd: paper billboards REPLACED by dense 3D spectators (instanced

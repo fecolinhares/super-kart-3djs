@@ -118,8 +118,15 @@ ARCHITECTURE.md, DESIGN.md live at the repo root (same layout as Match-3D.js).
 
 ### AIController
 - `new AIController(kart, track, raceManager)`
-- `update(dt)` — sets `kart.setControls(...)` following waypoints with lookahead,
-  rubber-banding speed vs player, item usage targeting the player, crash recovery.
+- `update(dt)` — sets `kart.setControls(...)` with PROGRESS-ANCHORED navigation:
+  the steering reference derives from the kart's arc-length `state.progress01`
+  mapped onto the 240-point centerline (`RaceManager.centerline`,
+  `getSpacedPoints(240).slice(0,240)`), so the look-ahead target can never sit
+  behind the kart (fixes the "opponents run backwards" bug). Rubber-banding vs
+  the player AND vs the rival immediately ahead (AI-vs-AI chase, up to +6%),
+  personal racing lanes (±1.2m golden-ratio scale), item usage targeting the
+  rival ahead, and crash recovery that NEVER brakes (in this physics
+  brake = reverse).
 
 ### ItemBox
 - `createItemBoxes(track)` → `ItemBox[]` placed along the track.

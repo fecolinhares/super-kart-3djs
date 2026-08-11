@@ -62,7 +62,9 @@ you get. Drift through corners to charge a **mini-boost**.
 - **Full item arsenal**: 🍄 Mushroom (speed boost), 🐢 Green Shell (straight
   shot), 🐢 Red Shell (homing), 🍌 Banana (trap), ⭐ Star (invincible), ⚡
   Lightning (shrink rivals)
-- **5 AI rivals** with waypoint following, rubber-banding and item usage
+- **5 AI rivals** with progress-anchored navigation (never drives backwards —
+  verified by a deterministic sim harness), AI-vs-AI rubber-banding, personal
+  racing lanes and smart item usage
 - **2 tracks** (menu switch or `?track=2`): **SUNNY MEADOW** — rolling hills,
   guard-rails, sponsor boards, field landmarks (pond, hilltop grove, windmill);
   **NEON CITY** — night circuit with a 48-tower skyline, lit windows, neon
@@ -109,3 +111,15 @@ Found a security issue? Read [SECURITY.md](SECURITY.md).
 ## 📄 License
 
 [MIT](LICENSE) © 2026 Feco Linhares
+
+
+## Testing
+
+Deterministic headless sims (no browser/WebGL) in `scripts/`:
+
+```bash
+node scripts/ai-backwards-test.mjs <seeds> <track 1|2>   # AI backwards-driving stress + detection (0 events = pass)
+node scripts/lane-probe.mjs <track> <lookahead> [variant] # lane adherence / wall-bounce A/B
+node scripts/procession-probe.mjs                        # standings-change counter (AI-vs-AI rubber band)
+node scripts/sk3d-qa.cjs                                  # headless Chromium smoke (?test, boot + page errors)
+```

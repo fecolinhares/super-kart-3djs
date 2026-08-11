@@ -24,8 +24,24 @@ audio lifecycle, HUD, mobile basics, performance budget.
 | T10 | Restart control | Finish-cruise AIController REMOVED on restart (player regains input — the "game drives the car" bug) | `sk3d-restart-sig-test.cjs` (playerAIControlled false→true→false) | ✅ PASS |
 | T11 | Trick ramp | Kart CLIMBS the wedge and launches airborne (vY>1, airTime>0.15) | `sk3d-ramp-unit-test.cjs` (physics unit test) | ✅ PASS |
 | T12 | Smoke | Boot → race state, 6 karts, no errors (robust, waits for race) | `sk3d-smoke-robust.cjs` | ✅ PASS |
+| T13 | AI backwards | Sim stress (shoves, launches, spins, rear-ends, Lakitu rescue) → 0 sustained backwards runs | `scripts/ai-backwards-test.mjs` (80 seeds × 2 tracks) | ✅ PASS |
+| T14 | AI lanes | Lane adherence / wall bounces within stable corridor | `scripts/lane-probe.mjs` | ✅ PASS |
+| T15 | AI passing | City standings change > 100/60s (no procession) | `scripts/procession-probe.mjs` (580/3600 frames) | ✅ PASS |
+| T16 | Browser smoke | `?test` boots, race runs, NO page errors (headless Chromium) | `scripts/sk3d-qa.cjs` | ✅ PASS |
 
 ## 3. Regression notes (this release)
+- **2026-08-11 — "opponents run backwards" fix (16 commits)**: steering is
+  progress-anchored (arc-length progress01 → centerline index), crash recovery
+  never brakes (brake = reverse in this physics), the nearest-sample full-scan
+  is heading-biased, the speed cap is hard (was leaking past 42 m/s), the
+  navigation cache is built before the AI controllers, AI updates once per
+  frame, and the rubber band now includes AI-vs-AI (no more City procession).
+  Detector re-validation: re-introducing the old brake bug is DETECTED by the
+  harness. See `RELEASE-NOTES.md` and the `game-aaa-audit-loop` skill
+  (`references/sk3d-ai-backwards-fix.md`).
+- Deterministic sim harnesses moved INTO the repo: `scripts/ai-backwards-test.mjs`,
+  `scripts/lane-probe.mjs`, `scripts/procession-probe.mjs`, `scripts/sk3d-qa.cjs`
+  (previously the agent's cache `sk3d-*.cjs`).
 - `Kart.restart()` now uses the SAVED startPosition — restart actually resets (bug fixed).
 - Item toast keys are lowercase (PowerUpType VALUES) — slot + toast icons finally match.
 - Finish cruise mode replaces the engine screech (AI drives player, music swells).
