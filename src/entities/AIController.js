@@ -27,6 +27,7 @@ export class AIController {
 
     this.crashUntil = -1; // manager elapsed time when we may steer again
     this.itemAccum = 0; // item-use accumulator (chance per second)
+    this._snapStreak = 0; // AUDIT r11-F4: consecutive anchor-rejection frames (hysteresis)
 
     // Apply the driver's stats (1-10) as a difficulty curve (audit F2):
     //   speed    → base cruise speed (0.95-1.05 x maxSpeed)
@@ -65,6 +66,7 @@ export class AIController {
     this.nearIdx = 0;
     this.crashUntil = -1;
     this.itemAccum = 0;
+    this._snapStreak = 0;
   }
 
   update(dt) {
@@ -267,16 +269,25 @@ export class AIController {
       // the progress anchor. Otherwise snap to the anchor (re-searching a
       // tiny window around it — the kart may sit slightly behind its
       // progress point after a shove, never far ahead).
+      // AUDIT r11-F4: 2-frame hysteresis — a single transient rejection
+      // (lattice quantization during wall-slide chaos) used to yank the
+      // reference and re-aim the target; the snap now needs two consecutive
+      // rejections (~33ms — still instant for a genuinely stale window).
       const windowOk = bestD <= (this.spacing * 6) ** 2 && Math.abs(best - progIdx) <= 12;
       if (!windowOk) {
-        best = progIdx;
-        bestD = Infinity;
-        for (let j = best - 4; j <= best + 4; j++) {
-          const k = ((j % n) + n) % n;
-          const p = cl[k];
-          const d = (p.x - pos.x) * (p.x - pos.x) + (p.z - pos.z) * (p.z - pos.z);
-          if (d < bestD) { bestD = d; best = k; }
+        this._snapStreak = (this._snapStreak || 0) + 1;
+        if (this._snapStreak >= 2) {
+          best = progIdx;
+          bestD = Infinity;
+          for (let j = best - 4; j <= best + 4; j++) {
+            const k = ((j % n) + n) % n;
+            const p = cl[k];
+            const d = (p.x - pos.x) * (p.x - pos.x) + (p.z - pos.z) * (p.z - pos.z);
+            if (d < bestD) { bestD = d; best = k; }
+          }
         }
+      } else {
+        this._snapStreak = 0;
       }
     }
     this.nearIdx = best;
