@@ -1259,6 +1259,13 @@ window.__sk3d = {
   restartRace,
   gotoMenu,
   addShake,
+  // QA hook: fast-forward the 3-2-1 countdown (headless rAF is too slow to
+  // observe a real race start otherwise). Same convention as __freezeCam.
+  skipCountdown: () => {
+    if (getState() === STATES.COUNTDOWN) {
+      countdownT = COUNTDOWN_STEP * COUNTDOWN_MARKS.length;
+    }
+  },
   settings, // QA: current difficulty/assist settings { cc, autoAccel, steerAssist }
   updateCamera, // QA hook: can be stubbed to freeze the chase camera
   playerCharIndex: () => getPlayerCharIndex(), // QA: selected driver (audit r4)
