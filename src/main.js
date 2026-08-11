@@ -965,7 +965,7 @@ loop.start((dt, t) => {
   if (state === STATES.COUNTDOWN) {
     countdownT += dt;
     const idx = Math.floor(countdownT / COUNTDOWN_STEP);
-    if (idx !== countdownIndex && idx < COUNTDOWN_MARKS.length) {
+    if (idx !== countdownIndex && idx >= 0 && idx < COUNTDOWN_MARKS.length) {
       countdownIndex = idx;
       const mark = COUNTDOWN_MARKS[idx];
       hud.countdown(mark === 0 ? 'GO' : String(mark));

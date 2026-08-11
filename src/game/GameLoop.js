@@ -21,7 +21,13 @@ export class GameLoop {
       if (!this.running) return;
       const raw = (now - this.last) / 1000;
       this.last = now;
-      const dt = Math.min(raw, 0.05);
+      // AUDIT (Jarvis QA loop 2026-08-11): the first rAF timestamp can be
+      // EARLIER than the performance.now() captured in start() (the frame
+      // was scheduled before start ran) — raw goes negative, dt negative,
+      // and countdownT += dt started the race countdown at -0.5s, which made
+      // COUNTDOWN_MARKS[negativeIdx] = undefined render as a giant "undefined"
+      // countdown overlay. Clamp dt to >= 0.
+      const dt = Math.max(0, Math.min(raw, 0.05));
       this.elapsed += dt;
       this.updateFn(dt, this.elapsed);
       this.rafId = requestAnimationFrame(tick);
