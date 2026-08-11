@@ -3044,7 +3044,7 @@ export class Environment {
     // AUDIT (agent: palette was flat/loud neon): cloth-toned shirts in
     // saturated-but-wearable colors — red, orange, green, blue, purple, pink,
     // white, steel, navy — reads as a dressed crowd, not candy blobs.
-    const crowdColors = [0xff5a5f, 0xffd166, 0x6cff8f, 0x2ec4ff, 0xc86bff, 0xff9f45, 0xffffff];
+    const crowdColors = [0xe74c4c, 0xf4a93e, 0x5cb85c, 0x4a90d9, 0x9b6fd4, 0xe8789a, 0xf5f5f5, 0x7b8a9e, 0x34495e];
     // Painted sponsor fascia (SUPER KART text) — cached once, shared by all
     // stands. MeshBasicMaterial keeps it readable at race distance.
     if (!this._fasciaTex) {
@@ -3103,9 +3103,9 @@ export class Environment {
       // 15 per tier x 3 = 45 (was 12 x 3 = 36) — denser packed rows.
       const N = 45;
       const spec = new THREE.InstancedMesh(new THREE.BoxGeometry(1.05, 1.2, 1.0), toonMaterial(0xffffff, {}), N);
-      const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.42, 12, 8), toonMaterial(0xf4f6f8, {}), N);
+      const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.3, 12, 8), toonMaterial(0xf4f6f8, {}), N);
       // Raised arms (cheering people, not blocks with heads).
-      const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.75, 8);
+      const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.55, 8);
       const armsL = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), N);
       const armsR = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), N);
       let sIdx = 0;
