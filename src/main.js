@@ -1043,7 +1043,9 @@ loop.start((dt, t) => {
       } else if (rearArmed) {
         disarmRear();
       }
-      for (const ctrl of raceManager.aiControllers) ctrl.update(dt);
+      // AUDIT r11 (#6, code audit): RaceManager.update() already drives the
+      // AI controllers every frame — a second loop here DOUBLED item-use
+      // accumulation (effective itemUseChancePerSec 2x) and re-ran steering.
       raceManager.update(dt);
       // AUDIT r8 (MK8D blue-shell dodge counterplay): collecting an item box
       // grants a short invincibility window — the classic spiny dodge (drive
@@ -1116,7 +1118,7 @@ loop.start((dt, t) => {
     } else {
       // FINISHED — cruise: AI drives the player at reduced speed, engines
       // keep humming quietly while the music swells (genre standard).
-      for (const ctrl of raceManager.aiControllers) ctrl.update(dt);
+      // AUDIT r11 (#6): single driver — RaceManager.update() updates AIs.
       raceManager.update(dt);
       hud.update(raceManager, playerKart, raceManager.karts);
     }
