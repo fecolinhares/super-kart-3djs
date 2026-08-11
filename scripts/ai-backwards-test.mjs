@@ -234,6 +234,8 @@ function runRace(seed, trackData) {
   const events = [];
   let rescues = 0;
   let epStart = new Array(N).fill(null); // episode start time per kart
+  let stuckT = new Array(N).fill(0); // seconds a kart has been crawling (<1 m/s)
+  let stuckPos = new Array(N).fill(null);
   let epMin = new Array(N).fill(0); // min progressScore during episode
   let lastScore = karts.map((k) => progressScore(k));
   let maxScore = karts.map((k) => progressScore(k)); // running max per kart
@@ -284,6 +286,27 @@ function runRace(seed, trackData) {
         }
       } else {
         k._stuckT = 0;
+      }
+    }
+
+    // STUCK detection: a kart crawling below 1 m/s for >= 2.5s continuous
+    // while the race is live is stuck (AI bug class — Feco: 'bots travados
+    // em certo ponto da pista'). Report the exact spot.
+    for (let i = 0; i < karts.length; i++) {
+      const k = karts[i];
+      if (k.finished || k.state.spinOut) { stuckT[i] = 0; stuckPos[i] = null; continue; }
+      const sp = Math.abs(k.state.speed);
+      if (sp < 1) {
+        stuckT[i] += DT;
+        if (!stuckPos[i]) stuckPos[i] = k.state.position.clone();
+        if (stuckT[i] >= 2.5) {
+          events.push({ type: 'stuck', kart: i, t: t.toFixed(2), pos: [stuckPos[i].x.toFixed(1), stuckPos[i].z.toFixed(1)], prog: (k.state.progress01 || 0).toFixed(3), v: sp.toFixed(1) });
+          stuckT[i] = 0;
+          stuckPos[i] = null;
+        }
+      } else {
+        stuckT[i] = 0;
+        stuckPos[i] = null;
       }
     }
 
@@ -364,7 +387,7 @@ for (let s = 0; s < SEEDS; s++) {
   if (events.length) {
     console.log(`seed ${seed}: ${events.length} EVENT(S) ${JSON.stringify(kinds)} | laps=${JSON.stringify(laps)} onRoad=${JSON.stringify(onRoadPct)} avgV=${JSON.stringify(avgSpeed)}`);
     for (const e of events.slice(0, 3)) {
-      console.log(`    t=${e.t}s kart=${e.kart} ${e.type} dot=${e.dot} v=${e.speed} prog=${e.prog} lap=${e.lap}`);
+      console.log(`    t=${e.t}s kart=${e.kart} ${e.type} ${e.pos ? 'pos=(' + e.pos.join(',') + ')' : ''} dot=${e.dot} v=${e.speed} prog=${e.prog} lap=${e.lap}`);
     }
   } else {
     console.log(`seed ${seed}: clean (${events.length}) | laps=${JSON.stringify(laps)} onRoad=${JSON.stringify(onRoadPct)} avgV=${JSON.stringify(avgSpeed)} rescues=${rescues}`);
