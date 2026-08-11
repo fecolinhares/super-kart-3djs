@@ -339,6 +339,12 @@ export class ShellProjectile {
       this.die();
       return;
     }
+    // Spawn pop-in (ease-out scale, ~130ms).
+    if (this._popT < 1) {
+      this._popT = Math.min(1, this._popT + dt * 8);
+      const e = 1 - (1 - this._popT) * (1 - this._popT);
+      this.mesh.scale.setScalar(Math.max(0.001, e));
+    }
     // AUDIT r5 (CRITICAL FIX): `m` was declared AFTER the blue-arc block —
     // a thrown blue shell hit the TDZ and threw ReferenceError every frame
     // for its whole lifetime (froze the race). Hoisted here.
@@ -688,6 +694,11 @@ export class Banana {
     this.mesh.position.set(opos.x + behind.x, opos.y + 0.3, opos.z + behind.y);
     this.mesh.rotation.y = Math.random() * Math.PI * 2;
     this.mesh.castShadow = true;
+    // AUDIT (Feco): 'não dá pra ver quando arremessa' — the banana appeared
+    // at full size with zero feedback. Pop-in: scale 0 -> 1 in ~130ms with an
+    // ease-out so the drop reads as a thrown object, not a materialization.
+    this._popT = 0;
+    this.mesh.scale.setScalar(0.001);
     this.scene?.add(this.mesh);
   }
 
@@ -696,6 +707,12 @@ export class Banana {
     if (this.age > this.life) {
       this.die();
       return;
+    }
+    // Spawn pop-in (ease-out scale, ~130ms).
+    if (this._popT < 1) {
+      this._popT = Math.min(1, this._popT + dt * 8);
+      const e = 1 - (1 - this._popT) * (1 - this._popT);
+      this.mesh.scale.setScalar(Math.max(0.001, e));
     }
     // Blink in the final seconds as a fair-play warning.
     if (this.age > this.life - 2.5) {
@@ -833,19 +850,31 @@ function buildBananaMesh() {
   const peelMat = new THREE.MeshToonMaterial({
     color: 0xffd23f,
     emissive: 0xffaa00,
-    emissiveIntensity: 0.15,
+    emissiveIntensity: 0.3,
   });
+  // AUDIT (Feco, 2026-08-11): 'a banana não dá pra ver no mapa, nem quando
+  // arremessa' — the 0.26m-radius torus was a tiny pale crescent on asphalt.
+  // Bigger (0.36 radius, thicker tube ~0.72m banana, MK8D scale), hotter
+  // emissive, brown tips and a cartoon outline so it reads at 40 m/s.
+  const outline = new THREE.Mesh(
+    new THREE.TorusGeometry(0.36, 0.15, 8, 14, Math.PI * 1.15),
+    new THREE.MeshBasicMaterial({ color: 0x2a1c00, side: THREE.BackSide })
+  );
+  outline.scale.setScalar(1.08);
+  outline.rotation.x = Math.PI / 2;
+  g.add(outline);
+
   // Bent tube laid flat on the road (torus arc rotated into the XZ plane).
-  const arc = new THREE.Mesh(new THREE.TorusGeometry(0.26, 0.11, 8, 14, Math.PI * 1.15), peelMat);
+  const arc = new THREE.Mesh(new THREE.TorusGeometry(0.36, 0.15, 10, 18, Math.PI * 1.15), peelMat);
   arc.rotation.x = Math.PI / 2;
   g.add(arc);
 
-  const tipMat = new THREE.MeshToonMaterial({ color: 0xd99a26 });
-  const tip1 = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 6), tipMat);
-  tip1.position.set(0.26, 0.05, 0.1);
+  const tipMat = new THREE.MeshToonMaterial({ color: 0xc98a24, emissive: 0x7a4a00, emissiveIntensity: 0.2 });
+  const tip1 = new THREE.Mesh(new THREE.SphereGeometry(0.14, 10, 8), tipMat);
+  tip1.position.set(0.36, 0.06, 0.12);
   g.add(tip1);
-  const tip2 = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 6), tipMat);
-  tip2.position.set(-0.23, 0.05, -0.1);
+  const tip2 = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), tipMat);
+  tip2.position.set(-0.32, 0.06, -0.12);
   g.add(tip2);
   return g;
 }
