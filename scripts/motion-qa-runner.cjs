@@ -202,6 +202,19 @@ function checkInvariants(samples) {
     log('QA hook ready');
 
     // f0 — pre-race (grid/countdown)
+    // SwiftShader: the first render can take 20-60s real; capturing before it
+    // yields an empty canvas (frames critic: "no kart, void"). Wait for the
+    // renderer to have drawn at least one frame.
+    try {
+      for (let i = 0; i < 60; i++) {
+        const drawn = await page.evaluate(() => {
+          const r = window.__sk3d && window.__sk3d.renderer;
+          return r && r.info && r.info.render ? r.info.render.frame : 0;
+        }).catch(() => 0);
+        if (drawn > 0) break;
+        await new Promise(r => setTimeout(r, 1500));
+      }
+    } catch {}
     const f0 = path.join(OUT, 'f0.png');
     log('f0 screenshot...');
     await forceCam();
