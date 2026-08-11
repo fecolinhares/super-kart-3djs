@@ -330,6 +330,10 @@
 - **Shoulder sink**: karts rode the terrain (-0.05) on the dirt shoulder (0.14)
   — they now ride the shoulder while on it.
 
+## 🛡️ Guard rail — body-width fix
+- The wall limited the kart CENTER to 5.4m but the 1.05m-wide body reached
+  0.3m through the rail. The wall now pulls in by the body half-width.
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
