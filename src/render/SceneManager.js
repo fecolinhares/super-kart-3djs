@@ -29,6 +29,31 @@ export function createScene(container) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   container.appendChild(renderer.domElement);
 
+  // AUDIT (Jarvis QA loop 2026-08-11): WebGL context loss froze the game
+  // silently (the rAF loop dies with no JS error — no handler existed).
+  // Real-GPU post chains (UnrealBloom HalfFloat) can crash the GPU process
+  // seconds into the race; without a handler the game just freezes. Prevent
+  // the default (so the browser CAN restore) and, if we don't recover fast,
+  // reload with bloom disabled (?nobl=1) so the race is still playable.
+  const glCanvas = renderer.domElement;
+  let _ctxLostAt = 0;
+  glCanvas.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    _ctxLostAt = Date.now();
+    console.warn('[Super Kart] WebGL context lost — attempting recovery (fallback: ?nobl=1)');
+    // If the browser doesn't restore quickly, hard-reload without bloom.
+    setTimeout(() => {
+      if (Date.now() - _ctxLostAt >= 2000) {
+        const url = new URL(window.location.href);
+        if (!url.searchParams.has('nobl')) url.searchParams.set('nobl', '1');
+        window.location.href = url.toString();
+      }
+    }, 2000);
+  });
+  glCanvas.addEventListener('webglcontextrestored', () => {
+    console.warn('[Super Kart] WebGL context restored');
+  });
+
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x87ceeb); // replaced by sky dome later
 

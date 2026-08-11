@@ -1042,6 +1042,7 @@ loop.start((dt, t) => {
         // handling scales steer authority; speed is applied as cruiseSpeed.
         const statAccel = (playerKart && playerKart._statAccel) || 1;
         const statSteer = (playerKart && playerKart._statSteer) || 1;
+        if (!playerKart) return; // AUDIT (Jarvis QA 2026-08-11): null-guard — playerKart can be torn down mid-restart (HMR/re-enter menu) and setControls on null froze the race loop
         playerKart.setControls({
           steer: steer * statSteer,
           throttle: effThrottle * statAccel,
@@ -1299,3 +1300,20 @@ window.__sk3d = {
 };
 
 console.log('[Super Kart 3D.js] booted. Demo mode:', DEMO, '| State:', getState());
+
+// AUDIT (Jarvis QA loop 2026-08-11): runtime errors froze the game with NO
+// visible feedback (the rAF loop dies silently). Surface them on screen so
+// a crash is diagnosable instead of a mystery freeze.
+(function installErrorOverlay() {
+  const box = document.createElement('div');
+  box.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99999;max-width:70vw;background:rgba(160,20,20,0.92);color:#fff;font:11px/1.4 monospace;padding:6px 10px;border-radius:6px;display:none;white-space:pre-wrap;pointer-events:none';
+  document.body.appendChild(box);
+  let shown = 0;
+  const show = (label, msg) => {
+    if (++shown > 3) return;
+    box.style.display = 'block';
+    box.textContent = label + ': ' + String(msg).slice(0, 400);
+  };
+  window.addEventListener('error', (e) => show('ERRO', (e.error && e.error.stack) || e.message));
+  window.addEventListener('unhandledrejection', (e) => show('REJEIÇÃO', (e.reason && e.reason.stack) || e.reason));
+})();
