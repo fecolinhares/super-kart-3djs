@@ -41,6 +41,7 @@ const SKIP_CD = !args.includes('--no-skip-countdown');
 const SAMPLE_MS = parseInt(arg('--sample-ms', '2000'), 10);
 const HOLD_KEY = arg('--hold-key', null);
 const SPEED_GATE = parseFloat(arg('--speed-gate', '0')); // min m/s of any kart before f1 (0=off)
+const CAM_BEHIND = args.includes('--cam-behind'); // force chase cam before frames
 
 if (!URL) {
   console.error('usage: node motion-qa-runner.cjs <url> [--out DIR] [--track N] [--paths MOD] [--frames N]');
@@ -203,6 +204,7 @@ function checkInvariants(samples) {
     // f0 — pre-race (grid/countdown)
     const f0 = path.join(OUT, 'f0.png');
     log('f0 screenshot...');
+    await forceCam();
     await page.screenshot({ path: f0, timeout: 60000 });
     log('f0 (pre-race):', f0);
 
@@ -225,7 +227,35 @@ function checkInvariants(samples) {
     // Resilient screenshot: SwiftShader WebGL renders ~1-2fps and a
     // mid-race canvas capture can take 60-180s (see headless-screenshot-capture).
     // A failed frame is logged, never fatal — telemetry must survive.
-    const capture = async (name, atSec) => {
+    // Force a chase cam right before every shot (--cam-behind): in
+    // SwiftShader the camera lerp is dt-based and takes MINUTES real-time to
+    // catch the player (frames come out as blank sky / menu-showcase void).
+    // Function declarations so the f0 block above can call them (hoisting).
+    async function forceCam() {
+      if (!CAM_BEHIND) return;
+      try {
+        await page.evaluate(() => {
+          const cam = window.__sk3d.camera;
+          const pk = window.__sk3d.playerKart ? window.__sk3d.playerKart() : null;
+          if (cam && pk) {
+            const st = pk.state;
+            const q = pk.group.quaternion;
+            const fx = 2 * (q.x * q.z + q.w * q.y);
+            const fy = 2 * (q.y * q.z - q.w * q.x);
+            const fz = 1 - 2 * (q.x * q.x + q.y * q.y);
+            cam.position.set(st.position.x - fx * 8, st.position.y + 3.2, st.position.z - fz * 8);
+            cam.lookAt(st.position.x + fx * 4, st.position.y + 1.2, st.position.z + fz * 4);
+            cam.fov = 68;
+            cam.updateProjectionMatrix();
+          }
+        }).catch(() => {});
+      } catch {}
+    }
+    // Resilient screenshot: SwiftShader WebGL renders ~1-2fps and a
+    // mid-race canvas capture can take 60-180s (see headless-screenshot-capture).
+    // A failed frame is logged, never fatal — telemetry must survive.
+    async function capture(name, atSec) {
+      await forceCam();
       const f = path.join(OUT, name);
       try {
         log(`${name} screenshot (t=${atSec}s)...`);

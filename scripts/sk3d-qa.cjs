@@ -21,7 +21,7 @@ function dotFor(k, rm) {
 
 (async () => {
   const pageErrors = [], consoleErrors = [];
-  const browser = await chromium.launch({ executablePath: '/snap/bin/chromium', args: FLAGS });
+  const browser = await chromium.launch({ args: FLAGS });
   const ctx = await browser.newContext({ viewport: { width: 800, height: 600 } });
   const page = await ctx.newPage();
   page.setDefaultTimeout(20000);
@@ -43,7 +43,11 @@ function dotFor(k, rm) {
     // QA hook: fast-forward the 3-2-1 countdown (headless rAF is too slow)
     const skipped = await page.evaluate(() => { if (window.__sk3d.skipCountdown) { window.__sk3d.skipCountdown(); return true; } return false; }).catch(() => false);
     log('countdown skipped:', skipped);
-    const started = await page.waitForFunction(() => { const rm = window.__sk3d.raceManager; return rm && rm.elapsed > 0.5 && rm.karts.some(k => Math.abs((k.state && k.state.speed) || 0) > 1); }, null, { timeout: 90000, polling: 1500 }).then(() => true).catch(() => false);
+    // AUDIT (Jarvis QA loop 2026-08-11): SwiftShader advances the game clock
+    // ~0.05-0.1s per real second — the old elapsed>0.5 gate timed out on
+    // slow frames (race never "started" in 90s real). Gate on actual kart
+    // speed with a generous timeout instead.
+    const started = await page.waitForFunction(() => { const rm = window.__sk3d.raceManager; return rm && rm.karts && rm.karts.some(k => Math.abs((k.state && k.state.speed) || 0) > 8); }, null, { timeout: 240000, polling: 1500 }).then(() => true).catch(() => false);
     log('race started:', started);
 
     // rAF rate probe (game-time/sec) — MUST resolve even if rAF stalls
