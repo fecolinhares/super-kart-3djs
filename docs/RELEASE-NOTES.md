@@ -3,6 +3,15 @@
 **Date:** 2026-08-09 · **Status:** 🚀 v0.2.0-draft (AAA visual/audio pass)
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
+### Round 9 — Full QA loop: layout kinks, OOB rescue, countdown crash (Jarvis audit loop, 2026-08-11)
+- **CRITICAL — Neon City centerline kinks <1m made karts fly off the map**: the '2'-layout's S-curves (straight→arc reversions, ~169° at vertices) put min-radius 0.1-0.5m on the racing line — SIM seed 2918 showed a kart driving away to z=-126 with progress frozen (0 laps, onRoad 63%). City rebuilt as 4-level circuit (top 50 / mid 26 / bottom 2 / lower -28) with true 90° circle arcs (R=8m, tangent-aligned, sampled on the circle) and no S-curves: **min radius ≥4.5m, kerb-edge folds 0, self-crossings 0, 614m**. SIM 16 seeds: 6/16 problem seeds → **0 lost karts, onRoad 100% all** (commit 6622be1).
+- **CRITICAL — countdown rendered a giant "undefined" overlay**: the first rAF timestamp can predate the GameLoop's `performance.now()` in start() → negative dt → `countdownT += dt` ran the 3-2-1 counter at -0.5s → `COUNTDOWN_MARKS[negativeIdx]` = undefined. Fixed: dt clamped ≥0 + idx guard ≥0 (commit 60fd4e0).
+- **Out-of-bounds Lakitu rescue**: a kart flung past the map edge (hard shove/boost at a corner) used to drive away forever — the <3 m/s stuck rescue never fired at 4.6 m/s. Any kart beyond |x|>95 / |z|>62 now gets rescued after 1s grace (commit 58e3aaf).
+- **Harness upgrade**: new LOST-KART detector (off-road + progress frozen >0.5s, or out-of-bounds) — the 0-lap karts were invisible to the old stuck/backwards detectors; total accumulator fixed.
+- **QA tooling**: motion-qa-runner `--cam-behind` (forces chase cam — SwiftShader's dt-based camera lerp takes minutes to catch the player, frames came out as blank sky) + first-render wait for f0; sk3d-qa.cjs speed-gate timing fix + 900s watchdog.
+- **Regression suite**: mobile touch/menu PASS, items (shell/banana) PASS, smoke PASS, pause/resume PASS, toast PASS, restart/finish PASS (countdown "3").
+- Verified: **PROBE 7/7 invariants both tracks** (0/78 wrong-way, 0/78 off-road per run), **SIM 32/32 seeds clean** (0 lost, 0 backwards, 0 stuck, onRoad 100%).
+
 ### Round 8 — City arcs + recovery tuning + item-box depth (audit loop, 2026-08-11)
 - Neon City rebuilt from straights + true 90° circle arcs (R=14m): the flanged-vertex version had centerline radius dipping to 2.5m at apexes (CatmullRom concentrates curvature at sharp vertices) — smaller than the 4.65m kerb offset, so the INNER kerb edge self-intersected (stones crossed every lap). Now ≥12m everywhere; kerb-edge folds 0/0; city-layout-probe gains a permanent fold gate.
 - crashRecoverMs 1200→500: AI re-grips 0.5s after a spin (MK8-like). Harness injects REAL item-hit spins (1500-2100ms, was 550-950ms) and the STUCK detector exempts post-hit recovery (no false positives).
