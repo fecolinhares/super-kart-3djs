@@ -359,6 +359,12 @@
 - Leg/grounding bug fixed (short figures no longer sink their feet).
 - Grandstand crowd matches the roadside proportions.
 
+## 🧍 Crowd — bounce bug + berm (multi-agent rounds 4-5)
+- Critical: the crowd-bounce teleported LEGS into the torso every frame (they
+  were invisible) — legs/neck/feet now bounce on their own baseline.
+- Seated pose variant, per-pose bounce amplitude, clumped gap runs, and a
+  raised berm strip — the crowd stands on a visible bank with feet planted.
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
