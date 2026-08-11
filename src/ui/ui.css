@@ -842,6 +842,12 @@
   animation: sk3d-hitflash 0.5s ease-out;
 }
 
+/* Lightning strike (audit, 2026-08-11): electric white-blue flash — MK8D
+ * telegraphs the shock with a screen flash + thunder, not just a shrink. */
+.sk3d-hitflash-electric {
+  background: radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0) 30%, rgba(190, 225, 255, 0.95) 100%);
+}
+
 @keyframes sk3d-hitflash {
   0% { opacity: 0; }
   18% { opacity: 1; }

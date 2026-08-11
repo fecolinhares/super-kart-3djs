@@ -937,10 +937,12 @@ export class HUD {
 
   /** Red screen flash when the player is hit (user feedback: hits were
    *  unreadable). Re-triggers via animation restart. */
-  showHitFlash() {
+  showHitFlash(kind = 'red') {
     if (!this.hitFlashEl) return;
     this.hitFlashEl.classList.remove('sk3d-hidden');
     this.hitFlashEl.classList.remove('sk3d-hitflash-on');
+    if (kind === 'electric') this.hitFlashEl.classList.add('sk3d-hitflash-electric');
+    else this.hitFlashEl.classList.remove('sk3d-hitflash-electric');
     void this.hitFlashEl.offsetWidth;
     this.hitFlashEl.classList.add('sk3d-hitflash-on');
     clearTimeout(this._hitFlashTimer);

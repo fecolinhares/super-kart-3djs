@@ -298,6 +298,14 @@ function wireMiniBoost(kart) {
     hud.showMessage(label);
     addShake(0.5, 0.5);
   };
+  kart._onLightning = () => {
+    // AUDIT (power-up audit, 2026-08-11): lightning hit the player with only
+    // a shrink — no telegraph. MK8D: electric screen flash + thunder + shake.
+    if (!kart.isPlayer) return;
+    hud.showHitFlash('electric');
+    audio?.play?.('lightning', { volume: 0.9 });
+    addShake(0.6, 0.6);
+  };
   kart._onDraftExit = () => {
     // Slingshot pop when leaving a wake (player only).
     if (kart.isPlayer) audio.play('driftReleaseMiniBoost', { volume: 0.5 });
