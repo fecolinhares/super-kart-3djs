@@ -44,62 +44,94 @@ export const TRACK_PATH = CONTROL_POINTS.map(([x, y, z]) => new THREE.Vector3(x,
 // (CatmullRom centripetal smooths the 90° corners; no U-to-T jumps).
 // Track length ~660m (comparable to the old circuit).
 export const CITY_PATH = [
-  // AUDIT (Feco, 2026-08-11): Neon City redesigned to the '2'-shaped layout
-  // from the reference image. START on the LEFT straight (x=-70), launching
-  // UP (+Z) — the seam (t=0) sits in the MIDDLE of that straight so the
-  // CatmullRom closed-loop connects two colinear points (no corner fold).
-  // Clockwise sequence: left straight up -> top-left 90° right -> top
-  // straight right -> upper-right return (down + left) -> mid-upper straight
-  // left -> mid-left return (down + right) -> mid-lower straight right ->
-  // lower-right corner (down + left) -> bottom straight left -> wide
-  // lower-left corner back up the left straight. No self-crossing; every
-  // corner flanged ~13m (measured radii 4-8m — the AI drifts them cleanly
-  // at 40+ m/s; see harness). Length ~630m.
-  // START — middle of the left straight, launching UP (+Z).
-  [-70, 0.3, 0],
-  [-70, 0.2, 25],
-  [-70, 0.2, 50],
-  // Top-left 90° right (flanged ~12m corners).
-  [-61, 0.2, 57],
-  [-47, 0.3, 58],
-  [-40, 0.3, 53],
-  [-34, 0.3, 50],
-  // TOP STRAIGHT (rightwards).
-  [-20, 0.3, 50],
-  [20, 0.3, 50],
-  [50, 0.3, 50],
-  [60, 0.2, 50],
-  // Upper-right return: 90° down, short leg, 90° back LEFT.
-  [66, 0.2, 42],
-  [66, 0.4, 32],
-  [60, 0.4, 26],
-  // MID-UPPER STRAIGHT (leftwards).
-  [40, 0.4, 26],
-  [10, 0.4, 26],
-  [-15, 0.3, 26],
-  // Mid-left return: 90° down, short leg, 90° back RIGHT.
-  [-21, 0.3, 18],
-  [-21, 0.4, 8],
-  [-15, 0.4, 2],
-  // MID-LOWER STRAIGHT (rightwards).
-  [10, 0.4, 2],
-  [50, 0.4, 2],
-  [80, 0.3, 2],
-  // Lower-right corner: 90° down, short leg, 90° back LEFT.
-  [86, 0.3, -8],
-  [86, 0.4, -20],
-  [80, 0.4, -28],
-  // BOTTOM STRAIGHT (leftwards).
-  [50, 0.4, -28],
-  [10, 0.4, -28],
-  [-20, 0.3, -28],
-  // Lower-left corner back up the left straight: a clean 90° corner with
-  // flanged entry/exit (vertex at (-70,-28), 15m flanges) — the earlier
-  // diagonal sweep kept kinking where it met the vertical straight.
-  [-55, 0.3, -28],
-  [-70, 0.3, -28],
-  [-70, 0.3, -13],
-  [-70, 0.2, -5],
+  // AUDIT (Feco, 2026-08-11): Neon City '2' layout rebuilt from STRAIGHTS +
+  // true CIRCLE ARCS (R=14m, sampled ~8-10m). The previous flanged-corner
+  // version passed through sharp vertices — the CatmullRom centripetal
+  // concentrated curvature there (measured min radius ~2.5-4.5m), which
+  // folded the inner kerb edge (stones crossed every lap). Arcs keep the
+  // centerline >= ~12m radius everywhere; inner kerb (offset 4.65m) stays
+  // inside the curve. Start on the LEFT straight (x=-70) launching UP (+Z);
+  // seam at t=0 mid-straight (colinear, no fold). Clockwise '2'.
+  [-70, 0.3, 9],
+  [-70, 0.3, 18],
+  [-70, 0.3, 27],
+  [-70, 0.3, 36],
+  [-68.9, 0.3, 41.4],
+  [-65.9, 0.3, 45.9],
+  [-61.4, 0.3, 48.9],
+  [-56, 0.3, 50],
+  [-42.5, 0.3, 50],
+  [-29, 0.3, 50],
+  [-15.5, 0.3, 50],
+  [-2, 0.3, 50],
+  [11.5, 0.3, 50],
+  [25, 0.3, 50],
+  [38.5, 0.3, 50],
+  [52, 0.3, 50],
+  [57.4, 0.3, 48.9],
+  [61.9, 0.3, 45.9],
+  [64.9, 0.3, 41.4],
+  [66, 0.3, 36],
+  [66, 0.3, 28],
+  [66, 0.3, 20],
+  [66, 0.3, 12],
+  [64.9, 0.3, 17.4],
+  [61.9, 0.3, 21.9],
+  [57.4, 0.3, 24.9],
+  [52, 0.3, 26],
+  [44.6, 0.3, 26],
+  [37.3, 0.3, 26],
+  [29.9, 0.3, 26],
+  [22.5, 0.3, 26],
+  [15.1, 0.3, 26],
+  [7.8, 0.3, 26],
+  [0.4, 0.3, 26],
+  [-7, 0.3, 26],
+  [-12.4, 0.3, 24.9],
+  [-16.9, 0.3, 21.9],
+  [-19.9, 0.3, 17.4],
+  [-21, 0.3, 12],
+  [-21, 0.3, 4],
+  [-21, 0.3, -4],
+  [-21, 0.3, -12],
+  [-19.9, 0.3, -6.6],
+  [-16.9, 0.3, -2.1],
+  [-12.4, 0.3, 0.9],
+  [-7, 0.3, 2],
+  [2.9, 0.3, 2],
+  [12.8, 0.3, 2],
+  [22.6, 0.3, 2],
+  [32.5, 0.3, 2],
+  [42.4, 0.3, 2],
+  [52.3, 0.3, 2],
+  [62.1, 0.3, 2],
+  [72, 0.3, 2],
+  [77.4, 0.3, 0.9],
+  [81.9, 0.3, -2.1],
+  [84.9, 0.3, -6.6],
+  [86, 0.3, -12],
+  [86, 0.3, -22],
+  [86, 0.3, -32],
+  [86, 0.3, -42],
+  [84.9, 0.3, -36.6],
+  [81.9, 0.3, -32.1],
+  [77.4, 0.3, -29.1],
+  [72, 0.3, -28],
+  [56, 0.3, -28],
+  [40, 0.3, -28],
+  [24, 0.3, -28],
+  [8, 0.3, -28],
+  [-8, 0.3, -28],
+  [-24, 0.3, -28],
+  [-40, 0.3, -28],
+  [-56, 0.3, -28],
+  [-61.4, 0.3, -26.9],
+  [-65.9, 0.3, -23.9],
+  [-68.9, 0.3, -19.4],
+  [-70, 0.3, -14],
+  [-70, 0.3, -10.7],
+  [-70, 0.3, -7.3],
+  [-70, 0.3, -4],
 ].map(([x, y, z]) => new THREE.Vector3(x, y, z));
 
 export function getRoadWidthAt() {

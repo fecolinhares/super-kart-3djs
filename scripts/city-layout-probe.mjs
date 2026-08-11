@@ -62,6 +62,37 @@ for (let i = 0; i < M; i++) {
   }
 }
 
+// KERB-EDGE FOLD GATE (AUDIT 2026-08-11): a corner whose centerline radius
+// dips below the kerb lateral offset (halfW + 0.15) makes the INNER kerb
+// edge self-intersect — stones pile/cross every lap. Detect by sampling the
+// edge polyline finely (0.1m) and counting direction reversals.
+{
+  const halfW = (typeof getRoadWidthAt === 'function' ? getRoadWidthAt() : 9) / 2;
+  const offset = halfW + 0.15;
+  const M = 4000;
+  let revs = 0;
+  const eP = (t, side) => {
+    const p = path.getPointAt(t);
+    const tan = path.getTangentAt(t);
+    const n = new THREE.Vector3(-tan.z, 0, tan.x).normalize();
+    return new THREE.Vector3(p.x + n.x * side * offset, p.y, p.z + n.z * side * offset);
+  };
+  for (const side of [1, -1]) {
+    let last = null, last2 = null;
+    for (let i = 0; i <= M; i++) {
+      const e = eP(i / M, side);
+      if (last && last2) {
+        const v1 = new THREE.Vector3().subVectors(last, last2);
+        const v2 = new THREE.Vector3().subVectors(e, last);
+        if (v1.dot(v2) < -0.5 && v1.lengthSq() > 1e-6) revs++;
+      }
+      last2 = last; last = e;
+    }
+  }
+  if (revs > 0) console.log(`  !! KERB-EDGE FOLDS: ${revs} direction reversals (corner radius < kerb offset)`);
+  else console.log(`  kerb-edge folds: 0 (both sides)`);
+}
+
 const t0 = path.getTangentAt(0);
 let minX = 1e9, maxX = -1e9, minZ = 1e9, maxZ = -1e9, minY = 1e9, maxY = -1e9;
 for (let i = 0; i <= N; i++) {
