@@ -593,18 +593,23 @@ export function arrowTexture() {
 let _finishTex = null;
 export function finishLineTexture() {
   if (_finishTex) return _finishTex;
+  // AUDIT (Feco, 2026-08-11): the 8x2 texture on a 9m road made 1.125m
+  // cells that read as a dark blob-strip, not a checker. 12x2 cells =
+  // 0.75m square cells on a 9m road (MK8D finish strips use smaller,
+  // crisper checkers). Anisotropy 8 keeps them sharp at grazing angles.
   _finishTex = canvasTexture(
     1024,
     (ctx, s) => {
-      const cw = s / 8;
+      const cw = s / 12;
       const ch = s / 2;
-      for (let i = 0; i < 8; i++) {
+      for (let i = 0; i < 12; i++) {
         for (let j = 0; j < 2; j++) {
-          ctx.fillStyle = (i + j) % 2 === 0 ? '#ffffff' : '#0f1218';
+          ctx.fillStyle = (i + j) % 2 === 0 ? '#f4f6f8' : '#0f1218';
           ctx.fillRect(i * cw, j * ch, cw, ch);
         }
       }
-    }
+    },
+    { anisotropy: 8 }
   );
   return _finishTex;
 }

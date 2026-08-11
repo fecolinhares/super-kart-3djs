@@ -569,13 +569,65 @@ function buildCurbs(path, length, side, opts = {}) {
   //  - per-stone jitter (latJ 0.03m / yJ 0.02m) and tint noise (0.78-1.13)
   //    zigzagged the road edge and turned the zebra patchy.
   const seg = 0.6;
-  // AUDIT (kerb probe, 2026-08-11): centering stones at uniform (i+0.5)/count
-  // left gaps up to 0.23m between stones where the path's U-to-T mapping
-  // compresses (tight curves) — visible as 'holes'. Space the centers 10%
-  // SHORTER than the stone (0.54m) so every stone overlaps the next by 6cm:
-  // covers the curve wedge gaps and the start-line seam. Count goes up.
-  const segEff = seg * 0.9;
-  const count = Math.ceil(length / segEff);
+  // AUDIT (kerb probe + Feco follow-up, 2026-08-11): stones placed by
+  // CENTERLINE arc-length still overlap on the INSIDE of corners and gap on
+  // the OUTSIDE (a corner of radius R moves the inner kerb by (R-offset)/R —
+  // on a 7m hairpin the inner edge covers ~30% of the centerline length, so
+  // fixed 0.6m stones pile up ~0.4m into each other: the 'stones entering
+  // each other' Feco saw). The fix: build the arc-length table along the
+  // KERB EDGE (centerline + side*offset), so stones are uniformly spaced on
+  // the edge itself — inner corners get fewer, wider-spaced stones, outer
+  // corners get more; every pair is exactly `segEff` apart on the edge.
+  const offset = roadW / 2 + 0.15;
+  const segEff = seg * 0.98;
+  // Edge length (arc of the kerb line, not the centerline).
+  const ARC_N = 2000;
+  const arcT = new Float64Array(ARC_N + 1); // arcT[i] = t at sample i
+  const arcS = new Float64Array(ARC_N + 1); // arcS[i] = cumulative edge arc
+  {
+    const pp = new THREE.Vector3();
+    const pq = new THREE.Vector3();
+    const pn = new THREE.Vector3();
+    const qn = new THREE.Vector3();
+    const tq = new THREE.Vector3();
+    path.getPointAt(0, pp);
+    path.getTangentAt(0, tq);
+    pn.set(-tq.z, 0, tq.x).normalize();
+    const ep = pp.clone().addScaledVector(pn, side * offset);
+    let acc = 0;
+    arcT[0] = 0; arcS[0] = 0;
+    for (let i = 1; i <= ARC_N; i++) {
+      const t = i / ARC_N;
+      path.getPointAt(t, pq);
+      path.getTangentAt(t, tq);
+      qn.set(-tq.z, 0, tq.x).normalize();
+      const eq = pq.clone().addScaledVector(qn, side * offset);
+      acc += ep.distanceTo(eq);
+      arcT[i] = t;
+      arcS[i] = acc;
+      ep.copy(eq);
+    }
+    const edgeLen = acc;
+    const countLocal = Math.max(1, Math.floor((edgeLen - seg) / segEff) + 1);
+    var edgeLenOut = edgeLen;
+    var countOut = countLocal;
+  }
+  // count depends on the EDGE length (outer side has more stones).
+  const count = countOut;
+  const edgeLen = edgeLenOut;
+  const arcToT = (s) => {
+    const target = Math.min(Math.max(s, 0), edgeLen - 0.001); // clamp, no wrap
+    let lo = 0, hi = ARC_N;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (arcS[mid] < target) lo = mid + 1;
+      else hi = mid;
+    }
+    if (lo === 0) return 0;
+    const s0 = arcS[lo - 1], s1 = arcS[lo];
+    const f = s1 > s0 ? (target - s0) / (s1 - s0) : 0;
+    return arcT[lo - 1] + (arcT[lo] - arcT[lo - 1]) * f;
+  };
   const curbW = 0.9;
   const curbH = 0.17;
   const geo = beveledCurbGeometry(curbW, curbH, seg, 0.05);
@@ -617,7 +669,7 @@ function buildCurbs(path, length, side, opts = {}) {
   const cursor = [0, 0];
 
   for (let i = 0; i < count; i++) {
-    const t = Math.min(0.9999, (i * segEff + segEff / 2) / length); // 10% overlap
+    const t = arcToT((i + 0.5) * segEff); // arc-length-centered stone
     path.getPointAt(t, p);
     path.getTangentAt(t, tan);
     nrm.set(-tan.z, 0, tan.x).normalize();
@@ -1026,14 +1078,13 @@ function buildGantry(startLine) {
  */
 function buildFinishLine(startLine) {
   const w = getRoadWidthAt();
-  // AUDIT (Feco visual QA + finish audit, 2026-08-11): 'a faixa de chegada
-  // está fora de proporção' — the 8x2 texture on a 10x1.6 plane made cells
-  // 1.25 x 0.8m (1.56:1, stretched) and the decal sat under the kerb tops
-  // (cut edges). Now the plane is exactly roadWidth x roadWidth/8*2 (9 x
-  // 2.25m) → cells are SQUARE (1.125 x 1.125m), opacity 1.0, and the
-  // 1024px texture gives 128px per cell (anisotropy 8) — crisp.
-  const geo = new THREE.PlaneGeometry(w, (w / 8) * 2);
-  const mat = new THREE.MeshBasicMaterial({ map: finishLineTexture(), transparent: true, opacity: 1.0, side: THREE.DoubleSide });
+  // AUDIT (Feco visual QA, 2026-08-11): finish strip must read as a
+  // CHECKER, not a dark blob-strip. 12x2 texture on a w x w/12*2 plane
+  // (9 x 1.5m) → 0.75m SQUARE cells; opacity 0.9 so the paint sits on the
+  // asphalt like a real decal (opacity 1.0 made the black cells dominate
+  // and read as 'weird markings' at speed).
+  const geo = new THREE.PlaneGeometry(w, (w / 12) * 2);
+  const mat = new THREE.MeshBasicMaterial({ map: finishLineTexture(), transparent: true, opacity: 0.9, side: THREE.DoubleSide });
   // polygonOffset wins the depth test against the road ribbon at grazing
   // angles (classic decal technique — plain y-offset z-fights).
   mat.polygonOffset = true;
