@@ -35,6 +35,8 @@ audio lifecycle, HUD, mobile basics, performance budget.
 | T21 | Items FX | Shell: PBR+outline+spin+84 m/s; banana: 0.72m+hop+minimap dot; lightning: 3-axis shrink+electric flash; star: rainbow paint | code + harness (0 events) | ✅ PASS |
 | T22 | Neon redesign | '2' layout: start left straight UP (+Z), clockwise, 630m, 0 crossings, corners 4-8m (drift-clean) | `scripts/city-layout-probe.mjs` + harness | ✅ PASS |
 | T23 | Neon props | Ramps curvature-checked on straights; turbo 0.78 bottom straight; item boxes off corners; lights/billboards/cranes path-driven | code probe (buildNeonCity) | ✅ PASS |
+| T24 | Bots stuck | NO kart crawls <1 m/s for 2.5s+ (was: crashUntil ms-vs-s bug froze bots forever after any hit) | harness STUCK detection, 100 seeds × 2 tracks | ✅ PASS |
+| T25 | Road clean | No painted text/logo decals on the asphalt (sponsor decals removed); kerbs slimmed to 0.55×0.5×0.14 | screenshot + code | ✅ PASS |
 
 ## 3. Regression notes (this release)
 - **2026-08-11 — "opponents run backwards" fix (16 commits)**: steering is

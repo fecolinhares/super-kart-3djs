@@ -3,6 +3,11 @@
 **Date:** 2026-08-09 · **Status:** 🚀 v0.2.0-draft (AAA visual/audio pass)
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
+### Round 7 — Bots frozen fix + road cleanup (Feco QA, 2026-08-11)
+- **CRITICAL — bots froze forever after any hit**: `crashUntil = now + crashRecoverMs` mixed SECONDS (raceManager.elapsed) with MILLISECONDS (1200) — the recovery window became ~1200 SECONDS (20 min), so after a spin/hit the AI released controls permanently and the kart stood still (throttle 0, steer 0). New harness STUCK detection (|speed|<1 for 2.5s) reproduced it: 320 stuck events / 80 seeds × 2 tracks → **0 after the fix** (`crashRecoverMs / 1000`). The previously-frozen kart's avgV rose 28.5 → 38.4.
+- **Road cleanup**: painted 'sponsor' decals (read as smudged "MARIO KART" text on the racing line) removed entirely; kerbs slimmed 0.9×0.6×0.17 → 0.55×0.5×0.14 (thin MK8D zebra edge, still arc-length-spaced on the kerb edge).
+- Final stress: **0 backwards events, 0 stuck / 100 seeds × 2 tracks**.
+
 ### Round 6 — Neon City redesign to the '2' layout (Feco reference, 2026-08-11)
 - New CITY_PATH: start on the LEFT straight (x=-70) launching UP (+Z), clockwise — top straight, upper-right return, mid-upper straight, mid-left return, mid-lower straight, lower-right corner, bottom straight, 90° lower-left corner. Seam at t=0 mid-start-straight (colinear, no fold). 630m, 0 self-crossings, corners 4-8m radius (AI drifts them cleanly at 40+ m/s; harness 0 backwards events).
 - Ramp ts moved off the corner (0.30 was inside the new top-right return!) to straights (0.20/0.57) + curvature-checked per track.
