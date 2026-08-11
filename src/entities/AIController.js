@@ -39,15 +39,17 @@ export class AIController {
     // centerline → train formation). Deterministic golden-ratio spread seeded
     // from the roster index (NOT kart.position — that was 0 at construction,
     // so every rival got the identical offset and drove one behind the other).
-    // AUDIT F2 (game-design audit): the raw golden-ratio spread reached
+    // AUDIT F2/F3 (game-design audits): the raw golden-ratio spread reached
     // ±2.79m — beyond the stable corridor on clockwise tracks (inside of
     // right-hand corners = right side), so LEFT lanes oscillated and the
     // largest offsets pinned karts into the guard rail (41 wall bounces/90s
-    // in the sim). Clamp to ±1.2m: keeps the personal-lane differentiation
-    // (anti-train) without the wall pinning. Rivals that can't hold a left
-    // line naturally fall onto the racing line (MK8D CPUs do the same).
+    // in the sim). SCALE the spread to ±1.2m instead of clamping: clamping
+    // COLLAPSED two rivals onto the same lane (aiIndex 0 and 2 both hit
+    // -1.2 → overlapping cloud). Scaling keeps every lane distinct while
+    // staying inside the stable corridor. Rivals that still can't hold a
+    // left line naturally fall onto the racing line (MK8D CPUs do the same).
     this.laneOffset = aiIndex !== undefined && aiIndex !== null
-      ? THREE.MathUtils.clamp((aiIndex * 0.61803398875 - Math.floor(aiIndex * 0.61803398875) - 0.5) * CONFIG.track.roadWidth * 0.62, -1.2, 1.2)
+      ? (aiIndex * 0.61803398875 - Math.floor(aiIndex * 0.61803398875) - 0.5) * 2.4
       : 0;
     this._initPath();
   }
@@ -201,7 +203,14 @@ export class AIController {
       brake = 0;
     }
 
-    // Rubber-band vs the player: speed up when behind, ease off when ahead.
+    // Rubber-band: speed up when behind, ease off when ahead.
+    // AUDIT F1 (game-design audit): the rubber band used to be PLAYER-relative
+    // only — chasing-AI vs the rival AHEAD got 0, so on twisty tracks the
+    // order froze into a procession (City: 45 standings changes in 4500
+    // frames vs 3489 on meadow). Add an AI-vs-AI chase term: a kart behind
+    // the rival immediately ahead gets up to +6% cruise (capped inside the
+    // 12% rubberBandCap), so mid-pack passes happen without the leader
+    // running away.
     const player = this.raceManager && this.raceManager.player;
     if (player && player !== kart) {
       const d = progressScore(player) - progressScore(kart); // >0 → AI behind
@@ -210,17 +219,27 @@ export class AIController {
       const factor = THREE.MathUtils.clamp((d * CONFIG.ai.rubberBandFactor) / 1.5, -0.12, 0.3);
       // Real comeback: throttle alone can't raise TOP SPEED (physics caps at
       // maxSpeed/boostSpeed), so behind-AIs also get a cruiseSpeed override.
-      // The driver's speed stat scales the whole cruise envelope (F2 curve).
+      // The driver's speed stat scales the whole cruise envelope.
       // AUDIT r2: when the AI is AHEAD the statScale caps at 1.0 — leading
       // rivals used to out-pace the player without items (feels unfair).
+      // AUDIT F2: that min-cap also made the SPEED STAT DEAD while leading
+      // (every leader ran exactly maxSpeed). Leaders now keep a stat spread
+      // (0.96-0.992) below the ceiling — Comet(9) still outpaces Daisy(5)
+      // when both lead, but nobody out-paces the player for free.
       const statScale = d > 0.03
         ? 0.95 + (this.stats?.speed || 7) / 10 * 0.1
-        : Math.min(1.0, 0.95 + (this.stats?.speed || 7) / 10 * 0.1);
+        : 0.92 + (this.stats?.speed || 7) / 10 * 0.08;
+      const rival = this._rivalAhead();
+      let chaseBoost = 0;
+      if (rival && rival !== player) {
+        const dr = progressScore(rival) - progressScore(kart); // >0 → behind a rival
+        if (dr > 0.02 && dr < 1) chaseBoost = Math.min(0.06, dr * 0.25);
+      }
       if (d > 0.03) {
         const boost = Math.min(0.12, d * 0.3); // audit v4: capped +12% (was +22% — felt like cheating)
-        kart.cruiseSpeed = CONFIG.physics.maxSpeed * (1 + boost) * statScale;
+        kart.cruiseSpeed = CONFIG.physics.maxSpeed * (1 + Math.min(boost + chaseBoost, 0.12)) * statScale;
       } else {
-        kart.cruiseSpeed = CONFIG.physics.maxSpeed * statScale;
+        kart.cruiseSpeed = CONFIG.physics.maxSpeed * (1 + chaseBoost) * statScale;
       }
       throttle = THREE.MathUtils.clamp(throttle * (1 + factor), 0, 1.35);
     }
@@ -384,7 +403,7 @@ export class AIController {
         return true; // always pop it
       case PowerUpType.MUSHROOM:
         if (kart.state && kart.state.offRoad) return true; // recover speed
-        if (d > 30) return true; // big catch-up gap
+        if (d > 0.03) return true; // big catch-up gap (AUDIT: was d>30 — progressScore in-lap range is -1..1, so the branch was dead code)
         {
           const err = this._headingErrorTo(rival);
           return err !== null && Math.abs(err) < 0.4 && d > 0;
@@ -397,7 +416,10 @@ export class AIController {
           return err === null || Math.abs(err) < 1.2;
         }
       case PowerUpType.BANANA:
-        return d < -0.12; // AUDIT MED: -10 = a LAP ahead (never fires in-lap); -0.12 = clear lead → drop a trap
+        // AUDIT (game-design review): -0.12 (12% lap lead) made mid-pack AI
+        // hoard traps forever; -0.03 (3% lead) still means the rival behind
+        // can't grab it before the trap is useful — livelier item play.
+        return d < -0.03;
       case PowerUpType.LIGHTNING:
         return d > 5 && d < 150; // rival close ahead → shrink them
       default:
