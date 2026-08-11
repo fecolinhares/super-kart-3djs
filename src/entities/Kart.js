@@ -1515,6 +1515,14 @@ export class Kart {
     }
     this._scaleTarget = scale;
     this._scaleMs = Math.max(this._scaleMs, durationMs);
+    // AUDIT (power-up audit, 2026-08-11) CRITICAL: lightning used to be a
+    // Y-ONLY squash (KartPhysics force-resets x/z to 1 every frame) — victims
+    // pancaked flat instead of shrinking like MK8D. Real shrink lives in its
+    // own field so the Y squash (landing/wall/banana juice) can keep working.
+    if (scale < 0.9) {
+      this._shrinkScale = scale;
+      this._shrinkMs = Math.max(this._shrinkMs || 0, durationMs);
+    }
   }
 
   /** Banana: spin-out. No-op while invincible. */

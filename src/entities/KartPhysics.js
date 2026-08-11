@@ -535,10 +535,18 @@ export class KartPhysics {
     else kart._scaleTarget = 1;
     if (kart._slowMs > 0) kart._slowMs -= dt * 1000;
     else kart._slowFactor = 1;
+    // AUDIT (power-up audit, 2026-08-11): apply the lightning shrink on ALL
+    // three axes (interpolated, so the shrink eases in and the recovery pops
+    // back up), instead of force-resetting x/z to 1 (Y-only pancake).
+    if (kart._shrinkMs > 0) kart._shrinkMs -= dt * 1000;
+    else kart._shrinkScale = 1;
+    const sh = kart._shrinkScale || 1;
     const sy = kart.group.scale.y;
     kart.group.scale.y = sy + (kart._scaleTarget - sy) * Math.min(1, 10 * dt);
-    kart.group.scale.x = 1;
-    kart.group.scale.z = 1;
+    const sx = kart.group.scale.x;
+    const nx = sx + (sh - sx) * Math.min(1, 10 * dt);
+    kart.group.scale.x = nx;
+    kart.group.scale.z = nx;
 
     if (kart._bounceTimer > 0) kart._bounceTimer -= dt;
     else kart._bounce = 0;
