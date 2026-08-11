@@ -339,6 +339,13 @@
   the body. The wall pulls in 0.85m so the tire clears the rail (5.59 < 5.6)
   while the shoulder stays drivable.
 
+## 🎨 5 visual fixes
+- Wheel rim enlarged to fill the tire (the small gray ring at the rear).
+- Item-box light beam ends AT the road (was piercing below ground).
+- Kerbs: classic red/white zebra slabs (was 4-color 1.7m blocks).
+- Spectators human-proportioned (was tall square blocks with small heads).
+- Tree geometry quality bumped (pine 18 segs, oak 20x14, palm 10x8).
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
