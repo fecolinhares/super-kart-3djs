@@ -28,7 +28,7 @@ const DT = 1 / 60;
 const DURATION_S = 60; // sim seconds per run
 const BACK_DOT = -0.45; // dot(heading, tangent) below this while moving = facing backwards
 const BACK_MIN_SPEED = 8;  // user-visible: a backwards RUN, not a slow U-turn
-const BACK_PERSIST_S = 1.5; // SUSTAINED — a recovery arc is ~0.5-1s, a bug run is seconds
+const BACK_PERSIST_S = 0.7; // recovery U-turns measure 0.4-0.6s (F6); the old brake bug ran ~1.2s — 0.7 catches it, rejects recoveries
 
 // ---------- deterministic RNG (mulberry32) ----------
 function mulberry32(a) {
@@ -243,13 +243,19 @@ function runRace(seed, trackData) {
     }
     for (const c of ctrls) c.update(DT);
 
-    // sanity accumulation (on-road fraction within ±6m of the centerline)
+    // sanity accumulation (on-road fraction within ±6m of the centerline).
+    // F5: TRUE lateral = |(pos - pathPoint(progress01)) x tangent| — the old
+    // |p x tan| measured distance to the ORIGIN line, printing 0% on-road for
+    // karts that were genuinely on the road.
     sanity.frames++;
     for (let i = 0; i < karts.length; i++) {
       const kk = karts[i];
       const tt2 = Math.min(Math.max(kk.state.progress01, 0.001), 0.999);
       const tan2 = trackData.path.getTangentAt(tt2);
-      const lateral = Math.abs(kk.state.position.x * tan2.z - kk.state.position.z * tan2.x);
+      const pt2 = trackData.path.getPointAt(tt2);
+      const ox = kk.state.position.x - pt2.x;
+      const oz = kk.state.position.z - pt2.z;
+      const lateral = Math.abs(ox * tan2.z - oz * tan2.x);
       if (lateral < 6) sanity.onRoad[i]++;
       sanity.speedSum[i] += Math.abs(kk.state.speed);
     }
@@ -274,7 +280,9 @@ function runRace(seed, trackData) {
       } else if (epStart[i] !== null) {
         const dur = t - epStart[i];
         const lost = maxScore[i] - epMin[i];
-        if (dur >= BACK_PERSIST_S && lost >= 0.05) {
+        // loss gate 0.02 (≈8-13m) — the ORIGINAL brake bug only lost ~0.028
+        // progress at reverseSpeed 12 over ~1.2s; 0.05 would have missed it
+        if (dur >= BACK_PERSIST_S && lost >= 0.02) {
           events.push({ seed, frame: Math.round(frame), t: +t.toFixed(2), kart: i, dot: +dot.toFixed(2), speed: +k.state.speed.toFixed(1), prog: +k.state.progress01.toFixed(3), lap: k.state.lap, type: 'backwards-run', dur: +dur.toFixed(2), lost: +lost.toFixed(3) });
         }
         epStart[i] = null;
