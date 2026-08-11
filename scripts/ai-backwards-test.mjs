@@ -194,6 +194,21 @@ function buildInjections(rng, trackData, seed) {
       k.state.speed = 30 + rng() * 12;
     },
   });
+  // (e) off-road crawl: kart shoved 15-25m off-road at crawl speed — after
+  // 2s this triggers the Lakitu rescue (RaceManager._updateRescues): the
+  // kart is teleported to its progress point facing the tangent. Covers the
+  // rescue-recovery path (the old bug class: wrong-way after a teleport).
+  inj.push({
+    at: 52 + rng() * 6, apply(karts) {
+      const k = karts[1 + Math.floor(rng() * 4)];
+      const tt = t();
+      const tan = trackData.path.getTangentAt(tt);
+      const nrm = new THREE.Vector3(-tan.z, 0, tan.x).normalize();
+      k.state.position.copy(trackData.path.getPointAt(tt)).addScaledVector(nrm, (15 + rng() * 10) * (rng() < 0.5 ? 1 : -1));
+      k.state.heading = Math.atan2(tan.x, tan.z);
+      k.state.speed = 1;
+    },
+  });
   return inj;
 }
 
@@ -242,6 +257,29 @@ function runRace(seed, trackData) {
       }
     }
     for (const c of ctrls) c.update(DT);
+
+    // Lakitu rescue (mirrors RaceManager._updateRescues): an off-road kart
+    // crawling below 3 m/s for >= 2s is teleported to its progress point
+    // facing the tangent — exercises the rescue-recovery AI path.
+    for (let i = 0; i < karts.length; i++) {
+      const k = karts[i];
+      if (k.finished || k.state.spinOut) { k._stuckT = 0; continue; }
+      if (k.state.offRoad && Math.abs(k.state.speed) < 3 && typeof k.state.progress01 === 'number') {
+        k._stuckT = (k._stuckT || 0) + DT;
+        if (k._stuckT >= 2) {
+          const ttR = Math.min(Math.max(k.state.progress01, 0.001), 0.999);
+          const pR = trackData.path.getPointAt(ttR);
+          const tanR = trackData.path.getTangentAt(ttR);
+          k.state.position.set(pR.x, pR.y, pR.z);
+          k.state.heading = Math.atan2(tanR.x, tanR.z);
+          k.state.speed = 0;
+          k.state.spinOut = false;
+          k._stuckT = 0;
+        }
+      } else {
+        k._stuckT = 0;
+      }
+    }
 
     // sanity accumulation (on-road fraction within ±6m of the centerline).
     // F5: TRUE lateral = |(pos - pathPoint(progress01)) x tangent| — the old
