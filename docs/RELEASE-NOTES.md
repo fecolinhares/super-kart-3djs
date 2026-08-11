@@ -323,6 +323,13 @@
   karts diving into the earth at the edge; now a kerb-like ~0.23m step).
 - Off-road physics sink clamp -0.6 → -0.3m.
 
+## 🛡️ Guard rail + shoulder fixes
+- **Karts pierced the guard rail** on wide sections: the physics wall used the
+  LOCAL road width (up to 6.9m) while the rail sits at roadW/2+1.1 (5.6m) —
+  clamped to just inside the rail.
+- **Shoulder sink**: karts rode the terrain (-0.05) on the dirt shoulder (0.14)
+  — they now ride the shoulder while on it.
+
 ## 🏁 Track 1: SUNNY MEADOW (default)
 - Rolling-hill field with re-grounded landmarks (pond, hilltop grove, rock
   formation, windmill), sponsor boards, corner cones, flower/rock groups,
