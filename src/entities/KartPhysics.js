@@ -72,12 +72,38 @@ function nearestSample(kart, samples) {
     const d2 = samples.pos[i2].distanceToSquared(p);
     if (d2 < bestD) { bestD = d2; best = i2; }
   }
-  if (bestD > 900) {
-    // teleported/respawned far away — full scan
+  // AUDIT r11 (FECO BUG REPORT — AI drives backwards): the >30m full-scan
+  // threshold let a kart launched/shoved >14 samples along the path keep a
+  // STALE progress01 for many frames (the ±14 window can't track a jump);
+  // AIController anchors its steering to progress01, so a stale lattice
+  // corrupted the AI's race-progress reference. 12m ≈ 4-5 samples: far
+  // enough to never fire in normal driving, tight enough to re-anchor
+  // progress01 instantly after a launch / shove / respawn.
+  if (bestD > 144) {
+    // teleported/respawned far away — full scan.
+    // AUDIT r11 (FECO BUG REPORT — 'os adversarios começam a correr para
+    // trás'): a PURE distance scan picks the nearest sample IN SPACE, which
+    // on a curved loop can be a DIFFERENT track segment (a 30m+ lateral
+    // offset can land physically closer to a segment whose tangent points
+    // the OPPOSITE way). That corrupts progress01 → the AI anchors its
+    // steering to the wrong segment and the kart does a wrong-way dance.
+    // When the kart is MOVING, prefer the nearest sample whose tangent
+    // aligns with its heading (race progress always lives on the segment
+    // the kart is following); fall back to the raw nearest only if no
+    // aligned sample exists (e.g. a stationary respawn).
+    const st = kart.state || {};
+    const fwd = { x: Math.sin(st.heading || 0), y: Math.cos(st.heading || 0) };
+    let bestAlt = -1;
+    let bestAltD = Infinity;
     for (let i = 0; i < N; i++) {
       const d = samples.pos[i].distanceToSquared(p);
       if (d < bestD) { bestD = d; best = i; }
+      if (Math.abs(st.speed || 0) > 2) {
+        const dot = samples.tan[i].x * fwd.x + samples.tan[i].z * fwd.y;
+        if (dot > 0.3 && d < bestAltD) { bestAltD = d; bestAlt = i; }
+      }
     }
+    if (bestAlt >= 0) { best = bestAlt; bestD = bestAltD; }
   }
   kart._sampleIndex = best;
 

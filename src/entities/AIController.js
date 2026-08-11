@@ -73,13 +73,19 @@ export class AIController {
     const now = (this.raceManager && this.raceManager.elapsed) || 0;
 
     // Crash recovery: while spinning out, release all controls.
+    // AUDIT r11 (FECO BUG REPORT — 'os adversarios começam a correr para
+    // trás'): NEVER brake here. In this physics brake = REVERSE (see the
+    // note in _drive): after the spinOut timer ends the kart sits at ~0
+    // speed while crashUntil is still active, so brake 0.6/1 drove it
+    // backward at up to reverseSpeed for a full second — the visible
+    // 'running backwards' right after a crash.
     if (st.spinOut) {
       this.crashUntil = now + CONFIG.ai.crashRecoverMs;
-      kart.setControls?.({ steer: 0, throttle: 0, brake: 1, drift: false, useItem: false });
+      kart.setControls?.({ steer: 0, throttle: 0, brake: 0, drift: false, useItem: false });
       return;
     }
     if (now < this.crashUntil) {
-      kart.setControls?.({ steer: 0, throttle: 0, brake: 0.6, drift: false, useItem: false });
+      kart.setControls?.({ steer: 0, throttle: 0, brake: 0, drift: false, useItem: false });
       return;
     }
 
@@ -214,11 +220,33 @@ export class AIController {
     kart.setControls?.({ steer, throttle, brake, drift, useItem: false });
   }
 
-  /** Nearest centerline sample index (rolling window + full-scan fallback). */
+  /** Nearest centerline sample index — PROGRESS-ANCHORED (audit r11, FECO BUG
+   *  REPORT: 'os adversarios começam a correr para trás').
+   *
+   *  Root cause: the old rolling distance window (±8 samples ≈ 13-22m) lags
+   *  whenever a shove / ramp launch / off-road excursion carries the kart
+   *  more than the window radius along the path. The stale index then puts
+   *  the look-ahead target BEHIND the kart, so the AI turns around and
+   *  drives backwards 'out of nowhere'. The r10 full-scan fallback only
+   *  fired past 20×spacing (~33-54m) — the dangerous band was 13→33m.
+   *
+   *  Fix: the kart's race progress (state.progress01, an arc-length fraction
+   *  from KartPhysics) is the ONLY authoritative anchor — it is monotonic
+   *  per lap, immune to lateral displacement, and maps directly onto the
+   *  arc-length-uniform centerline. The distance window is kept only as a
+   *  fast path and is trusted solely while it agrees with the anchor; on
+   *  disagreement the anchor wins, so the look-ahead target can never sit
+   *  behind the kart's race progress. */
   _findNearest(pos) {
     const cl = this.centerline;
     if (!cl || !cl.length) return -1;
     const n = cl.length;
+    const prog = this.kart.state?.progress01;
+    const progIdx = (typeof prog === 'number' && prog >= 0 && prog <= 1)
+      ? Math.min(n - 1, Math.max(0, Math.round(prog * n)))
+      : -1;
+
+    // Fast path: rolling distance window around the last index.
     const r = 8;
     let best = this.nearIdx;
     let bestD = Infinity;
@@ -233,36 +261,21 @@ export class AIController {
         best = j;
       }
     }
-    // Fell far away (crash off track / respawn) — rescan everything.
-    // AUDIT r10 (FECO BUG REPORT): the full-scan fallback could land on the
-    // OPPOSITE side of the loop — the nearest sample IN SPACE isn't the one
-    // ahead, so the look-ahead target sat BEHIND the kart and the AI spun
-    // around and drove backwards 'out of nowhere'. Prefer the sample matching
-    // the kart's progress01 (the point it should be near), never the far side.
-    const slack = this.spacing * 20;
-    if (bestD > slack * slack) {
-      const prog = kart.state?.progress01;
-      if (typeof prog === 'number' && prog >= 0 && prog <= 1) {
-        best = Math.min(n - 1, Math.max(0, Math.round(prog * n)));
+
+    if (progIdx >= 0) {
+      // Trust the window only when it is both CLOSE to the kart and CLOSE to
+      // the progress anchor. Otherwise snap to the anchor (re-searching a
+      // tiny window around it — the kart may sit slightly behind its
+      // progress point after a shove, never far ahead).
+      const windowOk = bestD <= (this.spacing * 6) ** 2 && Math.abs(best - progIdx) <= 12;
+      if (!windowOk) {
+        best = progIdx;
         bestD = Infinity;
-        for (let j = best - 5; j <= best + 5; j++) {
+        for (let j = best - 4; j <= best + 4; j++) {
           const k = ((j % n) + n) % n;
           const p = cl[k];
           const d = (p.x - pos.x) * (p.x - pos.x) + (p.z - pos.z) * (p.z - pos.z);
           if (d < bestD) { bestD = d; best = k; }
-        }
-      } else {
-        best = 0;
-        bestD = Infinity;
-        for (let j = 0; j < n; j++) {
-          const p = cl[j];
-          const dx = p.x - pos.x;
-          const dz = p.z - pos.z;
-          const d = dx * dx + dz * dz;
-          if (d < bestD) {
-            bestD = d;
-            best = j;
-          }
         }
       }
     }

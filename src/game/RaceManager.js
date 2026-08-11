@@ -247,7 +247,12 @@ export class RaceManager {
 
     // Build the navigation cache for AI + projectile off-track culling.
     if (track && track.path && typeof track.path.getSpacedPoints === 'function') {
-      this.centerline = track.path.getSpacedPoints(240);
+      // AUDIT r11: getSpacedPoints(240) returns 241 points on a CLOSED curve
+      // — the last is an exact duplicate of the first (seam). Slice it off:
+      // the AI's progress01→index mapping (round(prog * n)) assumes exactly
+      // n arc-length-uniform samples; a duplicate at n-1 sat right on the
+      // finish seam where every kart crosses it.
+      this.centerline = track.path.getSpacedPoints(240).slice(0, 240);
       const len = track.length || 500;
       this.centerlineSpacing = Math.max(1.5, len / 240);
     } else if (track && track.waypoints && track.waypoints.length) {
@@ -397,6 +402,13 @@ export class RaceManager {
             st.position.set(p.x, p.y + 0.5, p.z);
             st.heading = Math.atan2(tan.x, tan.z);
             st.speed = 0;
+            // AUDIT r11: re-seed the physics nearest-sample index so the
+            // rescue doesn't leave a stale lattice (progress01 glitch → AI
+            // steering anchor wobbles). progress01 is arc-length fraction →
+            // index on the 192-sample arc-uniform lattice.
+            if (typeof st.progress01 === 'number') {
+              kart._sampleIndex = Math.min(191, Math.max(0, Math.round(st.progress01 * 192)));
+            }
             st.vY = 3.5; // the little pop the Lakitu gives you
             st.spinOut = false;
             kart._stuckT = 0;
