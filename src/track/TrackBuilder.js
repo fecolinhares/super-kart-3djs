@@ -838,7 +838,7 @@ function buildGuardRail(path, length, side, opts = {}) {
   // render metalness, so the silver read as emissive). Real MeshStandardMaterial
   // with a dim envMap gives the armco its metal body; the pink stripe stays the
   // only emissive element.
-  const mainMat = new THREE.MeshStandardMaterial({ color: 0xcfd8e2, metalness: 0.75, roughness: 0.38, side: THREE.DoubleSide });
+  const mainMat = new THREE.MeshStandardMaterial({ color: 0xe8eef4, metalness: 0.8, roughness: 0.3, side: THREE.DoubleSide }); // AUDIT R5: near-white silver reads as metal vs dark city
   const lowerMat = new THREE.MeshStandardMaterial({ color: 0x9aa6b2, metalness: 0.6, roughness: 0.5, side: THREE.DoubleSide });
   const postMat = toonMaterial(opts.neon ? 0x8a9aa8 : 0x2a3140, {}); // AUDIT R3: lighter still — posts must read as structure
   const plateMat = toonMaterial(opts.neon ? 0x3a4554 : 0x222a38, {});
@@ -864,7 +864,7 @@ function buildGuardRail(path, length, side, opts = {}) {
 
   // Box posts (0.13 x 0.40 x 0.13) from the ground to the main rail, each on
   // a visible footing plate (0.40 x 0.08 x 0.40) set into the shoulder.
-  const postGeo = new THREE.BoxGeometry(0.18, 0.78, 0.18); // AUDIT R4: tall enough to rise above the kerb (0.36) — posts finally visible
+  const postGeo = new THREE.BoxGeometry(0.32, 0.80, 0.18); // AUDIT R5: 2x wider posts (subpixel at chase cam distance)
   const plateGeo = new THREE.BoxGeometry(0.60, 0.10, 0.60); // AUDIT R3: bigger base plates (critic: plates not visible)
   const posts = new THREE.InstancedMesh(postGeo, postMat, count);
   const plates = new THREE.InstancedMesh(plateGeo, plateMat, count);
@@ -896,8 +896,8 @@ function buildGuardRail(path, length, side, opts = {}) {
 
   // AUDIT R4: contact shadow under the barrier — a dark ribbon at the base
   // anchors the kerb+rail to the ground (critic: 'floats, no contact shadow').
-  const shadowMat = toonMaterial(0x10141c, { side: THREE.DoubleSide, transparent: true, opacity: 0.45 });
-  const contactShadow = buildEdgeRibbon(path, lateral, 0.05 + 0.03, 0.9, 0.06, shadowMat);
+  const shadowMat = toonMaterial(0x05070c, { side: THREE.DoubleSide, transparent: true, opacity: 0.7 });
+  const contactShadow = buildEdgeRibbon(path, lateral, 0.05 + 0.03, 1.4, 0.08, shadowMat); // AUDIT R5: darker+wider (critic: shadow invisible)
   contactShadow.castShadow = false;
   contactShadow.renderOrder = 1;
 
