@@ -1145,7 +1145,7 @@ function buildGantry(startLine) {
   // MeshBasicMaterial: the toon gradient was washing the checker out.
   const banner = new THREE.Mesh(
     new THREE.PlaneGeometry(roadW + 1.4, 1.55, 14, 1),
-    new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })
+    new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide }) // AUDIT R3: FrontSide — DoubleSide showed 'HSINIF' backwards behind the mirrored bannerBack
   );
   banner.material.map = finishBannerTexture();
   banner.position.copy(startLine.position);
