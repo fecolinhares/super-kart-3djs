@@ -12,6 +12,17 @@
 - **Regression suite**: mobile touch/menu PASS, items (shell/banana) PASS, smoke PASS, pause/resume PASS, toast PASS, restart/finish PASS (countdown "3").
 - Verified: **PROBE 7/7 invariants both tracks** (0/78 wrong-way, 0/78 off-road per run), **SIM 32/32 seeds clean** (0 lost, 0 backwards, 0 stuck, onRoad 100%).
 
+### Round 9c — visual: zebra kerb gaps + turbo pad chevrons (Feco QA, 2026-08-12)
+- **Zebra kerb buracos nas curvas**: stones retos num raio de 8m abriam gap
+  triangular de ~1.6cm em cada junta (overlap era só 1cm) — parecia furo no
+  zebrado. Agora segEff = 0.90 (overlap 5cm) fecha em todas as curvas; jitter
+  lateral reduzida (desalinhamento quase invisível).
+- **Marcações amarelas = TURBO PADS**: os chevrons estavam empilhados na
+  vertical (cy 0.26/0.50/0.74) — lidos como zigue-zague/W pela câmera chase.
+  Redesenhados lado a lado numa linha (padrão MK8 ">>>"), pontas +X (o
+  rotateZ do buildTurboPads já aponta para a direção da pista; rampas seguem
+  o mesmo padrão).
+
 ### Round 9b — CRITICAL: banana TDZ freeze (Feco bug report via GitHub Pages, 2026-08-11)
 - **O jogo congelava segundos após a largada no GitHub Pages**: `ReferenceError:
   Cannot access 'm' before initialization` no `Banana.update` — o `const m = this.mesh`
