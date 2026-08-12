@@ -12,6 +12,16 @@
 - **Regression suite**: mobile touch/menu PASS, items (shell/banana) PASS, smoke PASS, pause/resume PASS, toast PASS, restart/finish PASS (countdown "3").
 - Verified: **PROBE 7/7 invariants both tracks** (0/78 wrong-way, 0/78 off-road per run), **SIM 32/32 seeds clean** (0 lost, 0 backwards, 0 stuck, onRoad 100%).
 
+### Round 9e — pad 18m (MK8 ribbon) + kart rear cleanup (Feco QA, 2026-08-12)
+- Turbo pad ainda lia como QUADRADO: 11.2m de comprimento a 10m da câmera
+  chase (4m de altura) comprime ~4m aparente = igual à largura. MK8 usa
+  ribbons de 15-20m — pad agora 18m × 3.2m, textura 5.5:1 (512×92, 5 setas).
+- Detecção de boost movida para a ENTRADA do pad (4 spots ~3m apart a partir
+  do início) — o turbo dispara ao tocar o pad (MK8 feel).
+- Kart: removidos os side-exhaust barrels cromados deitados na traseira —
+  liam como "2 anéis cinzas girando na horizontal" (chrome + perspectiva +
+  partículas). Traseira agora limpa (só os 2 exhausts escuros centrais).
+
 ### Round 9d2 — turbo pad MK8 look corrigido (Feco QA 2026-08-12)
 - O pad lia como laje transversal marrom: o chain lookAt+rotateX(-90)+rotateZ(-90)
   INVERTE os eixos do plane (X vira profundidade) — geometria agora 11.2m
