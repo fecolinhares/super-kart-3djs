@@ -658,6 +658,19 @@ export class Kart {
       this.group.add(vent);
     }
 
+    // AUDIT R4 (visual critic: 'kart needs rim light / accent against dark
+    // asphalt'): neon accent stripe along each flank — a painted livery band
+    // that reads as the kart's edge highlight in the Neon city (MK8 karts
+    // carry a bright side stripe that separates body from road).
+    for (const s of [-1, 1]) {
+      const stripeMat = new THREE.MeshBasicMaterial({ color: accent });
+      stripeMat.toneMapped = false;
+      const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.05, 1.05), stripeMat);
+      stripe.position.set(s * 0.585, 0.52, -0.05);
+      stripe.castShadow = false;
+      stripe.renderOrder = 1;
+      this.group.add(stripe);
+    }
     // Panel-line seams — thin darker strips (molded bodywork parting lines).
     for (const s of [-1, 1]) {
       this._mesh(new THREE.BoxGeometry(0.03, 0.022, 0.7), dark, s * 0.55, 0.66, -0.12, { cast: false });
@@ -1029,6 +1042,7 @@ export class Kart {
     const hubCapGeo = new THREE.SphereGeometry(0.032, 12, 10);
     const lugGeo = new THREE.SphereGeometry(0.016, 8, 6);
     const stripeMat = character ? this._mat(accent) : white;
+    if (stripeMat && stripeMat.toneMapped !== undefined) stripeMat.toneMapped = false; // AUDIT R4: sidewall stripe stays hot (wheel legibility)
 
     this._wheels = [];
     for (const sx of [-1, 1]) {

@@ -142,9 +142,9 @@ export const CONFIG = {
     // ~25-30% of the frame: closer (5.7m), lower (2.6m), wider FOV 68.
     // (r20: 5.2 cropped the kart at the bottom edge — 5.7 keeps the size
     // without the heavy crop.)
-    followDistance: 5.7,
-    followHeight: 2.6,
-    lookAhead: 5.0,
+    followDistance: 4.8, // AUDIT R4 (visual critic): MK8 frames the kart BIG — 5.7m shrank it to ~20% of the frame
+    followHeight: 2.3,
+    lookAhead: 4.6,
     lookHeight: 1.2,
     lerp: 5.0,
     shakeIntensity: 0.02,
