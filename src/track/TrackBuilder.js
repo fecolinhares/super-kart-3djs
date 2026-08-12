@@ -1190,6 +1190,17 @@ function buildGantry(startLine) {
   lampPanel.position.y = 5.62;
   lampPanel.castShadow = false;
   group.add(lampPanel);
+  // AUDIT R5: crisp trim box slightly larger behind the panel — the housing
+  // reads as a distinct object against the sky (critic: 'blends into scene').
+  const panelTrim = new THREE.Mesh(
+    new THREE.BoxGeometry(6.2, 0.8, 0.12),
+    toonMaterial(0x1d2735, {})
+  );
+  panelTrim.position.copy(lampPanel.position);
+  panelTrim.position.y = 5.62;
+  panelTrim.position.z -= 0.06;
+  panelTrim.castShadow = false;
+  group.add(panelTrim);
   // 5 lamp bodies proud of the panel face (toward the racers).
   const lampGeo = new THREE.SphereGeometry(0.52, 18, 16); // AUDIT R4: 0.42→0.52 — MK8 lamps are BIG at grid
   const lampOff = toonMaterial(0xf2f4f8, { emissive: 0xa8bcd4, emissiveIntensity: 0.7 });
