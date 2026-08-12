@@ -680,8 +680,8 @@ function buildCurbs(path, length, side, opts = {}) {
     const f = s1 > s0 ? (target - s0) / (s1 - s0) : 0;
     return arcT[lo - 1] + (arcT[lo] - arcT[lo - 1]) * f;
   };
-  const curbW = 0.60;
-  const curbH = 0.18;
+  const curbW = 0.68;
+  const curbH = 0.20;
   // AUDIT visual 2026-08-12: kerbs read as a flat painted strip with no
   // curb volume. Taller stones + higher top + a top-face decal plane per
   // stone (zebra) restore the MK8D curb read.
@@ -695,12 +695,12 @@ function buildCurbs(path, length, side, opts = {}) {
     ? [
         new THREE.InstancedMesh(
           geo,
-          toonMaterial(0xff2ec4, { emissive: 0xff2ec4, emissiveIntensity: 0.6, side: THREE.DoubleSide }),
+          toonMaterial(0xff2ec4, { emissive: 0xff2ec4, emissiveIntensity: 0.45, side: THREE.DoubleSide }),
           Math.ceil(count / 2)
         ),
         new THREE.InstancedMesh(
           geo,
-          toonMaterial(0x2ec4ff, { emissive: 0x2ec4ff, emissiveIntensity: 0.6, side: THREE.DoubleSide }),
+          toonMaterial(0x2ec4ff, { emissive: 0x2ec4ff, emissiveIntensity: 0.45, side: THREE.DoubleSide }),
           Math.floor(count / 2)
         ),
       ]
@@ -734,7 +734,7 @@ function buildCurbs(path, length, side, opts = {}) {
     const latJ = (hash01(i, 8) - 0.5) * 0.0015;
     dummy.position.set(
       p.x + nrm.x * side * (roadW / 2 + 0.15 + latJ),
-      p.y + 0.32 - curbH / 2 + yJ,
+      p.y + 0.36 - curbH / 2 + yJ,
       p.z + nrm.z * side * (roadW / 2 + 0.15 + latJ)
     );
     // Yaw-only alignment — lookAt pitched every stone ~11deg nose-down
@@ -2087,13 +2087,22 @@ function buildRamps(path, length, rampTs) {
       brace.position.set(sx * (rampWidth / 2 + 0.05), 0, 0);
       brace.castShadow = true;
       mesh.add(brace);
+      // AUDIT R2: dark skirt fin along the wedge side face — the incline
+      // profile reads even from the chase cam (critic: 'bloco laranja plano').
+      const skirt = new THREE.Mesh(
+        new THREE.BoxGeometry(0.05, rampHeight, rampLen),
+        braceMat
+      );
+      skirt.position.set(sx * (rampWidth / 2 + 0.03), rampHeight / 2, 0);
+      skirt.castShadow = false;
+      mesh.add(skirt);
     }
     // Chevron decal PARENTED to the ramp: lies flush on the inclined top
     // face. rotation -PI/2 - slopeAngle makes the plane's normal match the
     // surface normal (the old +sign tilted it 2*slope off the face — half
     // buried at the tall end). The Z-spin turns the ">>>" so they point UP
     // the ramp, along the direction of travel.
-    const chev = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 1.5), chevMat);
+    const chev = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 2.0), chevMat); // AUDIT R2: bigger chevrons read as arrows at speed
     chev.rotation.set(-Math.PI / 2 - slopeAngle, 0, -Math.PI / 2);
     chev.position.set(0, rampHeight / 2 + 0.006, 0);
     chev.renderOrder = 1;
