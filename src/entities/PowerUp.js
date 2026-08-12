@@ -814,8 +814,11 @@ export class Banana {
 // StarEffect — rainbow trail + timed expiry
 // ---------------------------------------------------------------------------
 
-/** Drives the star power-up lifecycle: emits starTrail particles while active
- *  and flips kart.setStarred(false) when the duration elapses. */
+/** Drives the star power-up lifecycle: a VISIBLE 3D star + pulsing aura
+ *  above the kart (MK8 star read), rainbow trail particles while active,
+ *  and flips kart.setStarred(false) when the duration elapses.
+ *  AUDIT (visual auditor 2026-08-12): the old effect was particle-only —
+ *  nothing readable in a still frame. */
 export class StarEffect {
   constructor(ownerKart, durationMs, raceManager) {
     this.owner = ownerKart;
@@ -823,6 +826,54 @@ export class StarEffect {
     this.raceManager = raceManager || null;
     this.dead = false;
     this._trailAccum = 0;
+    this._spinAccum = 0;
+    this._buildMesh();
+  }
+
+  _buildMesh() {
+    const owner = this.owner;
+    if (!owner || !owner.group) { this.mesh = null; return; }
+    const g = new THREE.Group();
+    // Golden spinning star (MK8 star read) — 5-point star via extrusion of
+    // a 2D star path, standing upright above the kart.
+    const starShape = new THREE.Shape();
+    const R = 0.30, r = 0.13;
+    for (let i = 0; i < 10; i++) {
+      const rad = i % 2 === 0 ? R : r;
+      const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
+      const x = Math.cos(a) * rad;
+      const y = Math.sin(a) * rad;
+      if (i === 0) starShape.moveTo(x, y);
+      else starShape.lineTo(x, y);
+    }
+    starShape.closePath();
+    const starGeo = new THREE.ExtrudeGeometry(starShape, { depth: 0.06, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 2 });
+    starGeo.center();
+    const starMat = new THREE.MeshBasicMaterial({ color: 0xffd700, side: THREE.DoubleSide });
+    starMat.toneMapped = false; // keep the gold hot
+    const star = new THREE.Mesh(starGeo, starMat);
+    star.position.y = 1.75;
+    star.rotation.x = -0.15; // slight tilt toward the chase cam
+    star.castShadow = false;
+    g.add(star);
+    // Pulsing golden aura (additive halo ring) around the kart body.
+    const auraMat = new THREE.MeshBasicMaterial({
+      color: 0xffd166,
+      transparent: true,
+      opacity: 0.35,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    auraMat.toneMapped = false;
+    const aura = new THREE.Mesh(new THREE.SphereGeometry(0.95, 24, 18), auraMat);
+    aura.scale.set(1.15, 0.75, 1.15);
+    aura.castShadow = false;
+    g.add(aura);
+    owner.group.add(g);
+    this.mesh = g;
+    this._star = star;
+    this._aura = aura;
   }
 
   update(dt) {
@@ -831,6 +882,17 @@ export class StarEffect {
       this.owner.setStarred?.(false);
       this.dead = true;
       return;
+    }
+    if (this._star) {
+      this._spinAccum += dt;
+      this._star.rotation.y += dt * 3.0; // slow spin
+      this._star.position.y = 1.75 + Math.sin(this._spinAccum * 2.2) * 0.06; // float
+      this._star.rotation.z = Math.sin(this._spinAccum * 2.2) * 0.12;
+    }
+    if (this._aura) {
+      const s = 1 + Math.sin(this._spinAccum * 3.0) * 0.08;
+      this._aura.scale.set(1.15 * s, 0.75 * s, 1.15 * s);
+      this._aura.material.opacity = 0.28 + Math.sin(this._spinAccum * 3.4) * 0.10;
     }
     this._trailAccum -= dt;
     if (this._trailAccum <= 0) {
@@ -841,7 +903,10 @@ export class StarEffect {
   }
 
   dispose() {
-    // no mesh to clean up
+    if (this.mesh && this.owner && this.owner.group) {
+      this.owner.group.remove(this.mesh);
+    }
+    this.mesh = null;
   }
 }
 

@@ -33,8 +33,8 @@ const ITEM_NAMES = {
 
 /** km/h at the top of the gauge: ~42 m/s * 2.4 ≈ 100 km/h. */
 const MAX_KMH = Math.round(CONFIG.physics.maxSpeed * 2.4);
-const ARC_RADIUS = 60;
-const ARC_LENGTH = Math.PI * ARC_RADIUS;
+const ARC_RADIUS = 62;
+const ARC_LENGTH = 1.5 * Math.PI * ARC_RADIUS; // 270° MK8-style dial
 const COUNTDOWN_NUMBER_MS = 1200; // safety auto-hide for numbers
 const COUNTDOWN_GO_MS = 900;
 const TOAST_MS = 2400;
@@ -264,8 +264,11 @@ export class HUD {
       </div>`;
 
     const dial = wrap.querySelector('.sk3d-speedo-dial');
+    // AUDIT (visual auditor 2026-08-12): MK8 speedo is a FULL circular dial
+    // with a 270° arc — the old 180° semicircle in a square card read as a
+    // generic panel. Center (80,80), radius 62, arc from -135° to +135°.
     const svg = svgEl('svg', {
-      viewBox: '0 0 140 80',
+      viewBox: '0 0 160 160',
       class: 'sk3d-speedo-svg',
       'aria-hidden': 'true',
     });
@@ -298,7 +301,7 @@ export class HUD {
     defs.append(gradient, bgGradient, glowFilter);
     svg.append(defs);
 
-    const arcPath = 'M 10 70 A 60 60 0 0 1 130 70';
+    const arcPath = 'M 36.1 36.1 A 62 62 0 1 1 36.1 123.9'; // 270° from -135° to +135°
     const track = svgEl('path', { d: arcPath, fill: 'none', 'stroke-linecap': 'round' });
     track.setAttribute('stroke', 'url(#sk3d-speedo-bg-grad)');
     track.setAttribute('stroke-width', '12');
@@ -312,17 +315,20 @@ export class HUD {
     arc.style.strokeDashoffset = String(ARC_LENGTH);
     svg.append(arc);
 
-    // Tick marks every 5 km/h, major every 20.
+    // Tick marks every 5 km/h, major every 20 — 270° sweep centered on the
+    // dial (start angle -135°, end +135°; the needle pivot is (80,80)).
+    const TICK_SWEEP = 1.5 * Math.PI; // 270°
+    const TICK_START = -0.75 * Math.PI; // -135°
     for (let kmh = 0; kmh <= MAX_KMH; kmh += 5) {
       const major = kmh % 20 === 0;
-      const a = ((-90 + (kmh / MAX_KMH) * 180) * Math.PI) / 180;
-      const r1 = 52;
-      const r2 = major ? 42 : 46;
+      const a = TICK_START + (kmh / MAX_KMH) * TICK_SWEEP;
+      const r1 = 54;
+      const r2 = major ? 44 : 48;
       const tick = svgEl('line', {
-        x1: 70 + r1 * Math.sin(a),
-        y1: 70 - r1 * Math.cos(a),
-        x2: 70 + r2 * Math.sin(a),
-        y2: 70 - r2 * Math.cos(a),
+        x1: 80 + r1 * Math.sin(a),
+        y1: 80 - r1 * Math.cos(a),
+        x2: 80 + r2 * Math.sin(a),
+        y2: 80 - r2 * Math.cos(a),
         'stroke-linecap': 'round',
       });
       tick.style.stroke = 'var(--sk3d-ink)';
@@ -337,6 +343,8 @@ export class HUD {
     const hub = document.createElement('div');
     hub.className = 'sk3d-speedo-hub';
     dial.append(needle, hub);
+    // Center the value readout INSIDE the dial (MK8 read): reposition via CSS
+    // (readout becomes absolutely-centered overlay in the circular dial).
 
     return { wrap, needle, arc };
   }
@@ -659,7 +667,7 @@ export class HUD {
     if (this.speedValueEl.textContent !== String(rounded)) {
       this.speedValueEl.textContent = String(rounded);
     }
-    const angle = -90 + (kmh / this._maxKmh) * 180;
+    const angle = -135 + (kmh / this._maxKmh) * 270; // 270° MK8 dial sweep
     this.speedNeedle.style.transform = `rotate(${angle}deg)`;
     this.speedArc.style.strokeDashoffset = String(ARC_LENGTH * (1 - kmh / this._maxKmh));
     // AUDIT r9: wind streaks ramp in above 80% of the gauge (MK8D velocity cue).

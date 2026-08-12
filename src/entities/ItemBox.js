@@ -52,11 +52,12 @@ function questionTexture() {
   // beige under ACES and the 16px white halo blurred the glyph. MK8D boxes
   // are PURE WHITE panels with a bold red '?': crisp white-to-cool-white
   // gradient, saturated #ef233c glyph with a tight dark outline, no halo.
-  const grad = g.createLinearGradient(0, 0, 0, size);
-  grad.addColorStop(0, '#ffffff');
-  grad.addColorStop(1, '#eef2f7');
-  g.fillStyle = grad;
-  g.fillRect(0, 0, size, size);
+  // AUDIT (visual auditor 2026-08-12): MK8D item boxes are TRANSLUCENT
+  // cyan/magenta shells — the old opaque white texture hid the shell tint.
+  // Clear the canvas (alpha 0) and paint ONLY the '?' glyph + gold trim;
+  // the MeshBasicMaterial color+opacity renders the translucent shell and
+  // the map supplies the glyph on top.
+  g.clearRect(0, 0, size, size);
   // Rounded inner border — gold MK8-style trim reads as a pickup panel.
   g.strokeStyle = '#ffd166';
   g.lineWidth = 14;
@@ -184,9 +185,15 @@ export class ItemBox {
       // AUDIT (2026-08-11): single flat material read as a PLACARD from the
       // chase camera — per-face shading (material array) gives each side a
       // different value so the cube reads 3D while staying self-lit.
-      const mk = (color) => new THREE.MeshBasicMaterial({ map: tex, color });
+      // AUDIT (visual auditor 2026-08-12): MK8D item boxes are translucent
+      // cyan/magenta shells with a bold '?', not white panels. Keep the '?'
+      // texture but tint the shell cyan-blue at ~85% opacity.
+      const mk = (color, opacity = 1) => {
+        const m = new THREE.MeshBasicMaterial({ map: tex, color, transparent: opacity < 1, opacity });
+        return m;
+      };
       // BoxGeometry material order: +x, -x, +y, -y, +z, -z
-      return [mk(0xffffff), mk(0xbfbfbf), mk(0xcccccc), mk(0x8c8c8c), mk(0xe6e6e6), mk(0xa6a6a6)];
+      return [mk(0x7fd8f2, 0.88), mk(0x5fb8d6, 0.88), mk(0x9be4fa, 0.9), mk(0x4a93ad, 0.88), mk(0x8fe0f8, 0.9), mk(0x6cc2de, 0.88)];
     }
     const opts = {
       color: 0xffb703,

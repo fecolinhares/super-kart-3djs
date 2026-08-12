@@ -561,18 +561,23 @@
 /* --- speedometer --- */
 
 .sk3d-speedo {
-  width: 152px;
-  background: var(--sk3d-card-bg);
-  border: 3px solid rgba(255, 255, 255, 0.4);
-  border-radius: var(--sk3d-card-radius);
-  padding: 6px 8px 4px;
-  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.35), 0 16px 30px rgba(0, 0, 0, 0.3);
+  /* AUDIT (visual auditor 2026-08-12): MK8 speedo is a CIRCULAR dial, not a
+     square card with a semicircle. Full 160px circle + golden ring trim. */
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 42%, rgba(27, 42, 65, 0.82), rgba(12, 20, 38, 0.92));
+  border: 3px solid var(--sk3d-yellow);
+  box-shadow:
+    0 6px 0 rgba(0, 0, 0, 0.35),
+    0 16px 30px rgba(0, 0, 0, 0.35),
+    inset 0 0 24px rgba(255, 209, 102, 0.12);
 }
 
 .sk3d-speedo-dial {
   position: relative;
-  width: 136px;
-  height: 78px;
+  width: 160px;
+  height: 160px;
 }
 
 .sk3d-speedo-svg {
@@ -589,10 +594,10 @@
 .sk3d-speedo-needle {
   position: absolute;
   left: 50%;
-  bottom: 9px; /* pivot sits on the arc center (70,70) */
-  width: 4px;
-  height: 50px;
-  margin-left: -2px;
+  bottom: 50%; /* pivot at dial center (80,80) */
+  width: 5px;
+  height: 64px;
+  margin-left: -2.5px;
   transform-origin: 50% 100%;
   background: linear-gradient(var(--sk3d-red), #d93b40);
   border: 2px solid var(--sk3d-ink);
@@ -603,21 +608,26 @@
 .sk3d-speedo-hub {
   position: absolute;
   left: 50%;
-  bottom: 9px;
-  width: 13px;
-  height: 13px;
+  bottom: 50%;
+  width: 15px;
+  height: 15px;
   transform: translate(-50%, 50%);
   background: var(--sk3d-cream);
   border: 3px solid var(--sk3d-ink);
   border-radius: 50%;
+  z-index: 2;
 }
 
 .sk3d-speedo-readout {
+  position: absolute;
+  left: 50%;
+  bottom: 26px; /* below the hub, inside the dial */
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   line-height: 1;
-  margin-top: -2px;
+  pointer-events: none;
 }
 
 .sk3d-speedo-value {
@@ -1462,21 +1472,26 @@
   }
 
   .sk3d-speedo {
-    width: 102px;
+    width: 108px;
+    height: 108px;
   }
 
   .sk3d-speedo-dial {
-    width: 102px;
-    height: 58px;
+    width: 108px;
+    height: 108px;
   }
 
   .sk3d-speedo-needle {
-    height: 39px;
-    bottom: 7px;
+    height: 44px;
+    bottom: 50%;
   }
 
   .sk3d-speedo-hub {
-    bottom: 7px;
+    bottom: 50%;
+  }
+
+  .sk3d-speedo-readout {
+    bottom: 18px;
   }
 
   .sk3d-speedo-value {
