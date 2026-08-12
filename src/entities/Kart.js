@@ -1259,14 +1259,26 @@ export class Kart {
       return t;
     })();
     const helHaloMat = new THREE.MeshBasicMaterial({
-      map: helHaloTex, transparent: true, opacity: 0.6,
+      map: helHaloTex, transparent: true, opacity: 0.85,
       blending: THREE.AdditiveBlending, depthWrite: false,
     });
-    const helHalo = new THREE.Mesh(new THREE.CircleGeometry(0.30, 20), helHaloMat);
-    helHalo.position.set(0, 1.24, -0.08);
-    helHalo.rotation.x = -0.4;
+    const helHalo = new THREE.Mesh(new THREE.CircleGeometry(0.40, 24), helHaloMat);
+    helHalo.position.set(0, 1.24, -0.10);
+    helHalo.rotation.x = -0.35;
     helHalo.castShadow = false;
     drv.add(helHalo);
+    // AUDIT R7: explicit rim ring around the helmet (critic: halo weak) —
+    // an additive torus at the helmet rim reads as a light edge.
+    const rimMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff, transparent: true, opacity: 0.5,
+      blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
+    });
+    const helRim = new THREE.Mesh(new THREE.TorusGeometry(0.155, 0.012, 8, 24), rimMat);
+    helRim.position.set(0, 1.26, 0.06);
+    helRim.rotation.x = Math.PI / 2;
+    helRim.scale.set(1, 1, 0.85);
+    helRim.castShadow = false;
+    drv.add(helRim);
     // Glossy visor band with an EXPRESSIVE CANVAS FACE (eyes + mouth drawn
     // at the sphere's +Z front band, u≈0.25 on SphereGeometry) so the driver
     // reads as a character, not a blank helmet. Material color is white so

@@ -1016,14 +1016,14 @@ function buildBananaMesh() {
   // blobs). Small cylinders laid along the banana axis at each tip.
   const tipMat = new THREE.MeshBasicMaterial({ color: 0xb07a2c });
   tipMat.toneMapped = false;
-  const capGeo = new THREE.CylinderGeometry(0.10, 0.13, 0.06, 10);
+  const capGeo = new THREE.CylinderGeometry(0.12, 0.15, 0.08, 10);
   const cap1 = new THREE.Mesh(capGeo, tipMat);
-  cap1.position.set(0.455, 0.10, 0);
-  cap1.rotation.z = 0.25;
+  cap1.position.set(0.465, 0.10, 0);
+  cap1.rotation.z = 0.3;
   g.add(cap1);
   const cap2 = new THREE.Mesh(capGeo, tipMat);
-  cap2.position.set(-0.455, 0.10, 0);
-  cap2.rotation.z = -0.25;
+  cap2.position.set(-0.465, 0.10, 0);
+  cap2.rotation.z = -0.3;
   g.add(cap2);
   return g;
 }
