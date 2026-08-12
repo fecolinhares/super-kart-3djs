@@ -847,15 +847,43 @@ export class StarEffect {
       else starShape.lineTo(x, y);
     }
     starShape.closePath();
-    const starGeo = new THREE.ExtrudeGeometry(starShape, { depth: 0.06, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 2 });
+    const starGeo = new THREE.ExtrudeGeometry(starShape, { depth: 0.16, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.04, bevelSegments: 3 });
     starGeo.center();
-    const starMat = new THREE.MeshBasicMaterial({ color: 0xffd700, side: THREE.DoubleSide });
+    const starMat = new THREE.MeshBasicMaterial({ color: 0xffe14d, side: THREE.DoubleSide });
     starMat.toneMapped = false; // keep the gold hot
     const star = new THREE.Mesh(starGeo, starMat);
-    star.position.y = 1.75;
+    star.position.y = 1.85;
     star.rotation.x = -0.15; // slight tilt toward the chase cam
+    star.rotation.y = 0.4;   // 3/4 pose so the extrusion depth reads
     star.castShadow = false;
     g.add(star);
+    // Hot halo disc behind the star (additive) — separates it from the
+    // night sky / neon buildings (critic: 'compete with yellow windows').
+    const haloTex = (() => {
+      const c = document.createElement('canvas');
+      c.width = 64; c.height = 64;
+      const gc = c.getContext('2d');
+      const grad = gc.createRadialGradient(32, 32, 3, 32, 32, 32);
+      grad.addColorStop(0, 'rgba(255,225,120,0.9)');
+      grad.addColorStop(0.45, 'rgba(255,200,80,0.35)');
+      grad.addColorStop(1, 'rgba(255,190,60,0)');
+      gc.fillStyle = grad;
+      gc.fillRect(0, 0, 64, 64);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    })();
+    const haloMat = new THREE.MeshBasicMaterial({
+      map: haloTex, transparent: true, opacity: 0.85,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    haloMat.toneMapped = false;
+    const halo = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 0.95), haloMat);
+    halo.position.y = 1.85;
+    halo.rotation.x = -0.5;
+    halo.castShadow = false;
+    g.add(halo);
+    this._halo = halo;
     // Pulsing golden aura (additive halo ring) around the kart body.
     const auraMat = new THREE.MeshBasicMaterial({
       color: 0xffd166,
@@ -866,8 +894,8 @@ export class StarEffect {
       side: THREE.DoubleSide,
     });
     auraMat.toneMapped = false;
-    const aura = new THREE.Mesh(new THREE.SphereGeometry(0.95, 24, 18), auraMat);
-    aura.scale.set(1.15, 0.75, 1.15);
+    const aura = new THREE.Mesh(new THREE.SphereGeometry(1.05, 24, 18), auraMat);
+    aura.scale.set(1.35, 0.95, 1.35);
     aura.castShadow = false;
     g.add(aura);
     owner.group.add(g);
@@ -890,9 +918,12 @@ export class StarEffect {
       this._star.rotation.z = Math.sin(this._spinAccum * 2.2) * 0.12;
     }
     if (this._aura) {
-      const s = 1 + Math.sin(this._spinAccum * 3.0) * 0.08;
-      this._aura.scale.set(1.15 * s, 0.75 * s, 1.15 * s);
-      this._aura.material.opacity = 0.28 + Math.sin(this._spinAccum * 3.4) * 0.10;
+      const s = 1 + Math.sin(this._spinAccum * 3.0) * 0.10;
+      this._aura.scale.set(1.35 * s, 0.95 * s, 1.35 * s);
+      this._aura.material.opacity = 0.42 + Math.sin(this._spinAccum * 3.4) * 0.14;
+    }
+    if (this._halo) {
+      this._halo.material.opacity = 0.7 + Math.sin(this._spinAccum * 4.0) * 0.2;
     }
     this._trailAccum -= dt;
     if (this._trailAccum <= 0) {
