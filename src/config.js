@@ -55,7 +55,7 @@ export const CONFIG = {
     chassisWidth: 1.05,
     chassisHeight: 0.55,
     wheelRadius: 0.34,
-    wheelWidth: 0.24,
+    wheelWidth: 0.30, // AUDIT visual 2026-08-12: MK8 tires are chunky (w/d ~0.5)
     playerColors: [0xff5a5f, 0x2ec4ff, 0xffd166, 0x6cff8f, 0xc86bff, 0xff9f45],
     // Roster of 6 drivers — each kart gets a character so karts and their
     // chibi drivers are visually distinct: body color, racing suit, helmet
@@ -64,12 +64,12 @@ export const CONFIG = {
     // throttle, handling → steering (main.js for the player; AIController
     // already scales AI drivers) — roster choice is never cosmetic.
     characters: [
-      { name: 'Turbo', color: 0xff5a5f, suitColor: 0xf4f6f8, helmetColor: 0xff5a5f, accentColor: 0xffd166, stats: { speed: 8, accel: 5, handling: 7 } },
-      { name: 'Comet', color: 0x2ec4ff, suitColor: 0x1b2a41, helmetColor: 0x2ec4ff, accentColor: 0xffffff, stats: { speed: 9, accel: 4, handling: 5 } },
-      { name: 'Bolt', color: 0xffd166, suitColor: 0xff5a5f, helmetColor: 0xffd166, accentColor: 0x1b2a41, stats: { speed: 6, accel: 9, handling: 5 } },
-      { name: 'Daisy', color: 0x6cff8f, suitColor: 0xff9ff0, helmetColor: 0x6cff8f, accentColor: 0xffffff, stats: { speed: 5, accel: 6, handling: 9 } },
-      { name: 'King', color: 0xc86bff, suitColor: 0xffd166, helmetColor: 0xc86bff, accentColor: 0x2ec4ff, stats: { speed: 6, accel: 7, handling: 7 } },
-      { name: 'Pip', color: 0xff9f45, suitColor: 0x2ec4ff, helmetColor: 0xff9f45, accentColor: 0xffd166, stats: { speed: 5, accel: 8, handling: 7 } },
+      { name: 'Turbo', color: 0xff5a5f, suitColor: 0xf4f6f8, helmetColor: 0xffd166, accentColor: 0xffd166, stats: { speed: 8, accel: 5, handling: 7 } },
+      { name: 'Comet', color: 0x2ec4ff, suitColor: 0x1b2a41, helmetColor: 0xf4f6f8, accentColor: 0xffffff, stats: { speed: 9, accel: 4, handling: 5 } },
+      { name: 'Bolt', color: 0xffd166, suitColor: 0xff5a5f, helmetColor: 0xff5a5f, accentColor: 0x1b2a41, stats: { speed: 6, accel: 9, handling: 5 } },
+      { name: 'Daisy', color: 0x6cff8f, suitColor: 0xff9ff0, helmetColor: 0xf4f6f8, accentColor: 0xffffff, stats: { speed: 5, accel: 6, handling: 9 } },
+      { name: 'King', color: 0xc86bff, suitColor: 0xffd166, helmetColor: 0xffd166, accentColor: 0x2ec4ff, stats: { speed: 6, accel: 7, handling: 7 } },
+      { name: 'Pip', color: 0xff9f45, suitColor: 0x2ec4ff, helmetColor: 0x2ec4ff, accentColor: 0xffd166, stats: { speed: 5, accel: 8, handling: 7 } },
     ],
   },
 

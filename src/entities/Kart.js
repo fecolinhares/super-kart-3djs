@@ -481,7 +481,12 @@ export class Kart {
     // ---- PBR materials (distinct surface responses, MK8 pipeline) -----------
     // Glossy painted plastic for the body shell — the MK8 painted-toy cue:
     // clearcoat + bumped IBL so the paint visibly reflects.
-    const carPaint = Materials.plasticMaterial(color, { envMapIntensity: 2.2, roughness: 0.2 });
+    const carPaint = Materials.plasticMaterial(color, { envMapIntensity: 2.8, roughness: 0.2 });
+    // AUDIT (visual auditor 2026-08-12): Neon night IBL is weak — clearcoat
+    // paint read as dark wine. A subtle self-emissive (15% of body color)
+    // lifts the shell off the asphalt without looking lit-from-within.
+    carPaint.emissive = new THREE.Color(color).multiplyScalar(0.15);
+    carPaint.emissiveIntensity = 0.35;
     const body = this._mat(color);
     const bodyDark = this._mat(new THREE.Color(color).multiplyScalar(0.82).getHex());
     // keep refs so the player can repaint (setBodyColor)
@@ -492,7 +497,7 @@ export class Kart {
     const dark = this._mat(0x232833);
     // Dead-flat rubber (tires) — deliberately NOT glossy: roughness 0.95
     // against the clearcoat paint = the MK8 material separation.
-    const tireMat = new THREE.MeshStandardMaterial({ color: 0x161a20, roughness: 0.95, metalness: 0 });
+    const tireMat = new THREE.MeshStandardMaterial({ color: 0x2b3038, roughness: 0.92, metalness: 0.02 });
     const tireDark = new THREE.MeshStandardMaterial({ color: 0x0a0d11, roughness: 0.98, metalness: 0 });
     // Polished chrome (rims, hubs, exhaust) — mirror metal vs painted plastic.
     // AUDIT r9: envMapIntensity 2.4 made rims read as broken white flashes on
@@ -575,14 +580,14 @@ export class Kart {
       new THREE.Vector2(0.0, 0.96),
     ];
     const hull = new THREE.Mesh(new THREE.LatheGeometry(hullProfile, 48), carPaint);
-    hull.scale.set(1, 1, 1.5); // elongate along the kart axis (footprint ~1.7 x 1.05)
+    hull.scale.set(1, 0.72, 1.5); // AUDIT: lower body (MK8: wheels dominate the silhouette; old top y0.96 → ~0.79)
     hull.castShadow = true;
     this.group.add(hull);
     // Recessed cockpit tub — a dark dish sunk into the shell top; the driver
     // sits in it (the MK8 cockpit-opening read instead of a flat deck).
     const cockpit = new THREE.Mesh(new THREE.SphereGeometry(0.34, 28, 18), dark);
     cockpit.position.set(0, 0.92, -0.14);
-    cockpit.scale.set(0.95, 0.14, 0.8);
+    cockpit.scale.set(0.95, 0.30, 0.8); // AUDIT: deeper tub so the driver sits IN, not on
     cockpit.castShadow = false;
     this.group.add(cockpit);
     // Molded nose cowl (rounded prow) + tail cap.
@@ -857,53 +862,53 @@ export class Kart {
     // Half-pipe painted blade (convex face toward the chase camera) + a dark
     // lower blade (split-wing read) — a shaped aero wing, not a plank.
     const wingGroup = new THREE.Group();
-    wingGroup.position.set(0, 1.1, -0.88);
+    wingGroup.position.set(0, 1.24, -0.90);
     wingGroup.rotation.z = -Math.PI / 2; // blade spans X; convex face faces -Z
     const blade = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.17, 0.17, 1.14, 32, 1, false, Math.PI, Math.PI),
+      new THREE.CylinderGeometry(0.22, 0.22, 1.40, 32, 1, false, Math.PI, Math.PI),
       carPaint
     );
     blade.rotation.x = 0.12; // slight negative angle (downforce)
     blade.castShadow = true;
     wingGroup.add(blade);
     const lowerBlade = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.085, 0.085, 1.06, 24, 1, false, Math.PI, Math.PI),
+      new THREE.CylinderGeometry(0.10, 0.10, 1.30, 24, 1, false, Math.PI, Math.PI),
       dark
     );
     lowerBlade.rotation.x = 0.12;
-    lowerBlade.position.y = -0.16;
+    lowerBlade.position.y = -0.20;
     lowerBlade.castShadow = false;
     wingGroup.add(lowerBlade);
     this.group.add(wingGroup);
     // Wingtip endplates (painted) with dark edge trim.
     for (const s of [-1, 1]) {
-      const plate = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.3, 0.5), carPaint);
-      plate.position.set(s * 0.58, 1.1, -0.88);
+      const plate = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.42, 0.62), carPaint);
+      plate.position.set(s * 0.72, 1.24, -0.90);
       plate.castShadow = true;
       this.group.add(plate);
-      const trim = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.52), dark);
-      trim.position.set(s * 0.58, 0.96, -0.88);
+      const trim = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.06, 0.64), dark);
+      trim.position.set(s * 0.72, 1.06, -0.90);
       trim.castShadow = false;
       this.group.add(trim);
       // Premium: accent edge stripe on the outer endplate face.
-      const accentEdge = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.28, 0.03), accentMat);
-      accentEdge.position.set(s * 0.6125, 1.1, -0.88);
+      const accentEdge = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.38, 0.04), accentMat);
+      accentEdge.position.set(s * 0.7525, 1.24, -0.90);
       accentEdge.castShadow = false;
       this.group.add(accentEdge);
     }
     // Center pylon (tapered) + side mount pods (molded, not sticks).
-    const pylon = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.075, 0.32, 14), bodyDark);
-    pylon.position.set(0, 1.0, -0.86);
+    const pylon = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.075, 0.40, 14), bodyDark);
+    pylon.position.set(0, 1.14, -0.88);
     pylon.castShadow = true;
     this.group.add(pylon);
     for (const s of [-1, 1]) {
-      const mount = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.24, 12), dark);
-      mount.position.set(s * 0.4, 1.0, -0.86);
+      const mount = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.30, 12), dark);
+      mount.position.set(s * 0.42, 1.14, -0.88);
       mount.rotation.x = 0.25;
       mount.castShadow = false;
       this.group.add(mount);
       const pod = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 10), dark);
-      pod.position.set(s * 0.4, 0.84, -0.84);
+      pod.position.set(s * 0.42, 0.94, -0.86);
       pod.castShadow = false;
       this.group.add(pod);
     }
@@ -959,18 +964,18 @@ export class Kart {
 
     // Rear number plate + dark frame (visible from the chase camera).
     const plateBack = new THREE.Mesh(
-      new THREE.BoxGeometry(0.5, 0.54, 0.07),
+      new THREE.BoxGeometry(0.36, 0.40, 0.07),
       new THREE.MeshStandardMaterial({ color: 0xffffff })
     );
     plateBack.material.map = numTex;
-    plateBack.position.set(0, 0.72, -0.78);
+    plateBack.position.set(0, 0.60, -0.78);
     plateBack.rotation.x = 0.12;
     this.group.add(plateBack);
     const plateFrame = new THREE.Mesh(
-      new THREE.BoxGeometry(0.54, 0.58, 0.05),
+      new THREE.BoxGeometry(0.40, 0.44, 0.05),
       new THREE.MeshBasicMaterial({ color: 0x1b2a41 })
     );
-    plateFrame.position.set(0, 0.72, -0.815);
+    plateFrame.position.set(0, 0.60, -0.815);
     plateFrame.rotation.x = 0.12;
     this.group.add(plateFrame);
 
@@ -1017,9 +1022,9 @@ export class Kart {
     // AUDIT (user: 'a gray ring spinning at the rear, looks misplaced'): the
     // rim was 0.19/0.215 inside a 0.34 tire — a small ring floating mid-wheel
     // with a visible gap. Enlarge so it reads as a proper rim filling the tire.
-    const rimDiscGeo = new THREE.CylinderGeometry(0.275, 0.275, 0.022, 24);
-    const rimLipGeo = new THREE.TorusGeometry(0.29, 0.016, 8, 32);
-    const spokeGeo = new THREE.BoxGeometry(0.022, 0.15, 0.05);
+    const rimDiscGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.022, 24);
+    const rimLipGeo = new THREE.TorusGeometry(0.24, 0.016, 8, 32);
+    const spokeGeo = new THREE.BoxGeometry(0.022, 0.13, 0.05);
     const hubGeo = new THREE.CylinderGeometry(0.062, 0.062, 0.034, 18);
     const hubCapGeo = new THREE.SphereGeometry(0.032, 12, 10);
     const lugGeo = new THREE.SphereGeometry(0.016, 8, 6);
@@ -1115,12 +1120,12 @@ export class Kart {
         // wheels (visible from the chase cam; the premium mechanical read).
         if (sz < 0) {
           const caliper = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.085, 0.07), caliperMat);
-          caliper.position.set(rimX - 0.004, 0.15, 0);
+          caliper.position.set(rimX + 0.024, 0.16, 0);
           caliper.rotation.z = 0.12;
           caliper.castShadow = false;
           spin.add(caliper);
           const calBracket = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.05, 0.03), caliperMat);
-          calBracket.position.set(rimX + 0.012, 0.115, 0);
+          calBracket.position.set(rimX + 0.028, 0.115, 0);
           calBracket.castShadow = false;
           spin.add(calBracket);
         }
@@ -1132,7 +1137,7 @@ export class Kart {
     // ---- driver: torso + shoulders + arms gripping the wheel -----------------
     const drv = new THREE.Group();
     drv.position.set(0, 0, 0);
-    drv.scale.set(1.12, 1.12, 1.12);
+    drv.scale.set(1.0, 1.0, 1.0); // AUDIT: driver seated lower/smaller (MK8 driver tucks into the body)
     this.group.add(drv);
 
     const suit = character ? this._mat(character.suitColor) : white;
@@ -1140,7 +1145,7 @@ export class Kart {
 
     // Torso — rounded capsule leaned forward into the drive pose.
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.135, 0.26, 8, 16), suit);
-    torso.position.set(0, 0.94, -0.06);
+    torso.position.set(0, 0.88, -0.06);
     torso.rotation.x = 0.32;
     torso.castShadow = true;
     drv.add(torso);
@@ -1153,7 +1158,7 @@ export class Kart {
     // Shoulders (suit pads).
     for (const s of [-1, 1]) {
       const sh = new THREE.Mesh(new THREE.SphereGeometry(0.085, 16, 12), suit);
-      sh.position.set(s * 0.135, 1.0, -0.09);
+      sh.position.set(s * 0.135, 0.94, -0.09);
       sh.scale.set(1, 0.88, 1.1);
       sh.castShadow = false;
       drv.add(sh);
@@ -1216,7 +1221,7 @@ export class Kart {
       new THREE.SphereGeometry(0.16, 32, 24),
       helmetMat
     );
-    helmet.position.set(0, 1.24, 0.06);
+    helmet.position.set(0, 1.17, 0.06);
     helmet.scale.set(1, 0.85, 1.02);
     helmet.castShadow = true;
     drv.add(helmet);
