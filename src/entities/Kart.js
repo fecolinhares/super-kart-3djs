@@ -991,23 +991,6 @@ export class Kart {
       );
     }
 
-    // Side exhaust pipes — polished chrome barrels running along the rear
-    // pod flanks (the center twin pipes stay; these add the wide-body read).
-    for (const s of [-1, 1]) {
-      this._mesh(
-        new THREE.CylinderGeometry(0.042, 0.05, 0.42, 14),
-        chrome, s * 0.52, 0.46, -0.38,
-        { rx: Math.PI / 2, cast: false }
-      );
-      const sideTipGroup = new THREE.Group();
-      sideTipGroup.position.set(s * 0.53, 0.46, -0.6);
-      sideTipGroup.rotation.x = Math.PI / 2; // barrel axis along Z
-      const sideTip = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.062, 0.1, 14), tip);
-      sideTip.rotation.y = s * -0.35; // flare outward (in the tilted frame)
-      sideTip.castShadow = false;
-      sideTipGroup.add(sideTip);
-      this.group.add(sideTipGroup);
-    }
 
     // ---- wheels: tire + tread + sidewall stripe + 5-spoke chrome rim --------
     const wR = KC.wheelRadius;

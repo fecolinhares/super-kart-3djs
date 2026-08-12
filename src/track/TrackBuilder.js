@@ -972,7 +972,9 @@ function buildTurboPads(path, length) {
   // INVERTS the plane axes (X ends up down-track, Y across), so the pad
   // geometry must be WIDE on X (depth) and SHORT on Y (width): 11.2 x 3.6.
   // toneMapped=false keeps the amber from going brown under ACES.
-  const geo = new THREE.PlaneGeometry(11.2, 3.6);
+  const PAD_LEN = 18;   // MK8-style long ribbon — short pads read as squares from the chase cam
+  const PAD_W = 3.2;
+  const geo = new THREE.PlaneGeometry(PAD_LEN, PAD_W);
   // MeshBasicMaterial: unlit so the pad stays bright amber/white in shadow.
   const mat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), color: 0xffffff, side: THREE.DoubleSide });
   mat.toneMapped = false; // MK8 pads glow at full saturation — ACES would dull amber→brown
@@ -1002,9 +1004,11 @@ function buildTurboPads(path, length) {
 
   let vi = 0;
   for (const c of clusters) {
-    // Detection spots (unchanged — 4 per cluster, ±1.5dt around c).
+    // Detection spots — now on the ENTRY edge of the long ribbon so the
+    // boost fires as the kart touches the pad (MK8 feel), 4 spots ~3m apart.
+    const spotDt = 3.0 / length;
     for (let k = 0; k < perCluster; k++) {
-      const t = Math.min(0.999, Math.max(0.001, c + (k - (perCluster - 1) / 2) * dt));
+      const t = Math.min(0.999, Math.max(0.001, c - (PAD_LEN / 2) / length + k * spotDt));
       path.getPointAt(t, p);
       ts.push(t);
       points.push(p.clone());

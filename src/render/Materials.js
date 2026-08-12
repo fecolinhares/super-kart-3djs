@@ -670,10 +670,15 @@ export function skyTexture() {
  *  buildTurboPads rotateZ inversion) so the pattern doesn't stretch. Tips
  *  point +X (down-track). The material is toneMapped=false so ACES doesn't
  *  dull the amber into brown (Feco QA 2026-08-12). */
+/** Turbo pad: MK8-style boost strip — a LONG amber ribbon (not a square) with
+ *  glowing white ">>>" chevrons down its length + bright leading/trailing
+ *  edges. Canvas 5.5:1 matches the 18 x 3.2m pad (post rotateZ inversion).
+ *  Tips point +X (down-track). toneMapped=false so ACES doesn't dull the
+ *  amber into brown (Feco QA 2026-08-12). */
 export function turboPadTexture() {
   if (_turboPadTex) return _turboPadTex;
-  const W = 384;
-  const H = 128;
+  const W = 512;
+  const H = 92;
   const canvas = document.createElement('canvas');
   canvas.width = W;
   canvas.height = H;
@@ -694,21 +699,21 @@ export function turboPadTexture() {
   ctx.shadowColor = 'rgba(255,255,255,0.95)';
   ctx.shadowBlur = 10;
   ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  ctx.fillRect(0, 0, 10, H);
-  ctx.fillRect(W - 10, 0, 10, H);
+  ctx.fillRect(0, 0, 9, H);
+  ctx.fillRect(W - 9, 0, 9, H);
   ctx.shadowBlur = 0;
-  // Four big ">>>" chevrons down the length, tips +X, strong glow.
+  // Five big ">>>" chevrons down the length, tips +X, strong glow.
   ctx.strokeStyle = '#ffffff';
   ctx.lineWidth = 15;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.shadowColor = 'rgba(255,255,255,1)';
   ctx.shadowBlur = 14;
-  for (const fx of [0.16, 0.38, 0.60, 0.82]) {
+  for (const fx of [0.12, 0.31, 0.50, 0.69, 0.88]) {
     const cx = W * fx;
     const cy = H / 2;
     const half = W * 0.085;
-    const hh = H * 0.24;
+    const hh = H * 0.32;
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
     ctx.lineTo(cx + half, cy);
@@ -719,11 +724,11 @@ export function turboPadTexture() {
   ctx.shadowBlur = 26;
   ctx.lineWidth = 7;
   ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-  for (const fx of [0.16, 0.38, 0.60, 0.82]) {
+  for (const fx of [0.12, 0.31, 0.50, 0.69, 0.88]) {
     const cx = W * fx;
     const cy = H / 2;
     const half = W * 0.085;
-    const hh = H * 0.24;
+    const hh = H * 0.32;
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
     ctx.lineTo(cx + half, cy);
@@ -736,7 +741,6 @@ export function turboPadTexture() {
   _turboPadTex = tex;
   return _turboPadTex;
 }
-
 /** Ramp chevron decal: compact square texture (3 chevrons side by side) for
  *  the launch-ramp top face — the long strip texture would be squashed there.
  *  Same +X tip convention (buildRamps Z-spins it up the slope). */
