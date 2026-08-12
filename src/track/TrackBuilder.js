@@ -834,29 +834,33 @@ function buildGuardRail(path, length, side, opts = {}) {
   // the old dark body + wide pink band read as a floating neon tube (visual
   // auditor 2026-08-12). Silver keeps the engineered barrier read; the
   // stripe keeps the neon identity.
-  const mainMat = toonMaterial(0xbcc7d1, { side: THREE.DoubleSide, roughness: 0.42, metalness: 0.55 });
-  const lowerMat = toonMaterial(0x8f9aa6, { side: THREE.DoubleSide, roughness: 0.55, metalness: 0.35 });
+  // AUDIT R2 (blind critic: PÓS read as 'floating neon tube' — toon can't
+  // render metalness, so the silver read as emissive). Real MeshStandardMaterial
+  // with a dim envMap gives the armco its metal body; the pink stripe stays the
+  // only emissive element.
+  const mainMat = new THREE.MeshStandardMaterial({ color: 0xcfd8e2, metalness: 0.75, roughness: 0.38, side: THREE.DoubleSide });
+  const lowerMat = new THREE.MeshStandardMaterial({ color: 0x9aa6b2, metalness: 0.6, roughness: 0.5, side: THREE.DoubleSide });
   const postMat = toonMaterial(opts.neon ? 0x4a5264 : 0x2a3140, {});
   const plateMat = toonMaterial(opts.neon ? 0x1c222d : 0x222a38, {});
 
   // Continuous double rail (no seams): main rail band 0.55..0.71m, lower
   // rail band 0.28..0.40m — the classic armco barrier profile.
-  const mainRail = buildEdgeRibbon(path, lateral, 0.05 + 0.5, 0.5, 0.16, mainMat);
-  const lowerRail = buildEdgeRibbon(path, lateral, 0.05 + 0.23, 0.42, 0.12, lowerMat);
+  const mainRail = buildEdgeRibbon(path, lateral, 0.05 + 0.52, 0.5, 0.22, mainMat); // AUDIT R2: 0.16→0.22 (armco mass)
+  const lowerRail = buildEdgeRibbon(path, lateral, 0.05 + 0.24, 0.42, 0.16, lowerMat);
   // Neon: thin emissive pink stripe ON TOP of the silver main rail (0.05m
   // tall, sits at 0.69..0.74 — the accent, not the structure).
   let topStripe = null;
   if (opts.neon) {
     const stripeMat = toonMaterial(0xff2ec4, { side: THREE.DoubleSide, emissive: 0xff2ec4, emissiveIntensity: 0.9 });
-    topStripe = buildEdgeRibbon(path, lateral, 0.05 + 0.705, 0.05, 0.045, stripeMat);
+    topStripe = buildEdgeRibbon(path, lateral, 0.05 + 0.72, 0.05, 0.05, stripeMat);
     topStripe.castShadow = false;
     topStripe.renderOrder = 2;
   }
 
   // Box posts (0.13 x 0.40 x 0.13) from the ground to the main rail, each on
   // a visible footing plate (0.40 x 0.08 x 0.40) set into the shoulder.
-  const postGeo = new THREE.BoxGeometry(0.13, 0.4, 0.13);
-  const plateGeo = new THREE.BoxGeometry(0.4, 0.08, 0.4);
+  const postGeo = new THREE.BoxGeometry(0.15, 0.52, 0.15); // AUDIT R2: taller — reaches ground (was floating from 0.15)
+  const plateGeo = new THREE.BoxGeometry(0.42, 0.09, 0.42);
   const posts = new THREE.InstancedMesh(postGeo, postMat, count);
   const plates = new THREE.InstancedMesh(plateGeo, plateMat, count);
   posts.castShadow = true;
@@ -875,10 +879,10 @@ function buildGuardRail(path, length, side, opts = {}) {
     const pz = p.z + nrm.z * lateral;
     dummy.rotation.set(0, 0, 0);
     dummy.scale.set(1, 1, 1);
-    dummy.position.set(px, p.y + 0.35, pz); // post spans 0.15..0.55 (main rail underside)
+    dummy.position.set(px, p.y + 0.26, pz); // AUDIT R2: post spans 0.0..0.52 — grounded
     dummy.updateMatrix();
     posts.setMatrixAt(i, dummy.matrix);
-    dummy.position.set(px, p.y + 0.11, pz); // plate spans 0.07..0.15 — proud of the shoulder top
+    dummy.position.set(px, p.y + 0.06, pz); // plate spans 0.015..0.105 — set into the shoulder
     dummy.updateMatrix();
     plates.setMatrixAt(i, dummy.matrix);
   }
