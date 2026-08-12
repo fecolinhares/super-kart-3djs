@@ -1012,17 +1012,19 @@ function buildBananaMesh() {
   );
   outline.scale.setScalar(1.06);
   g.add(outline);
-  // Brown tips — small flattened spheres at both ends (MK8 cue).
-  const tipMat = new THREE.MeshBasicMaterial({ color: 0xc98a24 });
+  // Brown tip caps — FLAT caps at both ends (AUDIT R6: spheres read as dark
+  // blobs). Small cylinders laid along the banana axis at each tip.
+  const tipMat = new THREE.MeshBasicMaterial({ color: 0xb07a2c });
   tipMat.toneMapped = false;
-  const tip1 = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 8), tipMat);
-  tip1.position.set(0.46, 0.10, 0);
-  tip1.scale.set(1, 0.7, 1);
-  g.add(tip1);
-  const tip2 = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), tipMat);
-  tip2.position.set(-0.44, 0.10, 0);
-  tip2.scale.set(1, 0.7, 1);
-  g.add(tip2);
+  const capGeo = new THREE.CylinderGeometry(0.10, 0.13, 0.06, 10);
+  const cap1 = new THREE.Mesh(capGeo, tipMat);
+  cap1.position.set(0.455, 0.10, 0);
+  cap1.rotation.z = 0.25;
+  g.add(cap1);
+  const cap2 = new THREE.Mesh(capGeo, tipMat);
+  cap2.position.set(-0.455, 0.10, 0);
+  cap2.rotation.z = -0.25;
+  g.add(cap2);
   return g;
 }
 

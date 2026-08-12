@@ -1242,6 +1242,31 @@ export class Kart {
     helmet.castShadow = true;
     drv.add(helmet);
     this._outline(helmet, 0.025);
+    // AUDIT R6 (visual critic): helmet needs a halo/rim to separate from the
+    // dark body — a soft additive glow disc just behind the head.
+    const helHaloTex = (() => {
+      const c = document.createElement('canvas');
+      c.width = 64; c.height = 64;
+      const gc = c.getContext('2d');
+      const grad = gc.createRadialGradient(32, 32, 4, 32, 32, 32);
+      grad.addColorStop(0, 'rgba(255,255,255,0.5)');
+      grad.addColorStop(0.5, 'rgba(255,255,255,0.16)');
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      gc.fillStyle = grad;
+      gc.fillRect(0, 0, 64, 64);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    })();
+    const helHaloMat = new THREE.MeshBasicMaterial({
+      map: helHaloTex, transparent: true, opacity: 0.6,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    const helHalo = new THREE.Mesh(new THREE.CircleGeometry(0.30, 20), helHaloMat);
+    helHalo.position.set(0, 1.24, -0.08);
+    helHalo.rotation.x = -0.4;
+    helHalo.castShadow = false;
+    drv.add(helHalo);
     // Glossy visor band with an EXPRESSIVE CANVAS FACE (eyes + mouth drawn
     // at the sphere's +Z front band, u≈0.25 on SphereGeometry) so the driver
     // reads as a character, not a blank helmet. Material color is white so
