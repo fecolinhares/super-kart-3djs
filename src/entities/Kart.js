@@ -627,18 +627,18 @@ export class Kart {
     // Fender flares — molded PAINTED arches over every wheel (same clearcoat
     // as the shell = merged bodywork, not stuck-on black) + a dark inner lip
     // that defines the arch cut line against the tire.
-    const flareGeo = new THREE.TorusGeometry(0.42, 0.055, 12, 28, Math.PI);
+    const flareGeo = new THREE.TorusGeometry(0.30, 0.05, 12, 28, Math.PI); // AUDIT R3: MK8 wheels poke OUT of the body — smaller flares expose them
     flareGeo.rotateY(Math.PI / 2); // ring in the ZY plane — arcs over the tire
-    const archLipGeo = new THREE.TorusGeometry(0.36, 0.02, 10, 26, Math.PI);
+    const archLipGeo = new THREE.TorusGeometry(0.28, 0.02, 10, 26, Math.PI);
     archLipGeo.rotateY(Math.PI / 2);
     for (const sx of [-1, 1]) {
       for (const sz of [-1, 1]) {
         const flare = new THREE.Mesh(flareGeo, carPaint);
-        flare.position.set(sx * 0.705, 0.37, sz * 0.67);
+        flare.position.set(sx * 0.70, 0.34, sz * 0.67);
         flare.castShadow = true;
         this.group.add(flare);
         const lip = new THREE.Mesh(archLipGeo, dark);
-        lip.position.set(sx * 0.705, 0.36, sz * 0.67);
+        lip.position.set(sx * 0.70, 0.33, sz * 0.67);
         lip.castShadow = false;
         this.group.add(lip);
       }
@@ -1145,7 +1145,7 @@ export class Kart {
 
     // Torso — rounded capsule leaned forward into the drive pose.
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.135, 0.26, 8, 16), suit);
-    torso.position.set(0, 0.90, -0.06);
+    torso.position.set(0, 0.94, -0.06);
     torso.rotation.x = 0.32;
     torso.castShadow = true;
     drv.add(torso);
@@ -1221,7 +1221,7 @@ export class Kart {
       new THREE.SphereGeometry(0.16, 32, 24),
       helmetMat
     );
-    helmet.position.set(0, 1.20, 0.06);
+    helmet.position.set(0, 1.26, 0.06);
     helmet.scale.set(1, 0.85, 1.02);
     helmet.castShadow = true;
     drv.add(helmet);
