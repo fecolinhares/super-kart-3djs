@@ -968,9 +968,14 @@ function buildTurboPads(path, length) {
 
   // Flat painted decal (was a 0.04 box that read as floating). polygonOffset
   // keeps it glued to the asphalt at grazing angles.
-  const geo = new THREE.PlaneGeometry(3.6, 11.2);
+  // AUDIT (Feco QA 2026-08-12): the lookAt+rotateX(-90)+rotateZ(-90) chain
+  // INVERTS the plane axes (X ends up down-track, Y across), so the pad
+  // geometry must be WIDE on X (depth) and SHORT on Y (width): 11.2 x 3.6.
+  // toneMapped=false keeps the amber from going brown under ACES.
+  const geo = new THREE.PlaneGeometry(11.2, 3.6);
   // MeshBasicMaterial: unlit so the pad stays bright amber/white in shadow.
   const mat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), color: 0xffffff, side: THREE.DoubleSide });
+  mat.toneMapped = false; // MK8 pads glow at full saturation — ACES would dull amber→brown
   mat.polygonOffset = true;
   mat.polygonOffsetFactor = -2;
   mat.polygonOffsetUnits = -2;
@@ -983,6 +988,7 @@ function buildTurboPads(path, length) {
     depthWrite: false,
     side: THREE.DoubleSide,
   });
+  glowMat.toneMapped = false;
   const mesh = new THREE.InstancedMesh(geo, mat, clusters.length);
   const glowMesh = new THREE.InstancedMesh(geo, glowMat, clusters.length);
   mesh.frustumCulled = false;
