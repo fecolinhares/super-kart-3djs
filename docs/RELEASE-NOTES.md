@@ -12,6 +12,15 @@
 - **Regression suite**: mobile touch/menu PASS, items (shell/banana) PASS, smoke PASS, pause/resume PASS, toast PASS, restart/finish PASS (countdown "3").
 - Verified: **PROBE 7/7 invariants both tracks** (0/78 wrong-way, 0/78 off-road per run), **SIM 32/32 seeds clean** (0 lost, 0 backwards, 0 stuck, onRoad 100%).
 
+### Round 9d2 — turbo pad MK8 look corrigido (Feco QA 2026-08-12)
+- O pad lia como laje transversal marrom: o chain lookAt+rotateX(-90)+rotateZ(-90)
+  INVERTE os eixos do plane (X vira profundidade) — geometria agora 11.2m
+  (direção da pista) × 3.6m (largura), textura 3:1 (384×128) sem distorção.
+- toneMapped=false no material base e no glow: o ACES tone mapping escurecia o
+  âmbar para marrom; agora o pad brilha na saturação exata (MK8).
+- Validado por captura headless (teleporte no pad): faixa longa âmbar brilhante,
+  chevrons para frente, glow pulsante.
+
 ### Round 9d — MK8 turbo boost strips (Feco QA, 2026-08-12)
 - Turbo pads viram FAIXAS longas (11.2m × 3.6m) no lugar dos quadrados 1.2×1.4:
   uma ribbon âmbar por cluster com 4 chevrons ">>>" brancos com glow, bordas
