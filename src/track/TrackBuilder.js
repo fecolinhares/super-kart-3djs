@@ -973,7 +973,7 @@ function buildTurboPads(path, length) {
   // geometry must be WIDE on X (depth) and SHORT on Y (width): 11.2 x 3.6.
   // toneMapped=false keeps the amber from going brown under ACES.
   const PAD_LEN = 18;   // MK8-style long ribbon — short pads read as squares from the chase cam
-  const PAD_W = 3.2;
+  const PAD_W = 4.5;    // MK8 pad spans nearly a lane — 3.2m read as a small rectangle
   const geo = new THREE.PlaneGeometry(PAD_LEN, PAD_W);
   // MeshBasicMaterial: unlit so the pad stays bright amber/white in shadow.
   const mat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), color: 0xffffff, side: THREE.DoubleSide });
