@@ -12,6 +12,13 @@
 - **Regression suite**: mobile touch/menu PASS, items (shell/banana) PASS, smoke PASS, pause/resume PASS, toast PASS, restart/finish PASS (countdown "3").
 - Verified: **PROBE 7/7 invariants both tracks** (0/78 wrong-way, 0/78 off-road per run), **SIM 32/32 seeds clean** (0 lost, 0 backwards, 0 stuck, onRoad 100%).
 
+### Round 9f — pad colado na pista (Feco QA, 2026-08-12)
+- Pad flutuava 3cm acima do asfalto (y+0.21 vs a ribbon em y+0.18) — a câmera
+  chase lia como "voando". Agora o pad fica EXATAMENTE na superfície (y+0.18)
+  e o lookAt mira o y da pista à frente (acompanha declives).
+- 5 chevrons → 3 GRANDES (o MK8 usa 2-3 setas; 5 pequenas criavam a ilusão de
+  "escada de setas" empilhadas na perspectiva).
+
 ### Round 9e — pad 18m (MK8 ribbon) + kart rear cleanup (Feco QA, 2026-08-12)
 - Turbo pad ainda lia como QUADRADO: 11.2m de comprimento a 10m da câmera
   chase (4m de altura) comprime ~4m aparente = igual à largura. MK8 usa
