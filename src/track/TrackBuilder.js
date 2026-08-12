@@ -1238,7 +1238,11 @@ function buildFinishLine(startLine) {
   // (9 x 1.5m) → 0.75m SQUARE cells; opacity 0.9 so the paint sits on the
   // asphalt like a real decal (opacity 1.0 made the black cells dominate
   // and read as 'weird markings' at speed).
-  const geo = new THREE.PlaneGeometry(w, (w / 12) * 2);
+  // AUDIT R2 (blind critic 2026-08-12): 1.5m depth compressed to a sliver in
+  // chase perspective — the critic could NOT see the checker. MK8 finish
+  // strips are ~3m along the racing line. 12x4 cells (0.75m squares) on a
+  // w x w/12*4 plane (9 x 3m).
+  const geo = new THREE.PlaneGeometry(w, (w / 12) * 4);
   const mat = new THREE.MeshBasicMaterial({ map: finishLineTexture(), transparent: true, opacity: 0.9, side: THREE.DoubleSide });
   // polygonOffset wins the depth test against the road ribbon at grazing
   // angles (classic decal technique — plain y-offset z-fights).

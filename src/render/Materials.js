@@ -622,9 +622,9 @@ export function finishLineTexture() {
     1024,
     (ctx, s) => {
       const cw = s / 12;
-      const ch = s / 2;
+      const ch = s / 4;
       for (let i = 0; i < 12; i++) {
-        for (let j = 0; j < 2; j++) {
+        for (let j = 0; j < 4; j++) {
           ctx.fillStyle = (i + j) % 2 === 0 ? '#f4f6f8' : '#0f1218';
           ctx.fillRect(i * cw, j * ch, cw, ch);
         }
