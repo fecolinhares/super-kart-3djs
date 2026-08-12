@@ -978,9 +978,17 @@ function buildTurboPads(path, length) {
   // MeshBasicMaterial: unlit so the pad stays bright amber/white in shadow.
   const mat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), color: 0xffffff, side: THREE.DoubleSide });
   mat.toneMapped = false; // MK8 pads glow at full saturation — ACES would dull amber→brown
+  // Decal technique (same recipe as buildLaneDashes, which never floats):
+  // polygonOffset wins the depth test against the coplanar ribbon, and
+  // depthWrite:false stops the biased pad from leaving a "hover" gap at
+  // grazing chase-cam angles (A/B/C headless experiment 2026-08-12: A
+  // floated 2-4px, B with depthWrite:false read as glued, C without
+  // polygonOffset let the road overlays draw OVER the pad).
   mat.polygonOffset = true;
   mat.polygonOffsetFactor = -2;
   mat.polygonOffsetUnits = -2;
+  mat.depthWrite = false;
+  mat.transparent = true;
   // Additive glow overlay — pulses via glowMat.opacity (main.js update loop).
   const glowMat = new THREE.MeshBasicMaterial({
     color: 0xffffff,
@@ -995,6 +1003,8 @@ function buildTurboPads(path, length) {
   const glowMesh = new THREE.InstancedMesh(geo, glowMat, clusters.length);
   mesh.frustumCulled = false;
   glowMesh.frustumCulled = false;
+  mesh.renderOrder = 2;    // transparent pass, after opaques — same as lane dashes
+  glowMesh.renderOrder = 3; // additive glow over the base decal
 
   const p = new THREE.Vector3();
   const tan = new THREE.Vector3();
