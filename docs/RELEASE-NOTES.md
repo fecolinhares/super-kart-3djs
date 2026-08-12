@@ -12,6 +12,15 @@
 - **Regression suite**: mobile touch/menu PASS, items (shell/banana) PASS, smoke PASS, pause/resume PASS, toast PASS, restart/finish PASS (countdown "3").
 - Verified: **PROBE 7/7 invariants both tracks** (0/78 wrong-way, 0/78 off-road per run), **SIM 32/32 seeds clean** (0 lost, 0 backwards, 0 stuck, onRoad 100%).
 
+### Round 9d — MK8 turbo boost strips (Feco QA, 2026-08-12)
+- Turbo pads viram FAIXAS longas (11.2m × 3.6m) no lugar dos quadrados 1.2×1.4:
+  uma ribbon âmbar por cluster com 4 chevrons ">>>" brancos com glow, bordas
+  brilhantes e textura 1:3 (sem distorção). Overlay aditivo que PULSA no loop
+  (opacity 0.16-0.30, ~2.4s/ciclo) — o pad respira como o MK8.
+- Física intacta: os 4 ts de detecção por cluster continuam os mesmos.
+- Rampas ganharam decal próprio (turboPadChevronTexture — 3 chevrons num
+  quadrado) para a textura comprida não espremer no plano da rampa.
+
 ### Round 9c — visual: zebra kerb gaps + turbo pad chevrons (Feco QA, 2026-08-12)
 - **Zebra kerb buracos nas curvas**: stones retos num raio de 8m abriam gap
   triangular de ~1.6cm em cada junta (overlap era só 1cm) — parecia furo no
