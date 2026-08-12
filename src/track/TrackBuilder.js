@@ -840,13 +840,18 @@ function buildGuardRail(path, length, side, opts = {}) {
   // only emissive element.
   const mainMat = new THREE.MeshStandardMaterial({ color: 0xcfd8e2, metalness: 0.75, roughness: 0.38, side: THREE.DoubleSide });
   const lowerMat = new THREE.MeshStandardMaterial({ color: 0x9aa6b2, metalness: 0.6, roughness: 0.5, side: THREE.DoubleSide });
-  const postMat = toonMaterial(opts.neon ? 0x6b7b8e : 0x2a3140, {}); // AUDIT R2b: lighter posts — dark posts vanished against the city
-  const plateMat = toonMaterial(opts.neon ? 0x1c222d : 0x222a38, {});
+  const postMat = toonMaterial(opts.neon ? 0x8a9aa8 : 0x2a3140, {}); // AUDIT R3: lighter still — posts must read as structure
+  const plateMat = toonMaterial(opts.neon ? 0x3a4554 : 0x222a38, {});
 
   // Continuous double rail (no seams): main rail band 0.55..0.71m, lower
   // rail band 0.28..0.40m — the classic armco barrier profile.
   const mainRail = buildEdgeRibbon(path, lateral, 0.05 + 0.52, 0.5, 0.22, mainMat); // AUDIT R2: 0.16→0.22 (armco mass)
   const lowerRail = buildEdgeRibbon(path, lateral, 0.05 + 0.24, 0.42, 0.16, lowerMat);
+  // AUDIT R3: W-beam specular cue — a bright thin edge on top of the main
+  // rail reads as the folded metal lip of an armco profile (critic: profile flat).
+  const lipMat = new THREE.MeshStandardMaterial({ color: 0xf2f6fa, metalness: 0.85, roughness: 0.25, side: THREE.DoubleSide });
+  const lipRail = buildEdgeRibbon(path, lateral, 0.05 + 0.735, 0.5, 0.035, lipMat);
+  lipRail.castShadow = false;
   // Neon: thin emissive pink stripe ON TOP of the silver main rail (0.05m
   // tall, sits at 0.69..0.74 — the accent, not the structure).
   let topStripe = null;
@@ -859,8 +864,8 @@ function buildGuardRail(path, length, side, opts = {}) {
 
   // Box posts (0.13 x 0.40 x 0.13) from the ground to the main rail, each on
   // a visible footing plate (0.40 x 0.08 x 0.40) set into the shoulder.
-  const postGeo = new THREE.BoxGeometry(0.15, 0.52, 0.15); // AUDIT R2: taller — reaches ground (was floating from 0.15)
-  const plateGeo = new THREE.BoxGeometry(0.42, 0.09, 0.42);
+  const postGeo = new THREE.BoxGeometry(0.18, 0.54, 0.18); // AUDIT R3: thicker posts
+  const plateGeo = new THREE.BoxGeometry(0.60, 0.10, 0.60); // AUDIT R3: bigger base plates (critic: plates not visible)
   const posts = new THREE.InstancedMesh(postGeo, postMat, count);
   const plates = new THREE.InstancedMesh(plateGeo, plateMat, count);
   posts.castShadow = true;
@@ -890,7 +895,7 @@ function buildGuardRail(path, length, side, opts = {}) {
   plates.instanceMatrix.needsUpdate = true;
 
   const g = new THREE.Group();
-  g.add(mainRail, lowerRail, posts, plates);
+  g.add(mainRail, lowerRail, lipRail, posts, plates);
   if (topStripe) g.add(topStripe);
   return g;
 }
