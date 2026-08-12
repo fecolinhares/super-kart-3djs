@@ -702,18 +702,20 @@ export function turboPadTexture() {
   ctx.fillRect(0, 0, 9, H);
   ctx.fillRect(W - 9, 0, 9, H);
   ctx.shadowBlur = 0;
-  // Five big ">>>" chevrons down the length, tips +X, strong glow.
+  // Three BIG ">>>" chevrons down the length, tips +X, strong glow.
+  // (Feco QA 2026-08-12: five small chevrons read as a stacked "flying"
+  // ladder from the chase cam — MK8 uses 2-3 large arrows.)
   ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 15;
+  ctx.lineWidth = 20;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.shadowColor = 'rgba(255,255,255,1)';
-  ctx.shadowBlur = 14;
-  for (const fx of [0.12, 0.31, 0.50, 0.69, 0.88]) {
+  ctx.shadowBlur = 16;
+  for (const fx of [0.20, 0.50, 0.80]) {
     const cx = W * fx;
     const cy = H / 2;
-    const half = W * 0.085;
-    const hh = H * 0.32;
+    const half = W * 0.13;
+    const hh = H * 0.36;
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
     ctx.lineTo(cx + half, cy);
@@ -721,14 +723,14 @@ export function turboPadTexture() {
     ctx.stroke();
   }
   // Extra soft halo pass (bigger blur, lower alpha).
-  ctx.shadowBlur = 26;
-  ctx.lineWidth = 7;
+  ctx.shadowBlur = 30;
+  ctx.lineWidth = 9;
   ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-  for (const fx of [0.12, 0.31, 0.50, 0.69, 0.88]) {
+  for (const fx of [0.20, 0.50, 0.80]) {
     const cx = W * fx;
     const cy = H / 2;
-    const half = W * 0.085;
-    const hh = H * 0.32;
+    const half = W * 0.13;
+    const hh = H * 0.36;
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
     ctx.lineTo(cx + half, cy);

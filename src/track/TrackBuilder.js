@@ -1016,8 +1016,13 @@ function buildTurboPads(path, length) {
     // Visual: one long strip centered on the cluster.
     path.getPointAt(c, p);
     path.getTangentAt(c, tan);
-    dummy.position.set(p.x, p.y + 0.21, p.z);
-    dummy.lookAt(p.x + tan.x, p.y, p.z + tan.z);
+    // AUDIT (Feco QA 2026-08-12): pad sat at y+0.21 while the road ribbon is
+    // y+0.18 — a 3cm float that read as "the pad is flying" with the chase
+    // cam. Sits exactly ON the asphalt now, and lookAt aims at the road Y
+    // just ahead so the ribbon follows any incline instead of staying level.
+    dummy.position.set(p.x, p.y + 0.18, p.z);
+    const ahead = path.getPointAt(Math.min(0.999, Math.max(0.001, c + 0.0015)));
+    dummy.lookAt(ahead.x, ahead.y, ahead.z);
     dummy.rotateX(-Math.PI / 2); // lay flat as paint
     // The ">>>" chevrons in turboPadTexture point along the texture's +X —
     // spin the flat plane so they point along the direction of travel.
