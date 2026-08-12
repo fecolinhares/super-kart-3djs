@@ -12,6 +12,15 @@
 - **Regression suite**: mobile touch/menu PASS, items (shell/banana) PASS, smoke PASS, pause/resume PASS, toast PASS, restart/finish PASS (countdown "3").
 - Verified: **PROBE 7/7 invariants both tracks** (0/78 wrong-way, 0/78 off-road per run), **SIM 32/32 seeds clean** (0 lost, 0 backwards, 0 stuck, onRoad 100%).
 
+### Round 9g — pad lê como pintura no asfalto (Feco QA, 2026-08-12)
+- O pad com o fundo #ffd94a + glow wash + setas brancas = blob branco
+  "blown out" — o cérebro lê como objeto sólido/plataforma flutuante (e as
+  setas somem). Agora: âmbar MÉDIO (#ffc233→#e87800) + glow das setas
+  reduzido — as setas brancas CONTRASTAM e o pad lê como faixa PINTADA no
+  asfalto (MK8). Validação vision: "wide flat amber strip painted onto the
+  road... white arrows contrast clearly... functions as a road-surface pad".
+- Pad alargado para 4.5m (largura de faixa) + moldura branca removida.
+
 ### Round 9f — pad colado na pista (Feco QA, 2026-08-12)
 - Pad flutuava 3cm acima do asfalto (y+0.21 vs a ribbon em y+0.18) — a câmera
   chase lia como "voando". Agora o pad fica EXATAMENTE na superfície (y+0.18)
