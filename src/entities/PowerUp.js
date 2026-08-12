@@ -975,69 +975,63 @@ function buildShellMesh(color) {
 
 function buildBananaMesh() {
   const g = new THREE.Group();
-  // AUDIT R3/R4 (visual critic): the torus arc read as a 'metal ring', not a
-  // banana. MK8 banana = an elongated asymmetric crescent: wide belly,
-  // tapered tips, one tip angled. Built as an extruded 2D profile (Shape)
-  // so the silhouette IS a banana at any angle.
-  const s = new THREE.Shape();
-  // Outer curve (back of the banana) — start bottom-left tip, arc up-right.
-  s.moveTo(-0.42, -0.10);
-  s.quadraticCurveTo(-0.30, 0.26, 0.0, 0.30);
-  s.quadraticCurveTo(0.30, 0.26, 0.46, -0.02);
-  // Tip right — small rounded cap.
-  s.quadraticCurveTo(0.50, -0.10, 0.44, -0.16);
-  // Inner curve (belly) — sweep back to the left tip.
-  s.quadraticCurveTo(0.24, 0.02, 0.0, 0.04);
-  s.quadraticCurveTo(-0.24, 0.02, -0.40, -0.16);
-  // Tip left — rounded cap closes the loop.
-  s.quadraticCurveTo(-0.46, -0.12, -0.42, -0.10);
-  s.closePath();
-  const geo = new THREE.ExtrudeGeometry(s, {
-    depth: 0.22,
-    bevelEnabled: true,
-    bevelThickness: 0.05,
-    bevelSize: 0.04,
-    bevelSegments: 3,
-  });
-  geo.rotateX(-Math.PI / 2); // lay the crescent silhouette FLAT on the road; extrusion depth = height (AUDIT R5: +PI/2 buried it edge-on)
-  const peelMat = new THREE.MeshBasicMaterial({ color: 0xffd23f });
+  // AUDIT R11 (visual critic, 6 iterations): extruded shapes kept producing
+  // dark artifacts that dominated the silhouette. REVERT to the readable
+  // torus crescent (R3: 6/10 'reconhecível como banana') and PAINT the brown
+  // tips + body shading into a canvas texture mapped around the torus — the
+  // 2D art is fully controllable, no geometry fighting the silhouette.
+  const peelTex = (() => {
+    const c = document.createElement('canvas');
+    c.width = 256; c.height = 128;
+    const gc = c.getContext('2d');
+    // Banana body: warm yellow with a soft vertical shading band (reads as
+    // volume even on a flat torus).
+    const grad = gc.createLinearGradient(0, 0, 0, 128);
+    grad.addColorStop(0, '#ffdf66');
+    grad.addColorStop(0.5, '#ffc933');
+    grad.addColorStop(1, '#f0a91f');
+    gc.fillStyle = grad;
+    gc.fillRect(0, 0, 256, 128);
+    // Brown tips painted at the arc ENDS of the torus UV (u=0 and u=1).
+    const tipGrad = gc.createLinearGradient(0, 0, 40, 0);
+    tipGrad.addColorStop(0, '#6d4213');
+    tipGrad.addColorStop(1, 'rgba(109,66,19,0)');
+    gc.fillStyle = tipGrad;
+    gc.fillRect(0, 0, 46, 128);
+    const tipGrad2 = gc.createLinearGradient(216, 0, 256, 0);
+    tipGrad2.addColorStop(0, 'rgba(109,66,19,0)');
+    tipGrad2.addColorStop(1, '#6d4213');
+    gc.fillStyle = tipGrad2;
+    gc.fillRect(210, 0, 46, 128);
+    // Subtle ridge lines along the length (banana flutes).
+    gc.strokeStyle = 'rgba(190,120,20,0.35)';
+    gc.lineWidth = 3;
+    for (const yy of [30, 64, 98]) {
+      gc.beginPath();
+      gc.moveTo(10, yy);
+      gc.lineTo(246, yy + (yy === 64 ? 0 : 6));
+      gc.stroke();
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  })();
+  const peelMat = new THREE.MeshBasicMaterial({ map: peelTex });
   peelMat.toneMapped = false;
-  const body = new THREE.Mesh(geo, peelMat);
-  body.castShadow = true;
-  g.add(body);
-  // Dark cartoon outline (BackSide shell) so the crescent reads on dark asphalt.
+  // Thick crescent torus (MK8 banana scale), arc 1.15π laid flat.
+  const arc = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.16, 12, 20, Math.PI * 1.15), peelMat);
+  arc.rotation.x = Math.PI / 2;
+  arc.castShadow = true;
+  g.add(arc);
+  // Dark cartoon outline (BackSide shell) for contrast on dark asphalt.
   const outline = new THREE.Mesh(
-    geo.clone(),
+    new THREE.TorusGeometry(0.42, 0.16, 12, 20, Math.PI * 1.15),
     new THREE.MeshBasicMaterial({ color: 0x2a1c00, side: THREE.BackSide })
   );
-  outline.scale.setScalar(1.06);
+  outline.scale.setScalar(1.07);
+  outline.rotation.x = Math.PI / 2;
   g.add(outline);
-  // Brown tip caps — FLAT caps at both ends (AUDIT R6/R8: spheres read as
-  // dark blobs, single caps left one end yellow). Two small tapered cones
-  // laid along the banana axis, angled with the tips.
-  // Brown tips — painted INTO the silhouette (AUDIT R10: detached cones read
-  // as a 'dark blade'). Two small extruded tip shapes overlap the body ends,
-  // same depth so they merge into one crescent with brown tips.
-  const tipMat = new THREE.MeshBasicMaterial({ color: 0x8a5a1c });
-  tipMat.toneMapped = false;
-  const mkTip = (cx, cy, ang) => {
-    const ts = new THREE.Shape();
-    ts.moveTo(cx - 0.10, cy - 0.06);
-    ts.quadraticCurveTo(cx + 0.06, cy, cx - 0.10, cy + 0.06);
-    ts.closePath();
-    const tg = new THREE.ExtrudeGeometry(ts, {
-      depth: 0.24,
-      bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 2,
-    });
-    tg.rotateX(-Math.PI / 2);
-    const m = new THREE.Mesh(tg, tipMat);
-    m.position.set(cx, 0.085, cy);
-    m.rotation.y = ang;
-    m.castShadow = false;
-    g.add(m);
-  };
-  mkTip(0.46, 0.02, 0.25);   // right tip, angled up
-  mkTip(-0.46, 0.02, -0.25); // left tip, angled down
   return g;
 }
 
