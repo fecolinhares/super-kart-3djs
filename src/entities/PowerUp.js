@@ -999,7 +999,7 @@ function buildBananaMesh() {
     bevelSize: 0.04,
     bevelSegments: 3,
   });
-  geo.rotateX(Math.PI / 2); // lay the extrusion flat on the road (depth = height)
+  geo.rotateX(-Math.PI / 2); // lay the crescent silhouette FLAT on the road; extrusion depth = height (AUDIT R5: +PI/2 buried it edge-on)
   const peelMat = new THREE.MeshBasicMaterial({ color: 0xffd23f });
   peelMat.toneMapped = false;
   const body = new THREE.Mesh(geo, peelMat);

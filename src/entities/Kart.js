@@ -1230,6 +1230,8 @@ export class Kart {
     // Neck + helmet (character colored, glossy visor, fine outline).
     this._mesh(new THREE.SphereGeometry(0.055, 14, 10), skin, 0, 1.14, 0.1, { parent: drv, cast: false });
     const helmetMat = character ? this._mat(character.helmetColor) : body;
+    helmetMat.emissive = new THREE.Color(character ? character.helmetColor : 0xffffff).multiplyScalar(0.28);
+    helmetMat.emissiveIntensity = 0.5; // AUDIT R5: helmet glow lifts the driver off the dark body
     this._helmetMat = helmetMat;
     const helmet = new THREE.Mesh(
       new THREE.SphereGeometry(0.16, 32, 24),
