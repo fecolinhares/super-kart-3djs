@@ -1015,16 +1015,19 @@ function buildBananaMesh() {
   // Brown tip caps — FLAT caps at both ends (AUDIT R6/R8: spheres read as
   // dark blobs, single caps left one end yellow). Two small tapered cones
   // laid along the banana axis, angled with the tips.
-  const tipMat = new THREE.MeshBasicMaterial({ color: 0x9c6b23 });
+  // Brown tips — SMALL cones tucked INSIDE the profile ends (AUDIT R9: the
+  // 0.55 cones floated past the 0.50 shape tip and read as a detached dark
+  // blade). Tips now cap the crescent: short, angled, clearly attached.
+  const tipMat = new THREE.MeshBasicMaterial({ color: 0x8a5a1c });
   tipMat.toneMapped = false;
-  const capGeo = new THREE.ConeGeometry(0.14, 0.30, 10);
+  const capGeo = new THREE.ConeGeometry(0.09, 0.20, 10);
   const cap1 = new THREE.Mesh(capGeo, tipMat);
-  cap1.position.set(0.55, 0.09, 0);
-  cap1.rotation.z = 0.35;
+  cap1.position.set(0.40, 0.085, 0);
+  cap1.rotation.z = 0.4;
   g.add(cap1);
   const cap2 = new THREE.Mesh(capGeo, tipMat);
-  cap2.position.set(-0.55, 0.09, 0);
-  cap2.rotation.z = -0.35;
+  cap2.position.set(-0.40, 0.085, 0);
+  cap2.rotation.z = -0.4;
   g.add(cap2);
   return g;
 }
