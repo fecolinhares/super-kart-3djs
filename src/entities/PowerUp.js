@@ -975,14 +975,17 @@ function buildShellMesh(color) {
 
 function buildBananaMesh() {
   const g = new THREE.Group();
-  const peelMat = toonMaterial(0xffd23f, { emissive: 0xffaa00, emissiveIntensity: 0.3, roughness: 0.6 });
-  peelMat.toneMapped = false; // AUDIT R2: ACES dulled the yellow peel to beige (same pitfall as the turbo pad)
+  // AUDIT R3 (visual critic: 'dark, not clearly a banana'): MK8 items are
+  // SELF-LIT — the toon material depended on scene light that is dim in
+  // Neon. MeshBasicMaterial + toneMapped=false keeps the peel hot yellow.
+  const peelMat = new THREE.MeshBasicMaterial({ color: 0xffd23f });
+  peelMat.toneMapped = false;
   // AUDIT (Feco, 2026-08-11): 'a banana não dá pra ver no mapa, nem quando
   // arremessa' — the 0.26m-radius torus was a tiny pale crescent on asphalt.
   // Bigger (0.36 radius, thicker tube ~0.72m banana, MK8D scale), hotter
   // emissive, brown tips and a cartoon outline so it reads at 40 m/s.
   const outline = new THREE.Mesh(
-    new THREE.TorusGeometry(0.36, 0.15, 8, 14, Math.PI * 1.15),
+    new THREE.TorusGeometry(0.44, 0.17, 8, 14, Math.PI * 1.15),
     new THREE.MeshBasicMaterial({ color: 0x2a1c00, side: THREE.BackSide })
   );
   outline.scale.setScalar(1.08);
@@ -990,17 +993,17 @@ function buildBananaMesh() {
   g.add(outline);
 
   // Bent tube laid flat on the road (torus arc rotated into the XZ plane).
-  const arc = new THREE.Mesh(new THREE.TorusGeometry(0.36, 0.15, 10, 18, Math.PI * 1.15), peelMat);
+  const arc = new THREE.Mesh(new THREE.TorusGeometry(0.44, 0.17, 10, 18, Math.PI * 1.15), peelMat);
   arc.rotation.x = Math.PI / 2;
   g.add(arc);
 
-  const tipMat = toonMaterial(0xc98a24, { emissive: 0x7a4a00, emissiveIntensity: 0.2, roughness: 0.65 });
+  const tipMat = new THREE.MeshBasicMaterial({ color: 0xc98a24 });
   tipMat.toneMapped = false;
-  const tip1 = new THREE.Mesh(new THREE.SphereGeometry(0.14, 10, 8), tipMat);
-  tip1.position.set(0.36, 0.06, 0.12);
+  const tip1 = new THREE.Mesh(new THREE.SphereGeometry(0.17, 10, 8), tipMat);
+  tip1.position.set(0.44, 0.07, 0.14);
   g.add(tip1);
-  const tip2 = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), tipMat);
-  tip2.position.set(-0.32, 0.06, -0.12);
+  const tip2 = new THREE.Mesh(new THREE.SphereGeometry(0.15, 10, 8), tipMat);
+  tip2.position.set(-0.40, 0.07, -0.14);
   g.add(tip2);
   return g;
 }
