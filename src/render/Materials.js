@@ -555,6 +555,27 @@ export function finishBannerTexture() {
   return _finishBannerTex;
 }
 
+/** Mirrored FINISH banner texture (horizontal flip) for the BACK face of
+ *  the gantry banner — the DoubleSide material showed 'HSINIF' reversed
+ *  when the player passed under it (visual auditor 2026-08-12). */
+let _finishBannerTexMirrored = null;
+export function finishBannerTextureMirrored() {
+  if (_finishBannerTexMirrored) return _finishBannerTexMirrored;
+  const base = finishBannerTexture();
+  const c = document.createElement('canvas');
+  c.width = 512;
+  c.height = 128;
+  const g = c.getContext('2d');
+  g.translate(512, 0);
+  g.scale(-1, 1);
+  g.drawImage(base.image, 0, 0);
+  const tex = new THREE.CanvasTexture(c);
+  tex.anisotropy = 8;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  _finishBannerTexMirrored = tex;
+  return _finishBannerTexMirrored;
+}
+
 /** Direction arrow painted on the road at sharp corners (white chevron on
  *  a transparent card, so MeshBasicMaterial reads it unlit over asphalt). */
 let _arrowTex = null;

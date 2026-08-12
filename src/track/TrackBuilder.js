@@ -13,7 +13,7 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { toonMaterial, cartoonOutline, roadTexture, cityRoadTexture, dirtTexture, grassTexture, concreteTexture, checkerTexture, bannerCheckerTexture, finishBannerTexture, turboPadTexture, turboPadChevronTexture, arrowTexture, finishLineTexture } from '../render/Materials.js';
+import { toonMaterial, cartoonOutline, roadTexture, cityRoadTexture, dirtTexture, grassTexture, concreteTexture, checkerTexture, bannerCheckerTexture, finishBannerTexture, finishBannerTextureMirrored, turboPadTexture, turboPadChevronTexture, arrowTexture, finishLineTexture } from '../render/Materials.js';
 
 // Control points forming the closed loop (X, Y=elevation, Z).
 const CONTROL_POINTS = [
@@ -1141,22 +1141,46 @@ function buildGantry(startLine) {
   // DoubleSide material shows the text un-mirrored from the player's view.
   banner.rotation.y = Math.atan2(-startLine.direction.x, -startLine.direction.z);
   group.add(banner);
+  // Back-face banner (AUDIT visual 2026-08-12): the DoubleSide material
+  // showed the text REVERSED ('HSINIF') from behind. A second plane with the
+  // mirrored texture, FrontSide, flipped 180°, shares the SAME geometry so
+  // main.js's waveBanner animates both faces together.
+  const bannerBack = new THREE.Mesh(
+    new THREE.PlaneGeometry(roadW + 1.4, 1.55, 14, 1),
+    new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide })
+  );
+  bannerBack.material.map = finishBannerTextureMirrored();
+  bannerBack.position.copy(startLine.position);
+  bannerBack.position.y = 5.15;
+  bannerBack.rotation.y = banner.rotation.y + Math.PI;
+  bannerBack.geometry = banner.geometry; // share the waving geometry
+  group.add(bannerBack);
 
   // Start lights (5 lamps on the beam — AUDIT r20-FIX: MK8D's signature
   // 5-light countdown, was 3) — raceManager/main animate them: red lamps
   // light up during countdown, all green on GO.
   const startLights = [];
-  // AUDIT visual 2026-08-12: 5 dark spheres fused with the night sky —
-  // invisible. White lamp shells with a dim always-on emissive (0.25) read
-  // as light fixtures; the countdown/GO animation drives them to full red/
-  // green (main.js writes material.color + emissiveIntensity).
-  const lampGeo = new THREE.SphereGeometry(0.24, 14, 12);
-  const lampOff = toonMaterial(0xe8ecf2, { emissive: 0x8899aa, emissiveIntensity: 0.25 });
+  // AUDIT visual 2026-08-12 R2: 5 spheres alone read as colored dots in the
+  // sky. MK8D start lights sit in a BLACK HOUSING PANEL hung under the beam
+  // (a traffic-light bank). Bigger shells, brighter always-on emissive so
+  // they read at distance; countdown/GO drives color+emissive (main.js).
+  const lampPanel = new THREE.Mesh(
+    new THREE.BoxGeometry(4.9, 0.55, 0.16),
+    toonMaterial(0x141a26, {})
+  );
+  lampPanel.position.copy(startLine.position).addScaledVector(nrm, 0);
+  lampPanel.position.y = 5.62;
+  lampPanel.castShadow = false;
+  group.add(lampPanel);
+  // 5 lamp bodies proud of the panel face (toward the racers).
+  const lampGeo = new THREE.SphereGeometry(0.27, 14, 12);
+  const lampOff = toonMaterial(0xf2f4f8, { emissive: 0x9fb4c8, emissiveIntensity: 0.5 });
   const lampMat = lampOff;
   for (let i = -2; i <= 2; i++) {
     const lamp = new THREE.Mesh(lampGeo, lampMat);
-    lamp.position.copy(startLine.position).addScaledVector(nrm, i * 0.95);
-    lamp.position.y = 6.08; // mounted on the beam TOP (beam top face = 6.1)
+    lamp.position.copy(startLine.position).addScaledVector(nrm, i * 0.9);
+    lamp.position.y = 5.62; // face of the housing panel
+    lamp.castShadow = false;
     group.add(lamp);
     startLights.push(lamp);
   }
