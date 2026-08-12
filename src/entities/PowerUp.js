@@ -1015,20 +1015,29 @@ function buildBananaMesh() {
   // Brown tip caps — FLAT caps at both ends (AUDIT R6/R8: spheres read as
   // dark blobs, single caps left one end yellow). Two small tapered cones
   // laid along the banana axis, angled with the tips.
-  // Brown tips — SMALL cones tucked INSIDE the profile ends (AUDIT R9: the
-  // 0.55 cones floated past the 0.50 shape tip and read as a detached dark
-  // blade). Tips now cap the crescent: short, angled, clearly attached.
+  // Brown tips — painted INTO the silhouette (AUDIT R10: detached cones read
+  // as a 'dark blade'). Two small extruded tip shapes overlap the body ends,
+  // same depth so they merge into one crescent with brown tips.
   const tipMat = new THREE.MeshBasicMaterial({ color: 0x8a5a1c });
   tipMat.toneMapped = false;
-  const capGeo = new THREE.ConeGeometry(0.09, 0.20, 10);
-  const cap1 = new THREE.Mesh(capGeo, tipMat);
-  cap1.position.set(0.40, 0.085, 0);
-  cap1.rotation.z = 0.4;
-  g.add(cap1);
-  const cap2 = new THREE.Mesh(capGeo, tipMat);
-  cap2.position.set(-0.40, 0.085, 0);
-  cap2.rotation.z = -0.4;
-  g.add(cap2);
+  const mkTip = (cx, cy, ang) => {
+    const ts = new THREE.Shape();
+    ts.moveTo(cx - 0.10, cy - 0.06);
+    ts.quadraticCurveTo(cx + 0.06, cy, cx - 0.10, cy + 0.06);
+    ts.closePath();
+    const tg = new THREE.ExtrudeGeometry(ts, {
+      depth: 0.24,
+      bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 2,
+    });
+    tg.rotateX(-Math.PI / 2);
+    const m = new THREE.Mesh(tg, tipMat);
+    m.position.set(cx, 0.085, cy);
+    m.rotation.y = ang;
+    m.castShadow = false;
+    g.add(m);
+  };
+  mkTip(0.46, 0.02, 0.25);   // right tip, angled up
+  mkTip(-0.46, 0.02, -0.25); // left tip, angled down
   return g;
 }
 
