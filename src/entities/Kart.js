@@ -485,8 +485,8 @@ export class Kart {
     // AUDIT (visual auditor 2026-08-12): Neon night IBL is weak — clearcoat
     // paint read as dark wine. A subtle self-emissive (15% of body color)
     // lifts the shell off the asphalt without looking lit-from-within.
-    carPaint.emissive = new THREE.Color(color).multiplyScalar(0.15);
-    carPaint.emissiveIntensity = 0.35;
+    carPaint.emissive = new THREE.Color(color).multiplyScalar(0.25);
+    carPaint.emissiveIntensity = 0.55;
     const body = this._mat(color);
     const bodyDark = this._mat(new THREE.Color(color).multiplyScalar(0.82).getHex());
     // keep refs so the player can repaint (setBodyColor)
@@ -497,7 +497,7 @@ export class Kart {
     const dark = this._mat(0x232833);
     // Dead-flat rubber (tires) — deliberately NOT glossy: roughness 0.95
     // against the clearcoat paint = the MK8 material separation.
-    const tireMat = new THREE.MeshStandardMaterial({ color: 0x2b3038, roughness: 0.92, metalness: 0.02 });
+    const tireMat = new THREE.MeshStandardMaterial({ color: 0x353c48, roughness: 0.9, metalness: 0.04 });
     const tireDark = new THREE.MeshStandardMaterial({ color: 0x0a0d11, roughness: 0.98, metalness: 0 });
     // Polished chrome (rims, hubs, exhaust) — mirror metal vs painted plastic.
     // AUDIT r9: envMapIntensity 2.4 made rims read as broken white flashes on
@@ -1145,7 +1145,7 @@ export class Kart {
 
     // Torso — rounded capsule leaned forward into the drive pose.
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.135, 0.26, 8, 16), suit);
-    torso.position.set(0, 0.88, -0.06);
+    torso.position.set(0, 0.90, -0.06);
     torso.rotation.x = 0.32;
     torso.castShadow = true;
     drv.add(torso);
@@ -1221,7 +1221,7 @@ export class Kart {
       new THREE.SphereGeometry(0.16, 32, 24),
       helmetMat
     );
-    helmet.position.set(0, 1.17, 0.06);
+    helmet.position.set(0, 1.20, 0.06);
     helmet.scale.set(1, 0.85, 1.02);
     helmet.castShadow = true;
     drv.add(helmet);
