@@ -825,7 +825,7 @@ function buildGuardRail(path, length, side, opts = {}) {
   const roadW = getRoadWidthAt();
   // LOW + FAR from the racing line so the chase camera never clips/obscures:
   // rail top ~0.71m at road edge +1.1m.
-  const lateral = side * (roadW / 2 + 1.1);
+  const lateral = side * (roadW / 2 + 0.45); // AUDIT R4: barrier CLOSE to the kerb (street circuit); +1.1 left it floating 1m behind
   // Posts every ~3.5m (count = round → spacing = length / count ≈ 3.5m) so
   // there's no seam gap where the loop closes at start.
   const count = Math.max(1, Math.round(length / 3.5));
@@ -864,7 +864,7 @@ function buildGuardRail(path, length, side, opts = {}) {
 
   // Box posts (0.13 x 0.40 x 0.13) from the ground to the main rail, each on
   // a visible footing plate (0.40 x 0.08 x 0.40) set into the shoulder.
-  const postGeo = new THREE.BoxGeometry(0.18, 0.54, 0.18); // AUDIT R3: thicker posts
+  const postGeo = new THREE.BoxGeometry(0.18, 0.78, 0.18); // AUDIT R4: tall enough to rise above the kerb (0.36) — posts finally visible
   const plateGeo = new THREE.BoxGeometry(0.60, 0.10, 0.60); // AUDIT R3: bigger base plates (critic: plates not visible)
   const posts = new THREE.InstancedMesh(postGeo, postMat, count);
   const plates = new THREE.InstancedMesh(plateGeo, plateMat, count);
@@ -884,7 +884,7 @@ function buildGuardRail(path, length, side, opts = {}) {
     const pz = p.z + nrm.z * lateral;
     dummy.rotation.set(0, 0, 0);
     dummy.scale.set(1, 1, 1);
-    dummy.position.set(px, p.y + 0.26, pz); // AUDIT R2: post spans 0.0..0.52 — grounded
+    dummy.position.set(px, p.y + 0.39, pz); // AUDIT R4: post spans 0.0..0.78
     dummy.updateMatrix();
     posts.setMatrixAt(i, dummy.matrix);
     dummy.position.set(px, p.y + 0.06, pz); // plate spans 0.015..0.105 — set into the shoulder
@@ -894,8 +894,15 @@ function buildGuardRail(path, length, side, opts = {}) {
   posts.instanceMatrix.needsUpdate = true;
   plates.instanceMatrix.needsUpdate = true;
 
+  // AUDIT R4: contact shadow under the barrier — a dark ribbon at the base
+  // anchors the kerb+rail to the ground (critic: 'floats, no contact shadow').
+  const shadowMat = toonMaterial(0x10141c, { side: THREE.DoubleSide, transparent: true, opacity: 0.45 });
+  const contactShadow = buildEdgeRibbon(path, lateral, 0.05 + 0.03, 0.9, 0.06, shadowMat);
+  contactShadow.castShadow = false;
+  contactShadow.renderOrder = 1;
+
   const g = new THREE.Group();
-  g.add(mainRail, lowerRail, lipRail, posts, plates);
+  g.add(mainRail, lowerRail, lipRail, posts, plates, contactShadow);
   if (topStripe) g.add(topStripe);
   return g;
 }
