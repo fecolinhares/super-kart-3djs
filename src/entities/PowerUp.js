@@ -976,6 +976,7 @@ function buildShellMesh(color) {
 function buildBananaMesh() {
   const g = new THREE.Group();
   const peelMat = toonMaterial(0xffd23f, { emissive: 0xffaa00, emissiveIntensity: 0.3, roughness: 0.6 });
+  peelMat.toneMapped = false; // AUDIT R2: ACES dulled the yellow peel to beige (same pitfall as the turbo pad)
   // AUDIT (Feco, 2026-08-11): 'a banana não dá pra ver no mapa, nem quando
   // arremessa' — the 0.26m-radius torus was a tiny pale crescent on asphalt.
   // Bigger (0.36 radius, thicker tube ~0.72m banana, MK8D scale), hotter
@@ -994,6 +995,7 @@ function buildBananaMesh() {
   g.add(arc);
 
   const tipMat = toonMaterial(0xc98a24, { emissive: 0x7a4a00, emissiveIntensity: 0.2, roughness: 0.65 });
+  tipMat.toneMapped = false;
   const tip1 = new THREE.Mesh(new THREE.SphereGeometry(0.14, 10, 8), tipMat);
   tip1.position.set(0.36, 0.06, 0.12);
   g.add(tip1);
