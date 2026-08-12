@@ -723,6 +723,12 @@ export class Banana {
       this.die();
       return;
     }
+    // AUDIT (Jarvis QA loop 2026-08-11, CRITICAL FIX): `m` was declared at
+    // the BOTTOM of update() but used by the throw-hop block above — a thrown
+    // banana (this._vY truthy) hit the TDZ and threw ReferenceError every
+    // frame, freezing the race seconds after the start (the same bug class as
+    // the Shell r5 fix, but this copy was never hoisted). Hoisted here.
+    const m = this.mesh;
     // Spawn pop-in (ease-out scale, ~130ms).
     if (this._popT < 1) {
       this._popT = Math.min(1, this._popT + dt * 8);
@@ -743,7 +749,6 @@ export class Banana {
       this.mesh.visible = Math.floor(this.age * 6) % 2 === 0;
     }
 
-    const m = this.mesh;
     const radius = CONFIG.items.bananaRadius;
     const rr = radius * radius;
     const list = karts || [];
