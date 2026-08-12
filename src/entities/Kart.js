@@ -485,8 +485,8 @@ export class Kart {
     // AUDIT (visual auditor 2026-08-12): Neon night IBL is weak — clearcoat
     // paint read as dark wine. A subtle self-emissive (15% of body color)
     // lifts the shell off the asphalt without looking lit-from-within.
-    carPaint.emissive = new THREE.Color(color).multiplyScalar(0.25);
-    carPaint.emissiveIntensity = 0.55;
+    carPaint.emissive = new THREE.Color(color).multiplyScalar(0.32);
+    carPaint.emissiveIntensity = 0.7; // AUDIT R5: stronger self-glow = rim-light proxy on dark Neon
     const body = this._mat(color);
     const bodyDark = this._mat(new THREE.Color(color).multiplyScalar(0.82).getHex());
     // keep refs so the player can repaint (setBodyColor)
