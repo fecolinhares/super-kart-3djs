@@ -680,9 +680,12 @@ function buildCurbs(path, length, side, opts = {}) {
     const f = s1 > s0 ? (target - s0) / (s1 - s0) : 0;
     return arcT[lo - 1] + (arcT[lo] - arcT[lo - 1]) * f;
   };
-  const curbW = 0.55;
-  const curbH = 0.14;
-  const geo = beveledCurbGeometry(curbW, curbH, seg, 0.04);
+  const curbW = 0.60;
+  const curbH = 0.18;
+  // AUDIT visual 2026-08-12: kerbs read as a flat painted strip with no
+  // curb volume. Taller stones + higher top + a top-face decal plane per
+  // stone (zebra) restore the MK8D curb read.
+  const geo = beveledCurbGeometry(curbW, curbH, seg, 0.05);
 
   // NEON CITY: alternating emissive pink/cyan kerbs. instanceColor can't
   // drive MeshToonMaterial's emissive, so even/odd boxes are split into two
@@ -731,7 +734,7 @@ function buildCurbs(path, length, side, opts = {}) {
     const latJ = (hash01(i, 8) - 0.5) * 0.0015;
     dummy.position.set(
       p.x + nrm.x * side * (roadW / 2 + 0.15 + latJ),
-      p.y + 0.28 - curbH / 2 + yJ,
+      p.y + 0.32 - curbH / 2 + yJ,
       p.z + nrm.z * side * (roadW / 2 + 0.15 + latJ)
     );
     // Yaw-only alignment — lookAt pitched every stone ~11deg nose-down
@@ -827,20 +830,28 @@ function buildGuardRail(path, length, side, opts = {}) {
   // there's no seam gap where the loop closes at start.
   const count = Math.max(1, Math.round(length / 3.5));
 
-  // Steel palette. NEON CITY: dark body with an emissive pink main rail.
-  const mainMat = opts.neon
-    ? toonMaterial(0x3a4152, { side: THREE.DoubleSide, emissive: 0xff2ec4, emissiveIntensity: 0.8 })
-    : toonMaterial(0xbcc7d1, { side: THREE.DoubleSide, roughness: 0.42, metalness: 0.55 });
-  const lowerMat = opts.neon
-    ? toonMaterial(0x2b3240, { side: THREE.DoubleSide })
-    : toonMaterial(0x8f9aa6, { side: THREE.DoubleSide, roughness: 0.55, metalness: 0.35 });
-  const postMat = toonMaterial(opts.neon ? 0x232a36 : 0x2a3140, {});
+  // Steel palette. NEON CITY: SILVER armco + thin emissive pink top stripe —
+  // the old dark body + wide pink band read as a floating neon tube (visual
+  // auditor 2026-08-12). Silver keeps the engineered barrier read; the
+  // stripe keeps the neon identity.
+  const mainMat = toonMaterial(0xbcc7d1, { side: THREE.DoubleSide, roughness: 0.42, metalness: 0.55 });
+  const lowerMat = toonMaterial(0x8f9aa6, { side: THREE.DoubleSide, roughness: 0.55, metalness: 0.35 });
+  const postMat = toonMaterial(opts.neon ? 0x4a5264 : 0x2a3140, {});
   const plateMat = toonMaterial(opts.neon ? 0x1c222d : 0x222a38, {});
 
   // Continuous double rail (no seams): main rail band 0.55..0.71m, lower
   // rail band 0.28..0.40m — the classic armco barrier profile.
   const mainRail = buildEdgeRibbon(path, lateral, 0.05 + 0.5, 0.5, 0.16, mainMat);
   const lowerRail = buildEdgeRibbon(path, lateral, 0.05 + 0.23, 0.42, 0.12, lowerMat);
+  // Neon: thin emissive pink stripe ON TOP of the silver main rail (0.05m
+  // tall, sits at 0.69..0.74 — the accent, not the structure).
+  let topStripe = null;
+  if (opts.neon) {
+    const stripeMat = toonMaterial(0xff2ec4, { side: THREE.DoubleSide, emissive: 0xff2ec4, emissiveIntensity: 0.9 });
+    topStripe = buildEdgeRibbon(path, lateral, 0.05 + 0.705, 0.05, 0.045, stripeMat);
+    topStripe.castShadow = false;
+    topStripe.renderOrder = 2;
+  }
 
   // Box posts (0.13 x 0.40 x 0.13) from the ground to the main rail, each on
   // a visible footing plate (0.40 x 0.08 x 0.40) set into the shoulder.
@@ -876,6 +887,7 @@ function buildGuardRail(path, length, side, opts = {}) {
 
   const g = new THREE.Group();
   g.add(mainRail, lowerRail, posts, plates);
+  if (topStripe) g.add(topStripe);
   return g;
 }
 
@@ -918,10 +930,11 @@ function buildLaneDashes(path, length) {
   // Flat plane laid on the asphalt (was a 0.04-thick box that read as a
   // floating sliver). polygonOffset wins the depth test against the ribbon —
   // the classic decal technique.
-  const geo = new THREE.PlaneGeometry(0.3, 2.4);
+  const geo = new THREE.PlaneGeometry(0.45, 2.6); // AUDIT visual 2026-08-12: bigger dashes (MK8 lane marking scale)
   // Painted look: worn darker border + grime on the dash card, slight
   // transparency so the asphalt grain shows through the paint.
   const mat = toonMaterial(0xffffff, { side: THREE.DoubleSide, map: dashTexture(), transparent: true, opacity: 0.85 });
+  mat.toneMapped = false; // AUDIT visual 2026-08-12: amber dash read as dirty beige under ACES — white paint must stay white
   mat.polygonOffset = true;
   mat.polygonOffsetFactor = -2;
   mat.polygonOffsetUnits = -2;
@@ -938,7 +951,7 @@ function buildLaneDashes(path, length) {
     path.getTangentAt(t, tan);
     // Road ribbon sits at y+0.18 — the dashes must sit ABOVE it (y+0.21) or
     // they're buried inside the asphalt (the classic decal-height pitfall).
-    dummy.position.set(p.x, p.y + 0.21, p.z);
+    dummy.position.set(p.x, p.y + 0.18, p.z); // exact ribbon top — polygonOffset wins depth (visual audit 2026-08-12)
     dummy.lookAt(p.x + tan.x, p.y, p.z + tan.z);
     dummy.rotateX(-Math.PI / 2); // lay flat as paint (lookAt + rotateX like the finish line)
     dummy.updateMatrix();
@@ -1133,8 +1146,12 @@ function buildGantry(startLine) {
   // 5-light countdown, was 3) — raceManager/main animate them: red lamps
   // light up during countdown, all green on GO.
   const startLights = [];
-  const lampGeo = new THREE.SphereGeometry(0.2, 12, 10);
-  const lampOff = toonMaterial(0x3a4252, { emissive: 0x000000, emissiveIntensity: 0 });
+  // AUDIT visual 2026-08-12: 5 dark spheres fused with the night sky —
+  // invisible. White lamp shells with a dim always-on emissive (0.25) read
+  // as light fixtures; the countdown/GO animation drives them to full red/
+  // green (main.js writes material.color + emissiveIntensity).
+  const lampGeo = new THREE.SphereGeometry(0.24, 14, 12);
+  const lampOff = toonMaterial(0xe8ecf2, { emissive: 0x8899aa, emissiveIntensity: 0.25 });
   const lampMat = lampOff;
   for (let i = -2; i <= 2; i++) {
     const lamp = new THREE.Mesh(lampGeo, lampMat);
@@ -2027,8 +2044,13 @@ function buildRamps(path, length, rampTs) {
   const ramps = [];
   // Toon ramp body (audit v4 F1: was the only non-toon surface — read as a
   // flat orange crate) + painted chevrons on the top face.
-  const mat = toonMaterial(0xc96f2c, { side: THREE.DoubleSide });
+  // AUDIT visual 2026-08-12: ramp read as a flat brown block at night
+  // (toon darkened under low light + chevrons amber-on-orange = no contrast).
+  // Brighter orange + emissive keeps the ramp saturated; white chevrons
+  // (turboPadChevronTexture already draws white on amber) pop against it.
+  const mat = toonMaterial(0xe07b2e, { side: THREE.DoubleSide, emissive: 0xc96f2c, emissiveIntensity: 0.3 });
   const chevMat = new THREE.MeshBasicMaterial({ map: turboPadChevronTexture(), transparent: true, depthWrite: false, side: THREE.DoubleSide });
+  chevMat.toneMapped = false;
   const tan = new THREE.Vector3();
   const p = new THREE.Vector3();
   // Taller + longer so the ramp reads as a LAUNCH RAMP, not a speed bump
@@ -2037,7 +2059,7 @@ function buildRamps(path, length, rampTs) {
   // and vY=6.5 launch are untouched. The kart rises ~6.5 m/s vs the ramp's
   // ~0.14*forwardSpeed climb, so it clears the slope without clipping.
   const rampLen = 5.4;
-  const rampHeight = 0.75;
+  const rampHeight = 1.0; // AUDIT visual 2026-08-12: taller slope reads as a ramp (7.9°→10.5°)
   const rampWidth = CONFIG.track.roadWidth * 0.78;
   const rampGeo = buildRampGeometry(rampWidth, rampHeight, rampLen);
   // Side support braces: trapezoid fins under the tall end, flush against the
