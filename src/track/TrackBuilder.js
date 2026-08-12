@@ -840,7 +840,7 @@ function buildGuardRail(path, length, side, opts = {}) {
   // only emissive element.
   const mainMat = new THREE.MeshStandardMaterial({ color: 0xcfd8e2, metalness: 0.75, roughness: 0.38, side: THREE.DoubleSide });
   const lowerMat = new THREE.MeshStandardMaterial({ color: 0x9aa6b2, metalness: 0.6, roughness: 0.5, side: THREE.DoubleSide });
-  const postMat = toonMaterial(opts.neon ? 0x4a5264 : 0x2a3140, {});
+  const postMat = toonMaterial(opts.neon ? 0x6b7b8e : 0x2a3140, {}); // AUDIT R2b: lighter posts — dark posts vanished against the city
   const plateMat = toonMaterial(opts.neon ? 0x1c222d : 0x222a38, {});
 
   // Continuous double rail (no seams): main rail band 0.55..0.71m, lower
@@ -851,8 +851,8 @@ function buildGuardRail(path, length, side, opts = {}) {
   // tall, sits at 0.69..0.74 — the accent, not the structure).
   let topStripe = null;
   if (opts.neon) {
-    const stripeMat = toonMaterial(0xff2ec4, { side: THREE.DoubleSide, emissive: 0xff2ec4, emissiveIntensity: 0.9 });
-    topStripe = buildEdgeRibbon(path, lateral, 0.05 + 0.72, 0.05, 0.05, stripeMat);
+    const stripeMat = toonMaterial(0xff2ec4, { side: THREE.DoubleSide, emissive: 0xff2ec4, emissiveIntensity: 0.55 });
+    topStripe = buildEdgeRibbon(path, lateral, 0.05 + 0.73, 0.03, 0.03, stripeMat); // AUDIT R2b: thinner/dimmer — silver rail leads the hierarchy
     topStripe.castShadow = false;
     topStripe.renderOrder = 2;
   }
