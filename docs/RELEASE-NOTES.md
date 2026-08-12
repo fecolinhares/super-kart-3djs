@@ -12,6 +12,16 @@
 - **Regression suite**: mobile touch/menu PASS, items (shell/banana) PASS, smoke PASS, pause/resume PASS, toast PASS, restart/finish PASS (countdown "3").
 - Verified: **PROBE 7/7 invariants both tracks** (0/78 wrong-way, 0/78 off-road per run), **SIM 32/32 seeds clean** (0 lost, 0 backwards, 0 stuck, onRoad 100%).
 
+### Round 9b — CRITICAL: banana TDZ freeze (Feco bug report via GitHub Pages, 2026-08-11)
+- **O jogo congelava segundos após a largada no GitHub Pages**: `ReferenceError:
+  Cannot access 'm' before initialization` no `Banana.update` — o `const m = this.mesh`
+  era declarado no FIM do update mas usado pelo bloco de arremesso (throw hop) acima.
+  Toda banana arremessada (this._vY truthy) crashava o frame → o loop morria → freeze.
+  Mesma classe de bug do Shell (fix r5) que nunca foi hoisted aqui. Corrigido (m hoisted).
+- O error overlay (41a235a) revelou o erro real — o freeze passou de mistério a stack trace.
+- Também: handler `webglcontextlost` (reload com ?nobl se não restaurar) + null-guard em
+  playerKart.setControls (41a235a).
+
 ### Round 8 — City arcs + recovery tuning + item-box depth (audit loop, 2026-08-11)
 - Neon City rebuilt from straights + true 90° circle arcs (R=14m): the flanged-vertex version had centerline radius dipping to 2.5m at apexes (CatmullRom concentrates curvature at sharp vertices) — smaller than the 4.65m kerb offset, so the INNER kerb edge self-intersected (stones crossed every lap). Now ≥12m everywhere; kerb-edge folds 0/0; city-layout-probe gains a permanent fold gate.
 - crashRecoverMs 1200→500: AI re-grips 0.5s after a spin (MK8-like). Harness injects REAL item-hit spins (1500-2100ms, was 550-950ms) and the STUCK detector exempts post-hit recovery (no false positives).
