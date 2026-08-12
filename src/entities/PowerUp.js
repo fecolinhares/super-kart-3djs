@@ -975,35 +975,53 @@ function buildShellMesh(color) {
 
 function buildBananaMesh() {
   const g = new THREE.Group();
-  // AUDIT R3 (visual critic: 'dark, not clearly a banana'): MK8 items are
-  // SELF-LIT — the toon material depended on scene light that is dim in
-  // Neon. MeshBasicMaterial + toneMapped=false keeps the peel hot yellow.
+  // AUDIT R3/R4 (visual critic): the torus arc read as a 'metal ring', not a
+  // banana. MK8 banana = an elongated asymmetric crescent: wide belly,
+  // tapered tips, one tip angled. Built as an extruded 2D profile (Shape)
+  // so the silhouette IS a banana at any angle.
+  const s = new THREE.Shape();
+  // Outer curve (back of the banana) — start bottom-left tip, arc up-right.
+  s.moveTo(-0.42, -0.10);
+  s.quadraticCurveTo(-0.30, 0.26, 0.0, 0.30);
+  s.quadraticCurveTo(0.30, 0.26, 0.46, -0.02);
+  // Tip right — small rounded cap.
+  s.quadraticCurveTo(0.50, -0.10, 0.44, -0.16);
+  // Inner curve (belly) — sweep back to the left tip.
+  s.quadraticCurveTo(0.24, 0.02, 0.0, 0.04);
+  s.quadraticCurveTo(-0.24, 0.02, -0.40, -0.16);
+  // Tip left — rounded cap closes the loop.
+  s.quadraticCurveTo(-0.46, -0.12, -0.42, -0.10);
+  s.closePath();
+  const geo = new THREE.ExtrudeGeometry(s, {
+    depth: 0.22,
+    bevelEnabled: true,
+    bevelThickness: 0.05,
+    bevelSize: 0.04,
+    bevelSegments: 3,
+  });
+  geo.rotateX(Math.PI / 2); // lay the extrusion flat on the road (depth = height)
   const peelMat = new THREE.MeshBasicMaterial({ color: 0xffd23f });
   peelMat.toneMapped = false;
-  // AUDIT (Feco, 2026-08-11): 'a banana não dá pra ver no mapa, nem quando
-  // arremessa' — the 0.26m-radius torus was a tiny pale crescent on asphalt.
-  // Bigger (0.36 radius, thicker tube ~0.72m banana, MK8D scale), hotter
-  // emissive, brown tips and a cartoon outline so it reads at 40 m/s.
+  const body = new THREE.Mesh(geo, peelMat);
+  body.castShadow = true;
+  g.add(body);
+  // Dark cartoon outline (BackSide shell) so the crescent reads on dark asphalt.
   const outline = new THREE.Mesh(
-    new THREE.TorusGeometry(0.44, 0.17, 8, 14, Math.PI * 1.15),
+    geo.clone(),
     new THREE.MeshBasicMaterial({ color: 0x2a1c00, side: THREE.BackSide })
   );
-  outline.scale.setScalar(1.08);
-  outline.rotation.x = Math.PI / 2;
+  outline.scale.setScalar(1.06);
   g.add(outline);
-
-  // Bent tube laid flat on the road (torus arc rotated into the XZ plane).
-  const arc = new THREE.Mesh(new THREE.TorusGeometry(0.44, 0.17, 10, 18, Math.PI * 1.15), peelMat);
-  arc.rotation.x = Math.PI / 2;
-  g.add(arc);
-
+  // Brown tips — small flattened spheres at both ends (MK8 cue).
   const tipMat = new THREE.MeshBasicMaterial({ color: 0xc98a24 });
   tipMat.toneMapped = false;
-  const tip1 = new THREE.Mesh(new THREE.SphereGeometry(0.17, 10, 8), tipMat);
-  tip1.position.set(0.44, 0.07, 0.14);
+  const tip1 = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 8), tipMat);
+  tip1.position.set(0.46, 0.10, 0);
+  tip1.scale.set(1, 0.7, 1);
   g.add(tip1);
-  const tip2 = new THREE.Mesh(new THREE.SphereGeometry(0.15, 10, 8), tipMat);
-  tip2.position.set(-0.40, 0.07, -0.14);
+  const tip2 = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), tipMat);
+  tip2.position.set(-0.44, 0.10, 0);
+  tip2.scale.set(1, 0.7, 1);
   g.add(tip2);
   return g;
 }
