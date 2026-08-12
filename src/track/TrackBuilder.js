@@ -13,7 +13,7 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { toonMaterial, cartoonOutline, roadTexture, cityRoadTexture, dirtTexture, grassTexture, concreteTexture, checkerTexture, bannerCheckerTexture, finishBannerTexture, turboPadTexture, arrowTexture, finishLineTexture } from '../render/Materials.js';
+import { toonMaterial, cartoonOutline, roadTexture, cityRoadTexture, dirtTexture, grassTexture, concreteTexture, checkerTexture, bannerCheckerTexture, finishBannerTexture, turboPadTexture, turboPadChevronTexture, arrowTexture, finishLineTexture } from '../render/Materials.js';
 
 // Control points forming the closed loop (X, Y=elevation, Z).
 const CONTROL_POINTS = [
@@ -955,22 +955,38 @@ function buildLaneDashes(path, length) {
  * as a distinct "drive over me" strip. Returns the instanced mesh plus the
  * normalized ts and world points KartPhysics uses for boost detection.
  */
+/** MK8-style turbo boost strips (Feco QA 2026-08-12): ONE long amber ribbon
+ *  per cluster (11.2m) instead of four small squares — reads as a speed pad
+ *  from any distance. Base decal + an additive glow overlay (glowMat) that
+ *  the main loop breathes (opacity pulse). The physics ts/points are kept at
+ *  the old 4-per-cluster spots so boost detection is unchanged. */
 function buildTurboPads(path, length) {
   const clusters = CONFIG.track.turboPadTs || [];
   const perCluster = 4;
-  const spacing = 2.8; // m between pads in a cluster (along the path)
+  const spacing = 2.8; // m between detection spots in a cluster
   const dt = spacing / length;
-  const count = clusters.length * perCluster;
 
   // Flat painted decal (was a 0.04 box that read as floating). polygonOffset
   // keeps it glued to the asphalt at grazing angles.
-  const geo = new THREE.PlaneGeometry(1.2, 1.4);
-  // MeshBasicMaterial: unlit so the pad stays bright yellow/white in shadow.
+  const geo = new THREE.PlaneGeometry(3.6, 11.2);
+  // MeshBasicMaterial: unlit so the pad stays bright amber/white in shadow.
   const mat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), color: 0xffffff, side: THREE.DoubleSide });
   mat.polygonOffset = true;
   mat.polygonOffsetFactor = -2;
   mat.polygonOffsetUnits = -2;
-  const mesh = new THREE.InstancedMesh(geo, mat, count);
+  // Additive glow overlay — pulses via glowMat.opacity (main.js update loop).
+  const glowMat = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+  const mesh = new THREE.InstancedMesh(geo, mat, clusters.length);
+  const glowMesh = new THREE.InstancedMesh(geo, glowMat, clusters.length);
+  mesh.frustumCulled = false;
+  glowMesh.frustumCulled = false;
 
   const p = new THREE.Vector3();
   const tan = new THREE.Vector3();
@@ -978,29 +994,34 @@ function buildTurboPads(path, length) {
   const ts = [];
   const points = [];
 
-  let i = 0;
+  let vi = 0;
   for (const c of clusters) {
+    // Detection spots (unchanged — 4 per cluster, ±1.5dt around c).
     for (let k = 0; k < perCluster; k++) {
-      // center the cluster on c: offsets -1.5dt..+1.5dt
       const t = Math.min(0.999, Math.max(0.001, c + (k - (perCluster - 1) / 2) * dt));
       path.getPointAt(t, p);
-      path.getTangentAt(t, tan);
-      // Road ribbon sits at y+0.18 — decals must sit ABOVE it (y+0.21).
-      dummy.position.set(p.x, p.y + 0.21, p.z);
-      dummy.lookAt(p.x + tan.x, p.y, p.z + tan.z);
-      dummy.rotateX(-Math.PI / 2); // lay flat as paint
-      // The ">>>" chevrons in turboPadTexture point along the texture's +X —
-      // spin the flat plane so they point along the direction of travel.
-      dummy.rotateZ(-Math.PI / 2);
-      dummy.updateMatrix();
-      mesh.setMatrixAt(i, dummy.matrix);
       ts.push(t);
       points.push(p.clone());
-      i++;
     }
+    // Visual: one long strip centered on the cluster.
+    path.getPointAt(c, p);
+    path.getTangentAt(c, tan);
+    dummy.position.set(p.x, p.y + 0.21, p.z);
+    dummy.lookAt(p.x + tan.x, p.y, p.z + tan.z);
+    dummy.rotateX(-Math.PI / 2); // lay flat as paint
+    // The ">>>" chevrons in turboPadTexture point along the texture's +X —
+    // spin the flat plane so they point along the direction of travel.
+    dummy.rotateZ(-Math.PI / 2);
+    dummy.updateMatrix();
+    mesh.setMatrixAt(vi, dummy.matrix);
+    glowMesh.setMatrixAt(vi, dummy.matrix);
+    vi++;
   }
   mesh.instanceMatrix.needsUpdate = true;
-  return { mesh, ts, points };
+  glowMesh.instanceMatrix.needsUpdate = true;
+  const group = new THREE.Group();
+  group.add(mesh, glowMesh);
+  return { mesh: group, glowMat, ts, points };
 }
 
 function buildGantry(startLine) {
@@ -1982,7 +2003,7 @@ function buildRamps(path, length, rampTs) {
   // Toon ramp body (audit v4 F1: was the only non-toon surface — read as a
   // flat orange crate) + painted chevrons on the top face.
   const mat = toonMaterial(0xc96f2c, { side: THREE.DoubleSide });
-  const chevMat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), transparent: true, depthWrite: false, side: THREE.DoubleSide });
+  const chevMat = new THREE.MeshBasicMaterial({ map: turboPadChevronTexture(), transparent: true, depthWrite: false, side: THREE.DoubleSide });
   const tan = new THREE.Vector3();
   const p = new THREE.Vector3();
   // Taller + longer so the ramp reads as a LAUNCH RAMP, not a speed bump

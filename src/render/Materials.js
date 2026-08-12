@@ -658,15 +658,82 @@ export function skyTexture() {
   return _skyTex;
 }
 
-/** Turbo pad: bright amber base with three bold white chevrons ">>>" pointing
- *  along the track direction (reads as a speed-up pad instantly).
- *  AUDIT (Feco QA 2026-08-12): the old recipe stacked the chevrons VERTICALLY
- *  (cy = 0.26/0.50/0.74), which read as a zigzag/W from the chase cam instead
- *  of the MK8 ">>>". Classic layout: three chevrons SIDE BY SIDE on one row,
- *  tips pointing +X (the buildTurboPads rotateZ already points +X down-track). */
+/** Turbo pad: MK8-style boost strip — a LONG amber ribbon (not a square) with
+ *  glowing white ">>>" chevrons down its length + bright leading/trailing
+ *  edges. Canvas is 1:3 (matches the 3.6 x 11.2m pad plane) so the pattern
+ *  doesn't stretch. The additive glow overlay (built in buildTurboPads) makes
+ *  it breathe in-game; tips point +X so the rotateZ in buildTurboPads aims
+ *  them down-track. */
 export function turboPadTexture() {
   if (_turboPadTex) return _turboPadTex;
-  _turboPadTex = canvasTexture(
+  const W = 128;
+  const H = 384;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  // Warm amber gradient down the strip (MK8 pad amber→orange).
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#ffd94a');
+  g.addColorStop(0.5, '#ffb01f');
+  g.addColorStop(1, '#ff8c1a');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+  // Faint inner glow wash so the whole strip reads hot.
+  ctx.globalAlpha = 0.25;
+  ctx.fillStyle = '#fff3c4';
+  ctx.fillRect(0, H * 0.12, W, H * 0.76);
+  ctx.globalAlpha = 1;
+  // Bright leading + trailing edges (the strip's short ends stay crisp).
+  ctx.shadowColor = 'rgba(255,255,255,0.95)';
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.fillRect(0, 0, W, 9);
+  ctx.fillRect(0, H - 9, W, 9);
+  ctx.shadowBlur = 0;
+  // Four big ">>>" chevrons down the length, tips +X, strong glow.
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 13;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.shadowColor = 'rgba(255,255,255,1)';
+  ctx.shadowBlur = 14;
+  for (const fy of [0.18, 0.42, 0.66, 0.88]) {
+    const cy = H * fy;
+    const half = W * 0.28;
+    ctx.beginPath();
+    ctx.moveTo(W / 2 - half, cy - H * 0.05);
+    ctx.lineTo(W / 2 + half, cy);
+    ctx.lineTo(W / 2 - half, cy + H * 0.05);
+    ctx.stroke();
+  }
+  // Extra soft halo pass on the same paths (bigger blur, lower alpha).
+  ctx.shadowBlur = 26;
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+  for (const fy of [0.18, 0.42, 0.66, 0.88]) {
+    const cy = H * fy;
+    const half = W * 0.28;
+    ctx.beginPath();
+    ctx.moveTo(W / 2 - half, cy - H * 0.05);
+    ctx.lineTo(W / 2 + half, cy);
+    ctx.lineTo(W / 2 - half, cy + H * 0.05);
+    ctx.stroke();
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.anisotropy = 8;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  _turboPadTex = tex;
+  return _turboPadTex;
+}
+
+/** Ramp chevron decal: compact square texture (3 chevrons side by side) for
+ *  the launch-ramp top face — the long strip texture would be squashed there.
+ *  Same +X tip convention (buildRamps Z-spins it up the slope). */
+let _turboPadChevronTex = null;
+export function turboPadChevronTexture() {
+  if (_turboPadChevronTex) return _turboPadChevronTex;
+  _turboPadChevronTex = canvasTexture(
     256,
     (ctx, s) => {
       ctx.fillStyle = '#ffc233';
@@ -675,6 +742,8 @@ export function turboPadTexture() {
       ctx.lineWidth = s * 0.075;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
+      ctx.shadowColor = 'rgba(255,255,255,1)';
+      ctx.shadowBlur = 10;
       for (let i = 0; i < 3; i++) {
         const cx = s * (0.5 + (i - 1) * 0.26);
         const cy = s * 0.5;
@@ -687,5 +756,6 @@ export function turboPadTexture() {
       }
     }
   );
-  return _turboPadTex;
+  return _turboPadChevronTex;
 }
+

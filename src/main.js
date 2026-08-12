@@ -50,6 +50,8 @@ const BASE_BOOST_SPEED = CONFIG.physics.boostSpeed;
 const env = new Environment();
 env.trackId = TRACK_ID; // theme hook: 1 = sunny meadow, 2 = neon city
 const track = buildTrack(scene, TRACK_ID === 2 ? CITY_PATH : TRACK_PATH);
+  // MK8 turbo strips breathe (Feco QA 2026-08-12): additive glow overlay pulse.
+  const turboGlowMat = (track.turboPads && track.turboPads.glowMat) || null;
 env.buildEnvironment(scene, track); // track passed so props avoid the road
 // Image-based lighting: chrome + car paint need an env map or metalness
 // renders BLACK. A procedural SUNNY-SKY env (instead of the grey RoomEnvironment)
@@ -949,6 +951,8 @@ window.__prof = {};
 loop.start((dt, t) => {
   qaFrameN++;
   window.__qaFrameN = qaFrameN;
+  // Turbo pad glow pulse (MK8 boost strips breathe).
+  if (turboGlowMat) turboGlowMat.opacity = 0.16 + 0.14 * (0.5 + 0.5 * Math.sin(t * 2.6));
   // Environment animation (clouds, water, flags).
   env.update(dt, t);
 
