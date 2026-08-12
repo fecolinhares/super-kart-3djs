@@ -627,7 +627,11 @@ function buildCurbs(path, length, side, opts = {}) {
   // the edge itself — inner corners get fewer, wider-spaced stones, outer
   // corners get more; every pair is exactly `segEff` apart on the edge.
   const offset = roadW / 2 + 0.15;
-  const segEff = seg * 0.98;
+  // AUDIT (Feco QA 2026-08-12): segEff 0.98 left ~1cm overlap — straight
+  // kerb stones on a curve open a triangular gap at every joint (~1.6cm on
+  // R=8) that read as HOLES in the zebra. 0.90 (5cm overlap) closes them on
+  // the city's tightest corners while still reading as individual stones.
+  const segEff = seg * 0.90;
   // Edge length (arc of the kerb line, not the centerline).
   const ARC_N = 2000;
   const arcT = new Float64Array(ARC_N + 1); // arcT[i] = t at sample i
@@ -723,8 +727,8 @@ function buildCurbs(path, length, side, opts = {}) {
     nrm.set(-tan.z, 0, tan.x).normalize();
     // Per-stone jitter (height + lateral) so the kerb reads as stones set
     // into the ground; top now at y+0.28 (±0.01) — recessed 1cm from 0.29.
-    const yJ = (hash01(i, 7) - 0.5) * 0.008;
-    const latJ = (hash01(i, 8) - 0.5) * 0.004;
+    const yJ = (hash01(i, 7) - 0.5) * 0.006;
+    const latJ = (hash01(i, 8) - 0.5) * 0.0015;
     dummy.position.set(
       p.x + nrm.x * side * (roadW / 2 + 0.15 + latJ),
       p.y + 0.28 - curbH / 2 + yJ,

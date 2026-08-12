@@ -659,7 +659,11 @@ export function skyTexture() {
 }
 
 /** Turbo pad: bright amber base with three bold white chevrons ">>>" pointing
- *  along the track direction (reads as a speed-up pad instantly). */
+ *  along the track direction (reads as a speed-up pad instantly).
+ *  AUDIT (Feco QA 2026-08-12): the old recipe stacked the chevrons VERTICALLY
+ *  (cy = 0.26/0.50/0.74), which read as a zigzag/W from the chase cam instead
+ *  of the MK8 ">>>". Classic layout: three chevrons SIDE BY SIDE on one row,
+ *  tips pointing +X (the buildTurboPads rotateZ already points +X down-track). */
 export function turboPadTexture() {
   if (_turboPadTex) return _turboPadTex;
   _turboPadTex = canvasTexture(
@@ -668,13 +672,13 @@ export function turboPadTexture() {
       ctx.fillStyle = '#ffc233';
       ctx.fillRect(0, 0, s, s);
       ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = s * 0.09;
+      ctx.lineWidth = s * 0.075;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       for (let i = 0; i < 3; i++) {
-        const cx = s * 0.5;
-        const cy = s * (0.26 + i * 0.24);
-        const half = s * 0.16;
+        const cx = s * (0.5 + (i - 1) * 0.26);
+        const cy = s * 0.5;
+        const half = s * 0.12;
         ctx.beginPath();
         ctx.moveTo(cx - half, cy - half);
         ctx.lineTo(cx + half, cy);
