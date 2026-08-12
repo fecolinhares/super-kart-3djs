@@ -1183,20 +1183,20 @@ function buildGantry(startLine) {
   // AUDIT R3 (blind critic: '5 lamps not countable at chase distance') —
   // MK8 start-light modules are BIG: 0.42m lamps, wider panel, more spacing.
   const lampPanel = new THREE.Mesh(
-    new THREE.BoxGeometry(5.6, 0.62, 0.18),
-    toonMaterial(0x0d1119, {})
-  );
+    new THREE.BoxGeometry(6.0, 0.66, 0.2),
+    toonMaterial(0x06080d, {})
+  ); // AUDIT R4: panel darker 0x06080d + bigger (contrast vs city sky)
   lampPanel.position.copy(startLine.position).addScaledVector(nrm, 0);
   lampPanel.position.y = 5.62;
   lampPanel.castShadow = false;
   group.add(lampPanel);
   // 5 lamp bodies proud of the panel face (toward the racers).
-  const lampGeo = new THREE.SphereGeometry(0.42, 16, 14); // AUDIT R3: 0.27→0.42 (countable at chase cam)
-  const lampOff = toonMaterial(0xf2f4f8, { emissive: 0x9fb4c8, emissiveIntensity: 0.6 });
+  const lampGeo = new THREE.SphereGeometry(0.52, 18, 16); // AUDIT R4: 0.42→0.52 — MK8 lamps are BIG at grid
+  const lampOff = toonMaterial(0xf2f4f8, { emissive: 0xa8bcd4, emissiveIntensity: 0.7 });
   const lampMat = lampOff;
   for (let i = -2; i <= 2; i++) {
     const lamp = new THREE.Mesh(lampGeo, lampMat);
-    lamp.position.copy(startLine.position).addScaledVector(nrm, i * 1.02);
+    lamp.position.copy(startLine.position).addScaledVector(nrm, i * 1.08);
     lamp.position.y = 5.62; // face of the housing panel
     lamp.castShadow = false;
     group.add(lamp);
