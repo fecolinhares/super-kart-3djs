@@ -125,9 +125,13 @@ export class ItemBox {
     // AUDIT R6 (Feco real-GPU 2026-08-13: 'item boxes afundando na pista'):
     // a superfície VISUAL da pista é a ribbon em y+0.18 — a base em +0.05
     // afundava 13cm no asfalto. Base agora na ribbon (0.18).
+    // AUDIT R7 (Feco: 'deveria flutuar, não colar no chão'): base 0.35m ACIMA
+    // da ribbon — o bob (±0.18) anima em cima disso e a base NUNCA encosta
+    // (0.35-0.18 = 0.17 > 0). Pickup é por distância XZ, então flutuar não
+    // impede pegar.
     return {
       x: point.x + (px / pl) * lateral,
-      y: point.y + 0.18 + this.size * 0.5,
+      y: point.y + 0.18 + 0.35 + this.size * 0.5,
       z: point.z + (pz / pl) * lateral,
       yaw: Math.atan2(tangent.x, tangent.z),
     };

@@ -1060,7 +1060,7 @@ function buildTurboPads(path, length) {
     // declive o pad inclinava e a ponta dianteira afundava. Agora:
     // yaw = tangente (direção) + pitch = inclinação REAL do path CLAMPADA
     // (±0.18 rad ≈ 10°) — segue rampas sem apontar para o chão.
-    dummy.position.set(p.x, p.y + 0.18, p.z);
+    dummy.position.set(p.x, p.y + 0.1825, p.z); // AUDIT R4 (Feco: 'textura da pista sobre o pad'): overlays wear/edge em 0.181/0.1815 cobriam o pad em 0.18 — subiu 0.25cm, acima de tudo
     const ahead = path.getPointAt(Math.min(0.999, Math.max(0.001, c + 0.0015)));
     const dist = Math.hypot(ahead.x - p.x, ahead.z - p.z) || 1;
     const dy = ahead.y - p.y;
