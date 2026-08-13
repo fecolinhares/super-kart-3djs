@@ -1019,18 +1019,53 @@ function buildBananaMesh() {
   })();
   const peelMat = new THREE.MeshBasicMaterial({ map: peelTex });
   peelMat.toneMapped = false;
-  // Thick crescent torus (MK8 banana scale), arc 1.15π laid flat.
-  const arc = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.16, 12, 20, Math.PI * 1.15), peelMat);
-  arc.rotation.x = Math.PI / 2;
+  // AUDIT R12 (blind critic 2026-08-13: 'uniform torus reads as a ring, not
+  // a banana') — TubeGeometry along a banana arc with a TAPERED radius:
+  // thick belly in the middle, thin tips at both ends (MK8 silhouette).
+  const curve = new THREE.QuadraticBezierCurve3(
+    new THREE.Vector3(-0.95, 0, 0),
+    new THREE.Vector3(0, 0.55, 0),
+    new THREE.Vector3(0.95, 0, 0)
+  );
+  const TUBE_SEGS = 28;
+  const taperGeo = new THREE.TubeGeometry(curve, TUBE_SEGS, 0.17, 12, false);
+  {
+    // Taper: scale each ring's radius by a bell curve over the tube length —
+    // belly ~1.0 at center, ~0.35 at the tips.
+    const pos = taperGeo.attributes.position;
+    const v = new THREE.Vector3();
+    const n = pos.count;
+    // rings = TUBE_SEGS+1, each with 12 verts; ring index = floor(i/12)
+    const perRing = 12;
+    for (let i = 0; i < n; i++) {
+      const ring = Math.floor(i / perRing);
+      const t = ring / TUBE_SEGS; // 0..1 along the banana
+      const taper = Math.max(0.30, Math.sin(Math.PI * Math.min(1, Math.max(0, t))) ** 0.9);
+      v.fromBufferAttribute(pos, i);
+      // center of this ring is roughly at curve point; shrink around it
+      // (cheap approximation: scale X/Z about the tube axis already near
+      // the curve — use the ring centroid via first vert of ring)
+      const cx = pos.getX(ring * perRing);
+      const cy = pos.getY(ring * perRing);
+      const cz = pos.getZ(ring * perRing);
+      // vector from ring center to this vertex (approx along ring plane)
+      const dx = v.x - cx;
+      const dy = v.y - cy;
+      const dz = v.z - cz;
+      pos.setXYZ(i, cx + dx * taper, cy + dy * taper, cz + dz * taper);
+    }
+    pos.needsUpdate = true;
+    taperGeo.computeVertexNormals();
+  }
+  const arc = new THREE.Mesh(taperGeo, peelMat);
+  arc.rotation.z = Math.PI / 2; // lay the arc flat on the road (XZ plane)
+  arc.scale.setScalar(0.62);    // MK8 banana ~1.2m long
   arc.castShadow = true;
   g.add(arc);
   // Dark cartoon outline (BackSide shell) for contrast on dark asphalt.
-  const outline = new THREE.Mesh(
-    new THREE.TorusGeometry(0.42, 0.16, 12, 20, Math.PI * 1.15),
-    new THREE.MeshBasicMaterial({ color: 0x2a1c00, side: THREE.BackSide })
-  );
-  outline.scale.setScalar(1.07);
-  outline.rotation.x = Math.PI / 2;
+  const outline = new THREE.Mesh(taperGeo.clone(), new THREE.MeshBasicMaterial({ color: 0x2a1c00, side: THREE.BackSide }));
+  outline.rotation.z = Math.PI / 2;
+  outline.scale.setScalar(0.62 * 1.06);
   g.add(outline);
   return g;
 }
