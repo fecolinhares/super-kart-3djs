@@ -875,11 +875,14 @@ export class Kart {
     // ---- rear wing: curved blade + dark lower element + endplates + pylon ----
     // Half-pipe painted blade (convex face toward the chase camera) + a dark
     // lower blade (split-wing read) — a shaped aero wing, not a plank.
+    // AUDIT R7 (blind critic followCam: 'spoiler hides the driver in chase
+    // view — the main camera'). MK8 karts ride LOW with the wing below helmet
+    // height so the pilot reads above the aero. Wing 1.24→1.02, blade 0.22→0.17.
     const wingGroup = new THREE.Group();
-    wingGroup.position.set(0, 1.24, -0.90);
+    wingGroup.position.set(0, 1.02, -0.90);
     wingGroup.rotation.z = -Math.PI / 2; // blade spans X; convex face faces -Z
     const blade = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.22, 0.22, 1.40, 32, 1, false, Math.PI, Math.PI),
+      new THREE.CylinderGeometry(0.17, 0.17, 1.40, 32, 1, false, Math.PI, Math.PI),
       carPaint
     );
     blade.rotation.x = 0.12; // slight negative angle (downforce)
@@ -897,7 +900,7 @@ export class Kart {
     // Wingtip endplates (painted) with dark edge trim.
     for (const s of [-1, 1]) {
       const plate = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.42, 0.62), carPaint);
-      plate.position.set(s * 0.72, 1.24, -0.90);
+      plate.position.set(s * 0.72, 1.02, -0.90);
       plate.castShadow = true;
       this.group.add(plate);
       const trim = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.06, 0.64), dark);
