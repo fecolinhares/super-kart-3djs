@@ -530,7 +530,7 @@ export class Kart {
     const gloveMat = this._mat(accent);
     const hubCapMat = this._mat(accent);
     const caliperMat = new THREE.MeshStandardMaterial({ color: 0xc22a24, roughness: 0.45, metalness: 0.25 });
-    const chassisMat = new THREE.MeshStandardMaterial({ color: 0x0b0e13, roughness: 0.9, metalness: 0.1 });
+    const chassisMat = new THREE.MeshStandardMaterial({ color: 0x0b0e13, roughness: 0.55, metalness: 0.35 }); // AUDIT R8: polido (MK8) — antes fosco demais 0.9/0.1
 
     // Soft blob shadow under the kart (cartoon contact shadow). Radial
     // gradient texture (soft edge — a hard circle read as a decal per the
