@@ -3240,12 +3240,14 @@ export class Environment {
         scallop.rotation.x = 0.16;
         grp.add(scallop);
       }
-      // support posts
+      // support posts — AUDIT R12: z -3.4 ficava NA LINHA de visão da câmera
+      // (crítico: 'objeto preto grande no centro bloqueia a plateia') → -5.6,
+      // fora do frame frontal.
       const postGeo = new THREE.CylinderGeometry(0.14, 0.14, 4.4, 8);
       const postMat = toonMaterial(0x8b7a5c, {});
       for (const side of [-1, 1]) {
         const post = new THREE.Mesh(postGeo, postMat);
-        post.position.set(side * 8, 2.2, -3.4);
+        post.position.set(side * 8, 2.2, -5.6);
         grp.add(post);
       }
       grp.position.set(gs.x, this._gy(gs.x, gs.z), gs.z);
