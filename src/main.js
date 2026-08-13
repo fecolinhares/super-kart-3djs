@@ -1294,6 +1294,7 @@ window.__sk3d = {
     }
   },
   settings, // QA: current difficulty/assist settings { cc, autoAccel, steerAssist }
+  setPlayerColor, // QA: kart paint override (roster color validation)
   updateCamera, // QA hook: can be stubbed to freeze the chase camera
   playerCharIndex: () => getPlayerCharIndex(), // QA: selected driver (audit r4)
   DEMO,
