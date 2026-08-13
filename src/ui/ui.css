@@ -563,6 +563,10 @@
 .sk3d-speedo {
   /* AUDIT (visual auditor 2026-08-12): MK8 speedo is a CIRCULAR dial, not a
      square card with a semicircle. Full 160px circle + golden ring trim. */
+  position: relative; /* AUDIT R4 (2026-08-13): the readout is a SIBLING of
+     .sk3d-speedo-dial — without a positioned ancestor it resolved against the
+     HUD and the speed value rendered at screen-center (x:625) instead of the
+     dial center. */
   width: 160px;
   height: 160px;
   border-radius: 50%;
