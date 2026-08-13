@@ -903,7 +903,7 @@ function updateCamera(dt, t) {
   // AUDIT R9 (critic kart-mobile 7/10: 'câmera levemente mais alta e aberta,
   // kart comprimido pelo HUD, muito céu vazio'): no mobile a chase fica mais
   // longe/alta p/ mostrar mais pista à frente na tela vertical.
-  const _mobile = isMobile();
+  const _mobile = isTouchMode(); // mobile/touch → chase mais aberta
   const dist =
     (CONFIG.camera.followDistance + (_mobile ? 1.3 : 0)) * (1 + speed01 * CAM_SPEED_PULLBACK) +
     camBoostKick * CAM_BOOST_KICK;
