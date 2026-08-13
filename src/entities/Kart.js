@@ -1310,6 +1310,16 @@ export class Kart {
         { parent: drv, cast: false }
       );
     }
+    // AUDIT R6 (blind critic: 'emissive only proxies a rim light — want a
+    // REAL light separating the kart from dark asphalt'): a cool rim light
+    // parented to the kart group, behind-left. It follows every move and
+    // throws a colored edge highlight on body + helmet in the Neon night.
+    this.rimLight = new THREE.PointLight(0x66e0ff, 2.2, 7, 1.6);
+    this.rimLight.position.set(-1.3, 0.9, -1.2);
+    this.group.add(this.rimLight);
+    this.rimLightWarm = new THREE.PointLight(0xffb066, 1.2, 6, 1.6);
+    this.rimLightWarm.position.set(1.2, 0.4, 0.9);
+    this.group.add(this.rimLightWarm);
   }
 
   // ---- public API -----------------------------------------------------------
