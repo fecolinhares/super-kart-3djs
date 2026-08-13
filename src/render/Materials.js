@@ -180,35 +180,40 @@ export function cityRoadTexture() {
       // pavement, not painted stripes (vision critic: streaks read as
       // track decorations, not integrated city light).
       // AUDIT R2 (critic Neon 7/10: 'faltam reflexos no asfalto'): 12 spills
-      // + 4ª cor amarela + alpha 0.85 — o asfalto precisa RECEBER o neon.
+      // + 4ª cor amarela + alpha 0.9 + raios 40-90px (manchas LARGAS).
       for (let i = 0; i < 12; i++) {
         const x = Math.random() * s;
         const y = Math.random() * s;
-        const r = 26 + Math.random() * 34;
+        const r = 40 + Math.random() * 50;
         const roll = Math.random();
         const col = roll > 0.66 ? '255,46,196' : roll > 0.33 ? '46,196,255' : '255,209,102';
         const g = ctx.createRadialGradient(x, y, 2, x, y, r);
-        g.addColorStop(0, 'rgba(' + col + ',0.85)'); // AUDIT: spill must READ on the still
-        g.addColorStop(0.55, 'rgba(' + col + ',0.16)');
+        g.addColorStop(0, 'rgba(' + col + ',0.9)'); // AUDIT: spill must READ on the still
+        g.addColorStop(0.55, 'rgba(' + col + ',0.2)');
         g.addColorStop(1, 'rgba(' + col + ',0)');
         ctx.fillStyle = g;
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fill();
       }
-      // vertical light streaks — wet asphalt reflecting the buildings above
-      // (critic Neon 7/10: 'reflexos no asfalto dariam atmosfera molhada').
-      ctx.globalAlpha = 0.5;
-      for (let i = 0; i < 14; i++) {
+      // AUDIT R3 (critic Neon R2 7/10: 'streaks devem acompanhar a
+      // PERSPECTIVA da pista, não laterais'): a textura U segue a direção da
+      // pista — streaks HORIZONTAIS (dx) viram longitudinais no asfalto.
+      // Spills maiores (40-90px) p/ manchas largas e suaves.
+      ctx.globalAlpha = 0.55;
+      for (let i = 0; i < 16; i++) {
         const x = Math.random() * s;
-        const y = 0;
-        const h = 18 + Math.random() * 30;
-        const col2 = Math.random() > 0.5 ? '120,220,255' : '255,120,220';
-        const lg2 = ctx.createLinearGradient(0, y, 0, y + h);
-        lg2.addColorStop(0, 'rgba(' + col2 + ',0.6)');
-        lg2.addColorStop(1, 'rgba(' + col2 + ',0)');
-        ctx.fillStyle = lg2;
-        ctx.fillRect(x, y, 1.5, h);
+        const y = Math.random() * s;
+        const w = 16 + Math.random() * 30;   // along track (U)
+        const h = 2 + Math.random() * 4;     // thin across
+        const col3 = Math.random() > 0.5 ? '150,230,255' : '255,150,230';
+        const lg3 = ctx.createLinearGradient(x, y, x + w, y);
+        lg3.addColorStop(0, 'rgba(' + col3 + ',0)');
+        lg3.addColorStop(0.25, 'rgba(' + col3 + ',0.55)');
+        lg3.addColorStop(0.75, 'rgba(' + col3 + ',0.55)');
+        lg3.addColorStop(1, 'rgba(' + col3 + ',0)');
+        ctx.fillStyle = lg3;
+        ctx.fillRect(x, y, w, h);
       }
       ctx.globalAlpha = 1;
       // subtle wet sheen along the racing line
