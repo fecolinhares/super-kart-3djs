@@ -1917,8 +1917,12 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
     ribbonOpts.texture = cityRoadTexture; // baked neon spill on the asphalt
     ribbonOpts.emissiveMap = true; // the spill patches GLOW (vision 7/10 pass)
     ribbonOpts.color = 0x4a5062; // charcoal, not black
-    ribbonOpts.emissive = 0x2a1c4a; // cool night sheen WITH a hint of neon
-    ribbonOpts.emissiveIntensity = 1.35; // AUDIT: spill must READ on the still — light alone lost it; R2: 1.15→1.35 (reflexos molhados)
+    // AUDIT R4 (critic R3 3/10 'neon preso às laterais, nada no asfalto'):
+    // emissive 0x2a1c4a (escuro) MULTIPLICA o emissiveMap — os spills não
+    // podiam brilhar mais que 42/28/74. Branco + intensity carrega as cores
+    // reais do mapa (magenta/ciano/amarelo) no asfalto.
+    ribbonOpts.emissive = 0xffffff;
+    ribbonOpts.emissiveIntensity = 1.05;
   }
   const ribbon = buildRoadRibbon(path, length, ribbonOpts);
   ribbon.receiveShadow = true;
