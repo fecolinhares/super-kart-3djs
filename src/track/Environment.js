@@ -3809,29 +3809,58 @@ export class Environment {
     canvas.width = s;
     canvas.height = s;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#161c30'; // dark wall base
+    ctx.fillStyle = '#10162a'; // dark wall base
     ctx.fillRect(0, 0, s, s);
     const rand = rnd(4242);
-    // Fewer, BIGGER windows (vision critic: 8×7 tiny cells read as colored
-    // panels, not buildings — 4×5 big lit windows read as a skyline).
-    const cols = 4;
-    const rows = 5;
-    const cell = 46;
-    const gap = 6;
+    // AUDIT R2 (blind critic 2026-08-13: 'windows look like light panels,
+    // not inhabited buildings'): 6x7 cells with per-cell INTENSITY variety,
+    // warm/cool mix, curtain tints, some whole dark floors. Reads as offices
+    // and apartments, not uniform lit strips.
+    const cols = 6;
+    const rows = 7;
+    const cell = 28;
+    const gap = 7;
     const startX = (s - (cols * cell + (cols - 1) * gap)) / 2;
     const startY = (s - (rows * cell + (rows - 1) * gap)) / 2;
-    const litTints = ['#ffe9c4', '#cfe4ff', '#fff7cc'];
+    const litTints = ['#ffe9c4', '#cfe4ff', '#fff7cc', '#ffd9a8', '#d8e8ff'];
+    // Dark floors: pick 1-2 rows that stay mostly unlit (office closed).
+    const darkFloors = new Set();
+    const nDark = 1 + ((rand() * 2) | 0);
+    while (darkFloors.size < nDark) darkFloors.add((rand() * rows) | 0);
     for (let r = 0; r < rows; r++) {
+      const floorLit = !darkFloors.has(r);
       for (let c = 0; c < cols; c++) {
-        ctx.fillStyle = rand() < 0.52
-          ? litTints[(rand() * litTints.length) | 0]
-          : '#0e1426'; // unlit cell
-        ctx.fillRect(
-          startX + c * (cell + gap),
-          startY + r * (cell + gap),
-          cell,
-          cell
-        );
+        const x = startX + c * (cell + gap);
+        const y = startY + r * (cell + gap);
+        if (!floorLit) {
+          // mostly dark floor — one dim survivor window
+          if (rand() < 0.18) {
+            ctx.fillStyle = '#2a3550';
+            ctx.fillRect(x, y, cell, cell);
+          }
+          continue;
+        }
+        if (rand() < 0.55) {
+          // lit window: intensity 0.55-1.0 (some bright, some dim)
+          const bright = 0.55 + rand() * 0.45;
+          ctx.globalAlpha = bright;
+          ctx.fillStyle = litTints[(rand() * litTints.length) | 0];
+          ctx.fillRect(x, y, cell, cell);
+          ctx.globalAlpha = 1;
+          // curtain divider — a thin vertical darker slit
+          if (rand() < 0.4) {
+            ctx.fillStyle = 'rgba(10,14,30,0.5)';
+            ctx.fillRect(x + cell * 0.45, y, cell * 0.12, cell);
+          }
+        } else {
+          // unlit: dark glass with a faint cool reflection
+          ctx.fillStyle = '#0e1426';
+          ctx.fillRect(x, y, cell, cell);
+          if (rand() < 0.5) {
+            ctx.fillStyle = 'rgba(120,150,210,0.10)';
+            ctx.fillRect(x + 2, y + 2, cell - 4, 4);
+          }
+        }
       }
     }
     this._windowTex = new THREE.CanvasTexture(canvas);
