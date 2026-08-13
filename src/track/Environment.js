@@ -2426,7 +2426,9 @@ export class Environment {
         dummy.updateMatrix();
         tires.setMatrixAt(idx, dummy.matrix);
         // middle tire painted white — classic racing stack contrast
-        col.setHex(k === 1 ? 0xf4f6f8 : 0x262a33);
+        // AUDIT R2 (critic: 'volumes verdes, sem furo'): cores mais fortes
+        // (branco quase puro / preto mais escuro) p/ vencer a luz do gramado.
+        col.setHex(k === 1 ? 0xffffff : 0x14161c);
         tires.setColorAt(idx, col);
         idx++;
       }
