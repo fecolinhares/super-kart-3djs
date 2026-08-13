@@ -900,12 +900,11 @@ function updateCamera(dt, t) {
   if (st.boost && !camWasBoost) camBoostKick = 1;
   camWasBoost = !!st.boost;
   camBoostKick *= Math.exp(-5.5 * dt);
-  // AUDIT R10 (critic 2/10: height-0.2+look-0.35 tiraram o KART DO FRAME):
-  // baseline height/look restaurados (0); só dist +0.6 no mobile p/ um pouco
-  // mais de pista à frente sem perder o sujeito.
+  // AUDIT R11 (v5 5/10 vs baseline 7/10): dist +0.6 piorou (kart subiu e
+  // bloqueou pista). REVERTIDO ao baseline exato — 7/10 era o teto mobile.
   const _mobile = isTouchMode(); // mobile/touch → chase mais aberta
   const dist =
-    (CONFIG.camera.followDistance + (_mobile ? 0.6 : 0)) * (1 + speed01 * CAM_SPEED_PULLBACK) +
+    CONFIG.camera.followDistance * (1 + speed01 * CAM_SPEED_PULLBACK) +
     camBoostKick * CAM_BOOST_KICK;
 
   camTarget.copy(st.position).addScaledVector(_fwd, CONFIG.camera.lookAhead);
