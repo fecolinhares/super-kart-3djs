@@ -146,13 +146,14 @@ export class ItemBox {
     mesh.add(outline);
     // Golden light beam under the box — makes pickups readable at a glance.
     const beam = new THREE.Mesh(
-      new THREE.CylinderGeometry(this.size * 0.5, this.size * 0.85, this.size * 2.6, 12, 1, true),
+      new THREE.CylinderGeometry(this.size * 0.7, this.size * 1.05, this.size * 2.8, 14, 1, true),
       new THREE.MeshBasicMaterial({
-        color: 0xffd166,
+        color: 0xffdf80,
         transparent: true,
-        opacity: 0.45,
+        opacity: 0.55,
         side: THREE.DoubleSide,
         depthWrite: false,
+        blending: THREE.AdditiveBlending, // AUDIT R3: additive reads as a light column on dark asphalt
       })
     );
     beam.position.set(this.base.x, Math.max(this.base.y - this.size * 1.35, 0.18), this.base.z); // AUDIT: the light beam must end AT the road (0.18), not pierce below ground
@@ -171,6 +172,7 @@ export class ItemBox {
       transparent: true,
       opacity: 0.95,
       depthWrite: false,
+      blending: THREE.AdditiveBlending, // AUDIT R3: additive halo reads through bloom
     });
     const ringMesh = new THREE.Mesh(ringGeo, ringMat);
     ringMesh.rotation.x = Math.PI / 2;
