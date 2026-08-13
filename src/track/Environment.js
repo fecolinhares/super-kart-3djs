@@ -2419,18 +2419,24 @@ export class Environment {
       const tx = p.x + nrm.x * side * (halfW + 4.5);
       const tz = p.z + nrm.z * side * (halfW + 4.5);
       if (this._onTrack(tx, tz, 2)) continue; // nunca na pista (margem 4.5 cobre)
-      stacks.push({ x: tx, z: tz, gy: p.y, ry: Math.atan2(tan.x, tan.z) });
+      // AUDIT R10: variação por ÍNDICE (determinística — não usa _rand p/
+      // não mudar o stream): altura 2-4, yaw ±0.35, escala 0.9-1.1.
+      stacks.push({ x: tx, z: tz, gy: p.y, ry: Math.atan2(tan.x, tan.z), v: i % 3, yaw: ((i * 37) % 70) / 100 - 0.35, sc: 0.9 + ((i * 13) % 21) / 100 });
     }
     if (!stacks.length) return;
-    const tires = new THREE.InstancedMesh(tireGeo, tireMat, stacks.length * 3);
+    const tires = new THREE.InstancedMesh(tireGeo, tireMat, stacks.length * 4);
     const col = new THREE.Color();
     const dummy = new THREE.Object3D();
     let idx = 0;
     for (const s of stacks) {
-      for (let k = 0; k < 3; k++) {
-        dummy.position.set(s.x, s.gy + 0.24 + k * 0.47, s.z); // AUDIT R9: gap 0.47 separa as 3 camadas (critico pedia 'pneus individuais')
-        dummy.rotation.set(Math.PI / 2, 0, s.ry); // torus laid flat
-        dummy.scale.set(1, 1, 1);
+      // AUDIT R10 (critic 7/10: 'pilhas idênticas, parecem cópias'): altura
+      // VARIA (2-4 pneus), yaw aleatório ±0.35, escala leve — não lê como
+      // instância repetida.
+      const count = 2 + (s.v % 3); // 2..4
+      for (let k = 0; k < count; k++) {
+        dummy.position.set(s.x, s.gy + 0.24 + k * 0.47, s.z); // AUDIT R9: gap 0.47 separa as camadas (critico pedia 'pneus individuais')
+        dummy.rotation.set(Math.PI / 2, 0, s.ry + s.yaw); // torus laid flat + yaw aleatório
+        dummy.scale.set(s.sc, 1, s.sc);
         dummy.updateMatrix();
         tires.setMatrixAt(idx, dummy.matrix);
         // middle tire painted white — classic racing stack contrast
