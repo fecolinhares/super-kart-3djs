@@ -2390,9 +2390,12 @@ export class Environment {
     const len = path.getLength();
     const halfW = CONFIG.track.roadWidth / 2;
     const tireGeo = new THREE.TorusGeometry(0.42, 0.2, 10, 18);
-    // white base material — instance colors tint it (dark rubber / white
-    // painted tire). A colored material would multiply and kill the white.
-    const tireMat = toonMaterial(0xffffff, {});
+    // AUDIT R3 (critic 2/10: 'volumes verdes, sem furo, sem cores'):
+    // MeshStandardMaterial recebia a luz AMBIENTE VERDE do gramado e tingia
+    // o instanceColor (preto virava verde-oliva). MeshBasicMaterial (unlit)
+    // mostra a COR PURA — pneus são decoração, unlit é aceitável e o
+    // instanceColor preto-branco-preto finalmente lê.
+    const tireMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const stacks = [];
     const tan = new THREE.Vector3();
     const tan2 = new THREE.Vector3();
