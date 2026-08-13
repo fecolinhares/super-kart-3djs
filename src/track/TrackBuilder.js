@@ -13,7 +13,7 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { toonMaterial, cartoonOutline, roadTexture, cityRoadTexture, dirtTexture, grassTexture, concreteTexture, checkerTexture, bannerCheckerTexture, finishBannerTexture, finishBannerTextureMirrored, turboPadTexture, turboPadChevronTexture, arrowTexture, finishLineTexture } from '../render/Materials.js';
+import { toonMaterial, cartoonOutline, roadTexture, cityRoadTexture, dirtTexture, grassTexture, concreteTexture, checkerTexture, bannerCheckerTexture, finishBannerTexture, finishBannerTextureMirrored, turboPadTexture, turboPadChevronTexture, arrowTexture, finishLineTexture, neonReflectionTexture } from '../render/Materials.js';
 
 // Control points forming the closed loop (X, Y=elevation, Z).
 const CONTROL_POINTS = [
@@ -1927,6 +1927,24 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   const ribbon = buildRoadRibbon(path, length, ribbonOpts);
   ribbon.receiveShadow = true;
   group.add(ribbon);
+
+  // AUDIT R5 (critic Neon R4 5/10: 'pista não parece molhada'): overlay de
+  // reflexo — ribbon aditiva com as janelas da cidade refletidas (faixas
+  // verticais), o cue clássico MK8 de rua molhada.
+  if (isCity) {
+    const reflect = buildRoadRibbon(path, length, {
+      width: getRoadWidthAt() * 0.82, // não cobre as bordas (barreiras)
+      yOffset: 0.195, // acima da ribbon (0.18) e dos overlays (0.181-0.182)
+      texture: neonReflectionTexture,
+      repeatU: length * 0.06,
+      repeatV: 1,
+      transparent: true,
+      opacity: 0.22,
+      depthWrite: false,
+    });
+    reflect.renderOrder = 3; // desenha DEPOIS da pista (transparent pass)
+    group.add(reflect);
+  }
 
   // Racing-line wear + wet sheen: a low-roughness dark band down the center
   // of the asphalt that visibly polishes the surface (MK8D cue).

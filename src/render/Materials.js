@@ -67,6 +67,7 @@ export function toonMaterial(color, opts = {}) {
         envMapIntensity: opts.envMapIntensity ?? 1,
         transparent: !!opts.transparent,
         opacity: opts.opacity ?? 1,
+        depthWrite: opts.depthWrite ?? true,
         side: opts.side ?? THREE.FrontSide,
         map: opts.map || null, // textures (e.g. the '?' box) must actually show
       })
@@ -78,6 +79,7 @@ export function toonMaterial(color, opts = {}) {
         emissiveIntensity: opts.emissiveIntensity ?? 0,
         transparent: !!opts.transparent,
         opacity: opts.opacity ?? 1,
+        depthWrite: opts.depthWrite ?? true,
         side: opts.side ?? THREE.FrontSide,
         map: opts.map || null, // textures (e.g. the '?' box) must actually show
       });
@@ -157,6 +159,45 @@ export function canvasTexture(size, drawFn, opts = {}) {
 // ---------------------------------------------------------------------------
 let _grassTex = null;
 let _cityRoadTex = null;
+/** NEON CITY wet-reflection overlay: vertical light bands that read as the
+ *  buildings' windows reflecting on wet asphalt (critic Neon R4 5/10: 'pista
+ *  não parece molhada, faltam reflexos da cidade'). Additive ribbon over the
+ *  road, low opacity — the classic MK8 wet-street cue. */
+let _neonReflectTex = null;
+export function neonReflectionTexture() {
+  if (_neonReflectTex) return _neonReflectTex;
+  _neonReflectTex = canvasTexture(
+    128,
+    (ctx, s) => {
+      ctx.clearRect(0, 0, s, s);
+      // tall vertical window bands — building reflections on wet asphalt
+      for (let i = 0; i < 26; i++) {
+        const x = Math.random() * s;
+        const w = 1 + Math.random() * 2.4;
+        const h = 40 + Math.random() * 88;
+        const y = s - h - Math.random() * 10;
+        const roll = Math.random();
+        const col = roll > 0.55 ? '255,209,102' : roll > 0.25 ? '120,220,255' : '255,120,220';
+        const g = ctx.createLinearGradient(0, y, 0, y + h);
+        g.addColorStop(0, 'rgba(' + col + ',0)');
+        g.addColorStop(0.5, 'rgba(' + col + ',0.55)');
+        g.addColorStop(1, 'rgba(' + col + ',0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x, y, w, h);
+      }
+      // horizontal smear — perspective stretch of the reflections
+      ctx.globalAlpha = 0.25;
+      ctx.fillStyle = '#88c8ff';
+      for (let i = 0; i < 6; i++) {
+        ctx.fillRect(Math.random() * s, 10 + Math.random() * (s - 40), 30 + Math.random() * 50, 1.5);
+      }
+      ctx.globalAlpha = 1;
+    },
+    { repeat: [1, 1] }
+  );
+  return _neonReflectTex;
+}
+
 /** NEON CITY asphalt: dark charcoal + subtle pink/cyan neon light spill baked
  *  into the texture (vision critic: 'the road needs to visibly receive the
  *  surrounding neon' — flat dark read as a void). */
