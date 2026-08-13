@@ -2412,6 +2412,7 @@ export class Environment {
       // gate (0.0008/0.004/0.01) descartava quase tudo (1-2 pilhas só).
       // Pilhas em curvas são normais em kartódromos; o offset lateral 4.5 +
       // _onTrack já garantem que não ficam na pista.
+      path.getTangentAt(t, tan); // SEMPRE precisa do tan p/ normal lateral
       path.getPointAt(t, p);
       nrm.set(-tan.z, 0, tan.x).normalize();
       const side = i % 2 === 0 ? 1 : -1;
