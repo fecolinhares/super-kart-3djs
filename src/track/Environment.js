@@ -2405,13 +2405,13 @@ export class Environment {
     // Meadow (curvas suaves constantes) + _onTrack margin 2. Gate 0.01 (só
     // hairpins excluídos) + offset lateral 3.2 (longe do _onTrack) + densidade
     // len/18 → ~30+ pilhas.
-    const n = Math.max(16, Math.round(len / 18));
+    const n = Math.max(18, Math.round(len / 16));
     for (let i = 0; i < n; i++) {
       const t = (i + 0.5) / n;
-      path.getTangentAt(t, tan);
-      path.getTangentAt(Math.min(0.999, t + 1 / n), tan2);
-      const curv = 1 - Math.min(1, Math.max(-1, tan.dot(tan2)));
-      if (curv > 0.01) continue; // hairpins só
+      // AUDIT R7: gate de curvatura REMOVIDO — a Meadow é sinuosa e qualquer
+      // gate (0.0008/0.004/0.01) descartava quase tudo (1-2 pilhas só).
+      // Pilhas em curvas são normais em kartódromos; o offset lateral 4.5 +
+      // _onTrack já garantem que não ficam na pista.
       path.getPointAt(t, p);
       nrm.set(-tan.z, 0, tan.x).normalize();
       const side = i % 2 === 0 ? 1 : -1;
