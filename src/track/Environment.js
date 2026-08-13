@@ -3161,8 +3161,10 @@ export class Environment {
       grp.add(spec, heads, armsL, armsR);
       (this.crowdMeshes = this.crowdMeshes || []).push(spec);
       // painted front fascia — sponsor wall in front of the first tier
-      const fascia = new THREE.Mesh(new THREE.BoxGeometry(16.5, 1.4, 0.15), fasciaMat);
-      fascia.position.set(0, 0.7, 1.35);
+      // AUDIT R2 (critic 5/10: 'SUPER KART não visível'): fascia MAIOR
+      // (20x2.2m) e MAIS ALTA (1.6m) — ficava atrás do awning e ilegível.
+      const fascia = new THREE.Mesh(new THREE.BoxGeometry(20, 2.2, 0.15), fasciaMat);
+      fascia.position.set(0, 1.6, 1.35);
       grp.add(fascia);
       // striped awning (roof) + canvas scallop fringe on its front edge
       const awning = new THREE.Mesh(
