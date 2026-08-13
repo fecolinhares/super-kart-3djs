@@ -510,7 +510,8 @@ export class Kart {
     // direção diferente'. MK8 rims are SATIN silver, not mirrors. The rim
     // parts get a flatter metal; chrome stays for the exhaust.
     const rimChrome = new THREE.MeshPhysicalMaterial({
-      color: 0xc9d0d8, metalness: 0.5, roughness: 0.38, envMapIntensity: 0.7,
+      color: 0xd7dde5, metalness: 0.55, roughness: 0.32, envMapIntensity: 0.9,
+      emissive: 0x2a333f, emissiveIntensity: 0.35, // AUDIT R6c: subtle self-glow so rim spokes never vanish on dark asphalt
     });
     // Curved transparent PBR glass (windshield).
     const glassPBR = new THREE.MeshPhysicalMaterial({
@@ -1320,6 +1321,11 @@ export class Kart {
     this.rimLightWarm = new THREE.PointLight(0xffb066, 2.4, 8, 1.4);
     this.rimLightWarm.position.set(1.3, 0.5, 1.0);
     this.group.add(this.rimLightWarm);
+    // AUDIT R6c (critic: 'driver merges into dark cockpit'): soft fill from
+    // front-top highlights helmet + visor + shoulders.
+    this.pilotFill = new THREE.PointLight(0xffe8c4, 1.6, 5, 1.6);
+    this.pilotFill.position.set(0, 1.7, 1.4);
+    this.group.add(this.pilotFill);
   }
 
   // ---- public API -----------------------------------------------------------
