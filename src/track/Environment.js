@@ -2415,9 +2415,9 @@ export class Environment {
       path.getPointAt(t, p);
       nrm.set(-tan.z, 0, tan.x).normalize();
       const side = i % 2 === 0 ? 1 : -1;
-      const tx = p.x + nrm.x * side * (halfW + 3.2);
-      const tz = p.z + nrm.z * side * (halfW + 3.2);
-      if (this._onTrack(tx, tz, 3)) continue; // nunca na pista
+      const tx = p.x + nrm.x * side * (halfW + 4.5);
+      const tz = p.z + nrm.z * side * (halfW + 4.5);
+      if (this._onTrack(tx, tz, 2)) continue; // nunca na pista (margem 4.5 cobre)
       stacks.push({ x: tx, z: tz, gy: p.y, ry: Math.atan2(tan.x, tan.z) });
     }
     if (!stacks.length) return;
