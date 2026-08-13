@@ -154,6 +154,7 @@ export class ItemBox {
         side: THREE.DoubleSide,
         depthWrite: false,
         blending: THREE.AdditiveBlending, // AUDIT R3: additive reads as a light column on dark asphalt
+        toneMapped: false, // AUDIT R4: ACES turns additive gold into muddy brown under bloom — bypass tone mapping
       })
     );
     beam.position.set(this.base.x, Math.max(this.base.y - this.size * 1.35, 0.18), this.base.z); // AUDIT: the light beam must end AT the road (0.18), not pierce below ground
@@ -173,6 +174,7 @@ export class ItemBox {
       opacity: 0.95,
       depthWrite: false,
       blending: THREE.AdditiveBlending, // AUDIT R3: additive halo reads through bloom
+      toneMapped: false, // AUDIT R4: ACES muddies the gold ring
     });
     const ringMesh = new THREE.Mesh(ringGeo, ringMat);
     ringMesh.rotation.x = Math.PI / 2;
