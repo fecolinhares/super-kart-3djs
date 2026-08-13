@@ -472,7 +472,7 @@ export class Menu {
             <div class="sk3d-cards-strip sk3d-track-strip" role="radiogroup" aria-label="Tracks" tabindex="0">${trackCards}</div>
             <button type="button" class="sk3d-btn sk3d-arrow-btn sk3d-track-next" aria-label="Next track">›</button>
           </div>
-          <button type="button" class="sk3d-btn sk3d-primary-btn sk3d-select-btn sk3d-track-select">✅ SELECT</button>
+          <button type="button" class="sk3d-btn sk3d-primary-btn sk3d-select-btn sk3d-track-select">✅ SELECTED</button>
         </div>
       </div>`;
   }

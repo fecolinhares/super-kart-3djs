@@ -1893,24 +1893,30 @@
 
 .sk3d-picked-badge {
   font-style: normal;
-  font-size: 0.7rem;
+  font-size: 0.88rem; /* AUDIT R2 (critic 6/10: badge não visível) */
   font-weight: 900;
   letter-spacing: 0.1em;
   color: var(--sk3d-ink);
   background: var(--sk3d-yellow);
   border-radius: 999px;
-  padding: 3px 9px;
+  padding: 4px 12px;
   text-transform: uppercase;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  white-space: nowrap;
 }
 
 .sk3d-track-num {
   position: absolute;
   top: 10px;
   right: 12px;
-  font-size: 0.8rem;
+  font-size: 1rem; /* AUDIT R2: contador maior + contraste */
   font-weight: 900;
-  color: rgba(27, 42, 65, 0.55);
+  color: rgba(27, 42, 65, 0.85);
   letter-spacing: 0.08em;
+  background: rgba(253, 250, 240, 0.9);
+  border: 2px solid rgba(27, 42, 65, 0.25);
+  border-radius: 999px;
+  padding: 2px 10px;
 }
 
 /* --- SELECT + screen entrance --- */
