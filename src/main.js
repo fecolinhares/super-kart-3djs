@@ -900,8 +900,12 @@ function updateCamera(dt, t) {
   if (st.boost && !camWasBoost) camBoostKick = 1;
   camWasBoost = !!st.boost;
   camBoostKick *= Math.exp(-5.5 * dt);
+  // AUDIT R9 (critic kart-mobile 7/10: 'câmera levemente mais alta e aberta,
+  // kart comprimido pelo HUD, muito céu vazio'): no mobile a chase fica mais
+  // longe/alta p/ mostrar mais pista à frente na tela vertical.
+  const _mobile = isMobile();
   const dist =
-    CONFIG.camera.followDistance * (1 + speed01 * CAM_SPEED_PULLBACK) +
+    (CONFIG.camera.followDistance + (_mobile ? 1.3 : 0)) * (1 + speed01 * CAM_SPEED_PULLBACK) +
     camBoostKick * CAM_BOOST_KICK;
 
   camTarget.copy(st.position).addScaledVector(_fwd, CONFIG.camera.lookAhead);
@@ -910,7 +914,7 @@ function updateCamera(dt, t) {
   _camDesired.copy(st.position)
     .addScaledVector(_fwd, -dist)
     .addScaledVector(_side, camSwing);
-  _camDesired.y += CONFIG.camera.followHeight + camBoostKick * 0.4;
+  _camDesired.y += (CONFIG.camera.followHeight + (_mobile ? 0.9 : 0)) + camBoostKick * 0.4;
 
   const lerp = 1 - Math.exp(-CONFIG.camera.lerp * dt);
   camPos.lerp(_camDesired, lerp);
