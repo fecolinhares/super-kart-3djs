@@ -2428,7 +2428,7 @@ export class Environment {
     let idx = 0;
     for (const s of stacks) {
       for (let k = 0; k < 3; k++) {
-        dummy.position.set(s.x, s.gy + 0.24 + k * 0.42, s.z);
+        dummy.position.set(s.x, s.gy + 0.24 + k * 0.47, s.z); // AUDIT R9: gap 0.47 separa as 3 camadas (critico pedia 'pneus individuais')
         dummy.rotation.set(Math.PI / 2, 0, s.ry); // torus laid flat
         dummy.scale.set(1, 1, 1);
         dummy.updateMatrix();
