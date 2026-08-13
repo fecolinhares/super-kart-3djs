@@ -497,7 +497,7 @@ export class Kart {
     const dark = this._mat(0x232833);
     // Dead-flat rubber (tires) — deliberately NOT glossy: roughness 0.95
     // against the clearcoat paint = the MK8 material separation.
-    const tireMat = new THREE.MeshStandardMaterial({ color: 0x353c48, roughness: 0.9, metalness: 0.04 });
+    const tireMat = new THREE.MeshStandardMaterial({ color: 0x454d5c, roughness: 0.85, metalness: 0.05, emissive: 0x1a2028, emissiveIntensity: 0.6 });
     const tireDark = new THREE.MeshStandardMaterial({ color: 0x0a0d11, roughness: 0.98, metalness: 0 });
     // Polished chrome (rims, hubs, exhaust) — mirror metal vs painted plastic.
     // AUDIT r9: envMapIntensity 2.4 made rims read as broken white flashes on
@@ -1314,11 +1314,11 @@ export class Kart {
     // REAL light separating the kart from dark asphalt'): a cool rim light
     // parented to the kart group, behind-left. It follows every move and
     // throws a colored edge highlight on body + helmet in the Neon night.
-    this.rimLight = new THREE.PointLight(0x66e0ff, 2.2, 7, 1.6);
-    this.rimLight.position.set(-1.3, 0.9, -1.2);
+    this.rimLight = new THREE.PointLight(0x66e0ff, 4.2, 9, 1.4);
+    this.rimLight.position.set(-1.4, 1.0, -1.3);
     this.group.add(this.rimLight);
-    this.rimLightWarm = new THREE.PointLight(0xffb066, 1.2, 6, 1.6);
-    this.rimLightWarm.position.set(1.2, 0.4, 0.9);
+    this.rimLightWarm = new THREE.PointLight(0xffb066, 2.4, 8, 1.4);
+    this.rimLightWarm.position.set(1.3, 0.5, 1.0);
     this.group.add(this.rimLightWarm);
   }
 
