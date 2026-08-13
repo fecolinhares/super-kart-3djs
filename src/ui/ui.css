@@ -1837,6 +1837,7 @@
 /* --- track cards --- */
 
 .sk3d-track-card {
+  position: relative; /* AUDIT: track-num counter anchors */
   scroll-snap-align: center;
   flex: 0 0 min(430px, 74vw); /* AUDIT: 82vw on a 360px screen = 295px — the card poked past the right edge; 74vw keeps it fully in view */
   display: flex;
@@ -1874,9 +1875,12 @@
 }
 
 .sk3d-track-name {
-  font-size: 1.25rem;
-  font-weight: 800;
+  font-size: 1.4rem; /* AUDIT (menu critic 2026-08-13): name was too small */
+  font-weight: 900;
   letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .sk3d-track-desc {
@@ -1885,6 +1889,28 @@
   font-weight: 700;
   color: #52617a;
   line-height: 1.35;
+}
+
+.sk3d-picked-badge {
+  font-style: normal;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: var(--sk3d-ink);
+  background: var(--sk3d-yellow);
+  border-radius: 999px;
+  padding: 3px 9px;
+  text-transform: uppercase;
+}
+
+.sk3d-track-num {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: rgba(27, 42, 65, 0.55);
+  letter-spacing: 0.08em;
 }
 
 /* --- SELECT + screen entrance --- */

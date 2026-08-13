@@ -387,8 +387,9 @@ export class Menu {
         return `
         <button type="button" class="sk3d-track-card${sel ? ' is-selected' : ''}" data-track="${t.id}" role="radio" aria-checked="${sel}" aria-label="Select ${t.name}">
           <canvas class="sk3d-track-canvas" width="600" height="380" aria-hidden="true"></canvas>
-          <span class="sk3d-track-name">${t.icon} ${t.name}</span>
+          <span class="sk3d-track-name">${t.icon} ${t.name}${sel ? ' <em class="sk3d-picked-badge">PICKED</em>' : ''}</span>
           <span class="sk3d-track-desc">${t.desc}</span>
+          <span class="sk3d-track-num">${i + 1}/${TRACKS.length}</span>
         </button>`;
       })
       .join('');
