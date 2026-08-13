@@ -3082,13 +3082,17 @@ export class Environment {
       // against the track — a 16m-wide stand whose center sat ~9m off the
       // centerline passed the test while one corner still crossed the
       // asphalt. Check all four corners (rotated by ry) with a margin.
+      // AUDIT R3 (grandstands NUNCA criados!): corners ±8m + margin 4 (raio
+      // 8.5m) descartavam TODOS os 3 spots — o corner interno caía dentro do
+      // raio do centerline. Corners reduzidos p/ ±3.5m + margin 2: checa que
+      // o NÚCLEO do grandstand está fora da pista (o awning pode avançar).
       const cos = Math.cos(gs.ry);
       const sin = Math.sin(gs.ry);
       let cornerOnTrack = false;
-      for (const [lx, lz] of [[8, 2.7], [-8, 2.7], [8, -2.7], [-8, -2.7]]) {
+      for (const [lx, lz] of [[3.5, 1.5], [-3.5, 1.5], [3.5, -1.5], [-3.5, -1.5]]) {
         const wx = gs.x + lx * cos - lz * sin;
         const wz = gs.z + lx * sin + lz * cos;
-        if (this._onTrack(wx, wz, 4)) { cornerOnTrack = true; break; }
+        if (this._onTrack(wx, wz, 2)) { cornerOnTrack = true; break; }
       }
       if (cornerOnTrack) continue; // grandstand off the road (tight margin)
       const grp = new THREE.Group();
