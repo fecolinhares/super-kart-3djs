@@ -3823,43 +3823,56 @@ export class Environment {
     const startX = (s - (cols * cell + (cols - 1) * gap)) / 2;
     const startY = (s - (rows * cell + (rows - 1) * gap)) / 2;
     const litTints = ['#ffe9c4', '#cfe4ff', '#fff7cc', '#ffd9a8', '#d8e8ff'];
-    // Dark floors: pick 1-2 rows that stay mostly unlit (office closed).
+    // Dark floors: pick 2-3 rows that stay mostly unlit (office closed).
     const darkFloors = new Set();
-    const nDark = 1 + ((rand() * 2) | 0);
+    const nDark = 2 + ((rand() * 2) | 0);
     while (darkFloors.size < nDark) darkFloors.add((rand() * rows) | 0);
     for (let r = 0; r < rows; r++) {
       const floorLit = !darkFloors.has(r);
       for (let c = 0; c < cols; c++) {
-        const x = startX + c * (cell + gap);
-        const y = startY + r * (cell + gap);
+        // AUDIT R3 (critic: 'too regular, no per-window variety'): jitter
+        // position + size so the facade reads as real windows, not a grid.
+        const jx = (rand() - 0.5) * (cell * 0.5);
+        const jy = (rand() - 0.5) * (cell * 0.5);
+        const w = cell * (0.7 + rand() * 0.5);
+        const h = cell * (0.7 + rand() * 0.5);
+        const x = startX + c * (cell + gap) + jx;
+        const y = startY + r * (cell + gap) + jy;
         if (!floorLit) {
           // mostly dark floor — one dim survivor window
-          if (rand() < 0.18) {
+          if (rand() < 0.14) {
             ctx.fillStyle = '#2a3550';
-            ctx.fillRect(x, y, cell, cell);
+            ctx.fillRect(x, y, w, h);
           }
           continue;
         }
-        if (rand() < 0.55) {
-          // lit window: intensity 0.55-1.0 (some bright, some dim)
-          const bright = 0.55 + rand() * 0.45;
+        const roll = rand();
+        if (roll < 0.5) {
+          // lit window: intensity 0.4-1.0 — some barely lit, some blazing
+          const bright = 0.4 + rand() * 0.6;
           ctx.globalAlpha = bright;
           ctx.fillStyle = litTints[(rand() * litTints.length) | 0];
-          ctx.fillRect(x, y, cell, cell);
+          ctx.fillRect(x, y, w, h);
           ctx.globalAlpha = 1;
-          // curtain divider — a thin vertical darker slit
-          if (rand() < 0.4) {
-            ctx.fillStyle = 'rgba(10,14,30,0.5)';
-            ctx.fillRect(x + cell * 0.45, y, cell * 0.12, cell);
+          // curtain divider — thin vertical darker slit (visible at this size)
+          if (rand() < 0.45) {
+            ctx.fillStyle = 'rgba(10,14,30,0.55)';
+            ctx.fillRect(x + w * 0.45, y, w * 0.12, h);
           }
-        } else {
-          // unlit: dark glass with a faint cool reflection
+        } else if (roll < 0.72) {
+          // unlit dark glass with faint cool reflection
           ctx.fillStyle = '#0e1426';
-          ctx.fillRect(x, y, cell, cell);
+          ctx.fillRect(x, y, w, h);
           if (rand() < 0.5) {
             ctx.fillStyle = 'rgba(120,150,210,0.10)';
-            ctx.fillRect(x + 2, y + 2, cell - 4, 4);
+            ctx.fillRect(x + 2, y + 2, w - 4, 4);
           }
+        } else {
+          // bright accent window — a "someone left the light on" hot cell
+          ctx.fillStyle = '#fff2d0';
+          ctx.globalAlpha = 0.95;
+          ctx.fillRect(x, y, w, h);
+          ctx.globalAlpha = 1;
         }
       }
     }
