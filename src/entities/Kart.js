@@ -1326,8 +1326,8 @@ export class Kart {
     this.group.add(this.rimLightWarm);
     // AUDIT R6c (critic: 'driver merges into dark cockpit'): soft fill from
     // front-top highlights helmet + visor + shoulders.
-    this.pilotFill = new THREE.PointLight(0xffe8c4, 1.6, 5, 1.6);
-    this.pilotFill.position.set(0, 1.7, 1.4);
+    this.pilotFill = new THREE.PointLight(0xffe8c4, 2.6, 6, 1.4);
+    this.pilotFill.position.set(0, 1.9, 1.2);
     this.group.add(this.pilotFill);
   }
 
