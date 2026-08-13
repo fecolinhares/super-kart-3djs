@@ -1893,7 +1893,7 @@
 
 .sk3d-picked-badge {
   font-style: normal;
-  font-size: 0.88rem; /* AUDIT R2 (critic 6/10: badge não visível) */
+  font-size: 1.05rem; /* AUDIT R3 (critic 7/10: badge ainda pequeno) */
   font-weight: 900;
   letter-spacing: 0.1em;
   color: var(--sk3d-ink);
@@ -1909,7 +1909,7 @@
   position: absolute;
   top: 10px;
   right: 12px;
-  font-size: 1rem; /* AUDIT R2: contador maior + contraste */
+  font-size: 1.15rem; /* AUDIT R3: contador maior */
   font-weight: 900;
   color: rgba(27, 42, 65, 0.85);
   letter-spacing: 0.08em;
