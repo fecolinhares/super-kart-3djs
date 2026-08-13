@@ -2401,23 +2401,23 @@ export class Environment {
     const tan2 = new THREE.Vector3();
     const p = new THREE.Vector3();
     const nrm = new THREE.Vector3();
-    // AUDIT R4 (critic 1/10 '0 pilhas'): o gate curv > 0.0008 era morto — só
-    // retas quase perfeitas passavam e na Meadow quase nenhuma das ~15
-    // amostras sobrevivia → stacks.length 0 → buildTireStacks retornava sem
-    // criar NADA. Gate relaxado p/ 0.004 + densidade maior (len/22).
-    const n = Math.max(14, Math.round(len / 22));
+    // AUDIT R5 (1 stack só): gate 0.004 AINDA descartava quase tudo na
+    // Meadow (curvas suaves constantes) + _onTrack margin 2. Gate 0.01 (só
+    // hairpins excluídos) + offset lateral 3.2 (longe do _onTrack) + densidade
+    // len/18 → ~30+ pilhas.
+    const n = Math.max(16, Math.round(len / 18));
     for (let i = 0; i < n; i++) {
       const t = (i + 0.5) / n;
       path.getTangentAt(t, tan);
       path.getTangentAt(Math.min(0.999, t + 1 / n), tan2);
       const curv = 1 - Math.min(1, Math.max(-1, tan.dot(tan2)));
-      if (curv > 0.004) continue; // curvas fechadas só — aceita retas e curvas suaves
+      if (curv > 0.01) continue; // hairpins só
       path.getPointAt(t, p);
       nrm.set(-tan.z, 0, tan.x).normalize();
       const side = i % 2 === 0 ? 1 : -1;
-      const tx = p.x + nrm.x * side * (halfW + 2.6);
-      const tz = p.z + nrm.z * side * (halfW + 2.6);
-      if (this._onTrack(tx, tz, 2)) continue; // never on the road
+      const tx = p.x + nrm.x * side * (halfW + 3.2);
+      const tz = p.z + nrm.z * side * (halfW + 3.2);
+      if (this._onTrack(tx, tz, 3)) continue; // nunca na pista
       stacks.push({ x: tx, z: tz, gy: p.y, ry: Math.atan2(tan.x, tan.z) });
     }
     if (!stacks.length) return;
