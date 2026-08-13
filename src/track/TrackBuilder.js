@@ -1936,10 +1936,10 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
       width: getRoadWidthAt() * 0.82, // não cobre as bordas (barreiras)
       yOffset: 0.195, // acima da ribbon (0.18) e dos overlays (0.181-0.182)
       texture: neonReflectionTexture,
-      repeatU: length * 0.06,
-      repeatV: 1,
+      repeatU: length * 0.05,
+      repeatV: 2.5, // AUDIT R6: mais faixas ACROSS (V) — liam como uma faixa
       transparent: true,
-      opacity: 0.22,
+      opacity: 0.35, // AUDIT R6: 0.22 sumia na textura da pista
       depthWrite: false,
     });
     reflect.renderOrder = 3; // desenha DEPOIS da pista (transparent pass)
