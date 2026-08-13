@@ -4,6 +4,7 @@
  * race → menu/HUD/touch. Handles game state machine, camera follow,
  * keyboard input and the ?demo cinematic autopilot used by visual QA.
  */
+import { autoInstancing } from './perf/instancing.js';
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { createScene } from './render/SceneManager.js';
@@ -53,6 +54,11 @@ const track = buildTrack(scene, TRACK_ID === 2 ? CITY_PATH : TRACK_PATH);
   // MK8 turbo strips breathe (Feco QA 2026-08-12): additive glow overlay pulse.
   const turboGlowMat = (track.turboPads && track.turboPads.glowMat) || null;
 env.buildEnvironment(scene, track); // track passed so props avoid the road
+
+// AUDIT PERF (2026-08-13): instancing pós-build — vegetação/posts/placas
+// repetidos em InstancedMesh (764 → ~250 draw calls no Meadow).
+const mergedCount = (window.location.search.includes('noinst') ? 0 : autoInstancing(scene));
+console.log('[perf] auto-instancing merged', mergedCount, 'meshes');
 // Image-based lighting: chrome + car paint need an env map or metalness
 // renders BLACK. A procedural SUNNY-SKY env (instead of the grey RoomEnvironment)
 // makes clearcoat/paint reflect vivid sky blue — the console-racer look.
