@@ -1055,13 +1055,18 @@ function buildTurboPads(path, length) {
     // Visual: one long strip centered on the cluster.
     path.getPointAt(c, p);
     path.getTangentAt(c, tan);
-    // AUDIT (Feco QA 2026-08-12): pad sat at y+0.21 while the road ribbon is
-    // y+0.18 — a 3cm float that read as "the pad is flying" with the chase
-    // cam. Sits exactly ON the asphalt now, and lookAt aims at the road Y
-    // just ahead so the ribbon follows any incline instead of staying level.
+    // AUDIT R3 (Feco real-GPU 2026-08-13: 'pad flutuando + apontando para
+    // baixo no fim'): lookAt(ahead) usava o Y REAL do ponto à frente — em
+    // declive o pad inclinava e a ponta dianteira afundava. Agora:
+    // yaw = tangente (direção) + pitch = inclinação REAL do path CLAMPADA
+    // (±0.18 rad ≈ 10°) — segue rampas sem apontar para o chão.
     dummy.position.set(p.x, p.y + 0.18, p.z);
     const ahead = path.getPointAt(Math.min(0.999, Math.max(0.001, c + 0.0015)));
-    dummy.lookAt(ahead.x, ahead.y, ahead.z);
+    const dist = Math.hypot(ahead.x - p.x, ahead.z - p.z) || 1;
+    const dy = ahead.y - p.y;
+    let pitch = Math.atan2(dy, dist);
+    pitch = Math.max(-0.18, Math.min(0.18, pitch));
+    dummy.rotation.set(pitch, Math.atan2(tan.x, tan.z), 0);
     dummy.rotateX(-Math.PI / 2); // lay flat as paint
     // The ">>>" chevrons in turboPadTexture point along the texture's +X —
     // spin the flat plane so they point along the direction of travel.

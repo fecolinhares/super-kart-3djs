@@ -122,9 +122,12 @@ export class ItemBox {
     const pz = tangent.x;
     const pl = Math.hypot(px, pz) || 1;
     const lateral = CONFIG.track.roadWidth * 0.32 * this.side;
+    // AUDIT R6 (Feco real-GPU 2026-08-13: 'item boxes afundando na pista'):
+    // a superfície VISUAL da pista é a ribbon em y+0.18 — a base em +0.05
+    // afundava 13cm no asfalto. Base agora na ribbon (0.18).
     return {
       x: point.x + (px / pl) * lateral,
-      y: point.y + this.size * 0.5 + 0.05,
+      y: point.y + 0.18 + this.size * 0.5,
       z: point.z + (pz / pl) * lateral,
       yaw: Math.atan2(tangent.x, tangent.z),
     };
@@ -202,7 +205,9 @@ export class ItemBox {
         return m;
       };
       // BoxGeometry material order: +x, -x, +y, -y, +z, -z
-      return [mk(0x7fd8f2, 0.88), mk(0x5fb8d6, 0.88), mk(0x9be4fa, 0.9), mk(0x4a93ad, 0.88), mk(0x8fe0f8, 0.9), mk(0x6cc2de, 0.88)];
+      // AUDIT R6 (Feco: 'cores estranhas'): 0.88 translúcido ficava lavado
+      // sobre o asfalto — shell mais vivo (0.96) e cyan MK8D saturado.
+      return [mk(0x5ad2ff, 0.96), mk(0x35a9e0, 0.96), mk(0x7fe4ff, 0.97), mk(0x2d86b8, 0.96), mk(0x63d8ff, 0.97), mk(0x42b8ea, 0.96)];
     }
     const opts = {
       color: 0xffb703,
