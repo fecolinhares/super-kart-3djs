@@ -1157,7 +1157,10 @@ export class Kart {
     // ---- driver: torso + shoulders + arms gripping the wheel -----------------
     const drv = new THREE.Group();
     drv.position.set(0, 0, 0);
-    drv.scale.set(1.0, 1.0, 1.0); // AUDIT: driver seated lower/smaller (MK8 driver tucks into the body)
+    // AUDIT R12 (critic R11 6/10: 'piloto ainda pequeno na chase'): grupo
+    // inteiro 1.0→1.15 — capacete+ombros+torso crescem juntos, o piloto lê
+    // como personagem REAL (MK8) em vez de silhueta.
+    drv.scale.set(1.15, 1.15, 1.15);
     this.group.add(drv);
 
     const suit = character ? this._mat(character.suitColor) : white;
