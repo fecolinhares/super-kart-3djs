@@ -3124,7 +3124,9 @@ export class Environment {
       // AUDIT R10 (critic 6/10: 'densidade, variedade de poses, tiers'):
       // 45→72 (24 x 3), poses variadas (2 braços / 1 braço / 0 braços),
       // tiers +0.35m mais altos p/ arquibancada legível, bandeirinhas.
-      const N = 72;
+      // AUDIT R11 (critic 6/10 'plateia espaçada'): 24→30 por tier (90),
+      // spacing 0.72→0.58 — arquibancada LOTADA, sem gaps.
+      const N = 90;
       const spec = new THREE.InstancedMesh(new THREE.BoxGeometry(1.05, 1.2, 1.0), toonMaterial(0xffffff, {}), N);
       const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.3, 12, 8), toonMaterial(0xf4f6f8, {}), N);
       // Raised arms (cheering people, not blocks with heads).
@@ -3140,8 +3142,8 @@ export class Environment {
       const armDummy = new THREE.Object3D();
       const legDummy = new THREE.Object3D();
       for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 24; j++) {
-          dummy.position.set(-8.6 + j * 0.72, 1.6 + i * 1.5, -i * 2.2 + 0.3);
+        for (let j = 0; j < 30; j++) {
+          dummy.position.set(-8.7 + j * 0.58, 1.6 + i * 1.5, -i * 2.2 + 0.3);
           dummy.scale.set(1, 0.9 + this._rand() * 0.4, 1);
           dummy.rotation.set(0, 0, 0);
           baseY[sIdx] = dummy.position.y;
