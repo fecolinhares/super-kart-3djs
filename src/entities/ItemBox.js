@@ -156,20 +156,25 @@ export class ItemBox {
       })
     );
     beam.position.set(this.base.x, Math.max(this.base.y - this.size * 1.35, 0.18), this.base.z); // AUDIT: the light beam must end AT the road (0.18), not pierce below ground
+    // AUDIT R2 (critic 7.5: 'no visible golden beam or ring'): brighter beam
+    // so the pickup reads from chase distance on dark asphalt.
+    beam.material.opacity = 0.65;
+    beam.material.color.set(0xffdf80);
     this.beam = beam;
     // Glowing golden ring around the box (MK8 pickup readability — replaces
     // the old orbiting arrow cones which read as sketchy placeholders).
     this.ring = new THREE.Group();
     this.ring.position.set(this.base.x, this.base.y, this.base.z);
-    const ringGeo = new THREE.TorusGeometry(this.size * 1.0, 0.09, 10, 32);
+    const ringGeo = new THREE.TorusGeometry(this.size * 1.15, 0.12, 10, 36);
     const ringMat = new THREE.MeshBasicMaterial({
       color: 0xffd166,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.95,
       depthWrite: false,
     });
     const ringMesh = new THREE.Mesh(ringGeo, ringMat);
     ringMesh.rotation.x = Math.PI / 2;
+    ringMesh.position.y = -this.size * 0.55; // AUDIT R2: ring at BASE height (MK8 pickup halo), not mid-box
     this.ring.add(ringMesh);
     this.ringMesh = ringMesh;
     return mesh;
