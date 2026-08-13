@@ -1157,10 +1157,10 @@ export class Kart {
     // ---- driver: torso + shoulders + arms gripping the wheel -----------------
     const drv = new THREE.Group();
     drv.position.set(0, 0, 0);
-    // AUDIT R12 (critic R11 6/10: 'piloto ainda pequeno na chase'): grupo
-    // inteiro 1.0→1.15 — capacete+ombros+torso crescem juntos, o piloto lê
-    // como personagem REAL (MK8) em vez de silhueta.
-    drv.scale.set(1.15, 1.15, 1.15);
+    // AUDIT R13 (critic R12 rear 7/10: 'capacete ok, ombros estreitos'):
+    // 1.15→1.3 + ombros alargados — o piloto lê como personagem de corpo
+    // inteiro, não esfera isolada sobre o banco.
+    drv.scale.set(1.3, 1.3, 1.3);
     this.group.add(drv);
 
     const suit = character ? this._mat(character.suitColor) : white;
@@ -1178,10 +1178,11 @@ export class Kart {
     chestStripe.rotation.x = 0.32;
     chestStripe.castShadow = false;
     drv.add(chestStripe);
-    // Shoulders (suit pads).
+    // Shoulders (suit pads) — AUDIT R13: raio 0.085→0.11 + x ±0.135→±0.16
+    // (ombros largos, silhueta humana legível acima da asa).
     for (const s of [-1, 1]) {
-      const sh = new THREE.Mesh(new THREE.SphereGeometry(0.085, 16, 12), suit);
-      sh.position.set(s * 0.135, 0.94, -0.09);
+      const sh = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 12), suit);
+      sh.position.set(s * 0.16, 0.94, -0.09);
       sh.scale.set(1, 0.88, 1.1);
       sh.castShadow = false;
       drv.add(sh);
