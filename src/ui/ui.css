@@ -638,6 +638,14 @@
   z-index: 3;
 }
 
+/* AUDIT R5 (critic speedo-mobile 8/10): dial maior + valor com mais contraste
+   em touch — a leitura durante a ação mobile precisa de escala maior. */
+@media (pointer: coarse), (max-width: 768px) {
+  .sk3d-speedo, .sk3d-speedo-dial { width: 190px; height: 190px; }
+  .sk3d-speedo-value { font-size: 3rem; }
+  .sk3d-speedo-unit { font-size: 1.1rem; }
+}
+
 .sk3d-speedo-value {
   font-size: 2.5rem;
   font-weight: 900;
