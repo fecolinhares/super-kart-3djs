@@ -540,8 +540,10 @@ export class Kart {
       c.width = 64; c.height = 64;
       const g = c.getContext('2d');
       const grad = g.createRadialGradient(32, 32, 6, 32, 32, 32);
-      grad.addColorStop(0, 'rgba(0,0,0,0.62)');
-      grad.addColorStop(0.6, 'rgba(0,0,0,0.32)');
+      // AUDIT R9 (critic teste-total 7/10: 'sombra de contato fraca, kart
+      // parece flutuar'): centro 0.62→0.78 + mid 0.32→0.42 — ancora o kart.
+      grad.addColorStop(0, 'rgba(0,0,0,0.78)');
+      grad.addColorStop(0.6, 'rgba(0,0,0,0.42)');
       grad.addColorStop(1, 'rgba(0,0,0,0)');
       g.fillStyle = grad;
       g.fillRect(0, 0, 64, 64);
