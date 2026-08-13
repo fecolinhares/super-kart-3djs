@@ -1489,17 +1489,17 @@
   }
 
   .sk3d-speedo {
-    width: 190px; /* AUDIT R5 (critic 8/10→7/10: 108px pequeno demais) */
-    height: 190px;
+    width: 140px; /* AUDIT R7 (Feco real mobile: 190px cobria o kart — gigante) */
+    height: 140px;
   }
 
   .sk3d-speedo-dial {
-    width: 190px;
-    height: 190px;
+    width: 140px;
+    height: 140px;
   }
 
   .sk3d-speedo-needle {
-    height: 44px;
+    height: 34px;
     bottom: 50%;
   }
 
@@ -1514,7 +1514,7 @@
   }
 
   .sk3d-speedo-value {
-    font-size: 1.2rem;
+    font-size: 1.05rem; /* AUDIT R7: proporcional ao dial 140px */
   }
 
   .sk3d-item-slot {
