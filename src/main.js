@@ -900,21 +900,21 @@ function updateCamera(dt, t) {
   if (st.boost && !camWasBoost) camBoostKick = 1;
   camWasBoost = !!st.boost;
   camBoostKick *= Math.exp(-5.5 * dt);
-  // AUDIT R9-v2 (critic 6.5/10: 'câmera alta mostrou céu/montanha, não pista'):
-  // mobile = dist +1.1 (pista à frente) mas height -0.2 + look -0.35 (câmera
-  // INCLINADA p/ o pavimento — a direção certa, não mais alta).
+  // AUDIT R10 (critic 2/10: height-0.2+look-0.35 tiraram o KART DO FRAME):
+  // baseline height/look restaurados (0); só dist +0.6 no mobile p/ um pouco
+  // mais de pista à frente sem perder o sujeito.
   const _mobile = isTouchMode(); // mobile/touch → chase mais aberta
   const dist =
-    (CONFIG.camera.followDistance + (_mobile ? 1.1 : 0)) * (1 + speed01 * CAM_SPEED_PULLBACK) +
+    (CONFIG.camera.followDistance + (_mobile ? 0.6 : 0)) * (1 + speed01 * CAM_SPEED_PULLBACK) +
     camBoostKick * CAM_BOOST_KICK;
 
   camTarget.copy(st.position).addScaledVector(_fwd, CONFIG.camera.lookAhead);
-  camTarget.y += CONFIG.camera.lookHeight + (_mobile ? -0.35 : 0); // inclina p/ a pista
+  camTarget.y += CONFIG.camera.lookHeight;
 
   _camDesired.copy(st.position)
     .addScaledVector(_fwd, -dist)
     .addScaledVector(_side, camSwing);
-  _camDesired.y += (CONFIG.camera.followHeight + (_mobile ? -0.2 : 0)) + camBoostKick * 0.4;
+  _camDesired.y += CONFIG.camera.followHeight + camBoostKick * 0.4;
 
   const lerp = 1 - Math.exp(-CONFIG.camera.lerp * dt);
   camPos.lerp(_camDesired, lerp);
