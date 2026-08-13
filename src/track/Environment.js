@@ -3098,12 +3098,13 @@ export class Environment {
       const grp = new THREE.Group();
       // steps (3 tiers) — red / white / blue stadium rows via per-instance
       // color so the stand reads as SEATING, not grey boxes.
-      const tier = new THREE.InstancedMesh(new THREE.BoxGeometry(16, 0.8, 2.4), toonMaterial(0xffffff, {}), 3);
+      // AUDIT R10 (critic 6/10 'tiers sutis'): 0.8→1.0 altura, gap 1.1→1.3
+      const tier = new THREE.InstancedMesh(new THREE.BoxGeometry(16, 1.0, 2.4), toonMaterial(0xffffff, {}), 3);
       const tierCols = [0xe2504f, 0xf4f6f8, 0x2e9be8];
       const dummy = new THREE.Object3D();
       const col = new THREE.Color();
       for (let i = 0; i < 3; i++) {
-        dummy.position.set(0, 1.0 + i * 1.1, -i * 2.2);
+        dummy.position.set(0, 1.0 + i * 1.3, -i * 2.2);
         dummy.scale.set(1, 1, 1);
         dummy.rotation.set(0, 0, 0);
         dummy.updateMatrix();
@@ -3114,22 +3115,27 @@ export class Environment {
       if (tier.instanceColor) tier.instanceColor.needsUpdate = true;
       grp.add(tier);
       // spectators on each tier: body block (bright color) + white head ball.
-      // 15 per tier x 3 = 45 (was 12 x 3 = 36) — denser packed rows.
-      const N = 45;
+      // AUDIT R10 (critic 6/10: 'densidade, variedade de poses, tiers'):
+      // 45→72 (24 x 3), poses variadas (2 braços / 1 braço / 0 braços),
+      // tiers +0.35m mais altos p/ arquibancada legível, bandeirinhas.
+      const N = 72;
       const spec = new THREE.InstancedMesh(new THREE.BoxGeometry(1.05, 1.2, 1.0), toonMaterial(0xffffff, {}), N);
       const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.3, 12, 8), toonMaterial(0xf4f6f8, {}), N);
       // Raised arms (cheering people, not blocks with heads).
       const armGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.55, 8);
       const armsL = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), N);
       const armsR = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), N);
+      // Flags: tiny colored pennant on a pole for ~1 in 6 fans (variety cue).
+      const flagGeo = new THREE.ConeGeometry(0.22, 0.5, 3);
+      const flags = new THREE.InstancedMesh(flagGeo, toonMaterial(0xf5f5f5, {}), N);
       let sIdx = 0;
       const baseY = new Array(N);
       const headDummy = new THREE.Object3D();
       const armDummy = new THREE.Object3D();
       const legDummy = new THREE.Object3D();
       for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 15; j++) {
-          dummy.position.set(-8.2 + j * 1.1, 1.6 + i * 1.15, -i * 2.2 + 0.3);
+        for (let j = 0; j < 24; j++) {
+          dummy.position.set(-8.6 + j * 0.72, 1.6 + i * 1.5, -i * 2.2 + 0.3);
           dummy.scale.set(1, 0.9 + this._rand() * 0.4, 1);
           dummy.rotation.set(0, 0, 0);
           baseY[sIdx] = dummy.position.y;
@@ -3144,16 +3150,43 @@ export class Environment {
           heads.setMatrixAt(sIdx, headDummy.matrix);
           // Arms raised outward (cheering silhouette) — angled UP so they read
           // as limbs with a shoulder, not straight rods poking sideways.
-          armDummy.position.set(dummy.position.x - 0.4, dummy.position.y + 0.7, dummy.position.z);
-          armDummy.rotation.set(0, 0, -1.25);
-          armDummy.updateMatrix();
-          armsL.setMatrixAt(sIdx, armDummy.matrix);
-          armDummy.position.set(dummy.position.x + 0.4, dummy.position.y + 0.7, dummy.position.z);
-          armDummy.rotation.set(0, 0, 1.25);
-          armDummy.updateMatrix();
-          armsR.setMatrixAt(sIdx, armDummy.matrix);
-
-          armsR.setMatrixAt(sIdx, armDummy.matrix);
+          // AUDIT R10: poses VARIADAS — 55% dois braços, 30% um braço,
+          // 15% braços abaixados (não lê como robôs em sincronia).
+          const pose = this._rand();
+          if (pose < 0.85) {
+            armDummy.position.set(dummy.position.x - 0.4, dummy.position.y + 0.7, dummy.position.z);
+            armDummy.rotation.set(0, 0, -1.25);
+            armDummy.updateMatrix();
+            armsL.setMatrixAt(sIdx, armDummy.matrix);
+          } else {
+            // braço abaixado (descansando)
+            armDummy.position.set(dummy.position.x - 0.4, dummy.position.y + 0.35, dummy.position.z);
+            armDummy.rotation.set(0, 0, -0.35);
+            armDummy.updateMatrix();
+            armsL.setMatrixAt(sIdx, armDummy.matrix);
+          }
+          if (pose < 0.55) {
+            armDummy.position.set(dummy.position.x + 0.4, dummy.position.y + 0.7, dummy.position.z);
+            armDummy.rotation.set(0, 0, 1.25);
+            armDummy.updateMatrix();
+            armsR.setMatrixAt(sIdx, armDummy.matrix);
+          } else {
+            armDummy.position.set(dummy.position.x + 0.4, dummy.position.y + 0.35, dummy.position.z);
+            armDummy.rotation.set(0, 0, 0.35);
+            armDummy.updateMatrix();
+            armsR.setMatrixAt(sIdx, armDummy.matrix);
+          }
+          // Bandeirinha: ~1 em 6 fãs agita um pennant colorido (variedade).
+          if (sIdx % 6 === 0) {
+            const fD = new THREE.Object3D();
+            fD.position.set(dummy.position.x + 0.55, dummy.position.y + 0.8, dummy.position.z);
+            fD.rotation.set(0, 0, -0.5);
+            fD.updateMatrix();
+            flags.setMatrixAt(sIdx, fD.matrix);
+            const fc = new THREE.Color();
+            fc.setHex(crowdColors[(sIdx / 6 | 0) % crowdColors.length]);
+            flags.setColorAt(sIdx, fc);
+          }
           sIdx++;
         }
       }
@@ -3162,7 +3195,9 @@ export class Environment {
       spec.userData.baseY = baseY;
       armsL.instanceMatrix.needsUpdate = true;
       armsR.instanceMatrix.needsUpdate = true;
-      grp.add(spec, heads, armsL, armsR);
+      flags.instanceMatrix.needsUpdate = true;
+      if (flags.instanceColor) flags.instanceColor.needsUpdate = true;
+      grp.add(spec, heads, armsL, armsR, flags);
       (this.crowdMeshes = this.crowdMeshes || []).push(spec);
       // painted front fascia — sponsor wall in front of the first tier
       // AUDIT R2 (critic 5/10: 'SUPER KART não visível'): fascia MAIOR
