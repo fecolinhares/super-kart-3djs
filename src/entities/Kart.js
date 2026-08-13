@@ -1243,7 +1243,10 @@ export class Kart {
       new THREE.SphereGeometry(0.16, 32, 24),
       helmetMat
     );
-    helmet.position.set(0, 1.26, 0.06);
+    // AUDIT R11 (critic 7.5/10: 'piloto pequeno na chase cam'): 0.16→0.19 +
+    // y 1.26→1.33 — o capacete aparece ACIMA da asa na vista traseira,
+    // a silhueta MK8 de piloto encolhido no cockpit lê à distância.
+    helmet.position.set(0, 1.33, 0.06);
     helmet.scale.set(1, 0.85, 1.02);
     helmet.castShadow = true;
     drv.add(helmet);
@@ -1280,7 +1283,7 @@ export class Kart {
       blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
     });
     const helRim = new THREE.Mesh(new THREE.TorusGeometry(0.155, 0.012, 8, 24), rimMat);
-    helRim.position.set(0, 1.26, 0.06);
+    helRim.position.set(0, 1.33, 0.06);
     helRim.rotation.x = Math.PI / 2;
     helRim.scale.set(1, 1, 0.85);
     helRim.castShadow = false;
@@ -1297,7 +1300,7 @@ export class Kart {
         map: this._visorTexture(character, accent),
       })
     );
-    visor.position.set(0, 1.26, 0.17);
+    visor.position.set(0, 1.33, 0.17);
     visor.scale.set(1.05, 0.28, 0.62);
     visor.castShadow = false;
     drv.add(visor);
