@@ -631,13 +631,20 @@
 }
 
 .sk3d-speedo-value {
-  font-size: 2.1rem;
-  font-weight: 800;
-  color: var(--sk3d-cream);
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #fff;
   font-variant-numeric: tabular-nums;
   text-shadow:
-    0 2px 0 rgba(0, 0, 0, 0.45),
+    0 2px 0 rgba(0, 0, 0, 0.6),
+    0 0 14px rgba(255, 209, 102, 0.55),
     0 5px 10px rgba(27, 42, 65, 0.3);
+}
+
+.sk3d-speedo-tick {
+  stroke: rgba(255, 255, 255, 0.45);
+  stroke-width: 2;
+  stroke-linecap: round;
 }
 
 .sk3d-speedo-unit {

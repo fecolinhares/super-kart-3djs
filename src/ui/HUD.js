@@ -338,6 +338,27 @@ export class HUD {
 
     dial.append(svg);
 
+    // AUDIT R2 (blind critic 2026-08-13: 'no scale ticks, dial reads as
+    // generic ring') — major + minor ticks along the 270° arc (MK8 gauge).
+    const TICK_MAJOR = 9;   // every 30°
+    const TICK_MINOR = 27;  // every 10°
+    const tickGroup = svgEl('g', { class: 'sk3d-speedo-ticks' });
+    for (let i = 0; i <= TICK_MAJOR; i++) {
+      const angleDeg = -135 + (i / TICK_MAJOR) * 270;
+      const a = (angleDeg * Math.PI) / 180;
+      const major = i % 3 === 0; // 0,90,180,270 marks longer
+      const r0 = major ? 50 : 54;
+      const r1 = 60;
+      const x0 = 80 + r0 * Math.cos(a);
+      const y0 = 80 + r0 * Math.sin(a);
+      const x1 = 80 + r1 * Math.cos(a);
+      const y1 = 80 + r1 * Math.sin(a);
+      const tick = svgEl('line', { x1: x0, y1: y0, x2: x1, y2: y1, class: 'sk3d-speedo-tick' });
+      if (major) tick.setAttribute('stroke-width', '3');
+      tickGroup.append(tick);
+    }
+    svg.append(tickGroup);
+
     const needle = document.createElement('div');
     needle.className = 'sk3d-speedo-needle';
     const hub = document.createElement('div');
