@@ -1918,7 +1918,7 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
     ribbonOpts.emissiveMap = true; // the spill patches GLOW (vision 7/10 pass)
     ribbonOpts.color = 0x4a5062; // charcoal, not black
     ribbonOpts.emissive = 0x2a1c4a; // cool night sheen WITH a hint of neon
-    ribbonOpts.emissiveIntensity = 1.15; // AUDIT: spill must READ on the still — emissive carries the baked neon, light alone lost it
+    ribbonOpts.emissiveIntensity = 1.35; // AUDIT: spill must READ on the still — light alone lost it; R2: 1.15→1.35 (reflexos molhados)
   }
   const ribbon = buildRoadRibbon(path, length, ribbonOpts);
   ribbon.receiveShadow = true;
