@@ -150,7 +150,7 @@ export class ItemBox {
       new THREE.MeshBasicMaterial({
         color: 0xffdf80,
         transparent: true,
-        opacity: 0.55,
+        opacity: 0.78,
         side: THREE.DoubleSide,
         depthWrite: false,
         blending: THREE.AdditiveBlending, // AUDIT R3: additive reads as a light column on dark asphalt
@@ -167,7 +167,7 @@ export class ItemBox {
     // the old orbiting arrow cones which read as sketchy placeholders).
     this.ring = new THREE.Group();
     this.ring.position.set(this.base.x, this.base.y, this.base.z);
-    const ringGeo = new THREE.TorusGeometry(this.size * 1.15, 0.12, 10, 36);
+    const ringGeo = new THREE.TorusGeometry(this.size * 1.15, 0.16, 10, 36); // AUDIT R5: thicker ring reads at chase distance
     const ringMat = new THREE.MeshBasicMaterial({
       color: 0xffd166,
       transparent: true,
