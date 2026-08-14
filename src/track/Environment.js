@@ -941,9 +941,22 @@ export class Environment {
   }
 
   buildPalms(scene) {
+    // AUDIT PERF-R26 (2026-08-14, loop performance): 18 palmeiras × 16
+    // meshes = 288 meshes com toonMaterial NOVO cada — o auto-instancing
+    // não agrupava (materiais únicos) → ~270 draw calls. Agora InstancedMesh
+    // por tipo (tronco/anel/folha-clara/folha-escura/coco) + materiais
+    // COMPARTILHADOS: 5 draw calls no total.
+    const trunkGeo = new THREE.CylinderGeometry(0.22, 0.34, 4.2, 12);
+    const ringGeo = new THREE.CylinderGeometry(0.26, 0.28, 0.07, 12);
+    const leafGeo = new THREE.ConeGeometry(0.17, 2.4, 10);
+    const nutGeo = new THREE.SphereGeometry(0.22, 12, 8);
     const trunkMat = toonMaterial(0xb07a4f, {});
+    const ringMat = toonMaterial(0x8f6842, {});
     const leafMat = toonMaterial(0x2fa84f, {});
     const leafMatDark = toonMaterial(0x279142, {});
+    const nutMat = toonMaterial(0x8a5a33, {});
+    const dummy = new THREE.Object3D();
+    const col = new THREE.Color();
 
     // 18 spots, one per ~40° around the loop. The original list had 9 spots
     // sitting within the road clearance band (they were silently skipped by
@@ -957,56 +970,58 @@ export class Environment {
       [-30, -66], [10, 36], [90, -8],
     ];
 
+    const trunks = new THREE.InstancedMesh(trunkGeo, trunkMat, spots.length);
+    const rings = new THREE.InstancedMesh(ringGeo, ringMat, spots.length * 3);
+    const leafsL = new THREE.InstancedMesh(leafGeo, leafMat, spots.length * 11);
+    const leafsD = new THREE.InstancedMesh(leafGeo, leafMatDark, spots.length * 11);
+    const nuts = new THREE.InstancedMesh(nutGeo, nutMat, spots.length);
+    trunks.castShadow = true; rings.castShadow = true;
+    leafsL.castShadow = true; leafsD.castShadow = true;
+    [trunks, rings, leafsL, leafsD, nuts].forEach(m => { m.name = 'palm-instanced'; });
+    scene.add(trunks, rings, leafsL, leafsD, nuts);
+
+    let ti = 0, ri = 0, li = 0, di = 0, ni = 0;
     for (const [x, z] of spots) {
       if (this._onTrack(x, z, 8)) continue; // never place a palm on the road
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.34, 4.2, 12), trunkMat);
-      trunk.position.set(x, 2.1, z);
-      trunk.rotation.z = (this._rand() - 0.5) * 0.22;
-      trunk.rotation.x = (this._rand() - 0.5) * 0.22;
-      trunk.castShadow = true;
-      scene.add(trunk);
-
-      // Trunk rings — the segmented palm-trunk cue (MK8 palms read as
-      // sectioned columns, not smooth sticks). Three thin darker bands.
-      const ringMat = toonMaterial(0x8f6842, {});
-      const ringGeo = new THREE.CylinderGeometry(0.26, 0.28, 0.07, 12);
+      const rx = (this._rand() - 0.5) * 0.22;
+      const rz = (this._rand() - 0.5) * 0.22;
+      dummy.position.set(x, 2.1, z);
+      dummy.rotation.set(rx, 0, rz);
+      dummy.updateMatrix();
+      trunks.setMatrixAt(ti++, dummy.matrix);
       for (let rk = 0; rk < 3; rk++) {
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.position.set(x, 1.0 + rk * 1.05, z);
-        ring.rotation.z = trunk.rotation.z;
-        ring.rotation.x = trunk.rotation.x;
-        ring.castShadow = true;
-        scene.add(ring);
+        dummy.position.set(x, 1.0 + rk * 1.05, z);
+        dummy.rotation.set(rx, 0, rz);
+        dummy.updateMatrix();
+        rings.setMatrixAt(ri++, dummy.matrix);
       }
-
-      const top = new THREE.Object3D();
-      top.position.set(trunk.position.x + Math.sin(trunk.rotation.z) * 2, 4.2, z + Math.sin(trunk.rotation.x) * 2);
-      scene.add(top);
-
-      // Fan of fronds: flattened cones radiating from the crown, tilted down.
-      const leafCount = 11;
-      for (let i = 0; i < leafCount; i++) {
-        const a = (i / leafCount) * Math.PI * 2 + this._rand() * 0.3;
-        const leaf = new THREE.Mesh(
-          new THREE.ConeGeometry(0.17, 2.4, 10),
-          i % 2 === 0 ? leafMat : leafMatDark
-        );
-        leaf.position.set(0, 0.2, 0);
-        leaf.rotation.z = Math.PI / 2; // lay the cone sideways
-        leaf.rotation.y = a;
-        leaf.rotation.x = 0.95; // droop the frond downward
-        leaf.translateX(1.05); // push outward from the crown (kept short = connected)
-        leaf.castShadow = true;
-        top.add(leaf);
+      const cx = x + Math.sin(rz) * 2;
+      const cz = z + Math.sin(rx) * 2;
+      for (let i = 0; i < 11; i++) {
+        const a = (i / 11) * Math.PI * 2 + this._rand() * 0.3;
+        // Replica o leaf original: pos(0,0.2,0) + rot(z=PI/2,y=a,x=0.95) +
+        // translateX(1.05) (eixo local pós-rotação) + offset do crown.
+        dummy.position.set(0, 0.2, 0);
+        dummy.rotation.set(0.95, a, Math.PI / 2);
+        dummy.translateX(1.05);
+        dummy.updateMatrix();
+        dummy.matrix.elements[12] += cx;
+        dummy.matrix.elements[13] += 4.2;
+        dummy.matrix.elements[14] += cz;
+        if (i % 2 === 0) leafsL.setMatrixAt(li++, dummy.matrix);
+        else leafsD.setMatrixAt(di++, dummy.matrix);
       }
-      // coconut
-      const nut = new THREE.Mesh(
-        new THREE.SphereGeometry(0.22, 12, 8),
-        toonMaterial(0x8a5a33, {})
-      );
-      nut.position.set(0, 0.35, 0);
-      top.add(nut);
+      dummy.position.set(cx, 4.2 + 0.35, cz);
+      dummy.rotation.set(0, 0, 0);
+      dummy.updateMatrix();
+      nuts.setMatrixAt(ni++, dummy.matrix);
     }
+    trunks.count = ti; rings.count = ri; leafsL.count = li; leafsD.count = di; nuts.count = ni;
+    trunks.instanceMatrix.needsUpdate = true;
+    rings.instanceMatrix.needsUpdate = true;
+    leafsL.instanceMatrix.needsUpdate = true;
+    leafsD.instanceMatrix.needsUpdate = true;
+    nuts.instanceMatrix.needsUpdate = true;
   }
 
   buildForest(scene) {
