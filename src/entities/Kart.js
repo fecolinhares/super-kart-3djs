@@ -1156,7 +1156,10 @@ export class Kart {
 
     // ---- driver: torso + shoulders + arms gripping the wheel -----------------
     const drv = new THREE.Group();
-    drv.position.set(0, 0, 0);
+    // AUDIT R14 (critic R13 rear 4/10: 'asa corta o torso'): escala não
+    // bastava — o piloto inteiro sobe +0.12 (y) p/ capacete+ombros+torso
+    // ficarem ACIMA da asa traseira na vista traseira.
+    drv.position.set(0, 0.12, 0);
     // AUDIT R13 (critic R12 rear 7/10: 'capacete ok, ombros estreitos'):
     // 1.15→1.3 + ombros alargados — o piloto lê como personagem de corpo
     // inteiro, não esfera isolada sobre o banco.
