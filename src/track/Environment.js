@@ -3124,12 +3124,15 @@ export class Environment {
       // steps (3 tiers) — red / white / blue stadium rows via per-instance
       // color so the stand reads as SEATING, not grey boxes.
       // AUDIT R10 (critic 6/10 'tiers sutis'): 0.8→1.0 altura, gap 1.1→1.3
-      const tier = new THREE.InstancedMesh(new THREE.BoxGeometry(16, 1.0, 2.4), toonMaterial(0xffffff, {}), 3);
+      // AUDIT R21 (critic W1 5/10 'tiers pouco visíveis, plateia espaçada'):
+      // 1.0→1.3 altura + gap 1.3→1.6 (degrau REAL entre fileiras, lê como
+      // arquibancada) — e profundidade 2.4→2.0 (fileiras mais próximas).
+      const tier = new THREE.InstancedMesh(new THREE.BoxGeometry(16, 1.3, 2.0), toonMaterial(0xffffff, {}), 3);
       const tierCols = [0xe2504f, 0xf4f6f8, 0x2e9be8];
       const dummy = new THREE.Object3D();
       const col = new THREE.Color();
       for (let i = 0; i < 3; i++) {
-        dummy.position.set(0, 1.0 + i * 1.3, -i * 2.2);
+        dummy.position.set(0, 1.3 + i * 1.6, -i * 2.0);
         dummy.scale.set(1, 1, 1);
         dummy.rotation.set(0, 0, 0);
         dummy.updateMatrix();
@@ -3145,7 +3148,9 @@ export class Environment {
       // tiers +0.35m mais altos p/ arquibancada legível, bandeirinhas.
       // AUDIT R11 (critic 6/10 'plateia espaçada'): 24→30 por tier (90),
       // spacing 0.72→0.58 — arquibancada LOTADA, sem gaps.
-      const N = 90;
+      // AUDIT R21 (critic W1 5/10 'plateia espaçada, bandeiras ilegíveis'):
+      // 30→36 por tier (108), spacing 0.58→0.50, bandeira 0.22→0.32.
+      const N = 108;
       const spec = new THREE.InstancedMesh(new THREE.BoxGeometry(1.05, 1.2, 1.0), toonMaterial(0xffffff, {}), N);
       const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.3, 12, 8), toonMaterial(0xf4f6f8, {}), N);
       // Raised arms (cheering people, not blocks with heads).
@@ -3153,7 +3158,7 @@ export class Environment {
       const armsL = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), N);
       const armsR = new THREE.InstancedMesh(armGeo, toonMaterial(0xffd9b3, {}), N);
       // Flags: tiny colored pennant on a pole for ~1 in 6 fans (variety cue).
-      const flagGeo = new THREE.ConeGeometry(0.22, 0.5, 3);
+      const flagGeo = new THREE.ConeGeometry(0.32, 0.7, 3);
       const flags = new THREE.InstancedMesh(flagGeo, toonMaterial(0xf5f5f5, {}), N);
       let sIdx = 0;
       const baseY = new Array(N);
@@ -3161,8 +3166,8 @@ export class Environment {
       const armDummy = new THREE.Object3D();
       const legDummy = new THREE.Object3D();
       for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 30; j++) {
-          dummy.position.set(-8.7 + j * 0.58, 1.6 + i * 1.5, -i * 2.2 + 0.3);
+        for (let j = 0; j < 36; j++) {
+          dummy.position.set(-9.0 + j * 0.50, 1.9 + i * 1.6, -i * 2.0 + 0.3);
           dummy.scale.set(1, 0.9 + this._rand() * 0.4, 1);
           dummy.rotation.set(0, 0, 0);
           baseY[sIdx] = dummy.position.y;
