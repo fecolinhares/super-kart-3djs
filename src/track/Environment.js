@@ -4123,10 +4123,10 @@ export class Environment {
         c.fillStyle = accent;
         c.beginPath(); c.arc(60, 64, 16, 0, Math.PI * 2); c.fill();
         c.fillStyle = fg;
-        c.font = '900 52px "Baloo 2", "Nunito", Arial, sans-serif';
+        c.font = '900 64px "Baloo 2", "Nunito", Arial, sans-serif'; // AUDIT R25b: 52→64px
         c.textAlign = 'left'; c.textBaseline = 'middle';
-        c.fillText(word || 'NEON', 110, 56);
-        c.font = '800 30px "Baloo 2", "Nunito", Arial, sans-serif';
+        c.fillText(word || 'NEON', 110, 52);
+        c.font = '800 36px "Baloo 2", "Nunito", Arial, sans-serif';
         c.fillText('KART', 110, 96);
         const t = new THREE.CanvasTexture(cv);
         t.colorSpace = THREE.SRGBColorSpace;
@@ -4158,7 +4158,8 @@ export class Environment {
         });
       }
       for (const b of bbPos) {
-        const board = new THREE.Mesh(new THREE.BoxGeometry(7, 3.4, 0.4), bbMats[b.m]);
+        // AUDIT R25b: 7→9m largura (texto legível a distância da chase cam)
+        const board = new THREE.Mesh(new THREE.BoxGeometry(9, 4.4, 0.4), bbMats[b.m]);
         board.position.set(...b.p);
         board.rotation.set(...b.r);
         scene.add(board);
