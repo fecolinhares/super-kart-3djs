@@ -600,173 +600,79 @@ function beveledCurbGeometry(width, height, length, chamfer) {
 
 function buildCurbs(path, length, side, opts = {}) {
   const roadW = getRoadWidthAt();
-  // AUDIT (Feco visual QA + kerb audit, 2026-08-11): 'faixas fora de
-  // proporção, com buracos e desalinhadas'. Three root causes fixed:
-  //  - proportions were INVERTED vs MK8D (0.46 wide x 0.85 long — stripes
-  //    longer than wide). MK8 kerb slabs are ~8-10% of road width and wider
-  //    than long: 0.9 lateral x 0.6 longitudinal x 0.17 tall.
-  //  - the per-block dummy.lookAt aimed at p.y while the block center sits at
-  //    p.y+0.195 — every stone pitched ~11deg nose-down, raising the rear
-  //    edge 8cm and dropping the front below asphalt: dark slivers at every
-  //    joint read as HOLES. Now yaw-only (rotation.set(0, atan2, 0)).
-  //  - per-stone jitter (latJ 0.03m / yJ 0.02m) and tint noise (0.78-1.13)
-  //    zigzagged the road edge and turned the zebra patchy.
-  const seg = 0.5;
-  // AUDIT (Feco follow-up 2, 2026-08-11): 0.9m-wide stones read as chunky
-  // segmented slabs ('blocos largos e grosseiros'). Slimmed to MK8D kerb
-  // proportions: 0.55 wide x 0.5 long x 0.14 tall, gentler chamfer — a thin
-  // painted zebra edge, not a curb wall. Arc-length-on-the-edge placement
-  // (below) still guarantees uniform spacing.
-  // AUDIT (kerb probe + Feco follow-up, 2026-08-11): stones placed by
-  // CENTERLINE arc-length still overlap on the INSIDE of corners and gap on
-  // the OUTSIDE (a corner of radius R moves the inner kerb by (R-offset)/R —
-  // on a 7m hairpin the inner edge covers ~30% of the centerline length, so
-  // fixed 0.6m stones pile up ~0.4m into each other: the 'stones entering
-  // each other' Feco saw). The fix: build the arc-length table along the
-  // KERB EDGE (centerline + side*offset), so stones are uniformly spaced on
-  // the edge itself — inner corners get fewer, wider-spaced stones, outer
-  // corners get more; every pair is exactly `segEff` apart on the edge.
+  // AUDIT PERF/QA R50 (Feco real-GPU 2026-08-14: 'zebrado do canto ainda
+  // estranho do mesmo jeito'): stones 3D retangulares rotacionadas em CURVAS
+  // sempre abrem cunhas/sobreposição nas juntas (o chamfer 0.002 do R20
+  // reduziu mas não elimina — geometria 3D em curva é o limite). Solução MK8
+  // definitiva: RIBBON CONTÍNUA com textura zebra (UV ao longo do comprimento,
+  // repeat = nº de pedras) — a zebra segue a curva perfeitamente, zero juntas.
   const offset = roadW / 2 + 0.15;
-  // AUDIT (Feco QA 2026-08-12): segEff 0.98 left ~1cm overlap — straight
-  // kerb stones on a curve open a triangular gap at every joint (~1.6cm on
-  // R=8) that read as HOLES in the zebra. 0.90 (5cm overlap) closes them on
-  // the city's tightest corners while still reading as individual stones.
-  // AUDIT R19 (Feco real-GPU 2026-08-14: 'vermelho/branco com defeito —
-  // peças vermelhas ENCAIXADAS sobre as brancas, pontas triangulares'):
-  // 5cm de overlap em RETAS faz o chamfer de cada stone penetrar 2.5cm na
-  // vizinha — a zebra lê sobreposta. 0.93 = 3.5cm: fecha R=8 ainda, sem
-  // sobreposição visível em retas.
-  const segEff = seg * 0.93;
-  // Edge length (arc of the kerb line, not the centerline).
-  const ARC_N = 2000;
-  const arcT = new Float64Array(ARC_N + 1); // arcT[i] = t at sample i
-  const arcS = new Float64Array(ARC_N + 1); // arcS[i] = cumulative edge arc
-  {
-    const pp = new THREE.Vector3();
-    const pq = new THREE.Vector3();
-    const pn = new THREE.Vector3();
-    const qn = new THREE.Vector3();
-    const tq = new THREE.Vector3();
-    path.getPointAt(0, pp);
-    path.getTangentAt(0, tq);
-    pn.set(-tq.z, 0, tq.x).normalize();
-    const ep = pp.clone().addScaledVector(pn, side * offset);
-    let acc = 0;
-    arcT[0] = 0; arcS[0] = 0;
-    for (let i = 1; i <= ARC_N; i++) {
-      const t = i / ARC_N;
-      path.getPointAt(t, pq);
-      path.getTangentAt(t, tq);
-      qn.set(-tq.z, 0, tq.x).normalize();
-      const eq = pq.clone().addScaledVector(qn, side * offset);
-      acc += ep.distanceTo(eq);
-      arcT[i] = t;
-      arcS[i] = acc;
-      ep.copy(eq);
-    }
-    const edgeLen = acc;
-    const countLocal = Math.max(1, Math.floor((edgeLen - seg) / segEff) + 1);
-    var edgeLenOut = edgeLen;
-    var countOut = countLocal;
-  }
-  // count depends on the EDGE length (outer side has more stones).
-  const count = countOut;
-  const edgeLen = edgeLenOut;
-  const arcToT = (s) => {
-    const target = Math.min(Math.max(s, 0), edgeLen - 0.001); // clamp, no wrap
-    let lo = 0, hi = ARC_N;
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1;
-      if (arcS[mid] < target) lo = mid + 1;
-      else hi = mid;
-    }
-    if (lo === 0) return 0;
-    const s0 = arcS[lo - 1], s1 = arcS[lo];
-    const f = s1 > s0 ? (target - s0) / (s1 - s0) : 0;
-    return arcT[lo - 1] + (arcT[lo] - arcT[lo - 1]) * f;
-  };
   const curbW = 0.68;
   const curbH = 0.20;
-  // AUDIT visual 2026-08-12: kerbs read as a flat painted strip with no
-  // curb volume. Taller stones + higher top + a top-face decal plane per
-  // stone (zebra) restore the MK8D curb read.
-  const geo = beveledCurbGeometry(curbW, curbH, seg, 0.002); // AUDIT R20 (Feco real-GPU 2026-08-14: 'kerbs AINDA com pontas'): chamfer 0.015 ainda deixava quinas diagonais em curvas — 0.002 = stone RETANGULAR plana, zebra contínua MK8 sem V nas juntas
-
-  // NEON CITY: alternating emissive pink/cyan kerbs. instanceColor can't
-  // drive MeshToonMaterial's emissive, so even/odd boxes are split into two
-  // instanced meshes, one material per neon color (emissive 0.6).
-  const neon = opts.neon;
-  const meshes = neon
-    ? [
-        new THREE.InstancedMesh(
-          geo,
-          toonMaterial(0xff2ec4, { emissive: 0xff2ec4, emissiveIntensity: 0.45, side: THREE.DoubleSide }),
-          Math.ceil(count / 2)
-        ),
-        new THREE.InstancedMesh(
-          geo,
-          toonMaterial(0x2ec4ff, { emissive: 0x2ec4ff, emissiveIntensity: 0.45, side: THREE.DoubleSide }),
-          Math.floor(count / 2)
-        ),
-      ]
-    : [new THREE.InstancedMesh(geo, toonMaterial(0xffffff, { side: THREE.DoubleSide, roughness: 0.55 }), count)];
-  for (const m of meshes) m.castShadow = true;
-  const mesh = meshes[0]; // legacy single-mesh path
-  // Worn kerb palette (classic track): 4 alternating stone colors + a
-  // per-instance dirtied tint so the kerb reads as individual worn stones
-  // set into the ground, not a flat repetitive tile strip (vision critic).
-  // AUDIT: classic red/white ZEBRA kerb (the 4-color worn palette read as
-  // weird blocks, not a kerb). Per-instance dirt tint still adds wear.
-  // Saturated classic zebra (audit F3): pure racing red + near-white, with a
-  // TIGHT per-stone dirt tint (±5%) so the strip stays crisp at a distance.
-  const KERB_PALETTE = [0xe63b3b, 0xf8f9fb];
-
-  const p = new THREE.Vector3();
-  const tan = new THREE.Vector3();
+  const N = 200; // segmentos da ribbon (contínua na curva)
   const nrm = new THREE.Vector3();
-  const dummy = new THREE.Object3D();
-  const col = new THREE.Color();
-  const cursor = [0, 0];
-
-  for (let i = 0; i < count; i++) {
-    const t = arcToT((i + 0.5) * segEff); // arc-length-centered stone
+  const tan = new THREE.Vector3();
+  const p = new THREE.Vector3();
+  const pos = [];
+  const uv = [];
+  const idx = [];
+  const edgeLen = length;
+  const stoneLen = 0.5;
+  const repeats = Math.max(2, Math.round(edgeLen / stoneLen));
+  for (let i = 0; i <= N; i++) {
+    const t = i / N;
     path.getPointAt(t, p);
     path.getTangentAt(t, tan);
     nrm.set(-tan.z, 0, tan.x).normalize();
-    // Per-stone jitter (height + lateral) so the kerb reads as stones set
-    // into the ground; top now at y+0.28 (±0.01) — recessed 1cm from 0.29.
-    // AUDIT R19b (Feco: 'emendas irregulares'): yJ 0.006→0.0015 (quase nulo
-    // — degrauzinhos criavam sombra escura nas juntas).
-    const yJ = (hash01(i, 7) - 0.5) * 0.0015;
-    const latJ = (hash01(i, 8) - 0.5) * 0.0015;
-    dummy.position.set(
-      p.x + nrm.x * side * (roadW / 2 + 0.15 + latJ),
-      p.y + 0.36 - curbH / 2 + yJ,
-      p.z + nrm.z * side * (roadW / 2 + 0.15 + latJ)
-    );
-    // Yaw-only alignment — lookAt pitched every stone ~11deg nose-down
-    // (block center sits above p.y), which read as gaps/misalignment.
-    dummy.rotation.set(0, Math.atan2(tan.x, tan.z), 0);
-    dummy.updateMatrix();
-    if (neon) {
-      const slot = i % 2;
-      meshes[slot].setMatrixAt(cursor[slot]++, dummy.matrix);
-    } else {
-      mesh.setMatrixAt(i, dummy.matrix);
-      const base = KERB_PALETTE[Math.floor(hash01(i, 9) * KERB_PALETTE.length)];
-      col.setHex(base).multiplyScalar(0.95 + hash01(i, 10) * 0.1); // tight dirt tint (audit F3)
-      mesh.setColorAt(i, col);
-    }
+    const cx = p.x + nrm.x * side * offset;
+    const cz = p.z + nrm.z * side * offset;
+    const ox = nrm.x * (curbW / 2);
+    const oz = nrm.z * (curbW / 2);
+    const y0 = p.y + 0.24; // top face band (kerb reads as a painted strip)
+    const y1 = p.y + 0.26; // ~2cm tall volume so it reads 3D, not a decal
+    const u = (i / N) * repeats;
+    pos.push(cx - ox, y0, cz - oz); uv.push(u, 0); // 0 outer-bottom
+    pos.push(cx + ox, y0, cz + oz); uv.push(u, 0); // 1 inner-bottom
+    pos.push(cx + ox, y1, cz + oz); uv.push(u, 1); // 2 inner-top
+    pos.push(cx - ox, y1, cz - oz); uv.push(u, 1); // 3 outer-top
   }
-  for (const m of meshes) {
-    m.instanceMatrix.needsUpdate = true;
-    if (m.instanceColor) m.instanceColor.needsUpdate = true;
+  for (let i = 0; i < N; i++) {
+    const a = i * 4;
+    const b = a + 4;
+    // top face (the zebra) — 2 triangles
+    idx.push(a + 3, a + 2, b + 2, a + 3, b + 2, b + 3);
+    // outer side
+    idx.push(a, a + 3, b + 3, a, b + 3, b);
+    // inner side
+    idx.push(a + 1, b + 1, b + 2, a + 1, b + 2, a + 2);
   }
-  if (neon) {
-    const g = new THREE.Group();
-    g.add(...meshes);
-    return g;
-  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  geo.setIndex(idx);
+  geo.computeVertexNormals();
+
+  // Zebra texture: red/white alternating stones along U.
+  const zebraTex = (() => {
+    const cv = document.createElement('canvas');
+    cv.width = 256; cv.height = 16;
+    const c = cv.getContext('2d');
+    const half = 128;
+    c.fillStyle = '#e63b3b'; c.fillRect(0, 0, half, 16);
+    c.fillStyle = '#f8f9fb'; c.fillRect(half, 0, half, 16);
+    const t = new THREE.CanvasTexture(cv);
+    t.wrapS = THREE.RepeatWrapping;
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  })();
+
+  const mat = opts.neon
+    ? new THREE.MeshBasicMaterial({ map: zebraTex, color: 0xff2ec4, emissive: 0xff2ec4, emissiveIntensity: 0.5, side: THREE.DoubleSide })
+    : new THREE.MeshBasicMaterial({ map: zebraTex, color: 0xffffff, side: THREE.DoubleSide });
+  mat.map.repeat.set(repeats / 2, 1); // 1 stone = 1 par de faixas
+  mat.map.needsUpdate = true;
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = true;
   return mesh;
 }
 

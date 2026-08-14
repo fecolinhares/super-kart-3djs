@@ -624,6 +624,9 @@ function applyDifficulty() {
   settings.cc = cc;
   settings.autoAccel = !!window.__sk3dAutoAccel;
   settings.steerAssist = !!window.__sk3dSteerAssist;
+  // AUDIT R49: player sem steerAssist → _disablePathPull=true (KartPhysics
+  // zera o pull do path); o kart só vira com input real.
+  if (playerKart) playerKart._disablePathPull = !settings.steerAssist;
   // KartPhysics/AIController read CONFIG.physics live each frame — scaling
   // maxSpeed/boostSpeed scales the player AND the AI rubber-band ceiling.
   CONFIG.physics.maxSpeed = BASE_MAX_SPEED * mult;

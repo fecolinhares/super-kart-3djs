@@ -342,7 +342,12 @@ export class KartPhysics {
       // On-road path pull: reduced from 0.45 → 0.18 (auditor: 0.45 auto-steered
       // the kart and masked steering feel; 0.18 lets the player hold a racing
       // line while still recentering after a bump). Off-road 0.1 unchanged.
-      const pull = s.offRoad ? 0.1 : s.drifting ? 0.2 : 0.18;
+      // AUDIT R49 (Feco mobile 2026-08-14: 'direção forçada com assist off'):
+      // o pull rodava SEMPRE (inclusive player com steerAssist=false — no
+      // mobile o toque fraco era dominado e o kart parecia dirigir sozinho).
+      // kart._disablePathPull é setado pelo main.js = !settings.steerAssist
+      // (só o player); AIs mantêm o pull normal.
+      const pull = kart._disablePathPull ? 0 : s.offRoad ? 0.1 : s.drifting ? 0.2 : 0.18;
       s.heading = dampAngle(s.heading, tanAngle, pull, dt);
       updateDrift(kart, input, dt, speedAbs);
     }
