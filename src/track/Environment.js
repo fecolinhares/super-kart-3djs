@@ -4152,7 +4152,8 @@ export class Environment {
         _bn.set(-_bt.z, 0, _bt.x).normalize();
         const bside = bi % 2 === 0 ? 1 : -1;
         bbPos.push({
-          p: [_bp.x + _bn.x * bside * (CONFIG.track.roadWidth / 2 + 11), 5.4, _bp.z + _bn.z * bside * (CONFIG.track.roadWidth / 2 + 11)],
+          // AUDIT R25d: 11→7m da pista (billboard entra no frame mobile + chase cam)
+          p: [_bp.x + _bn.x * bside * (CONFIG.track.roadWidth / 2 + 7), 5.4, _bp.z + _bn.z * bside * (CONFIG.track.roadWidth / 2 + 7)],
           // AUDIT R25c: era Math.PI/3.2 (56°) — texto quase de PERFIL p/
           // câmera. rotation 0 deixa a face +Z paralela à pista (câmera vê a
           // lateral). Agora lookAt o CENTRO da pista (face p/ o jogador).
