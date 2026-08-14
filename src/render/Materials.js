@@ -857,3 +857,55 @@ export function turboPadChevronTexture() {
   return _turboPadChevronTex;
 }
 
+/** AUDIT R51b (Feco 2026-08-14): glow aditivo do turbo pad com máscara SÓ
+ *  dos chevrons (fundo PRETO = soma zero no aditivo; branco = brilha só nas
+ *  setas). O glow anterior usava a textura inteira do pad (laranja + branco)
+ *  e o aditivo DOBRAVA o laranja / estourava o branco. */
+let _turboPadGlowTex = null;
+export function turboPadGlowTexture() {
+  if (_turboPadGlowTex) return _turboPadGlowTex;
+  const W = 512;
+  const H = 128;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(0, 0, W, H); // black bg → additive adds nothing outside the chevrons
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 22;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.shadowColor = 'rgba(255,255,255,0.9)';
+  ctx.shadowBlur = 10;
+  for (const fx of [0.20, 0.50, 0.80]) {
+    const cx = W * fx;
+    const cy = H / 2;
+    const half = W * 0.13;
+    const hh = H * 0.34;
+    ctx.beginPath();
+    ctx.moveTo(cx - half, cy - hh);
+    ctx.lineTo(cx + half, cy);
+    ctx.lineTo(cx - half, cy + hh);
+    ctx.stroke();
+  }
+  ctx.shadowBlur = 20;
+  ctx.lineWidth = 8;
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+  for (const fx of [0.20, 0.50, 0.80]) {
+    const cx = W * fx;
+    const cy = H / 2;
+    const half = W * 0.13;
+    const hh = H * 0.34;
+    ctx.beginPath();
+    ctx.moveTo(cx - half, cy - hh);
+    ctx.lineTo(cx + half, cy);
+    ctx.lineTo(cx - half, cy + hh);
+    ctx.stroke();
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  _turboPadGlowTex = tex;
+  return _turboPadGlowTex;
+}
+

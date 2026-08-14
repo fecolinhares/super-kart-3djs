@@ -13,7 +13,7 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { toonMaterial, cartoonOutline, roadTexture, cityRoadTexture, dirtTexture, grassTexture, concreteTexture, checkerTexture, bannerCheckerTexture, finishBannerTexture, finishBannerTextureMirrored, turboPadTexture, turboPadChevronTexture, arrowTexture, finishLineTexture, neonReflectionTexture } from '../render/Materials.js';
+import { toonMaterial, cartoonOutline, roadTexture, cityRoadTexture, dirtTexture, grassTexture, concreteTexture, checkerTexture, bannerCheckerTexture, finishBannerTexture, finishBannerTextureMirrored, turboPadTexture, turboPadChevronTexture, turboPadGlowTexture, arrowTexture, finishLineTexture, neonReflectionTexture } from '../render/Materials.js';
 
 // Control points forming the closed loop (X, Y=elevation, Z).
 const CONTROL_POINTS = [
@@ -943,7 +943,7 @@ function buildTurboPads(path, length) {
   // a MESMA textura do pad como máscara — o brilho aditivo só acende nas
   // áreas do desenho (laranja + chevrons), integrado, sem estourar.
   const glowMat = new THREE.MeshBasicMaterial({
-    map: turboPadTexture(),
+    map: turboPadGlowTexture(), // AUDIT R51b: máscara SÓ dos chevrons (fundo preto = soma zero; antes a textura inteira dobrava o laranja)
     color: 0xffffff,
     transparent: true,
     opacity: 0,
