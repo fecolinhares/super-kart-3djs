@@ -3127,14 +3127,15 @@ export class Environment {
       // AUDIT R21 (critic W1 5/10 'tiers sutis, plateia espaçada'):
       // 1.0→1.3 altura + gap 1.3→1.6 (degrau REAL entre fileiras, lê como
       // arquibancada) — e profundidade 2.4→2.0 (fileiras mais próximas).
-      // AUDIT R23 (critic W1h 6.5/10 'gap 1.6 grande, bandeiras fracas'):
-      // gap 1.6→1.3 (plateia compacta), bandeiras 0.32→0.45, 36→40/tier.
+      // AUDIT R24 (critic W2b mobile 5/10 'gramado vazio entre fileiras'):
+      // gap vertical tiers 1.3→1.1 + spacing lateral 0.49→0.42 — compacta a
+      // plateia (sem vãos verdes), mantém degrau legível.
       const tier = new THREE.InstancedMesh(new THREE.BoxGeometry(16, 1.3, 2.0), toonMaterial(0xffffff, {}), 3);
       const tierCols = [0xe2504f, 0xf4f6f8, 0x2e9be8];
       const dummy = new THREE.Object3D();
       const col = new THREE.Color();
       for (let i = 0; i < 3; i++) {
-        dummy.position.set(0, 1.3 + i * 1.3, -i * 2.0);
+        dummy.position.set(0, 1.3 + i * 1.1, -i * 2.0);
         dummy.scale.set(1, 1, 1);
         dummy.rotation.set(0, 0, 0);
         dummy.updateMatrix();
@@ -3150,8 +3151,8 @@ export class Environment {
       // tiers +0.35m mais altos p/ arquibancada legível, bandeirinhas.
       // AUDIT R11 (critic 6/10 'plateia espaçada'): 24→30 por tier (90),
       // spacing 0.72→0.58 — arquibancada LOTADA, sem gaps.
-      // AUDIT R23 (critic W1h): 36→40 por tier (120), bandeira 0.32→0.45.
-      const N = 120;
+      // AUDIT R24 (critic W2b mobile 5/10): 40→48 por tier (144 espectadores).
+      const N = 144;
       const spec = new THREE.InstancedMesh(new THREE.BoxGeometry(1.05, 1.2, 1.0), toonMaterial(0xffffff, {}), N);
       const heads = new THREE.InstancedMesh(new THREE.SphereGeometry(0.3, 12, 8), toonMaterial(0xf4f6f8, {}), N);
       // Raised arms (cheering people, not blocks with heads).
@@ -3167,8 +3168,8 @@ export class Environment {
       const armDummy = new THREE.Object3D();
       const legDummy = new THREE.Object3D();
       for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 40; j++) {
-          dummy.position.set(-9.8 + j * 0.49, 1.9 + i * 1.3, -i * 2.0 + 0.3);
+        for (let j = 0; j < 48; j++) {
+          dummy.position.set(-10.1 + j * 0.42, 1.9 + i * 1.1, -i * 2.0 + 0.3);
           dummy.scale.set(1, 0.9 + this._rand() * 0.4, 1);
           dummy.rotation.set(0, 0, 0);
           baseY[sIdx] = dummy.position.y;
