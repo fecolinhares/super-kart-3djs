@@ -2377,15 +2377,28 @@ export class Environment {
       tex.colorSpace = THREE.SRGBColorSpace;
       this._bannerTex = tex;
     }
-    const bannerMat = new THREE.MeshBasicMaterial({ map: this._bannerTex, side: THREE.DoubleSide });
+    const bannerMat = new THREE.MeshBasicMaterial({ map: this._bannerTex, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
     const poleMat = toonMaterial(0x8b7a5c, {});
     // AUDIT r10 (FECO): the BoxGeometry mapped the banner texture on ALL six
     // faces — the 0.08m-thick side faces showed the whole 5.6m texture
     // stretched into thin strips (the 'distorted banners'). Only the ±Z
     // faces carry the print; edges get a neutral trim.
+    // AUDIT PERF-R47 (2026-08-14, auditoria render #2): o BoxGeometry
+    // multi-material (6 grupos por banner) = 6 draw calls por banner
+    // (~216 calls). Agora FRAME (Box fino, edgeMat) + PRINT (Plane com a
+    // textura) separados — 2 InstancedMesh (1 frame + 1 print) + postes
+    // instanced: ~6 calls no total.
     const bannerEdgeMat = toonMaterial(0x6a5c48, {});
-    const bannerGeo = new THREE.BoxGeometry(5.6, 1.0, 0.08);
+    const frameGeo = new THREE.BoxGeometry(5.6, 1.0, 0.08);
+    const printGeo = new THREE.PlaneGeometry(5.5, 0.9);
     const poleGeo = new THREE.CylinderGeometry(0.07, 0.09, 3.0, 8);
+    const dummyB = new THREE.Object3D();
+    const maxBanners = 40;
+    const frames = new THREE.InstancedMesh(frameGeo, bannerEdgeMat, maxBanners);
+    const prints = new THREE.InstancedMesh(printGeo, bannerMat, maxBanners);
+    const poles = new THREE.InstancedMesh(poleGeo, poleMat, maxBanners * 2);
+    [frames, prints, poles].forEach((m) => { m.name = 'banner-instanced'; });
+    scene.add(frames, prints, poles);
     const tan = new THREE.Vector3();
     const tan2 = new THREE.Vector3();
     const p = new THREE.Vector3();
@@ -2408,21 +2421,35 @@ export class Environment {
       for (const off of [-1, 1]) {
         // poles at the banner's WIDTH ends — along the tangent (the board
         // is only 0.08m thick laterally, so lateral poles would float)
-        const pole = new THREE.Mesh(poleGeo, poleMat);
-        pole.position.set(bx + tan.x * off * 2.7, by + 1.5, bz + tan.z * off * 2.7);
-        scene.add(pole);
+        dummyB.position.set(bx + tan.x * off * 2.7, by + 1.5, bz + tan.z * off * 2.7);
+        dummyB.rotation.set(0, 0, 0);
+        dummyB.scale.set(1, 1, 1);
+        dummyB.updateMatrix();
+        poles.setMatrixAt(made * 2 + (off === -1 ? 0 : 1), dummyB.matrix);
       }
-      const banner = new THREE.Mesh(
-        bannerGeo,
-        // material groups: 0-3 = ±X/±Y edge faces (neutral), 4-5 = ±Z print
-        [bannerEdgeMat, bannerEdgeMat, bannerEdgeMat, bannerEdgeMat, bannerMat, bannerMat]
-      );
-      banner.position.set(bx, by + 2.35, bz);
-      banner.lookAt(p.x, by + 2.35, p.z); // face the track
-      banner.rotation.z = 0;
-      scene.add(banner);
+      // frame
+      dummyB.position.set(bx, by + 2.35, bz);
+      dummyB.lookAt(p.x, by + 2.35, p.z); // face the track
+      dummyB.rotation.z = 0;
+      dummyB.scale.set(1, 1, 1);
+      dummyB.updateMatrix();
+      frames.setMatrixAt(made, dummyB.matrix);
+      // print plane (slightly inset so it never z-fights the frame edge)
+      dummyB.position.set(bx, by + 2.35, bz);
+      dummyB.lookAt(p.x, by + 2.35, p.z);
+      dummyB.rotation.z = 0;
+      dummyB.scale.set(1, 1, 1);
+      dummyB.updateMatrix();
+      prints.setMatrixAt(made, dummyB.matrix);
       made++;
+      if (made >= maxBanners) break;
     }
+    frames.count = made;
+    prints.count = made;
+    poles.count = made * 2;
+    frames.instanceMatrix.needsUpdate = true;
+    prints.instanceMatrix.needsUpdate = true;
+    poles.instanceMatrix.needsUpdate = true;
   }
 
   /**
@@ -2755,11 +2782,24 @@ export class Environment {
     const path = track.path;
     const len = path.getLength();
     const halfW = CONFIG.track.roadWidth / 2;
+    // AUDIT PERF-R48 (2026-08-14, auditoria render #6): 7 placas × 4 meshes
+    // em Groups (parent uuid único → autoInstancing não cruza) = ~28 calls.
+    // Agora 3 InstancedMesh (panel/back/post) — ~3 calls.
     const panelTex = this._sponsorBoardTexture();
     const panelMat = toonMaterial(0xffffff, { map: panelTex, roughness: 0.4, envMapIntensity: 1.0 }); // glossy plastic board
     const frameMat = toonMaterial(0x2b3242, {});
     const postMat = toonMaterial(0x8b7a5c, {});
+    const panelGeo = new THREE.BoxGeometry(2.6, 1.3, 0.07);
+    const backGeo = new THREE.BoxGeometry(2.72, 1.42, 0.05);
+    const postGeo = new THREE.CylinderGeometry(0.06, 0.09, 2.3, 8);
     const n = 7;
+    const dummyS = new THREE.Object3D();
+    const panels = new THREE.InstancedMesh(panelGeo, panelMat, n);
+    const backs = new THREE.InstancedMesh(backGeo, frameMat, n);
+    const posts = new THREE.InstancedMesh(postGeo, postMat, n * 2);
+    [panels, backs, posts].forEach((m) => { m.name = 'sponsor-instanced'; });
+    scene.add(panels, backs, posts);
+    let made = 0;
     const tan = new THREE.Vector3();
     const tan2 = new THREE.Vector3();
     const p = new THREE.Vector3();
@@ -2775,24 +2815,29 @@ export class Environment {
       const tx = p.x + nrm.x * side * (halfW + 3.6);
       const tz = p.z + nrm.z * side * (halfW + 3.6);
       if (this._onTrack(tx, tz, 2)) continue;
-      const grp = new THREE.Group();
-      // panel + backing frame (slightly larger, darker — reads as a 3D frame)
-      const panel = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.3, 0.07), panelMat);
-      panel.position.y = 1.7;
-      panel.castShadow = true;
-      grp.add(panel);
-      const back = new THREE.Mesh(new THREE.BoxGeometry(2.72, 1.42, 0.05), frameMat);
-      back.position.y = 1.7;
-      grp.add(back);
+      const gy = this._gy(tx, tz);
+      const yaw = Math.atan2(tan.x, tan.z) + Math.PI / 2; // face the road
+      dummyS.position.set(tx, gy + 1.7, tz);
+      dummyS.rotation.set(0, yaw, 0);
+      dummyS.scale.set(1, 1, 1);
+      dummyS.updateMatrix();
+      panels.setMatrixAt(made, dummyS.matrix);
+      backs.setMatrixAt(made, dummyS.matrix);
       for (const s of [-1, 1]) {
-        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.09, 2.3, 8), postMat);
-        post.position.set(s * 1.2, 1.15, 0);
-        grp.add(post);
+        dummyS.position.set(tx + Math.cos(yaw) * s * 1.2, gy + 1.15, tz - Math.sin(yaw) * s * 1.2);
+        dummyS.rotation.set(0, yaw, 0);
+        dummyS.scale.set(1, 1, 1);
+        dummyS.updateMatrix();
+        posts.setMatrixAt(made * 2 + (s === -1 ? 0 : 1), dummyS.matrix);
       }
-      grp.position.set(tx, this._gy(tx, tz), tz);
-      grp.rotation.y = Math.atan2(tan.x, tan.z) + Math.PI / 2; // face the road
-      scene.add(grp);
+      made++;
     }
+    panels.count = made;
+    backs.count = made;
+    posts.count = made * 2;
+    panels.instanceMatrix.needsUpdate = true;
+    backs.instanceMatrix.needsUpdate = true;
+    posts.instanceMatrix.needsUpdate = true;
   }
 
   /** Corner marshal flags on poles at the sharpest apexes (racing cue). */
