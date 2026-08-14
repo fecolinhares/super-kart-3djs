@@ -4112,28 +4112,30 @@ export class Environment {
     // --- LARGE billboards (vision critic: 'no readable signage' — MK8 city
     // tracks have big illuminated ad panels; bars read as fake text) ---
     {
-      const bbTex = (bg, fg, accent) => {
+      const bbTex = (bg, fg, accent, word) => {
         const cv = document.createElement('canvas');
-        cv.width = 128; cv.height = 64;
+        cv.width = 256; cv.height = 128; // AUDIT R25: 128→256 — texto real legível a distância
         const c = cv.getContext('2d');
-        c.fillStyle = bg; c.fillRect(0, 0, 128, 64);
-        // bold logo disc + bars — reads as a brand mark at race distance
+        c.fillStyle = bg; c.fillRect(0, 0, 256, 128);
+        // bold logo disc + REAL WORD (critic Neon 7.5/10 'letreiros ilegíveis')
         c.fillStyle = fg;
-        c.beginPath(); c.arc(30, 32, 16, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.arc(60, 64, 32, 0, Math.PI * 2); c.fill();
         c.fillStyle = accent;
-        c.beginPath(); c.arc(30, 32, 8, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.arc(60, 64, 16, 0, Math.PI * 2); c.fill();
         c.fillStyle = fg;
-        c.fillRect(54, 18, 62, 12);
-        c.fillRect(60, 36, 56, 9);
-        c.fillRect(54, 50, 40, 8);
+        c.font = '900 52px "Baloo 2", "Nunito", Arial, sans-serif';
+        c.textAlign = 'left'; c.textBaseline = 'middle';
+        c.fillText(word || 'NEON', 110, 56);
+        c.font = '800 30px "Baloo 2", "Nunito", Arial, sans-serif';
+        c.fillText('KART', 110, 96);
         const t = new THREE.CanvasTexture(cv);
         t.colorSpace = THREE.SRGBColorSpace;
         return t;
       };
       const bbMats = [
-        new THREE.MeshBasicMaterial({ map: bbTex('#141030', '#ff2ec4', '#fff') }),
-        new THREE.MeshBasicMaterial({ map: bbTex('#1a1440', '#2ec4ff', '#fff') }),
-        new THREE.MeshBasicMaterial({ map: bbTex('#23103a', '#ffd23c', '#fff') }),
+        new THREE.MeshBasicMaterial({ map: bbTex('#141030', '#ff2ec4', '#fff', 'NEON') }),
+        new THREE.MeshBasicMaterial({ map: bbTex('#1a1440', '#2ec4ff', '#fff', 'NEO') }),
+        new THREE.MeshBasicMaterial({ map: bbTex('#23103a', '#ffd23c', '#fff', 'KART') }),
       ];
       // AUDIT (city redesign, 2026-08-11): billboards follow the path too
       // (old hardcoded spots sat 10-16m into the infield of the new layout).
