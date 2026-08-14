@@ -1056,6 +1056,9 @@ export class Kart {
     // toneMapped:false fazia a stripe BRILHAR como um anel separado sobre o
     // pneu azul-escuro. r 0.30→0.27 (claro DENTRO do pneu) + toneMapped true
     // (ACES suaviza — vira parede lateral, não anel).
+    // AUDIT R20c (Feco 3ª reclamação de anel): MESMO r0.27 a stripe AMARELA
+    // ainda lia como resíduo. Stripe vira CINZA-CLARO (parede lateral de pneu
+    // real, tipo kart azul MK8) — zero anel colorido.
     const stripeGeo = new THREE.TorusGeometry(0.27, 0.016, 8, 32);
     // Darker tire-wall band — sits just outside the accent stripe (rubber
     // sidewall break between tread shoulder and painted stripe).
@@ -1071,6 +1074,9 @@ export class Kart {
     const hubCapGeo = new THREE.SphereGeometry(0.032, 12, 10);
     const lugGeo = new THREE.SphereGeometry(0.016, 8, 6);
     const stripeMat = character ? this._mat(accent) : white;
+    // AUDIT R20c: stripe SEMPRE cinza-claro (parede lateral de pneu) —
+    // nunca a cor accent (amarelo criava anel visível).
+    if (stripeMat) stripeMat.color.set(0xc9d4de);
     // AUDIT R20b: toneMapped false deixava a stripe BRILHANTE demais (anel
     // separado) — agora ACES aplica e ela integra ao pneu.
     // if (stripeMat && stripeMat.toneMapped !== undefined) stripeMat.toneMapped = false; // AUDIT R4: sidewall stripe stays hot (wheel legibility)
