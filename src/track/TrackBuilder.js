@@ -631,7 +631,12 @@ function buildCurbs(path, length, side, opts = {}) {
   // kerb stones on a curve open a triangular gap at every joint (~1.6cm on
   // R=8) that read as HOLES in the zebra. 0.90 (5cm overlap) closes them on
   // the city's tightest corners while still reading as individual stones.
-  const segEff = seg * 0.90;
+  // AUDIT R19 (Feco real-GPU 2026-08-14: 'vermelho/branco com defeito —
+  // peças vermelhas ENCAIXADAS sobre as brancas, pontas triangulares'):
+  // 5cm de overlap em RETAS faz o chamfer de cada stone penetrar 2.5cm na
+  // vizinha — a zebra lê sobreposta. 0.93 = 3.5cm: fecha R=8 ainda, sem
+  // sobreposição visível em retas.
+  const segEff = seg * 0.93;
   // Edge length (arc of the kerb line, not the centerline).
   const ARC_N = 2000;
   const arcT = new Float64Array(ARC_N + 1); // arcT[i] = t at sample i
@@ -1060,7 +1065,7 @@ function buildTurboPads(path, length) {
     // declive o pad inclinava e a ponta dianteira afundava. Agora:
     // yaw = tangente (direção) + pitch = inclinação REAL do path CLAMPADA
     // (±0.18 rad ≈ 10°) — segue rampas sem apontar para o chão.
-    dummy.position.set(p.x, p.y + 0.1825, p.z); // AUDIT R4 (Feco: 'textura da pista sobre o pad'): overlays wear/edge em 0.181/0.1815 cobriam o pad em 0.18 — subiu 0.25cm, acima de tudo
+    dummy.position.set(p.x, p.y + 0.185, p.z); // AUDIT R19 (Feco: 'turbo pad com defeito'): 0.1825 vs overlays 0.181/0.1815 = gap 0.0005-0.001 → z-fighting. 0.185 = 3.5mm acima de tudo
     const ahead = path.getPointAt(Math.min(0.999, Math.max(0.001, c + 0.0015)));
     const dist = Math.hypot(ahead.x - p.x, ahead.z - p.z) || 1;
     const dy = ahead.y - p.y;

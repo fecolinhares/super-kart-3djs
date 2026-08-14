@@ -648,11 +648,15 @@ export class Kart {
     for (const sx of [-1, 1]) {
       for (const sz of [-1, 1]) {
         const flare = new THREE.Mesh(flareGeo, carPaint);
-        flare.position.set(sx * 0.70, 0.34, sz * 0.67);
+        // AUDIT R19 (Feco real-GPU 2026-08-14: 'anéis amarelos maiores que
+        // as rodas rodando em volta'): o flare semicircular centrado NO EIXO
+        // da roda (y=0.34) envolvia o pneu como um ANEL contínuo da cor do
+        // kart. Arco de para-lama real fica ACIMA do eixo — y 0.34→0.52.
+        flare.position.set(sx * 0.70, 0.52, sz * 0.67);
         flare.castShadow = true;
         this.group.add(flare);
         const lip = new THREE.Mesh(archLipGeo, dark);
-        lip.position.set(sx * 0.70, 0.33, sz * 0.67);
+        lip.position.set(sx * 0.70, 0.51, sz * 0.67);
         lip.castShadow = false;
         this.group.add(lip);
       }

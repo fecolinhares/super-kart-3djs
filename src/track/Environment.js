@@ -1101,6 +1101,10 @@ export class Environment {
         const x = p.x + nrm.x * side * off + (rand() - 0.5) * 3; // ±1.5 m lateral
         const z = p.z + nrm.z * side * off + (rand() - 0.5) * 3;
         if (inWater(x, z, 5)) continue;
+        // AUDIT R19 (Feco: 'mato na pista'): árvores NÃO verificavam _onTrack
+        // — em curvas o offset lateral podia trazer um tronco/canopy para a
+        // faixa. Margem 3 = tronco fora da pista + kerb.
+        if (this._onTrack(x, z, 3)) continue;
         const speciesIdx = selectSpecies(9000 + i);
         trees.push({ x, z, s: 0.95 + rand() * 0.75, speciesIdx });
       }
@@ -1126,6 +1130,9 @@ export class Environment {
         const x = Math.cos(a2) * r3;
         const z = Math.sin(a2) * r3;
         if (inWater(x, z, 4) || nearLandmark(x, z, 4)) continue;
+        // AUDIT R19 (Feco: 'mato na pista'): membro do clump também sem
+        // _onTrack — re-verifica (clumps ficam a 92-162m, mas segurança).
+        if (this._onTrack(x, z, 3)) continue;
         const speciesIdx = selectSpecies(7000 + c * 10 + k);
         trees.push({ x, z, s: 1.0 + r2() * 0.9, speciesIdx });
       }
@@ -1435,9 +1442,16 @@ export class Environment {
       const per = 2 + ((rand() * 2) | 0); // 2-3 bushes per clump
       for (let k = 0; k < per; k++) {
         const r2 = rnd(6000 + c * 8 + k);
+        const bx = cx + (r2() - 0.5) * 2.4;
+        const bz = cz + (r2() - 0.5) * 2.4;
+        // AUDIT R19 (Feco real-GPU 2026-08-14: 'mato no meio da pista'): o
+        // clump só verificava _onTrack no CENTRO — um membro com jitter
+        // podia cair NA PISTA. Re-verifica cada membro (margem 3 = fora da
+        // faixa e do kerb).
+        if (this._onTrack(bx, bz, 3) || inWater(bx, bz, 3)) continue;
         bushSpots.push({
-          x: cx + (r2() - 0.5) * 2.4,
-          z: cz + (r2() - 0.5) * 2.4,
+          x: bx,
+          z: bz,
           s: 0.95 + r2() * 0.6,
           ry: r2() * Math.PI,
         });
