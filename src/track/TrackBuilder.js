@@ -995,13 +995,25 @@ function buildTurboPads(path, length) {
     // declive o pad inclinava e a ponta dianteira afundava. Agora:
     // yaw = tangente (direção) + pitch = inclinação REAL do path CLAMPADA
     // (±0.18 rad ≈ 10°) — segue rampas sem apontar para o chão.
+    // AUDIT R77 (Feco real-GPU 2026-08-14: 'PARTE dos pads ainda estranhos'):
+    // o pad usava só PITCH na tangente — em trechos com banking (inclinação
+    // lateral do terreno), um lado do pad afunda/flutua (lê como defeito só
+    // em alguns pads). Agora mede Y em 3 pontos (centro, +lateral, -lateral)
+    // e computa pitch + ROLL para o pad assentar no terreno real.
     dummy.position.set(p.x, p.y + 0.185, p.z); // AUDIT R19 (Feco: 'turbo pad com defeito'): 0.1825 vs overlays 0.181/0.1815 = gap 0.0005-0.001 → z-fighting. 0.185 = 3.5mm acima de tudo
     const ahead = path.getPointAt(Math.min(0.999, Math.max(0.001, c + 0.0015)));
     const dist = Math.hypot(ahead.x - p.x, ahead.z - p.z) || 1;
     const dy = ahead.y - p.y;
     let pitch = Math.atan2(dy, dist);
     pitch = Math.max(-0.18, Math.min(0.18, pitch));
-    dummy.rotation.set(pitch, Math.atan2(tan.x, tan.z), 0);
+    // AUDIT R77: roll = inclinação lateral real (banking). Amostra o terreno
+    // a ±2.2m do centro na perpendicular da tangente (terrainHeight local).
+    const nrmR = new THREE.Vector3(-tan.z, 0, tan.x).normalize();
+    const gyL = terrainHeight(p.x - nrmR.x * 2.2, p.z - nrmR.z * 2.2, path);
+    const gyR = terrainHeight(p.x + nrmR.x * 2.2, p.z + nrmR.z * 2.2, path);
+    let roll = Math.atan2(gyR - gyL, 4.4);
+    roll = Math.max(-0.12, Math.min(0.12, roll));
+    dummy.rotation.set(pitch, Math.atan2(tan.x, tan.z), roll);
     dummy.rotateX(-Math.PI / 2); // lay flat as paint
     // The ">>>" chevrons in turboPadTexture point along the texture's +X —
     // spin the flat plane so they point along the direction of travel.
@@ -1023,7 +1035,7 @@ function buildGantry(startLine) {
   const roadW = getRoadWidthAt();
   const nrm = new THREE.Vector3(-startLine.direction.z, 0, startLine.direction.x).normalize();
 
-  const pillarGeo = new THREE.CylinderGeometry(0.28, 0.36, 6.1, 10);
+  const pillarGeo = new THREE.CylinderGeometry(0.28, 0.36, 6.8, 10); // AUDIT R76: 6.1→6.8 (beam subiu p/ lampas visíveis)
   const pillarMat = toonMaterial(0xff5a5f, {});
   const footingGeo = new THREE.BoxGeometry(0.95, 0.16, 0.95);
   const footingMat = toonMaterial(0x2b3340, {});
@@ -1045,7 +1057,8 @@ function buildGantry(startLine) {
     // AUDIT r20-FIX: 6.1m pillar centered at y 2.8 sank its base 0.25m
     // into the grass — center at 3.05 so it spans 0.0..6.1 flush with
     // the footing and the beam top (6.1).
-    pillar.position.y = 3.05;
+    // AUDIT R76: beam subiu p/ 6.45 — pillar center 3.4 (0..6.8).
+    pillar.position.y = 3.4;
     pillar.castShadow = true;
     group.add(pillar);
     cartoonOutline(pillar, 0x1b2a41, 0.03);
@@ -1070,7 +1083,7 @@ function buildGantry(startLine) {
     [beamMat, beamMat, beamMat, beamMat, beamCheckerMat, beamCheckerMat]
   );
   beam.position.copy(startLine.position);
-  beam.position.y = 5.85; // AUDIT r17: raised so the gantry reads as structure, not a wall
+  beam.position.y = 6.45; // AUDIT R76: 5.85→6.45 — beam ABOVE the lamp tops (6.14), as lampas ficavam METADE dentro do beam (5.60..6.10) = '5ª luz escondida' do usuário
   beam.lookAt(startLine.position.clone().add(startLine.direction));
   group.add(beam);
   cartoonOutline(beam, 0x1b2a41, 0.02);
