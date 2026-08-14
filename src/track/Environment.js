@@ -1365,9 +1365,14 @@ export class Environment {
       const per = 2 + ((rand() * 2) | 0); // 2-3 rocks per cluster
       for (let k = 0; k < per; k++) {
         const r2 = rnd(4000 + c * 8 + k);
+        const rx2 = cx + (r2() - 0.5) * 2.6;
+        const rz2 = cz + (r2() - 0.5) * 2.6;
+        // AUDIT R19 (Feco: 'mato na pista'): mesmo bug dos bushes — o clump
+        // só verificava _onTrack no CENTRO, membro podia cair na pista.
+        if (this._onTrack(rx2, rz2, 3) || inWater(rx2, rz2, 3)) continue;
         rockSpots.push({
-          x: cx + (r2() - 0.5) * 2.6,
-          z: cz + (r2() - 0.5) * 2.6,
+          x: rx2,
+          z: rz2,
           s: 0.55 + r2() * 1.3,
           ry: r2() * Math.PI,
           rx: (r2() - 0.5) * 0.5,

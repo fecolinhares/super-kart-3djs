@@ -690,7 +690,7 @@ function buildCurbs(path, length, side, opts = {}) {
   // AUDIT visual 2026-08-12: kerbs read as a flat painted strip with no
   // curb volume. Taller stones + higher top + a top-face decal plane per
   // stone (zebra) restore the MK8D curb read.
-  const geo = beveledCurbGeometry(curbW, curbH, seg, 0.05);
+  const geo = beveledCurbGeometry(curbW, curbH, seg, 0.015); // AUDIT R19b (Feco: 'pontas triangulares nas juntas'): chamfer 0.05→0.015 — zebra lisa MK8, sem V escuro entre stones
 
   // NEON CITY: alternating emissive pink/cyan kerbs. instanceColor can't
   // drive MeshToonMaterial's emissive, so even/odd boxes are split into two
@@ -735,7 +735,9 @@ function buildCurbs(path, length, side, opts = {}) {
     nrm.set(-tan.z, 0, tan.x).normalize();
     // Per-stone jitter (height + lateral) so the kerb reads as stones set
     // into the ground; top now at y+0.28 (±0.01) — recessed 1cm from 0.29.
-    const yJ = (hash01(i, 7) - 0.5) * 0.006;
+    // AUDIT R19b (Feco: 'emendas irregulares'): yJ 0.006→0.0015 (quase nulo
+    // — degrauzinhos criavam sombra escura nas juntas).
+    const yJ = (hash01(i, 7) - 0.5) * 0.0015;
     const latJ = (hash01(i, 8) - 0.5) * 0.0015;
     dummy.position.set(
       p.x + nrm.x * side * (roadW / 2 + 0.15 + latJ),
