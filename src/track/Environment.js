@@ -4153,7 +4153,10 @@ export class Environment {
         const bside = bi % 2 === 0 ? 1 : -1;
         bbPos.push({
           p: [_bp.x + _bn.x * bside * (CONFIG.track.roadWidth / 2 + 11), 5.4, _bp.z + _bn.z * bside * (CONFIG.track.roadWidth / 2 + 11)],
-          r: [0, Math.PI / 3.2, 0],
+          // AUDIT R25c: era Math.PI/3.2 (56°) — texto quase de PERFIL p/
+          // câmera. rotation 0 deixa a face +Z paralela à pista (câmera vê a
+          // lateral). Agora lookAt o CENTRO da pista (face p/ o jogador).
+          look: [_bp.x, 4.5, _bp.z],
           m: bi,
         });
       }
@@ -4161,7 +4164,12 @@ export class Environment {
         // AUDIT R25b: 7→9m largura (texto legível a distância da chase cam)
         const board = new THREE.Mesh(new THREE.BoxGeometry(9, 4.4, 0.4), bbMats[b.m]);
         board.position.set(...b.p);
-        board.rotation.set(...b.r);
+        // AUDIT R25c: lookAt o centro da pista — face frontal visível
+        if (b.look) {
+          board.lookAt(b.look[0], b.look[1], b.look[2]);
+        } else {
+          board.rotation.set(...b.r);
+        }
         scene.add(board);
         // light poles flanking the board (street-level mass)
         const poleMat2 = toonMaterial(0x3a4152, {});
