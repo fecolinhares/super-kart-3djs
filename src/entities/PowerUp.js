@@ -341,6 +341,12 @@ export class ShellProjectile {
       this.die();
       return;
     }
+    // AUDIT r19 (Feco real-GPU 2026-08-14: 'crash ao usar powerup' —
+    // ReferenceError: Cannot access 'n' before initialization): o fix r5
+    // dizia 'hoisted here' mas o `m` ficou DEPOIS do throw-hop — o blue
+    // shell seta _vY no ARC phase e no frame seguinte o throw-hop usa `m`
+    // antes da declaração → TDZ. `m` agora é o PRIMEIRO statement.
+    const m = this.mesh;
     // Spawn pop-in (ease-out scale, ~130ms).
     if (this._popT < 1) {
       this._popT = Math.min(1, this._popT + dt * 8);
@@ -356,10 +362,6 @@ export class ShellProjectile {
         this._vY = 0;
       }
     }
-    // AUDIT r5 (CRITICAL FIX): `m` was declared AFTER the blue-arc block —
-    // a thrown blue shell hit the TDZ and threw ReferenceError every frame
-    // for its whole lifetime (froze the race). Hoisted here.
-    const m = this.mesh;
 
     // Homing: steer toward the target kart at shellHomingTurnRate.
     if (this.homing && this.target && !this.target.finished) {
