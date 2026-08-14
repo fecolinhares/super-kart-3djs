@@ -618,7 +618,10 @@ function buildCurbs(path, length, side, opts = {}) {
   const idx = [];
   const edgeLen = length;
   const stoneLen = 0.5;
-  const repeats = Math.max(2, Math.round(edgeLen / stoneLen));
+  // AUDIT R68: textura = 1 par (vermelho+branco) por METRO — UV vai até
+  // edgeLen (repetições), não até `repeats` (= 2× edgeLen, que com o repeat
+  // antigo virava repeats²/2).
+  const repeats = Math.max(2, Math.round(edgeLen)); // repetições = nº de metros
   for (let i = 0; i <= N; i++) {
     const t = i / N;
     path.getPointAt(t, p);
@@ -663,13 +666,21 @@ function buildCurbs(path, length, side, opts = {}) {
     const t = new THREE.CanvasTexture(cv);
     t.wrapS = THREE.RepeatWrapping;
     t.colorSpace = THREE.SRGBColorSpace;
+    // AUDIT R68 (Feco real-GPU 2026-08-14: 'kerb virou um RISCO ROSA'):
+    // o UV ia até `repeats` E o repeat era `repeats/2` → UV efetivo = repeats²/2
+    // → textura repetia milhões de vezes → aliasing = rosa. Agora UV = nº de
+    // repetições EXATO (edgeLen/1.0, pois a textura = 1 par de pedras por m)
+    // e repeat=1. Mipmaps + aniso para matar o shimmer em ângulo raso.
+    t.generateMipmaps = true;
+    t.minFilter = THREE.LinearMipmapLinearFilter;
+    t.anisotropy = 8;
     return t;
   })();
 
   const mat = opts.neon
     ? new THREE.MeshBasicMaterial({ map: zebraTex, color: 0xff2ec4, emissive: 0xff2ec4, emissiveIntensity: 0.5, side: THREE.DoubleSide })
     : new THREE.MeshBasicMaterial({ map: zebraTex, color: 0xffffff, side: THREE.DoubleSide });
-  mat.map.repeat.set(repeats / 2, 1); // 1 stone = 1 par de faixas
+  mat.map.repeat.set(1, 1); // R68: repeat=1 (o UV já codifica as repetições)
   mat.map.needsUpdate = true;
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = true;

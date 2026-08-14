@@ -994,38 +994,58 @@ export class Environment {
     scene.add(trunks, rings, leafsL, leafsD, nuts);
 
     let ti = 0, ri = 0, li = 0, di = 0, ni = 0;
+    // AUDIT R69 (Feco real-GPU 2026-08-14: 'árvores desmontadas — tronco
+    // separado da copa, esfera flutuando'): as folhas/coco do R26 eram
+    // instanciados com a matriz LOCAL (0,0.2,0 + rotação + translateX) e o
+    // offset do top adicionado aos elements — mas o TILT do top (rx/rz) e a
+    // posição (cx, 4.2, cz) não eram aplicados como MATRIZ PAI. No original
+    // as folhas eram CHILD do top (herdavam tilt+posição). Agora: M_world =
+    // T(cx,4.2,cz) * R(rx,0,rz) * M_leaf — réplica exata da hierarquia.
+    const topPos = new THREE.Vector3();
+    const topQuat = new THREE.Quaternion();
+    const topScale = new THREE.Vector3(1, 1, 1);
+    const topMat = new THREE.Matrix4();
+    const leafMat4 = new THREE.Matrix4();
     for (const [x, z] of spots) {
       if (this._onTrack(x, z, 8)) continue; // never place a palm on the road
       const rx = (this._rand() - 0.5) * 0.22;
       const rz = (this._rand() - 0.5) * 0.22;
+      const cx = x + Math.sin(rz) * 2;
+      const cz = z + Math.sin(rx) * 2;
+      // Matriz do top (pai): posição no mundo + tilt
+      topPos.set(cx, 4.2, cz);
+      topQuat.setFromEuler(new THREE.Euler(rx, 0, rz));
+      topMat.compose(topPos, topQuat, topScale);
+
       dummy.position.set(x, 2.1, z);
       dummy.rotation.set(rx, 0, rz);
+      dummy.scale.set(1, 1, 1);
       dummy.updateMatrix();
       trunks.setMatrixAt(ti++, dummy.matrix);
       for (let rk = 0; rk < 3; rk++) {
         dummy.position.set(x, 1.0 + rk * 1.05, z);
         dummy.rotation.set(rx, 0, rz);
+        dummy.scale.set(1, 1, 1);
         dummy.updateMatrix();
         rings.setMatrixAt(ri++, dummy.matrix);
       }
-      const cx = x + Math.sin(rz) * 2;
-      const cz = z + Math.sin(rx) * 2;
       for (let i = 0; i < 11; i++) {
         const a = (i / 11) * Math.PI * 2 + this._rand() * 0.3;
         // Replica o leaf original: pos(0,0.2,0) + rot(z=PI/2,y=a,x=0.95) +
-        // translateX(1.05) (eixo local pós-rotação) + offset do crown.
+        // translateX(1.05) (eixo local pós-rotação), e multiplica pela
+        // matriz do top (tilt + offset) — R69.
         dummy.position.set(0, 0.2, 0);
         dummy.rotation.set(0.95, a, Math.PI / 2);
+        dummy.scale.set(1, 1, 1);
         dummy.translateX(1.05);
         dummy.updateMatrix();
-        dummy.matrix.elements[12] += cx;
-        dummy.matrix.elements[13] += 4.2;
-        dummy.matrix.elements[14] += cz;
-        if (i % 2 === 0) leafsL.setMatrixAt(li++, dummy.matrix);
-        else leafsD.setMatrixAt(di++, dummy.matrix);
+        leafMat4.copy(dummy.matrix).premultiply(topMat);
+        if (i % 2 === 0) leafsL.setMatrixAt(li++, leafMat4);
+        else leafsD.setMatrixAt(di++, leafMat4);
       }
       dummy.position.set(cx, 4.2 + 0.35, cz);
-      dummy.rotation.set(0, 0, 0);
+      dummy.rotation.set(rx, 0, rz);
+      dummy.scale.set(1, 1, 1);
       dummy.updateMatrix();
       nuts.setMatrixAt(ni++, dummy.matrix);
     }
@@ -2395,10 +2415,17 @@ export class Environment {
     const dummyB = new THREE.Object3D();
     const maxBanners = 40;
     const frames = new THREE.InstancedMesh(frameGeo, bannerEdgeMat, maxBanners);
-    const prints = new THREE.InstancedMesh(printGeo, bannerMat, maxBanners);
+    // AUDIT R70 (Feco real-GPU 2026-08-14: 'faixas esticadas + cobertura
+    // MARROM por cima'): no R47 o print (Plane z=0) ficava DENTRO do frame
+    // (Box 0.08) — a face frontal marrom do box vencia o depth test e
+    // cobria a textura. Agora o print é deslocado para z=+0.05 (1cm À
+    // FRENTE da face frontal) + espelho em z=-0.05 (fundo) — o marrom só
+    // aparece nas laterais finas, como um quadro.
+    const printsF = new THREE.InstancedMesh(printGeo, bannerMat, maxBanners);
+    const printsB = new THREE.InstancedMesh(printGeo, bannerMat, maxBanners);
     const poles = new THREE.InstancedMesh(poleGeo, poleMat, maxBanners * 2);
-    [frames, prints, poles].forEach((m) => { m.name = 'banner-instanced'; });
-    scene.add(frames, prints, poles);
+    [frames, printsF, printsB, poles].forEach((m) => { m.name = 'banner-instanced'; });
+    scene.add(frames, printsF, printsB, poles);
     const tan = new THREE.Vector3();
     const tan2 = new THREE.Vector3();
     const p = new THREE.Vector3();
@@ -2434,21 +2461,31 @@ export class Environment {
       dummyB.scale.set(1, 1, 1);
       dummyB.updateMatrix();
       frames.setMatrixAt(made, dummyB.matrix);
-      // print plane (slightly inset so it never z-fights the frame edge)
+      // print front (+z local 0.05, 1cm à frente do box) e espelho back (-z)
       dummyB.position.set(bx, by + 2.35, bz);
       dummyB.lookAt(p.x, by + 2.35, p.z);
       dummyB.rotation.z = 0;
+      dummyB.translateZ(0.05);
       dummyB.scale.set(1, 1, 1);
       dummyB.updateMatrix();
-      prints.setMatrixAt(made, dummyB.matrix);
+      printsF.setMatrixAt(made, dummyB.matrix);
+      dummyB.position.set(bx, by + 2.35, bz);
+      dummyB.lookAt(p.x, by + 2.35, p.z);
+      dummyB.rotation.z = 0;
+      dummyB.translateZ(-0.05);
+      dummyB.scale.set(1, 1, 1);
+      dummyB.updateMatrix();
+      printsB.setMatrixAt(made, dummyB.matrix);
       made++;
       if (made >= maxBanners) break;
     }
     frames.count = made;
-    prints.count = made;
+    printsF.count = made;
+    printsB.count = made;
     poles.count = made * 2;
     frames.instanceMatrix.needsUpdate = true;
-    prints.instanceMatrix.needsUpdate = true;
+    printsF.instanceMatrix.needsUpdate = true;
+    printsB.instanceMatrix.needsUpdate = true;
     poles.instanceMatrix.needsUpdate = true;
   }
 
@@ -2597,10 +2634,17 @@ export class Environment {
       path.getTangentAt(t, tan);
       nrm.set(-tan.z, 0, tan.x).normalize();
       for (const side of [-1, 1]) {
-        const off = halfW + 2.0 + (i % 3) * 0.75 + this._rand() * 0.6;
+        // AUDIT R74 (Feco real-GPU 2026-08-14: 'arbusto no meio da pista'):
+        // off mínimo era halfW + 2.0m — em CURVAS a borda do asfalto fica
+        // MAIS PERTO do que halfW (o offset lateral é na tangente do path,
+        // mas a face interna da curva aproxima a borda) → o tuft (blades
+        // de ~0.6m + scale 1.6) cruzava o asfalto e lia como um arbusto
+        // verde no meio da pista. Novo mínimo halfW + 3.4m (bem fora da
+        // borda real em qualquer curvatura) + gate _onTrack margem 3.
+        const off = halfW + 3.4 + (i % 3) * 0.75 + this._rand() * 0.6;
         const tx = p.x + nrm.x * side * off;
         const tz = p.z + nrm.z * side * off;
-        if (this._onTrack(tx, tz, 2)) continue;
+        if (this._onTrack(tx, tz, 3)) continue;
         spots.push({ x: tx, z: tz, gy: this._gy(tx, tz), sc: 0.8 + this._rand() * 0.8, v: (i + (side === 1 ? 1 : 0)) % variants.length, c: (i + (side === 1 ? 1 : 0)) % 3 });
       }
     }
@@ -3446,7 +3490,13 @@ export class Environment {
       { t0: 0.855, t1: 0.915, n: 17 },   // final esses
     ];
     // 3 rows deep per side (kept from r10).
-    const ROWS = [1.9, 3.5, 5.1];
+    // AUDIT R73 (Feco real-GPU 2026-08-14: 'plateia indo pra cima da pista'):
+    // ROWS = [1.9, 3.5, 5.1] colocava a 1ª fileira a apenas halfW+1.9m —
+    // com o jitter lateral ((rand-0.5)*0.6), o berm 2.2m e corpos de 0.5m,
+    // o espectador cruzava a borda do asfalto (lê como plateia NA PISTA).
+    // Agora 3.2/4.9/6.6m (sempre >3.2m fora da borda, berm inteiro no
+    // gramado) + gate _onTrack por figura (segurança dupla).
+    const ROWS = [3.2, 4.9, 6.6];
     const segN = SEGMENTS.reduce((a, s) => a + s.n, 0);
     const total = segN * ROWS.length * 2;
     const crowdColors = [0xe74c4c, 0xf4a93e, 0x5cb85c, 0x4a90d9, 0x9b6fd4, 0xe8789a, 0xf5f5f5, 0x7b8a9e, 0x34495e];
@@ -3543,6 +3593,9 @@ export class Environment {
             // Ground on the rolling TERRAIN at the figure's own spot.
             const fx = p.x + nrm.x * (side * (halfW + rowOff));
             const fz = p.z + nrm.z * (side * (halfW + rowOff));
+            // AUDIT R73: gate por figura — nunca um fã sobre o asfalto (o
+            // berm 2.2m + corpo + jitter não podem cruzar a borda).
+            if (this._onTrack(fx, fz, 1.5)) { _gap = 2; continue; }
             const gy = this._gy(fx, fz);
             // Roll-free yaw facing the track (box +Z = the figure's front).
             const faceX = -side * nrm.x;
@@ -4527,7 +4580,11 @@ export class Environment {
           const panel = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.05), signMat);
           panel.position.set(px, p.y + 2.5, pz);
           panel.lookAt(p.x, p.y + 2.5, p.z); // face the track
-          panel.rotation.z = 0;
+          // AUDIT R72 (Feco real-GPU 2026-08-14: 'placas apontando caminho
+          // INVERSO'): com lookAt + up padrão, o +X local do painel =
+          // -side*tan — no lado +1 a seta (que aponta +X na textura) ficava
+          // CONTRA o fluxo. Girar 180° no lado +1 alinha com a tangente.
+          panel.rotation.z = side === 1 ? Math.PI : 0;
           scene.add(panel);
           made++;
         }

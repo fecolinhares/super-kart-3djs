@@ -80,11 +80,10 @@ function questionTexture() {
   g.strokeText('?', size / 2, size / 2 + 8);
   g.fillStyle = '#ef233c';
   g.fillText('?', size / 2, size / 2 + 8);
-  // Tiny highlight dot on the '?' for gloss.
-  g.fillStyle = 'rgba(255,255,255,0.6)';
-  g.beginPath();
-  g.arc(size * 0.44, size * 0.34, 14, 0, Math.PI * 2);
-  g.fill();
+  // AUDIT R71 (Feco real-GPU 2026-08-14: 'item box com PONTO BRANCO no meio
+  // do ?'): o highlight dot (círculo branco 14px em 0.44,0.34) era um gloss
+  // intencional mas lê como defeito — o usuário viu um ponto branco no meio
+  // da interrogação. Removido (o '?' bold já tem contraste suficiente).
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -218,8 +217,12 @@ export class ItemBox {
       // O per-face shading (sides 0.97 / front 0.98) é o que faz o cubo ler
       // 3D (flat single = placard) — então 2 materiais COMPARTILHADOS
       // (mesma geometria, 2 grupos de faces) mantêm o look com 2 calls/box.
-      const sideMat = mk(0xffffff, 0.97);
-      const frontMat = mk(0xffffff, 0.98);
+      // AUDIT R71b (Feco real-GPU: 'boxes ESCUROS'): transparent:true com
+      // opacity 0.97/0.98 mandava o box pro pass transparente → escurecia.
+      // Agora opacos (opacity 1) com cores de face levemente diferentes —
+      // o shading 3D vem do MAT, não da transparência.
+      const sideMat = mk(0x9adfff, 1);
+      const frontMat = mk(0xc9f0ff, 1);
       // BoxGeometry material order: +x, -x, +y, -y, +z, -z
       return [sideMat, sideMat, frontMat, sideMat, frontMat, sideMat];
     }
