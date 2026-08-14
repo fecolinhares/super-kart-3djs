@@ -521,7 +521,7 @@ export class Kart {
     // direção diferente'. MK8 rims are SATIN silver, not mirrors. The rim
     // parts get a flatter metal; chrome stays for the exhaust.
     const rimChrome = new THREE.MeshPhysicalMaterial({
-      color: 0xd7dde5, metalness: 0.55, roughness: 0.32, envMapIntensity: 0.9,
+      color: 0xaeb6c0, metalness: 0.5, roughness: 0.4, envMapIntensity: 0.7, // AUDIT R75: 0xd7dde5→0xaeb6c0 (cinza MÉDIO, não branco — matava o contraste 'olho')
       emissive: 0x2a333f, emissiveIntensity: 0.35, // AUDIT R6c: subtle self-glow so rim spokes never vanish on dark asphalt
     });
     // Curved transparent PBR glass (windshield).
@@ -1068,12 +1068,17 @@ export class Kart {
     // AUDIT (user: 'a gray ring spinning at the rear, looks misplaced'): the
     // rim was 0.19/0.215 inside a 0.34 tire — a small ring floating mid-wheel
     // with a visible gap. Enlarge so it reads as a proper rim filling the tire.
-    const rimDiscGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.022, 24);
-    const rimLipGeo = new THREE.TorusGeometry(0.24, 0.016, 8, 32);
-    const spokeGeo = new THREE.BoxGeometry(0.022, 0.13, 0.05);
-    const hubGeo = new THREE.CylinderGeometry(0.062, 0.062, 0.034, 18);
-    const hubCapGeo = new THREE.SphereGeometry(0.032, 12, 10);
-    const lugGeo = new THREE.SphereGeometry(0.016, 8, 6);
+    // AUDIT R75 (Feco real-GPU 2026-08-14: 'rodas parecem OLHOS — aro branco
+    // 75-85% do diâmetro, pneu fino'): rim 0.22/lip 0.24 num pneu 0.34 =
+    // aro dominante + chrome BRANCO = contraste olho. Reduz p/ 0.17/0.19
+    // (pneu com parede lateral visível — proporção kart real) + rim cinza
+    // médio (rimChrome escurecido em buildWheels).
+    const rimDiscGeo = new THREE.CylinderGeometry(0.17, 0.17, 0.022, 24);
+    const rimLipGeo = new THREE.TorusGeometry(0.19, 0.014, 8, 32);
+    const spokeGeo = new THREE.BoxGeometry(0.022, 0.10, 0.05);
+    const hubGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.034, 18);
+    const hubCapGeo = new THREE.SphereGeometry(0.026, 12, 10);
+    const lugGeo = new THREE.SphereGeometry(0.013, 8, 6);
     const stripeMat = character ? this._mat(accent) : white;
     // AUDIT R20c: stripe SEMPRE cinza-claro (parede lateral de pneu) —
     // nunca a cor accent (amarelo criava anel visível).
