@@ -652,7 +652,9 @@
 }
 
 .sk3d-speedo-tick {
-  stroke: rgba(255, 255, 255, 0.45);
+  /* AUDIT R3 (critic 7/10: 'ticks fracos'): 0.45→0.75 — o dial lê como
+     instrumento real de corrida, não um anel vazio. */
+  stroke: rgba(255, 255, 255, 0.75);
   stroke-width: 2;
   stroke-linecap: round;
 }
