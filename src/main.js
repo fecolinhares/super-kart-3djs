@@ -17,7 +17,7 @@ import { AudioManager } from './audio/AudioManager.js';
 import { RaceManager } from './game/RaceManager.js';
 import { Kart } from './entities/Kart.js';
 import { AIController } from './entities/AIController.js';
-import { createItemBoxes } from './entities/ItemBox.js';
+import { createItemBoxes, ItemBox } from './entities/ItemBox.js';
 import { ParticleSystem } from './render/Particles.js';
 import { SkidMarks } from './effects/SkidMarks.js';
 import { Menu } from './ui/Menu.js';
@@ -220,6 +220,38 @@ let settings = { cc: CONFIG.cc.default, autoAccel: false, steerAssist: false };
 // Boot lands on the title menu (menu overlay + orbit camera).
 setState(STATES.MENU);
 menu.show();
+// AUDIT R18 (Feco real-GPU 2026-08-14: 'tela congela ao clicar Start
+// Game'): compila os shaders ANTES do clique — cria 1 kart fantasma por
+// personagem do roster + 1 item box invisíveis, renderiza UM frame e
+// descarta. O custo sai do startRace() (síncrono no clique) e vai para o
+// boot (com o menu ainda por cima). GPU compila shader uma vez e reusa.
+function prewarmShaders() {
+  if (DEMO || TEST) return; // test mode pula direto; demo já paga no start
+  const warmKarts = [];
+  try {
+    for (const ch of CONFIG.kart.characters) {
+      const k = new Kart({ character: ch, isPlayer: false });
+      k.group.visible = false;
+      k.group.position.set(0, -50, 0); // longe do menu/orbit cam
+      scene.add(k.group);
+      warmKarts.push(k);
+    }
+    const warmBox = new ItemBox(track, 0.045, 1);
+    if (warmBox.mesh) { warmBox.mesh.visible = false; scene.add(warmBox.mesh); }
+    if (warmBox.beam) { warmBox.beam.visible = false; scene.add(warmBox.beam); }
+    if (warmBox.ring) { warmBox.ring.visible = false; scene.add(warmBox.ring); }
+    renderer.render(scene, camera); // compila todos os shaders
+    for (const k of warmKarts) scene.remove(k.group);
+    if (warmBox.mesh) scene.remove(warmBox.mesh);
+    if (warmBox.beam) scene.remove(warmBox.beam);
+    if (warmBox.ring) scene.remove(warmBox.ring);
+    console.log('[perf] shaders pre-warmed (', warmKarts.length, 'karts + 1 box )');
+  } catch (err) {
+    for (const k of warmKarts) scene.remove(k.group);
+    console.warn('[perf] prewarm failed (non-fatal):', err);
+  }
+}
+if (typeof Kart !== 'undefined' && typeof ItemBox !== 'undefined') prewarmShaders();
 if (DEMO || TEST) startRace(); // demo autopilot / fast test mode jump straight in
 
 // Quality gate (audio lifecycle): pause all audio when the tab is hidden.

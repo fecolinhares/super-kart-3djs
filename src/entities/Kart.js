@@ -19,6 +19,11 @@ import { KartPhysics } from './KartPhysics.js';
 
 const OUTLINE = 0x1b2a41;
 
+/** AUDIT R18 (freeze no Start Game): visor canvases são determinísticos por
+ *  (character.name + accent) — cache global evita redesenhar 6× em cada
+ *  startRace()/restartRace(). */
+const _visorCache = new Map();
+
 // AUDIT r7: finished-kart celebration duration (ms) — the wheelie hop runs
 // this long; the checkered flag stays up afterwards.
 const KART_FINISH_MS = 1400;
@@ -377,6 +382,11 @@ export class Kart {
    *  expression variant is DETERMINISTIC — hashed from the character name
    *  (no Math.random). @returns {THREE.CanvasTexture} */
   _visorTexture(character, accent) {
+    // AUDIT R18 (Feco real-GPU: 'freeze ao clicar Start Game'): canvas era
+    // recriado em CADA startRace (6 karts × visor desenhado síncrono). O
+    // visor é determinístico por (character.name + accent) — cache global.
+    const key = `${(character && character.name) || '?'}_${(accent != null ? accent.toString(16) : 'none')}`;
+    if (_visorCache.has(key)) return _visorCache.get(key);
     const w = 256, h = 128;
     const c = document.createElement('canvas');
     c.width = w;
@@ -466,6 +476,7 @@ export class Kart {
     const tex = new THREE.CanvasTexture(c);
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.anisotropy = 4;
+    _visorCache.set(key, tex);
     return tex;
   }
 
@@ -1156,13 +1167,12 @@ export class Kart {
 
     // ---- driver: torso + shoulders + arms gripping the wheel -----------------
     const drv = new THREE.Group();
-    // AUDIT R15 (critic R14: 'torso ainda cortado pela asa'): +0.12→+0.18 —
-    // capacete+ombros+torso inteiro acima do spoiler, sem descolar do banco.
-    drv.position.set(0, 0.18, 0);
-    // AUDIT R13 (critic R12 rear 7/10: 'capacete ok, ombros estreitos'):
-    // 1.15→1.3 + ombros alargados — o piloto lê como personagem de corpo
-    // inteiro, não esfera isolada sobre o banco.
-    drv.scale.set(1.3, 1.3, 1.3);
+    // AUDIT R16 (FECO real-GPU 2026-08-14: 'corredores parecem em PÉ'):
+    // R12-R15 exageraram (scale 1.3 + y 0.18) — o torso subiu demais acima
+    // da asa e lê como piloto de pé. Postura MK8 real: piloto ENCOLHIDO no
+    // cockpit, só capacete+ombros acima da asa. scale 1.05, y 0.03.
+    drv.position.set(0, 0.03, 0);
+    drv.scale.set(1.05, 1.05, 1.05);
     this.group.add(drv);
 
     const suit = character ? this._mat(character.suitColor) : white;

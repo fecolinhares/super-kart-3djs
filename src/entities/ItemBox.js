@@ -54,10 +54,15 @@ function questionTexture() {
   // gradient, saturated #ef233c glyph with a tight dark outline, no halo.
   // AUDIT (visual auditor 2026-08-12): MK8D item boxes are TRANSLUCENT
   // cyan/magenta shells — the old opaque white texture hid the shell tint.
-  // Clear the canvas (alpha 0) and paint ONLY the '?' glyph + gold trim;
-  // the MeshBasicMaterial color+opacity renders the translucent shell and
-  // the map supplies the glyph on top.
-  g.clearRect(0, 0, size, size);
+  // AUDIT R17 (FECO real-GPU 2026-08-14: 'boxes bem escuros'): fundo do
+  // canvas era alpha 0 — map × color cyan = PRETO no corpo e '?' vermelho ×
+  // cyan = roxo. Agora o canvas pinta o próprio fundo cyan translúcido e o
+  // material usa color 0xffffff (o map carrega todas as cores exatas).
+  const shellGrad = g.createLinearGradient(0, 0, size, size);
+  shellGrad.addColorStop(0, 'rgba(110, 220, 255, 0.88)');
+  shellGrad.addColorStop(1, 'rgba(52, 168, 224, 0.82)');
+  g.fillStyle = shellGrad;
+  g.fillRect(0, 0, size, size);
   // Rounded inner border — gold MK8-style trim reads as a pickup panel.
   g.strokeStyle = '#ffd166';
   g.lineWidth = 14;
@@ -211,7 +216,10 @@ export class ItemBox {
       // BoxGeometry material order: +x, -x, +y, -y, +z, -z
       // AUDIT R6 (Feco: 'cores estranhas'): 0.88 translúcido ficava lavado
       // sobre o asfalto — shell mais vivo (0.96) e cyan MK8D saturado.
-      return [mk(0x5ad2ff, 0.96), mk(0x35a9e0, 0.96), mk(0x7fe4ff, 0.97), mk(0x2d86b8, 0.96), mk(0x63d8ff, 0.97), mk(0x42b8ea, 0.96)];
+      // AUDIT R17 (Feco: 'boxes escuros'): color 0xffffff — o map do canvas
+      // agora carrega o fundo cyan translúcido + '?' vermelho + trim dourado
+      // (antes color × map = preto/roxo).
+      return [mk(0xffffff, 0.97), mk(0xffffff, 0.97), mk(0xffffff, 0.98), mk(0xffffff, 0.97), mk(0xffffff, 0.98), mk(0xffffff, 0.97)];
     }
     const opts = {
       color: 0xffb703,

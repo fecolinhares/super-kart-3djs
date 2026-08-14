@@ -739,7 +739,25 @@ export class RaceManager {
     }
     // Player gets the full 'pickup' fanfare from main.js's heldItem change
     // hook; AI pickups keep a quiet discrete blip (no double chime — audit F2).
-    if (kart !== this.player) this.audio?.play?.('itemPickup');
+    // AUDIT R18 (Feco real-GPU 2026-08-14: 'som de powerup AI deve ser por
+    // PROXIMIDADE e bem mais baixo que o do player'): volume cai com a
+    // distância até o player — longe ≈ silêncio, perto ≈ 0.18 (player = 0.5).
+    if (kart !== this.player) {
+      const pp = this.player?.state?.position ?? this.player?.group?.position;
+      const kp = kart.state?.position ?? kart.group?.position;
+      if (pp && kp) {
+        const dx = pp.x - kp.x, dz = pp.z - kp.z;
+        const dist = Math.hypot(dx, dz);
+        // audível até ~42m, volume máx 0.18 quando colado no player
+        const vol = Math.max(0, 0.18 * (1 - dist / 42));
+        if (vol > 0.004) {
+          const pan = Math.max(-0.9, Math.min(0.9, dx * 0.03));
+          this.audio?.play?.('itemPickup', { volume: vol, pan });
+        }
+      } else {
+        this.audio?.play?.('itemPickup', { volume: 0.08 });
+      }
+    }
     return type;
   }
 
