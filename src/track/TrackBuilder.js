@@ -1164,7 +1164,12 @@ function buildGantry(startLine) {
   // AUDIT r17 (Feco critic): the 2.1m banner at y 4.3 dominated the frame
   // and read as the subject. Smaller (1.55m) + higher (y 5.15, top at the
   // 5.85 beam) so it stays a finish structure, not a billboard wall.
-  banner.position.y = 5.15;
+  // AUDIT R22 (critic W1 finish 7/10: 'elementos circulares escuros cobrem
+  // o FINISH'): o banner (4.375..5.925) se sobrepunha às 5 lampas do
+  // start-light panel (y 5.62) — as luzes escuras tapavam o texto. MK8
+  // real: luzes no beam, banner ABAIXO. y 5.15→4.55 (2.375..2.375+1.55
+  // = 3.775..5.325 — abaixo do panel 5.62).
+  banner.position.y = 4.55;
   // Explicit yaw: normal +Z faces the START CAMERA (-direction), so the
   // DoubleSide material shows the text un-mirrored from the player's view.
   banner.rotation.y = Math.atan2(-startLine.direction.x, -startLine.direction.z);
@@ -1179,7 +1184,7 @@ function buildGantry(startLine) {
   );
   bannerBack.material.map = finishBannerTextureMirrored();
   bannerBack.position.copy(startLine.position);
-  bannerBack.position.y = 5.15;
+  bannerBack.position.y = 4.55; // AUDIT R22: acompanha o banner frontal (abaixo das lampas)
   bannerBack.rotation.y = banner.rotation.y + Math.PI;
   bannerBack.geometry = banner.geometry; // share the waving geometry
   group.add(bannerBack);
