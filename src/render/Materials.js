@@ -873,30 +873,30 @@ export function turboPadGlowTexture() {
   ctx.fillStyle = '#000000';
   ctx.fillRect(0, 0, W, H); // black bg → additive adds nothing outside the chevrons
   ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 22;
+  ctx.lineWidth = 14; // AUDIT R67: 22→14 — chevrons mais definidos (crítico: 'manchas brancas, sem separação')
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.shadowColor = 'rgba(255,255,255,0.9)';
-  ctx.shadowBlur = 10;
+  ctx.shadowBlur = 8; // AUDIT R67: 10→8 — halo menor
   for (const fx of [0.20, 0.50, 0.80]) {
     const cx = W * fx;
     const cy = H / 2;
-    const half = W * 0.13;
-    const hh = H * 0.34;
+    const half = W * 0.11; // AUDIT R67: 0.13→0.11 — setas menores, separadas
+    const hh = H * 0.30;   // AUDIT R67: 0.34→0.30
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
     ctx.lineTo(cx + half, cy);
     ctx.lineTo(cx - half, cy + hh);
     ctx.stroke();
   }
-  ctx.shadowBlur = 20;
-  ctx.lineWidth = 8;
-  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+  ctx.shadowBlur = 14;
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
   for (const fx of [0.20, 0.50, 0.80]) {
     const cx = W * fx;
     const cy = H / 2;
-    const half = W * 0.13;
-    const hh = H * 0.34;
+    const half = W * 0.11;
+    const hh = H * 0.30;
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
     ctx.lineTo(cx + half, cy);

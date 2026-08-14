@@ -1017,7 +1017,7 @@ loop.start((dt, t) => {
   qaFrameN++;
   window.__qaFrameN = qaFrameN;
   // Turbo pad glow pulse (MK8 boost strips breathe).
-  if (turboGlowMat) turboGlowMat.opacity = 0.08 + 0.10 * (0.5 + 0.5 * Math.sin(t * 2.6)); // AUDIT R51: 0.16-0.30 → 0.08-0.18 (glow com máscara de textura agora — não precisa mais ser forte)
+  if (turboGlowMat) turboGlowMat.opacity = 0.06 + 0.08 * (0.5 + 0.5 * Math.sin(t * 2.6)); // AUDIT R67: 0.08-0.18 → 0.06-0.14 (crítico: 'branco estourado')
   // Environment animation (clouds, water, flags).
   env.update(dt, t);
 
