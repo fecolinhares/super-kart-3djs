@@ -59,8 +59,8 @@ function questionTexture() {
   // cyan = roxo. Agora o canvas pinta o próprio fundo cyan translúcido e o
   // material usa color 0xffffff (o map carrega todas as cores exatas).
   const shellGrad = g.createLinearGradient(0, 0, size, size);
-  shellGrad.addColorStop(0, 'rgba(110, 220, 255, 0.88)');
-  shellGrad.addColorStop(1, 'rgba(52, 168, 224, 0.82)');
+  shellGrad.addColorStop(0, 'rgba(70, 200, 255, 0.92)');
+  shellGrad.addColorStop(1, 'rgba(24, 148, 224, 0.86)');
   g.fillStyle = shellGrad;
   g.fillRect(0, 0, size, size);
   // Rounded inner border — gold MK8-style trim reads as a pickup panel.
