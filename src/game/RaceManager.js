@@ -564,9 +564,12 @@ export class RaceManager {
     if (this._lastCrashSfx !== undefined && this.elapsed - this._lastCrashSfx < CONTACT_SFX_COOLDOWN) return;
     this._lastCrashSfx = this.elapsed;
     const midX = (a.state.position.x + b.state.position.x) / 2;
+    const midZ = (a.state.position.z + b.state.position.z) / 2;
     const pan = (midX - (this.player?.state?.position.x ?? midX)) * 0.04;
     const vol = Math.min(0.85, 0.35 + (latClose / 30) * 0.5);
-    this.audio.play('crash', { volume: vol, pan: Math.max(-0.9, Math.min(0.9, pan)) });
+    // AUDIT R61: crash de kart longe do player atenua por distância (antes
+    // tocava volume cheio a 200m).
+    this.audio.play('crash', { volume: vol, pan: Math.max(-0.9, Math.min(0.9, pan)), pos: { x: midX, z: midZ } });
   }
 
   /** Advance projectiles/effects; sweep dead ones out of the scene. */

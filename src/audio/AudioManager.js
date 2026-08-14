@@ -119,7 +119,7 @@ export class AudioManager {
     presence.type = 'peaking';
     presence.frequency.value = 3200;
     presence.Q.value = 0.8;
-    presence.gain.value = 1.5; // presence — arcade punch
+    presence.gain.value = 0.8; // AUDIT R54: 1.5→0.8 — presence 3.2k amplificava os produtos de distorção (2-4kHz é a faixa mais sensível)
     const hshelf = this._ctx.createBiquadFilter();
     hshelf.type = 'highshelf';
     hshelf.frequency.value = 11000;
@@ -127,8 +127,11 @@ export class AudioManager {
 
     // --- Waveshaper (soft saturation — analog warmth, kills the raw-osc
     // "8-bit" edge; slightly gentler curve so it glues rather than fuzzes)
+    // AUDIT R54 (auditoria som #1 CRÍTICA): drive 1.35→0.5 — o shaper master
+    // saturava com qualquer entrada >0.65 (6 motores + música + crowd somam
+    // bem acima), regenerando harmônicos até Nyquist = estridente constante.
     const shaper = this._ctx.createWaveShaper();
-    shaper.curve = this._softClipCurve(220);
+    shaper.curve = this._softClipCurve(220, 0.5);
 
     // --- Glue compressor (bus glue, not pumping): soft knee, low ratio,
     // fast attack — tucks every layer together like a mixing-bus.
@@ -141,9 +144,9 @@ export class AudioManager {
 
     // --- Makeup gain + safety limiter (the loud, fat arcade finish) ------
     const makeup = this._ctx.createGain();
-    makeup.gain.value = 1.9; // recover the glue compressor's gain (+~5.6dB)
+    makeup.gain.value = 1.0; // AUDIT R54: 1.9→1.0 — makeup +5.6dB empurrava tudo no limiter ratio 20 (corpo sustentado saturado)
     const limiter = this._ctx.createDynamicsCompressor();
-    limiter.threshold.value = -3;
+    limiter.threshold.value = -6; // AUDIT R54: -3→-6 — margem extra contra clip
     limiter.knee.value = 2;
     limiter.ratio.value = 20;
     limiter.attack.value = 0.001;
@@ -198,11 +201,11 @@ export class AudioManager {
    * 1.35 = gentle glue; aggressive curves fuzz the highs and fight the
    * compressor. Shared by the master chain and the engine-loop voice.
    */
-  _softClipCurve(n = 220) {
+  _softClipCurve(n = 220, drive = 1.35) {
     const curve = new Float32Array(n);
     for (let i = 0; i < n; i++) {
       const x = (i / (n - 1)) * 2 - 1;
-      curve[i] = Math.tanh(1.35 * x);
+      curve[i] = Math.tanh(drive * x);
     }
     return curve;
   }
@@ -281,7 +284,18 @@ export class AudioManager {
    */
   play(name, opts = {}) {
     if (!this._ctx || !this._master) return;
-    const { volume = 1, rate = 1, pan = 0, delay = 0 } = opts;
+    let { volume = 1, rate = 1, pan = 0, delay = 0 } = opts;
+    // AUDIT R65 (auditoria som #1/4): clamp global de one-shots (lightning
+    // 0.9, crowdCheer 0.9, go recipe soma ~2.0) — nada deve passar de 0.85.
+    volume = Math.min(0.85, Math.max(0, volume));
+    // AUDIT R61 (auditoria som #1/3 ALTA): one-shots atribuídos a karts
+    // tocavam volume cheio independente da distância (só pan). Com posição
+    // fornecida, rola off com a distância do listener (12u = meia potência),
+    // como os engine loops.
+    if (opts.pos && this._listener) {
+      const d = Math.hypot(opts.pos.x - this._listener.x, opts.pos.z - this._listener.z);
+      volume *= Math.max(0, 12 / (12 + d));
+    }
     const resolved = this._resolveSfxName(name, { volume, rate, pan, delay });
     renderSfx(this._ctx, this._master, resolved.name, {
       ...opts,
@@ -427,13 +441,17 @@ export class AudioManager {
    * @param {number} speed01 0..1 normalized speed.
    * @param {Object} [pose] { x, z, heading? } kart world position (y unused).
    */
-  setEngineLoop(kartId, speed01, pose = null) {
+  setEngineLoop(kartId, speed01, pose = null, vol = 1) {
     const s = Math.max(0, Math.min(1, speed01));
+    const v = Math.max(0, Math.min(1, vol));
     if (!this._ctx || !this._master) {
       // Remember and apply on init().
-      this._pendingEngine.set(kartId, { speed01: s, pose });
+      this._pendingEngine.set(kartId, { speed01: s, pose, vol: v });
       return;
     }
+    // AUDIT R55 (auditoria som #2/3 MÉDIA): volume por kart — os AIs devem
+    // tocar como rivais distantes (bus 0.28), não a volume cheio a 0m.
+    // main.js passa vol=0.28 para 'ai0'..'ai4'.
     if (kartId === 'player' && pose) {
       // Chase camera sits behind the player kart looking along its
       // heading — the player pose IS a good listener proxy. A caller may
@@ -447,9 +465,12 @@ export class AudioManager {
     }
     const existing = this._engineLoops.get(kartId);
     if (existing) {
+      existing.kartVol = v;
       this._updateEngineLoop(existing, s, pose, kartId);
     } else {
-      this._engineLoops.set(kartId, this._createEngineLoop(s, pose));
+      const loop = this._createEngineLoop(s, pose);
+      loop.kartVol = v;
+      this._engineLoops.set(kartId, loop);
     }
   }
 
@@ -468,23 +489,39 @@ export class AudioManager {
     this._pendingEngine.delete(kartId);
     const loop = this._engineLoops.get(kartId);
     if (loop) {
+      // AUDIT R63 (auditoria som #2/5): rampa rápida antes de parar — o
+      // stop() direto com gain ~0.26-0.46 causava click/pop audível em todo
+      // restart (clearEngineLoops).
+      const t = this._ctx ? this._ctx.currentTime : 0;
       try {
-        loop.base.stop();
-        loop.oct.stop();
-        loop.sub?.stop();
-        loop.lfo.stop();
-        loop.noise?.stop();
-      } catch { /* already stopped */ }
-      loop.base.disconnect();
-      loop.oct.disconnect();
-      loop.sub?.disconnect();
-      loop.flt.disconnect();
-      loop.shaper?.disconnect();
-      loop.gain.disconnect();
-      loop.noise?.disconnect();
-      loop.nBand?.disconnect();
-      loop.distGain?.disconnect();
-      loop.panner?.disconnect();
+        loop.gain.gain.setTargetAtTime(0.0001, t, 0.03);
+        loop.distGain?.gain.setTargetAtTime(0.0001, t, 0.03);
+      } catch { /* node já desconectado */ }
+      setTimeout(() => {
+        try {
+          loop.base.stop();
+          loop.oct.stop();
+          loop.sub?.stop();
+          loop.lfo.stop();
+          loop.noise?.stop();
+        } catch { /* already stopped */ }
+        loop.base.disconnect();
+        loop.oct.disconnect();
+        loop.sub?.disconnect();
+        loop.flt.disconnect();
+        loop.shaper?.disconnect();
+        loop.gain.disconnect();
+        loop.noise?.disconnect();
+        loop.nBand?.disconnect();
+        loop.distGain?.disconnect();
+        loop.panner?.disconnect();
+        // AUDIT R62: vBase/vOct/vSub + lfoGain ficavam referenciados (base.disconnect()
+        // remove saídas, não entradas) — leak por restart.
+        loop.vBase?.disconnect();
+        loop.vOct?.disconnect();
+        loop.vSub?.disconnect();
+        loop.lfoGain?.disconnect();
+      }, 120);
       this._engineLoops.delete(kartId);
     }
   }
@@ -513,8 +550,13 @@ export class AudioManager {
     flt.type = 'lowpass';
     flt.Q.value = 1.2;
     // Soft saturation on the motor voice (waveshaper — analog warmth).
+    // AUDIT R53 (auditoria som #2/2 ALTA): staging por voz — a receita QA
+    // 'engine' balanceia saw 0.55 / square 0.22 / sub 0.5, mas o loop ao
+    // vivo conectava os 3 a UNITY. O square 2.02× saturado no shaper +
+    // presence 3.2k + makeup 1.9 = som estridente constante. Agora cada voz
+    // passa por um gain de mix antes do filtro (0.55/0.22/0.5).
     const shaper = ctx.createWaveShaper();
-    shaper.curve = this._softClipCurve(160);
+    shaper.curve = this._softClipCurve(160, 0.5); // R53: drive 0.5 (só satura em |x|>~1.75, transientes)
     const gain = ctx.createGain();
     // Combustion noise: white noise through a bandpass in the motor band.
     const noise = ctx.createBufferSource();
@@ -535,9 +577,13 @@ export class AudioManager {
     lfoGain.gain.value = 3; // cents of detune wobble (scaled by load below)
     lfo.connect(lfoGain);
     lfoGain.connect(base.detune);
-    base.connect(flt);
-    oct.connect(flt);
-    sub.connect(flt);
+    // AUDIT R53: per-voice mix gains (QA recipe engine: saw 0.55 / square 0.22 / sub 0.5)
+    const vBase = ctx.createGain(); vBase.gain.value = 0.55;
+    const vOct = ctx.createGain(); vOct.gain.value = 0.22;
+    const vSub = ctx.createGain(); vSub.gain.value = 0.5;
+    base.connect(vBase); vBase.connect(flt);
+    oct.connect(vOct); vOct.connect(flt);
+    sub.connect(vSub); vSub.connect(flt);
     flt.connect(shaper);
     shaper.connect(gain);
     // --- Positional stage (audit r2): distance gain + StereoPanner. ---
@@ -561,7 +607,13 @@ export class AudioManager {
     sub.start();
     noise.start();
     lfo.start();
-    const loop = { base, oct, sub, flt, shaper, gain, lfo, lfoGain, noise, nBand, distGain, panner, pose, speed01: 0 };
+    // AUDIT R64 (auditoria som #2/6): valores iniciais explícitos ANTES do
+    // start — o throttle temporal pode pular o 1º _updateEngineLoop e os
+    // osciladores tocam na frequência DEFAULT de 440Hz (blip audível).
+    base.frequency.value = 58; oct.frequency.value = 117; sub.frequency.value = 29;
+    flt.frequency.value = 300; nBand.frequency.value = 220;
+    gain.gain.value = 0.14; distGain.gain.value = 1;
+    const loop = { base, oct, sub, flt, shaper, gain, lfo, lfoGain, noise, nBand, distGain, panner, vBase, vOct, vSub, pose, speed01: 0 };
     this._updateEngineLoop(loop, speed01, pose);
     return loop;
   }
@@ -584,12 +636,17 @@ export class AudioManager {
   }
 
   _updateEngineLoop(loop, speed01, pose = null, kartId = null) {
-    // AUDIT PERF-R37 (2026-08-14, auditoria CPU #3): throttle 30Hz — o
-    // smoothing setTargetAtTime (tc=0.06) torna a mudança a 30Hz inaudível;
-    // corta ~54 automações WebAudio/frame pela metade (6 loops × 7 params).
-    this._engineTick = (this._engineTick || 0) + 1;
-    if (this._engineTick % 2 !== 0) return;
+    // AUDIT R52 (2026-08-14, auditoria som #2/1 ALTA): o throttle R37 usava
+    // `_engineTick` GLOBAL com paridade — main.js chama 6×/frame na ordem
+    // fixa, então player/ai1/ai3 eram SEMPRE ímpares e congelavam na
+    // marcha-lenta (nunca atualizavam freq/gain/spatial); ai0/ai2/ai4
+    // rodavam a 60Hz. Agora throttle TEMPORAL por loop (30Hz real) e o
+    // speed01/pose são gravados ANTES do early-return (nunca stale).
+    loop.speed01 = speed01;
+    if (pose) loop.pose = pose;
     const t = this._ctx.currentTime;
+    if (loop.lastTick && t - loop.lastTick < 1 / 30) return;
+    loop.lastTick = t;
     const tc = 0.06; // smooth updates, no zipper noise
     // Piecewise gear map (audit r2): RPM climbs within a gear and DROPS on
     // upshift; `load` (throttle proxy) drives volume + detune roughness,
@@ -601,10 +658,8 @@ export class AudioManager {
     loop.sub.frequency.setTargetAtTime(rpm * 0.5, t, tc);
     loop.flt.frequency.setTargetAtTime(300 + ratio * 1500 - lug * 250, t, tc);
     loop.nBand.frequency.setTargetAtTime(220 + ratio * 900, t, tc);
-    loop.gain.gain.setTargetAtTime(this._engineVolume * (0.28 + 0.64 * (0.7 * load + 0.3 * local)), t, tc);
+    loop.gain.gain.setTargetAtTime(this._engineVolume * (loop.kartVol ?? 1) * (0.15 + 0.85 * load) * (0.28 + 0.64 * (0.7 * load + 0.3 * local)), t, tc); // AUDIT R55/R57: kartVol (AIs 0.28) + idleScale (0.15 parado → quase mudo no grid)
     loop.lfoGain.gain.setTargetAtTime(3 + load * 4, t, tc); // roughness grows with throttle
-    loop.speed01 = speed01;
-    if (pose) loop.pose = pose;
     this._updateSpatial(loop, t);
   }
 
@@ -620,9 +675,10 @@ export class AudioManager {
     const pose = loop.pose;
     const L = this._listener;
     if (!pose || !L) {
-      // No spatial data: centered, full distance (legacy behavior).
+      // No spatial data: centered, conservative volume (AUDIT R58: fallback
+      // era 1.0 full — qualquer AI sem listener tocava cheio no aquecimento).
       if (loop.panner) loop.panner.pan.setTargetAtTime(0, t, tc);
-      loop.distGain.gain.setTargetAtTime(1, t, tc);
+      loop.distGain.gain.setTargetAtTime(0.35, t, tc);
       return;
     }
     const dx = pose.x - L.x;
@@ -634,7 +690,11 @@ export class AudioManager {
     const MAX_PAN = 16;   // units for full-left/full-right
     const pan = clamp(lateral / MAX_PAN, -1, 1);
     const REF = 12;       // distance rolloff reference (gain 0.5 at 12u)
-    const gain = clamp(REF / (REF + dist), 0.22, 1) * (depth < -8 ? 0.8 : 1);
+    // AUDIT R56 (auditoria som #2/4 MÉDIA): piso 0.22→0.05 + fade distante
+    // (sumiu a ~350m) — com 5 AIs o piso antigo mantinha uma cama constante
+    // de motores a 22% que nunca sumia ('som constante').
+    const far = Math.max(0, 1 - dist / 350);
+    const gain = clamp((REF / (REF + dist)) * far, 0.05, 1) * (depth < -8 ? 0.8 : 1);
     if (loop.panner) loop.panner.pan.setTargetAtTime(pan, t, tc);
     loop.distGain.gain.setTargetAtTime(gain, t, tc);
   }
@@ -661,6 +721,19 @@ export class AudioManager {
       const t = this._ctx.currentTime;
       this._crowd.gain.gain.cancelScheduledValues(t);
       this._crowd.gain.gain.setTargetAtTime(0.0001, t, 0.8);
+      // AUDIT R62 (auditoria som #1/6): o BufferSource loopado e o LFO nunca
+      // recebiam stop()/disconnect() — o grafo continuava processando (CPU)
+      // indefinidamente após clearEngineLoops. Para depois do fade.
+      const crowd = this._crowd;
+      this._crowd = null;
+      setTimeout(() => {
+        try { crowd.src.stop(); } catch { /* já parado */ }
+        crowd.src.disconnect();
+        crowd.bp.disconnect();
+        crowd.bp2?.disconnect();
+        crowd.gain.disconnect();
+        crowd.lfo.disconnect();
+      }, 1500);
     }
   }
 
@@ -786,12 +859,15 @@ export class AudioManager {
     if (this._menuMusic) this._menuMusic.setVolume(this._musicVolume * 0.55);
   }
 
-  /** Temporary music duck (AUDIT MED): raises volume for a moment (finish
-   *  fanfare) WITHOUT writing _musicVolume — the old setMusicVolume(1) leaked
-   *  every later race starting at full volume. */
+  /** Temporary music duck (AUDIT MED + AUDIT R59): DUCK de verdade — abaixa
+   *  a música momentaneamente para destacar o SFX (finish/victory), sem
+   *  escrever _musicVolume (o antigo setMusicVolume(1) vazava e todas as
+   *  corridas seguintes começavam em volume cheio; e duckMusic(1,...) era o
+   *  OPOSTO — levantava a música a 100% no momento mais saturado). */
   duckMusic(v, ms) {
-    if (this._music) this._music.setVolume(v);
-    if (this._menuMusic) this._menuMusic.setVolume(v * 0.55);
+    const target = Math.min(1, Math.max(0.1, this._musicVolume * v));
+    if (this._music) this._music.setVolume(target);
+    if (this._menuMusic) this._menuMusic.setVolume(target * 0.55);
     if (ms) {
       setTimeout(() => {
         if (this._music) this._music.setVolume(this._musicVolume);

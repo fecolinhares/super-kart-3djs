@@ -773,7 +773,7 @@ function startRace() {
     // reduced speed, engine hums quietly and the music swells over the SFX.
     playerKart.cruiseSpeed = CONFIG.physics.maxSpeed * 0.6;
     raceManager.aiControllers.push(new AIController(playerKart, track, raceManager));
-    audio.duckMusic(1, 2600); // AUDIT MED: temporary duck, no _musicVolume leak
+    audio.duckMusic(0.35, 2600); // AUDIT R59: duck de verdade (0.35 = música a 35% para destacar a fanfarra; era 1.0 = levantava a 100%)
     audio.play('finish');
     // Victory fanfare only for podium (was playing for EVERY finish).
     // AUDIT r3: the bare setTimeout fired victory over a fresh race if the
@@ -1254,7 +1254,10 @@ loop.start((dt, t) => {
     for (let i = 0; i < aiKarts.length; i++) {
       const s01 = Math.min(1, Math.abs(aiKarts[i].state.speed) / CONFIG.physics.maxSpeed);
       const ap = aiKarts[i].state.position;
-      audio.setEngineLoop('ai' + i, s01 * 0.35, { x: ap.x, z: ap.z, heading: aiKarts[i].state.heading }); // AI engines quieter + panned
+      // AUDIT R55: velocidade REAL (o *0.35 antigo era hack de pitch — o AI
+      // soava 35% da velocidade real) + vol=0.28 (rivais distantes; o ganho
+      // espacial ainda rola off com a distância em _updateSpatial).
+      audio.setEngineLoop('ai' + i, s01, { x: ap.x, z: ap.z, heading: aiKarts[i].state.heading }, 0.28);
     }
     // Tire skid marks: both rears while drifting (player + AI).
     for (let i = 0; i < raceManager.karts.length; i++) {

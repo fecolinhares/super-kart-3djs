@@ -511,6 +511,7 @@ export class MusicEngine {
     hp.connect(g);
     g.connect(this._bus);
     src.start(at);
+    src.stop(at + len / ctx.sampleRate + 0.02); // AUDIT R66: stop explícito
   }
 
   _stopVinyl() {
@@ -703,11 +704,15 @@ export class MusicEngine {
     hp.connect(cg);
     cg.connect(this._bus);
     src.start(time);
+    src.stop(time + len / ctx.sampleRate + 0.02); // AUDIT R66: stop explícito (nodes finitos não são GC'd no WebAudio)
   }
 
   /** Dips the music bus right on the kick (sidechain pump, ~12%). */
   _scheduleDuck(time) {
-    const t = this._ctx.currentTime > time ? this._ctx.currentTime : time;
+    // AUDIT R66 (auditoria som #1/5): o duck era agendado com currentTime e
+    // cancelava/re-agendava a cada tick — pumping irregular + atropelava o
+    // fade-in do bus. Agora agenda NO tempo da batida (futuro).
+    const t = time;
     this._duckGain.gain.cancelScheduledValues(t);
     this._duckGain.gain.setValueAtTime(1, t);
     this._duckGain.gain.linearRampToValueAtTime(0.88, t + 0.015);
@@ -732,6 +737,7 @@ export class MusicEngine {
     bp.connect(g);
     g.connect(this._bus);
     src.start(time);
+    src.stop(time + len / ctx.sampleRate + 0.02); // AUDIT R66: stop explícito
     // Body tone (short sine at ~190Hz) — the snare needs a pitch core or it
     // reads as pure white-noise hiss.
     const body = ctx.createOscillator();
@@ -764,6 +770,7 @@ export class MusicEngine {
     hp.connect(g);
     g.connect(this._bus);
     src.start(time);
+    src.stop(time + len / ctx.sampleRate + 0.02); // AUDIT R66: stop explícito
   }
 
   /* ---------------- Offline render (QA) ---------------- */

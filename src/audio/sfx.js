@@ -243,8 +243,13 @@ function kick(ctx, out, { at = 0, vol = 0.6, freq = 140, glideTo = 40, dur = 0.2
 function chime(ctx, out, { freq = 523, dur = 0.3, vol = 0.3, at = 0, partials = [1, 2, 3, 4], timeConstant = null }) {
   const tc = timeConstant ?? dur * 0.22;
   const amps = { 1: 1.0, 2: 0.42, 3: 0.2, 4: 0.1, 5: 0.06, 6: 0.04 };
-  const ampScale = partials.length > 3 ? 1.25 : 1;
-  for (const p of partials) {
+  // AUDIT R60 (auditoria som #1/10): 'star' C7×6 = 12.5kHz, 'itemPickup'
+  // ×5 = 10.4kHz — partials acima de 8kHz reforçavam o brilho estridente.
+  // Filtra os que passam de 8kHz; nunca deixa vazio.
+  const usable = partials.filter((p) => freq * p <= 8000);
+  if (!usable.length) usable.push(1);
+  const ampScale = usable.length > 3 ? 1.25 : 1;
+  for (const p of usable) {
     osc(ctx, out, {
       type: 'sine', freq: Math.max(30, freq * p), dur, vol: vol * (amps[p] ?? 0.2) / ampScale,
       at, attack: 0.003, timeConstant: tc,
