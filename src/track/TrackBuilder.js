@@ -690,7 +690,7 @@ function buildCurbs(path, length, side, opts = {}) {
   // AUDIT visual 2026-08-12: kerbs read as a flat painted strip with no
   // curb volume. Taller stones + higher top + a top-face decal plane per
   // stone (zebra) restore the MK8D curb read.
-  const geo = beveledCurbGeometry(curbW, curbH, seg, 0.015); // AUDIT R19b (Feco: 'pontas triangulares nas juntas'): chamfer 0.05→0.015 — zebra lisa MK8, sem V escuro entre stones
+  const geo = beveledCurbGeometry(curbW, curbH, seg, 0.002); // AUDIT R20 (Feco real-GPU 2026-08-14: 'kerbs AINDA com pontas'): chamfer 0.015 ainda deixava quinas diagonais em curvas — 0.002 = stone RETANGULAR plana, zebra contínua MK8 sem V nas juntas
 
   // NEON CITY: alternating emissive pink/cyan kerbs. instanceColor can't
   // drive MeshToonMaterial's emissive, so even/odd boxes are split into two

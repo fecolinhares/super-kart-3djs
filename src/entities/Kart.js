@@ -641,9 +641,13 @@ export class Kart {
     // Fender flares — molded PAINTED arches over every wheel (same clearcoat
     // as the shell = merged bodywork, not stuck-on black) + a dark inner lip
     // that defines the arch cut line against the tire.
-    const flareGeo = new THREE.TorusGeometry(0.30, 0.05, 12, 28, Math.PI); // AUDIT R3: MK8 wheels poke OUT of the body — smaller flares expose them
+    // AUDIT R20 (Feco real-GPU 2026-08-14: 'anel amarelo MAIOR que o pneu'):
+    // raio 0.30 + tubo 0.05 = externo 0.35 > pneu 0.34 — o arco sobressaía
+    // 1cm do contorno e pintado da cor do kart lia como anel. 0.24 externo
+    // 0.29: arco contido DENTRO do pneu, para-lama discreto.
+    const flareGeo = new THREE.TorusGeometry(0.24, 0.05, 12, 28, Math.PI);
     flareGeo.rotateY(Math.PI / 2); // ring in the ZY plane — arcs over the tire
-    const archLipGeo = new THREE.TorusGeometry(0.28, 0.02, 10, 26, Math.PI);
+    const archLipGeo = new THREE.TorusGeometry(0.22, 0.02, 10, 26, Math.PI);
     archLipGeo.rotateY(Math.PI / 2);
     for (const sx of [-1, 1]) {
       for (const sz of [-1, 1]) {
