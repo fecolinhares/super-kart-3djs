@@ -560,6 +560,10 @@ export class ShellProjectile {
    *  trail stretches out behind the shell and dies away (no per-frame
    *  allocation). */
   _emitTrail() {
+    // AUDIT PERF-R40 (2026-08-14, auditoria CPU #10): shift a cada 2 frames —
+    // o trail se move a ~18m/s, 30Hz é contínuo; corta ~40 cópias/frame por shell.
+    this._trailTick = (this._trailTick || 0) + 1;
+    if (this._trailTick % 2 !== 0) return;
     const t = this._trail;
     if (!t) return;
     const pool = t.pool;

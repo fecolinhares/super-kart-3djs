@@ -559,6 +559,7 @@ export class Kart {
       g.fillStyle = grad;
       g.fillRect(0, 0, 64, 64);
       const t = new THREE.CanvasTexture(c);
+      t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; // AUDIT PERF-R36: gradiente plano — mipmaps desnecessários
       return t;
     })();
     const blob = new THREE.Mesh(

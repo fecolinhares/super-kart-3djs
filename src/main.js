@@ -139,6 +139,11 @@ function buildSkyEnv(renderer) {
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envTex = pmrem.fromScene(envScene, 0.04).texture;
   pmrem.dispose();
+  // AUDIT PERF-R46 (2026-08-14, auditoria memória #14): a cena auxiliar do
+  // PMREM (skyGeo/skyMat/tex) ficava retida sem dispose (~700KB-1MB GPU).
+  skyGeo.dispose();
+  skyMat.dispose();
+  tex.dispose();
   return envTex;
 }
 scene.environment = buildSkyEnv(renderer);

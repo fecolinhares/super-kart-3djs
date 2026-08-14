@@ -776,7 +776,7 @@ function buildCurbs(path, length, side, opts = {}) {
  * top rail. Top/bottom/side faces make it read from any camera angle.
  */
 function buildEdgeRibbon(path, lateralOffset, yBase, w, h, mat) {
-  const N = 200;
+  const N = 100; // AUDIT PERF-R35 (2026-08-14): 200→100 — segmentos de ~7m num rail reto contínuo, imperceptível; corta ~50% dos tris das ribbons
   const nrm = new THREE.Vector3();
   const tan = new THREE.Vector3();
   const p = new THREE.Vector3();
@@ -854,6 +854,11 @@ function buildGuardRail(path, length, side, opts = {}) {
   // rail band 0.28..0.40m — the classic armco barrier profile.
   const mainRail = buildEdgeRibbon(path, lateral, 0.05 + 0.52, 0.5, 0.22, mainMat); // AUDIT R2: 0.16→0.22 (armco mass)
   const lowerRail = buildEdgeRibbon(path, lateral, 0.05 + 0.24, 0.42, 0.16, lowerMat);
+  // AUDIT PERF-R35: rails NÃO projetam sombra (posts instanciados já o fazem;
+  // a sombra do rail é uma linha que z-fights no shadow map) — economiza ~50%
+  // do fill do shadow pass.
+  mainRail.castShadow = false;
+  lowerRail.castShadow = false;
   // AUDIT R3: W-beam specular cue — a bright thin edge on top of the main
   // rail reads as the folded metal lip of an armco profile (critic: profile flat).
   const lipMat = new THREE.MeshStandardMaterial({ color: 0xf2f6fa, metalness: 0.85, roughness: 0.25, side: THREE.DoubleSide });
@@ -1179,14 +1184,13 @@ function buildGantry(startLine) {
   // mirrored texture, FrontSide, flipped 180°, shares the SAME geometry so
   // main.js's waveBanner animates both faces together.
   const bannerBack = new THREE.Mesh(
-    new THREE.PlaneGeometry(roadW + 1.4, 1.55, 14, 1),
+    banner.geometry, // AUDIT PERF-R45: compartilha a geometria JÁ (antes criava uma PlaneGeometry que era abandonada sem dispose)
     new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide })
   );
   bannerBack.material.map = finishBannerTextureMirrored();
   bannerBack.position.copy(startLine.position);
   bannerBack.position.y = 4.55; // AUDIT R22: acompanha o banner frontal (abaixo das lampas)
   bannerBack.rotation.y = banner.rotation.y + Math.PI;
-  bannerBack.geometry = banner.geometry; // share the waving geometry
   group.add(bannerBack);
 
   // Start lights (5 lamps on the beam — AUDIT r20-FIX: MK8D's signature

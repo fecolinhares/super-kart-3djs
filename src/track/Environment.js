@@ -757,6 +757,11 @@ export class Environment {
     // (vision critic: clouds existed but vanished into the fog wash). Each
     // cloud keeps the classic flat-bottomed cumulus silhouette: a big puffy
     // top over a squashed base fill, with a subtle rim-light glow.
+    // AUDIT PERF-R34 (2026-08-14, auditoria render #3): 14 nuvens × ~8-11
+    // meshes = ~130 meshes Standard → ~130 calls. Agora puffs+base são UMA
+    // InstancedMesh por nuvem (SphereGeometry unitária, escala na matriz) —
+    // 1 call por nuvem para puffs+base. Material Standard mantido (look
+    // idêntico); halo/shadow continuam 1 mesh cada.
     const cloudMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
       roughness: 0.85,
@@ -764,6 +769,8 @@ export class Environment {
       emissiveIntensity: 0.30,
       fog: false,
     });
+    const puffUnit = new THREE.SphereGeometry(1, 14, 10);
+    const dummy = new THREE.Object3D();
     const group = new THREE.Group();
     // Organized sky lanes: clouds every ~29 m along a drift band, staggered
     // across three z-lanes — a planned parade, not a scatter.
@@ -771,24 +778,28 @@ export class Environment {
       const rand = rnd(500 + i);
       const c = new THREE.Group();
       const puffs = 6 + Math.floor(rand() * 5); // 6-10 puffs — dense billow
+      const maxPuffs = 12;
+      const cloudIM = new THREE.InstancedMesh(puffUnit, cloudMat, maxPuffs);
+      let puffIdx = 0;
       for (let p = 0; p < puffs; p++) {
         const s = 5.5 + rand() * 5.5; // 5.5-11 m — big readable puffs
-        const puff = new THREE.Mesh(
-          new THREE.SphereGeometry(s, 16, 12), // smooth puffs (no flat facets)
-          cloudMat
-        );
-        puff.position.set(p * s * 0.62 - puffs * s * 0.31, (rand() - 0.5) * 1.7, (rand() - 0.5) * 3.6);
-        puff.scale.y = 0.55;
-        c.add(puff);
+        dummy.position.set(p * s * 0.62 - puffs * s * 0.31, (rand() - 0.5) * 1.7, (rand() - 0.5) * 3.6);
+        dummy.scale.set(s, s * 0.55, s); // puff.scale.y = 0.55 squash
+        dummy.rotation.set(0, 0, 0);
+        dummy.updateMatrix();
+        cloudIM.setMatrixAt(puffIdx++, dummy.matrix);
       }
       // squashed base fill — flattens the underside like a real cumulus
-      const base = new THREE.Mesh(
-        new THREE.SphereGeometry(7.5 + rand() * 4.5, 14, 10),
-        cloudMat
-      );
-      base.scale.set(1.75, 0.34, 1.3);
-      base.position.y = -2.0;
-      c.add(base);
+      const bs = 7.5 + rand() * 4.5;
+      dummy.position.set(0, -2.0, 0);
+      dummy.scale.set(bs * 1.75, bs * 0.34, bs * 1.3);
+      dummy.rotation.set(0, 0, 0);
+      dummy.updateMatrix();
+      cloudIM.setMatrixAt(puffIdx++, dummy.matrix);
+      cloudIM.count = puffIdx;
+      cloudIM.instanceMatrix.needsUpdate = true;
+      cloudIM.name = 'cloud-instanced';
+      c.add(cloudIM);
       // soft glow halo under the cloud — catches the bloom pass subtly
       const halo = new THREE.Mesh(
         new THREE.CircleGeometry(8 + rand() * 5, 20),
@@ -887,7 +898,9 @@ export class Environment {
       // drives opacity, hue-hold brightness and emissive pulse on the same
       // material.
       const water = new THREE.Mesh(
-        new THREE.PlaneGeometry(w, d, 20, 20),
+        // AUDIT PERF-R43: 20×20→1×1 segmentos (441 vértices → 4) — superfície
+        // PLANA, shader faz o look; o update anima material, não geometria.
+        new THREE.PlaneGeometry(w, d, 1, 1),
         new THREE.MeshStandardMaterial({
           color: 0x2f9fd8,
           metalness: 0.85,
@@ -908,7 +921,7 @@ export class Environment {
       // deep-water base layer — darker disc half a metre down: the lake now
       // reads as TWO water planes (depth + shore), not one flat cyan sheet.
       const deep = new THREE.Mesh(
-        new THREE.CircleGeometry(Math.max(w, d) / 2 + 3, 28),
+        new THREE.CircleGeometry(Math.max(w, d) / 2 + 3, 16), // AUDIT PERF-R43: 28→16 segs (disco sob a água, borda suave já tem foam)
         new THREE.MeshStandardMaterial({
           color: 0x1479b8,
           transparent: true,
@@ -925,7 +938,7 @@ export class Environment {
 
       // foam edge ring (simple bright rim)
       const foam = new THREE.Mesh(
-        new THREE.RingGeometry(w / 2 - 0.6, w / 2, 40),
+        new THREE.RingGeometry(w / 2 - 0.6, w / 2, 24), // AUDIT PERF-R43: 40→24 segs — borda circular, 24 é suave o suficiente
         new THREE.MeshBasicMaterial({
           color: 0xd9f4ff,
           transparent: true,
@@ -2501,14 +2514,16 @@ export class Environment {
     const geo = vergeRibbonGeometry(path, width);
     const tex = gravelTexture().clone();
     tex.needsUpdate = true;
+    tex.generateMipmaps = false; tex.minFilter = THREE.LinearFilter; // AUDIT PERF-R42: overlay plano — mipmaps não minificam de forma relevante
     tex.repeat.set(Math.max(20, len / 4), width / 4); // ~4m square gravel tiles
-    const mat = new THREE.MeshStandardMaterial({
+    // AUDIT PERF-R42 (2026-08-14, auditoria render #13): MeshStandardMaterial
+    // transparent full-loop era shader PBR caro p/ um overlay de 38% — o look
+    // vem do mapa; MeshBasicMaterial corta ~50-70% do custo de fragmento.
+    const mat = new THREE.MeshBasicMaterial({
       map: tex,
       transparent: true,
       opacity: 0.38,
       depthWrite: false,
-      roughness: 1.0,
-      metalness: 0,
       polygonOffset: true,
       polygonOffsetFactor: -2,
       polygonOffsetUnits: -2,

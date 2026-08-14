@@ -584,6 +584,11 @@ export class AudioManager {
   }
 
   _updateEngineLoop(loop, speed01, pose = null, kartId = null) {
+    // AUDIT PERF-R37 (2026-08-14, auditoria CPU #3): throttle 30Hz — o
+    // smoothing setTargetAtTime (tc=0.06) torna a mudança a 30Hz inaudível;
+    // corta ~54 automações WebAudio/frame pela metade (6 loops × 7 params).
+    this._engineTick = (this._engineTick || 0) + 1;
+    if (this._engineTick % 2 !== 0) return;
     const t = this._ctx.currentTime;
     const tc = 0.06; // smooth updates, no zipper noise
     // Piecewise gear map (audit r2): RPM climbs within a gear and DROPS on

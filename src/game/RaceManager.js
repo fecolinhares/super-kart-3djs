@@ -776,6 +776,14 @@ export class RaceManager {
    *  eligibility to karts with a full primary + empty reserve (MK8 dual-slot:
    *  hold a defensive item AND carry a second one for later). */
   _updateReservePickups() {
+    // AUDIT PERF-R41 (2026-08-14, auditoria CPU #11): early-out global — o
+    // scan 12×6 rodava COMPLETO mesmo sem nenhum kart elegível (full-primary
+    // + empty-reserve). Agora se nenhum kart tem reserve vazio, retorna já.
+    let anyEligible = false;
+    for (const kart of this.karts) {
+      if (kart && !kart.finished && kart.heldItem && !kart.heldItem2) { anyEligible = true; break; }
+    }
+    if (!anyEligible) return;
     const r = CONFIG.items.pickupRadius;
     const rr = r * r;
     for (const box of this.itemBoxes) {

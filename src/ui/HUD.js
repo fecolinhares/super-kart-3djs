@@ -710,8 +710,11 @@ export class HUD {
     const a = speed01 > 0.8 ? Math.min(0.5, (speed01 - 0.8) * 2.2) : 0;
     const w = this.speedlineCanvas.width;
     const h = this.speedlineCanvas.height;
-    ctx.clearRect(0, 0, w, h);
+    // AUDIT PERF-R38 (2026-08-14, auditoria CPU #6): o early-return ficava
+    // DEPOIS do clearRect full-screen — o canvas era limpo todo frame mesmo
+    // sem speedlines. Agora o clear só acontece quando há algo a desenhar.
     if (a <= 0.01) return;
+    ctx.clearRect(0, 0, w, h);
     ctx.globalAlpha = a;
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 2;

@@ -84,7 +84,11 @@ export class PostFX {
       this.bloom = forceNoBloom || softGL
         ? null
         : new UnrealBloomPass(
-            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            // AUDIT PERF-R44 (2026-08-14, auditoria render #8): threshold a
+            // MEIA-resolução (w/2,h/2) — o blur interno do UnrealBloom já é
+            // downsampled; o threshold full-res só gastava fill-rate (pode
+            // valer 2-4ms em GPU integrada). Perda visual imperceptível.
+            new THREE.Vector2(Math.floor(window.innerWidth / 2), Math.floor(window.innerHeight / 2)),
             CONFIG.render.bloomStrength,
             CONFIG.render.bloomRadius,
             CONFIG.render.bloomThreshold

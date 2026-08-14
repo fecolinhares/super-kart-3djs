@@ -31,8 +31,19 @@ const _move = new THREE.Vector3();
 const _tmp = new THREE.Vector3();
 
 /** Build (once per track) the sampled lattice: positions, tangents, cumulative length. */
+// AUDIT PERF-R39 (2026-08-14, auditoria CPU #9): a lattice só depende do
+// track — 6 karts construíam 6 cópias (2.300 avaliações de curva + hitch
+// one-time no GO). Cache module-level keyed por track; só _sampleIndex é
+// per-kart.
+const _sampleCache = new Map();
+
 function ensureSamples(kart, track) {
   if (kart._samples && kart._samples.track === track) return kart._samples;
+  if (_sampleCache.has(track)) {
+    kart._samples = _sampleCache.get(track);
+    kart._sampleIndex = 0;
+    return kart._samples;
+  }
   const N = SAMPLES;
   const path = track.path;
   const pos = [];
@@ -51,6 +62,7 @@ function ensureSamples(kart, track) {
     prev = p;
   }
   const samples = { track, N, pos, tan, len, total: Math.max(total, 0.001) };
+  _sampleCache.set(track, samples);
   kart._samples = samples;
   kart._sampleIndex = 0;
   return samples;
