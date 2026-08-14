@@ -1429,7 +1429,7 @@ export class Environment {
     midSpots.forEach((r) => aoSpots.push({ x: r.x, z: r.z, r: 0.85 * r.s, ry: r.ry }));
     if (midSpots.length) {
       const mids = new THREE.InstancedMesh(midGeo, midMat, midSpots.length);
-      mids.castShadow = true; // AUDIT r5: contact shadows
+      mids.castShadow = false; // AUDIT PERF-R33: mids pequenos sub-pixel no shadow map — sombra só custava fill
       const col = new THREE.Color();
       const MPAL = [0x2f8f43, 0x3faf4e, 0x6d4c41, 0x7f8c8d, 0xc9a86a];
       midSpots.forEach((r, i) => {
@@ -1651,7 +1651,7 @@ export class Environment {
       }
     }
     const flowers = new THREE.InstancedMesh(flowerGeo, flowerMat, flowerSpots.length);
-    flowers.castShadow = true; // AUDIT r5: contact shadows
+    flowers.castShadow = false; // AUDIT PERF-R33: flores 0.16m sub-pixel no shadow map 2048 — sombra só custava fill; manter rocks/bushes (contato real)
     const stems = new THREE.InstancedMesh(stemGeo, stemMat, flowerSpots.length);
     flowerSpots.forEach((f, i) => {
       const gy = smoothH(f.x, f.z) * 0.5 - 0.25;
@@ -3834,12 +3834,24 @@ export class Environment {
     }
     const path = track.path;
     const halfW = CONFIG.track.roadWidth / 2;
+    // AUDIT PERF-R32 (2026-08-14, auditoria render #5): geometrias eram
+    // criadas dentro do loop (auto-instancing não agrupava) → ~50 calls.
+    // Agora 2 InstancedMesh (pole+head) com geometria/material compartilhados.
     const poleMat = toonMaterial(0x7d8a99, {});
     const headMat = toonMaterial(0xffd166, {});
+    const poleGeo = new THREE.CylinderGeometry(0.06, 0.09, 3.4, 8);
+    const headGeo = new THREE.BoxGeometry(0.5, 0.14, 0.22);
+    const dummy = new THREE.Object3D();
     const tan = new THREE.Vector3();
     const tan2 = new THREE.Vector3();
     const p = new THREE.Vector3();
     const nrm = new THREE.Vector3();
+    const maxPoles = 48;
+    const poles = new THREE.InstancedMesh(poleGeo, poleMat, maxPoles);
+    const heads = new THREE.InstancedMesh(headGeo, headMat, maxPoles);
+    poles.name = 'lightpole-instanced';
+    heads.name = 'lightpole-head-instanced';
+    scene.add(poles, heads);
     let made = 0;
     for (let i = 0; i < 200; i++) {
       const t = i / 200;
@@ -3854,17 +3866,23 @@ export class Environment {
       const side = made % 2 === 0 ? 1 : -1;
       const px = p.x + nrm.x * (side * (halfW + 3.6));
       const pz = p.z + nrm.z * (side * (halfW + 3.6));
-      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.09, 3.4, 8), poleMat);
-      pole.position.set(px, p.y + 1.7, pz);
-      scene.add(pole);
-      const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.14, 0.22), headMat);
-      head.position.set(px, p.y + 3.45, pz);
+      dummy.position.set(px, p.y + 1.7, pz);
+      dummy.rotation.set(0, 0, 0);
+      dummy.updateMatrix();
+      poles.setMatrixAt(made, dummy.matrix);
       // lamp head faces the track
-      head.lookAt(p.x, p.y + 3.45, p.z);
-      head.rotation.z = 0;
-      scene.add(head);
+      dummy.position.set(px, p.y + 3.45, pz);
+      dummy.lookAt(p.x, p.y + 3.45, p.z);
+      dummy.rotation.z = 0;
+      dummy.updateMatrix();
+      heads.setMatrixAt(made, dummy.matrix);
       made++;
+      if (made >= maxPoles) break;
     }
+    poles.count = made;
+    heads.count = made;
+    poles.instanceMatrix.needsUpdate = true;
+    heads.instanceMatrix.needsUpdate = true;
   }
 
   /** Night sky dome texture: dark blue-purple gradient + faint stars.
@@ -4556,26 +4574,35 @@ export class Environment {
     // (~2 Hz) with a half-sine (max(0, sin)) so each spectator has a clear
     // airborne phase and a grounded pause — reads as hopping, not levitating.
     // Phase offset i*0.9 keeps the wave traveling through the stands.
-    // NOTE: never rebuild the instance matrix from position/quaternion here —
-    // the dummy's position is (0,0,0) so recomposing would zero every figure's
-    // X/Z and rotation (all spectators teleported to world origin). Adjust the
-    // Y element directly instead.
-    for (const spec of this.crowdMeshes || []) {
+    // AUDIT PERF-R28 (2026-08-14, auditoria CPU #1): o loop fazia
+    // getMatrixAt+setMatrixAt por instância × 9 meshes (~9.864 round-trips
+    // + Math.pow por frame). Agora: (1) throttle 2 frames (30Hz — bounce
+    // 2Hz não precisa de 60fps); (2) escreve DIRETO no Float32Array do
+    // instanceMatrix (elemento 13 = Y) — sem get/setMatrixAt; (3) o rise é
+    // calculado UMA vez por índice e aplicado nas 9 meshes (mesmo bobArr).
+    this._crowdTick = (this._crowdTick || 0) + 1;
+    if (this._crowdTick % 2 !== 0) return;
+    const crowd = this.crowdMeshes || [];
+    if (!crowd.length) return;
+    // Compute rise once per spectator index (max count across meshes)
+    const nMax = Math.max(...crowd.map((s) => s.count || 0));
+    if (!this._crowdRise || this._crowdRise.length < nMax) this._crowdRise = new Float32Array(nMax);
+    const riseArr = this._crowdRise;
+    const srcPhase = crowd[0].userData.phase;
+    const srcBob = crowd[0].userData.bob;
+    for (let i = 0; i < nMax; i++) {
+      const ph = srcPhase ? srcPhase[i] : i * 0.9;
+      const s = Math.sin(t * 12.566 + ph);
+      const bobAmp = srcBob ? srcBob[i] : 0.18;
+      riseArr[i] = (s > 0 ? Math.pow(s, 0.7) : 0) * bobAmp;
+    }
+    for (const spec of crowd) {
       const base = spec.userData.baseY;
       if (!base) continue;
-      const bobArr = spec.userData.bob;
-      const phaseArr = spec.userData.phase;
-      const dummy = (spec.userData._dummy = spec.userData._dummy || new THREE.Object3D());
-      for (let i = 0; i < spec.count; i++) {
-        spec.getMatrixAt(i, dummy.matrix);
-        const bobAmp = bobArr ? bobArr[i] : 0.18;
-        const ph = phaseArr ? phaseArr[i] : i * 0.9;
-        // AUDIT F2 (crowd audit): a rectified pulse (max(0, sin)^0.7) instead
-        // of a pure sine — grounded pause + gravity-shaped rise/hang/fall.
-        const s = Math.sin(t * 12.566 + ph);
-        const rise = s > 0 ? Math.pow(s, 0.7) : 0;
-        dummy.matrix.elements[13] = base[i] + rise * bobAmp;
-        spec.setMatrixAt(i, dummy.matrix);
+      const arr = spec.instanceMatrix.array;
+      const n = spec.count;
+      for (let i = 0; i < n; i++) {
+        arr[i * 16 + 13] = base[i] + riseArr[i];
       }
       spec.instanceMatrix.needsUpdate = true;
     }

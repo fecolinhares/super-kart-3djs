@@ -241,10 +241,26 @@ function prewarmShaders() {
     if (warmBox.beam) { warmBox.beam.visible = false; scene.add(warmBox.beam); }
     if (warmBox.ring) { warmBox.ring.visible = false; scene.add(warmBox.ring); }
     renderer.render(scene, camera); // compila todos os shaders
-    for (const k of warmKarts) scene.remove(k.group);
-    if (warmBox.mesh) scene.remove(warmBox.mesh);
-    if (warmBox.beam) scene.remove(warmBox.beam);
-    if (warmBox.ring) scene.remove(warmBox.ring);
+    // AUDIT PERF-R30 (2026-08-14, auditoria memória #3): scene.remove() não
+    // liberava buffers WebGL — geometrias/materiais ficavam retidos (2-3MB).
+    // Dispose de tudo ANTES de remover (padrão do startRace), sem tocar em
+    // texturas do cache global (_visorCache etc.).
+    const disposeTree = (root) => {
+      root.traverse((o) => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) {
+          const mats = Array.isArray(o.material) ? o.material : [o.material];
+          for (const m of mats) {
+            if (m.map && m.map.userData && m.map.userData.shared) { m.map = null; }
+            m.dispose();
+          }
+        }
+      });
+    };
+    for (const k of warmKarts) { disposeTree(k.group); scene.remove(k.group); }
+    if (warmBox.mesh) { disposeTree(warmBox.mesh); scene.remove(warmBox.mesh); }
+    if (warmBox.beam) { disposeTree(warmBox.beam); scene.remove(warmBox.beam); }
+    if (warmBox.ring) { disposeTree(warmBox.ring); scene.remove(warmBox.ring); }
     console.log('[perf] shaders pre-warmed (', warmKarts.length, 'karts + 1 box )');
   } catch (err) {
     for (const k of warmKarts) scene.remove(k.group);

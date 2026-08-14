@@ -213,13 +213,15 @@ export class ItemBox {
         const m = new THREE.MeshBasicMaterial({ map: tex, color, transparent: opacity < 1, opacity });
         return m;
       };
+      // AUDIT PERF-R27 (2026-08-14, auditoria performance): eram 6 materiais
+      // (3× 0.97 + 3× 0.98) → 6 draw calls por box (60 calls/10 boxes).
+      // O per-face shading (sides 0.97 / front 0.98) é o que faz o cubo ler
+      // 3D (flat single = placard) — então 2 materiais COMPARTILHADOS
+      // (mesma geometria, 2 grupos de faces) mantêm o look com 2 calls/box.
+      const sideMat = mk(0xffffff, 0.97);
+      const frontMat = mk(0xffffff, 0.98);
       // BoxGeometry material order: +x, -x, +y, -y, +z, -z
-      // AUDIT R6 (Feco: 'cores estranhas'): 0.88 translúcido ficava lavado
-      // sobre o asfalto — shell mais vivo (0.96) e cyan MK8D saturado.
-      // AUDIT R17 (Feco: 'boxes escuros'): color 0xffffff — o map do canvas
-      // agora carrega o fundo cyan translúcido + '?' vermelho + trim dourado
-      // (antes color × map = preto/roxo).
-      return [mk(0xffffff, 0.97), mk(0xffffff, 0.97), mk(0xffffff, 0.98), mk(0xffffff, 0.97), mk(0xffffff, 0.98), mk(0xffffff, 0.97)];
+      return [sideMat, sideMat, frontMat, sideMat, frontMat, sideMat];
     }
     const opts = {
       color: 0xffb703,

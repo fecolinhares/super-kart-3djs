@@ -689,7 +689,7 @@ export function finishLineTexture() {
   // 0.75m square cells on a 9m road (MK8D finish strips use smaller,
   // crisper checkers). Anisotropy 8 keeps them sharp at grazing angles.
   _finishTex = canvasTexture(
-    1024,
+    512, // AUDIT PERF-R31 (2026-08-14, auditoria memória #2): 1024→512 — célula ~42px ainda nítida com aniso 8; economiza ~4MB RAM+GPU (maior textura isolada)
     (ctx, s) => {
       const cw = s / 12;
       const ch = s / 4;

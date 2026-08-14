@@ -651,6 +651,14 @@ export class RaceManager {
    * lap * 1000 + progress01 descending. Also writes kart.position (1-based).
    */
   getStandings() {
+    // AUDIT PERF-R29 (2026-08-14, auditoria CPU #2): getStandings era chamado
+    // ~6×/frame (1× _updateStandings + 5× AIs _rivalAhead) → ~50 alocações +
+    // 6 sorts/frame. Cache por frame: _updateStandings computa uma vez e
+    // reusa; staleness de 1 frame é invisível a 60fps (kart.position já é do
+    // frame anterior).
+    if (this._standingsFrame === this.elapsed && this._standingsRows) {
+      return this._standingsRows;
+    }
     const rows = this.karts.map((kart) => {
       const st = kart.state || {};
       const lap = st.lap ?? kart.lap ?? 0;
@@ -669,11 +677,13 @@ export class RaceManager {
       r.kart.position = i + 1;
       delete r.score;
     });
+    this._standingsRows = rows;
+    this._standingsFrame = this.elapsed;
     return rows;
   }
 
   _updateStandings() {
-    this.getStandings(); // also refreshes kart.position
+    this.getStandings(); // also refreshes kart.position (cached per frame)
   }
 
   _checkFinishes() {
