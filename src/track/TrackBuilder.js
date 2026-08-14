@@ -937,7 +937,13 @@ function buildTurboPads(path, length) {
   mat.depthWrite = false;
   mat.transparent = true;
   // Additive glow overlay — pulses via glowMat.opacity (main.js update loop).
+  // AUDIT R51 (Feco real-GPU 2026-08-14: 'parte dos pads estranhos — glow
+  // branco estourado, mal recortado'): o glow era um retângulo BRANCO aditivo
+  // puro (color 0xffffff, sem map) → clareava/lavava o pad inteiro. Agora usa
+  // a MESMA textura do pad como máscara — o brilho aditivo só acende nas
+  // áreas do desenho (laranja + chevrons), integrado, sem estourar.
   const glowMat = new THREE.MeshBasicMaterial({
+    map: turboPadTexture(),
     color: 0xffffff,
     transparent: true,
     opacity: 0,
