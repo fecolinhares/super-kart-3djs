@@ -789,17 +789,20 @@ export function turboPadTexture() {
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
   // Three BIG ">>>" chevrons down the length, tips +X, strong glow.
+  // AUDIT R78 (crítico pós-R77: 'chevrons estourados, sem definição'): a
+  // BASE do pad ainda tinha lineWidth 22 + shadow 0.9 — chevrons viravam
+  // manchas. Mesma calibração do glow R67: 14/0.6/6 + setas menores.
   ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 22;
+  ctx.lineWidth = 14;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  ctx.shadowColor = 'rgba(255,255,255,0.9)';
-  ctx.shadowBlur = 10;
+  ctx.shadowColor = 'rgba(255,255,255,0.6)';
+  ctx.shadowBlur = 6;
   for (const fx of [0.20, 0.50, 0.80]) {
     const cx = W * fx;
     const cy = H / 2;
-    const half = W * 0.13;
-    const hh = H * 0.34;
+    const half = W * 0.11;
+    const hh = H * 0.30;
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
     ctx.lineTo(cx + half, cy);
@@ -807,14 +810,14 @@ export function turboPadTexture() {
     ctx.stroke();
   }
   // Extra soft halo pass (bigger blur, lower alpha).
-  ctx.shadowBlur = 20;
-  ctx.lineWidth = 8;
-  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  ctx.shadowBlur = 12;
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
   for (const fx of [0.20, 0.50, 0.80]) {
     const cx = W * fx;
     const cy = H / 2;
-    const half = W * 0.13;
-    const hh = H * 0.34;
+    const half = W * 0.11;
+    const hh = H * 0.30;
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
     ctx.lineTo(cx + half, cy);
