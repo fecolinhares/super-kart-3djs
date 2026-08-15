@@ -1530,7 +1530,13 @@ export class Environment {
         // (offset até 0.48×scale = ~0.7m) eram empurrados DEPOIS sem
         // re-check — um lobe deslocado cruzava a pista. Era o 'arbusto no
         // meio da pista' real que o usuário viu e o headless não pegou.
-        if (k > 0 && this._onTrack(lx, lz, 2.5)) continue;
+        // AUDIT R79c (audit-geometry ainda achou 44): o gate usava margem
+        // 2.5 do CENTRO, mas o lobe tem RAIO 0.9×scale (até ~1.4m) — a
+        // EXTENSÃO cruza. Margem = 2.5 + raio real do lobe (com scale).
+        if (k > 0) {
+          const lobeR = 0.9 * b.s * (k === 0 ? 1 : 0.7 + cr() * 0.18);
+          if (this._onTrack(lx, lz, 2.5 + lobeR)) continue;
+        }
         bushLobes.push({
           x: lx,
           z: lz,
@@ -1601,7 +1607,8 @@ export class Environment {
         const lz = bz + Math.sin(a) * offD * 1.2;
         // AUDIT R79: lobes do roadside também sem re-check (mesmo bug dos
         // bushLobes — lobe deslocado podia cruzar a pista).
-        if (k > 0 && this._onTrack(lx, lz, 2.5)) continue;
+        // AUDIT R79c: margem inclui o RAIO do lobe (0.9×lobeS).
+        if (k > 0 && this._onTrack(lx, lz, 2.5 + 0.9 * lobeS)) continue;
         roadClusters.push({
           x: lx,
           z: lz,
