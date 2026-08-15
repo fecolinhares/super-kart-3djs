@@ -481,9 +481,14 @@ export class Environment {
       this._trackPath ? terrainHeight(x, z, this._trackPath) : smoothH(x, z) * 0.5 - 0.25;
     if (track && track.path) {
       // Cache centerline samples for _onTrack checks.
+      // AUDIT R79d (audit-geometry 2026-08-15): 60 amostras = ~10m entre
+      // pontos num loop de 600m — em CURVAS fechadas a amostra mais próxima
+      // ficava a vários metros da pista real → _onTrack dizia "fora" para
+      // objetos DENTRO da pista (arbustos/lobes a 0.8m passavam). 240
+      // amostras (~2.5m de espaçamento) resolvem a subestimação em curva.
       this._trackSamples = [];
-      for (let i = 0; i < 60; i++) {
-        this._trackSamples.push(track.path.getPointAt(i / 60));
+      for (let i = 0; i < 240; i++) {
+        this._trackSamples.push(track.path.getPointAt(i / 240));
       }
     }
     // --- fog & background ------------------------------------------------
