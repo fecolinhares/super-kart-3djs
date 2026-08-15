@@ -792,23 +792,44 @@ export function turboPadTexture() {
   // AUDIT R78 (crítico pós-R77: 'chevrons estourados, sem definição'): a
   // BASE do pad ainda tinha lineWidth 22 + shadow 0.9 — chevrons viravam
   // manchas. Mesma calibração do glow R67: 14/0.6/6 + setas menores.
+  // AUDIT R83 (Feco real-GPU 2026-08-15: 'setas suaves/borradas'): no GPU
+  // real a textura 512×128 com chevrons 14px fica suave a distância — o
+  // contraste laranja/branco precisa ser mais alto. Aumenta lineWidth p/
+  // 18 + contorno escuro fino nas setas (borda #a35a00 separa do laranja).
   ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 14;
+  ctx.lineWidth = 18;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  ctx.shadowColor = 'rgba(255,255,255,0.6)';
-  ctx.shadowBlur = 6;
+  ctx.shadowColor = 'rgba(255,255,255,0.65)';
+  ctx.shadowBlur = 5;
   for (const fx of [0.20, 0.50, 0.80]) {
     const cx = W * fx;
     const cy = H / 2;
     const half = W * 0.11;
-    const hh = H * 0.30;
+    const hh = H * 0.32;
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
     ctx.lineTo(cx + half, cy);
     ctx.lineTo(cx - half, cy + hh);
     ctx.stroke();
   }
+  // Contorno escuro fino para separar as setas do laranja (definição).
+  ctx.save();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = 'rgba(150,80,0,0.55)';
+  ctx.lineWidth = 2.5;
+  for (const fx of [0.20, 0.50, 0.80]) {
+    const cx = W * fx;
+    const cy = H / 2;
+    const half = W * 0.11;
+    const hh = H * 0.32;
+    ctx.beginPath();
+    ctx.moveTo(cx - half, cy - hh);
+    ctx.lineTo(cx + half, cy);
+    ctx.lineTo(cx - half, cy + hh);
+    ctx.stroke();
+  }
+  ctx.restore();
   // Extra soft halo pass (bigger blur, lower alpha).
   ctx.shadowBlur = 12;
   ctx.lineWidth = 5;
@@ -817,7 +838,7 @@ export function turboPadTexture() {
     const cx = W * fx;
     const cy = H / 2;
     const half = W * 0.11;
-    const hh = H * 0.30;
+    const hh = H * 0.32;
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
     ctx.lineTo(cx + half, cy);

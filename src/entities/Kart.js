@@ -1113,22 +1113,14 @@ export class Kart {
         const groove = new THREE.Mesh(grooveGeo, tireDark);
         groove.rotation.x = Math.PI / 2; // AUDIT: same — encircle the tire
         tilt.add(groove);
-        // Sidewall stripe rings on both faces.
-        const st1 = new THREE.Mesh(stripeGeo, stripeMat);
-        st1.position.x = faceX - 0.002;
-        st1.rotation.x = Math.PI / 2; // AUDIT: sidewall ring in the wheel-face plane (YZ)
-        const st2 = new THREE.Mesh(stripeGeo, stripeMat);
-        st2.position.x = -(faceX - 0.002);
-        st2.rotation.x = Math.PI / 2;
-        tilt.add(st1, st2);
-        // Darker tire-wall band outside the accent stripe (both faces).
-        const wb1 = new THREE.Mesh(wallBandGeo, tireDark);
-        wb1.position.x = faceX - 0.002;
-        wb1.rotation.x = Math.PI / 2;
-        const wb2 = new THREE.Mesh(wallBandGeo, tireDark);
-        wb2.position.x = -(faceX - 0.002);
-        wb2.rotation.x = Math.PI / 2;
-        tilt.add(wb1, wb2);
+        // AUDIT R80 (Feco real-GPU 2026-08-15, 4ª reclamação de 'anel nas
+        // rodas'): a sidewall stripe cinza-claro (R20c 0xc9d4de) + wallBand
+        // escuro criavam 2 anéis concêntricos visíveis no pneu — o usuário
+        // viu 'anel claro fino e deformado' na roda. MK8 real: pneu ÚNICO
+        // escuro (sem anéis) + aro cromado pequeno. Removidos stripe e
+        // wallBand — a roda lê como borracha sólida com aro no centro.
+        // (tread ribs + groove mantidos — são o 'piso' do pneu, não anéis.)
+        // AUDIT R80: stripe/wallBand removidos (anéis concêntricos no pneu).
         // Chrome rim — DIRECT child of spin (axis X) so it rolls with the
         // wheel (the historic "disc child of tilt spun like a coin" bug).
         const rimX = faceX + 0.014;

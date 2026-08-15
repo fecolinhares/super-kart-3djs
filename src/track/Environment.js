@@ -1048,7 +1048,12 @@ export class Environment {
         if (i % 2 === 0) leafsL.setMatrixAt(li++, leafMat4);
         else leafsD.setMatrixAt(di++, leafMat4);
       }
-      dummy.position.set(cx, 4.2 + 0.35, cz);
+      // AUDIT R82 (Feco real-GPU 2026-08-15: 'palmeira desmontada — coco
+      // flutuando acima da copa'): o coco estava em 4.2+0.35 = 4.55m, mas o
+      // topo do tronco é 4.2 e a copa (folhas) nasce em ~4.4 — o coco lia
+      // como esfera marrom SOLTA 0.35m acima. Agora 4.2+0.08 = dentro da
+      // copa (entre as folhas, como um coco real).
+      dummy.position.set(cx, 4.2 + 0.08, cz);
       dummy.rotation.set(rx, 0, rz);
       dummy.scale.set(1, 1, 1);
       dummy.updateMatrix();
@@ -2987,13 +2992,22 @@ export class Environment {
     g.fillStyle = 'rgba(255,255,255,0.55)';
     g.font = '700 14px "Baloo 2", "Nunito", Arial, sans-serif';
     g.fillText('SUPER KART', 128, 112);
-    g.fillStyle = 'rgba(0,0,0,0.35)';
-    g.beginPath();
-    g.arc(224, 22, 14, 0, Math.PI * 2);
-    g.fill();
+    // AUDIT R81 (Feco real-GPU 2026-08-15: 'placa com símbolo OLHO/PÁSSARO'):
+    // o logo circular (bola preta 224,22 + ponto branco) lia como um OLHO
+    // na distância de corrida — substituído por um raio/estrela simples
+    // (símbolo de velocidade, sem orbe que pareça olho).
+    g.strokeStyle = 'rgba(255,255,255,0.75)';
+    g.lineWidth = 3;
+    for (let i = 0; i < 3; i++) {
+      const a = (i / 3) * Math.PI * 2 - Math.PI / 2;
+      g.beginPath();
+      g.moveTo(226, 22);
+      g.lineTo(226 + Math.cos(a) * 13, 22 + Math.sin(a) * 13);
+      g.stroke();
+    }
     g.fillStyle = '#ffffff';
     g.beginPath();
-    g.arc(224, 22, 7, 0, Math.PI * 2);
+    g.arc(226, 22, 4, 0, Math.PI * 2);
     g.fill();
     const tex = new THREE.CanvasTexture(c);
     tex.colorSpace = THREE.SRGBColorSpace;
