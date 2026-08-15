@@ -2006,6 +2006,10 @@ export class Environment {
         if (!inLoop(x, z)) continue;
         if (distToLoop(x, z) < roadClear) continue;
         if (inWater(x, z, 4)) continue;
+        // AUDIT R79b: gate adicional — distância à CENTERLINE (não só ao
+        // polygon do loop) com margem real. Em curvas o distToLoop mede a
+        // distância ao polígono que pode estar DENTRO da faixa.
+        if (this._onTrack(x, z, Math.max(3, roadClear - 6))) continue;
         let ok = true;
         for (const u of used) {
           const dx = x - u.x;
@@ -2045,6 +2049,9 @@ export class Environment {
         const ox = spot.x + (r2() - 0.5) * 4.4;
         const oz = spot.z + (r2() - 0.5) * 4.4;
         if (distToLoop(ox, oz) < halfW + 6) continue; // every prop clears the rail
+        // AUDIT R79b: membro do cluster com jitter — re-verifica na centerline
+        // (o spot passou, mas o membro ±2.2m pode cruzar em curvas).
+        if (this._onTrack(ox, oz, 3)) continue;
         const gy = this._gy(ox, oz);
         const roll = r2();
         if (roll < 0.55) {
