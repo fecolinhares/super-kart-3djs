@@ -1523,9 +1523,17 @@ export class Environment {
       for (let k = 0; k < n; k++) {
         const off = k === 0 ? 0 : 0.34 + cr() * 0.14; // lobe offset (frac of s)
         const a = k === 0 ? 0 : a0 + k * 2.1;         // spread lobes around
+        const lx = b.x + Math.cos(a) * off * b.s;
+        const lz = b.z + Math.sin(a) * off * b.s;
+        // AUDIT R79 (audit-geometry 2026-08-15: ACHOU lobes a 0.8m da
+        // centerline): o R19 verificava os SPOTS com _onTrack, mas os LOBES
+        // (offset até 0.48×scale = ~0.7m) eram empurrados DEPOIS sem
+        // re-check — um lobe deslocado cruzava a pista. Era o 'arbusto no
+        // meio da pista' real que o usuário viu e o headless não pegou.
+        if (k > 0 && this._onTrack(lx, lz, 2.5)) continue;
         bushLobes.push({
-          x: b.x + Math.cos(a) * off * b.s,
-          z: b.z + Math.sin(a) * off * b.s,
+          x: lx,
+          z: lz,
           s: b.s * (k === 0 ? 1 : 0.7 + cr() * 0.18), // lobes shrink outward
           hScale,
           ry: b.ry,
@@ -1589,9 +1597,14 @@ export class Environment {
         const offD = k === 0 ? 0 : 0.34 + cr() * 0.14;
         const a = k === 0 ? 0 : a0 + k * 2.1;
         const lobeS = k === 0 ? 1.2 : 1.2 * (0.7 + cr() * 0.18);
+        const lx = bx + Math.cos(a) * offD * 1.2;
+        const lz = bz + Math.sin(a) * offD * 1.2;
+        // AUDIT R79: lobes do roadside também sem re-check (mesmo bug dos
+        // bushLobes — lobe deslocado podia cruzar a pista).
+        if (k > 0 && this._onTrack(lx, lz, 2.5)) continue;
         roadClusters.push({
-          x: bx + Math.cos(a) * offD * 1.2,
-          z: bz + Math.sin(a) * offD * 1.2,
+          x: lx,
+          z: lz,
           s: lobeS,
           hScale,
           ry,
