@@ -1598,6 +1598,11 @@ export class Environment {
         bz = z + off * 0.7;
         if (!this._onTrack(bx, bz, 6)) break;
       }
+      // AUDIT R79e (audit-geometry 2026-08-15): se as 4 tentativas ficaram
+      // DENTRO da pista (curvas fechadas — o offset é na tangente, não na
+      // normal), o loop usava o último bx/bz (on-track) SEM rejeitar — um
+      // bush nascia no asfalto. Rejeita o spot inteiro.
+      if (this._onTrack(bx, bz, 6)) continue;
       const gy = this._gy(bx, bz);
       const ry = this._rand() * Math.PI;
       const hScale = 0.9 + this._rand() * 0.5; // same _rand() call order as before
