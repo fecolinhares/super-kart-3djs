@@ -1188,9 +1188,6 @@ export class Kart {
     const hubGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.034, 18);
     const hubCapGeo = new THREE.SphereGeometry(0.034, 12, 10); // AUDIT R11: 0.026→0.034 (accent central maior — giro lê)
     const lugGeo = new THREE.SphereGeometry(0.013, 8, 6);
-    // R12 suspension (critic R11: 'pouco detalhamento mecânico'): arm + damper geos
-    const armGeo = new THREE.BoxGeometry(1, 0.07, 0.1);
-    const damperGeo = new THREE.CylinderGeometry(0.032, 0.04, 0.4, 10);
     const stripeMat = character ? this._mat(accent) : white;
     // AUDIT R20c: stripe SEMPRE cinza-claro (parede lateral de pneu) —
     // nunca a cor accent (amarelo criava anel visível).
@@ -1290,23 +1287,11 @@ export class Kart {
           calBracket.castShadow = false;
           spin.add(calBracket);
         }
-        // R12 suspension (critic R11: 'pouco detalhamento mecânico'): wishbone
-        // do corpo ao cubo (parented ao ROOT: dianteira esterça com a knuckle;
-        // o spin rola livre dentro). Amortecedor só na traseira (a chase cam lê).
-        const armLen = wx - 0.47;
-        const arm = new THREE.Mesh(armGeo, chassisMat);
-        arm.scale.x = armLen;
-        arm.position.set(-sx * (armLen / 2), -0.05, 0);
-        arm.rotation.z = sx * 0.08; // ponta externa sobe leve em direção ao cubo
-        arm.castShadow = false;
-        root.add(arm);
-        if (sz < 0) {
-          const damper = new THREE.Mesh(damperGeo, rimChrome);
-          damper.rotation.z = Math.PI / 2; // eixo do cilindro → X (ao longo do braço)
-          damper.position.set(-sx * (armLen * 0.55), 0.13, 0.02);
-          damper.castShadow = false;
-          root.add(damper);
-        }
+        // AUDIT FIX R12j (Feco real-GPU: 'anéis nas rodas' — PERSISTE): o
+        // wishbone + damper (R12) eram arcos escuros/metálicos cruzando ATRÁS
+        // do pneu — da chase cam liam exatamente como "anel preto sobre a
+        // roda". O detalhe mecânico custou o bug visual mais reclamado do
+        // jogo. REMOVIDOS: roda = pneu + aro + disco + caliper (já lê).
         this._wheels.push({ root, spin, isFront: sz > 0 });
       }
     }
@@ -1456,10 +1441,10 @@ export class Kart {
       return t;
     })();
     const helHaloMat = new THREE.MeshBasicMaterial({
-      map: helHaloTex, transparent: true, opacity: 0.85,
+      map: helHaloTex, transparent: true, opacity: 0.5, // AUDIT FIX R12j: 0.85→0.5 — o halo aditivo 0.40 lia como 'esfera translúcida' na chase cam
       blending: THREE.AdditiveBlending, depthWrite: false,
     });
-    const helHalo = new THREE.Mesh(new THREE.CircleGeometry(0.40, 24), helHaloMat);
+    const helHalo = new THREE.Mesh(new THREE.CircleGeometry(0.30, 24), helHaloMat); // AUDIT FIX R12j: 0.40→0.30
     helHalo.position.set(0, 1.24, -0.10); // AUDIT FIX 2026-08-16: 1.29→1.24
     helHalo.rotation.x = -0.35;
     helHalo.castShadow = false;

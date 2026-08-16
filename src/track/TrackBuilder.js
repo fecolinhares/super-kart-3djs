@@ -219,6 +219,11 @@ function buildRoadRibbon(path, length, opts = {}) {
   const roadW = opts.width || getRoadWidthAt();
   const segments = opts.segments || 520;
   const yOff = opts.yOffset ?? 0.18;
+  // AUDIT FIX R12i: suporte a SUB-TRECHO (t0..t1) — o turbo pad precisa de
+  // uma ribbon que cubra só o cluster (ex: t 0.18±len/2), não o path todo.
+  // Default 0..1 = comportamento original de todas as chamadas existentes.
+  const t0 = opts.t0 ?? 0;
+  const t1 = opts.t1 ?? 1;
   const positions = new Float32Array((segments + 1) * 2 * 3);
   const uvs = new Float32Array((segments + 1) * 2 * 2);
   const indices = [];
@@ -231,8 +236,11 @@ function buildRoadRibbon(path, length, opts = {}) {
   const repeatU = opts.repeatU ?? Math.max(24, length * 0.08);
 
   const lat = opts.lateral ?? 0; // lateral shift from the path centerline
+  // AUDIT FIX R12i: uvBias subtrai do t de UV — sub-trechos (turbo pad)
+  // zeram a textura na borda do trecho; default 0 = comportamento original.
+  const uvBias = opts.uvBias ?? 0;
   for (let i = 0; i <= segments; i++) {
-    const t = i / segments;
+    const t = t0 + (i / segments) * (t1 - t0);
     path.getPointAt(t, p);
     path.getTangentAt(t, tan);
     nrm.set(-tan.z, 0, tan.x).normalize();
@@ -244,9 +252,9 @@ function buildRoadRibbon(path, length, opts = {}) {
     positions[(base + 1) * 3 + 0] = p.x + nrm.x * (lat - half);
     positions[(base + 1) * 3 + 1] = p.y + yOff;
     positions[(base + 1) * 3 + 2] = p.z - nrm.z * half;
-    uvs[base * 2 + 0] = t * repeatU;
+    uvs[base * 2 + 0] = (t - uvBias) * repeatU;
     uvs[base * 2 + 1] = 1;
-    uvs[(base + 1) * 2 + 0] = t * repeatU;
+    uvs[(base + 1) * 2 + 0] = (t - uvBias) * repeatU;
     uvs[(base + 1) * 2 + 1] = 0;
   }
   for (let i = 0; i < segments; i++) {
@@ -1051,6 +1059,8 @@ function buildTurboPads(path, length) {
       yOffset: 0.185,
       segments: segs,
       lateral: 0,
+      t0, t1, // AUDIT FIX R12i: só o trecho do cluster (não o path todo)
+      uvBias: t0, // textura zera na borda do trecho
       texture: () => turboPadTexture(),
       repeatU: spanLen * 0.055,
       repeatV: 1,
@@ -1071,6 +1081,8 @@ function buildTurboPads(path, length) {
       yOffset: 0.186,
       segments: segs,
       lateral: 0,
+      t0, t1, // AUDIT FIX R12i: só o trecho do cluster (não o path todo)
+      uvBias: t0, // textura zera na borda do trecho
       texture: () => turboPadGlowTexture(),
       repeatU: spanLen * 0.055,
       repeatV: 1,
