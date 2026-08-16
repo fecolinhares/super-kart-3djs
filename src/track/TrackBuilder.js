@@ -1577,8 +1577,8 @@ function buildSponsorBoards(path) {
 function buildGrassTufts(path, length) {
   const halfW = getRoadWidthAt() / 2;
   const lateral = halfW + 1.8;
-  const clusterCount = Math.max(1, Math.round(length / 6.0)); // ~6m spacing
-  const perCluster = 4;
+  const clusterCount = Math.max(1, Math.round(length / 4.5)); // AUDIT R12: 6m→4.5m — a beira lia 'esparsa'
+  const perCluster = 5; // AUDIT R12: 4→5 cones
   const total = clusterCount * 2 * perCluster; // both sides
   const geo = new THREE.ConeGeometry(0.08, 0.48, 6);
   const mat = toonMaterial(0xffffff, {});
@@ -1626,7 +1626,7 @@ function buildGrassTufts(path, length) {
   // AUDIT PISTA R11: flores 3D perto da pista — pontinhos de cor (branco/
   // amarelo/rosa/magenta/roxo) no prado; o crítico apontou 'grama uniforme,
   // textura simples'. 1 InstancedMesh extra (~1 flor a cada 2.5m por lado).
-  const flowerTotal = Math.max(1, Math.round(clusterCount * 1.4));
+  const flowerTotal = Math.max(1, Math.round(clusterCount * 2.2)); // AUDIT R12: 1.4→2.2 (~1 flor a cada 2m por lado)
   const flowerGeo = new THREE.CircleGeometry(0.12, 8);
   const flowerMat = new THREE.MeshBasicMaterial({
     map: flowerTexture(), transparent: true, alphaTest: 0.05,

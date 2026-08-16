@@ -519,6 +519,9 @@ export class Environment {
     // entre a pista e as montanhas (banda mais próxima = r146). Profundidade
     // sem tocar no fog principal nem custar draw calls caros (30 placas).
     this.buildHazeRing(scene, night ? 0x251a3a : 0xbfe6ff, night ? 205 : 185, night ? 26 : 30);
+    // AUDIT R12 (2ª camada de profundidade — Meadow): névoa BAIXA na base
+    // das colinas (a camada R146/y6.5 é alta; sem a baixa a base lê recorte).
+    if (!night) this.buildGroundHaze(scene, 0xbfe6ff, 100, 2.0, 38, 4.2, 0.5);
 
     // --- lights (AAA rig: key + fill + sky/ground hemi + rim) --------------
     // NEON CITY swaps the warm sunny rig for dim cool moonlight (the moon
@@ -584,7 +587,11 @@ export class Environment {
 
     // NEON CITY dressing: glowing moon disc + lit-window skyline. (Neon
     // roadside strips are built inside buildLightPoles below.)
-    if (night) this.buildNeonCity(scene, track);
+    if (night) {
+      this.buildNeonCity(scene, track);
+      // AUDIT R12 (2ª camada — Neon): névoa baixa na base das torres (50-90m)
+      this.buildGroundHaze(scene, 0x251a3a, 72, 2.3, 34, 4.6, 0.55);
+    }
 
     if (!night) {
       // --- horizon haze (warm rings behind the mountains) ------------------
@@ -609,6 +616,7 @@ export class Environment {
       this.buildRoadsideFlowersAndRocks(scene, track);
       this.buildVergeGravel(scene, track); // soft gravel verge band (FECO: flat 16-bit verge)
       this.buildGrassTufts(scene, track); // 3D blade tufts along the verges
+      this.buildMeadowGrassField(scene, track); // AUDIT R12: densidade meadow (faixa 4.5-22m)
       this.buildLightPoles(scene, track); // meadow light poles
       this.buildDistanceMarks(scene); // 100m/200m posts (was dead code — never called)
       this.buildCornerSigns(scene, track);
@@ -628,6 +636,7 @@ export class Environment {
       // drops the meadow dressing — a city track must read URBAN, not
       // "meadow with neon trim" (vision critic, track2 1/10 identity).
       this.buildLightPoles(scene, track); // neon strips in night mode
+      this.buildStreetFurniture(scene, track); // AUDIT R12: hidrantes + semáforos
       // (no meadow roadside crowd — the city reads as empty street, which is
       // correct for a night circuit; the crowd was the top 'placeholder'
       // complaint from the vision critic)
@@ -669,6 +678,44 @@ export class Environment {
       const m = new THREE.Mesh(geo, mat);
       m.position.set(Math.cos(a) * R, 6.5, Math.sin(a) * R);
       m.lookAt(Math.cos(a) * (R + 30), 6.5, Math.sin(a) * (R + 30));
+      m.frustumCulled = false;
+      ring.add(m);
+    }
+    scene.add(ring);
+  }
+
+  /**
+   * AUDIT R12 (profundidade — 'haze ring já existe, precisa de segunda
+   * camada?'): SIM. buildHazeRing é a camada ALTA (R146, y 6.5) que separa
+   * pista → montanhas/skyline. Esta é a BAIXA: névoa rente ao chão que
+   * envolve a BASE do meio-fundo (Meadow: colinas a ~100m; Neon: torres
+   * C/D a ~72m) — sem ela a base dos volumes distantes lê recorte nítido.
+   * MK8 usa 2-3 bandas atmosféricas. fog:false (a cor já é a do fog),
+   * ~24 quads, 1 material — custo desprezível.
+   */
+  buildGroundHaze(scene, fogHex, R, yCenter, panelW, panelH, peakAlpha) {
+    const count = 24;
+    const cv = document.createElement('canvas');
+    cv.width = 16; cv.height = 128;
+    const g = cv.getContext('2d');
+    const grad = g.createLinearGradient(0, 0, 0, 128);
+    grad.addColorStop(0, 'rgba(255,255,255,0)');
+    grad.addColorStop(0.5, 'rgba(255,255,255,0.30)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 16, 128);
+    const tex = new THREE.CanvasTexture(cv);
+    const mat = new THREE.MeshBasicMaterial({
+      map: tex, color: fogHex, transparent: true, opacity: peakAlpha,
+      side: THREE.DoubleSide, depthWrite: false, fog: false,
+    });
+    const geo = new THREE.PlaneGeometry(panelW, panelH);
+    const ring = new THREE.Group();
+    for (let i = 0; i < count; i++) {
+      const a = (i / count) * Math.PI * 2;
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set(Math.cos(a) * R, yCenter, Math.sin(a) * R);
+      m.lookAt(Math.cos(a) * (R + 30), yCenter, Math.sin(a) * (R + 30));
       m.frustumCulled = false;
       ring.add(m);
     }
@@ -1256,7 +1303,7 @@ export class Environment {
     // layer into a stacked-cone crown; oak keeps layered spheres; palm keeps
     // its frond canopy (built separately).
     const canopyGeoms = species.map(s => {
-      if (s.name === 'pine') return new THREE.ConeGeometry(1.0, 1.0, 18); // AUDIT: 14 segs read as low-quality cones — bump to 18
+      if (s.name === 'pine') return new THREE.ConeGeometry(1.0, 1.0, 24); // AUDIT R12: 18 segs ainda liam low-poly na chase cam — 24
       if (s.name === 'palm') return new THREE.SphereGeometry(0.1, 10, 8); // tiny placeholder, fronds handled separately
       return new THREE.SphereGeometry(1.0, 20, 14); // oak — smoother crown
     });
@@ -1315,11 +1362,17 @@ export class Environment {
     // color: neighboring same-species trees never share an exact color, so
     // the forest reads organic instead of cloned. Deterministic per-instance
     // seed (no Math.random — placement must stay reproducible).
-    function jitterCanopyColor(mesh, index, baseHex, seed) {
+    // AUDIT R12 (crítico cego: 'árvores como volumes recortados com
+    // sombreamento simples'): two-tone MK8 — layerFrac aplica gradiente
+    // luz/sombra na copa (topo +claro, base -escuro, ±6.5%) sobre o jitter
+    // ±8% existente (total ±14%) + hue/sat jitter p/ espécie não-clone.
+    function jitterCanopyColor(mesh, index, baseHex, seed, layerFrac = 0.5) {
       const rand = rnd(seed);
       canopyColor.set(baseHex);
       canopyColor.getHSL(canopyHSL);
-      canopyHSL.l = Math.min(1, Math.max(0, canopyHSL.l + (rand() - 0.5) * 0.16)); // r11: ±5% -> ±8% tone spread
+      canopyHSL.l = Math.min(1, Math.max(0, canopyHSL.l + (rand() - 0.5) * 0.16 + (layerFrac - 0.5) * 0.13));
+      canopyHSL.h = Math.min(1, Math.max(0, canopyHSL.h + (rand() - 0.5) * 0.03));
+      canopyHSL.s = Math.min(1, Math.max(0, canopyHSL.s + (rand() - 0.5) * 0.08));
       canopyColor.setHSL(canopyHSL.h, canopyHSL.s, canopyHSL.l);
       mesh.setColorAt(index, canopyColor);
     }
@@ -1387,7 +1440,8 @@ export class Environment {
           dummy.scale.set(layer.radius * s, layer.height * s, layer.radius * s);
           dummy.updateMatrix();
           finalCanopies.setMatrixAt(pineLayer, dummy.matrix); // AUDIT FIX: was written to a dead mesh
-          jitterCanopyColor(finalCanopies, pineLayer, speciesData.canopyColor, 13000 + i * 7 + layerIdx);
+          jitterCanopyColor(finalCanopies, pineLayer, speciesData.canopyColor, 13000 + i * 7 + layerIdx,
+            speciesData.canopyLayers.length > 1 ? layerIdx / (speciesData.canopyLayers.length - 1) : 0.5); // AUDIT R12: two-tone por camada
           pineLayer++;
         } else {
           // Oak: layered sphere canopy (unchanged silhouette).
@@ -1397,7 +1451,8 @@ export class Environment {
           dummy.rotation.set(0, 0, 0);
           dummy.updateMatrix();
           finalDarkCanopies.setMatrixAt(oakLayer, dummy.matrix); // AUDIT FIX: was written to a dead mesh
-          jitterCanopyColor(finalDarkCanopies, oakLayer, speciesData.canopyColor, 14000 + i * 7 + layerIdx);
+          jitterCanopyColor(finalDarkCanopies, oakLayer, speciesData.canopyColor, 14000 + i * 7 + layerIdx,
+            speciesData.canopyLayers.length > 1 ? layerIdx / (speciesData.canopyLayers.length - 1) : 0.5); // AUDIT R12: two-tone por camada
           oakLayer++;
         }
       }
@@ -2771,6 +2826,76 @@ export class Environment {
   }
 
   /**
+   * AUDIT R12 (densidade meadow — crítico cego 6/10 'grama esparsa,
+   * low-poly'): buildGrassTufts cobre só a beira (halfW+3.4..5.5m, 1 tuft
+   * a cada 2.4m) e a faixa 6-25m lia COBERTURA ZERO (textura repetida +
+   * bushes esparsos a 25m+). Escova 4.5-22m dos DOIS lados: ~1 tuft por
+   * 1.6m de pista + ~16% de patches de GRAMA ALTA/secada (escala 1.6-2.3x,
+   * tons quentes) — variação de prado MK8. Reusa os 4 variants
+   * (this._tuftVariants): 4-6 draw calls. rnd() LOCAL por spot — NÃO
+   * consome this._rand(), então os builders a jusante mantêm o layout.
+   */
+  buildMeadowGrassField(scene, track) {
+    if (!track || !track.path) return;
+    const path = track.path;
+    const len = path.getLength();
+    const halfW = CONFIG.track.roadWidth / 2;
+    const variants = this._tuftVariants || [
+      grassTuftVariant(0xB1ADE1),
+      grassTuftVariant(0xB1ADE2),
+      grassTuftVariant(0xB1ADE3),
+      grassTuftVariant(0xB1ADE4),
+    ];
+    const baseMat = toonMaterial(0xffffff, {});
+    const tan = new THREE.Vector3();
+    const p = new THREE.Vector3();
+    const nrm = new THREE.Vector3();
+    const dummy = new THREE.Object3D();
+    const col = new THREE.Color();
+    const PAL = [0x3faf4e, 0x4cc25e, 0x379c45, 0x9aae4a, 0x7a9c3f]; // + capim alto seco
+    const n = Math.max(160, Math.round(len / 1.6)); // ~1 tuft a cada 1.6m
+    const spots = [];
+    for (let i = 0; i < n; i++) {
+      const t = (i + 0.5) / n;
+      if (t < 0.025 || t > 0.975) continue;
+      path.getPointAt(t, p);
+      path.getTangentAt(t, tan);
+      nrm.set(-tan.z, 0, tan.x).normalize();
+      for (const side of [-1, 1]) {
+        const j = (i * 2 + (side === 1 ? 1 : 0)) * 7919;
+        const r1 = (Math.sin(j) * 43758.5453) % 1;
+        const r2 = (Math.sin(j + 13) * 43758.5453) % 1;
+        const r3 = (Math.sin(j + 29) * 43758.5453) % 1;
+        const off = halfW + 4.5 + (r1 < 0 ? r1 + 1 : r1) * 17.5; // 4.5..22m
+        const tall = r2 < 0.16; // ~16% grama alta seca
+        const fx = p.x + nrm.x * off * side + tan.x * (r3 - 0.5) * 0.8;
+        const fz = p.z + nrm.z * off * side + tan.z * (r3 - 0.5) * 0.8;
+        const gy = this._gy(fx, fz);
+        const sc = tall ? 1.6 + r2 * 0.7 : 0.8 + r1 * 0.6;
+        spots.push({ x: fx, z: fz, gy, sc, v: (i + side) % variants.length, c: tall ? 3 + ((i % 2)) : (i % 3) });
+      }
+    }
+    for (let vi = 0; vi < variants.length; vi++) {
+      const list = spots.filter((s) => s.v === vi);
+      if (!list.length) continue;
+      const grass = new THREE.InstancedMesh(variants[vi], baseMat, list.length);
+      for (let i = 0; i < list.length; i++) {
+        const s = list[i];
+        dummy.position.set(s.x, s.gy, s.z);
+        dummy.rotation.set(0, s.x * 13.37, 0);
+        dummy.scale.set(s.sc, s.sc * 1.1, s.sc);
+        dummy.updateMatrix();
+        grass.setMatrixAt(i, dummy.matrix);
+        col.setHex(PAL[s.c]);
+        grass.setColorAt(i, col);
+      }
+      grass.instanceMatrix.needsUpdate = true;
+      if (grass.instanceColor) grass.instanceColor.needsUpdate = true;
+      scene.add(grass);
+    }
+  }
+
+  /**
    * r6 (FECO): 3D grass tufts INSIDE the enclosed infield — the infield
    * grass was flat-texture-only and read as a 16-bit green pancake from
    * above. Reuses the same tuft variant geometries as buildGrassTufts
@@ -3167,7 +3292,7 @@ export class Environment {
 
     // --- flower patches: one every ~12m, BOTH sides, 1.2-2.0m off the rail.
     const flowerSpots = [];
-    const n = Math.floor(len / 12);
+    const n = Math.floor(len / 9); // AUDIT R12: 12m → 9m (flores densas)
     for (let i = 0; i < n; i++) {
       const rand = rnd(33000 + i);
       const t = (((i / n + (rand() - 0.5) * (2.5 / len)) % 1) + 1) % 1; // ±1.25m along path
@@ -3181,10 +3306,10 @@ export class Environment {
         const cx = p.x + nrm.x * side * off + (rand() - 0.5) * 1.2;
         const cz = p.z + nrm.z * side * off + (rand() - 0.5) * 1.2;
         if (inWater(cx, cz, 4)) continue;
-        // 2 sub-clusters × 3-5 flowers = 6-10 per patch, colored variety.
-        for (let c = 0; c < 2; c++) {
+        // AUDIT R12: 2 → 2-3 sub-clusters; 3-5 → 4-7 flores por cluster
+        for (let c = 0; c < 2 + ((rand() * 2) | 0); c++) {
           const r2 = rnd(33000 + i * 10 + c * 5 + (side === 1 ? 1 : 0));
-          const per = 3 + ((r2() * 3) | 0);
+          const per = 4 + ((r2() * 4) | 0);
           const scx = cx + (r2() - 0.5) * 1.1;
           const scz = cz + (r2() - 0.5) * 1.1;
           for (let k = 0; k < per; k++) {
@@ -4514,6 +4639,9 @@ export class Environment {
     // --- carros estacionados (AUDIT AAA 2026-08-15): a faixa 9-16m entre a
     // calçada e a fileira A lia VAZIA. 14 sedans nas retas, paralelos à pista
     // (halfW+8.5..11), com disco de contato. Unlit (MeshBasic) p/ cor pura.
+    // AUDIT R12 (crítico cego: 'carros não se distinguem claramente'): a
+    // paleta cinza/marrom sumia contra o asfalto escuro. Cores VIVAS de
+    // taxi noturno MK8 (vermelho/amarelo/ciano/magenta/mint/laranja).
     {
       const _cp = new THREE.Vector3();
       const _ct = new THREE.Vector3();
@@ -4526,13 +4654,31 @@ export class Environment {
       const bodyMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
       const cabinMat = new THREE.MeshBasicMaterial({ color: 0x0d1017 });
       const wheelMat = new THREE.MeshBasicMaterial({ color: 0x14161c });
-      const carCols = [0x3a4152, 0x5a6478, 0x8a7a6a, 0x2a3140, 0x6a4a3a];
+      // AUDIT R12: paleta viva de taxi noturno (antes cinza apagado)
+      const carCols = [0xff2e4d, 0xffd23c, 0x2ec4ff, 0xff2ec4, 0x3cff9a, 0xff9a3c];
       const { geo: aoGeo, mat: aoMat } = getAODiscParts();
-      const carN = 14;
+      const carN = 22; // AUDIT R12: 14 → 22 (~1 a cada 15-28m de reta)
       const bodies = new THREE.InstancedMesh(carBodyGeo, bodyMat, carN);
       const cabins = new THREE.InstancedMesh(carCabinGeo, cabinMat, carN);
       const wheels = new THREE.InstancedMesh(wheelGeo, wheelMat, carN * 4);
       const aoDiscs = new THREE.InstancedMesh(aoGeo, aoMat, carN);
+      // AUDIT R12: faróis (2/carro, branco-quente) + lanternas (2/carro,
+      // vermelho) emissivos — luzes acesas, cue noturno MK8.
+      const lightGeo = new THREE.BoxGeometry(0.14, 0.07, 0.04);
+      const headMat = new THREE.MeshBasicMaterial({ color: 0xfff2d0, toneMapped: false });
+      const tailMat = new THREE.MeshBasicMaterial({ color: 0xff3b30, toneMapped: false });
+      const headLights = new THREE.InstancedMesh(lightGeo, headMat, carN * 2);
+      const tailLights = new THREE.InstancedMesh(lightGeo, tailMat, carN * 2);
+      // AUDIT R12 (reflexo): os carros estão FORA da ribbon wet (cobre só o
+      // asfalto) e hoje não refletem nada na rua molhada. Elipse ADITIVA cor
+      // da carroceria sob cada carro (smear wet-street MK8).
+      const carReflGeo = new THREE.PlaneGeometry(2.6, 5.4);
+      const carReflMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff, transparent: true, opacity: 0.24,
+        blending: THREE.AdditiveBlending, depthWrite: false,
+        side: THREE.DoubleSide, toneMapped: false,
+      });
+      const carRefls = new THREE.InstancedMesh(carReflGeo, carReflMat, carN);
       const cd = new THREE.Object3D();
       const col = new THREE.Color();
       const carRand = rnd(6666);
@@ -4545,7 +4691,7 @@ export class Environment {
         _cityPath.getPointAt(tt, _cp);
         _cn.set(-_ct.z, 0, _ct.x).normalize();
         const side = carIdx % 2 === 0 ? 1 : -1;
-        const off = CONFIG.track.roadWidth / 2 + 8.5 + carRand() * 2.5;
+        const off = CONFIG.track.roadWidth / 2 + 7.6 + carRand() * 1.2; // AUDIT R12: mais perto (entra no frame)
         const px = _cp.x + _cn.x * side * off;
         const pz = _cp.z + _cn.z * side * off;
         if (this._onTrack(px, pz, 3) || inWater(px, pz, 3)) continue;
@@ -4580,17 +4726,47 @@ export class Environment {
         cd.scale.set(3.2, 4.6, 1); // elipse no chão (pegada do carro)
         cd.updateMatrix();
         aoDiscs.setMatrixAt(carIdx, cd.matrix);
+        // Faróis na frente (+z local do carro) e lanternas atrás (-z).
+        const lzF = 2.0;
+        for (const lr of [-1, 1]) {
+          const hx = px + Math.cos(yaw) * lr * 0.75 + Math.sin(yaw) * lzF;
+          const hz = pz - Math.sin(yaw) * lr * 0.75 + Math.cos(yaw) * lzF;
+          cd.position.set(hx, gy + 0.62, hz);
+          cd.rotation.set(0, yaw, 0);
+          cd.scale.set(1, 1, 1);
+          cd.updateMatrix();
+          headLights.setMatrixAt(carIdx * 2 + (lr === -1 ? 0 : 1), cd.matrix);
+          const tx2 = px + Math.cos(yaw) * lr * 0.75 - Math.sin(yaw) * lzF;
+          const tz2 = pz - Math.sin(yaw) * lr * 0.75 - Math.cos(yaw) * lzF;
+          cd.position.set(tx2, gy + 0.62, tz2);
+          cd.rotation.set(0, yaw, 0);
+          cd.scale.set(1, 1, 1);
+          cd.updateMatrix();
+          tailLights.setMatrixAt(carIdx * 2 + (lr === -1 ? 0 : 1), cd.matrix);
+        }
+        // Reflexo wet: elipse aditiva cor da carroceria, deitada na tangente.
+        cd.position.set(px, gy + 0.05, pz);
+        cd.rotation.set(-Math.PI / 2, 0, -yaw);
+        cd.scale.set(s, s, 1);
+        cd.updateMatrix();
+        carRefls.setMatrixAt(carIdx, cd.matrix);
+        carRefls.setColorAt(carIdx, col);
         carIdx++;
         if (carIdx >= carN) break;
       }
       if (carIdx > 0) {
         bodies.count = carIdx; cabins.count = carIdx; wheels.count = carIdx * 4; aoDiscs.count = carIdx;
+        headLights.count = carIdx * 2; tailLights.count = carIdx * 2; carRefls.count = carIdx;
         bodies.instanceMatrix.needsUpdate = true;
         if (bodies.instanceColor) bodies.instanceColor.needsUpdate = true;
         cabins.instanceMatrix.needsUpdate = true;
         wheels.instanceMatrix.needsUpdate = true;
         aoDiscs.instanceMatrix.needsUpdate = true;
-        scene.add(bodies, cabins, wheels, aoDiscs);
+        headLights.instanceMatrix.needsUpdate = true;
+        tailLights.instanceMatrix.needsUpdate = true;
+        carRefls.instanceMatrix.needsUpdate = true;
+        if (carRefls.instanceColor) carRefls.instanceColor.needsUpdate = true;
+        scene.add(bodies, cabins, wheels, aoDiscs, headLights, tailLights, carRefls);
       }
     }
 
@@ -4777,8 +4953,9 @@ export class Environment {
     const stripGeo = new THREE.BoxGeometry(0.1, 4, 0.1);
     const pinkMat = toonMaterial(0x0e1220, { emissive: 0xff2ec4, emissiveIntensity: 2 });
     const cyanMat = toonMaterial(0x0e1220, { emissive: 0x2ec4ff, emissiveIntensity: 2 });
-    const pink = new THREE.InstancedMesh(stripGeo, pinkMat, 24);
-    const cyan = new THREE.InstancedMesh(stripGeo, cyanMat, 24);
+    // AUDIT R12: 24 → 40 (postes a cada 22m — densidade de avenida MK8)
+    const pink = new THREE.InstancedMesh(stripGeo, pinkMat, 40);
+    const cyan = new THREE.InstancedMesh(stripGeo, cyanMat, 40);
     const dummy = new THREE.Object3D();
     const p = new THREE.Vector3();
     const tan = new THREE.Vector3();
@@ -4786,7 +4963,7 @@ export class Environment {
     const nrm = new THREE.Vector3();
     let pinkIdx = 0;
     let cyanIdx = 0;
-    const n = Math.max(10, Math.round(len / 40)); // ~40m intervals
+    const n = Math.max(10, Math.round(len / 22)); // AUDIT R12: 40 → 22m
     for (let i = 0; i < n; i++) {
       const t = i / n;
       path.getTangentAt(t, tan);
@@ -4819,6 +4996,103 @@ export class Environment {
       cyan.count = cyanIdx;
       cyan.instanceMatrix.needsUpdate = true;
       scene.add(cyan);
+    }
+  }
+
+  /**
+   * AUDIT R12 (densidade urbana — crítico cego Neon 7/10 'cenário arcade'):
+   * street furniture MK8 na faixa morta entre o guard-rail (halfW+0.6) e a
+   * calçada (7.2m): 14 hidrantes vermelhos (1 InstancedMesh) + 5 semáforos
+   * (haste + cabeçote com 3 discos emissivos vermelho/amarelo/verde TODOS
+   * acesos — noite de cidade real). rnd() LOCAL — não toca this._rand().
+   */
+  buildStreetFurniture(scene, track) {
+    if (!track || !track.path) return;
+    const path = track.path;
+    const len = path.getLength();
+    const halfW = CONFIG.track.roadWidth / 2;
+    const tan = new THREE.Vector3();
+    const tan2 = new THREE.Vector3();
+    const p = new THREE.Vector3();
+    const nrm = new THREE.Vector3();
+    const dummy = new THREE.Object3D();
+
+    // --- hidrantes: cilindro vermelho (unlit — noite), ~1 a cada 45m de reta
+    const hydGeo = new THREE.CylinderGeometry(0.13, 0.17, 0.55, 8);
+    const hydMat = new THREE.MeshBasicMaterial({ color: 0xd32f2f, toneMapped: false });
+    const hydN = 14;
+    const hydrants = new THREE.InstancedMesh(hydGeo, hydMat, hydN);
+    let hydIdx = 0;
+    for (let i = 0; i < 160 && hydIdx < hydN; i++) {
+      const t = (i + 0.5) / 160;
+      path.getTangentAt(t, tan);
+      path.getTangentAt(Math.min(0.999, t + 1 / 160), tan2);
+      if (1 - Math.min(1, Math.max(-1, tan.dot(tan2))) > 0.0012) continue; // retas
+      path.getPointAt(t, p);
+      nrm.set(-tan.z, 0, tan.x).normalize();
+      const side = hydIdx % 2 === 0 ? 1 : -1;
+      const off = halfW + 2.8;
+      const hx = p.x + nrm.x * side * off;
+      const hz = p.z + nrm.z * side * off;
+      if (this._onTrack(hx, hz, 3) || inWater(hx, hz, 3)) continue;
+      const gy = this._gy(hx, hz);
+      dummy.position.set(hx, gy + 0.275, hz);
+      dummy.rotation.set(0, 0, 0);
+      dummy.scale.set(1, 1, 1);
+      dummy.updateMatrix();
+      hydrants.setMatrixAt(hydIdx, dummy.matrix);
+      hydIdx++;
+    }
+    if (hydIdx > 0) {
+      hydrants.count = hydIdx;
+      hydrants.instanceMatrix.needsUpdate = true;
+      scene.add(hydrants);
+    }
+
+    // --- semáforos: haste + cabeçote com 3 discos emissivos (vermelho/
+    // amarelo/verde TODOS acesos — noite de cidade), 5 cruzamentos
+    const TL_TS = [0.10, 0.24, 0.42, 0.62, 0.82];
+    const poleGeo = new THREE.CylinderGeometry(0.05, 0.07, 3.4, 8);
+    const poleMat = toonMaterial(0x2a3140, {});
+    const headGeo = new THREE.BoxGeometry(0.42, 1.05, 0.18);
+    const headMat = toonMaterial(0x1b2028, {});
+    const discGeo = new THREE.CircleGeometry(0.11, 12);
+    const discMats = {
+      r: new THREE.MeshBasicMaterial({ color: 0xff3b30, toneMapped: false }),
+      y: new THREE.MeshBasicMaterial({ color: 0xffd23c, toneMapped: false }),
+      g: new THREE.MeshBasicMaterial({ color: 0x3cff9a, toneMapped: false }),
+    };
+    for (let li = 0; li < TL_TS.length; li++) {
+      const t = TL_TS[li];
+      path.getPointAt(t, p);
+      path.getTangentAt(t, tan);
+      nrm.set(-tan.z, 0, tan.x).normalize();
+      const side = li % 2 === 0 ? 1 : -1;
+      const off = halfW + 2.2;
+      const sx = p.x + nrm.x * side * off;
+      const sz = p.z + nrm.z * side * off;
+      const gy = this._gy(sx, sz);
+      const grp = new THREE.Group();
+      const pole = new THREE.Mesh(poleGeo, poleMat);
+      pole.position.y = 1.7;
+      grp.add(pole);
+      const head = new THREE.Mesh(headGeo, headMat);
+      head.position.y = 3.55;
+      grp.add(head);
+      const seq = [
+        { m: discMats.r, y: 3.85 },
+        { m: discMats.y, y: 3.55 },
+        { m: discMats.g, y: 3.25 },
+      ];
+      for (const d of seq) {
+        const disc = new THREE.Mesh(discGeo, d.m);
+        disc.position.set(0, d.y, 0.1);
+        disc.rotation.y = Math.PI; // face a pista
+        grp.add(disc);
+      }
+      grp.position.set(sx, gy, sz);
+      grp.rotation.y = Math.atan2(tan.x, tan.z) + Math.PI / 2;
+      scene.add(grp);
     }
   }
 
