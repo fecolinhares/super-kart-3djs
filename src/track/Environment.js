@@ -1397,6 +1397,12 @@ export class Environment {
     if (palmCount > 0 && palmFronds.instanceColor) palmFronds.instanceColor.needsUpdate = true;
 
     // Add to scene
+    // AUDIT AAA (2026-08-15): a floresta NUNCA projetou sombra (palmeiras sim).
+    // Copas varrendo o infield/verge = dappled light + grounding. InstancedMesh
+    // suporta shadow; o frustum ±28m que segue o jogador cobre as árvores de
+    // 15-19m da pista, e instâncias distantes são culled pela shadow camera.
+    [finalTrunks, finalCanopies, finalDarkCanopies, branchStubs].forEach((m) => { m.castShadow = true; });
+    if (palmCount > 0) palmFronds.castShadow = true; // fronds reassignados
     scene.add(finalTrunks, branchStubs);
     if (pineLayerCount > 0) scene.add(finalCanopies);
     if (oakLayerCount > 0) scene.add(finalDarkCanopies);
