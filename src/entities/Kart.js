@@ -249,6 +249,9 @@ export class Kart {
     this._starAcc = 0;
     this._sideFlip = 1;
     this._t = 0;
+    this._boostVisPrev = false; // AUDIT: rising-edge boost sparkle
+    this._driftTier = 0;        // AUDIT: drift tier spark crossing
+    this._lineAcc = 0;          // AUDIT: high-speed wind streaks
 
     // scratch (no per-frame allocation)
     this._v = new THREE.Vector3();
@@ -1598,6 +1601,9 @@ export class Kart {
     this._prevY = 0;
     this._offRoadT = 0; // AUDIT r3: no grass-exit kick from the previous race
     this._nudgeVel.set(0, 0, 0);
+    this._boostVisPrev = false; // AUDIT: no stale boost sparkle on restart
+    this._driftTier = 0;
+    this._lineAcc = 0;
     this._lastProgress = 0; // avoids a phantom lap on restart
     this._controls = { steer: 0, throttle: false, brake: false, drift: false, useItem: false, swapItem: false };
     this._swapWasDown = false;
@@ -1767,6 +1773,9 @@ export class Kart {
     this._lastProgress = 0;
     this._bounce = 0;
     this._finishActive = false; // AUDIT r7: no stale finish celebration
+    this._boostVisPrev = false; // AUDIT: no stale boost sparkle on reset
+    this._driftTier = 0;
+    this._lineAcc = 0;
     this._finishMs = 0;
     if (this._finishFlag) this._finishFlag.visible = false;
     if (this._blob) this._blob.rotation.x = -Math.PI / 2;
@@ -1849,6 +1858,29 @@ export class Kart {
         Math.min(1, 9 * dt)
       );
       KartPhysics.step(this, this._controls, dt, ctx.track, ctx.raceManager);
+    }
+    // AUDIT: event juice — landing puff (MK8 dust at contact), boost release
+    // sparkle (rising edge), high-speed wind streaks.
+    if (ctx.particles) {
+      if (this._airTime > 0.18 && this._airTime <= 0.22) {
+        this._localToWorld(this._pv, 0, 0.06, -0.4);
+        ctx.particles.emit('dust', this._pv, { count: 8, speed: 2.2, size: 0.3, color: 0xb8b2a4, duration: 0.6 });
+      }
+      if (this._boostMs > 0 && !this._boostVisPrev) {
+        this._localToWorld(this._pv, 0, 0.6, -0.9);
+        ctx.particles.emit('sparkle', this._pv, { count: 10, speed: 5, size: 0.14 });
+      }
+      this._boostVisPrev = this._boostMs > 0;
+      const speedAbs2 = Math.abs(s.speed);
+      if (speedAbs2 > CONFIG.physics.maxSpeed * 0.78 && !s.spinOut) {
+        this._lineAcc = (this._lineAcc || 0) + dt;
+        if (this._lineAcc >= 0.08) {
+          this._lineAcc = 0;
+          this._localToWorld(this._pv, this._sideFlip * 0.85, 0.7, -0.1);
+          this._v.copy(this._back).multiplyScalar(14);
+          ctx.particles.emit('speedline', this._pv, { velocity: this._v, spread: 0.3, size: 0.09, color: 0xe8f4ff });
+        }
+      }
     }
     s.finished = this.finished;
     // AUDIT r7: finished-kart celebration — rising edge of this.finished
@@ -2057,6 +2089,16 @@ export class Kart {
         const charge = s.driftCharge;
         const driftColor = charge < 0.33 ? 0xffffff : charge < 0.66 ? 0xffd166 : 0xff9f45;
         particles.emit('drift', this._pv, { velocity: this._v, spread: 0.7, size: 0.3, color: driftColor });
+        // AUDIT: tier crossing sparks — MK8 pops bright sparks when the drift
+        // charge reaches each tier (white→yellow→orange), not just a color swap.
+        const tier = charge >= 0.66 ? 2 : charge >= 0.33 ? 1 : 0;
+        if (tier > this._driftTier) {
+          this._driftTier = tier;
+          this._localToWorld(this._pv, this._sideFlip * 0.7, this.rideHeight + 0.1, -0.72);
+          particles.emit('sparkle', this._pv, { count: 6, speed: 3.5, size: 0.12, color: tier === 2 ? 0xff9f45 : 0xffd166 });
+        } else if (tier < this._driftTier) {
+          this._driftTier = tier;
+        }
       }
     }
     this._sideFlip = -this._sideFlip;

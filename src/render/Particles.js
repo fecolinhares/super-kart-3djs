@@ -104,6 +104,11 @@ const TYPES = {
     system: 'additive', count: 8, speed: 3.0, size: 0.16, life: 0.55,
     drag: 2.0, grav: -0.8, grow: 0.6, spread: 1.6, color: 0xffe066,
   },
+  speedline: {
+    // thin additive wind streaks at high velocity (MK8 speed-line cue)
+    system: 'additive', count: 2, speed: 14, size: 0.09, life: 0.22,
+    drag: 0.4, grav: 0.0, grow: 1.6, spread: 0.15, color: 0xe8f4ff,
+  },
 };
 
 const _randDir = new THREE.Vector3();
