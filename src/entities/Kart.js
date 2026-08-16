@@ -604,8 +604,11 @@ export class Kart {
     // Recessed cockpit tub — a dark dish sunk into the shell top; the driver
     // sits in it (the MK8 cockpit-opening read instead of a flat deck).
     const cockpit = new THREE.Mesh(new THREE.SphereGeometry(0.34, 28, 18), dark);
-    cockpit.position.set(0, 0.92, -0.14);
-    cockpit.scale.set(0.95, 0.30, 0.8); // AUDIT: deeper tub so the driver sits IN, not on
+    // AUDIT: cockpit opening — the dark dish floated 0.13m ABOVE the closed
+    // dome (hull top y≈0.69) like a saucer. Sunk into the shell, the driver
+    // emerges from the tub (MK8 'sunk-in' silhouette) instead of sitting on it.
+    cockpit.position.set(0, 0.66, -0.14);
+    cockpit.scale.set(0.95, 0.42, 0.8); // top at ~0.80 — torso (0.675) pokes in
     cockpit.castShadow = false;
     this.group.add(cockpit);
     // Molded nose cowl (rounded prow) + tail cap.
@@ -707,7 +710,9 @@ export class Kart {
     // bodywork instead of one blob.
     const cockpitRim = new THREE.Mesh(new THREE.TorusGeometry(0.33, 0.012, 8, 32), dark);
     cockpitRim.rotation.x = Math.PI / 2; // belt around Y
-    cockpitRim.position.set(0, 0.955, -0.14);
+    // AUDIT: rim acompanha o cockpit afundado — borda da abertura no topo da
+    // carenagem (era y 0.955, flutuando sobre o domo fechado).
+    cockpitRim.position.set(0, 0.76, -0.14);
     cockpitRim.scale.set(1, 1, 0.8);
     cockpitRim.castShadow = false;
     this.group.add(cockpitRim);
