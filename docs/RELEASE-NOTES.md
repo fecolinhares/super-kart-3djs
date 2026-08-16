@@ -69,6 +69,19 @@ player derramam cor no chão — limite o alcance ao objeto.
    maior que o box), opacity 0.35, SEM toneMapped:false (lição R14). Brilho
    de chão contido.
 
+**feat(R16) `ae11d92` + `6bbda58`** — Loop Director AAA
+(threejs-aaa-graphics-builder, scorecard baseline 1.6/3; cat fracas: Lighting
+1, Rewards 1, Materials 1, VFX 1):
+- R16a: contrast lighting — hemi 0.35→0.22, rim 0.7→0.9, key sun 2.0→2.6.
+  Crítico: luz 5→7/10.
+- R16b: coins emissive 0.35→0.9 + halo sprite dourado (sem toneMapped:false).
+- R16c: boost flame 0.34→0.42 + vel 9.5; drift smoke 0.3→0.38 + 2 puffs.
+- R16d: hero emissive — carPaint 0.32→0.45, helmet 0.18/0.4→0.28/0.5 (pop
+  sem PointLight que suje o asfalto).
+NOTA scorecard headless: `?test` desliga bloom + color grade (config já tem
+colorGradeSaturation 1.45 pronto p/ GPU real) e frames capturam speed 0 —
+o GPU real do Feco é o árbitro final para re-scorar.
+
 ### Round 12 — AAA audit loop 3: 18 proposals (mecânica, densidade, imersão) (Jarvis, 2026-08-16)
 Terceiro fan-out dirigido pelo crítico cego da R11 (kart 5.5 'modelagem simples',
 meadow 6 'grama esparsa', Neon 7 'densidade urbana', 'interface reduz imersão').
