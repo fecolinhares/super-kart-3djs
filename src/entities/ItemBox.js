@@ -252,6 +252,9 @@ export class ItemBox {
   reset() {
     this.active = true;
     this.mesh.visible = true;
+    this.mesh.scale.setScalar(1);
+    this._shrinkT = undefined;
+    this._spawnT = undefined;
     if (this.beam) this.beam.visible = true;
     if (this.ring) this.ring.visible = true;
     this.respawnTimer = 0;
@@ -268,9 +271,24 @@ export class ItemBox {
 
     if (!this.active) {
       this.respawnTimer -= dt * 1000;
+      // AUDIT: shrink no pickup (0.18s) e pop-in no respawn (0.15s).
+      if (this._shrinkT !== undefined) {
+        this._shrinkT = Math.min(1, this._shrinkT + dt * 5.5);
+        this.mesh.scale.setScalar(Math.max(0.08, (1 - this._shrinkT) ** 2));
+        if (this._shrinkT >= 1) { this.mesh.visible = false; this._shrinkT = undefined; }
+      } else if (this._spawnT !== undefined && this._spawnT < 1) {
+        this._spawnT = Math.min(1, this._spawnT + dt * 6.5);
+        const e = 1 - (1 - this._spawnT) ** 2;
+        this.mesh.scale.setScalar(Math.max(0.001, e));
+        if (this.beam) this.beam.visible = true;
+        if (this.ring) this.ring.visible = true;
+      }
       if (this.respawnTimer <= 0) {
         this.active = true;
         this.mesh.visible = true;
+        this.mesh.scale.setScalar(0.001);
+        this._spawnT = 0;
+        this.respawnTimer = 0;
       }
       return;
     }
@@ -281,7 +299,7 @@ export class ItemBox {
     this.mesh.rotation.y = this.base.yaw + Math.sin(this.wobble) * 0.1 + this.bobPhase * 0.55;
     if (this.beam) {
       this.beam.position.y = Math.max(this.base.y - this.size * 1.35, 0.18) + bob;
-      const pulse = 0.3 + Math.sin(this.bobPhase * 1.3) * 0.1;
+      const pulse = 0.55 + Math.sin(this.bobPhase * 1.3) * 0.15; // 0.40–0.70 (era 0.2–0.4)
       this.beam.material.opacity = pulse;
     }
     if (this.ring) {
@@ -320,7 +338,10 @@ export class ItemBox {
 
   _consume() {
     this.active = false;
-    this.mesh.visible = false;
+    // AUDIT: pickup pop — o box encolhe em ~0.18s (MK8D comprime no grab)
+    // em vez de sumir instantaneamente; beam/ring morrem junto.
+    this._shrinkT = 0;
+    this.mesh.scale.setScalar(1);
     if (this.beam) this.beam.visible = false;
     if (this.ring) this.ring.visible = false;
     this.respawnTimer = CONFIG.game.itemBoxRespawnMs ?? CONFIG.items.itemBoxRespawnMs ?? 6000;
