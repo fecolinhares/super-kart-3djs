@@ -554,13 +554,14 @@ export class Kart {
       c.width = 64; c.height = 64;
       const g = c.getContext('2d');
       const grad = g.createRadialGradient(32, 32, 6, 32, 32, 32);
-      // AUDIT R9 (critic teste-total 7/10: 'sombra de contato fraca, kart
-      // parece flutuar'): centro 0.62→0.78 + mid 0.32→0.42 — ancora o kart.
-      // AUDIT kart/piloto R11 (2026-08-16): núcleo escuro + penumbra curta —
-      // a 400px o gradiente antigo (0.78→0.42→0 em 1.15m) não lia.
-      grad.addColorStop(0, 'rgba(0,0,0,0.92)');
-      grad.addColorStop(0.35, 'rgba(0,0,0,0.62)');
-      grad.addColorStop(0.7, 'rgba(0,0,0,0.24)');
+      // AUDIT FIX R12k (Feco real-GPU: 'anéis pretos nas rodas'/'círculos
+      // pretos no asfalto'): o blob R11 tinha núcleo 0.92 + raio 1.0 — no GPU
+      // real lia como CÍRCULO PRETO PINTADO no chão (não sombra), e da chase
+      // cam parecia um anel na base das rodas. Sombra de contato real é
+      // SUTIL: núcleo ~0.45, queda suave até 1.35m (transição imperceptível).
+      grad.addColorStop(0, 'rgba(0,0,0,0.45)');
+      grad.addColorStop(0.4, 'rgba(0,0,0,0.24)');
+      grad.addColorStop(0.75, 'rgba(0,0,0,0.08)');
       grad.addColorStop(1, 'rgba(0,0,0,0)');
       g.fillStyle = grad;
       g.fillRect(0, 0, 64, 64);
@@ -569,7 +570,7 @@ export class Kart {
       return t;
     })();
     const blob = new THREE.Mesh(
-      new THREE.CircleGeometry(1.0, 24), // AUDIT R11: 1.15→1.0 — penumbra mais curta ancora melhor
+      new THREE.CircleGeometry(1.35, 24), // AUDIT R12k: 1.0→1.35 — penumbra LONGA (transição sutil, sem borda visível)
       new THREE.MeshBasicMaterial({
         map: blobTex,
         transparent: true,
