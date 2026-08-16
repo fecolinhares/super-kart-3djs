@@ -572,10 +572,12 @@ export class Environment {
       sun.shadow.mapSize.set(testMode ? CONFIG.render.testShadowMapSize : CONFIG.render.shadowMapSize, testMode ? CONFIG.render.testShadowMapSize : CONFIG.render.shadowMapSize);
       sun.shadow.radius = 4.5; // penumbra assist (inert with PCFSoftShadowMap —
       // the PCFSoft kernel already softens; kept for PCF/other shadow maps)
-      sun.shadow.camera.left = -28; // TIGHT frustum following the player
-      sun.shadow.camera.right = 28; // (audit r2: ±90m gave ~9cm texels →
-      sun.shadow.camera.top = 28; //  blurry blob shadows; ±28m gives ~2.7cm)
-      sun.shadow.camera.bottom = -28;
+      sun.shadow.camera.left = -45; // AUDIT FIX 2026-08-16 (Feco real-GPU:
+      sun.shadow.camera.right = 45; // 'asfalto muda de cor acompanhando o
+      sun.shadow.camera.top = 45;   // carro'): ±28m reancorado no jogador
+      sun.shadow.camera.bottom = -45; // deixava a BORDA do shadow map visível
+      // no asfalto (corte de sombra que seguia o kart). ±45m (~4.3cm texels
+      // ainda nítidos para blob shadows) empurra a borda para fora do frame.
       sun.shadow.camera.far = 430; // match fog so distant props still project
       sun.shadow.bias = -0.0008;
       this.shadowSun = sun; // main.js re-positions it to follow the player
@@ -3461,20 +3463,24 @@ export class Environment {
     // Painted sponsor fascia (SUPER KART text) — cached once, shared by all
     // stands. MeshBasicMaterial keeps it readable at race distance.
     if (!this._fasciaTex) {
+      // AUDIT FIX 2026-08-16 (Feco real-GPU: 'as placas na lateral estão com
+      // a imagem esticada'): textura 512×96 (ratio 5.3:1) aplicada no mesh
+      // 20×2.2m (ratio 9.1:1) esticava o texto ~1.7× horizontal. Canvas
+      // agora 1024×112 ≈ 9.1:1 — o texto mantém a proporção real no mesh.
       const c = document.createElement('canvas');
-      c.width = 512;
-      c.height = 96;
+      c.width = 1024;
+      c.height = 112;
       const g = c.getContext('2d');
       g.fillStyle = '#e2504f';
-      g.fillRect(0, 0, 512, 96);
+      g.fillRect(0, 0, 1024, 112);
       g.fillStyle = '#ffd166';
-      g.fillRect(0, 0, 512, 10);
-      g.fillRect(0, 86, 512, 10);
+      g.fillRect(0, 0, 1024, 10);
+      g.fillRect(0, 102, 1024, 10);
       g.fillStyle = '#ffffff';
-      g.font = '900 44px "Baloo 2", "Nunito", Arial, sans-serif';
+      g.font = '900 52px "Baloo 2", "Nunito", Arial, sans-serif';
       g.textAlign = 'center';
       g.textBaseline = 'middle';
-      g.fillText('SUPER KART 3D.js', 256, 50);
+      g.fillText('SUPER KART 3D.js', 512, 56);
       const tex = new THREE.CanvasTexture(c);
       tex.colorSpace = THREE.SRGBColorSpace;
       this._fasciaTex = tex;
@@ -3548,7 +3554,7 @@ export class Environment {
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 48; j++) {
           dummy.position.set(-10.1 + j * 0.42, 1.9 + i * 1.1, -i * 2.0 + 0.3);
-          dummy.scale.set(1, 0.9 + this._rand() * 0.4, 1);
+          dummy.scale.set(1, 1, 1); // AUDIT FIX 2026-08-16: sem sy (0.9-1.3 esticava o corpo)
           dummy.rotation.set(0, 0, 0);
           baseY[sIdx] = dummy.position.y;
           dummy.updateMatrix();
@@ -3864,15 +3870,20 @@ export class Environment {
             // Per-figure height jitter (organic), FEET grounded on the field.
             // Family-clustered height (agent-2): random walk — neighbours share
             // a height band instead of every figure being independently random.
+            // AUDIT FIX 2026-08-16 (Feco real-GPU: 'a plateia está toda
+            // deformada sentada'): sy (0.85-1.4) era aplicado na ESCALA das
+            // partes (cabeça esférica virava ovo esticado, braços/pernas
+            // deformavam). Agora sy afeta só a POSIÇÃO vertical; as partes
+            // mantêm escala unitária e proporção humana.
             if (idx % 5 === 0) this._crowdH = this._rand();
-            this._crowdH = Math.min(1.4, Math.max(0.85, this._crowdH + (this._rand() - 0.5) * 0.09));
+            this._crowdH = Math.min(1.25, Math.max(0.9, this._crowdH + (this._rand() - 0.5) * 0.07));
             const sy = this._crowdH;
             const pose = POSES[(this._rand() * POSES.length) | 0];
             const bodyY = gy + 0.30 + pose.bodyOff * sy; // ON the berm
             // Body — per-instance suit color from the crowd palette.
             dummy.position.set(fx, bodyY, fz);
             dummy.rotation.set(0, yaw, 0);
-            dummy.scale.set(1, sy, 1);
+            dummy.scale.set(1, 1, 1);
             dummy.updateMatrix();
             bodies.setMatrixAt(idx, dummy.matrix);
             col.setHex(crowdColors[Math.floor(this._rand() * crowdColors.length)]);
@@ -3890,7 +3901,7 @@ export class Environment {
             if (this._rand() < 0.3) {
               dummy.position.set(fx, bodyY - 0.02 * sy, fz);
               dummy.rotation.set(0, yaw, 0);
-              dummy.scale.set(1, sy, 1);
+              dummy.scale.set(1, 1, 1); // AUDIT FIX 2026-08-16: sem sy (deformava)
               dummy.updateMatrix();
               stripes.setMatrixAt(idx, dummy.matrix);
             }
@@ -3903,21 +3914,21 @@ export class Environment {
             // Neck between torso top and head — scaled with the figure.
             dummy.position.set(fx, bodyY + 0.32 * sy, fz);
             dummy.rotation.set(0, 0, 0);
-            dummy.scale.set(1, sy, 1);
+            dummy.scale.set(1, 1, 1); // AUDIT FIX 2026-08-16: sem sy
             dummy.updateMatrix();
             necks.setMatrixAt(idx, dummy.matrix);
             neckBaseY[idx] = bodyY + 0.47 * sy;
             // Head (skin tone) — smaller, sits on the neck, scaled with body.
             dummy.position.set(fx, bodyY + 0.46 * sy, fz);
             dummy.rotation.set(0, 0, 0);
-            dummy.scale.set(1, sy, 1);
+            dummy.scale.set(1, 1, 1); // AUDIT FIX 2026-08-16: sem sy (cabeça não vira ovo)
             dummy.updateMatrix();
             heads.setMatrixAt(idx, dummy.matrix);
             headBaseY[idx] = bodyY + 0.46 * sy;
             // Arms — pose from the table (cheer/relax/wave/seated).
             dummy.position.set(fx - pose.armX * Math.cos(yaw), bodyY + (pose.armY - 0.54) * sy, fz + pose.armX * Math.sin(yaw));
             dummy.rotation.set(0, yaw, pose.armL);
-            dummy.scale.set(1, sy, 1);
+            dummy.scale.set(1, 1, 1); // AUDIT FIX 2026-08-16: sem sy
             dummy.updateMatrix();
             armsL.setMatrixAt(idx, dummy.matrix);
             dummy.position.set(fx + pose.armX * Math.cos(yaw), bodyY + (pose.armY - 0.54) * sy, fz - pose.armX * Math.sin(yaw));
@@ -3929,7 +3940,7 @@ export class Environment {
             const legLen = Math.max(0.3, bodyY - gy - 0.05); // legs hang to the berm top
             dummy.position.set(fx - 0.13 * Math.cos(yaw), gy + legLen * 0.5, fz + 0.13 * Math.sin(yaw));
             dummy.rotation.set(0, yaw, 0.12);
-            dummy.scale.set(1, legLen / 0.5, 1);
+            dummy.scale.set(1, Math.max(0.6, Math.min(1.15, legLen / 0.5)), 1); // AUDIT FIX 2026-08-16: clamp 0.6-1.15 (antes até 1.5 esticava)
             dummy.updateMatrix();
             legsL.setMatrixAt(idx, dummy.matrix);
             legBaseY[idx] = gy + legLen * 0.5;
@@ -4691,10 +4702,15 @@ export class Environment {
         _cityPath.getPointAt(tt, _cp);
         _cn.set(-_ct.z, 0, _ct.x).normalize();
         const side = carIdx % 2 === 0 ? 1 : -1;
-        const off = CONFIG.track.roadWidth / 2 + 7.6 + carRand() * 1.2; // AUDIT R12: mais perto (entra no frame)
+        // AUDIT FIX 2026-08-16 (Feco real-GPU: 'carros atravessando o
+        // guardrail'): R12 aproximou para halfW+7.6 (12.2m) — em curvas o
+        // path se aproxima e o carro cruzava o rail (halfW+0.45 = 5.05m).
+        // Volta ao offset da R10 (nunca reclamado): halfW+9.5..11 + gate
+        // _onTrack com margem 5.5 (>10.1m do path = ~5m além do rail).
+        const off = CONFIG.track.roadWidth / 2 + 9.5 + carRand() * 1.5;
         const px = _cp.x + _cn.x * side * off;
         const pz = _cp.z + _cn.z * side * off;
-        if (this._onTrack(px, pz, 3) || inWater(px, pz, 3)) continue;
+        if (this._onTrack(px, pz, 5.5) || inWater(px, pz, 3)) continue;
         const gy = this._gy(px, pz);
         const yaw = Math.atan2(_ct.x, _ct.z);
         const s = 0.9 + carRand() * 0.25;

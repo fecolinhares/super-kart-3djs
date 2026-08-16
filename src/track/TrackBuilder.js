@@ -948,9 +948,24 @@ function buildTurboPads(path, length) {
   // INVERTS the plane axes (X ends up down-track, Y across), so the pad
   // geometry must be WIDE on X (depth) and SHORT on Y (width): 11.2 x 3.6.
   // toneMapped=false keeps the amber from going brown under ACES.
-  const PAD_LEN = 18;   // MK8-style long ribbon — short pads read as squares from the chase cam
   const PAD_W = 4.5;    // MK8 pad spans nearly a lane — 3.2m read as a small rectangle
-  const geo = new THREE.PlaneGeometry(PAD_LEN, PAD_W);
+  // AUDIT FIX 2026-08-16 (Feco real-GPU: 'os turbo pads estão cortando'): um
+  // pad RETO de 18m numa pista curva não acompanha a curvatura — as pontas
+  // saem do asfalto/cortam as bordas (o crítico confirmou 'bordas abruptas,
+  // trapézio que não acompanha a curva'). PAD_LEN agora é DINÂMICO por
+  // cluster: mede a curvatura local (amostras ±8m) e usa 18m em retas
+  // (curv < 0.0016), 14m em curvatura média, 10m em curvas fechadas — o
+  // pad continua lendo como ribbon MK8 sem cortar as bordas.
+  const padLenAt = (c) => {
+    const tanA = new THREE.Vector3();
+    const tanB = new THREE.Vector3();
+    path.getTangentAt(Math.max(0.001, c - 0.5 / length), tanA);
+    path.getTangentAt(Math.min(0.999, c + 0.5 / length), tanB);
+    const curv = 1 - Math.min(1, Math.max(-1, tanA.dot(tanB)));
+    if (curv < 0.0016) return 18;
+    if (curv < 0.004) return 14;
+    return 10;
+  };
   // MeshBasicMaterial: unlit so the pad stays bright amber/white in shadow.
   const mat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), color: 0xffffff, side: THREE.DoubleSide });
   mat.toneMapped = false; // MK8 pads glow at full saturation — ACES would dull amber→brown
@@ -981,12 +996,8 @@ function buildTurboPads(path, length) {
     side: THREE.DoubleSide,
   });
   glowMat.toneMapped = false;
-  const mesh = new THREE.InstancedMesh(geo, mat, clusters.length);
-  const glowMesh = new THREE.InstancedMesh(geo, glowMat, clusters.length);
-  mesh.frustumCulled = false;
-  glowMesh.frustumCulled = false;
-  mesh.renderOrder = 2;    // transparent pass, after opaques — same as lane dashes
-  glowMesh.renderOrder = 3; // additive glow over the base decal
+  // AUDIT FIX 2026-08-16: meshes criados por cluster abaixo (PAD_LEN dinâmico
+  // por curvatura) — sem InstancedMesh global.
 
   const p = new THREE.Vector3();
   const tan = new THREE.Vector3();
@@ -994,13 +1005,25 @@ function buildTurboPads(path, length) {
   const ts = [];
   const points = [];
 
+  // AUDIT FIX 2026-08-16: com PAD_LEN dinâmico (curvatura local), o
+  // InstancedMesh com geo única não serve — cria um mesh por cluster com a
+  // geometria do tamanho certo. Só ~2-6 clusters, custo desprezível.
+  const group = new THREE.Group();
   let vi = 0;
   for (const c of clusters) {
+    const padLen = padLenAt(c);
+    const padGeo = new THREE.PlaneGeometry(padLen, PAD_W);
+    const padMesh = new THREE.Mesh(padGeo, mat);
+    const padGlow = new THREE.Mesh(padGeo, glowMat);
+    padMesh.frustumCulled = false;
+    padGlow.frustumCulled = false;
+    padMesh.renderOrder = 2;
+    padGlow.renderOrder = 3;
     // Detection spots — now on the ENTRY edge of the long ribbon so the
     // boost fires as the kart touches the pad (MK8 feel), 4 spots ~3m apart.
     const spotDt = 3.0 / length;
     for (let k = 0; k < perCluster; k++) {
-      const t = Math.min(0.999, Math.max(0.001, c - (PAD_LEN / 2) / length + k * spotDt));
+      const t = Math.min(0.999, Math.max(0.001, c - (padLen / 2) / length + k * spotDt));
       path.getPointAt(t, p);
       ts.push(t);
       points.push(p.clone());
@@ -1037,14 +1060,13 @@ function buildTurboPads(path, length) {
     // spin the flat plane so they point along the direction of travel.
     dummy.rotateZ(-Math.PI / 2);
     dummy.updateMatrix();
-    mesh.setMatrixAt(vi, dummy.matrix);
-    glowMesh.setMatrixAt(vi, dummy.matrix);
+    padMesh.matrix.copy(dummy.matrix);
+    padMesh.matrixAutoUpdate = false;
+    padGlow.matrix.copy(dummy.matrix);
+    padGlow.matrixAutoUpdate = false;
+    group.add(padMesh, padGlow);
     vi++;
   }
-  mesh.instanceMatrix.needsUpdate = true;
-  glowMesh.instanceMatrix.needsUpdate = true;
-  const group = new THREE.Group();
-  group.add(mesh, glowMesh);
   return { mesh: group, glowMat, ts, points };
 }
 

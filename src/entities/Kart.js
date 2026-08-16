@@ -215,10 +215,10 @@ export class Kart {
     this._heldOrb = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 12), new THREE.MeshBasicMaterial({ color: 0xffffff }));
     this._heldOrbMat = this._heldOrb.material;
     this.heldItemGroup.add(this._heldOrb);
-    this.heldItemGroup.add(new THREE.Mesh(
-      new THREE.TorusGeometry(0.26, 0.02, 10, 24),
-      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55 })
-    ));
+    // AUDIT FIX 2026-08-16 (Feco real-GPU: 'bolinha azul com um anel branco
+    // do nada na traseira'): o TORUS branco ao redor do orbe lia como anel
+    // flutuante quando o item era lightning (orbe azul). Removido — o orbe
+    // colorido sozinho já comunica o item.
     for (const key of Object.keys(this._heldMeshes)) this.heldItemGroup.add(this._heldMeshes[key]);
     this.heldItemGroup.visible = false;
     this.group.add(this.heldItemGroup);
@@ -676,10 +676,10 @@ export class Kart {
         flare.position.set(sx * 0.765, 0.52, sz * 0.67); // AUDIT R11: 0.70→0.765 (acompanha bitola larga)
         flare.castShadow = true;
         this.group.add(flare);
-        const lip = new THREE.Mesh(archLipGeo, dark);
-        lip.position.set(sx * 0.765, 0.51, sz * 0.67); // AUDIT R11: 0.70→0.765
-        lip.castShadow = false;
-        this.group.add(lip);
+        // AUDIT FIX 2026-08-16 (Feco real-GPU: 'anéis pretos nas rodas bem
+        // por cima do pneu'): o lip ESCURO (archLipGeo dark, y 0.51) cruzava
+        // o pneu (topo 0.68) e lia como anel preto no meio da roda. O flare
+        // carPaint já é o para-lama — o lip é redundante. Removido.
       }
     }
 
@@ -918,7 +918,7 @@ export class Kart {
       this.group.add(bolster);
     }
     const headrest = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 14), bodyDark);
-    headrest.position.set(0, 1.16, -0.42); // AUDIT R11: 1.1→1.16 (acompanha piloto maior)
+    headrest.position.set(0, 1.10, -0.42); // AUDIT FIX 2026-08-16: 1.16→1.10 (acompanha piloto encolhido)
     headrest.scale.set(1, 0.9, 0.75);
     headrest.castShadow = true;
     this.group.add(headrest);
@@ -1328,7 +1328,7 @@ export class Kart {
     // R12-R15 exageraram (scale 1.3 + y 0.18) — o torso subiu demais acima
     // da asa e lê como piloto de pé. Postura MK8 real: piloto ENCOLHIDO no
     // cockpit, só capacete+ombros acima da asa. scale 1.05, y 0.03.
-    drv.position.set(0, 0.08, 0); // AUDIT R11: 0.03→0.08 — piloto sobe com a asa baixa (silhueta MK8)
+    drv.position.set(0, 0.02, 0); // AUDIT FIX 2026-08-16 (Feco real-GPU: 'piloto flutuando pra cima do carro'): R11 subiu 0.03→0.08 e o piloto saiu do cockpit. MK8 = ENCOLHIDO no cockpit, só capacete+ombros acima da asa. Volta ao encolhido (R16).
     drv.scale.set(1.05, 1.05, 1.05);
     this.group.add(drv);
 
@@ -1339,7 +1339,7 @@ export class Kart {
 
     // Torso — rounded capsule leaned forward into the drive pose.
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.135, 0.26, 8, 16), suit);
-    torso.position.set(0, 1.00, -0.06); // AUDIT R11: 0.94→1.00 (piloto emerge da asa baixa)
+    torso.position.set(0, 0.94, -0.06); // AUDIT FIX 2026-08-16: 1.00→0.94 (piloto encolhido)
     torso.rotation.x = 0.32;
     torso.castShadow = true;
     drv.add(torso);
@@ -1410,9 +1410,9 @@ export class Kart {
 
     // Arms — upper arm + forearm (bent elbows), gloved hands gripping the rim.
     for (const s of [-1, 1]) {
-      const shX = s * 0.135, shY = 1.06, shZ = -0.09; // AUDIT R11: 1.0→1.06
-      const elX = s * 0.16, elY = 1.04, elZ = 0.05;  // AUDIT R11: 0.985→1.04
-      const hX = s * 0.105, hY = 0.97, hZ = 0.24;    // AUDIT R11: 0.92→0.97
+      const shX = s * 0.135, shY = 0.98, shZ = -0.09; // AUDIT FIX 2026-08-16: 1.06→0.98 (ombros encolhidos)
+      const elX = s * 0.16, elY = 0.97, elZ = 0.05;  // AUDIT FIX 2026-08-16: 1.04→0.97
+      const hX = s * 0.105, hY = 0.90, hZ = 0.24;    // AUDIT FIX 2026-08-16: 0.97→0.90
       const ua = new THREE.Mesh(new THREE.CapsuleGeometry(0.045, 0.13, 6, 10), suit);
       ua.position.set((shX + elX) / 2, (shY + elY) / 2, (shZ + elZ) / 2);
       ua.quaternion.setFromUnitVectors(up, new THREE.Vector3(elX - shX, elY - shY, elZ - shZ).normalize());
@@ -1438,7 +1438,7 @@ export class Kart {
     }
 
     // Neck + helmet (character colored, glossy visor, fine outline).
-    this._mesh(new THREE.SphereGeometry(0.055, 14, 10), skin, 0, 1.19, 0.1, { parent: drv, cast: false }); // AUDIT R11: 1.14→1.19
+    this._mesh(new THREE.SphereGeometry(0.055, 14, 10), skin, 0, 1.14, 0.1, { parent: drv, cast: false }); // AUDIT FIX 2026-08-16: 1.19→1.14
     // AUDIT: glossy clearcoat helmet (was matte toon 0.82) — MK8 helmets are
     // polished plastic; the specular highlight separates head from dark body.
     const helmetMat = character
@@ -1447,15 +1447,8 @@ export class Kart {
     helmetMat.emissive = new THREE.Color(character ? character.helmetColor : 0xffffff).multiplyScalar(0.18);
     helmetMat.emissiveIntensity = 0.4; // AUDIT R5: keep the lift, soften it (clearcoat now does the work)
     this._helmetMat = helmetMat;
-    const helmet = new THREE.Mesh(
-      new THREE.SphereGeometry(0.185, 32, 24), // AUDIT R11: 0.16→0.185 — capacete maior lê na chase cam
-      helmetMat
-    );
-    helmet.position.set(0, 1.38, 0.06); // AUDIT R11: 1.33→1.38 (topo ~1.54 acima da asa 0.99)
-    helmet.scale.set(1, 0.85, 1.02);
-    helmet.castShadow = true;
-    drv.add(helmet);
-    this._outline(helmet, 0.025);
+    // AUDIT FIX 2026-08-16: capacete declarado abaixo (junto ao rim/visor) com
+    // postura encolhida — o antigo (y 1.38, topo ~1.54) lia como piloto em pé.
     // AUDIT R6 (visual critic): helmet needs a halo/rim to separate from the
     // dark body — a soft additive glow disc just behind the head.
     const helHaloTex = (() => {
@@ -1477,7 +1470,7 @@ export class Kart {
       blending: THREE.AdditiveBlending, depthWrite: false,
     });
     const helHalo = new THREE.Mesh(new THREE.CircleGeometry(0.40, 24), helHaloMat);
-    helHalo.position.set(0, 1.29, -0.10); // AUDIT R11: 1.24→1.29
+    helHalo.position.set(0, 1.24, -0.10); // AUDIT FIX 2026-08-16: 1.29→1.24
     helHalo.rotation.x = -0.35;
     helHalo.castShadow = false;
     drv.add(helHalo);
@@ -1487,8 +1480,12 @@ export class Kart {
       color: 0xffffff, transparent: true, opacity: 0.5,
       blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
     });
-    const helRim = new THREE.Mesh(new THREE.TorusGeometry(0.175, 0.012, 8, 24), rimMat); // AUDIT R11: 0.155→0.175
-    helRim.position.set(0, 1.38, 0.06); // AUDIT R11: 1.33→1.38
+    const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.17, 26, 18), helmetMat); // AUDIT FIX 2026-08-16: 0.185→0.17 (proporcional ao piloto encolhido)
+    helmet.position.set(0, 1.30, 0.06); // AUDIT FIX 2026-08-16: 1.38→1.30
+    helmet.castShadow = false;
+    drv.add(helmet);
+    const helRim = new THREE.Mesh(new THREE.TorusGeometry(0.165, 0.012, 8, 24), rimMat); // AUDIT FIX 2026-08-16: 0.175→0.165
+    helRim.position.set(0, 1.30, 0.06); // AUDIT FIX 2026-08-16: 1.38→1.30
     helRim.rotation.x = Math.PI / 2;
     helRim.scale.set(1, 1, 0.85);
     helRim.castShadow = false;
@@ -1498,20 +1495,20 @@ export class Kart {
     // reads as a character, not a blank helmet. Material color is white so
     // the canvas carries the dark glass; clearcoat keeps the glassy sheen.
     const visor = new THREE.Mesh(
-      new THREE.SphereGeometry(0.155, 22, 14), // AUDIT R11: 0.13→0.155
+      new THREE.SphereGeometry(0.14, 22, 14), // AUDIT FIX 2026-08-16: 0.155→0.14
       new THREE.MeshPhysicalMaterial({
         color: 0xffffff, roughness: 0.05, metalness: 0.5,
-        clearcoat: 1.0, envMapIntensity: 2.2,
+        clearcoat: 1.0, clearcoatRoughness: 0.05,
         map: this._visorTexture(character, accent),
       })
     );
-    visor.position.set(0, 1.38, 0.17); // AUDIT R11: 1.33→1.38
-    visor.scale.set(1.05, 0.28, 0.68); // AUDIT R11: 0.62→0.68
+    visor.position.set(0, 1.30, 0.13); // AUDIT FIX 2026-08-16: 1.38→1.30
+    visor.scale.set(1.05, 0.28, 0.68);
     visor.castShadow = false;
     drv.add(visor);
     // Chin guard below the visor.
     const chin = new THREE.Mesh(new THREE.SphereGeometry(0.085, 14, 10), dark);
-    chin.position.set(0, 1.17, 0.18); // AUDIT R11: 1.14→1.17
+    chin.position.set(0, 1.14, 0.18); // AUDIT FIX 2026-08-16: 1.17→1.14
     chin.scale.set(1, 0.55, 0.75);
     chin.castShadow = false;
     drv.add(chin);

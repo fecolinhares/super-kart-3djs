@@ -271,8 +271,11 @@ export class ItemBox {
 
     if (!this.active) {
       this.respawnTimer -= dt * 1000;
-      // AUDIT R11: flare do anel no pickup — primeiro frame inativo (box
-      // consumido) dispara o anel expandindo 1→3.2× e apagando em 0.4s.
+      // AUDIT FIX 2026-08-16 (Feco real-GPU: 'item box vira circulo branco
+      // flutuante do nada / às vezes nem aparece'): o flare do anel R11
+      // expandia o ring a 3.2x com opacity→0 mas deixava ring.visible=true
+      // para sempre → anel branco gigante flutuando onde o box sumiu. Agora
+      // o anel ESCONDE ao completar o flare (0.4s), e o respawn reseta scale.
       if (this._flareT === undefined) this._flareT = 0;
       if (this._flareT < 1 && this.ringMesh) {
         this._flareT = Math.min(1, this._flareT + dt * 2.5);
@@ -280,6 +283,11 @@ export class ItemBox {
         this.ringMesh.scale.setScalar(fe);
         this.ringMesh.material.opacity = Math.max(0, 0.9 * (1 - this._flareT));
         this.ring.visible = true;
+        if (this._flareT >= 1) {
+          this.ring.visible = false;
+          this.ringMesh.scale.setScalar(1);
+          this.ringMesh.material.opacity = 0.8; // valor base do halo
+        }
       }
       // AUDIT: shrink no pickup (0.18s) e pop-in no respawn (0.15s).
       if (this._shrinkT !== undefined) {
@@ -302,6 +310,18 @@ export class ItemBox {
         this.respawnTimer = 0;
       }
       return;
+    }
+
+    // AUDIT FIX 2026-08-16 (Feco real-GPU: 'às vezes nem aparece o item
+    // box'): o pop-in do spawn rodava no branch INATIVO, mas o respawn seta
+    // active=true no mesmo frame → o pop-in NUNCA executava e o box ficava
+    // com scale 0.001 (invisível) para sempre. Movido para o branch ATIVO.
+    if (this._spawnT !== undefined && this._spawnT < 1) {
+      this._spawnT = Math.min(1, this._spawnT + dt * 6.5);
+      const e = 1 - (1 - this._spawnT) ** 2;
+      this.mesh.scale.setScalar(Math.max(0.001, e));
+      if (this.beam) this.beam.visible = true;
+      if (this.ring) this.ring.visible = true;
     }
 
     const bob = Math.sin(this.bobPhase) * 0.18;
