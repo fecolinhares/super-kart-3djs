@@ -1151,6 +1151,8 @@ loop.start((dt, t) => {
         k._prevHeldCount = have;
       }
       hud.update(raceManager, playerKart, raceManager.karts);
+      // AUDIT R11: speedo reage ao boost (mushroom, turbo pad, star).
+      hud.setBoost?.(!!(playerKart.state.boost || playerKart.state.turboBoostMs > 0));
       // Drift charge meter (white → yellow → orange; only while drifting).
       hud.setDriftCharge(playerKart.state.driftCharge, playerKart.state.drifting);
       // Lap fanfare — completing a lap was completely silent (dead 'lap' SFX).
@@ -1271,7 +1273,13 @@ loop.start((dt, t) => {
           const fwd = _fwd2.set(Math.sin(h), 0, Math.cos(h));
           const pos = _pos2.copy(k.state.position).addScaledVector(fwd, -0.95);
           pos.y = k.state.position.y; // ground level
-          skids.leave(pos, h);
+          // AUDIT R11: rastro escala com a carga de drift + faíscas laranja
+          // no tier 3 (recompensa visual da derrapagem, MK8D).
+          const charge = k.state.driftCharge || 0;
+          skids.leave(pos, h, charge);
+          if (charge > 0.66 && Math.random() < 0.5) {
+            particles.emit('sparkle', pos, { count: 3, speed: 2.6, size: 0.2, color: 0xff9f45 });
+          }
         }
       }
     }

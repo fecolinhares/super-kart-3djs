@@ -41,8 +41,10 @@ export class SkidMarks {
    * Drop a tire mark at a world position, oriented along `heading` (radians).
    * @param {THREE.Vector3} pos ground position (y = ground level)
    * @param {number} heading kart heading in world radians
+   * @param {number} [charge01=0] drift charge 0..1 — AUDIT R11: marcas mais
+   *   longas/visíveis conforme a carga (o rastro vira recompensa visual).
    */
-  leave(pos, heading) {
+  leave(pos, heading, charge01 = 0) {
     const slot = this.marks[this.cursor];
     this.cursor = (this.cursor + 1) % this.marks.length;
     const m = slot.mesh;
@@ -52,7 +54,10 @@ export class SkidMarks {
     m.rotation.set(-Math.PI / 2, 0, -heading);
     slot.t = 0;
     slot.life = LIFE;
-    m.material.opacity = START_OPACITY;
+    // AUDIT R11: escala com a carga (0.7x vazio → 1.15x tier 3) + opacidade.
+    const ch = Math.max(0, Math.min(1, charge01 || 0));
+    m.scale.set(0.7 + ch * 0.45, 1, 1);
+    m.material.opacity = START_OPACITY * (0.6 + ch * 0.5);
   }
 
   /** Fade + recycle expired marks. @param {number} dt seconds */

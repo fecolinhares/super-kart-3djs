@@ -584,6 +584,50 @@
   height: 160px;
 }
 
+/* AUDIT R11: dial dourado pulsando durante boost (MK8D) — anima o anel do
+   gauge inteiro; a classe é alternada por HUD.setBoost(). */
+.sk3d-speedo-dial.sk3d-speedo-boost {
+  animation: sk3d-speedo-boost-pulse 0.45s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(255, 209, 102, 0.8));
+}
+@keyframes sk3d-speedo-boost-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.045); }
+}
+
+/* AUDIT R11: floater '+N' de ganho de moeda — sobe e some. */
+.sk3d-coin-gain {
+  position: absolute;
+  top: -4px;
+  right: -14px;
+  font-weight: 900;
+  font-size: 15px;
+  color: #ffd166;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  opacity: 0;
+}
+.sk3d-coin-gain-anim {
+  animation: sk3d-coin-gain-rise 0.9s ease-out forwards;
+}
+@keyframes sk3d-coin-gain-rise {
+  0% { opacity: 1; transform: translateY(0); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-16px); }
+}
+
+/* AUDIT R11: shake do slot de item ao consumir (uso sem feedback antes). */
+.sk3d-item-use {
+  animation: sk3d-item-use-shake 0.45s ease-in-out;
+}
+@keyframes sk3d-item-use-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
 .sk3d-speedo-svg {
   display: block;
   width: 100%;

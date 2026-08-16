@@ -271,6 +271,16 @@ export class ItemBox {
 
     if (!this.active) {
       this.respawnTimer -= dt * 1000;
+      // AUDIT R11: flare do anel no pickup — primeiro frame inativo (box
+      // consumido) dispara o anel expandindo 1→3.2× e apagando em 0.4s.
+      if (this._flareT === undefined) this._flareT = 0;
+      if (this._flareT < 1 && this.ringMesh) {
+        this._flareT = Math.min(1, this._flareT + dt * 2.5);
+        const fe = 1 + (1 - (1 - this._flareT) ** 2) * 2.2;
+        this.ringMesh.scale.setScalar(fe);
+        this.ringMesh.material.opacity = Math.max(0, 0.9 * (1 - this._flareT));
+        this.ring.visible = true;
+      }
       // AUDIT: shrink no pickup (0.18s) e pop-in no respawn (0.15s).
       if (this._shrinkT !== undefined) {
         this._shrinkT = Math.min(1, this._shrinkT + dt * 5.5);
@@ -288,6 +298,7 @@ export class ItemBox {
         this.mesh.visible = true;
         this.mesh.scale.setScalar(0.001);
         this._spawnT = 0;
+        this._flareT = undefined; // AUDIT R11: reset do flare no respawn
         this.respawnTimer = 0;
       }
       return;

@@ -48,6 +48,7 @@ const MINIMAP_SIZE = 120;
 const MINIMAP_PAD = 9;
 const DOT_R = 4;
 const DOT_R_LEADER = 5.5;
+const DOT_R_PLAYER = 5.5; // AUDIT R11: dot do jogador maior — a 72px o 4 virava ~2.4px e sumia no traçado
 
 /** Fallback AI dot color if a kart has no readable body material. */
 const DOT_FALLBACK_COLOR = '#ff5a5f';
@@ -516,7 +517,7 @@ export class HUD {
     const dot = svgEl('circle', {
       cx: MINIMAP_SIZE / 2,
       cy: MINIMAP_SIZE / 2,
-      r: String(DOT_R),
+      r: String(isPlayer ? DOT_R_PLAYER : DOT_R), // AUDIT R11: jogador maior no minimap mobile
       class: isPlayer ? 'sk3d-minimap-dot-player' : 'sk3d-minimap-dot-ai',
     });
     if (!isPlayer) {
@@ -560,7 +561,7 @@ export class HUD {
       if (dot.getAttribute('cx') !== String(cx)) dot.setAttribute('cx', String(cx));
       if (dot.getAttribute('cy') !== String(cy)) dot.setAttribute('cy', String(cy));
       // Race leader dot is slightly larger.
-      const r = kart.position === 1 ? DOT_R_LEADER : DOT_R;
+      const r = kart.isPlayer ? DOT_R_PLAYER : (kart.position === 1 ? DOT_R_LEADER : DOT_R); // AUDIT R11: jogador sempre maior
       if (dot.getAttribute('r') !== String(r)) dot.setAttribute('r', String(r));
       // Player direction cone: rotate to state.heading (world Z maps to SVG Y).
       if (kart.isPlayer && mm.playerCone) {
@@ -675,6 +676,21 @@ export class HUD {
 
     // Held item slots (audit r3 dual-slot: primary + reserve + coin counter).
     const item = player ? player.heldItem : null;
+    // AUDIT R11: consumir item no slot principal treme o mini-slot (o uso
+    // não tinha feedback — pickup tem roulette+toast, uso nada).
+    if (this.itemType && !item && !this._itemUseShakeT) {
+      const icon = this.root.querySelector('.sk3d-item-slot');
+      if (icon) {
+        icon.classList.remove('sk3d-item-use');
+        void icon.offsetWidth;
+        icon.classList.add('sk3d-item-use');
+      }
+      this._itemUseShakeT = setTimeout(() => {
+        const ic = this.root.querySelector('.sk3d-item-slot');
+        if (ic) ic.classList.remove('sk3d-item-use');
+        this._itemUseShakeT = null;
+      }, 500);
+    }
     this.setItem(item, player ? player._heldItemCount || 1 : 1);
     const item2 = player ? player.heldItem2 : null;
     this.setItem2(item2, player ? player._heldItem2Count || 1 : 1);
@@ -746,6 +762,16 @@ export class HUD {
   /** Rescale the gauge for the engine class (50/100/150cc). */
   setMaxKmh(kmh) {
     this._maxKmh = Math.max(40, Math.round(kmh));
+  }
+
+  /** AUDIT (itens/HUD/FX 2026-08-16): boost reactivity — o dial MK8D brilha
+   *  dourado + o valor km/h pisca enquanto um boost está ativo (mushroom,
+   *  turbo pad, star). Só alterna classe; a animação vive no ui.css. */
+  setBoost(active) {
+    if (active === this._boost) return;
+    this._boost = !!active;
+    const dial = this.root.querySelector('.sk3d-speedo-dial');
+    if (dial) dial.classList.toggle('sk3d-speedo-boost', !!active);
   }
 
   /** Lap-split chip: current + best lap, flashes on a new best (audit r4). */
@@ -833,6 +859,7 @@ export class HUD {
   setCoins(n) {
     const v = Math.max(0, Math.round(n || 0));
     if (v === this._coins) return;
+    const gained = v > this._coins;
     this._coins = v;
     if (this.coinCountEl) this.coinCountEl.textContent = String(v);
     const chip = this.coinCountEl && this.coinCountEl.closest('.sk3d-coins');
@@ -840,6 +867,27 @@ export class HUD {
       chip.classList.remove('sk3d-position-pop'); // reuse the pop animation
       void chip.offsetWidth;
       chip.classList.add('sk3d-position-pop');
+    }
+    // AUDIT R11: floater '+N' que sobe e some — o GANHO de moeda é o evento de
+    // maior frequência do jogo e merecia feedback próprio (MK8D faz o mesmo).
+    if (gained && this.coinCountEl) {
+      const n = v - this._coinsPrev;
+      this._coinsPrev = v;
+      let f = this._coinGainEl;
+      if (!f) {
+        f = document.createElement('span');
+        f.className = 'sk3d-coin-gain';
+        chip && chip.appendChild(f);
+        this._coinGainEl = f;
+      }
+      f.textContent = `+${Math.max(1, n)}`;
+      f.classList.remove('sk3d-coin-gain-anim');
+      void f.offsetWidth;
+      f.classList.add('sk3d-coin-gain-anim');
+      clearTimeout(this._coinGainT);
+      this._coinGainT = setTimeout(() => f.classList.remove('sk3d-coin-gain-anim'), 900);
+    } else {
+      this._coinsPrev = v;
     }
   }
 
