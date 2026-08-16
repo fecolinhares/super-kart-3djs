@@ -559,9 +559,13 @@ export class Kart {
       // real lia como CÍRCULO PRETO PINTADO no chão (não sombra), e da chase
       // cam parecia um anel na base das rodas. Sombra de contato real é
       // SUTIL: núcleo ~0.45, queda suave até 1.35m (transição imperceptível).
-      grad.addColorStop(0, 'rgba(0,0,0,0.45)');
-      grad.addColorStop(0.4, 'rgba(0,0,0,0.24)');
-      grad.addColorStop(0.75, 'rgba(0,0,0,0.08)');
+      // AUDIT FIX R13e (playtest-sim: 'círculos pretos duros sob os karts
+      // AI no grid'): o kart já tem castShadow=true (sombra projetada REAL) —
+      // o blob é redundante. Núcleo 0.45 → 0.16, raio 1.35 → 1.8: ancoragem
+      // preservada (cai p/ 0 em 1.8m) mas sem círculo visível no chão.
+      grad.addColorStop(0, 'rgba(0,0,0,0.16)');
+      grad.addColorStop(0.4, 'rgba(0,0,0,0.09)');
+      grad.addColorStop(0.75, 'rgba(0,0,0,0.03)');
       grad.addColorStop(1, 'rgba(0,0,0,0)');
       g.fillStyle = grad;
       g.fillRect(0, 0, 64, 64);
@@ -570,7 +574,7 @@ export class Kart {
       return t;
     })();
     const blob = new THREE.Mesh(
-      new THREE.CircleGeometry(1.35, 24), // AUDIT R12k: 1.0→1.35 — penumbra LONGA (transição sutil, sem borda visível)
+      new THREE.CircleGeometry(1.8, 24), // AUDIT R13e: 1.35→1.8 (penumbra ainda mais longa, sem borda)
       new THREE.MeshBasicMaterial({
         map: blobTex,
         transparent: true,
