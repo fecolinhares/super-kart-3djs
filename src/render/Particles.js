@@ -58,8 +58,8 @@ const TYPES = {
     drag: 2.0, grav: 1.6, grow: 1.6, spread: 0.45, color: 0xd7dde4,
   },
   boost: {
-    system: 'additive', count: 3, speed: 7.5, size: 0.34, life: 0.30,
-    drag: 5.0, grav: -0.5, grow: -0.25, spread: 0.9, color: 0xffb25e,
+    system: 'additive', count: 3, speed: 7.5, size: 0.40, life: 0.30,
+    drag: 5.0, grav: -0.8, grow: 1.2, spread: 1.0, color: 0xffb25e,
   },
   drift: {
     system: 'normal', count: 1, speed: 1.4, size: 0.34, life: 0.85,

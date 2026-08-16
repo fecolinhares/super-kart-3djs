@@ -1278,9 +1278,9 @@ loop.start((dt, t) => {
     if (playerKart.state.boost > 0) {
       particles.emit('boost', playerKart.state.position, { color: 0xffa63d });
     }
-    if (playerKart.state.drifting) {
-      particles.emit('drift', playerKart.state.position, { color: 0xffffff });
-    }
+    // AUDIT: fumaça de drift duplicada — o Kart.js já emite nas rodas
+    // traseiras com cor por charge (branco→amarelo→laranja); o puff central
+    // branco aqui dobrava o draw e lia "fumando no corpo". Removido.
     // Turbo pad boost: golden spark burst every ~0.1s while active.
     if (playerKart.state.turboBoostMs > 0) {
       turboParticleAcc += dt;
