@@ -4428,6 +4428,89 @@ export class Environment {
       }
     }
 
+    // --- carros estacionados (AUDIT AAA 2026-08-15): a faixa 9-16m entre a
+    // calçada e a fileira A lia VAZIA. 14 sedans nas retas, paralelos à pista
+    // (halfW+8.5..11), com disco de contato. Unlit (MeshBasic) p/ cor pura.
+    {
+      const _cp = new THREE.Vector3();
+      const _ct = new THREE.Vector3();
+      const _cn = new THREE.Vector3();
+      const ct2 = new THREE.Vector3();
+      const _cityPath = this._trackPath || (this._track && this._track.path) || (track && track.path);
+      const carBodyGeo = new THREE.BoxGeometry(1.9, 0.85, 4.0);
+      const carCabinGeo = new THREE.BoxGeometry(1.7, 0.7, 2.1);
+      const wheelGeo = new THREE.CylinderGeometry(0.32, 0.32, 0.22, 10);
+      const bodyMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      const cabinMat = new THREE.MeshBasicMaterial({ color: 0x0d1017 });
+      const wheelMat = new THREE.MeshBasicMaterial({ color: 0x14161c });
+      const carCols = [0x3a4152, 0x5a6478, 0x8a7a6a, 0x2a3140, 0x6a4a3a];
+      const { geo: aoGeo, mat: aoMat } = getAODiscParts();
+      const carN = 14;
+      const bodies = new THREE.InstancedMesh(carBodyGeo, bodyMat, carN);
+      const cabins = new THREE.InstancedMesh(carCabinGeo, cabinMat, carN);
+      const wheels = new THREE.InstancedMesh(wheelGeo, wheelMat, carN * 4);
+      const aoDiscs = new THREE.InstancedMesh(aoGeo, aoMat, carN);
+      const cd = new THREE.Object3D();
+      const col = new THREE.Color();
+      const carRand = rnd(6666);
+      let carIdx = 0;
+      for (let i = 0; i < 160; i++) {
+        const tt = (i + 0.5) / 160;
+        _cityPath.getTangentAt(tt, _ct);
+        _cityPath.getTangentAt(Math.min(0.999, tt + 1 / 160), ct2);
+        if (1 - Math.min(1, Math.max(-1, _ct.dot(ct2))) > 0.0012) continue; // retas
+        _cityPath.getPointAt(tt, _cp);
+        _cn.set(-_ct.z, 0, _ct.x).normalize();
+        const side = carIdx % 2 === 0 ? 1 : -1;
+        const off = CONFIG.track.roadWidth / 2 + 8.5 + carRand() * 2.5;
+        const px = _cp.x + _cn.x * side * off;
+        const pz = _cp.z + _cn.z * side * off;
+        if (this._onTrack(px, pz, 3) || inWater(px, pz, 3)) continue;
+        const gy = this._gy(px, pz);
+        const yaw = Math.atan2(_ct.x, _ct.z);
+        const s = 0.9 + carRand() * 0.25;
+        cd.position.set(px, gy + 0.43, pz);
+        cd.rotation.set(0, yaw, 0);
+        cd.scale.set(s, 1, s);
+        cd.updateMatrix();
+        bodies.setMatrixAt(carIdx, cd.matrix);
+        col.setHex(carCols[(carIdx * 7) % carCols.length]);
+        bodies.setColorAt(carIdx, col);
+        cd.position.set(px, gy + 0.85, pz);
+        cd.rotation.set(0, yaw, 0);
+        cd.scale.set(s, 1, s);
+        cd.updateMatrix();
+        cabins.setMatrixAt(carIdx, cd.matrix);
+        for (let w = 0; w < 4; w++) {
+          const lx = (w % 2 === 0 ? -1 : 1) * 1.25; // lateral no frame do carro
+          const lz = (w < 2 ? -1 : 1) * 1.35;       // longitudinal
+          const wx = px + Math.cos(yaw) * lx + Math.sin(yaw) * lz;
+          const wz = pz - Math.sin(yaw) * lx + Math.cos(yaw) * lz;
+          cd.position.set(wx, gy + 0.32, wz);
+          cd.rotation.set(0, yaw, -Math.PI / 2); // eixo Y do cilindro -> lateral do carro
+          cd.scale.set(1, 1, 1);
+          cd.updateMatrix();
+          wheels.setMatrixAt(carIdx * 4 + w, cd.matrix);
+        }
+        cd.position.set(px, gy + 0.04, pz);
+        cd.rotation.set(-Math.PI / 2, 0, 0);
+        cd.scale.set(3.2, 4.6, 1); // elipse no chão (pegada do carro)
+        cd.updateMatrix();
+        aoDiscs.setMatrixAt(carIdx, cd.matrix);
+        carIdx++;
+        if (carIdx >= carN) break;
+      }
+      if (carIdx > 0) {
+        bodies.count = carIdx; cabins.count = carIdx; wheels.count = carIdx * 4; aoDiscs.count = carIdx;
+        bodies.instanceMatrix.needsUpdate = true;
+        if (bodies.instanceColor) bodies.instanceColor.needsUpdate = true;
+        cabins.instanceMatrix.needsUpdate = true;
+        wheels.instanceMatrix.needsUpdate = true;
+        aoDiscs.instanceMatrix.needsUpdate = true;
+        scene.add(bodies, cabins, wheels, aoDiscs);
+      }
+    }
+
     // --- neon point lights: pink + cyan LIGHTS near the road so the
     // pavement actually receives colored bounce (vision critic: neon was
     // only emissive strips, never illuminating anything) ---
