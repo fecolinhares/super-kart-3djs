@@ -453,6 +453,7 @@ export class Environment {
     this.sun = null;
     this._track = null;
     this._trackSamples = null;
+    this._contactAOs = []; // coletor p/ buildContactShadows (AUDIT AAA)
   }
 
   /** True when (x,z) is within margin of the cached track centerline. */
@@ -616,6 +617,7 @@ export class Environment {
       this.buildSponsorBoards(scene, track);
       this.buildCornerFlags(scene, track);
       this.buildInfieldTufts(scene, track); // r6: 3D tufts inside the enclosed infield — LAST so this._rand() never perturbs earlier builders
+      this.buildContactShadows(scene); // AAA: AO p/ postes/banners/pneus/etc
     } else {
       // City keeps the neon poles (buildLightPoles branches on night) but
       // drops the meadow dressing — a city track must read URBAN, not
@@ -2509,6 +2511,7 @@ export class Environment {
       dummyB.scale.set(1, 1, 1);
       dummyB.updateMatrix();
       frames.setMatrixAt(made, dummyB.matrix);
+      this._contactAOs.push({ x: bx, z: bz, r: 3.0 }); // AUDIT AAA: AO do banner
       // print front (+z local 0.05, 1cm à frente do box) e espelho back (-z)
       dummyB.position.set(bx, by + 2.35, bz);
       dummyB.lookAt(p.x, by + 2.35, p.z);
@@ -2581,6 +2584,7 @@ export class Environment {
       // AUDIT R10: variação por ÍNDICE (determinística — não usa _rand p/
       // não mudar o stream): altura 2-4, yaw ±0.35, escala 0.9-1.1.
       stacks.push({ x: tx, z: tz, gy: p.y, ry: Math.atan2(tan.x, tan.z), v: i % 3, yaw: ((i * 37) % 70) / 100 - 0.35, sc: 0.9 + ((i * 13) % 21) / 100 });
+      this._contactAOs.push({ x: tx, z: tz, r: 1.6 }); // AUDIT AAA: AO da pilha de pneus
     }
     if (!stacks.length) return;
     const tires = new THREE.InstancedMesh(tireGeo, tireMat, stacks.length * 4);
@@ -2822,6 +2826,30 @@ export class Environment {
     }
   }
 
+  /**
+   * Contact shadows (fake-AO) para a mobília engineered (postes, banners,
+   * pneus, feno, placas) — AUDIT AAA 2026-08-15: árvores/arbustos tinham AO
+   * discs, a mobília não. Um InstancedMesh compartilhado; spots coletados
+   * pelos builders via this._contactAOs. Não consome _rand (seguro após
+   * buildInfieldTufts). Na Neon City a lista fica vazia -> skip.
+   */
+  buildContactShadows(scene) {
+    const list = this._contactAOs || [];
+    if (!list.length) return;
+    const { geo, mat } = getAODiscParts();
+    const discs = new THREE.InstancedMesh(geo, mat, list.length);
+    const dummy = new THREE.Object3D();
+    list.forEach((d, i) => {
+      dummy.position.set(d.x, this._gy(d.x, d.z) + 0.04, d.z);
+      dummy.rotation.set(-Math.PI / 2, 0, 0);
+      dummy.scale.set(d.r, d.r, 1);
+      dummy.updateMatrix();
+      discs.setMatrixAt(i, dummy.matrix);
+    });
+    discs.instanceMatrix.needsUpdate = true;
+    scene.add(discs);
+  }
+
   /** Hay bales (racing venue cue) laid flat along the straights. */
   buildHayBales(scene, track) {
     if (!track || !track.path) return;
@@ -2849,6 +2877,7 @@ export class Environment {
       const tz = p.z + nrm.z * side * (halfW + 3.4);
       if (this._onTrack(tx, tz, 2)) continue;
       spots.push({ x: tx, z: tz, gy: this._gy(tx, tz), ry: Math.atan2(tan.x, tan.z) });
+      this._contactAOs.push({ x: tx, z: tz, r: 1.2 }); // AUDIT AAA: AO do feno
     }
     if (!spots.length) return;
     const hay = new THREE.InstancedMesh(hayGeo, hayMat, spots.length);
@@ -2915,6 +2944,7 @@ export class Environment {
       dummyS.updateMatrix();
       panels.setMatrixAt(made, dummyS.matrix);
       backs.setMatrixAt(made, dummyS.matrix);
+      this._contactAOs.push({ x: tx, z: tz, r: 2.0 }); // AUDIT AAA: AO do sponsor board
       for (const s of [-1, 1]) {
         dummyS.position.set(tx + Math.cos(yaw) * s * 1.2, gy + 1.15, tz - Math.sin(yaw) * s * 1.2);
         dummyS.rotation.set(0, yaw, 0);
@@ -2969,6 +2999,7 @@ export class Environment {
       grp.position.set(tx, this._gy(tx, tz), tz);
       grp.rotation.y = Math.atan2(tan.x, tan.z) + Math.PI / 2;
       scene.add(grp);
+      this._contactAOs.push({ x: tx, z: tz, r: 1.0 }); // AUDIT AAA: AO da bandeira de canto
       placed++;
       if (placed >= 8) break; // a few well-placed flags, not a forest
     }
@@ -3487,6 +3518,7 @@ export class Environment {
     const postMat = toonMaterial(0x8b7a5c, {});
     for (const m of marks) {
       if (this._onTrack(m.x, m.z, 8)) continue; // distance marks off the road
+      this._contactAOs.push({ x: m.x, z: m.z, r: 1.1 }); // AUDIT AAA: AO do poste de distância
       const post = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 1.6, 8), postMat);
       post.position.set(m.x, smoothH(m.x, m.z) * 0.5 - 0.25 + 0.8, m.z);
       post.rotation.y = m.ry;
@@ -4040,6 +4072,7 @@ export class Environment {
       dummy.rotation.set(0, 0, 0);
       dummy.updateMatrix();
       poles.setMatrixAt(made, dummy.matrix);
+      this._contactAOs.push({ x: px, z: pz, r: 1.7 }); // AUDIT AAA: AO do poste de luz
       // lamp head faces the track
       dummy.position.set(px, p.y + 3.45, pz);
       dummy.lookAt(p.x, p.y + 3.45, p.z);
