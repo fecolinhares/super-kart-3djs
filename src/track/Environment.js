@@ -572,12 +572,13 @@ export class Environment {
       sun.shadow.mapSize.set(testMode ? CONFIG.render.testShadowMapSize : CONFIG.render.shadowMapSize, testMode ? CONFIG.render.testShadowMapSize : CONFIG.render.shadowMapSize);
       sun.shadow.radius = 4.5; // penumbra assist (inert with PCFSoftShadowMap —
       // the PCFSoft kernel already softens; kept for PCF/other shadow maps)
-      sun.shadow.camera.left = -45; // AUDIT FIX 2026-08-16 (Feco real-GPU:
-      sun.shadow.camera.right = 45; // 'asfalto muda de cor acompanhando o
-      sun.shadow.camera.top = 45;   // carro'): ±28m reancorado no jogador
-      sun.shadow.camera.bottom = -45; // deixava a BORDA do shadow map visível
-      // no asfalto (corte de sombra que seguia o kart). ±45m (~4.3cm texels
-      // ainda nítidos para blob shadows) empurra a borda para fora do frame.
+      sun.shadow.camera.left = -70; // AUDIT FIX 2026-08-16 (Feco real-GPU:
+      sun.shadow.camera.right = 70; // 'asfalto muda de cor acompanhando o
+      sun.shadow.camera.top = 70;   // carro'): borda do shadow map visível.
+      sun.shadow.camera.bottom = -70; // ±45m AINDA entrava no frame quando a
+      // chase cam olhava para frente (alcance ~60m na pista). ±70m com
+      // mapSize 2048 = ~6.8cm texels (ok para sombras de kart) e a borda
+      // fica além do alcance visual da câmera na prática.
       sun.shadow.camera.far = 430; // match fog so distant props still project
       sun.shadow.bias = -0.0008;
       this.shadowSun = sun; // main.js re-positions it to follow the player
