@@ -918,10 +918,13 @@ function updateCamera(dt, t) {
   // Re-anchoring on the player keeps ~2.7cm texels under the kart.
   if (env.shadowSun && playerKart && env.sunDir) {
     const sp = playerKart.state.position;
+    // AUDIT FIX R13h: frustum ±130m → sun a 150m (cobre o frustum inteiro;
+    // a 90m a luz caía DENTRO do quadrado → sombras projetadas erradas perto
+    // da borda).
     env.shadowSun.position.set(
-      sp.x + env.sunDir.x * 90,
-      sp.y + env.sunDir.y * 90,
-      sp.z + env.sunDir.z * 90
+      sp.x + env.sunDir.x * 150,
+      sp.y + env.sunDir.y * 150,
+      sp.z + env.sunDir.z * 150
     );
     env.shadowSun.target.position.copy(sp);
   }

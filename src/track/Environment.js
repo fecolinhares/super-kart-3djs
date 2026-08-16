@@ -577,13 +577,15 @@ export class Environment {
       // extras — flare/lip/wishbone já removidos). radius 4.5 → 9 = penumbra
       // bem mais suave; a elipse deixa de ter borda dura → não lê mais como
       // anel, vira sombra natural de kart.
-      sun.shadow.camera.left = -70; // AUDIT FIX 2026-08-16 (Feco real-GPU:
-      sun.shadow.camera.right = 70; // 'asfalto muda de cor acompanhando o
-      sun.shadow.camera.top = 70;   // carro'): borda do shadow map visível.
-      sun.shadow.camera.bottom = -70; // ±45m AINDA entrava no frame quando a
-      // chase cam olhava para frente (alcance ~60m na pista). ±70m com
-      // mapSize 2048 = ~6.8cm texels (ok para sombras de kart) e a borda
-      // fica além do alcance visual da câmera na prática.
+      sun.shadow.camera.left = -130; // AUDIT FIX R13h (Feco real-GPU: 'asfalto
+      sun.shadow.camera.right = 130; // mudando de cor seguindo o corredor' —
+      sun.shadow.camera.top = 130;   // PERSISTE após R12h ±70m): a borda do
+      sun.shadow.camera.bottom = -130; // quadrado do shadow map está a 70m do
+      // kart e a chase cam olha ~80-100m à frente → a borda (que se move com
+      // o kart) cruza a pista no frame = 'faixa de cor seguindo o corredor'.
+      // ±130m: a borda fica FORA do alcance visual da câmera; trade-off:
+      // texels 260/2048 ≈ 12.7cm (sombra de kart mais suave — MK8 também tem
+      // sombras suaves, aceitável vs borda visível que era o bug real).
       sun.shadow.camera.far = 430; // match fog so distant props still project
       sun.shadow.bias = -0.0008;
       this.shadowSun = sun; // main.js re-positions it to follow the player

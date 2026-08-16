@@ -174,24 +174,26 @@ export class ItemBox {
     beam.material.opacity = 0.65;
     beam.material.color.set(0xffdf80);
     this.beam = beam;
-    // Glowing golden ring around the box (MK8 pickup readability — replaces
-    // the old orbiting arrow cones which read as sketchy placeholders).
-    this.ring = new THREE.Group();
-    this.ring.position.set(this.base.x, this.base.y, this.base.z);
-    const ringGeo = new THREE.TorusGeometry(this.size * 1.15, 0.16, 10, 36); // AUDIT R5: thicker ring reads at chase distance
-    const ringMat = new THREE.MeshBasicMaterial({
-      color: 0xffd166,
-      transparent: true,
-      opacity: 0.95,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending, // AUDIT R3: additive halo reads through bloom
-      toneMapped: false, // AUDIT R4: ACES muddies the gold ring
-    });
-    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-    ringMesh.rotation.x = Math.PI / 2;
-    ringMesh.position.y = -this.size * 0.55; // AUDIT R2: ring at BASE height (MK8 pickup halo), not mid-box
-    this.ring.add(ringMesh);
-    this.ringMesh = ringMesh;
+    // AUDIT FIX R13f (Feco real-GPU: 'item boxes dentro de circulo branco' —
+    // PERSISTE após R12f): o RING era um TorusGeometry(size*1.15) dourado com
+    // AdditiveBlending + toneMapped:false + opacity 0.95. No GPU real com
+    // bloom, um torus dourado aditivo com toneMapped:false ESTOURA EM BRANCO
+    // PURO — um círculo branco ~15% MAIOR que o box (exatamente o que o Feco
+    // descreve: 'item box dentro de círculo branco'). O flare R12f só expandia
+    // esse ring; o anel BASE é a causa. O MK8 NÃO tem torus no item box (só o
+    // glow suave do beam). REMOVIDO por completo — box + outline + beam lêem.
+    // this.ring = new THREE.Group();
+    // this.ring.position.set(this.base.x, this.base.y, this.base.z);
+    // const ringGeo = new THREE.TorusGeometry(this.size * 1.15, 0.16, 10, 36);
+    // const ringMat = new THREE.MeshBasicMaterial({
+    //   color: 0xffd166, transparent: true, opacity: 0.95,
+    //   depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false,
+    // });
+    // const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+    // ringMesh.rotation.x = Math.PI / 2;
+    // ringMesh.position.y = -this.size * 0.55;
+    // this.ring.add(ringMesh);
+    // this.ringMesh = ringMesh;
     return mesh;
   }
 
@@ -322,12 +324,8 @@ export class ItemBox {
       const pulse = 0.55 + Math.sin(this.bobPhase * 1.3) * 0.15; // 0.40–0.70 (era 0.2–0.4)
       this.beam.material.opacity = pulse;
     }
-    if (this.ring) {
-      this.ring.position.y = this.base.y + bob;
-      this.ring.rotation.y += dt * 1.2;
-      this.ringMesh.material.opacity = 0.65 + Math.sin(this.bobPhase * 1.7) * 0.25;
-      this.ringMesh.scale.setScalar(1 + Math.sin(this.bobPhase * 1.7) * 0.06);
-    }
+    // AUDIT FIX R13f: ring removido (círculo branco) — sem update de anel.
+    // if (this.ring) { ... } — código morto, removido por clareza.
     // Golden sparkles rising from the box (pickup aura — the missing "alive"
     // cue the vision critic kept flagging). Cheap: ~5 sparks every 0.18s.
     this._sparkAcc = (this._sparkAcc || 0) + dt;

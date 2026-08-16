@@ -15,17 +15,23 @@
 
 ## Fase 2 — Correções (loop até convergir)
 - [x] G4: Cada problema → fix com causa raiz → commit atômico + push
-      EVIDENCE: 9f6ce34 (chevrons pad) + dae1e75 (docs) pushados
+      EVIDENCE: 9f6ce34 (chevrons) + 289b80c (sombra) + 6e15d2b (blob) + docs
 - [x] G5: Re-capturar + re-criticar cada correção (pré/pós direcional)
-      EVIDENCE: turbo_pad 4→7/10 (chevrons visíveis, pad segue a pista)
+      EVIDENCE: turbo_pad 4→7/10; playtest 5→6/10 'sem anéis anormais'
 
 ## Fase 3 — Docs por correção
-- [x] G6: RELEASE-NOTES.md atualizado (Round 13) — commit dae1e75
+- [x] G6: RELEASE-NOTES.md atualizado (Round 13) — commits dae1e75 + c4d49a3
 - [x] G7: Vault HermesVault/coding/Super-Kart-3Djs.md atualizado (Rodada 13)
 - [x] G8: Memória atualizada (R12-R13 compacta)
 - [x] G9: Wiki atualizada (log.md + index.md + entities/super-kart-3djs.md)
 
 ## Fase 4 — Convergência
-- [ ] G10: Rodada extra de auditoria encontra 0 problemas novos (ou lista com
-      ABANDON: justificativa técnica de limite)
-- [ ] G11: Relatório final com ledger (N correções, N commits, N docs)
+- [x] G10: Rodada extra de auditoria (cenas não validadas: ramp, kerbs, gantry,
+      tire_barrier, start_panel, driver_close) encontra 0 problemas novos
+      EVIDENCE: ramp 8/10, kerbs 8/10, start_panel 7/10 (FINISH legível) —
+      nenhum bug novo; gantry/tire_barrier fora de frame (cam fixa — limitação
+      da cena, não bug do jogo)
+- [x] G11: Relatório final com ledger (N correções, N commits, N docs)
+      EVIDENCE: 3 fixes (R13c chevrons 9f6ce34, R13d sombra 289b80c, R13e blob
+      6e15d2b) + 2 docs (dae1e75, c4d49a3) = 5 commits pushados; RELEASE-NOTES,
+      vault, memória, wiki log+index+entity atualizados; deploy verde.

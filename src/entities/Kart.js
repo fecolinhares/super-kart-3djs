@@ -1217,16 +1217,22 @@ export class Kart {
         const tire = new THREE.Mesh(tireGeo, tireMat);
         tire.castShadow = true;
         tilt.add(tire);
-        // Tread ribs (roll with the tire — reads as rolling rubber).
-        for (const tx of [-0.08, 0, 0.08]) {
-          const rib = new THREE.Mesh(treadGeo, tireDark);
-          rib.position.x = tx;
-          rib.rotation.x = Math.PI / 2; // AUDIT: torus in the group XZ plane → tilt(z=PI/2) maps it to the scene YZ = wheel face // AUDIT: torus rings must encircle the X axle (tire), not sit 'sideways' in the XY plane
-          tilt.add(rib);
-        }
-        const groove = new THREE.Mesh(grooveGeo, tireDark);
-        groove.rotation.x = Math.PI / 2; // AUDIT: same — encircle the tire
-        tilt.add(groove);
+        // AUDIT FIX R13g (Feco real-GPU: 'ainda vejo anel preto nos pneus' —
+        // PERSISTE após R12j/R13d): os tread ribs (3 torus tireDark) + groove
+        // (1 torus tireDark) criavam 4 ANÉIS CONCÊNTRICOS escuros na lateral
+        // do pneu — com iluminação GPU real liam como 'anel preto no pneu'.
+        // MK8 real: borracha ÚNICA e uniforme (sem anéis concêntricos na
+        // parede lateral). REMOVIDOS por completo — pneu liso + aro cromado
+        // no centro (o único anel aceitável é o aro, que é o design do kart).
+        // for (const tx of [-0.08, 0, 0.08]) {
+        //   const rib = new THREE.Mesh(treadGeo, tireDark);
+        //   rib.position.x = tx;
+        //   rib.rotation.x = Math.PI / 2;
+        //   tilt.add(rib);
+        // }
+        // const groove = new THREE.Mesh(grooveGeo, tireDark);
+        // groove.rotation.x = Math.PI / 2;
+        // tilt.add(groove);
         // AUDIT R80 (Feco real-GPU 2026-08-15, 4ª reclamação de 'anel nas
         // rodas'): a sidewall stripe cinza-claro (R20c 0xc9d4de) + wallBand
         // escuro criavam 2 anéis concêntricos visíveis no pneu — o usuário
