@@ -1511,15 +1511,24 @@ export class Kart {
     // REAL light separating the kart from dark asphalt'): a cool rim light
     // parented to the kart group, behind-left. It follows every move and
     // throws a colored edge highlight on body + helmet in the Neon night.
-    this.rimLight = new THREE.PointLight(0x66e0ff, 4.2, 9, 1.4);
+    // AUDIT FIX R14b (Feco real-GPU: 'asfalto mudando de cor seguindo o
+    // corredor' — PERSISTE após R13h): as 3 PointLights do kart (rimLight
+    // azul 4.2/9m, rimLightWarm laranja 2.4/8m, pilotFill creme 2.6/6m, decay
+    // 1.4) iluminavam o CHÃO ao redor com cores diferentes — como seguem o
+    // kart, o asfalto "mudava de cor acompanhando o corredor". Elas existem
+    // para o RIM LIGHT DO KART (separar corpo/capacete do asfalto escuro),
+    // não para iluminar a pista. Fix: alcance ~2m (só até o kart — o kart tem
+    // ~1.7m de comprimento) + intensidade reduzida (ainda dão o highlight sem
+    // derramar cor no chão).
+    this.rimLight = new THREE.PointLight(0x66e0ff, 2.2, 2.2, 1.4);
     this.rimLight.position.set(-1.4, 1.0, -1.3);
     this.group.add(this.rimLight);
-    this.rimLightWarm = new THREE.PointLight(0xffb066, 2.4, 8, 1.4);
+    this.rimLightWarm = new THREE.PointLight(0xffb066, 1.4, 2.0, 1.4);
     this.rimLightWarm.position.set(1.3, 0.5, 1.0);
     this.group.add(this.rimLightWarm);
     // AUDIT R6c (critic: 'driver merges into dark cockpit'): soft fill from
     // front-top highlights helmet + visor + shoulders.
-    this.pilotFill = new THREE.PointLight(0xffe8c4, 2.6, 6, 1.4);
+    this.pilotFill = new THREE.PointLight(0xffe8c4, 1.6, 1.8, 1.4);
     this.pilotFill.position.set(0, 1.9, 1.2);
     this.group.add(this.pilotFill);
   }

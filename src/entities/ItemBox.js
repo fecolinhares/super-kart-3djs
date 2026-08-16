@@ -155,25 +155,32 @@ export class ItemBox {
       new THREE.MeshBasicMaterial({ color: 0x1b2a41, side: THREE.BackSide })
     );
     mesh.add(outline);
-    // Golden light beam under the box — makes pickups readable at a glance.
-    const beam = new THREE.Mesh(
-      new THREE.CylinderGeometry(this.size * 0.7, this.size * 1.05, this.size * 2.8, 14, 1, true),
-      new THREE.MeshBasicMaterial({
-        color: 0xffdf80,
-        transparent: true,
-        opacity: 0.78,
-        side: THREE.DoubleSide,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending, // AUDIT R3: additive reads as a light column on dark asphalt
-        toneMapped: false, // AUDIT R4: ACES turns additive gold into muddy brown under bloom — bypass tone mapping
-      })
-    );
-    beam.position.set(this.base.x, Math.max(this.base.y - this.size * 1.35, 0.18), this.base.z); // AUDIT: the light beam must end AT the road (0.18), not pierce below ground
-    // AUDIT R2 (critic 7.5: 'no visible golden beam or ring'): brighter beam
-    // so the pickup reads from chase distance on dark asphalt.
-    beam.material.opacity = 0.65;
-    beam.material.color.set(0xffdf80);
-    this.beam = beam;
+    // AUDIT FIX R14a (Feco real-GPU: 'circulo branco dos item boxes' —
+    // PERSISTE após R13f remover o ring): o BEAM é uma coluna de luz
+    // (CylinderGeometry) com AdditiveBlending + toneMapped:false + opacity
+    // 0.65. No headless SwiftShader o additive dourado fica PRETO (pitfall
+    // do kit) — o crítico nunca viu. No GPU real com bloom, uma coluna
+    // aditiva sem tone mapping ESTOURA EM BRANCO — e vista da chase cam
+    // (de cima/trás), o cilindro lê como um CÍRCULO BRANCO no chão com o
+    // box DENTRO (exatamente o que o Feco descreve). MK8 não tem coluna de
+    // luz — só o glow sutil da base. REMOVIDO por completo (box + outline +
+    // sparkles lêem; sem additive dourado no item box).
+    // const beam = new THREE.Mesh(
+    //   new THREE.CylinderGeometry(this.size * 0.7, this.size * 1.05, this.size * 2.8, 14, 1, true),
+    //   new THREE.MeshBasicMaterial({
+    //     color: 0xffdf80,
+    //     transparent: true,
+    //     opacity: 0.78,
+    //     side: THREE.DoubleSide,
+    //     depthWrite: false,
+    //     blending: THREE.AdditiveBlending,
+    //     toneMapped: false,
+    //   })
+    // );
+    // beam.position.set(this.base.x, Math.max(this.base.y - this.size * 1.35, 0.18), this.base.z);
+    // beam.material.opacity = 0.65;
+    // beam.material.color.set(0xffdf80);
+    // this.beam = beam;
     // AUDIT FIX R13f (Feco real-GPU: 'item boxes dentro de circulo branco' —
     // PERSISTE após R12f): o RING era um TorusGeometry(size*1.15) dourado com
     // AdditiveBlending + toneMapped:false + opacity 0.95. No GPU real com
@@ -319,11 +326,8 @@ export class ItemBox {
     this.mesh.position.y = this.base.y + bob;
     // Continuous slow spin (MK8 pickup box) + a little wobble.
     this.mesh.rotation.y = this.base.yaw + Math.sin(this.wobble) * 0.1 + this.bobPhase * 0.55;
-    if (this.beam) {
-      this.beam.position.y = Math.max(this.base.y - this.size * 1.35, 0.18) + bob;
-      const pulse = 0.55 + Math.sin(this.bobPhase * 1.3) * 0.15; // 0.40–0.70 (era 0.2–0.4)
-      this.beam.material.opacity = pulse;
-    }
+    // AUDIT FIX R14a: beam removido (círculo branco no GPU real) — sem update.
+    // if (this.beam) { ... } — código morto, removido por clareza.
     // AUDIT FIX R13f: ring removido (círculo branco) — sem update de anel.
     // if (this.ring) { ... } — código morto, removido por clareza.
     // Golden sparkles rising from the box (pickup aura — the missing "alive"
