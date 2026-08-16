@@ -3,6 +3,58 @@
 **Date:** 2026-08-09 · **Status:** 🚀 v0.2.0-draft (AAA visual/audio pass)
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
+### Round 10 — AAA audit loop: 18 proposals from 3 specialist auditors (Jarvis, 2026-08-15)
+Fan-out de 3 subagentes (kart / pista+ambiente / itens+HUD+UI+áudio) usando as
+skills threejs-* (director, gameplay, aaa-graphics, ui, debug, qa-release) →
+18 propostas com patches, aplicadas em 18 commits atômicos + push:
+
+**Itens/HUD/UI/áudio (6):**
+- HUD mobile: top row (lap+time+lapsplit | minimap+coins) estourava o viewport
+  ≤480px — lapsplit oculto no phone, minimap 72px, coins compactos.
+- Áudio: moeda tocava a FANFARRA de item box e o box tocava o blip de moeda —
+  trocados (moeda=blip 0.55, box=fanfarra 0.6).
+- Item box: beam dourado 50% mais fraco que o projetado (0.2-0.4, update
+  sobrescrevia o construtor 0.65) → 0.4-0.7; pickup agora encolhe em ~0.18s
+  (MK8D comprime no grab) + pop-in no respawn.
+- UI state: slot reserva ganhou o pop (era mudo), swap com slots vazios agora
+  treme o mini-slot (no-op visível), pause entra com fade+scale.
+- Partículas: chama de boost encolhia (grow -0.25) → abre em leque (grow 1.2);
+  fumaça de drift duplicada no centro do kart removida.
+- Banana: orientação perpendicular ao tráfego (pontas de lado a lado, MK8) +
+  sombra de contato que segue o hop.
+
+**Kart/piloto (6):**
+- Sombra de contato ancorada NO CHÃO — o blob era child do group e "cavalgava"
+  no pulo/rampa (kart parecia flutuar); agora y local cancela a altitude e
+  opacidade+tamanho somem com a altura.
+- Chamas de boost SÓLIDAS nos escapamentos (2 cones aditivos com textura de
+  gradiente) — turbo pad era invisível (zero feedback visual); partículas de
+  boost também disparam no turbo pad.
+- Capacete com clearcoat polido (era toon matte 0.82) + macacão com clearcoat
+  leve; emissive suavizado (o highlight separa cabeça do corpo escuro).
+- Speed lines em alta velocidade (>0.78× maxSpeed) — cue de vento MK8.
+- Event juice: landing dust na aterrissagem de rampa, sparkle no rising edge
+  do boost, sparks por tier de drift (branco→amarelo→laranja).
+- Cockpit afundado NA carenagem — a banheira escura flutuava 0.13m acima do
+  domo fechado (piloto "sentado em cima"); agora emerge do tub (silhueta MK8).
+
+**Pista/ambiente (6):**
+- Neon City: piscinas de luz neon NA PISTA MOLHADA (8 pools aditivos sob as
+  lâmpadas — a luz dos postes nunca pousava no asfalto).
+- Meadow: a floresta NUNCA projetava sombra (palmeiras sim) → castShadow em
+  trunks/canopies/branches = dappled light no infield.
+- Neon City: linhas de borda brancas sólidas (identidade de rua, não circuito).
+- Neon City: 14 carros estacionados preenchem a faixa morta 9-16m entre
+  calçada e torres (lia vazio urbano).
+- Meadow: placas de freada 30/20/10 na borda externa das 3 curvas mais
+  fechadas (cue de zona de freada MK8).
+- Sombras de contato (fake-AO) para postes/banners/pneus/feno/placas/
+  bandeiras — a mobília engineered ficava sem ancoragem na grama.
+
+**Validação:** build ✓ · audit-geometry 0 CRIT (whitelist de itens coletáveis:
+item boxes + coins ficam na pista por design) · deploy Pages automático.
+Assets 100% procedural/WebAudio (TRIPO/GEMINI/ELEVENLABS = MISSING).
+
 ### Round 9 — Full QA loop: layout kinks, OOB rescue, countdown crash (Jarvis audit loop, 2026-08-11)
 - **CRITICAL — Neon City centerline kinks <1m made karts fly off the map**: the '2'-layout's S-curves (straight→arc reversions, ~169° at vertices) put min-radius 0.1-0.5m on the racing line — SIM seed 2918 showed a kart driving away to z=-126 with progress frozen (0 laps, onRoad 63%). City rebuilt as 4-level circuit (top 50 / mid 26 / bottom 2 / lower -28) with true 90° circle arcs (R=8m, tangent-aligned, sampled on the circle) and no S-curves: **min radius ≥4.5m, kerb-edge folds 0, self-crossings 0, 614m**. SIM 16 seeds: 6/16 problem seeds → **0 lost karts, onRoad 100% all** (commit 6622be1).
 - **CRITICAL — countdown rendered a giant "undefined" overlay**: the first rAF timestamp can predate the GameLoop's `performance.now()` in start() → negative dt → `countdownT += dt` ran the 3-2-1 counter at -0.5s → `COUNTDOWN_MARKS[negativeIdx]` = undefined. Fixed: dt clamped ≥0 + idx guard ≥0 (commit 60fd4e0).
