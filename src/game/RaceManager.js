@@ -73,7 +73,10 @@ class Coin {
   _buildMesh() {
     const mesh = new THREE.Mesh(
       new THREE.CylinderGeometry(0.17, 0.17, 0.06, 18),
-      new THREE.MeshToonMaterial({ color: 0xffd166, emissive: 0xffaa00, emissiveIntensity: 0.35 })
+      // AUDIT R16b (critic Rewards 1/3 'coins sem vida/visibilidade'): emissive
+      // 0.35→0.9 — a coin destaca da pista à distância da chase cam, sem ficar
+      // apagada (MK8 coins são LUMINOSAS).
+      new THREE.MeshToonMaterial({ color: 0xffd166, emissive: 0xffaa00, emissiveIntensity: 0.9 })
     );
     mesh.position.set(this.base.x, this.base.y, this.base.z);
     mesh.castShadow = true;
@@ -84,6 +87,25 @@ class Coin {
     );
     rim.rotation.x = Math.PI / 2;
     mesh.add(rim);
+    // AUDIT R16b: glow halo (sprite circular) — dá à coin um 'brilho de moeda'
+    // legível à distância; additive + low alpha, sem toneMapped:false (lição
+    // R14: additive+toneMapped:false+bloom estoura em branco no GPU real).
+    const haloCanvas = document.createElement('canvas');
+    haloCanvas.width = 64; haloCanvas.height = 64;
+    const hg = haloCanvas.getContext('2d');
+    const hgrad = hg.createRadialGradient(32, 32, 8, 32, 32, 32);
+    hgrad.addColorStop(0, 'rgba(255,214,90,0.55)');
+    hgrad.addColorStop(0.6, 'rgba(255,180,40,0.18)');
+    hgrad.addColorStop(1, 'rgba(255,180,40,0)');
+    hg.fillStyle = hgrad;
+    hg.fillRect(0, 0, 64, 64);
+    const haloTex = new THREE.CanvasTexture(haloCanvas);
+    const halo = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: haloTex, transparent: true, opacity: 0.9,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    }));
+    halo.scale.set(0.9, 0.9, 1);
+    mesh.add(halo);
     return mesh;
   }
 

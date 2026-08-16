@@ -529,7 +529,7 @@ export class Environment {
     // AUDIT r4: lit faces got ~2.8 irradiance vs ~1.55 in shadow — an ACES
     // contrast ratio under 2:1 = "flat, washed out". The shadow sun is now
     // the SOLE key; hemi/fill cut hard so shadow sides stay shaded.
-    const hemi = new THREE.HemisphereLight(night ? 0x40509a : 0xd8e8ff, night ? 0x141430 : 0x7bca7f, night ? 0.45 : 0.35);
+    const hemi = new THREE.HemisphereLight(night ? 0x40509a : 0xd8e8ff, night ? 0x141430 : 0x7bca7f, night ? 0.45 : 0.22); // AUDIT R16a: 0.35→0.22 — sombras mais profundas (MK8 contraste)
     scene.add(hemi);
 
     // KEY: primary illumination — warm day sun, or cool moonlit blue at night.
@@ -553,14 +553,14 @@ export class Environment {
 
     // RIM (audit r3): a cool back-light separates karts/props from the
     // background — the 'pasted on' flatness came from no edge definition.
-    const rim = new THREE.DirectionalLight(night ? 0x5a7ad8 : 0xfff0c8, night ? 0.45 : 0.7);
+    const rim = new THREE.DirectionalLight(night ? 0x5a7ad8 : 0xfff0c8, night ? 0.45 : 0.9); // AUDIT R16a: 0.7→0.9 — rim mais forte (separação kart/fundo)
     rim.position.set(night ? -40 : 30, 40, night ? -30 : 25); // opposite the key
     scene.add(rim);
     scene.add(rim.target);
 
     // Shadow-casting sun — kept as the key's shadow companion: same tint and
     // direction so shadowed areas match the key light (dim blue at night).
-    const sun = new THREE.DirectionalLight(keyColor, night ? 0.55 : 2.0);
+    const sun = new THREE.DirectionalLight(keyColor, night ? 0.55 : 2.6); // AUDIT R16a: 2.0→2.6 — key mais forte (contraste lit/shadow MK8)
     // AUDIT r4: the shadow sun is now the SOLE key (was 1.2 beside the
     // duplicate 1.0 key). radius 2 → 4.5 for penumbra (kart shadows read as
     // dark stickers otherwise), bias relaxed, far extended to match fog so

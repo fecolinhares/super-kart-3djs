@@ -2188,11 +2188,11 @@ export class Kart {
     // boost flame
     if ((s.boost || s.turboBoostMs > 0) && !s.spinOut) {
       this._localToWorld(this._pv, 0, this._pipeOffset.y, this._pipeOffset.z);
-      this._v.copy(this._back).multiplyScalar(8.5);
+      this._v.copy(this._back).multiplyScalar(9.5); // AUDIT R16c: 8.5→9.5 — boost flame mais presente
       particles.emit('boost', this._pv, {
         velocity: this._v,
         spread: 1.0,
-        size: 0.34,
+        size: 0.42, // AUDIT R16c: 0.34→0.42 — chama de boost mais visível (MK8)
         color: this._boostMs > CONFIG.items.mushroomBoostMs ? 0x7fd8ff : 0xffb25e,
       });
     }
@@ -2208,7 +2208,11 @@ export class Kart {
         this._v.add(this._side);
         const charge = s.driftCharge;
         const driftColor = charge < 0.33 ? 0xffffff : charge < 0.66 ? 0xffd166 : 0xff9f45;
-        particles.emit('drift', this._pv, { velocity: this._v, spread: 0.7, size: 0.3, color: driftColor });
+        // AUDIT R16c: size 0.3→0.38 + 2 puffs por frame — drift smoke mais denso
+        particles.emit('drift', this._pv, { velocity: this._v, spread: 0.7, size: 0.38, color: driftColor });
+        if (charge >= 0.33) {
+          particles.emit('drift', this._pv, { velocity: this._v, spread: 0.9, size: 0.3, color: driftColor });
+        }
         // AUDIT: tier crossing sparks — MK8 pops bright sparks when the drift
         // charge reaches each tier (white→yellow→orange), not just a color swap.
         const tier = charge >= 0.66 ? 2 : charge >= 0.33 ? 1 : 0;
