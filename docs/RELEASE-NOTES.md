@@ -3,6 +3,21 @@
 **Date:** 2026-08-09 · **Status:** 🚀 v0.2.0-draft (AAA visual/audio pass)
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
+### Round 13 (2026-08-16) — auditoria com câmeras de INSPEÇÃO + fix chevrons
+
+Ferramenta melhorada (capture-inspect no kit): câmeras de perto nos alvos dos
+bugs (roda, billboard, item box, asfalto, grandstand, pad) — o crítico agora
+vê o que o GPU real mostra. Validações: wheel_rear 7/10, wheel_front 6/10
+(sem anel), board_close 8/10 (textura limpa), itembox 7/10 (sem círculo
+branco), asphalt uniforme, grandstand 7/10 (plateia OK).
+
+**fix(R13c) `9f6ce34`**: turbo pad ribbon — chevrons INVISÍVEIS. A ribbon do
+pad (R12i) aparecia lisa: o UV é `(t-uvBias)*repeatU` no sub-trecho t0..t1
+(~0.0456) e o repeatU antigo (spanLen*0.055) mapeava só ~4.5% da textura —
+os chevrons (fx 0.26/0.50/0.74) ficavam fora. Fix: repeatU = 1/(t1-t0) —
+textura inteira (3 chevrons) por pad. Mesmo fix no glow. Validado: crítico
+4→7/10 (chevrons visíveis, pad segue a pista).
+
 ### Round 12 — AAA audit loop 3: 18 proposals (mecânica, densidade, imersão) (Jarvis, 2026-08-16)
 Terceiro fan-out dirigido pelo crítico cego da R11 (kart 5.5 'modelagem simples',
 meadow 6 'grama esparsa', Neon 7 'densidade urbana', 'interface reduz imersão').
