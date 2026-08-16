@@ -40,6 +40,23 @@ redundante). Validado: playtest 5→6/10, 'sem anéis anormais'.
    se move com o kart) cruza a pista no frame. Frustum ±130m (borda fora do
    alcance) + sun a 150m (a 90m a luz caía dentro do quadrado).
 
+**fix(R14a-b) `940ed86`** — os 2 que PERSISTIRAM após R13f-h (causas ocultas):
+1. **Item box círculo branco**: era o BEAM, não o ring. Coluna de luz
+   (CylinderGeometry) com AdditiveBlending+toneMapped:false+opacity 0.65. No
+   headless SwiftShader o additive fica PRETO (o crítico nunca via); no GPU
+   real com bloom ESTOURA EM BRANCO — vista da chase cam (de cima/trás) lê
+   como círculo branco no chão com o box dentro. MK8 não tem coluna de luz →
+   beam removido por completo (box+outline+sparkles).
+2. **Asfalto mudando de cor**: as 3 PointLights do kart (rimLight azul
+   4.2/9m, rimLightWarm laranja 2.4/8m, pilotFill creme 2.6/6m, decay 1.4)
+   iluminavam o CHÃO com cores diferentes — como seguem o kart, o asfalto
+   mudava de cor acompanhando o corredor. São rim light do kart, não luz de
+   pista → alcance ~2m (só até o kart) + intensidade reduzida.
+
+**LIÇÃO R14**: additive+toneMapped:false+bloom = estoura em BRANCO no GPU
+real (invisível/preto no SwiftShader headless); point lights parented ao
+player derramam cor no chão — limite o alcance ao objeto.
+
 ### Round 12 — AAA audit loop 3: 18 proposals (mecânica, densidade, imersão) (Jarvis, 2026-08-16)
 Terceiro fan-out dirigido pelo crítico cego da R11 (kart 5.5 'modelagem simples',
 meadow 6 'grama esparsa', Neon 7 'densidade urbana', 'interface reduz imersão').
