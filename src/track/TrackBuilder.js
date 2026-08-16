@@ -1896,6 +1896,25 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
     });
     reflect.renderOrder = 3; // desenha DEPOIS da pista (transparent pass)
     group.add(reflect);
+
+    // AUDIT AAA (2026-08-15): ruas de cidade têm linha de borda SÓLIDA.
+    // 2 ribbons brancas contínuas logo dentro da borda (±4.12m), 2mm acima do
+    // racing-line overlay (0.181), polygonOffset anti-z-fight (padrão edge shadow).
+    for (const side of [-1, 1]) {
+      const edgeLine = buildRoadRibbon(path, length, {
+        width: 0.14,
+        yOffset: 0.182,
+        lateral: side * (getRoadWidthAt() / 2 - 0.38),
+        color: 0xf4f7fb,
+        transparent: true,
+        opacity: 0.9,
+        roughness: 0.7,
+        polygonOffset: true,
+      });
+      edgeLine.material.toneMapped = false; // branco puro sob ACES (padrão lane dashes)
+      edgeLine.renderOrder = 1;
+      group.add(edgeLine);
+    }
   }
 
   // Racing-line wear + wet sheen: a low-roughness dark band down the center
