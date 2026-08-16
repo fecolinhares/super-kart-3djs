@@ -237,6 +237,7 @@ export class HUD {
 
     this.countdownTimer = 0;
     this.toastTimer = 0;
+    this._idle = false; // AUDIT imersão (R11): estado do auto-hide (setIdle)
 
     // Caches so per-frame update() never churns the DOM.
     this._pos = null;
@@ -476,16 +477,28 @@ export class HUD {
     // Glow underlay makes the route readable at a glance (art-bible: minimap
     // must communicate position, not just look decorative).
     const glowPath = svgEl('path', { d: polyline, class: 'sk3d-minimap-track-glow' });
-    svg.append(glowPath);
     const trackPath = svgEl('path', { d: polyline, class: 'sk3d-minimap-track' });
     trackPath.setAttribute('stroke', 'url(#sk3d-minimap-track-grad)');
-    svg.append(trackPath);
-
     const dotsGroup = svgEl('g', { class: 'sk3d-minimap-dots' });
-    svg.append(dotsGroup);
+    // AUDIT imersão (R11): view local MK8D — um <g> em volta de traçado+dots
+    // permite zoom centrado no jogador (mobile); desktop segue zoom 1 (global).
+    const view = svgEl('g', { class: 'sk3d-minimap-view' });
+    view.append(glowPath, trackPath, dotsGroup);
+    svg.append(view);
     wrap.append(svg);
 
-    return { wrap, dotsGroup, scale, offX, offZ, dots: new Map(), itemDots: new Map(), kartsRef: null };
+    const mobile =
+      (typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches) ||
+      window.innerWidth <= 768;
+    return {
+      wrap, dotsGroup, view,
+      zoom: mobile ? 2.1 : 1,
+      scale, offX, offZ,
+      // Limites projetados da pista (unidades do viewBox) — clamp do pan.
+      pMinX: offX + minX * scale, pMaxX: offX + maxX * scale,
+      pMinY: offZ + minZ * scale, pMaxY: offZ + maxZ * scale,
+      dots: new Map(), itemDots: new Map(), kartsRef: null,
+    };
   }
 
   /** Create the minimap dot for one ACTIVE ITEM (banana/shell) — AUDIT
@@ -544,6 +557,22 @@ export class HUD {
     const mm = this._mm;
     if (!mm || !karts || karts.length === 0) return;
 
+    // AUDIT imersão (R11): view local no mobile — pan/zoom 2.1× centrado no
+    // jogador (MK8D touch minimap); clamp nos limites da pista. Desktop zoom 1.
+    if (mm.view && mm.zoom > 1) {
+      const pk = karts.find((k) => k.isPlayer);
+      const zp = pk && pk.state && pk.state.position;
+      if (zp) {
+        const cxc = mm.offX + zp.x * mm.scale;
+        const cyc = mm.offZ + zp.z * mm.scale;
+        const half = MINIMAP_SIZE / 2;
+        const tx = Math.min(0, Math.max(half - mm.pMaxX, half - cxc * mm.zoom));
+        const ty = Math.min(0, Math.max(half - mm.pMaxY, half - cyc * mm.zoom));
+        const t = `translate(${tx.toFixed(1)},${ty.toFixed(1)}) scale(${mm.zoom})`;
+        if (mm.view.getAttribute('transform') !== t) mm.view.setAttribute('transform', t);
+      }
+    }
+
     // Rebuild the dot cache when the karts array is swapped (race restart).
     if (karts !== mm.kartsRef) {
       mm.kartsRef = karts;
@@ -599,6 +628,15 @@ export class HUD {
 
   show() {
     this.root.classList.remove('sk3d-hidden');
+  }
+
+  /** AUDIT imersão (R11): auto-hide MK8D — esmaece o HUD quando o jogador
+   *  está focado na pista; qualquer toque/tecla restaura (main.js cronometra). */
+  setIdle(idle) {
+    const on = !!idle;
+    if (on === this._idle) return;
+    this._idle = on;
+    this.root.classList.toggle('sk3d-hud-idle', on);
   }
 
   hide() {
@@ -772,6 +810,9 @@ export class HUD {
     this._boost = !!active;
     const dial = this.root.querySelector('.sk3d-speedo-dial');
     if (dial) dial.classList.toggle('sk3d-speedo-boost', !!active);
+    // AUDIT imersão R11: speedo ghost acende no boost
+    const speedo = this.root.querySelector('.sk3d-speedo');
+    if (speedo) speedo.classList.toggle('sk3d-speedo-active', !!active);
   }
 
   /** Lap-split chip: current + best lap, flashes on a new best (audit r4). */
@@ -1068,6 +1109,9 @@ export class HUD {
   /** Show drift charge (0..1) while drifting; hide when not. */
   setDriftCharge(charge, active) {
     if (!this.driftMeterEl) return;
+    // AUDIT imersão R11: speedo ghost acende durante o drift
+    const speedo = this.root.querySelector('.sk3d-speedo');
+    if (speedo) speedo.classList.toggle('sk3d-speedo-drift', !!active);
     if (!active) {
       if (!this.driftMeterEl.classList.contains('sk3d-hidden')) this.driftMeterEl.classList.add('sk3d-hidden');
       return;

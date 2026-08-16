@@ -215,6 +215,7 @@ let lastLap = 0;
 let finalLapShown = false; // FINAL LAP callout (audit v5 #5)
 let driftScreechAcc = 0; // drift tire screech accumulator
 let aiScreechAcc = 0;    // AI drift screech accumulator (v4 F5)
+let hudIdleT = 0;        // AUDIT imersão R11: auto-hide do HUD no touch
 let dustAcc = 0;         // off-road dust accumulator
 let turboParticleAcc = 0; // accumulator: burst once per 0.1s while turbo-boosting
 
@@ -565,6 +566,8 @@ function disarmRear() {
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
   audio.init(); // first gesture unlocks audio (autoplay policy)
+  hudIdleT = 0; // AUDIT imersão R11: input restaura o HUD
+  if (typeof hud !== 'undefined' && hud && hud.setIdle && hud._idle) hud.setIdle(false);
   keys.add(e.code);
   if (e.code === 'Space') {
     e.preventDefault();
@@ -590,7 +593,11 @@ window.addEventListener('keyup', (e) => {
   // AUDIT r4: the item fires on RELEASE (tap = forward, hold = back).
   if (e.code === 'Space') releaseItem();
 });
-window.addEventListener('pointerdown', () => audio.init(), { once: false });
+window.addEventListener('pointerdown', () => {
+  audio.init(); // first gesture unlocks audio (autoplay policy)
+  hudIdleT = 0; // AUDIT imersão R11: toque restaura o HUD
+  if (typeof hud !== 'undefined' && hud && hud.setIdle && hud._idle) hud.setIdle(false);
+}, { once: false });
 window.addEventListener('touchstart', () => audio.init(), { passive: true });
 
 // ---------------------------------------------------------------------------
@@ -1153,6 +1160,12 @@ loop.start((dt, t) => {
       hud.update(raceManager, playerKart, raceManager.karts);
       // AUDIT R11: speedo reage ao boost (mushroom, turbo pad, star).
       hud.setBoost?.(!!(playerKart.state.boost || playerKart.state.turboBoostMs > 0));
+      // AUDIT imersão R11: auto-hide — 4s sem input no touch esmaece o HUD
+      // (MK8D); qualquer tecla/toque restaura (listeners abaixo resetam).
+      if (hud._idle !== undefined && hud.setIdle) {
+        hudIdleT += dt;
+        if (hudIdleT > 4 && !hud._idle) hud.setIdle(true);
+      }
       // Drift charge meter (white → yellow → orange; only while drifting).
       hud.setDriftCharge(playerKart.state.driftCharge, playerKart.state.drifting);
       // Lap fanfare — completing a lap was completely silent (dead 'lap' SFX).

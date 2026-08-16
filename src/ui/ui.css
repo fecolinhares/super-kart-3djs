@@ -1257,8 +1257,8 @@
   height: 52px;
   font-size: 1.5rem;
   color: var(--sk3d-cream);
-  background: rgba(27, 42, 65, 0.85);
-  border: 3px solid rgba(255, 255, 255, 0.35);
+  background: rgba(27, 42, 65, 0.6); /* AUDIT imersão R11: 0.85→0.6 */
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 14px;
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
   display: flex;
@@ -1291,6 +1291,30 @@
   }
 }
 
+/* AUDIT imersão (R11): auto-hide do HUD no touch — após ~4s sem input as
+   placas viram ghost (MK8D auto-fades o touch-screen UI); qualquer toque
+   restaura (main.js reseta hudIdleT em pointerdown/keydown e chama setIdle). */
+@media (pointer: coarse) {
+  .sk3d-hud-top, .sk3d-hud-bottom-left, .sk3d-hud-bottom-right,
+  .sk3d-chip {
+    transition: opacity 0.7s ease, background 0.7s ease,
+      box-shadow 0.7s ease, border-color 0.7s ease;
+  }
+  /* placas de texto: perdem o fundo pesado, conteúdo permanece */
+  .sk3d-hud-idle .sk3d-lap,
+  .sk3d-hud-idle .sk3d-time,
+  .sk3d-hud-idle .sk3d-coins {
+    background: rgba(16, 25, 45, 0.25);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: none;
+  }
+  .sk3d-hud-idle .sk3d-minimap { opacity: 0.22; }
+  .sk3d-hud-idle .sk3d-speedo { opacity: 0.15; }
+  /* placa de posição: esmaece mas o número segue legível (info crítica) */
+  .sk3d-hud-idle .sk3d-position { opacity: 0.55; }
+  .sk3d-hud-idle .sk3d-item-wrap { opacity: 0.4; }
+}
+
 .sk3d-touch {
   position: fixed;
   inset: 0;
@@ -1311,12 +1335,12 @@
   justify-content: center;
   gap: 2px;
   border-radius: 22px;
-  border: 3px solid var(--sk3d-ink);
-  background: rgba(46, 196, 255, 0.85);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: rgba(46, 196, 255, 0.55); /* AUDIT imersão R11: 0.85→0.55 */
   color: #fff;
   font-family: var(--sk3d-font);
   font-weight: 800;
-  box-shadow: 0 5px 0 rgba(27, 42, 65, 0.7);
+  box-shadow: 0 3px 0 rgba(27, 42, 65, 0.55);
   touch-action: none; /* never scroll/zoom from these buttons */
   user-select: none;
   -webkit-user-select: none;
@@ -1340,7 +1364,10 @@
 .sk3d-touch-btn.is-active {
   transform: scale(0.9);
   background: rgba(255, 209, 102, 0.95);
-  box-shadow: 0 2px 0 rgba(27, 42, 65, 0.7);
+  box-shadow:
+    0 2px 0 rgba(27, 42, 65, 0.7),
+    0 0 0 6px rgba(255, 255, 255, 0.22),  /* AUDIT imersão R11: glow no toque */
+    0 0 20px rgba(255, 209, 102, 0.65);
 }
 
 .sk3d-touch-left {
@@ -1357,7 +1384,7 @@
   width: 88px;
   height: 88px;
   border-radius: 50%;
-  background: rgba(255, 209, 102, 0.9);
+  background: rgba(255, 209, 102, 0.6); /* AUDIT imersão R11: 0.9→0.6 */
 }
 
 .sk3d-touch-drift {
@@ -1366,7 +1393,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: rgba(67, 214, 75, 0.9);
+  background: rgba(67, 214, 75, 0.6); /* AUDIT imersão R11: 0.9→0.6 */
 }
 
 /* ---------- keyframes ---------- */
@@ -1514,13 +1541,39 @@
     font-size: 0.82rem;
   }
 
+  /* AUDIT imersão (R11): placas de texto translúcidas (0.78→0.5) e com sombra
+     mais leve — o frame mobile respira; conteúdo continua legível. */
+  .sk3d-lap,
+  .sk3d-time,
+  .sk3d-coins {
+    background: rgba(16, 25, 45, 0.5);
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.22), 0 8px 16px rgba(0, 0, 0, 0.16);
+  }
+  .sk3d-lap {
+    padding: 4px 10px 6px;
+    gap: 3px;
+  }
+  .sk3d-lap-text {
+    font-size: 0.95rem;
+  }
+  .sk3d-lap-bar {
+    width: 56px;
+    height: 6px;
+  }
+  .sk3d-position {
+    font-size: 1.55rem;
+    min-width: 58px;
+    min-height: 44px;
+  }
+
   .sk3d-hud-right {
     gap: 6px;
   }
 
   .sk3d-minimap {
-    width: 96px;
-    height: 96px;
+    width: 84px; /* AUDIT imersão R11: 96→84 */
+    height: 84px;
   }
 
   .sk3d-position {
@@ -1550,22 +1603,25 @@
   }
 
   .sk3d-speedo {
-    width: 140px; /* AUDIT R7 (Feco real mobile: 190px cobria o kart — gigante) */
-    height: 140px;
+    width: 112px; /* AUDIT imersão R11: 140→112 — dial fantasma 0.5; o drift
+                     meter (104px) abaixo continua intacto */
+    height: 112px;
   }
 
   .sk3d-speedo-dial {
-    width: 140px;
-    height: 140px;
+    width: 112px;
+    height: 112px;
   }
 
   .sk3d-speedo-needle {
-    height: 34px;
+    height: 28px;
     bottom: 50%;
   }
 
   .sk3d-speedo-hub {
     bottom: 50%;
+    width: 12px;
+    height: 12px;
   }
 
   .sk3d-speedo-readout {
@@ -1575,7 +1631,19 @@
   }
 
   .sk3d-speedo-value {
-    font-size: 1.05rem; /* AUDIT R7: proporcional ao dial 140px */
+    font-size: 0.88rem; /* AUDIT imersão R11: proporcional ao dial 112px */
+  }
+
+  /* AUDIT imersão (R11): speedo ghost no mobile — 0.5 de opacidade em
+     repouso, acende (1.0) só durante boost (setBoost) ou drift (setDriftCharge),
+     como o gauge MK8D que some em corrida e aparece na hora do drift. */
+  .sk3d-speedo {
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+  }
+  .sk3d-speedo.sk3d-speedo-active,
+  .sk3d-speedo.sk3d-speedo-drift {
+    opacity: 1;
   }
 
   .sk3d-item-slot {
@@ -1640,8 +1708,17 @@
      o minimap é flex-shrink:0, então o grupo esquerdo colide sob ele.
      Lapsplit some (a info está na tela de finish), minimap compacto. */
   .sk3d-lapsplit { display: none; }
-  .sk3d-minimap { width: 72px; height: 72px; }
+  .sk3d-minimap { width: 64px; height: 64px; } /* AUDIT imersão R11: 72→64 (zoom local 2.1× compensa) */
   .sk3d-coins { padding: 3px 8px; font-size: 0.78rem; }
+}
+
+/* AUDIT imersão (R11): no phone, o cronômetro de corrida some (MK8D não mostra
+   relógio em corrida — o total aparece no finish) e os rótulos decorativos
+   ITEM/DRIFT viram ruído. Info crítica (posição/volta/moedas) permanece. */
+@media (max-width: 480px) {
+  .sk3d-time { display: none; }
+  .sk3d-item-label { display: none; }
+  .sk3d-drift-label { display: none; }
 }
 
 /* ---------- reduced motion ---------- */
