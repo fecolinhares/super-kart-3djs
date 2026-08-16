@@ -789,6 +789,14 @@
   padding: 2px 5px;
 }
 
+/* AUDIT: shake do mini-slot num swap vazio (no-op visível). */
+.sk3d-item2-nope { animation: sk3d-shake 0.3s ease; }
+@keyframes sk3d-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
 .sk3d-item-label {
   position: absolute;
   top: -9px;
@@ -1142,6 +1150,13 @@
   background: rgba(20, 26, 40, 0.55);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
+}
+
+/* AUDIT: entrada do pause com fade+scale (era um snap sem transição). */
+.sk3d-pause:not(.sk3d-hidden) { animation: sk3d-pause-in 0.22s ease-out; }
+@keyframes sk3d-pause-in {
+  from { opacity: 0; transform: scale(1.04); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .sk3d-pause-hint {

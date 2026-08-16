@@ -196,9 +196,16 @@ export class HUD {
     this.onSwap = null; // wired by main.js: swap the player's held slots
     if (this.item2SlotEl) {
       this.item2SlotEl.addEventListener('click', () => {
-        // AUDIT MED-3: always acknowledge the tap — a swap with an EMPTY
-        // reserve was a silent no-op (players thought the tap missed).
         window.__sk3d?.audio?.play?.('uiClick', { volume: 0.5 });
+        // AUDIT: swap com os dois slots vazios = no-op — agora treme o
+        // mini-slot em vez de só tocar o click (era silencioso visualmente).
+        if (!this.itemType && !this._item2Type) {
+          const mini = this.item2SlotEl;
+          mini.classList.remove('sk3d-item2-nope');
+          void mini.offsetWidth;
+          mini.classList.add('sk3d-item2-nope');
+          return;
+        }
         if (this.onSwap) this.onSwap();
       });
     }
@@ -816,6 +823,10 @@ export class HUD {
       this.item2CountEl.textContent = `×${n}`;
       this.item2CountEl.classList.toggle('sk3d-hidden', !(this._item2Type && n > 1));
     }
+    // AUDIT: o slot reserva também ganha o pop (era mudo — só o principal popava).
+    icon.classList.remove('sk3d-item-pop');
+    void icon.offsetWidth;
+    icon.classList.add('sk3d-item-pop');
   }
 
   /** Coin counter chip (🪙 n/max). Pops on change. */
