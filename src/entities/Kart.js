@@ -633,6 +633,13 @@ export class Kart {
       pod.castShadow = true;
       this.group.add(pod);
     }
+    // R12 engine-cover fin (MK8 Standard kart): barbatana dorsal atrás do
+    // cockpit — degrau de silhueta entre o piloto e a asa.
+    const finCover = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.16, 0.3), bodyDark);
+    finCover.position.set(0, 0.83, -0.55);
+    finCover.rotation.x = 0.12;
+    finCover.castShadow = false;
+    this.group.add(finCover);
 
     // Fake AO under the shell — a dark chassis tub + side skirts, barely
     // visible in the shadow gap below the molded hull. Reads as a grounded
@@ -677,6 +684,12 @@ export class Kart {
     }
 
     // Side intakes — stepped dark scoops on the flanks (molded vent panels).
+    // R12: grade texturizada sobre a boca do vent (entrada de duto visível).
+    const grilleMat = new THREE.MeshBasicMaterial({
+      map: Materials.grilleTexture(),
+      transparent: true,
+      depthWrite: false,
+    });
     for (const s of [-1, 1]) {
       const scoop = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.14, 0.34), dark);
       scoop.position.set(s * 0.57, 0.56, 0.08);
@@ -688,6 +701,11 @@ export class Kart {
       vent.rotation.z = s * -0.14;
       vent.castShadow = false;
       this.group.add(vent);
+      const grille = new THREE.Mesh(new THREE.PlaneGeometry(0.1, 0.075), grilleMat);
+      grille.position.set(s * 0.628, 0.56, 0.08); // face externa do vent
+      grille.rotation.z = s * -0.1;
+      grille.castShadow = false;
+      this.group.add(grille);
     }
 
     // AUDIT R4 (visual critic: 'kart needs rim light / accent against dark
@@ -934,6 +952,14 @@ export class Kart {
     lowerBlade.castShadow = false;
     wingGroup.add(lowerBlade);
     this.group.add(wingGroup);
+    // R12 wing struts — ligações visíveis entre os dois blades (o inferior
+    // flutuava): 2 struts escuros = estrutura de asa real.
+    for (const s of [-1, 1]) {
+      const strut = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.15, 0.03), dark);
+      strut.position.set(s * 0.38, -0.11, 0);
+      strut.castShadow = false;
+      wingGroup.add(strut);
+    }
     // Wingtip endplates (painted) with dark edge trim.
     for (const s of [-1, 1]) {
       const plate = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.42, 0.62), carPaint);
@@ -949,6 +975,28 @@ export class Kart {
       accentEdge.position.set(s * 0.7525, 1.14, -0.90); // AUDIT R11: acompanha a asa baixa (1.24→1.14)
       accentEdge.castShadow = false;
       this.group.add(accentEdge);
+    }
+    // R12 livery: checker nas endplates (reusa bannerCheckerTexture) +
+    // listras duplas accent sobre o topo do blade — identidade de kart de
+    // corrida na traseira (critic R11: 'silhueta genérica').
+    const checkerMat = new THREE.MeshBasicMaterial({
+      map: Materials.bannerCheckerTexture(),
+      transparent: true,
+      depthWrite: false,
+    });
+    for (const s of [-1, 1]) {
+      const chk = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.26), checkerMat);
+      chk.position.set(s * 0.746, 0.94, -0.90); // face externa da endplate
+      chk.rotation.y = s * (Math.PI / 2);
+      chk.castShadow = false;
+      this.group.add(chk);
+    }
+    for (const s of [-1, 1]) {
+      const wstripe = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.014, 0.035), accentMat);
+      wstripe.position.set(0, 0.965, -0.92 + s * 0.09); // sobre o arco do blade
+      wstripe.rotation.x = 0.12; // acompanha o ângulo do blade
+      wstripe.castShadow = false;
+      this.group.add(wstripe);
     }
     // Center pylon (tapered) + side mount pods (molded, not sticks).
     const pylon = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.075, 0.40, 14), bodyDark);
@@ -1051,6 +1099,29 @@ export class Kart {
       );
     }
 
+    // R12 rear mechanicals: bloco com aletas + difusor sob a cauda — a chase
+    // cam lê maquinário, não sombra vazia. Metal usinado escuro (evita o
+    // chrome-branco do histórico R75 'anéis brancos').
+    const engineMat = new THREE.MeshStandardMaterial({
+      color: 0x59626e, metalness: 0.7, roughness: 0.38,
+      emissive: 0x10141c, emissiveIntensity: 0.5,
+    });
+    const engine = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.1, 0.16), engineMat);
+    engine.position.set(0, 0.36, -0.78);
+    engine.castShadow = false;
+    this.group.add(engine);
+    for (const fz of [-0.86, -0.78, -0.70]) {
+      const fin = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.05, 0.012), engineMat);
+      fin.position.set(0, 0.425, fz);
+      fin.castShadow = false;
+      this.group.add(fin);
+    }
+    const diffuser = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.035, 0.3), chassisMat);
+    diffuser.position.set(0, 0.28, -0.72);
+    diffuser.rotation.x = 0.18; // borda traseira erguida (diffuser real)
+    diffuser.castShadow = false;
+    this.group.add(diffuser);
+
     // AUDIT: solid boost flame cones — particles alone read as sparks; MK8
     // boost needs a visible flame column at the twin exhausts.
     const flameTex = (() => {
@@ -1127,6 +1198,9 @@ export class Kart {
     const hubGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.034, 18);
     const hubCapGeo = new THREE.SphereGeometry(0.034, 12, 10); // AUDIT R11: 0.026→0.034 (accent central maior — giro lê)
     const lugGeo = new THREE.SphereGeometry(0.013, 8, 6);
+    // R12 suspension (critic R11: 'pouco detalhamento mecânico'): arm + damper geos
+    const armGeo = new THREE.BoxGeometry(1, 0.07, 0.1);
+    const damperGeo = new THREE.CylinderGeometry(0.032, 0.04, 0.4, 10);
     const stripeMat = character ? this._mat(accent) : white;
     // AUDIT R20c: stripe SEMPRE cinza-claro (parede lateral de pneu) —
     // nunca a cor accent (amarelo criava anel visível).
@@ -1226,6 +1300,23 @@ export class Kart {
           calBracket.castShadow = false;
           spin.add(calBracket);
         }
+        // R12 suspension (critic R11: 'pouco detalhamento mecânico'): wishbone
+        // do corpo ao cubo (parented ao ROOT: dianteira esterça com a knuckle;
+        // o spin rola livre dentro). Amortecedor só na traseira (a chase cam lê).
+        const armLen = wx - 0.47;
+        const arm = new THREE.Mesh(armGeo, chassisMat);
+        arm.scale.x = armLen;
+        arm.position.set(-sx * (armLen / 2), -0.05, 0);
+        arm.rotation.z = sx * 0.08; // ponta externa sobe leve em direção ao cubo
+        arm.castShadow = false;
+        root.add(arm);
+        if (sz < 0) {
+          const damper = new THREE.Mesh(damperGeo, rimChrome);
+          damper.rotation.z = Math.PI / 2; // eixo do cilindro → X (ao longo do braço)
+          damper.position.set(-sx * (armLen * 0.55), 0.13, 0.02);
+          damper.castShadow = false;
+          root.add(damper);
+        }
         this._wheels.push({ root, spin, isFront: sz > 0 });
       }
     }
@@ -1288,6 +1379,34 @@ export class Kart {
     const hub = new THREE.Mesh(new THREE.SphereGeometry(0.026, 12, 10), chrome);
     hub.castShadow = false;
     steerGroup.add(hub);
+    // R12 cockpit detail: painel com display + botões accent no volante.
+    const dashCanvas = document.createElement('canvas');
+    dashCanvas.width = 64;
+    dashCanvas.height = 32;
+    const dctx = dashCanvas.getContext('2d');
+    dctx.fillStyle = '#0a0f16';
+    dctx.fillRect(0, 0, 64, 32);
+    dctx.fillStyle = '#ffd166';
+    dctx.font = '900 20px monospace';
+    dctx.textAlign = 'center';
+    dctx.textBaseline = 'middle';
+    dctx.fillText(String(this.number).padStart(2, '0'), 32, 15);
+    dctx.fillStyle = '#2ec4ff';
+    dctx.fillRect(10, 24, 44, 3); // barra de throttle
+    const dashTex = new THREE.CanvasTexture(dashCanvas);
+    dashTex.colorSpace = THREE.SRGBColorSpace;
+    const dashMat = new THREE.MeshBasicMaterial({ map: dashTex });
+    const dash = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.075, 0.03), dashMat);
+    dash.position.set(0, 1.06, 0.40); // dentro do domo de vidro, à frente do volante
+    dash.rotation.x = -0.55;
+    dash.castShadow = false;
+    this.group.add(dash);
+    for (const b of [-1, 1]) {
+      const btn = new THREE.Mesh(new THREE.SphereGeometry(0.011, 8, 6), accentMat);
+      btn.position.set(b * 0.028, 0, 0.028);
+      btn.castShadow = false;
+      steerGroup.add(btn);
+    }
 
     // Arms — upper arm + forearm (bent elbows), gloved hands gripping the rim.
     for (const s of [-1, 1]) {

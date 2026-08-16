@@ -198,6 +198,28 @@ export function neonReflectionTexture() {
   return _neonReflectTex;
 }
 
+let _grilleTex = null;
+/** Kart side-intake grille (R12): rebaixo escuro + 6 slats horizontais com
+ *  topo iluminado + divisor central — entrada de duto real, não patch liso. */
+export function grilleTexture() {
+  if (_grilleTex) return _grilleTex;
+  _grilleTex = canvasTexture(64, (ctx, s) => {
+    ctx.clearRect(0, 0, s, s);
+    ctx.fillStyle = 'rgba(10, 13, 18, 0.9)';
+    ctx.fillRect(4, 8, s - 8, s - 16);
+    for (let i = 0; i < 6; i++) {
+      const y = 12 + i * 7;
+      ctx.fillStyle = '#232b36';
+      ctx.fillRect(8, y, s - 16, 3);
+      ctx.fillStyle = '#4a5563';
+      ctx.fillRect(8, y, s - 16, 1); // aresta iluminada do slat
+    }
+    ctx.fillStyle = '#1a212b';
+    ctx.fillRect(s / 2 - 1.5, 10, 3, s - 20);
+  });
+  return _grilleTex;
+}
+
 /** NEON CITY asphalt: dark charcoal + subtle pink/cyan neon light spill baked
  *  into the texture (vision critic: 'the road needs to visibly receive the
  *  surrounding neon' — flat dark read as a void). */
