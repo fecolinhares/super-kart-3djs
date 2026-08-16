@@ -18,6 +18,15 @@ os chevrons (fx 0.26/0.50/0.74) ficavam fora. Fix: repeatU = 1/(t1-t0) —
 textura inteira (3 chevrons) por pad. Mesmo fix no glow. Validado: crítico
 4→7/10 (chevrons visíveis, pad segue a pista).
 
+**fix(R13d) `289b80c` + fix(R13e) `6e15d2b`**: 'anel nas rodas' = SOMBRA, não
+peça 3D. O playtest-sim (corrigido: startRace→1500ms→skipCountdown→2500ms →
+chase cam real) provou que o 'anel preto' do Feco é a SOMBRA PROJETADA do
+kart no chão — elipse escura sob a roda com borda dura (lê como anel na chase
+cam) + o blob (sombra de contato) com núcleo 0.45 lia como círculo preto
+colado sob os karts AI no grid. Fixes: shadow radius 4.5→9 (penumbra suave);
+blob núcleo 0.45→0.16 + raio 1.8 (o kart já tem castShadow real — blob era
+redundante). Validado: playtest 5→6/10, 'sem anéis anormais'.
+
 ### Round 12 — AAA audit loop 3: 18 proposals (mecânica, densidade, imersão) (Jarvis, 2026-08-16)
 Terceiro fan-out dirigido pelo crítico cego da R11 (kart 5.5 'modelagem simples',
 meadow 6 'grama esparsa', Neon 7 'densidade urbana', 'interface reduz imersão').
