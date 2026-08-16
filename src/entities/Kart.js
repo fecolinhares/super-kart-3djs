@@ -499,7 +499,7 @@ export class Kart {
     // AUDIT (visual auditor 2026-08-12): Neon night IBL is weak — clearcoat
     // paint read as dark wine. A subtle self-emissive (15% of body color)
     // lifts the shell off the asphalt without looking lit-from-within.
-    carPaint.emissive = new THREE.Color(color).multiplyScalar(0.32);
+    carPaint.emissive = new THREE.Color(color).multiplyScalar(0.45); // AUDIT R16d: 0.32→0.45 — hero POP (crítico: 'kart se funde com a pista'; sem PointLight que suje o asfalto, o corpo precisa de mais self-emissive p/ separar do fundo)
     carPaint.emissiveIntensity = 1.0; // AUDIT R5+ (R11: 0.7→1.0): lift p/ leitura no headless sem envmap
     const body = this._mat(color);
     const bodyDark = this._mat(new THREE.Color(color).multiplyScalar(0.82).getHex());
@@ -1430,8 +1430,8 @@ export class Kart {
     const helmetMat = character
       ? Materials.plasticMaterial(character.helmetColor, { roughness: 0.22, clearcoat: 1.0, envMapIntensity: 1.6 })
       : body;
-    helmetMat.emissive = new THREE.Color(character ? character.helmetColor : 0xffffff).multiplyScalar(0.18);
-    helmetMat.emissiveIntensity = 0.4; // AUDIT R5: keep the lift, soften it (clearcoat now does the work)
+    helmetMat.emissive = new THREE.Color(character ? character.helmetColor : 0xffffff).multiplyScalar(0.28); // AUDIT R16d: 0.18→0.28 — capacete/a pilot pop (crítico: hero se funde)
+    helmetMat.emissiveIntensity = 0.5; // AUDIT R16d: 0.4→0.5
     this._helmetMat = helmetMat;
     // AUDIT FIX 2026-08-16: capacete declarado abaixo (junto ao rim/visor) com
     // postura encolhida — o antigo (y 1.38, topo ~1.54) lia como piloto em pé.
