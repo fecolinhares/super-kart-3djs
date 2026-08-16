@@ -340,35 +340,41 @@ function racingLineTexture() {
   const g = c.getContext('2d');
   g.clearRect(0, 0, 512, 256);
   // Vertical alpha gradient: transparent at the edges → dark at the center.
+  // AUDIT R16f (Feco real-GPU: 'contorno do asfalto mais escuro com padrão
+  // estranho'): o gradiente central tinha alpha 0.9 → em perspectiva lia como
+  // FAIXA larga e manchada no meio da pista. MK8: racing line SUTIL. 0.9→0.5.
   const grad = g.createLinearGradient(0, 0, 0, 256);
   grad.addColorStop(0, 'rgba(10,14,20,0)');
   grad.addColorStop(0.32, 'rgba(10,14,20,0)');
-  grad.addColorStop(0.42, 'rgba(8,11,16,0.5)');
-  grad.addColorStop(0.5, 'rgba(6,9,14,0.9)');
-  grad.addColorStop(0.58, 'rgba(8,11,16,0.5)');
+  grad.addColorStop(0.42, 'rgba(8,11,16,0.28)');
+  grad.addColorStop(0.5, 'rgba(6,9,14,0.5)');
+  grad.addColorStop(0.58, 'rgba(8,11,16,0.28)');
   grad.addColorStop(0.68, 'rgba(10,14,20,0)');
   grad.addColorStop(1, 'rgba(10,14,20,0)');
   g.fillStyle = grad;
   g.fillRect(0, 0, 512, 256);
   // Two darker tire-track sub-bands inside the rubbered line.
+  // AUDIT R16f: 0.5→0.3 (sub-bands sutil — não formavam listras visíveis)
   for (const vy of [116, 140]) {
     const t2 = g.createLinearGradient(0, vy - 12, 0, vy + 12);
     t2.addColorStop(0, 'rgba(4,7,11,0)');
-    t2.addColorStop(0.5, 'rgba(4,7,11,0.5)');
+    t2.addColorStop(0.5, 'rgba(4,7,11,0.3)');
     t2.addColorStop(1, 'rgba(4,7,11,0)');
     g.fillStyle = t2;
     g.fillRect(0, vy - 12, 512, 24);
   }
   // Streak noise along the track direction (U) — breaks up the band edge.
-  for (let i = 0; i < 700; i++) {
+  // AUDIT R16f: 700 streaks alpha 0.17 → 260 streaks alpha 0.10 (less heavy
+  // grain — o 'padrão manchado/repetitivo' vinha dos streaks densos).
+  for (let i = 0; i < 260; i++) {
     const y = 52 + Math.random() * 152;
-    g.fillStyle = 'rgba(2,5,9,' + (0.05 + Math.random() * 0.12).toFixed(3) + ')';
-    g.fillRect(Math.random() * 512, y, 6 + Math.random() * 42, 1 + Math.random() * 2);
+    g.fillStyle = 'rgba(2,5,9,' + (0.04 + Math.random() * 0.06).toFixed(3) + ')';
+    g.fillRect(Math.random() * 512, y, 6 + Math.random() * 30, 1 + Math.random() * 2);
   }
   // Faint wet-sheen glints along the polished line.
-  g.fillStyle = 'rgba(180,205,225,0.06)';
-  for (let i = 0; i < 130; i++) {
-    g.fillRect(Math.random() * 512, 84 + Math.random() * 88, 4 + Math.random() * 12, 1);
+  g.fillStyle = 'rgba(180,205,225,0.04)';
+  for (let i = 0; i < 80; i++) {
+    g.fillRect(Math.random() * 512, 84 + Math.random() * 88, 4 + Math.random() * 10, 1);
   }
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -420,7 +426,7 @@ function buildEdgeShadowLine(path, length) {
       lateral: side * (roadW / 2 - 0.12),
       color: 0x0d1117,
       transparent: true,
-      opacity: 0.38,
+      opacity: 0.22, // AUDIT R16f: 0.38→0.22 (sombra de junção sutil, não faixa escura)
       roughness: 0.95,
       polygonOffset: true,
     });
@@ -896,11 +902,19 @@ function dashTexture() {
 }
 
 function buildLaneDashes(path, length) {
-  const count = Math.floor(length / 3.0);
-  // Flat plane laid on the asphalt (was a 0.04-thick box that read as a
+  // AUDIT R16e (Feco real-GPU: 'component tracejado amarelo no centro' + o
+  // contorno escuro): o lane dashes era AMARELO com count = length/3 = 131
+  // dashs de 2.6m com gap de só 0.4m → virtualmente UMA LINHA CONTÍNUA, não
+  // um tracejado. MK8: traço curto (~1.2m) + gap grande (~2.4m) = divisão de
+  // faixa legível. Nova cadência: 1.4m de traço + 2.4m de gap = 3.8m ciclo.
+  const dashLen = 1.4;
+  const gapLen = 2.4;
+  const cycle = dashLen + gapLen;
+  const count = Math.floor(length / cycle);
+ // Flat plane laid on the asphalt (was a 0.04-thick box that read as a
   // floating sliver). polygonOffset wins the depth test against the ribbon —
   // the classic decal technique.
-  const geo = new THREE.PlaneGeometry(0.45, 2.6); // AUDIT visual 2026-08-12: bigger dashes (MK8 lane marking scale)
+  const geo = new THREE.PlaneGeometry(0.42, dashLen); // AUDIT R16e: 0.45×2.6 → 0.42×1.4 (dash curto, não linha)
   // Painted look: worn darker border + grime on the dash card, slight
   // transparency so the asphalt grain shows through the paint.
   const mat = toonMaterial(0xffffff, { side: THREE.DoubleSide, map: dashTexture(), transparent: true, opacity: 0.85 });
@@ -916,7 +930,8 @@ function buildLaneDashes(path, length) {
   const tan = new THREE.Vector3();
   const dummy = new THREE.Object3D();
   for (let i = 0; i < count; i++) {
-    const t = i / count;
+    // AUDIT R16e: avança o ciclo completo (traço + gap) — não traço contínuo
+    const t = (i * cycle + dashLen / 2) / length;
     path.getPointAt(t, p);
     path.getTangentAt(t, tan);
     // Road ribbon sits at y+0.18 — the dashes must sit ABOVE it (y+0.21) or
