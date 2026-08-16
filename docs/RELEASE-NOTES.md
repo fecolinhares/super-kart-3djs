@@ -57,6 +57,18 @@ redundante). Validado: playtest 5→6/10, 'sem anéis anormais'.
 real (invisível/preto no SwiftShader headless); point lights parented ao
 player derramam cor no chão — limite o alcance ao objeto.
 
+**fix(R15a-b) `4797f9c`** — mobile (screenshot do Feco):
+1. **Asfalto azulado junto ao kart**: o vision no screenshot confirmou "faixa
+   mais clara e azulada, formato alongado, sob e à esquerda do kart" = o
+   rimLight azul (0x66e0ff) AINDA derramava no chão mesmo com alcance 2.2m
+   (R14b). QUALQUER PointLight parented no kart ilumina o chão ao redor (não
+   tem como excluir o chão) → **as 3 PointLights REMOVIDAS por completo**;
+   rim light do piloto virou emissive (separação visual sem luz física).
+2. **Beam menor**: o Feco pediu "o beam pode existir mas tem que ser MENOR
+   que a item box" — recriado com raio máximo 0.55× o box (antes 1.05× =
+   maior que o box), opacity 0.35, SEM toneMapped:false (lição R14). Brilho
+   de chão contido.
+
 ### Round 12 — AAA audit loop 3: 18 proposals (mecânica, densidade, imersão) (Jarvis, 2026-08-16)
 Terceiro fan-out dirigido pelo crítico cego da R11 (kart 5.5 'modelagem simples',
 meadow 6 'grama esparsa', Neon 7 'densidade urbana', 'interface reduz imersão').
