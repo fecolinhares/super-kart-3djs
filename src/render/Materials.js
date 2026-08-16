@@ -824,11 +824,15 @@ export function turboPadTexture() {
   ctx.lineJoin = 'round';
   ctx.shadowColor = 'rgba(255,255,255,0.65)';
   ctx.shadowBlur = 5;
-  for (const fx of [0.20, 0.50, 0.80]) {
+  // AUDIT FIX R12c (Feco real-GPU: 'pads cortando'): com PAD_LEN dinâmico
+  // (7-18m), os chevrons em 0.20/0.50/0.80 eram cortados pela borda quando o
+  // pad encolhia. Centraliza as setas com margem de 12% nas pontas: o corte
+  // cai no fundo laranja, nunca no meio da seta.
+  for (const fx of [0.26, 0.50, 0.74]) {
     const cx = W * fx;
     const cy = H / 2;
-    const half = W * 0.11;
-    const hh = H * 0.32;
+    const half = W * 0.09;
+    const hh = H * 0.30;
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
     ctx.lineTo(cx + half, cy);
@@ -840,11 +844,11 @@ export function turboPadTexture() {
   ctx.shadowBlur = 0;
   ctx.strokeStyle = 'rgba(150,80,0,0.55)';
   ctx.lineWidth = 2.5;
-  for (const fx of [0.20, 0.50, 0.80]) {
+  for (const fx of [0.26, 0.50, 0.74]) {
     const cx = W * fx;
     const cy = H / 2;
-    const half = W * 0.11;
-    const hh = H * 0.32;
+    const half = W * 0.09;
+    const hh = H * 0.30;
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
     ctx.lineTo(cx + half, cy);
@@ -856,11 +860,11 @@ export function turboPadTexture() {
   ctx.shadowBlur = 12;
   ctx.lineWidth = 5;
   ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-  for (const fx of [0.20, 0.50, 0.80]) {
+  for (const fx of [0.26, 0.50, 0.74]) {
     const cx = W * fx;
     const cy = H / 2;
-    const half = W * 0.11;
-    const hh = H * 0.32;
+    const half = W * 0.09;
+    const hh = H * 0.30;
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
     ctx.lineTo(cx + half, cy);
