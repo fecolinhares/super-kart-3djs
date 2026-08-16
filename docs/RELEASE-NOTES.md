@@ -3,6 +3,46 @@
 **Date:** 2026-08-09 · **Status:** 🚀 v0.2.0-draft (AAA visual/audio pass)
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
+### Round 11 — AAA audit loop 2: 18 proposals from 3 specialist auditors (Jarvis, 2026-08-16)
+Segundo fan-out (kart/piloto · pista/ambiente · itens/HUD/FX) dirigido pelas notas
+do crítico cego da Round 10 (kart 5/10, Neon 6/10, meadow 4/10). 18 propostas em
+3 commits atômicos + push (07e06c6, 2aecddc, 1f329e9):
+
+**Kart/piloto (6):**
+- Asa traseira DESCE (1.02→0.84, blade 0.15) + piloto SOBE (capacete 0.185 em
+  y1.38, ombros 1.02) — a capa plana do wing ocultava os ombros na chase cam;
+  agora silhueta MK8 (capacete+ombros acima da aero). glowBar que estava
+  oculto atrás da asa volta a aparecer.
+- Sombra de contato com núcleo escuro 0.92 + penumbra curta (raio 1.0,
+  opacity 0.18) — ancora o kart no asfalto.
+- Pneus MUITO escuros (0x252b34) vs aro satin 0.9 + hubCap maior — roda lê
+  com contraste e o giro aparece.
+- Bitola larga (wx 0.765, flares acompanham) — traseira wide stance MK8.
+- Paint envMap 3.2 + emissive 1.0 + outline na asa — silhueta definida.
+- Placa de número maior (0.44×0.50 y0.66) + brake lamps 1.3 + flare 1.8.
+
+**Pista/ambiente (6):**
+- Poças neon MK8: elipsoidais (2.8×7.2m), núcleo quente 0.95 + streak
+  especular da lâmpada + smear do poste, jitter determinístico.
+- Asfalto MOLHADO na city: clearcoat 0.85 + sheen 0.55/0.15 + reflexo das
+  janelas ADITIVO toneMapped=false — reflexos contínuos.
+- Kerb vira PEDRA 3D (256×32: zebra no topo, pedra escura nas laterais).
+- Flores no meadow (6 cores, ~1/2.5m, InstancedMesh) — fim da grama uniforme.
+- Anel de nevoeiro atmosférico (haze banding em 3 planos, 26-30 placas).
+- Skyline Neon vivo: bruma roxa 0x241f42 + janelas toneMapped=false.
+
+**Itens/HUD/UI/FX (6):**
+- Speedo REATIVO ao boost (dial dourado pulsa — MK8D).
+- Floater +N de ganho de moeda.
+- Shake no slot ao CONSUMIR item (uso sem feedback antes).
+- Minimap mobile: dot do jogador 4→5.5 (a 72px sumia no traçado).
+- ItemBox flare do anel no pickup (1→3.2× em 0.4s).
+- Skid marks escalam com driftCharge + faíscas laranja no tier 3.
+
+**Validação:** build ✓ · audit-geometry 0 CRIT ×2 tracks ✓ · crítico cego em
+andamento (kart_chase/driver_close/meadow/neon) · deploy Pages verde.
+Assets 100% procedural/WebAudio (TRIPO/GEMINI/ELEVENLABS = MISSING).
+
 ### Round 10 — AAA audit loop: 18 proposals from 3 specialist auditors (Jarvis, 2026-08-15)
 Fan-out de 3 subagentes (kart / pista+ambiente / itens+HUD+UI+áudio) usando as
 skills threejs-* (director, gameplay, aaa-graphics, ui, debug, qa-release) →
