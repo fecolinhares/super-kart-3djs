@@ -4468,6 +4468,60 @@ export class Environment {
         lamp.position.set(nl.pos[0], 1.7, nl.pos[2]);
         scene.add(lamp);
       }
+
+      // --- piscinas de luz neon NA PISTA (AUDIT AAA 2026-08-15): o reflexo wet
+      // existia, mas a luz dos postes não pousava no asfalto. Pools aditivos
+      // projetados sob cada lâmpada (mesmos ts/lado), 1 InstancedMesh.
+      {
+        const poolCv = document.createElement('canvas');
+        poolCv.width = 128; poolCv.height = 128;
+        const pg = poolCv.getContext('2d');
+        const grad = pg.createRadialGradient(64, 64, 4, 64, 64, 62);
+        grad.addColorStop(0, 'rgba(255,255,255,0.5)');
+        grad.addColorStop(0.45, 'rgba(255,255,255,0.2)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        pg.fillStyle = grad;
+        pg.fillRect(0, 0, 128, 128);
+        const poolTex = new THREE.CanvasTexture(poolCv);
+        const poolGeo = new THREE.PlaneGeometry(3.2, 5.2);
+        const poolMat = new THREE.MeshBasicMaterial({
+          map: poolTex, transparent: true, blending: THREE.AdditiveBlending,
+          depthWrite: false, side: THREE.DoubleSide,
+        });
+        poolMat.toneMapped = false;
+        const POOL_TS = [0.03, 0.14, 0.26, 0.40, 0.52, 0.64, 0.76, 0.90];
+        const poolDummy = new THREE.Object3D();
+        const _pp = new THREE.Vector3();
+        const _pt = new THREE.Vector3();
+        const _pn = new THREE.Vector3();
+        const _cityPath = this._trackPath || (this._track && this._track.path) || (track && track.path);
+        const pools = new THREE.InstancedMesh(poolGeo, poolMat, POOL_TS.length);
+        pools.renderOrder = 4; // acima do reflexo wet (renderOrder 3, y 0.195)
+        pools.frustumCulled = false;
+        const poolCol = new THREE.Color();
+        let poolIdx = 0;
+        for (let li = 0; li < POOL_TS.length; li++) {
+          const tt = POOL_TS[li];
+          _cityPath.getPointAt(tt, _pp);
+          _cityPath.getTangentAt(tt, _pt);
+          _pn.set(-_pt.z, 0, _pt.x).normalize();
+          const lside = li % 2 === 0 ? 1 : -1;
+          const px = _pp.x + _pn.x * lside * (CONFIG.track.roadWidth / 2 - 1.2);
+          const pz = _pp.z + _pn.z * lside * (CONFIG.track.roadWidth / 2 - 1.2);
+          poolDummy.position.set(px, _pp.y + 0.197, pz); // 2mm acima do wet reflect (0.195)
+          poolDummy.lookAt(px + _pt.x, _pp.y, pz + _pt.z);
+          poolDummy.rotateX(-Math.PI / 2); // deitado (padrão lane dashes)
+          poolDummy.updateMatrix();
+          pools.setMatrixAt(poolIdx, poolDummy.matrix);
+          poolCol.setHex(li % 2 === 0 ? 0xff2ec4 : 0x2ec4ff); // casa com as lâmpadas
+          pools.setColorAt(poolIdx, poolCol);
+          poolIdx++;
+        }
+        pools.count = poolIdx;
+        pools.instanceMatrix.needsUpdate = true;
+        if (pools.instanceColor) pools.instanceColor.needsUpdate = true;
+        scene.add(pools);
+      }
     }
 
     // --- neon street signs (vision critic: 'street-level detail' — small
