@@ -3554,7 +3554,12 @@ export class Environment {
       const legDummy = new THREE.Object3D();
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 48; j++) {
-          dummy.position.set(-10.1 + j * 0.42, 1.9 + i * 1.1, -i * 2.0 + 0.3);
+          // AUDIT FIX 2026-08-16 (Feco real-GPU: 'plateia empilhada sem
+          // definição'): os espectadores iam de x=-10.1 a +9.64 (20.16m)
+          // num degrau de 16m (BoxGeometry 16) — as bordas transbordavam
+          // ~2m de cada lado e empilhavam fora do assento. Distribuição
+          // corrigida para ±7.6m (48 × 0.42 = 20.16 → 48 × 0.316 ≈ 15.2m).
+          dummy.position.set(-7.6 + j * 0.316, 1.9 + i * 1.1, -i * 2.0 + 0.3);
           dummy.scale.set(1, 1, 1); // AUDIT FIX 2026-08-16: sem sy (0.9-1.3 esticava o corpo)
           dummy.rotation.set(0, 0, 0);
           baseY[sIdx] = dummy.position.y;
@@ -4703,15 +4708,22 @@ export class Environment {
         _cityPath.getPointAt(tt, _cp);
         _cn.set(-_ct.z, 0, _ct.x).normalize();
         const side = carIdx % 2 === 0 ? 1 : -1;
-        // AUDIT FIX 2026-08-16 (Feco real-GPU: 'carros atravessando o
-        // guardrail'): R12 aproximou para halfW+7.6 (12.2m) — em curvas o
-        // path se aproxima e o carro cruzava o rail (halfW+0.45 = 5.05m).
-        // Volta ao offset da R10 (nunca reclamado): halfW+9.5..11 + gate
-        // _onTrack com margem 5.5 (>10.1m do path = ~5m além do rail).
+        // AUDIT FIX R12h (Feco real-GPU: 'carro atravessando o guardrail'
+        // — persiste): o gate _onTrack usa amostras ~2.5m e em curva fechada
+        // um carro a 14m perpendicular pode ter a amostra mais próxima a
+        // ~10m → passava. Fix duplo: (a) margem 6.5 (>11.1m do path — bem
+        // além do rail em 5.05m); (b) só coloca carro em trechos de BAIXA
+        // curvatura (a distância perpendicular ≈ distância real ao path em
+        // retas; em curvas o offset lateral NÃO garante distância ao rail).
         const off = CONFIG.track.roadWidth / 2 + 9.5 + carRand() * 1.5;
         const px = _cp.x + _cn.x * side * off;
         const pz = _cp.z + _cn.z * side * off;
-        if (this._onTrack(px, pz, 5.5) || inWater(px, pz, 3)) continue;
+        if (this._onTrack(px, pz, 6.5) || inWater(px, pz, 3)) continue;
+        // (b) curvatura local no spot — retas quase retas, nada de curvas.
+        const ta = _cityPath.getTangentAt(Math.max(0.001, tt - 0.75 / _cityPath.getLength()));
+        const tb = _cityPath.getTangentAt(Math.min(0.999, tt + 0.75 / _cityPath.getLength()));
+        const curv = 1 - Math.min(1, Math.max(-1, ta.dot(tb)));
+        if (curv > 0.0012) continue; // mesma régua das retas (sponsor boards)
         const gy = this._gy(px, pz);
         const yaw = Math.atan2(_ct.x, _ct.z);
         const s = 0.9 + carRand() * 0.25;

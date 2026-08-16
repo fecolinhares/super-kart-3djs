@@ -384,14 +384,13 @@ function buildRacingLineOverlay(path, length) {
     repeatU: Math.max(12, length * 0.03),
     repeatV: 1,
     transparent: true,
-    opacity: 0.5,
-    roughness: 0.55,
-    // AUDIT r2: polished-rubber specular — clearcoat + env reflection make
-    // the racing line read as wet/grippy instead of flat matte black.
-    clearcoat: 0.35,
-    clearcoatRoughness: 0.25,
-    envMapIntensity: 1.1,
-    polygonOffset: true,
+    // AUDIT FIX R12f (Feco real-GPU: 'asfalto mudando de cor acompanhando
+    // o corredor'): a racing line tinha clearcoat 0.35 + envMapIntensity 1.1
+    // — o reflexo especular da faixa central refletia o ambiente e mudava de
+    // cor conforme o ângulo da câmera (lê como 'faixa que segue o kart').
+    // Sem specular: só o desgaste escuro (textura), opacidade reduzida.
+    opacity: 0.28,
+    roughness: 1.0,
   });
   mesh.material.depthWrite = false;
   mesh.renderOrder = 1;
@@ -1008,22 +1007,17 @@ function buildTurboPads(path, length) {
   const ts = [];
   const points = [];
 
-  // AUDIT FIX 2026-08-16: com PAD_LEN dinâmico (curvatura local), o
-  // InstancedMesh com geo única não serve — cria um mesh por cluster com a
-  // geometria do tamanho certo. Só ~2-6 clusters, custo desprezível.
+  // AUDIT FIX R12g (Feco real-GPU: 'turbo pad cortando' — persiste): um pad
+  // PLANO RETO (mesmo de 7m) numa pista curva tem as pontas LATERAIS fora do
+  // asfalto — o crítico headless dava 8/10 mas no GPU real o corte é óbvio.
+  // Solução definitiva: o pad agora é uma RIBBON que SEGUE o path (mesma
+  // técnica do buildRoadRibbon) — largura fixa, comprimento curvo, yOffset
+  // 0.185 (acima dos overlays), sem corte em curva nenhuma.
   const group = new THREE.Group();
   let vi = 0;
   for (const c of clusters) {
     const padLen = padLenAt(c);
-    const padGeo = new THREE.PlaneGeometry(padLen, PAD_W);
-    const padMesh = new THREE.Mesh(padGeo, mat);
-    const padGlow = new THREE.Mesh(padGeo, glowMat);
-    padMesh.frustumCulled = false;
-    padGlow.frustumCulled = false;
-    padMesh.renderOrder = 2;
-    padGlow.renderOrder = 3;
-    // Detection spots — now on the ENTRY edge of the long ribbon so the
-    // boost fires as the kart touches the pad (MK8 feel), 4 spots ~3m apart.
+    // Detection spots — na borda de entrada da ribbon (boost ao tocar).
     const spotDt = 3.0 / length;
     for (let k = 0; k < perCluster; k++) {
       const t = Math.min(0.999, Math.max(0.001, c - (padLen / 2) / length + k * spotDt));
@@ -1031,43 +1025,65 @@ function buildTurboPads(path, length) {
       ts.push(t);
       points.push(p.clone());
     }
-    // Visual: one long strip centered on the cluster.
-    path.getPointAt(c, p);
-    path.getTangentAt(c, tan);
-    // AUDIT R3 (Feco real-GPU 2026-08-13: 'pad flutuando + apontando para
-    // baixo no fim'): lookAt(ahead) usava o Y REAL do ponto à frente — em
-    // declive o pad inclinava e a ponta dianteira afundava. Agora:
-    // yaw = tangente (direção) + pitch = inclinação REAL do path CLAMPADA
-    // (±0.18 rad ≈ 10°) — segue rampas sem apontar para o chão.
-    // AUDIT R77 (Feco real-GPU 2026-08-14: 'PARTE dos pads ainda estranhos'):
-    // o pad usava só PITCH na tangente — em trechos com banking (inclinação
-    // lateral do terreno), um lado do pad afunda/flutua (lê como defeito só
-    // em alguns pads). Agora mede Y em 3 pontos (centro, +lateral, -lateral)
-    // e computa pitch + ROLL para o pad assentar no terreno real.
-    dummy.position.set(p.x, p.y + 0.185, p.z); // AUDIT R19 (Feco: 'turbo pad com defeito'): 0.1825 vs overlays 0.181/0.1815 = gap 0.0005-0.001 → z-fighting. 0.185 = 3.5mm acima de tudo
-    const ahead = path.getPointAt(Math.min(0.999, Math.max(0.001, c + 0.0015)));
-    const dist = Math.hypot(ahead.x - p.x, ahead.z - p.z) || 1;
-    const dy = ahead.y - p.y;
-    let pitch = Math.atan2(dy, dist);
-    pitch = Math.max(-0.18, Math.min(0.18, pitch));
-    // AUDIT R77: roll = inclinação lateral real (banking). Amostra o terreno
-    // a ±2.2m do centro na perpendicular da tangente (terrainHeight local).
-    const nrmR = new THREE.Vector3(-tan.z, 0, tan.x).normalize();
-    const gyL = terrainHeight(p.x - nrmR.x * 2.2, p.z - nrmR.z * 2.2, path);
-    const gyR = terrainHeight(p.x + nrmR.x * 2.2, p.z + nrmR.z * 2.2, path);
-    let roll = Math.atan2(gyR - gyL, 4.4);
-    roll = Math.max(-0.12, Math.min(0.12, roll));
-    dummy.rotation.set(pitch, Math.atan2(tan.x, tan.z), roll);
-    dummy.rotateX(-Math.PI / 2); // lay flat as paint
-    // The ">>>" chevrons in turboPadTexture point along the texture's +X —
-    // spin the flat plane so they point along the direction of travel.
-    dummy.rotateZ(-Math.PI / 2);
-    dummy.updateMatrix();
-    padMesh.matrix.copy(dummy.matrix);
-    padMesh.matrixAutoUpdate = false;
-    padGlow.matrix.copy(dummy.matrix);
-    padGlow.matrixAutoUpdate = false;
-    group.add(padMesh, padGlow);
+    // Ribbon CURVA centrada no cluster: t0..t1 = padLen ao longo do path.
+    // buildRoadRibbon cria a malha seguindo a curva — bordas sempre dentro
+    // do asfalto, sem trapézio.
+    const t0 = Math.max(0.001, c - (padLen / 2) / length);
+    const t1 = Math.min(0.999, c + (padLen / 2) / length);
+    const spanLen = Math.max(1, (t1 - t0) * length);
+    const segs = Math.max(4, Math.round(spanLen / 1.2)); // ~1.2m por segmento
+
+    // Material base (mesmo recipe do plano antigo): unlit + polygonOffset.
+    const baseMat = new THREE.MeshBasicMaterial({
+      map: turboPadTexture(),
+      color: 0xffffff,
+      side: THREE.DoubleSide,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -2,
+      depthWrite: false,
+      transparent: true,
+    });
+    baseMat.toneMapped = false;
+
+    const ribbonMesh = buildRoadRibbon(path, length, {
+      width: PAD_W,
+      yOffset: 0.185,
+      segments: segs,
+      lateral: 0,
+      texture: () => turboPadTexture(),
+      repeatU: spanLen * 0.055,
+      repeatV: 1,
+      transparent: true,
+      opacity: 1,
+      roughness: 1,
+    });
+    // Substitui o material da ribbon pelo material pad (unlit + offsets).
+    ribbonMesh.material.dispose?.();
+    ribbonMesh.material = baseMat;
+    ribbonMesh.renderOrder = 2;
+    ribbonMesh.frustumCulled = false;
+    group.add(ribbonMesh);
+
+    // Glow aditivo (mesma ribbon, máscara dos chevrons).
+    const glowMesh = buildRoadRibbon(path, length, {
+      width: PAD_W,
+      yOffset: 0.186,
+      segments: segs,
+      lateral: 0,
+      texture: () => turboPadGlowTexture(),
+      repeatU: spanLen * 0.055,
+      repeatV: 1,
+      transparent: true,
+      opacity: 0,
+      roughness: 1,
+    });
+    glowMesh.material.dispose?.();
+    glowMesh.material = glowMat;
+    glowMesh.renderOrder = 3;
+    glowMesh.frustumCulled = false;
+    group.add(glowMesh);
+
     vi++;
   }
   return { mesh: group, glowMat, ts, points };
@@ -1512,28 +1528,47 @@ function hash01(...args) {
   return ((h >>> 0) % 10000) / 10000;
 }
 
-/** Procedural billboard face: toon base color + 3 diagonal stripes + dark frame. */
+/** Procedural billboard face: toon base color + clean sponsor lockup
+ *  (circle badge + wordmark bars) + dark frame. AUDIT FIX 2026-08-16
+ *  (Feco real-GPU: 'faixas vermelhas esticadas e ruim definição'): a
+ *  textura antiga (128×64, 3 stripes diagonais) aplicada nas faces do
+ *  BoxGeometry esticava o desenho (laterais/topo esmagavam a stripe) e
+ *  lia como "oval borrado" em perspectiva. Nova: 256×128 com um logotipo
+ *  simples e legível — círculo + 2 barras — que permanece coerente mesmo
+ *  com a perspectiva da chase cam. */
 function billboardTexture(baseHex, stripeHex) {
   const c = document.createElement('canvas');
-  c.width = 128;
-  c.height = 64;
+  c.width = 256;
+  c.height = 128;
   const g = c.getContext('2d');
-  g.fillStyle = '#' + baseHex.toString(16).padStart(6, '0');
-  g.fillRect(0, 0, 128, 64);
-  g.fillStyle = '#' + stripeHex.toString(16).padStart(6, '0');
+  const base = '#' + baseHex.toString(16).padStart(6, '0');
+  const accent = '#' + stripeHex.toString(16).padStart(6, '0');
+  g.fillStyle = base;
+  g.fillRect(0, 0, 256, 128);
+  // Duas faixas horizontais accent (topo/base) — identidade de sponsor.
+  g.fillStyle = accent;
+  g.fillRect(0, 0, 256, 18);
+  g.fillRect(0, 110, 256, 18);
+  // Badge circular central (logo) com anel interno — legível a distância.
   g.beginPath();
-  for (let i = 0; i < 3; i++) {
-    const x = 14 + i * 34;
-    g.moveTo(x, 0);
-    g.lineTo(x + 12, 0);
-    g.lineTo(x - 20, 64);
-    g.lineTo(x - 32, 64);
-    g.closePath();
-  }
+  g.arc(128, 64, 30, 0, Math.PI * 2);
+  g.fillStyle = '#f4f6f8';
   g.fill();
+  g.lineWidth = 6;
+  g.strokeStyle = accent;
+  g.stroke();
+  g.beginPath();
+  g.arc(128, 64, 14, 0, Math.PI * 2);
+  g.fillStyle = base;
+  g.fill();
+  // Wordmark: duas barras assimétricas (finge texto sem esticar).
+  g.fillStyle = accent;
+  g.fillRect(70, 84, 62, 8);
+  g.fillRect(70, 98, 42, 6);
+  // Frame escuro fino.
   g.strokeStyle = 'rgba(18,28,44,0.9)';
-  g.lineWidth = 4;
-  g.strokeRect(2, 2, 124, 60);
+  g.lineWidth = 5;
+  g.strokeRect(3, 3, 250, 122);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;

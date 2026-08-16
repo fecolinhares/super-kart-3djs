@@ -230,10 +230,10 @@ export class Kart {
     this._held2Orb = new THREE.Mesh(new THREE.SphereGeometry(0.11, 12, 10), new THREE.MeshBasicMaterial({ color: 0xffffff }));
     this._held2OrbMat = this._held2Orb.material;
     this.heldItem2Group.add(this._held2Orb);
-    this.heldItem2Group.add(new THREE.Mesh(
-      new THREE.TorusGeometry(0.17, 0.015, 8, 20),
-      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 })
-    ));
+    // AUDIT FIX 2026-08-16 (Feco real-GPU: 'bolinha com anel aparecendo
+    // atrás do carro após pegar item'): o torus branco do slot RESERVA
+    // (dual slot) também lia como anel flutuante. Removido — orbe colorido
+    // sozinho, igual ao slot principal.
     this.heldItem2Group.visible = false;
     this.group.add(this.heldItem2Group);
 
@@ -657,29 +657,19 @@ export class Kart {
 
     // Fender flares — molded PAINTED arches over every wheel (same clearcoat
     // as the shell = merged bodywork, not stuck-on black) + a dark inner lip
-    // that defines the arch cut line against the tire.
-    // AUDIT R20 (Feco real-GPU 2026-08-14: 'anel amarelo MAIOR que o pneu'):
-    // raio 0.30 + tubo 0.05 = externo 0.35 > pneu 0.34 — o arco sobressaía
-    // 1cm do contorno e pintado da cor do kart lia como anel. 0.24 externo
-    // 0.29: arco contido DENTRO do pneu, para-lama discreto.
-    const flareGeo = new THREE.TorusGeometry(0.24, 0.05, 12, 28, Math.PI);
-    flareGeo.rotateY(Math.PI / 2); // ring in the ZY plane — arcs over the tire
-    const archLipGeo = new THREE.TorusGeometry(0.22, 0.02, 10, 26, Math.PI);
-    archLipGeo.rotateY(Math.PI / 2);
+    // AUDIT FIX 2026-08-16 (Feco real-GPU: 'anéis nas rodas'): o flare
+    // semicircular (TorusGeometry 0.24, y 0.52) cruzava o pneu (topo 0.68)
+    // e sobressaía 8cm — lia como ANEL sobre a roda, principalmente quando
+    // a cor do kart contrastava com o pneu. O para-lama é redundante: o
+    // pneu + aro + cubo já leem. Removido por completo (lip já havia saído).
+    // const flareGeo = new THREE.TorusGeometry(0.24, 0.05, 12, 28, Math.PI);
+    // flareGeo.rotateY(Math.PI / 2);
+    // const archLipGeo = new THREE.TorusGeometry(0.22, 0.02, 10, 26, Math.PI);
+    // archLipGeo.rotateY(Math.PI / 2);
     for (const sx of [-1, 1]) {
       for (const sz of [-1, 1]) {
-        const flare = new THREE.Mesh(flareGeo, carPaint);
-        // AUDIT R19 (Feco real-GPU 2026-08-14: 'anéis amarelos maiores que
-        // as rodas rodando em volta'): o flare semicircular centrado NO EIXO
-        // da roda (y=0.34) envolvia o pneu como um ANEL contínuo da cor do
-        // kart. Arco de para-lama real fica ACIMA do eixo — y 0.34→0.52.
-        flare.position.set(sx * 0.765, 0.52, sz * 0.67); // AUDIT R11: 0.70→0.765 (acompanha bitola larga)
-        flare.castShadow = true;
-        this.group.add(flare);
-        // AUDIT FIX 2026-08-16 (Feco real-GPU: 'anéis pretos nas rodas bem
-        // por cima do pneu'): o lip ESCURO (archLipGeo dark, y 0.51) cruzava
-        // o pneu (topo 0.68) e lia como anel preto no meio da roda. O flare
-        // carPaint já é o para-lama — o lip é redundante. Removido.
+        // flare removido — o pneu lê sozinho (MK8 karts não têm para-lama
+        // de arco na carenagem; o corpo cobre o topo da roda).
       }
     }
 

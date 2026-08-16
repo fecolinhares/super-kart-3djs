@@ -271,24 +271,13 @@ export class ItemBox {
 
     if (!this.active) {
       this.respawnTimer -= dt * 1000;
-      // AUDIT FIX 2026-08-16 (Feco real-GPU: 'item box vira circulo branco
-      // flutuante do nada / às vezes nem aparece'): o flare do anel R11
-      // expandia o ring a 3.2x com opacity→0 mas deixava ring.visible=true
-      // para sempre → anel branco gigante flutuando onde o box sumiu. Agora
-      // o anel ESCONDE ao completar o flare (0.4s), e o respawn reseta scale.
-      if (this._flareT === undefined) this._flareT = 0;
-      if (this._flareT < 1 && this.ringMesh) {
-        this._flareT = Math.min(1, this._flareT + dt * 2.5);
-        const fe = 1 + (1 - (1 - this._flareT) ** 2) * 2.2;
-        this.ringMesh.scale.setScalar(fe);
-        this.ringMesh.material.opacity = Math.max(0, 0.9 * (1 - this._flareT));
-        this.ring.visible = true;
-        if (this._flareT >= 1) {
-          this.ring.visible = false;
-          this.ringMesh.scale.setScalar(1);
-          this.ringMesh.material.opacity = 0.8; // valor base do halo
-        }
-      }
+      // AUDIT FIX R12f (Feco real-GPU: 'item box com circulo branco estranho
+      // no lugar'): o FLARE do anel (R11) expandia o ring dourado a 3.2x com
+      // additive + toneMapped:false — no GPU real com bloom, o torus dourado
+      // estourava em BRANCO puro. Removido o flare: o ring simplesmente
+      // ESCONDE no instante em que o box é consumido (sem expandir).
+      if (this.ring) this.ring.visible = false;
+      this._flareT = 1; // desliga qualquer flare residual
       // AUDIT: shrink no pickup (0.18s) e pop-in no respawn (0.15s).
       if (this._shrinkT !== undefined) {
         this._shrinkT = Math.min(1, this._shrinkT + dt * 5.5);
