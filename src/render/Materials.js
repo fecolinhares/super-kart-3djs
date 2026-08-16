@@ -192,6 +192,21 @@ export function neonReflectionTexture() {
         ctx.fillRect(Math.random() * s, 10 + Math.random() * (s - 40), 30 + Math.random() * 50, 1.5);
       }
       ctx.globalAlpha = 1;
+      // AUDIT FIX R12e (Feco real-GPU: 'asfalto mudando de cor acompanhando
+      // o carro'): a ribbon aditiva tinha BORDA RETA (as janelas chegavam em
+      // V=0/V=1) — em additive, a transição abrupta virava uma faixa de cor
+      // que parecia seguir o kart. Máscara vertical: alpha 0 nas bordas V,
+      // pico no centro — o reflexo agora desvanece lateralmente (wet-street
+      // MK8 real, sem corte visível).
+      const mask = ctx.createLinearGradient(0, 0, 0, s);
+      mask.addColorStop(0, 'rgba(255,255,255,0)');
+      mask.addColorStop(0.18, 'rgba(255,255,255,0.9)');
+      mask.addColorStop(0.82, 'rgba(255,255,255,0.9)');
+      mask.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.fillStyle = mask;
+      ctx.fillRect(0, 0, s, s);
+      ctx.globalCompositeOperation = 'source-over';
     },
     { repeat: [1, 1] }
   );
