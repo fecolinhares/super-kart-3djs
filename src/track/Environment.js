@@ -570,8 +570,13 @@ export class Environment {
     if (CONFIG.render.shadows) {
       const testMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('test');
       sun.shadow.mapSize.set(testMode ? CONFIG.render.testShadowMapSize : CONFIG.render.shadowMapSize, testMode ? CONFIG.render.testShadowMapSize : CONFIG.render.shadowMapSize);
-      sun.shadow.radius = 4.5; // penumbra assist (inert with PCFSoftShadowMap —
-      // the PCFSoft kernel already softens; kept for PCF/other shadow maps)
+      sun.shadow.radius = 9; // AUDIT FIX R13d (Feco real-GPU: 'anéis nas
+      // rodas' — o crítico do playtest-sim provou que o 'anel' é a SOMBRA
+      // PROJETADA do kart no chão: elipse escura sob a roda com borda dura
+      // que lê como anel na chase cam. O modelo 3D está limpo (sem peças
+      // extras — flare/lip/wishbone já removidos). radius 4.5 → 9 = penumbra
+      // bem mais suave; a elipse deixa de ter borda dura → não lê mais como
+      // anel, vira sombra natural de kart.
       sun.shadow.camera.left = -70; // AUDIT FIX 2026-08-16 (Feco real-GPU:
       sun.shadow.camera.right = 70; // 'asfalto muda de cor acompanhando o
       sun.shadow.camera.top = 70;   // carro'): borda do shadow map visível.
