@@ -953,18 +953,21 @@ function buildTurboPads(path, length) {
   // pad RETO de 18m numa pista curva não acompanha a curvatura — as pontas
   // saem do asfalto/cortam as bordas (o crítico confirmou 'bordas abruptas,
   // trapézio que não acompanha a curva'). PAD_LEN agora é DINÂMICO por
-  // cluster: mede a curvatura local (amostras ±8m) e usa 18m em retas
-  // (curv < 0.0016), 14m em curvatura média, 10m em curvas fechadas — o
-  // pad continua lendo como ribbon MK8 sem cortar as bordas.
+  // cluster: mede o DESVIO ANGULAR TOTAL ao longo do comprimento candidato
+  // (amostras nas duas pontas do pad, não curvatura local de 1m — um pad de
+  // 18m acumula desvio mesmo com curvatura local baixa) e usa 18m em retas
+  // (desvio < 2°), 14m médio, 10m em curvas fechadas.
   const padLenAt = (c) => {
     const tanA = new THREE.Vector3();
     const tanB = new THREE.Vector3();
-    path.getTangentAt(Math.max(0.001, c - 0.5 / length), tanA);
-    path.getTangentAt(Math.min(0.999, c + 0.5 / length), tanB);
-    const curv = 1 - Math.min(1, Math.max(-1, tanA.dot(tanB)));
-    if (curv < 0.0016) return 18;
-    if (curv < 0.004) return 14;
-    return 10;
+    path.getTangentAt(Math.max(0.001, c - 9 / length), tanA);
+    path.getTangentAt(Math.min(0.999, c + 9 / length), tanB);
+    const dot = Math.min(1, Math.max(-1, tanA.dot(tanB)));
+    const devDeg = (Math.acos(dot) * 180) / Math.PI; // desvio total ponta-a-ponta
+    if (devDeg < 2) return 18;
+    if (devDeg < 6) return 14;
+    if (devDeg < 12) return 10;
+    return 7; // curva fechada — pad curto, nunca corta as bordas
   };
   // MeshBasicMaterial: unlit so the pad stays bright amber/white in shadow.
   const mat = new THREE.MeshBasicMaterial({ map: turboPadTexture(), color: 0xffffff, side: THREE.DoubleSide });
