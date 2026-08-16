@@ -1040,6 +1040,12 @@ function buildTurboPads(path, length) {
     const t1 = Math.min(0.999, c + (padLen / 2) / length);
     const spanLen = Math.max(1, (t1 - t0) * length);
     const segs = Math.max(4, Math.round(spanLen / 1.2)); // ~1.2m por segmento
+    // AUDIT FIX R13c (crítico: 'faixa totalmente lisa, sem chevrons'): o UV
+    // da ribbon é (t - uvBias) * repeatU, com t no sub-trecho t0..t1. O
+    // repeatU antigo (spanLen*0.055=0.99) mapeava SÓ 4.5% da textura (os
+    // chevrons em 0.26/0.50/0.74 ficavam fora). Para a textura INTEIRA (com
+    // os 3 chevrons) caber no pad: repeatU = 1/(t1-t0) = length/spanLen.
+    const padRepeatU = 1 / Math.max(0.0001, t1 - t0); // textura inteira por pad
 
     // Material base (mesmo recipe do plano antigo): unlit + polygonOffset.
     const baseMat = new THREE.MeshBasicMaterial({
@@ -1062,7 +1068,7 @@ function buildTurboPads(path, length) {
       t0, t1, // AUDIT FIX R12i: só o trecho do cluster (não o path todo)
       uvBias: t0, // textura zera na borda do trecho
       texture: () => turboPadTexture(),
-      repeatU: spanLen * 0.055,
+      repeatU: padRepeatU, // AUDIT FIX R13c: textura inteira por pad
       repeatV: 1,
       transparent: true,
       opacity: 1,
@@ -1084,7 +1090,7 @@ function buildTurboPads(path, length) {
       t0, t1, // AUDIT FIX R12i: só o trecho do cluster (não o path todo)
       uvBias: t0, // textura zera na borda do trecho
       texture: () => turboPadGlowTexture(),
-      repeatU: spanLen * 0.055,
+      repeatU: padRepeatU, // AUDIT FIX R13c: textura inteira por pad (chevrons do glow)
       repeatV: 1,
       transparent: true,
       opacity: 0,
