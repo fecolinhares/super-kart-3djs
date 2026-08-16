@@ -709,8 +709,20 @@ export class Banana {
     const behind = headingVector(ownerKart).multiplyScalar(drop);
     this.mesh = buildBananaMesh();
     this.mesh.position.set(opos.x + behind.x, opos.y + 0.3, opos.z + behind.y);
-    this.mesh.rotation.y = Math.random() * Math.PI * 2;
+    // AUDIT: MK8 banana deitada ATRAVESSA a pista (pontas de lado a lado) —
+    // orienta o crescente perpendicular ao tráfego + jitter fino de variedade.
+    const fwd = headingVector(ownerKart); // (sin h, cos h)
+    this.mesh.rotation.y = Math.atan2(-fwd.x, fwd.y) + (Math.random() - 0.5) * 0.3;
     this.mesh.castShadow = true;
+    // Sombra de contato no chão (mesmo truque da sombra do blue shell) —
+    // ancora o hazard na pista e vende a altura do arremesso.
+    this._shadow = new THREE.Mesh(
+      new THREE.CircleGeometry(0.5, 16),
+      new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.32, depthWrite: false })
+    );
+    this._shadow.rotation.x = -Math.PI / 2;
+    this._shadow.position.set(this.mesh.position.x, 0.06, this.mesh.position.z);
+    this.scene?.add(this._shadow);
     // AUDIT (Feco): 'não dá pra ver quando arremessa' — the banana appeared
     // at full size with zero feedback. Pop-in: scale 0 -> 1 in ~130ms with an
     // ease-out so the drop reads as a thrown object, not a materialization.
@@ -750,6 +762,8 @@ export class Banana {
         this._vY = 0;
       }
     }
+    // Shadow follows the banana (anchors it to the road through the hop).
+    if (this._shadow) this._shadow.position.set(m.position.x, 0.06, m.position.z);
     // Blink in the final seconds as a fair-play warning.
     if (this.age > this.life - 2.5) {
       this.mesh.visible = Math.floor(this.age * 6) % 2 === 0;
@@ -809,6 +823,7 @@ export class Banana {
     if (this.dead) return;
     this.dead = true;
     this.scene?.remove(this.mesh);
+    if (this._shadow) { this.scene?.remove(this._shadow); this._shadow = null; }
   }
 
   dispose() {
