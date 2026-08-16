@@ -1035,6 +1035,38 @@ export class Kart {
       );
     }
 
+    // AUDIT: solid boost flame cones — particles alone read as sparks; MK8
+    // boost needs a visible flame column at the twin exhausts.
+    const flameTex = (() => {
+      const c = document.createElement('canvas'); c.width = 32; c.height = 64;
+      const g = c.getContext('2d');
+      const grad = g.createLinearGradient(0, 0, 0, 64);
+      grad.addColorStop(0, 'rgba(255,255,255,0.95)');
+      grad.addColorStop(0.35, 'rgba(255,178,94,0.75)');
+      grad.addColorStop(1, 'rgba(255,90,30,0)');
+      g.fillStyle = grad; g.fillRect(0, 0, 32, 64);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    })();
+    this._flameMat = new THREE.MeshBasicMaterial({
+      map: flameTex, transparent: true, opacity: 0,
+      blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false,
+      side: THREE.DoubleSide,
+    });
+    this._flameCyan = new THREE.Color(0x7fd8ff);
+    this._flameOrange = new THREE.Color(0xffb25e);
+    this._flames = [];
+    for (const s of [-1, 1]) {
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.5, 12, 1, true), this._flameMat);
+      cone.position.set(s * 0.28, 0.5, -1.0);
+      cone.rotation.x = -Math.PI / 2; // cone apex (+Y) → points -Z (backward)
+      cone.renderOrder = 3;
+      cone.castShadow = false;
+      this.group.add(cone);
+      this._flames.push(cone);
+    }
+
 
     // ---- wheels: tire + tread + sidewall stripe + 5-spoke chrome rim --------
     const wR = KC.wheelRadius;
@@ -1840,8 +1872,19 @@ export class Kart {
       pitchTarget -= 0.26 * rise * settle + Math.sin(this._t * 9) * 0.02 * settle; // nose up + tiny wobble
       this.group.position.y += Math.sin(rise * Math.PI) * 0.14; // visual hop (physics re-syncs next frame)
     }
+    // AUDIT: contact shadow stays ON THE ROAD — it used to ride inside the
+    // kart group (jump = kart carried its shadow = 'floating' read). Local Y
+    // cancels the kart's world height; opacity + size fade with altitude.
+    if (this._blob) {
+      const h = Math.max(0, this.group.position.y);
+      this._blob.position.y = 0.02 - h;
+      this._blob.rotation.x = -Math.PI / 2 - this.group.rotation.x;
+      this._blob.rotation.z = -this.group.rotation.z; // counter the turn lean
+      const k = 1 - Math.min(0.35, h * 0.12);
+      this._blob.scale.set(k, k, 0.78 * k);
+      this._blob.material.opacity = Math.max(0.12, 1 - h * 0.55);
+    }
     if (this._finishActive) {
-      if (this._blob) this._blob.rotation.x = -Math.PI / 2 - this.group.rotation.x; // shadow stays flat
       if (this._finishFlag) {
         this._finishFlag.visible = true;
         this._finishFlag.rotation.y += dt * 5; // spin the flag around its pole
@@ -1916,6 +1959,18 @@ export class Kart {
     if (this._finishMs > 0) {
       this._finishMs = Math.max(0, this._finishMs - ms);
     }
+
+    // AUDIT: flame cone follows boost/turbo state (turbo pads were invisible)
+    const boosting = s.boost || s.turboBoostMs > 0;
+    if (this._flameMat) {
+      this._flameMat.opacity = THREE.MathUtils.clamp(
+        this._flameMat.opacity + (boosting ? 0.85 - this._flameMat.opacity : -this._flameMat.opacity) * Math.min(1, 14 * dt),
+        0, 0.9);
+      const targetCol = this._boostMs > CONFIG.items.mushroomBoostMs ? this._flameCyan : this._flameOrange;
+      this._flameMat.color.lerp(targetCol, Math.min(1, 8 * dt));
+      const flicker = 1 + Math.sin(this._t * 42) * 0.12;
+      for (const f of this._flames) f.scale.set(1, flicker, 1);
+    }
   }
 
   _animateWheels(dt) {
@@ -1973,7 +2028,7 @@ export class Kart {
     }
 
     // boost flame
-    if (s.boost && !s.spinOut) {
+    if ((s.boost || s.turboBoostMs > 0) && !s.spinOut) {
       this._localToWorld(this._pv, 0, this._pipeOffset.y, this._pipeOffset.z);
       this._v.copy(this._back).multiplyScalar(8.5);
       particles.emit('boost', this._pv, {
