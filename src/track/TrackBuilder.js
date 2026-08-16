@@ -1690,6 +1690,101 @@ function buildApexCones(path, length, roadW) {
   return g;
 }
 
+/**
+ * Brake boards "30/20/10" (AUDIT AAA 2026-08-15): placas de freada na borda
+ * EXTERNA das 3 curvas mais fechadas (mesma varredura do buildApexCones), a
+ * 27/18/9m antes do apex, viradas para o kart que se aproxima. Frame
+ * instanced + 3 InstancedMesh de print (uma por rótulo) = 4 draw calls.
+ */
+function buildBrakeBoards(path, length, roadW) {
+  const SAMPLES = 160;
+  const dt = 1 / SAMPLES;
+  const tan = new THREE.Vector3();
+  const tan2 = new THREE.Vector3();
+  const rows = [];
+  for (let i = 0; i < SAMPLES; i++) {
+    const t = i / SAMPLES;
+    path.getTangentAt(t, tan);
+    path.getTangentAt(Math.min(1, t + dt), tan2);
+    rows.push({ t, curv: 1 - Math.min(1, Math.max(-1, tan.dot(tan2))) });
+  }
+  const peaks = [];
+  for (let i = 1; i < SAMPLES - 1; i++) {
+    const r = rows[i];
+    if (r.curv > 0.0022 && r.curv >= rows[i - 1].curv && r.curv >= rows[i + 1].curv) peaks.push(r);
+  }
+  peaks.sort((a, b) => b.curv - a.curv);
+  const apexes = [];
+  for (const pk of peaks) {
+    if (apexes.every((o) => Math.min(Math.abs(o.t - pk.t), 1 - Math.abs(o.t - pk.t)) > 0.1)) {
+      apexes.push(pk);
+      if (apexes.length === 3) break;
+    }
+  }
+  if (!apexes.length) return null;
+  const BOARD_T = [27 / length, 18 / length, 9 / length];
+  const LABELS = ['30', '20', '10'];
+  const halfW = roadW / 2;
+  const frameGeo = new THREE.BoxGeometry(1.15, 0.8, 0.09);
+  const printGeo = new THREE.PlaneGeometry(1.05, 0.7);
+  const frameMat = toonMaterial(0x2b3242, {});
+  const labelTex = (txt) => {
+    const c = document.createElement('canvas');
+    c.width = 128; c.height = 96;
+    const g = c.getContext('2d');
+    g.fillStyle = '#ffffff';
+    g.fillRect(0, 0, 128, 96);
+    g.strokeStyle = '#1b2a41';
+    g.lineWidth = 7;
+    g.strokeRect(3, 3, 122, 90);
+    g.fillStyle = '#1b2a41';
+    g.font = '900 52px "Baloo 2", "Nunito", Arial, sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText(txt, 64, 50);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  };
+  const labelMats = LABELS.map((l) => new THREE.MeshBasicMaterial({ map: labelTex(l), side: THREE.DoubleSide }));
+  const total = apexes.length * BOARD_T.length;
+  const frames = new THREE.InstancedMesh(frameGeo, frameMat, total);
+  const prints = labelMats.map((m) => new THREE.InstancedMesh(printGeo, m, apexes.length));
+  const dummy = new THREE.Object3D();
+  const nrm = new THREE.Vector3();
+  const p = new THREE.Vector3();
+  let fIdx = 0;
+  for (const apex of apexes) {
+    path.getTangentAt(apex.t, tan);
+    path.getTangentAt(Math.min(1, apex.t + dt), tan2);
+    const inside = tan.x * tan2.z - tan.z * tan2.x < 0 ? -1 : 1;
+    const apexIdx = apexes.indexOf(apex);
+    for (let b = 0; b < BOARD_T.length; b++) {
+      const t = Math.max(0.001, apex.t - BOARD_T[b]);
+      if (t < 0.02 || t > 0.98) continue; // longe do grid/looping
+      path.getPointAt(t, p);
+      path.getTangentAt(t, tan);
+      nrm.set(-tan.z, 0, tan.x).normalize();
+      const bx = p.x + nrm.x * (-inside) * (halfW + 1.6); // lado EXTERNO (oposto dos cones)
+      const bz = p.z + nrm.z * (-inside) * (halfW + 1.6);
+      const by = p.y + 0.55;
+      dummy.position.set(bx, by, bz);
+      dummy.lookAt(p.x - tan.x * 8, by, p.z - tan.z * 8); // face p/ quem se aproxima
+      dummy.updateMatrix();
+      frames.setMatrixAt(fIdx, dummy.matrix);
+      dummy.translateZ(0.05); // print 5cm à frente da face do box (padrão R70 dos banners)
+      dummy.updateMatrix();
+      prints[b].setMatrixAt(apexIdx, dummy.matrix);
+      fIdx++;
+    }
+  }
+  frames.instanceMatrix.needsUpdate = true;
+  prints.forEach((m) => { m.instanceMatrix.needsUpdate = true; });
+  const g = new THREE.Group();
+  g.add(frames, ...prints);
+  return g;
+}
+
 /** Road sponsor decal card: a faded brand-color block with a worn darker
  *  border, text-like noise (pseudo-glyph wordmark) and grime — paint on
  *  asphalt, not a floating board. */
@@ -1952,6 +2047,9 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
     group.add(buildGrassTufts(path, length));
     const apexCones = buildApexCones(path, length, getRoadWidthAt());
     if (apexCones) group.add(apexCones);
+    // AUDIT AAA: placas de freada 30/20/10 na borda externa antes do apex
+    const brakeBoards = buildBrakeBoards(path, length, getRoadWidthAt());
+    if (brakeBoards) group.add(brakeBoards);
   }
 
   // Painted sponsor decals on the asphalt near the straights (real circuits
