@@ -495,12 +495,12 @@ export class Kart {
     // ---- PBR materials (distinct surface responses, MK8 pipeline) -----------
     // Glossy painted plastic for the body shell — the MK8 painted-toy cue:
     // clearcoat + bumped IBL so the paint visibly reflects.
-    const carPaint = Materials.plasticMaterial(color, { envMapIntensity: 2.8, roughness: 0.2 });
+    const carPaint = Materials.plasticMaterial(color, { envMapIntensity: 3.2, roughness: 0.2 }); // AUDIT R11: 2.8→3.2
     // AUDIT (visual auditor 2026-08-12): Neon night IBL is weak — clearcoat
     // paint read as dark wine. A subtle self-emissive (15% of body color)
     // lifts the shell off the asphalt without looking lit-from-within.
     carPaint.emissive = new THREE.Color(color).multiplyScalar(0.32);
-    carPaint.emissiveIntensity = 0.7; // AUDIT R5: stronger self-glow = rim-light proxy on dark Neon
+    carPaint.emissiveIntensity = 1.0; // AUDIT R5+ (R11: 0.7→1.0): lift p/ leitura no headless sem envmap
     const body = this._mat(color);
     const bodyDark = this._mat(new THREE.Color(color).multiplyScalar(0.82).getHex());
     // keep refs so the player can repaint (setBodyColor)
@@ -511,7 +511,7 @@ export class Kart {
     const dark = this._mat(0x232833);
     // Dead-flat rubber (tires) — deliberately NOT glossy: roughness 0.95
     // against the clearcoat paint = the MK8 material separation.
-    const tireMat = new THREE.MeshStandardMaterial({ color: 0x454d5c, roughness: 0.85, metalness: 0.05, emissive: 0x1a2028, emissiveIntensity: 0.6 });
+    const tireMat = new THREE.MeshStandardMaterial({ color: 0x252b34, roughness: 0.9, metalness: 0.05, emissive: 0x0e1218, emissiveIntensity: 0.35 }); // AUDIT R11: pneu MUITO escuro (MK8) — contraste pneu/aro
     const tireDark = new THREE.MeshStandardMaterial({ color: 0x0a0d11, roughness: 0.98, metalness: 0 });
     // Polished chrome (rims, hubs, exhaust) — mirror metal vs painted plastic.
     // AUDIT r9: envMapIntensity 2.4 made rims read as broken white flashes on
@@ -524,7 +524,7 @@ export class Kart {
     // direção diferente'. MK8 rims are SATIN silver, not mirrors. The rim
     // parts get a flatter metal; chrome stays for the exhaust.
     const rimChrome = new THREE.MeshPhysicalMaterial({
-      color: 0xaeb6c0, metalness: 0.5, roughness: 0.4, envMapIntensity: 0.7, // AUDIT R75: 0xd7dde5→0xaeb6c0 (cinza MÉDIO, não branco — matava o contraste 'olho')
+      color: 0xaeb6c0, metalness: 0.5, roughness: 0.4, envMapIntensity: 0.9, // AUDIT R75+R11: 0.7→0.9 — aro satin mais vivo contra pneu escuro
       emissive: 0x2a333f, emissiveIntensity: 0.35, // AUDIT R6c: subtle self-glow so rim spokes never vanish on dark asphalt
     });
     // Curved transparent PBR glass (windshield).
@@ -556,8 +556,11 @@ export class Kart {
       const grad = g.createRadialGradient(32, 32, 6, 32, 32, 32);
       // AUDIT R9 (critic teste-total 7/10: 'sombra de contato fraca, kart
       // parece flutuar'): centro 0.62→0.78 + mid 0.32→0.42 — ancora o kart.
-      grad.addColorStop(0, 'rgba(0,0,0,0.78)');
-      grad.addColorStop(0.6, 'rgba(0,0,0,0.42)');
+      // AUDIT kart/piloto R11 (2026-08-16): núcleo escuro + penumbra curta —
+      // a 400px o gradiente antigo (0.78→0.42→0 em 1.15m) não lia.
+      grad.addColorStop(0, 'rgba(0,0,0,0.92)');
+      grad.addColorStop(0.35, 'rgba(0,0,0,0.62)');
+      grad.addColorStop(0.7, 'rgba(0,0,0,0.24)');
       grad.addColorStop(1, 'rgba(0,0,0,0)');
       g.fillStyle = grad;
       g.fillRect(0, 0, 64, 64);
@@ -566,7 +569,7 @@ export class Kart {
       return t;
     })();
     const blob = new THREE.Mesh(
-      new THREE.CircleGeometry(1.15, 24),
+      new THREE.CircleGeometry(1.0, 24), // AUDIT R11: 1.15→1.0 — penumbra mais curta ancora melhor
       new THREE.MeshBasicMaterial({
         map: blobTex,
         transparent: true,
@@ -663,11 +666,11 @@ export class Kart {
         // as rodas rodando em volta'): o flare semicircular centrado NO EIXO
         // da roda (y=0.34) envolvia o pneu como um ANEL contínuo da cor do
         // kart. Arco de para-lama real fica ACIMA do eixo — y 0.34→0.52.
-        flare.position.set(sx * 0.70, 0.52, sz * 0.67);
+        flare.position.set(sx * 0.765, 0.52, sz * 0.67); // AUDIT R11: 0.70→0.765 (acompanha bitola larga)
         flare.castShadow = true;
         this.group.add(flare);
         const lip = new THREE.Mesh(archLipGeo, dark);
-        lip.position.set(sx * 0.70, 0.51, sz * 0.67);
+        lip.position.set(sx * 0.765, 0.51, sz * 0.67); // AUDIT R11: 0.70→0.765
         lip.castShadow = false;
         this.group.add(lip);
       }
@@ -897,7 +900,7 @@ export class Kart {
       this.group.add(bolster);
     }
     const headrest = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 14), bodyDark);
-    headrest.position.set(0, 1.1, -0.42);
+    headrest.position.set(0, 1.16, -0.42); // AUDIT R11: 1.1→1.16 (acompanha piloto maior)
     headrest.scale.set(1, 0.9, 0.75);
     headrest.castShadow = true;
     this.group.add(headrest);
@@ -908,54 +911,58 @@ export class Kart {
     // AUDIT R7 (blind critic followCam: 'spoiler hides the driver in chase
     // view — the main camera'). MK8 karts ride LOW with the wing below helmet
     // height so the pilot reads above the aero. Wing 1.24→1.02, blade 0.22→0.17.
+    // AUDIT kart/piloto R11 (2026-08-16): wing ainda ocultava os ombros do
+    // piloto (capa plana y 1.02-1.19 vs ombros ~1.05) — desce para 0.84 e o
+    // blade 0.17→0.15: a linha de visão da chase cam passa ACIMA da asa.
     const wingGroup = new THREE.Group();
-    wingGroup.position.set(0, 1.02, -0.90);
+    wingGroup.position.set(0, 0.84, -0.92);
     wingGroup.rotation.z = -Math.PI / 2; // blade spans X; convex face faces -Z
     const blade = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.17, 0.17, 1.40, 32, 1, false, Math.PI, Math.PI),
+      new THREE.CylinderGeometry(0.15, 0.15, 1.40, 32, 1, false, Math.PI, Math.PI),
       carPaint
     );
     blade.rotation.x = 0.12; // slight negative angle (downforce)
     blade.castShadow = true;
     wingGroup.add(blade);
+    this._outline(blade, 0.03); // AUDIT R11: borda escura define a silhueta da asa na chase cam
     const lowerBlade = new THREE.Mesh(
       new THREE.CylinderGeometry(0.10, 0.10, 1.30, 24, 1, false, Math.PI, Math.PI),
       dark
     );
     lowerBlade.rotation.x = 0.12;
-    lowerBlade.position.y = -0.20;
+    lowerBlade.position.y = -0.17;
     lowerBlade.castShadow = false;
     wingGroup.add(lowerBlade);
     this.group.add(wingGroup);
     // Wingtip endplates (painted) with dark edge trim.
     for (const s of [-1, 1]) {
       const plate = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.42, 0.62), carPaint);
-      plate.position.set(s * 0.72, 1.02, -0.90);
+      plate.position.set(s * 0.72, 0.92, -0.90);
       plate.castShadow = true;
       this.group.add(plate);
       const trim = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.06, 0.64), dark);
-      trim.position.set(s * 0.72, 1.06, -0.90);
+      trim.position.set(s * 0.72, 0.96, -0.90);
       trim.castShadow = false;
       this.group.add(trim);
       // Premium: accent edge stripe on the outer endplate face.
       const accentEdge = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.38, 0.04), accentMat);
-      accentEdge.position.set(s * 0.7525, 1.24, -0.90);
+      accentEdge.position.set(s * 0.7525, 1.14, -0.90); // AUDIT R11: acompanha a asa baixa (1.24→1.14)
       accentEdge.castShadow = false;
       this.group.add(accentEdge);
     }
     // Center pylon (tapered) + side mount pods (molded, not sticks).
     const pylon = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.075, 0.40, 14), bodyDark);
-    pylon.position.set(0, 1.14, -0.88);
+    pylon.position.set(0, 1.06, -0.88); // AUDIT R11: 1.14→1.06 (wing 0.84)
     pylon.castShadow = true;
     this.group.add(pylon);
     for (const s of [-1, 1]) {
       const mount = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.30, 12), dark);
-      mount.position.set(s * 0.42, 1.14, -0.88);
+      mount.position.set(s * 0.42, 1.06, -0.88); // AUDIT R11: 1.14→1.06
       mount.rotation.x = 0.25;
       mount.castShadow = false;
       this.group.add(mount);
       const pod = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 10), dark);
-      pod.position.set(s * 0.42, 0.94, -0.86);
+      pod.position.set(s * 0.42, 0.86, -0.86); // AUDIT R11: 0.94→0.86
       pod.castShadow = false;
       this.group.add(pod);
     }
@@ -971,7 +978,7 @@ export class Kart {
     for (const s of [-1, 1]) {
       const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.07, 18, 14), this._brakeLampMat);
       lamp.position.set(s * 0.36, 0.74, -0.9);
-      lamp.scale.set(1.15, 1, 0.7);
+      lamp.scale.set(1.3, 1.05, 0.75); // AUDIT R11: lampas maiores (freio comunica estado)
       lamp.castShadow = false;
       this.group.add(lamp);
       const bezel = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.016, 8, 20), chrome);
@@ -981,10 +988,10 @@ export class Kart {
       this.group.add(bezel);
     }
     const rearGlow = new THREE.MeshStandardMaterial({
-      color: 0x5a0000, emissive: 0xff3322, emissiveIntensity: 0.35, roughness: 0.5,
+      color: 0x5a0000, emissive: 0xff3322, emissiveIntensity: 0.5, roughness: 0.5, // AUDIT R11: 0.35→0.5 — freio vira evento
     });
     const glowBar = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.035, 0.025), rearGlow);
-    glowBar.position.set(0, 1.0, -0.93);
+    glowBar.position.set(0, 0.90, -0.86); // AUDIT R11: estava oculto ATRÁS da capa da asa — agora visível abaixo dela
     this.group.add(glowBar);
 
     // Race number badge on the nose tip (kart identity, faces forward).
@@ -1010,19 +1017,20 @@ export class Kart {
     this.group.add(plate);
 
     // Rear number plate + dark frame (visible from the chase camera).
+    // AUDIT R11: 0.36×0.40→0.44×0.50 e y 0.60→0.66 — número legível da chase cam
     const plateBack = new THREE.Mesh(
-      new THREE.BoxGeometry(0.36, 0.40, 0.07),
+      new THREE.BoxGeometry(0.44, 0.50, 0.07),
       new THREE.MeshStandardMaterial({ color: 0xffffff })
     );
     plateBack.material.map = numTex;
-    plateBack.position.set(0, 0.60, -0.78);
+    plateBack.position.set(0, 0.66, -0.78);
     plateBack.rotation.x = 0.12;
     this.group.add(plateBack);
     const plateFrame = new THREE.Mesh(
-      new THREE.BoxGeometry(0.40, 0.44, 0.05),
+      new THREE.BoxGeometry(0.48, 0.54, 0.05),
       new THREE.MeshBasicMaterial({ color: 0x1b2a41 })
     );
-    plateFrame.position.set(0, 0.60, -0.815);
+    plateFrame.position.set(0, 0.66, -0.815);
     plateFrame.rotation.x = 0.12;
     this.group.add(plateFrame);
 
@@ -1081,7 +1089,7 @@ export class Kart {
     const wW = KC.wheelWidth;
     const wy = wR;
     const wz = KC.chassisLength / 2 - 0.18;
-    const wx = KC.chassisWidth / 2 + 0.18;
+    const wx = KC.chassisWidth / 2 + 0.24; // AUDIT R11: 0.18→0.24 — bitola larga (postura MK8 wide stance)
     const faceX = wW / 2;
 
     const tireGeo = new THREE.CylinderGeometry(wR, wR, wW, 28);
@@ -1117,7 +1125,7 @@ export class Kart {
     const rimLipGeo = new THREE.TorusGeometry(0.19, 0.014, 8, 32);
     const spokeGeo = new THREE.BoxGeometry(0.022, 0.10, 0.05);
     const hubGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.034, 18);
-    const hubCapGeo = new THREE.SphereGeometry(0.026, 12, 10);
+    const hubCapGeo = new THREE.SphereGeometry(0.034, 12, 10); // AUDIT R11: 0.026→0.034 (accent central maior — giro lê)
     const lugGeo = new THREE.SphereGeometry(0.013, 8, 6);
     const stripeMat = character ? this._mat(accent) : white;
     // AUDIT R20c: stripe SEMPRE cinza-claro (parede lateral de pneu) —
@@ -1194,7 +1202,7 @@ export class Kart {
         spin.add(hub);
         const hubCap = new THREE.Mesh(hubCapGeo, hubCapMat);
         hubCap.position.x = rimX + 0.032;
-        hubCap.scale.set(1.2, 1.2, 1.2); // accent cap, proud of the chrome hub
+        hubCap.scale.set(1.6, 1.6, 1.6); // accent cap, proud of the chrome hub (R11: 1.2→1.6)
         hubCap.castShadow = false;
         spin.add(hubCap);
         // 5 lug nuts matching the spokes.
@@ -1229,7 +1237,7 @@ export class Kart {
     // R12-R15 exageraram (scale 1.3 + y 0.18) — o torso subiu demais acima
     // da asa e lê como piloto de pé. Postura MK8 real: piloto ENCOLHIDO no
     // cockpit, só capacete+ombros acima da asa. scale 1.05, y 0.03.
-    drv.position.set(0, 0.03, 0);
+    drv.position.set(0, 0.08, 0); // AUDIT R11: 0.03→0.08 — piloto sobe com a asa baixa (silhueta MK8)
     drv.scale.set(1.05, 1.05, 1.05);
     this.group.add(drv);
 
@@ -1240,21 +1248,22 @@ export class Kart {
 
     // Torso — rounded capsule leaned forward into the drive pose.
     const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.135, 0.26, 8, 16), suit);
-    torso.position.set(0, 0.94, -0.06);
+    torso.position.set(0, 1.00, -0.06); // AUDIT R11: 0.94→1.00 (piloto emerge da asa baixa)
     torso.rotation.x = 0.32;
     torso.castShadow = true;
     drv.add(torso);
     // Racing stripe down the chest (accent color).
     const chestStripe = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.3, 0.02), this._mat(accent));
-    chestStripe.position.set(0, 0.94, 0.088);
+    chestStripe.position.set(0, 1.00, 0.088); // AUDIT R11: 0.94→1.00
     chestStripe.rotation.x = 0.32;
     chestStripe.castShadow = false;
     drv.add(chestStripe);
     // Shoulders (suit pads) — AUDIT R13: raio 0.085→0.11 + x ±0.135→±0.16
     // (ombros largos, silhueta humana legível acima da asa).
+    // AUDIT R11: y 0.94→1.02 e raio 0.11→0.125 — ombros ACIMA da asa 0.99
     for (const s of [-1, 1]) {
-      const sh = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 12), suit);
-      sh.position.set(s * 0.16, 0.94, -0.09);
+      const sh = new THREE.Mesh(new THREE.SphereGeometry(0.125, 16, 12), suit);
+      sh.position.set(s * 0.16, 1.02, -0.09);
       sh.scale.set(1, 0.88, 1.1);
       sh.castShadow = false;
       drv.add(sh);
@@ -1262,7 +1271,7 @@ export class Kart {
 
     // Steering wheel — 3-spoke, dark leather rim + chrome spokes/hub.
     const steerGroup = new THREE.Group();
-    steerGroup.position.set(0, 0.92, 0.24);
+    steerGroup.position.set(0, 0.97, 0.24); // AUDIT R11: 0.92→0.97
     drv.add(steerGroup);
     const sRim = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.024, 12, 28), dark);
     sRim.rotation.x = Math.PI / 2; // ring in XY plane — faces the driver
@@ -1282,9 +1291,9 @@ export class Kart {
 
     // Arms — upper arm + forearm (bent elbows), gloved hands gripping the rim.
     for (const s of [-1, 1]) {
-      const shX = s * 0.135, shY = 1.0, shZ = -0.09;
-      const elX = s * 0.16, elY = 0.985, elZ = 0.05;
-      const hX = s * 0.105, hY = 0.92, hZ = 0.24;
+      const shX = s * 0.135, shY = 1.06, shZ = -0.09; // AUDIT R11: 1.0→1.06
+      const elX = s * 0.16, elY = 1.04, elZ = 0.05;  // AUDIT R11: 0.985→1.04
+      const hX = s * 0.105, hY = 0.97, hZ = 0.24;    // AUDIT R11: 0.92→0.97
       const ua = new THREE.Mesh(new THREE.CapsuleGeometry(0.045, 0.13, 6, 10), suit);
       ua.position.set((shX + elX) / 2, (shY + elY) / 2, (shZ + elZ) / 2);
       ua.quaternion.setFromUnitVectors(up, new THREE.Vector3(elX - shX, elY - shY, elZ - shZ).normalize());
@@ -1310,7 +1319,7 @@ export class Kart {
     }
 
     // Neck + helmet (character colored, glossy visor, fine outline).
-    this._mesh(new THREE.SphereGeometry(0.055, 14, 10), skin, 0, 1.14, 0.1, { parent: drv, cast: false });
+    this._mesh(new THREE.SphereGeometry(0.055, 14, 10), skin, 0, 1.19, 0.1, { parent: drv, cast: false }); // AUDIT R11: 1.14→1.19
     // AUDIT: glossy clearcoat helmet (was matte toon 0.82) — MK8 helmets are
     // polished plastic; the specular highlight separates head from dark body.
     const helmetMat = character
@@ -1320,13 +1329,10 @@ export class Kart {
     helmetMat.emissiveIntensity = 0.4; // AUDIT R5: keep the lift, soften it (clearcoat now does the work)
     this._helmetMat = helmetMat;
     const helmet = new THREE.Mesh(
-      new THREE.SphereGeometry(0.16, 32, 24),
+      new THREE.SphereGeometry(0.185, 32, 24), // AUDIT R11: 0.16→0.185 — capacete maior lê na chase cam
       helmetMat
     );
-    // AUDIT R11 (critic 7.5/10: 'piloto pequeno na chase cam'): 0.16→0.19 +
-    // y 1.26→1.33 — o capacete aparece ACIMA da asa na vista traseira,
-    // a silhueta MK8 de piloto encolhido no cockpit lê à distância.
-    helmet.position.set(0, 1.33, 0.06);
+    helmet.position.set(0, 1.38, 0.06); // AUDIT R11: 1.33→1.38 (topo ~1.54 acima da asa 0.99)
     helmet.scale.set(1, 0.85, 1.02);
     helmet.castShadow = true;
     drv.add(helmet);
@@ -1352,7 +1358,7 @@ export class Kart {
       blending: THREE.AdditiveBlending, depthWrite: false,
     });
     const helHalo = new THREE.Mesh(new THREE.CircleGeometry(0.40, 24), helHaloMat);
-    helHalo.position.set(0, 1.24, -0.10);
+    helHalo.position.set(0, 1.29, -0.10); // AUDIT R11: 1.24→1.29
     helHalo.rotation.x = -0.35;
     helHalo.castShadow = false;
     drv.add(helHalo);
@@ -1362,8 +1368,8 @@ export class Kart {
       color: 0xffffff, transparent: true, opacity: 0.5,
       blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
     });
-    const helRim = new THREE.Mesh(new THREE.TorusGeometry(0.155, 0.012, 8, 24), rimMat);
-    helRim.position.set(0, 1.33, 0.06);
+    const helRim = new THREE.Mesh(new THREE.TorusGeometry(0.175, 0.012, 8, 24), rimMat); // AUDIT R11: 0.155→0.175
+    helRim.position.set(0, 1.38, 0.06); // AUDIT R11: 1.33→1.38
     helRim.rotation.x = Math.PI / 2;
     helRim.scale.set(1, 1, 0.85);
     helRim.castShadow = false;
@@ -1373,29 +1379,29 @@ export class Kart {
     // reads as a character, not a blank helmet. Material color is white so
     // the canvas carries the dark glass; clearcoat keeps the glassy sheen.
     const visor = new THREE.Mesh(
-      new THREE.SphereGeometry(0.13, 22, 14),
+      new THREE.SphereGeometry(0.155, 22, 14), // AUDIT R11: 0.13→0.155
       new THREE.MeshPhysicalMaterial({
         color: 0xffffff, roughness: 0.05, metalness: 0.5,
         clearcoat: 1.0, envMapIntensity: 2.2,
         map: this._visorTexture(character, accent),
       })
     );
-    visor.position.set(0, 1.33, 0.17);
-    visor.scale.set(1.05, 0.28, 0.62);
+    visor.position.set(0, 1.38, 0.17); // AUDIT R11: 1.33→1.38
+    visor.scale.set(1.05, 0.28, 0.68); // AUDIT R11: 0.62→0.68
     visor.castShadow = false;
     drv.add(visor);
     // Chin guard below the visor.
     const chin = new THREE.Mesh(new THREE.SphereGeometry(0.085, 14, 10), dark);
-    chin.position.set(0, 1.14, 0.18);
+    chin.position.set(0, 1.17, 0.18); // AUDIT R11: 1.14→1.17
     chin.scale.set(1, 0.55, 0.75);
     chin.castShadow = false;
     drv.add(chin);
     // Helmet accent stripe — the character's color mark (equator ring).
     if (character) {
       this._mesh(
-        new THREE.TorusGeometry(0.163, 0.016, 8, 32),
+        new THREE.TorusGeometry(0.185, 0.016, 8, 32), // AUDIT R11: 0.163→0.185 (acompanha capacete maior)
         this._mat(character.accentColor),
-        0, 1.24, 0.06,
+        0, 1.29, 0.06, // AUDIT R11: 1.24→1.29
         { parent: drv, cast: false }
       );
     }
@@ -1803,7 +1809,7 @@ export class Kart {
     // Brake lights flare (audit v5 #2).
     if (this._brakeLampMat) {
       const braking = this._controls.brake || s.spinOut;
-      const target = braking ? 1.4 : 0;
+      const target = braking ? 1.8 : 0; // AUDIT R11: 1.4→1.8 — freio vira evento visível
       this._brakeLampMat.emissiveIntensity += (target - this._brakeLampMat.emissiveIntensity) * Math.min(1, 10 * dt);
     }
     this._tickEffects(dt);
@@ -1925,7 +1931,7 @@ export class Kart {
       this._blob.rotation.z = -this.group.rotation.z; // counter the turn lean
       const k = 1 - Math.min(0.35, h * 0.12);
       this._blob.scale.set(k, k, 0.78 * k);
-      this._blob.material.opacity = Math.max(0.12, 1 - h * 0.55);
+      this._blob.material.opacity = Math.max(0.18, 1 - h * 0.5); // AUDIT R11: 0.12/0.55→0.18/0.5 — sombra mais presente
     }
     if (this._finishActive) {
       if (this._finishFlag) {
