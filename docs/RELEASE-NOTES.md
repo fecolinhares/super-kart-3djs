@@ -27,6 +27,19 @@ colado sob os karts AI no grid. Fixes: shadow radius 4.5→9 (penumbra suave);
 blob núcleo 0.45→0.16 + raio 1.8 (o kart já tem castShadow real — blob era
 redundante). Validado: playtest 5→6/10, 'sem anéis anormais'.
 
+**fix(R13f-h) `49969f3`** — os 3 bugs PERSISTENTES, causa raiz final (GPU real):
+1. **Item box círculo branco**: o ring era TorusGeometry(size×1.15) dourado
+   com AdditiveBlending+toneMapped:false+opacity 0.95 — com bloom ESTOURA EM
+   BRANCO PURO (círculo ~15% maior que o box). O flare R12f só expandia esse
+   ring; o anel BASE era a causa. MK8 não tem torus no box → removido.
+2. **Anel preto nos pneus**: tread ribs (3 torus) + groove (1 torus) = 4 anéis
+   concêntricos escuros na lateral do pneu — liam como anel preto no GPU.
+   MK8: borracha única uniforme → removidos (pneu liso + aro cromado).
+3. **Asfalto mudando de cor seguindo o corredor**: borda do shadow map a 70m
+   do kart (frustum ±70m) — a chase cam olha ~80-100m à frente, a borda (que
+   se move com o kart) cruza a pista no frame. Frustum ±130m (borda fora do
+   alcance) + sun a 150m (a 90m a luz caía dentro do quadrado).
+
 ### Round 12 — AAA audit loop 3: 18 proposals (mecânica, densidade, imersão) (Jarvis, 2026-08-16)
 Terceiro fan-out dirigido pelo crítico cego da R11 (kart 5.5 'modelagem simples',
 meadow 6 'grama esparsa', Neon 7 'densidade urbana', 'interface reduz imersão').
