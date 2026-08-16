@@ -3,6 +3,44 @@
 **Date:** 2026-08-09 · **Status:** 🚀 v0.2.0-draft (AAA visual/audio pass)
 **Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
 
+### Round 12 — AAA audit loop 3: 18 proposals (mecânica, densidade, imersão) (Jarvis, 2026-08-16)
+Terceiro fan-out dirigido pelo crítico cego da R11 (kart 5.5 'modelagem simples',
+meadow 6 'grama esparsa', Neon 7 'densidade urbana', 'interface reduz imersão').
+3 commits atômicos + push (c274229 kart, 6bbb140 pista, 64833c5 hud):
+
+**Kart/mecânica (6):**
+- Suspensão exposta: wishbone do corpo ao cubo (esterça com a knuckle) +
+  amortecedor metálico na traseira — roda deixa de flutuar.
+- Bloco do motor com aletas + difusor carbon sob a cauda (metal usinado escuro).
+- Grade texturizada nos side intakes (Materials.grilleTexture canvas 64px).
+- Livery xadrez nas endplates + listras accent no blade (reusa bannerChecker).
+- Cockpit com painel display (número + barra throttle) + botões no volante.
+- Barbatana dorsal de carenagem + struts entre os blades da asa.
+
+**Pista/densidade (6):**
+- Meadow: grama densa (beira 4.5m/5 cones + novo buildMeadowGrassField varre
+  4.5-22m ~1 tuft/1.6m + 16% capim alto seco, rnd local preserva _rand).
+- Copas two-tone luz/sombra por camada (±14% lightness + hue/sat jitter) +
+  pinheiro 24 segs.
+- Neon: carros VIVOS (paleta taxi neon, 14→22, mais perto, faróis+lanternas
+  emissivos + reflexo wet aditivo por carro).
+- Street furniture: 14 hidrantes + 5 semáforos (3 discos acesos) + postes neon
+  40→22m.
+- 2ª camada de névoa BAIXA (buildGroundHaze: Meadow R100, Neon R72).
+- Flores densas (patches 12→9m, 2-3 clusters, 4-7/cada).
+
+**HUD/imersão (6):**
+- AUTO-HIDE do HUD no touch: 4s sem input → ghost (placas 0.25, minimap 0.22,
+  speedo 0.15, posição 0.55); qualquer toque/tecla restaura.
+- Chips translúcidos 0.5 + compactos (lap bar 56px, position 58×44).
+- Speedo ghost 112px: 0.5 repouso, acende 1.0 em boost/drift.
+- Minimap menor (84/64px) COM zoom local 2.1× centrado no jogador.
+- Cronômetro e rótulos ITEM/DRIFT somem no phone (MK8D).
+- Touch buttons 0.55-0.6 + glow ring no toque (hit areas 44-56px intactos).
+
+**Validação:** build ✓ · audit-geometry 0 CRIT ×2 tracks ✓ (whitelist de haze
+rings adicionada ao kit) · crítico cego em andamento · deploy Pages verde.
+
 ### Round 11 — AAA audit loop 2: 18 proposals from 3 specialist auditors (Jarvis, 2026-08-16)
 Segundo fan-out (kart/piloto · pista/ambiente · itens/HUD/FX) dirigido pelas notas
 do crítico cego da Round 10 (kart 5/10, Neon 6/10, meadow 4/10). 18 propostas em
