@@ -275,7 +275,15 @@ function buildRoadRibbon(path, length, opts = {}) {
     // reads as polished tarmac, not flat gray.
     envMapIntensity: opts.envMapIntensity ?? 1.0,
     metalness: opts.metalness,
+    // AUDIT PISTA R11 (2026-08-16): asfalto MOLHADO de verdade — o city track
+    // passa clearcoat: a superfície ganha especular de água contínuo (reflexo
+    // das luzes neon = cue wet-street MK8). Só ativo quando opts.wet=true.
+    clearcoat: opts.wet ? 0.85 : undefined,
+    clearcoatRoughness: opts.wet ? 0.25 : undefined,
   });
+  if (opts.wet) { mat.roughness = 0.55; mat.metalness = 0.15; } // AUDIT R11: sheen molhado contínuo
+  if (opts.additive) { mat.blending = THREE.AdditiveBlending; mat.depthWrite = false; } // AUDIT R11: reflexo brilha
+  if (opts.toneMapped !== undefined) mat.toneMapped = opts.toneMapped; // AUDIT R11: HDR do reflexo preservado
   if (opts.texture) {
     const tex = opts.texture().clone();
     tex.needsUpdate = true;
@@ -655,14 +663,24 @@ function buildCurbs(path, length, side, opts = {}) {
   geo.setIndex(idx);
   geo.computeVertexNormals();
 
-  // Zebra texture: red/white alternating stones along U.
+  // Zebra texture: red/white alternating stones along U. AUDIT PISTA R11:
+  // 256x16 → 256x32 — metade superior zebra (topo, v 0.5..1), metade inferior
+  // PEDRA escura (faces laterais, v 0..0.5): o kerb lê como volume de concreto
+  // (MK8) e não como fita plana pintada.
   const zebraTex = (() => {
     const cv = document.createElement('canvas');
-    cv.width = 256; cv.height = 16;
+    cv.width = 256; cv.height = 32;
     const c = cv.getContext('2d');
     const half = 128;
+    // topo (v 0.5..1 -> face superior): zebra vermelho/branco (inalterado)
     c.fillStyle = '#e63b3b'; c.fillRect(0, 0, half, 16);
     c.fillStyle = '#f8f9fb'; c.fillRect(half, 0, half, 16);
+    // lateral (v 0..0.5 -> faces externa/interna): PEDRA escura com ruído —
+    // o kerb lê 3D (volume de concreto) em vez de fita plana.
+    c.fillStyle = '#3a3f4a';
+    c.fillRect(0, 16, 256, 16);
+    c.fillStyle = '#2f333d';
+    for (let i = 0; i < 90; i++) c.fillRect(Math.floor(Math.random() * 256), 16 + Math.floor(Math.random() * 16), 2, 2);
     const t = new THREE.CanvasTexture(cv);
     t.wrapS = THREE.RepeatWrapping;
     t.colorSpace = THREE.SRGBColorSpace;
@@ -1604,7 +1622,67 @@ function buildGrassTufts(path, length) {
   mesh.instanceMatrix.needsUpdate = true;
   if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   mesh.count = idx; // skip unused slots (start-straight clearance)
-  return mesh;
+
+  // AUDIT PISTA R11: flores 3D perto da pista — pontinhos de cor (branco/
+  // amarelo/rosa/magenta/roxo) no prado; o crítico apontou 'grama uniforme,
+  // textura simples'. 1 InstancedMesh extra (~1 flor a cada 2.5m por lado).
+  const flowerTotal = Math.max(1, Math.round(clusterCount * 1.4));
+  const flowerGeo = new THREE.CircleGeometry(0.12, 8);
+  const flowerMat = new THREE.MeshBasicMaterial({
+    map: flowerTexture(), transparent: true, alphaTest: 0.05,
+    side: THREE.DoubleSide, depthWrite: false,
+  });
+  const flowerMesh = new THREE.InstancedMesh(flowerGeo, flowerMat, flowerTotal * 2);
+  const FLOWERS = [0xffffff, 0xffd94a, 0xff8fb0, 0xd64a9a, 0xb07ae0, 0xffb066];
+  let fidx = 0;
+  for (let i = 0; i < flowerTotal; i++) {
+    const t = (i + 0.5) / flowerTotal;
+    if (t < 0.025 || t > 0.975) continue;
+    path.getPointAt(t, p);
+    path.getTangentAt(t, tan);
+    nrm.set(-tan.z, 0, tan.x).normalize();
+    for (const side of [-1, 1]) {
+      const off = halfW + 1.8 + hash01(i, side, 0, 7) * 1.6; // halfW+1.8..3.4
+      const fx = p.x + nrm.x * off * side + tan.x * (hash01(i, side, 0, 8) - 0.5) * 0.8;
+      const fz = p.z + nrm.z * off * side + tan.z * (hash01(i, side, 0, 8) - 0.5) * 0.8;
+      const fs = 0.6 + hash01(i, side, 0, 9) * 0.5;
+      dummy.position.set(fx, p.y + 0.055, fz);
+      dummy.rotation.set(-Math.PI / 2, 0, hash01(i, side, 0, 10) * Math.PI * 2);
+      dummy.scale.set(fs, fs, 1);
+      dummy.updateMatrix();
+      flowerMesh.setMatrixAt(fidx, dummy.matrix);
+      col.setHex(FLOWERS[(i * 3 + side * 2 + 1) % FLOWERS.length]);
+      flowerMesh.setColorAt(fidx, col);
+      fidx++;
+    }
+  }
+  flowerMesh.instanceMatrix.needsUpdate = true;
+  if (flowerMesh.instanceColor) flowerMesh.instanceColor.needsUpdate = true;
+  flowerMesh.count = fidx;
+  return [mesh, flowerMesh];
+}
+
+/** Pétalas de flor pintadas em canvas (corte circular com alphaTest). */
+function flowerTexture() {
+  const c = document.createElement('canvas');
+  c.width = 64; c.height = 64;
+  const g = c.getContext('2d');
+  g.clearRect(0, 0, 64, 64);
+  // 6 pétalas elípticas em volta do centro (círculo branco de base).
+  g.fillStyle = '#ffffff';
+  g.beginPath(); g.arc(32, 32, 7, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#fff9e8';
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2;
+    g.save();
+    g.translate(32 + Math.cos(a) * 14, 32 + Math.sin(a) * 14);
+    g.rotate(a);
+    g.beginPath(); g.ellipse(0, 0, 7, 4.5, 0, 0, Math.PI * 2); g.fill();
+    g.restore();
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
 }
 
 /**
@@ -1970,6 +2048,9 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
     // reais do mapa (magenta/ciano/amarelo) no asfalto.
     ribbonOpts.emissive = 0xffffff;
     ribbonOpts.emissiveIntensity = 1.05;
+    // AUDIT PISTA R11 (2026-08-16): asfalto MOLHADO — clearcoat + sheen
+    // especular contínuo (cue wet-street MK8); sem ele a rua lia matte.
+    ribbonOpts.wet = true;
   }
   const ribbon = buildRoadRibbon(path, length, ribbonOpts);
   ribbon.receiveShadow = true;
@@ -1988,6 +2069,10 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
       transparent: true,
       opacity: 0.35, // AUDIT R6: 0.22 sumia na textura da pista
       depthWrite: false,
+      // AUDIT PISTA R11: reflexo ADITIVO + toneMapped=false — o reflexo das
+      // janelas BRILHA de verdade (não só escurece/ilumina sutilmente).
+      additive: true,
+      toneMapped: false,
     });
     reflect.renderOrder = 3; // desenha DEPOIS da pista (transparent pass)
     group.add(reflect);
@@ -2044,7 +2129,7 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   // (vision critic: repeated spherical tufts read as procedural placeholders).
   if (!isCity) {
     group.add(buildSponsorBoards(path));
-    group.add(buildGrassTufts(path, length));
+    group.add(...buildGrassTufts(path, length)); // AUDIT R11: retorna [tufts, flores]
     const apexCones = buildApexCones(path, length, getRoadWidthAt());
     if (apexCones) group.add(apexCones);
     // AUDIT AAA: placas de freada 30/20/10 na borda externa antes do apex

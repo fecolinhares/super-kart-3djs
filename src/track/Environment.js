@@ -515,6 +515,11 @@ export class Environment {
     sky.position.y = -10;
     scene.add(sky);
 
+    // AUDIT PISTA R11 (2026-08-16): anel de nevoeiro — camada atmosférica
+    // entre a pista e as montanhas (banda mais próxima = r146). Profundidade
+    // sem tocar no fog principal nem custar draw calls caros (30 placas).
+    this.buildHazeRing(scene, night ? 0x251a3a : 0xbfe6ff, night ? 205 : 185, night ? 26 : 30);
+
     // --- lights (AAA rig: key + fill + sky/ground hemi + rim) --------------
     // NEON CITY swaps the warm sunny rig for dim cool moonlight (the moon
     // disc in buildNeonCity sits on the same axis, so shadows match it).
@@ -627,6 +632,47 @@ export class Environment {
       // correct for a night circuit; the crowd was the top 'placeholder'
       // complaint from the vision critic)
     }
+  }
+
+  /**
+   * Anel de nevoeiro atmosférico: N placas verticais com gradiente vertical
+   * da cor do fog (alpha 0.34 no meio → 0 nas pontas) ao redor da pista.
+   * Separa pista → meio-fundo → montanhas em 3 planos claros (haze banding
+   * MK8). fog:false no material — a cor já é a do fog; não é duplamente
+   * atenuado. AUDIT PISTA R11.
+   */
+  buildHazeRing(scene, fogHex, fogHaze, count) {
+    const R = 146; // cobre o meio-fundo (props a 10-60m, montanhas a 200m+)
+    const ring = new THREE.Group();
+    const cv = document.createElement('canvas');
+    cv.width = 16; cv.height = 128;
+    const g = cv.getContext('2d');
+    const grad = g.createLinearGradient(0, 0, 0, 128);
+    grad.addColorStop(0, 'rgba(255,255,255,0)');
+    grad.addColorStop(0.5, 'rgba(255,255,255,0.34)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 16, 128);
+    const tex = new THREE.CanvasTexture(cv);
+    const mat = new THREE.MeshBasicMaterial({
+      map: tex, color: fogHex, transparent: true, opacity: 1,
+      side: THREE.DoubleSide, depthWrite: false, fog: false,
+    });
+    const geo = new THREE.PlaneGeometry(36, 13);
+    const dummy = new THREE.Object3D();
+    for (let i = 0; i < count; i++) {
+      const a = (i / count) * Math.PI * 2;
+      dummy.position.set(Math.cos(a) * R, 6.5, Math.sin(a) * R);
+      dummy.lookAt(Math.cos(a) * (R + 30), 6.5, Math.sin(a) * (R + 30)); // face o centro
+      dummy.rotation.z = 0;
+      dummy.updateMatrix();
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set(Math.cos(a) * R, 6.5, Math.sin(a) * R);
+      m.lookAt(Math.cos(a) * (R + 30), 6.5, Math.sin(a) * (R + 30));
+      m.frustumCulled = false;
+      ring.add(m);
+    }
+    scene.add(ring);
   }
 
   buildMountains(scene) {
@@ -4263,7 +4309,10 @@ export class Environment {
       { seed: 23000, base: 50, range: 12, low: true, haze: 0.6 },
       { seed: 24000, base: 74, range: 16, low: true, haze: 0.85 }, // far silhouette layer
     ];
-    const fogCol = new THREE.Color(0x1a2436); // night haze target
+    // AUDIT PISTA R11 (2026-08-16): alvo de bruma roxo-azulado MAIS CLARO —
+    // as fileiras longe liam como silhueta preta (0x1a2436 ~ vazio); agora a
+    // cidade na distância lê como bruma iluminada (profundidade real MK8).
+    const fogCol = new THREE.Color(0x241f42); // night haze target
     for (const row of rows) {
       const rand = rnd(row.seed);
       const count = 24 + Math.floor(rand() * 5); // 24-28 per row (denser skyline — vision critic: sparse)
@@ -4271,6 +4320,7 @@ export class Environment {
         map: this._windowTexture(),
         color: new THREE.Color(1, 1, 1).lerp(fogCol, row.haze),
         fog: false,
+        toneMapped: false, // AUDIT R11: janelas acesas brilham sob ACES
       });
       const towers = new THREE.InstancedMesh(geo, rowMat, count);
       let idx = 0;
@@ -4588,18 +4638,38 @@ export class Environment {
       // --- piscinas de luz neon NA PISTA (AUDIT AAA 2026-08-15): o reflexo wet
       // existia, mas a luz dos postes não pousava no asfalto. Pools aditivos
       // projetados sob cada lâmpada (mesmos ts/lado), 1 InstancedMesh.
+      // AUDIT PISTA R11 (2026-08-16): poça MK8 — elipse elongada (2.8 x 7.2m,
+      // canvas 128x256) com núcleo QUENTE (alpha 0.95), halo colorido e o
+      // STREAK especular horizontal da lâmpada (cue clássico de rua molhada).
       {
         const poolCv = document.createElement('canvas');
-        poolCv.width = 128; poolCv.height = 128;
+        poolCv.width = 128; poolCv.height = 256;
         const pg = poolCv.getContext('2d');
-        const grad = pg.createRadialGradient(64, 64, 4, 64, 64, 62);
-        grad.addColorStop(0, 'rgba(255,255,255,0.5)');
-        grad.addColorStop(0.45, 'rgba(255,255,255,0.2)');
+        const grad = pg.createRadialGradient(64, 128, 2, 64, 128, 120);
+        grad.addColorStop(0, 'rgba(255,255,255,0.95)');
+        grad.addColorStop(0.16, 'rgba(255,255,255,0.55)');
+        grad.addColorStop(0.45, 'rgba(255,255,255,0.22)');
         grad.addColorStop(1, 'rgba(255,255,255,0)');
         pg.fillStyle = grad;
-        pg.fillRect(0, 0, 128, 128);
+        // compressão vertical: elipse alongada no comprimento da pista
+        pg.save();
+        pg.translate(64, 128);
+        pg.scale(1, 0.38);
+        pg.translate(-64, -128);
+        pg.fillRect(0, 0, 128, 256);
+        pg.restore();
+        // streak especular horizontal da lâmpada (meio da poça)
+        const sg = pg.createLinearGradient(0, 116, 0, 140);
+        sg.addColorStop(0, 'rgba(255,255,255,0)');
+        sg.addColorStop(0.5, 'rgba(255,255,255,0.9)');
+        sg.addColorStop(1, 'rgba(255,255,255,0)');
+        pg.fillStyle = sg;
+        pg.fillRect(8, 116, 112, 24);
+        // smear vertical do poste refletido na água (acima do streak)
+        pg.fillStyle = 'rgba(255,255,255,0.35)';
+        pg.fillRect(56, 48, 16, 60);
         const poolTex = new THREE.CanvasTexture(poolCv);
-        const poolGeo = new THREE.PlaneGeometry(3.2, 5.2);
+        const poolGeo = new THREE.PlaneGeometry(2.8, 7.2);
         const poolMat = new THREE.MeshBasicMaterial({
           map: poolTex, transparent: true, blending: THREE.AdditiveBlending,
           depthWrite: false, side: THREE.DoubleSide,
@@ -4615,6 +4685,7 @@ export class Environment {
         pools.renderOrder = 4; // acima do reflexo wet (renderOrder 3, y 0.195)
         pools.frustumCulled = false;
         const poolCol = new THREE.Color();
+        const poolJitter = rnd(4521); // AUDIT R11: variação determinística de tamanho
         let poolIdx = 0;
         for (let li = 0; li < POOL_TS.length; li++) {
           const tt = POOL_TS[li];
@@ -4627,6 +4698,8 @@ export class Environment {
           poolDummy.position.set(px, _pp.y + 0.197, pz); // 2mm acima do wet reflect (0.195)
           poolDummy.lookAt(px + _pt.x, _pp.y, pz + _pt.z);
           poolDummy.rotateX(-Math.PI / 2); // deitado (padrão lane dashes)
+          const jit = 0.75 + poolJitter() * 0.5; // AUDIT R11: 0.75-1.25x
+          poolDummy.scale.set(jit, 1, jit);
           poolDummy.updateMatrix();
           pools.setMatrixAt(poolIdx, poolDummy.matrix);
           poolCol.setHex(li % 2 === 0 ? 0xff2ec4 : 0x2ec4ff); // casa com as lâmpadas
