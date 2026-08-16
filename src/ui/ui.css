@@ -1576,6 +1576,13 @@
     width: 74px;
     height: 74px;
   }
+
+  /* AUDIT: top row (lap+time+lapsplit | minimap+coins) overflow no phone —
+     o minimap é flex-shrink:0, então o grupo esquerdo colide sob ele.
+     Lapsplit some (a info está na tela de finish), minimap compacto. */
+  .sk3d-lapsplit { display: none; }
+  .sk3d-minimap { width: 72px; height: 72px; }
+  .sk3d-coins { padding: 3px 8px; font-size: 0.78rem; }
 }
 
 /* ---------- reduced motion ---------- */
