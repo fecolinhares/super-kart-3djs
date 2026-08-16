@@ -1179,7 +1179,7 @@ loop.start((dt, t) => {
           const count = changed === playerKart.heldItem
             ? playerKart._heldItemCount || 1
             : playerKart._heldItem2Count || 1;
-          audio.play('pickup'); // item fanfare (was silent — UX gap)
+          audio.play('itemPickup', { volume: 0.6 }); // item box = fanfarra MK8 (era o blip de moeda)
           hud.setItemRoulette(changed, count); // MK8 roulette spin (audit minor)
           // AUDIT r8 (item roulette anticipation): the HUD icons shuffle for
           // ~0.45s (MK8D roulette spins 0.4-0.5s) — delay the name reveal to

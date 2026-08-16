@@ -120,7 +120,7 @@ class Coin {
     if (this.mesh) this.mesh.visible = false;
     // Player gets the sparkle + blip; AI stays quiet (matches item pickups).
     if (raceManager && kart === raceManager.player) {
-      raceManager.audio?.play?.('itemPickup');
+      raceManager.audio?.play?.('pickup', { volume: 0.55 }); // moeda = blip curto (era a fanfarra)
       raceManager.particles?.emit?.('sparkle', new THREE.Vector3(this.base.x, this.base.y + 0.2, this.base.z), {
         count: 10, speed: 3.2, size: 0.18, color: 0xffd166,
       });
