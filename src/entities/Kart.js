@@ -1225,7 +1225,9 @@ export class Kart {
     drv.scale.set(1.05, 1.05, 1.05);
     this.group.add(drv);
 
-    const suit = character ? this._mat(character.suitColor) : white;
+    const suit = character
+      ? Materials.plasticMaterial(character.suitColor, { roughness: 0.55, clearcoat: 0.5, clearcoatRoughness: 0.4, envMapIntensity: 0.9 })
+      : white;
     const up = new THREE.Vector3(0, 1, 0);
 
     // Torso — rounded capsule leaned forward into the drive pose.
@@ -1301,9 +1303,13 @@ export class Kart {
 
     // Neck + helmet (character colored, glossy visor, fine outline).
     this._mesh(new THREE.SphereGeometry(0.055, 14, 10), skin, 0, 1.14, 0.1, { parent: drv, cast: false });
-    const helmetMat = character ? this._mat(character.helmetColor) : body;
-    helmetMat.emissive = new THREE.Color(character ? character.helmetColor : 0xffffff).multiplyScalar(0.28);
-    helmetMat.emissiveIntensity = 0.5; // AUDIT R5: helmet glow lifts the driver off the dark body
+    // AUDIT: glossy clearcoat helmet (was matte toon 0.82) — MK8 helmets are
+    // polished plastic; the specular highlight separates head from dark body.
+    const helmetMat = character
+      ? Materials.plasticMaterial(character.helmetColor, { roughness: 0.22, clearcoat: 1.0, envMapIntensity: 1.6 })
+      : body;
+    helmetMat.emissive = new THREE.Color(character ? character.helmetColor : 0xffffff).multiplyScalar(0.18);
+    helmetMat.emissiveIntensity = 0.4; // AUDIT R5: keep the lift, soften it (clearcoat now does the work)
     this._helmetMat = helmetMat;
     const helmet = new THREE.Mesh(
       new THREE.SphereGeometry(0.16, 32, 24),
