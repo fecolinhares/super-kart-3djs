@@ -919,21 +919,16 @@ function buildLaneDashes(path, length, neon = false) {
   // floating sliver). polygonOffset wins the depth test against the ribbon —
   // the classic decal technique.
   const geo = new THREE.PlaneGeometry(0.42, dashLen); // AUDIT R16e: 0.45×2.6 → 0.42×1.4 (dash curto, não linha)
-  // Painted look: worn darker border + grime on the dash card, slight
-  // transparency so the asphalt grain shows through the paint.
-    // Neon City uses a clean unlit dash material. The wet-road PBR shader
-    // darkened the painted cards into the strange black rectangles Feco saw.
-    // Meadow keeps the worn PBR/toon treatment.
-    const mat = neon
-      ? new THREE.MeshBasicMaterial({ color: 0xffffff, map: dashTexture(true), side: THREE.DoubleSide, transparent: true, opacity: 0.96, depthWrite: false })
-      : toonMaterial(0xffffff, { side: THREE.DoubleSide, map: dashTexture(false), transparent: true, opacity: 0.85 });
+  // Solid paint on both tracks: the old canvas/grime card made perspective
+  // edges read as irregular shapes. A flat color keeps every dash rectangular.
+  const mat = new THREE.MeshBasicMaterial({
+    color: neon ? 0xffe88a : 0xffd166,
+    side: THREE.DoubleSide,
+    transparent: true,
+    opacity: 0.94,
+    depthWrite: false,
+  });
   mat.toneMapped = false;
-  if (neon) {
-    // MeshBasicMaterial is intentionally unlit; do not attach an `emissive`
-    // property here. Three.js sees that ad-hoc property and tries to write an
-    // emissive uniform that MeshBasicMaterial does not have (mobile crash).
-    mat.color.set(0xffffff);
-  }
   mat.polygonOffset = true;
   mat.polygonOffsetFactor = -2;
   mat.polygonOffsetUnits = -2;
@@ -951,9 +946,10 @@ function buildLaneDashes(path, length, neon = false) {
     path.getTangentAt(t, tan);
     // Road ribbon sits at y+0.18 — the dashes must sit ABOVE it (y+0.21) or
     // they're buried inside the asphalt (the classic decal-height pitfall).
-    dummy.position.set(p.x, p.y + 0.18, p.z); // exact ribbon top — polygonOffset wins depth (visual audit 2026-08-12)
-    dummy.lookAt(p.x + tan.x, p.y, p.z + tan.z);
-    dummy.rotateX(-Math.PI / 2); // lay flat as paint (lookAt + rotateX like the finish line)
+    dummy.position.set(p.x, p.y + 0.18, p.z); // decal sits above the ribbon
+    // PlaneGeometry is XY. Rotate it flat, then yaw its long axis to the
+    // tangent; lookAt()+rotateX() introduced skewed/parallelogram cards.
+    dummy.rotation.set(-Math.PI / 2, 0, Math.atan2(tan.x, tan.z));
     dummy.updateMatrix();
     mesh.setMatrixAt(i, dummy.matrix);
   }

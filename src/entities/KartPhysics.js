@@ -265,17 +265,12 @@ export class KartPhysics {
     const samples = ensureSamples(kart, track);
     const near = nearestSample(kart, samples);
     const halfW = roadHalfWidth(track, near.t);
-    // AUDIT (user: karts drive THROUGH the guard rail): the rail is placed at
-    // roadWidth/2 + 1.1 (fixed base width) but halfW uses the LOCAL width —
-    // on wide sections the old wallAt (halfW + 0.9) reached 6.9m, 1.3m past
-    // the rail. Clamp the wall to just inside the rail position so the kart
-    // can never pierce it.
-    const railAt = (T.roadWidth ?? 9) / 2 + 1.05;
-    // AUDIT (user STILL sees a slight clip): the OUTER WHEEL edge reaches
-    // 1.04m from the kart center (axle 0.7 + tire radius 0.34) — much wider
-    // than the 0.53 body half. Wall pulled in by 0.85 so the tire just
-    // clears the rail (5.59 < 5.6) while the shoulder stays drivable.
-    const wallAt = Math.min(halfW + (T.roadEdge ?? 0.9), railAt) - 0.85;
+    // Guardrail visual center = road half-width + 0.45m (TrackBuilder).
+    // Reserve the kart's outer wheel radius before that center: constraining
+    // only the kart origin let the outside wheel/body pierce the rail.
+    const railCenter = (T.roadWidth ?? 9) / 2 + 0.45;
+    const kartOuterRadius = 1.08;
+    const wallAt = Math.min(halfW + (T.roadEdge ?? 0.9), railCenter - kartOuterRadius);
     // AUDIT r18-FIX: off-road karts ride the rolling terrain — the path
     // samples are flat; beyond the corridor the field rolls ±5m and a kart
     // shoved into the grass would bury or float up to 5m without this.
@@ -459,14 +454,18 @@ export class KartPhysics {
     }
 
     // ---- wall bounce at road edge + grass margin -------------------------------
-    const lateralDist = near.lateralDist;
+    // Re-sample AFTER integration. Using `near` from before movement let a
+    // fast kart travel through the rail for one full frame before bouncing.
+    const postNear = nearestSample(kart, samples);
+    const lateralDist = postNear.lateralDist;
     if (Math.abs(lateralDist) > wallAt) {
+      const postRight = _right.set(postNear.tan.z, 0, -postNear.tan.x);
       const overshoot = Math.abs(lateralDist) - wallAt;
-      s.position.addScaledVector(right, -Math.sign(lateralDist) * overshoot * 1.15);
+      s.position.addScaledVector(postRight, -Math.sign(lateralDist) * overshoot * 1.2);
       kart._latVel = -lat * P.collisionBounce;
-      s.speed *= Math.max(0.25, 1 - overshoot * 0.5);
+      s.speed *= Math.max(0.2, 1 - overshoot * 0.65);
       // steer the nose back toward the track center
-      s.heading = dampAngle(s.heading, Math.atan2(tan.x, tan.z), 6, dt);
+      s.heading = dampAngle(s.heading, Math.atan2(postNear.tan.x, postNear.tan.z), 8, dt);
       kart._bounce = 1;
       kart._bounceTimer = 0.3;
       kart._scaleTarget = 0.92;

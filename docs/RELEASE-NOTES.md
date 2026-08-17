@@ -1,5 +1,10 @@
 # Release Notes — Super Kart 3D.js
 
+**fix(R17a-b) — dashes retangulares + colisão com guardrail (2026-08-17)**
+- Tracejado: o screenshot mostrou quadriláteros/paralelogramos irregulares. A combinação `lookAt()` + `rotateX()` estava orientando o plano duas vezes e a textura/grime adicionava bordas visuais estranhas. Agora os cards usam rotação Euler direta pelo tangente e cor sólida, sem textura de desgaste: retângulos consistentes nas duas pistas.
+- Guardrail: o limite usava a posição antiga antes da integração e permitia atravessar um frame; além disso, calculava o rail em `roadWidth/2 + 1.05`, enquanto o visual está em `+0.45`, sem reservar o raio das rodas. Agora reamostra após mover, limita o centro do kart a `railCenter - 1.08m` e aplica bounce mais forte.
+- Build: `npm run build` passou em `/tmp/sk3d-r17-trackfix-dist`.
+
 **fix(R16g-h) — Neon + Start Race (2026-08-16)**
 - Neon: o screenshot mostrou os lane dashes como retângulos escuros no asfalto molhado. A causa era material PBR/toon com borda marrom desgastada e iluminação da pista neon. O modo Neon agora usa textura limpa amarelo-clara + `MeshBasicMaterial` não iluminado; Meadow mantém o acabamento desgastado. Sem propriedade `emissive` ad-hoc: isso quebrava o shader Basic com `uniform.value` indefinido.
 - Start Race: o pré-warm de shaders renderizava karts ocultos e gerava erro WebGL em alguns drivers; foi desativado. A limpeza antiga percorria/dispunha todos os meshes no clique; agora grupos antigos são removidos imediatamente e dispostos em baixa prioridade depois. A construção do jogador e de cada AI cede um frame (`requestAnimationFrame`) entre instâncias. O botão mostra `Loading race…` e bloqueia duplo clique.
