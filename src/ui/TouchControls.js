@@ -22,6 +22,7 @@ export class TouchControls {
     this.onPause = typeof onPause === 'function' ? onPause : () => {};
     this.onDrift = typeof onDrift === 'function' ? onDrift : () => {};
     this.steerValue = 0;
+    this._steerPressed = { left: false, right: false };
 
     this.root = document.createElement('div');
     this.root.className = 'sk3d-touch sk3d-hidden';
@@ -70,30 +71,31 @@ export class TouchControls {
   }
 
   bindSteer(button, value) {
-    const set = (v) => {
-      if (this.steerValue === v) return;
-      this.steerValue = v;
-      this.onSteer(v);
+    const side = value < 0 ? 'left' : 'right';
+    const update = () => {
+      const next = this._steerPressed.left === this._steerPressed.right
+        ? 0
+        : this._steerPressed.left ? -1 : 1;
+      if (this.steerValue === next) return;
+      this.steerValue = next;
+      this.onSteer(next);
     };
 
     button.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       if (button.setPointerCapture) button.setPointerCapture(e.pointerId);
+      this._steerPressed[side] = true;
       button.classList.add('is-active');
-      set(value);
+      update();
     });
-    button.addEventListener('pointerup', () => {
+    const release = () => {
+      this._steerPressed[side] = false;
       button.classList.remove('is-active');
-      set(0);
-    });
-    button.addEventListener('pointercancel', () => {
-      button.classList.remove('is-active');
-      set(0);
-    });
-    button.addEventListener('pointerleave', () => {
-      button.classList.remove('is-active');
-      set(0);
-    });
+      update();
+    };
+    button.addEventListener('pointerup', release);
+    button.addEventListener('pointercancel', release);
+    button.addEventListener('pointerleave', release);
     button.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 

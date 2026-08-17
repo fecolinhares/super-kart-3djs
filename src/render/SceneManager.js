@@ -27,6 +27,12 @@ export function createScene(container) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  function resize() {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / Math.max(1, window.innerHeight);
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
   container.appendChild(renderer.domElement);
 
   // AUDIT (Jarvis QA loop 2026-08-11): WebGL context loss froze the game

@@ -251,7 +251,7 @@ function buildRoadRibbon(path, length, opts = {}) {
     positions[base * 3 + 2] = p.z + nrm.z * (lat + half);
     positions[(base + 1) * 3 + 0] = p.x + nrm.x * (lat - half);
     positions[(base + 1) * 3 + 1] = p.y + yOff;
-    positions[(base + 1) * 3 + 2] = p.z - nrm.z * half;
+    positions[(base + 1) * 3 + 2] = p.z + nrm.z * (lat - half);
     uvs[base * 2 + 0] = (t - uvBias) * repeatU;
     uvs[base * 2 + 1] = 1;
     uvs[(base + 1) * 2 + 0] = (t - uvBias) * repeatU;
@@ -946,7 +946,7 @@ function buildLaneDashes(path, length, neon = false) {
     path.getTangentAt(t, tan);
     // Road ribbon sits at y+0.18 — the dashes must sit ABOVE it (y+0.21) or
     // they're buried inside the asphalt (the classic decal-height pitfall).
-    dummy.position.set(p.x, p.y + 0.18, p.z); // decal sits above the ribbon
+    dummy.position.set(p.x, p.y + 0.185, p.z); // 5mm above road ribbon: no grazing-angle z-fight
     // PlaneGeometry is XY. Rotate it flat, then yaw its long axis to the
     // tangent; lookAt()+rotateX() introduced skewed/parallelogram cards.
     dummy.rotation.set(-Math.PI / 2, 0, Math.atan2(tan.x, tan.z));

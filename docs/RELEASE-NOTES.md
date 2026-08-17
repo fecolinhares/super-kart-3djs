@@ -1,5 +1,12 @@
 # Release Notes — Super Kart 3D.js
 
+**fix(R21a-e) — auditoria cross-track compartilhada (2026-08-17)**
+- Resize/orientação: `SceneManager` agora atualiza renderer e câmera em `window.resize`; PostFX já redimensionava apenas o composer.
+- Touch multitouch: LEFT/RIGHT agora mantêm estados independentes; soltar um dedo não zera o outro.
+- Road ribbon: o segundo vértice agora aplica `lat` também no eixo Z; elimina ribbons laterais enviesadas em curvas.
+- Dashes: elevadas 5mm acima do asfalto para reduzir z-fighting em ângulo raso.
+- HUD: speedlines limpam o canvas mesmo quando a velocidade cai abaixo do limiar.
+
 **fix(R20a-c) — auditoria cruzada 2 pistas × desktop/mobile (2026-08-17)**
 - IA: lane spread reduzido de ±1.2m para ±0.6m; `lane-probe` Meadow caiu de 9 bounces do kart0 para 0, evitando que rivais busquem o guardrail.
 - Neon: letreiros eram rejeitados por `_onTrack(..., 6)` apesar de estarem no sidewalk; rejeição reduzida para 1.2m, liberando street signage fora do asfalto.
