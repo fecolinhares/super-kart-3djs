@@ -1,5 +1,10 @@
 # Release Notes — Super Kart 3D.js
 
+**fix(R22a) — hairpins Neon sem bounce de IA (2026-08-17)**
+- `lane-probe` mostrou Neon com **32 bounces/kart em 90s** nos hairpins; Meadow já estava em 0–1.
+- Causa: IA mantinha cruise de 100% mesmo com curvas compactas; throttle reduzido sozinho não baixava o envelope de velocidade.
+- Fix: Neon agora limita `cruiseSpeed` a 88% em trecho normal e 78% quando o erro angular passa de 0.35 rad. Resultado: Neon kart0 bounces **32→0**, kart1 **31→0**, demais 1–2 no spawn/primeiro frame.
+
 **fix(R21a-e) — auditoria cross-track compartilhada (2026-08-17)**
 - Resize/orientação: `SceneManager` agora atualiza renderer e câmera em `window.resize`; PostFX já redimensionava apenas o composer.
 - Touch multitouch: LEFT/RIGHT agora mantêm estados independentes; soltar um dedo não zera o outro.

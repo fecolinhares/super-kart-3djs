@@ -251,6 +251,11 @@ export class AIController {
       throttle = THREE.MathUtils.clamp(throttle * (1 + factor), 0, 1.35);
     }
 
+    if (this.track?.isCity) {
+      const cornerCap = absErr > 0.35 ? 0.78 : 0.88;
+      kart.cruiseSpeed = Math.min(kart.cruiseSpeed || CONFIG.physics.maxSpeed, CONFIG.physics.maxSpeed * cornerCap);
+    }
+
     // Drift style through committed corners (only while racing).
     // Accel stat raises the throttle floor → eager starters pull away (F2).
     const aGain = 0.6 + (this.stats?.accel || 7) / 10 * 0.5;

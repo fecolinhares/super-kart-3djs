@@ -43,7 +43,7 @@ const laneExp = ctrls.map(c => c.laneOffset);
 const N = 90 * 60;
 let frames = 0;
 const latSum = karts.map(() => 0), latAbsSum = karts.map(() => 0), onLaneFrames = karts.map(() => 0);
-const bounceCount = karts.map(() => 0), speedPct = karts.map(() => []), errSum = karts.map(() => 0);
+const bounceCount = karts.map(() => 0), bounceDetails = karts.map(() => []), speedPct = karts.map(() => []), errSum = karts.map(() => 0);
 let lastBounce = karts.map(() => 0);
 
 for (let frame = 0; frame < N; frame++) {
@@ -54,7 +54,10 @@ for (let frame = 0; frame < N; frame++) {
     KartPhysics.step(k, k._ctrl, DT, trackData, rm);
     k.group.position.copy(k.state.position);
     if (k._spinMs > 0) { k._spinMs = Math.max(0, k._spinMs - DT * 1000); if (k._spinMs === 0) k.state.spinOut = false; }
-    if (k._bounceTimer > 0 && k._bounce === 1 && lastBounce[i] <= 0) bounceCount[i]++;
+    if (k._bounceTimer > 0 && k._bounce === 1 && lastBounce[i] <= 0) {
+      bounceCount[i]++;
+      if (bounceDetails[i].length < 8) bounceDetails[i].push({ t: Number(t.toFixed(2)), progress: Number(k.state.progress01.toFixed(3)), x: Number(k.state.position.x.toFixed(1)), z: Number(k.state.position.z.toFixed(1)) });
+    }
     lastBounce[i] = k._bounceTimer;
     // AI update AFTER physics (same order as RaceManager.update)
     ctrls[i].update(DT);
@@ -79,5 +82,5 @@ for (let i = 0; i < 5; i++) {
   const p50 = sp[Math.floor(sp.length * 0.5)].toFixed(0);
   const p95 = sp[Math.floor(sp.length * 0.95)].toFixed(0);
   const meanLat = (latSum[i] / frames).toFixed(2);
-  console.log(`kart${i} laneExp=${laneExp[i].toFixed(2)} meanLat=${meanLat} onLane%=${((onLaneFrames[i] / frames) * 100).toFixed(0)} bounces=${bounceCount[i]} v[p50,p95]=[${p50},${p95}] meanErrDeg=${((errSum[i] / frames) * 180 / Math.PI).toFixed(1)}`);
+  console.log(`kart${i} laneExp=${laneExp[i].toFixed(2)} meanLat=${meanLat} onLane%=${((onLaneFrames[i] / frames) * 100).toFixed(0)} bounces=${bounceCount[i]} v[p50,p95]=[${p50},${p95}] meanErrDeg=${((errSum[i] / frames) * 180 / Math.PI).toFixed(1)} details=${JSON.stringify(bounceDetails[i])}`);
 }
