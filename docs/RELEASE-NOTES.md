@@ -1,5 +1,11 @@
 # Release Notes — Super Kart 3D.js
 
+**fix(R18a-d) — auditoria completa da pista Neon (2026-08-17)**
+- Superfície: removidas as três faixas escuras, manchas radiais grandes e streaks fortes de `cityRoadTexture`; base única azul-carvão com reflexos neon pequenos.
+- Racing line: desativada na Neon porque o overlay de largura total criava a divisão esquerda/direita; Meadow mantém a linha de desgaste.
+- Edge seam: sombra de junção reduzida para 0.10 na Neon; guardrail prateado ganhou contraste/emissive sutil.
+- Auditoria visual pós-correção: sem bolha translúcida ou costura forte; ficam riscos P1 de cenário boxy/câmera de chase em baixa velocidade para rodada própria.
+
 **fix(R17a-b) — dashes retangulares + colisão com guardrail (2026-08-17)**
 - Tracejado: o screenshot mostrou quadriláteros/paralelogramos irregulares. A combinação `lookAt()` + `rotateX()` estava orientando o plano duas vezes e a textura/grime adicionava bordas visuais estranhas. Agora os cards usam rotação Euler direta pelo tangente e cor sólida, sem textura de desgaste: retângulos consistentes nas duas pistas.
 - Guardrail: o limite usava a posição antiga antes da integração e permitia atravessar um frame; além disso, calculava o rail em `roadWidth/2 + 1.05`, enquanto o visual está em `+0.45`, sem reservar o raio das rodas. Agora reamostra após mover, limita o centro do kart a `railCenter - 1.08m` e aplica bounce mais forte.

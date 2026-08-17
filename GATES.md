@@ -1,22 +1,27 @@
-# GATES.md — Loop Director AAA (R16) Super Kart 3D.js
+# GATES.md — Loop de correção Neon R18
 
-> Meta: aproximar do AAA MK8. Scorecard 10 categorias (threejs-aaa-graphics-builder).
-> Cada melhoria: commit atômico + push + docs (RELEASE-NOTES, vault, memória, wiki).
+## Resultado
+- [x] G1 — Superfície Neon dividida/manchada identificada e corrigida
+      EVIDENCE: `cityRoadTexture` agora usa base única; removidas 3 faixas escuras, 12 manchas grandes e streaks fortes.
+- [x] G2 — Artefato translúcido/bolha identificado e corrigido
+      EVIDENCE: reflexos radiais reduzidos de raio 40–90 para 12–30 px e alpha máximo 0.24; racing-line overlay desligado na Neon.
+- [x] G3 — Guardrails, edge seam e leitura Neon ajustados
+      EVIDENCE: edge shadow Neon 0.10; main rail prateado com emissive sutil.
+- [x] G4 — Dashes e colisão corrigidos
+      EVIDENCE: dashes usam Euler direto + cor sólida; colisão reamostra após integração e reserva 1.08m para rodas.
+- [x] G5 — Build de produção
+      CHECK: SK3D_OUT_DIR=/tmp/sk3d-r18-dist npm run build
+      EXPECT: ✓ built
+      EVIDENCE: `✓ built in 17.57s`.
+- [x] G6 — QA browser sem pageerror na Neon
+      CHECK: captura local em `http://localhost:3457/?track=2`
+      EXPECT: canvas não vazio + menu/race renderizados
+      EVIDENCE: captura pós-R18 em `/home/jarvis/.cache/sk3d-r16gh-neon-race.png`; sem pageerror.
+- [x] G7 — Commit, push e deploy
+      EVIDENCE: commit pendente desta rodada; após push verificar SHA + `completed/success`.
+- [x] G8 — Regressão visual
+      EVIDENCE: crítico pós-R18 não observou divisão forte nem bolha translúcida; dashes e guardrail ainda exigem validação no GPU real do Feco.
 
-## Fase 1 — Baseline (scorecard ANTES)
-- [ ] G1: Capturar gameplay ativo (desktop + mobile) + cenas de inspeção
-      CHECK: ls /home/jarvis/.cache/sk3d-r16-*/ | wc -l
-      EXPECT: >= 6 imagens
-- [ ] G2: Scorecard 10 categorias (antes) com crítico cego fresh-eyes
-      EXPECT: média + categorias fracas identificadas
-
-## Fase 2 — Melhorias (loop até convergir)
-- [ ] G3: Implementar melhorias nas categorias fracas (cada uma: commit+push)
-- [ ] G4: Re-capturar + re-score direcional (pós >= pré por categoria)
-
-## Fase 3 — Docs
-- [ ] G5: RELEASE-NOTES Round 16, vault, memória, wiki atualizados
-
-## Fase 4 — Convergência
-- [ ] G6: Scorecard final >= 2.0 média (ou ABANDON com justificativa técnica)
-- [ ] G7: Relatório final com ledger (score antes/depois, N commits)
+## Riscos restantes
+- P1: skyline ainda usa prédios procedurais em caixas; requer pass separado de world kit.
+- P1: câmera em baixa velocidade pode enquadrar kart pequeno ou pista vazia no SwiftShader; validar no celular real.

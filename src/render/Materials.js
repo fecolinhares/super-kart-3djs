@@ -243,77 +243,44 @@ export function cityRoadTexture() {
   _cityRoadTex = canvasTexture(
     256,
     (ctx, s) => {
-      ctx.fillStyle = '#3a3e54'; // AUDIT: lighter base — flat navy absorbed the spill
+      ctx.fillStyle = '#4c5268'; // AUDIT R18: single readable charcoal-blue base
       ctx.fillRect(0, 0, s, s);
-      // fine grit
-      for (let i = 0; i < 900; i++) {
-        ctx.fillStyle = Math.random() > 0.5 ? '#3d4156' : '#2a2d3e';
-        ctx.fillRect(Math.random() * s, Math.random() * s, 1.5, 1.5);
+      // Fine grit only; large dark ribbons made the road read as two surfaces.
+      for (let i = 0; i < 420; i++) {
+        ctx.fillStyle = Math.random() > 0.5 ? '#535a70' : '#42485c';
+        ctx.fillRect(Math.random() * s, Math.random() * s, 1.2, 1.2);
       }
-      // tire wear (dark ribbons — the racing line)
-      ctx.globalAlpha = 0.3;
-      ctx.fillStyle = '#22242f';
-      for (let i = 0; i < 3; i++) ctx.fillRect(s * (0.18 + i * 0.22), 0, 8, s);
-      // neon spill: WIDE soft radial gradients — light reflecting on the
-      // pavement, not painted stripes (vision critic: streaks read as
-      // track decorations, not integrated city light).
-      // AUDIT R2 (critic Neon 7/10: 'faltam reflexos no asfalto'): 12 spills
-      // + 4ª cor amarela + alpha 0.9 + raios 40-90px (manchas LARGAS).
-      for (let i = 0; i < 12; i++) {
+      // Neon reflection accents stay small and soft: they support the theme
+      // without creating a giant translucent blob or a left/right seam.
+      for (let i = 0; i < 6; i++) {
         const x = Math.random() * s;
         const y = Math.random() * s;
-        const r = 40 + Math.random() * 50;
+        const r = 12 + Math.random() * 18;
         const roll = Math.random();
         const col = roll > 0.66 ? '255,46,196' : roll > 0.33 ? '46,196,255' : '255,209,102';
-        const g = ctx.createRadialGradient(x, y, 2, x, y, r);
-        g.addColorStop(0, 'rgba(' + col + ',0.9)'); // AUDIT: spill must READ on the still
-        g.addColorStop(0.55, 'rgba(' + col + ',0.2)');
+        const g = ctx.createRadialGradient(x, y, 1, x, y, r);
+        g.addColorStop(0, 'rgba(' + col + ',0.24)');
+        g.addColorStop(0.6, 'rgba(' + col + ',0.07)');
         g.addColorStop(1, 'rgba(' + col + ',0)');
         ctx.fillStyle = g;
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fill();
       }
-      // AUDIT R3 (critic Neon R2 7/10: 'streaks devem acompanhar a
-      // PERSPECTIVA da pista, não laterais'): a textura U segue a direção da
-      // pista — streaks HORIZONTAIS (dx) viram longitudinais no asfalto.
-      // Spills maiores (40-90px) p/ manchas largas e suaves.
-      ctx.globalAlpha = 0.55;
-      for (let i = 0; i < 16; i++) {
-        const x = Math.random() * s;
-        const y = Math.random() * s;
-        const w = 16 + Math.random() * 30;   // along track (U)
-        const h = 2 + Math.random() * 4;     // thin across
-        const col3 = Math.random() > 0.5 ? '150,230,255' : '255,150,230';
-        const lg3 = ctx.createLinearGradient(x, y, x + w, y);
-        lg3.addColorStop(0, 'rgba(' + col3 + ',0)');
-        lg3.addColorStop(0.25, 'rgba(' + col3 + ',0.55)');
-        lg3.addColorStop(0.75, 'rgba(' + col3 + ',0.55)');
-        lg3.addColorStop(1, 'rgba(' + col3 + ',0)');
-        ctx.fillStyle = lg3;
-        ctx.fillRect(x, y, w, h);
-      }
-      ctx.globalAlpha = 1;
-      // subtle wet sheen along the racing line
-      ctx.globalAlpha = 0.1;
-      const lg = ctx.createLinearGradient(0, 0, 0, s);
-      lg.addColorStop(0, 'rgba(140,170,255,0)');
-      lg.addColorStop(0.5, 'rgba(140,170,255,0.5)');
-      lg.addColorStop(1, 'rgba(140,170,255,0)');
-      ctx.fillStyle = lg;
-      ctx.fillRect(0, 0, s, s);
-      ctx.globalAlpha = 1;
-      // cracks
-      ctx.strokeStyle = '#23252f';
-      ctx.lineWidth = 1.2;
+      ctx.globalAlpha = 0.22;
       for (let i = 0; i < 8; i++) {
         const x = Math.random() * s;
         const y = Math.random() * s;
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + 14 + Math.random() * 20, y + Math.random() * 14 - 7);
-        ctx.stroke();
+        const w = 12 + Math.random() * 18;
+        const col3 = Math.random() > 0.5 ? '150,230,255' : '255,150,230';
+        const lg3 = ctx.createLinearGradient(x, y, x + w, y);
+        lg3.addColorStop(0, 'rgba(' + col3 + ',0)');
+        lg3.addColorStop(0.5, 'rgba(' + col3 + ',0.3)');
+        lg3.addColorStop(1, 'rgba(' + col3 + ',0)');
+        ctx.fillStyle = lg3;
+        ctx.fillRect(x, y, w, 2);
       }
+      ctx.globalAlpha = 1;
     },
     { repeat: [40, 40] }
   );

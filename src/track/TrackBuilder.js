@@ -416,7 +416,7 @@ function buildRacingLineOverlay(path, length) {
  * dark ribbon hugging the road edge just inside the kerb stones — the depth
  * cue that stops the asphalt reading as a uniform matte plane.
  */
-function buildEdgeShadowLine(path, length) {
+function buildEdgeShadowLine(path, length, neon = false) {
   const roadW = getRoadWidthAt();
   const g = new THREE.Group();
   for (const side of [-1, 1]) {
@@ -426,7 +426,7 @@ function buildEdgeShadowLine(path, length) {
       lateral: side * (roadW / 2 - 0.12),
       color: 0x0d1117,
       transparent: true,
-      opacity: 0.22, // AUDIT R16f: 0.38→0.22 (sombra de junção sutil, não faixa escura)
+      opacity: neon ? 0.10 : 0.22, // Neon asphalt already has edge value; avoid a second dark seam
       roughness: 0.95,
       polygonOffset: true,
     });
@@ -793,8 +793,8 @@ function buildGuardRail(path, length, side, opts = {}) {
   // render metalness, so the silver read as emissive). Real MeshStandardMaterial
   // with a dim envMap gives the armco its metal body; the pink stripe stays the
   // only emissive element.
-  const mainMat = new THREE.MeshStandardMaterial({ color: 0xe8eef4, metalness: 0.8, roughness: 0.3, side: THREE.DoubleSide }); // AUDIT R5: near-white silver reads as metal vs dark city
-  const lowerMat = new THREE.MeshStandardMaterial({ color: 0x9aa6b2, metalness: 0.6, roughness: 0.5, side: THREE.DoubleSide });
+  const mainMat = new THREE.MeshStandardMaterial({ color: opts.neon ? 0xbfd9e8 : 0xe8eef4, metalness: 0.8, roughness: 0.3, emissive: opts.neon ? 0x10283c : 0x000000, emissiveIntensity: opts.neon ? 0.25 : 0, side: THREE.DoubleSide });
+  const lowerMat = new THREE.MeshStandardMaterial({ color: opts.neon ? 0x71889a : 0x9aa6b2, metalness: 0.6, roughness: 0.5, side: THREE.DoubleSide });
   const postMat = toonMaterial(opts.neon ? 0x8a9aa8 : 0x2a3140, {}); // AUDIT R3: lighter still — posts must read as structure
   const plateMat = toonMaterial(opts.neon ? 0x3a4554 : 0x222a38, {});
 
@@ -2201,11 +2201,11 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
     }
   }
 
-  // Racing-line wear + wet sheen: a low-roughness dark band down the center
-  // of the asphalt that visibly polishes the surface (MK8D cue).
-  group.add(buildRacingLineOverlay(path, length));
+  // City asphalt already carries a restrained, uniform neon reflection map.
+  // The full-width rubber overlay made Neon look split into two road materials.
+  if (!isCity) group.add(buildRacingLineOverlay(path, length));
   // Dark curb shadow line where asphalt meets kerb (edge depth cue).
-  group.add(buildEdgeShadowLine(path, length));
+  group.add(buildEdgeShadowLine(path, length, isCity));
 
   // Red/white kerbs along both edges (kart-circuit look — was disabled due to
   // the y+0.11-buried + rotateX bugs; now fixed). NEON CITY swaps them for
