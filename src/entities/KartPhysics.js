@@ -75,7 +75,7 @@ function nearestSample(kart, samples) {
   const p = kart.state.position;
   let best = start;
   let bestD = samples.pos[start].distanceToSquared(p);
-  const RADIUS = 14;
+  const RADIUS = samples.track?.isCity ? 40 : 14;
   for (let r = 1; r <= RADIUS; r++) {
     const i1 = (start + r) % N;
     const d1 = samples.pos[i1].distanceToSquared(p);
@@ -454,18 +454,23 @@ export class KartPhysics {
     }
 
     // ---- wall bounce at road edge + grass margin -------------------------------
-    // Re-sample AFTER integration. Using `near` from before movement let a
-    // fast kart travel through the rail for one full frame before bouncing.
-    const postNear = nearestSample(kart, samples);
-    const lateralDist = postNear.lateralDist;
+    // Collision reference is progress-anchored, not the nearest point in
+    // space. Neon hairpins bring separate track segments close together; a
+    // pure nearest-point lookup can select the wrong segment and trigger a
+    // false rail bounce while the kart is visually centered.
+    const progressGuess = ((s.progress01 + (s.speed * dt) / samples.total) % 1 + 1) % 1;
+    const progressIdx = Math.round(progressGuess * samples.N) % samples.N;
+    const progressPoint = samples.pos[progressIdx];
+    const progressTan = samples.tan[progressIdx];
+    const postRight = _right.set(progressTan.z, 0, -progressTan.x);
+    const lateralDist = _tmp.copy(s.position).sub(progressPoint).dot(postRight);
     if (Math.abs(lateralDist) > wallAt) {
-      const postRight = _right.set(postNear.tan.z, 0, -postNear.tan.x);
       const overshoot = Math.abs(lateralDist) - wallAt;
       s.position.addScaledVector(postRight, -Math.sign(lateralDist) * overshoot * 1.2);
       kart._latVel = -lat * P.collisionBounce;
       s.speed *= Math.max(0.2, 1 - overshoot * 0.65);
       // steer the nose back toward the track center
-      s.heading = dampAngle(s.heading, Math.atan2(postNear.tan.x, postNear.tan.z), 8, dt);
+      s.heading = dampAngle(s.heading, Math.atan2(progressTan.x, progressTan.z), 8, dt);
       kart._bounce = 1;
       kart._bounceTimer = 0.3;
       kart._scaleTarget = 0.92;

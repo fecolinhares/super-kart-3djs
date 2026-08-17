@@ -161,7 +161,7 @@ export class AIController {
     // steer DECREASES heading (turns right). Target right of kart → err > 0
     // → positive steer. (Was -err before the steering-sign fix.)
     // Handling stat scales steering authority (audit F2 difficulty curve).
-    const hGain = 0.85 + (this.stats?.handling || 7) / 10 * 0.3;
+    const hGain = 0.85 + (this.stats?.handling || 7) / 10 * 0.3 + (this.track?.isCity ? 0.15 : 0);
     let steer = THREE.MathUtils.clamp((err / STEER_FULL_AT) * hGain, -1, 1);
 
     // Hazard avoidance (audit r3: CPUs were free banana/shell fodder — no
@@ -200,6 +200,7 @@ export class AIController {
       // Soft corner: lift a bit.
       throttle = 0.8;
     }
+    if (this.track?.isCity && absErr > 0.35) throttle = Math.min(throttle, 0.72);
 
     const speed = st.speed ?? 0;
     if (speed < -0.5) {
@@ -255,7 +256,7 @@ export class AIController {
     const aGain = 0.6 + (this.stats?.accel || 7) / 10 * 0.5;
     if (!finished && absErr > 0.55 && speed > CONFIG.physics.driftMinSpeed) {
       drift = true;
-      throttle = Math.max(throttle * aGain, 1);
+      throttle = this.track?.isCity ? 0.72 : Math.max(throttle * aGain, 1);
     }
 
     kart.setControls?.({ steer, throttle, brake, drift, useItem: false });

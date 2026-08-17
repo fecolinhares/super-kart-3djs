@@ -2308,7 +2308,7 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
     waypoints.push(path.getPointAt(i / WAY_COUNT).clone());
   }
 
-  return { group, path, waypoints, startLine, length, startLights: gantry.startLights, turboPads: { ts: turbo.ts, points: turbo.points }, ramps };
+  return { group, path, waypoints, startLine, length, isCity, startLights: gantry.startLights, turboPads: { ts: turbo.ts, points: turbo.points }, ramps };
 }
 
 /**

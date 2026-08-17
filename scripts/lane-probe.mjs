@@ -11,7 +11,7 @@ const LOOKAHEAD = parseFloat(process.argv[3] || '6');
 CONFIG.ai.steerPredictAhead = LOOKAHEAD;
 const ctrl = (TRACK === 2 ? CITY_PATH : TRACK_PATH).map(v => v.clone());
 const path = new THREE.CatmullRomCurve3(ctrl, true, 'catmullrom', 0.5);
-const trackData = { path, length: path.getLength(), getRoadWidthAt, turboPads: {ts: [], points: []}, ramps: [], startLine: {position: path.getPointAt(0), direction: path.getTangentAt(0).normalize(), width: 9} };
+const trackData = { isCity: TRACK === 2, path, length: path.getLength(), getRoadWidthAt, turboPads: {ts: [], points: []}, ramps: [], startLine: {position: path.getPointAt(0), direction: path.getTangentAt(0).normalize(), width: 9} };
 function makeKart(t, lat, isPlayer = false) {
   const p = trackData.path.getPointAt(t);
   const tan = trackData.path.getTangentAt(t);
