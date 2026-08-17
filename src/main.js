@@ -480,7 +480,7 @@ async function buildKarts() {
   };
     playerKart._onWrongWay = () => {
       // Play a short alarm sound
-      audio.play('wrongWay', { volume: 0.5 });
+      audio.play('crash', { volume: 0.5 });
       // Show HUD message
       hud.showMessage('WRONG WAY!', 1500);
       // Optionally add a screen shake
@@ -490,7 +490,7 @@ async function buildKarts() {
   // Let the first kart paint before constructing the five AI karts.
     playerKart._onTurboBoost = () => {
     // Play turbo boost sound
-    audio.play('turboBoost', { volume: 0.6 });
+    audio.play('boost', { volume: 0.6 });
     // Optionally add a small screen shake
     addShake(0.2, 0.2);
   };
@@ -520,7 +520,7 @@ async function buildKarts() {
     aiKarts.push(kart);
       playerKart._onTurboBoost = () => {
     // Play turbo boost sound
-    audio.play('turboBoost', { volume: 0.6 });
+    audio.play('boost', { volume: 0.6 });
     // Optionally add a small screen shake
     addShake(0.2, 0.2);
   };
