@@ -881,3 +881,10 @@ Assets 100% procedural/WebAudio (TRIPO/GEMINI/ELEVENLABS = MISSING).
 ## Roadmap
 - v0.2.0 — 2nd track, item roulette spin, time trial + best-lap ghosts.
 - v0.3.0 — local 2P hot-seat, track editor, leaderboards.
+
+**feat(D) — wrong-way detection and turbo boost feedback (2026-08-17)
+- Added wrong-way detection in KartPhysics.js: dot product between heading and track tangent, threshold -0.2, min speed 2.0, time needed 0.55s, cooldown 2.0s.
+- Added kart._onWrongWay hook in main.js: plays audio, shows HUD message, adds screen shake.
+- Added kart._onTurboBoost call in KartPhysics.js when turbo boost is activated.
+- Added playerKart._onTurboBoost hook in main.js: plays audio, adds screen shake.
+- Other feedback hooks (_onSwap, _onMiniBoost, _onDriftTier, _onLap, _onDraftExit, _onGrassExit) already stubbed in main.js.

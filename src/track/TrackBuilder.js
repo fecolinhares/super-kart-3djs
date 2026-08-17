@@ -11,6 +11,17 @@
  *   getRoadWidthAt(t) → number
  *   TRACK_PATH        → Vector3[] closed loop
  */
+
+// Density multipliers from quality profile
+function getDensityMultipliers() {
+  const profile = window.__sk3dQualityProfile;
+  if (!profile) return { foliage: 1, crowd: 1, particle: 1 };
+  return {
+    foliage: profile.foliageDensity ?? 1,
+    crowd: profile.crowdDensity ?? 1,
+    particle: profile.particleDensity ?? 1,
+  };
+}
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { toonMaterial, cartoonOutline, roadTexture, cityRoadTexture, dirtTexture, grassTexture, concreteTexture, checkerTexture, bannerCheckerTexture, finishBannerTexture, finishBannerTextureMirrored, turboPadTexture, turboPadChevronTexture, turboPadGlowTexture, arrowTexture, finishLineTexture, neonReflectionTexture } from '../render/Materials.js';
@@ -1683,7 +1694,7 @@ function buildGrassTufts(path, length) {
   const lateral = halfW + 1.8;
   const clusterCount = Math.max(1, Math.round(length / 4.5)); // AUDIT R12: 6m→4.5m — a beira lia 'esparsa'
   const perCluster = 5; // AUDIT R12: 4→5 cones
-  const total = clusterCount * 2 * perCluster; // both sides
+  const total = (clusterCount * 2 * perCluster) * getDensityMultipliers().foliage; // both sides
   const geo = new THREE.ConeGeometry(0.08, 0.48, 6);
   const mat = toonMaterial(0xffffff, {});
   const mesh = new THREE.InstancedMesh(geo, mat, total);
@@ -1832,7 +1843,7 @@ function buildApexCones(path, length, roadW) {
   const ringGeo = new THREE.CylinderGeometry(0.185, 0.185, 0.06, 12);
   const coneMat = toonMaterial(0xff7b2e, {});
   const ringMat = toonMaterial(0xffffff, {});
-  const total = apexes.length * perCorner;
+  const total = (apexes.length * perCorner) * getDensityMultipliers().foliage;
   const cones = new THREE.InstancedMesh(coneGeo, coneMat, total);
   const rings = new THREE.InstancedMesh(ringGeo, ringMat, total);
   const p = new THREE.Vector3();
@@ -1929,7 +1940,7 @@ function buildBrakeBoards(path, length, roadW) {
     return t;
   };
   const labelMats = LABELS.map((l) => new THREE.MeshBasicMaterial({ map: labelTex(l), side: THREE.DoubleSide }));
-  const total = apexes.length * BOARD_T.length;
+  const total = (apexes.length * BOARD_T.length) * getDensityMultipliers().foliage;
   const frames = new THREE.InstancedMesh(frameGeo, frameMat, total);
   const prints = labelMats.map((m) => new THREE.InstancedMesh(printGeo, m, apexes.length));
   const dummy = new THREE.Object3D();

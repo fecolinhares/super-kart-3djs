@@ -305,12 +305,35 @@ export class KartPhysics {
       for (let i = 0; i < track.turboPads.ts.length; i++) {
         if (Math.abs(s.progress01 - track.turboPads.ts[i]) <= 0.015) {
           s.turboBoostMs = 1200;
+      kart._onTurboBoost?.();
           break;
         }
       }
     }
 
     const tan = near.tan;
+
+    // ---- wrong-way detection ----
+    const headingSin = Math.sin(s.heading);
+    const headingCos = Math.cos(s.heading);
+    const dot = headingSin * tan.x + headingCos * tan.z;
+    const wrongWayThreshold = -0.2;
+    const minSpeed = 2.0;
+    const wrongWayTimeNeeded = 0.55;
+    const cooldownTime = 2.0;
+    if (dot < wrongWayThreshold && speedAbs > minSpeed) {
+      s.wrongWayTimer = Math.min(s.wrongWayTimer + dt, wrongWayTimeNeeded);
+    } else {
+      s.wrongWayTimer = Math.max(s.wrongWayTimer - dt * 2, 0);
+    }
+    if (s.wrongWayCooldown > 0) {
+      s.wrongWayCooldown = Math.max(s.wrongWayCooldown - dt, 0);
+    }
+    if (s.wrongWayTimer >= wrongWayTimeNeeded && s.wrongWayCooldown <= 0) {
+      s.wrongWayCooldown = cooldownTime;
+      s.wrongWayTimer = 0;
+      kart._onWrongWay?.();
+    }
     const fwd = _fwd.set(Math.sin(s.heading), 0, Math.cos(s.heading));
     const right = _right.set(tan.z, 0, -tan.x);
     const speedAbs = Math.abs(s.speed);

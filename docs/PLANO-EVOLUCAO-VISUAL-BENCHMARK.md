@@ -17,7 +17,7 @@ Implementado no primeiro lote:
 - R28: `Materials.canvasTexture()` aplica cap de textura por profile; pós-cap low report 1450 calls, 1,093,677 tris, 87 textures, 943 geometries; baseline registrado sem alegar ganho.
 - R29: `BootOverlay.js` com logo/barra/etapa ARIA-live, stages 0.04→0.82→complete e `?boothold=1` para QA; centralizado sem overflow desktop/mobile; pós-boot low = 906 calls/992,339 tris/87 textures/946 geometries. Revisão pixel-level bloqueada por provedor de visão auxiliar inválido.
 
-Pendentes deste plano: boot progressivo/prewarm, material library, kart/world LOD, VFX/audio/UI e matriz visual completa.
+Pendentes deste plano: boot progressivo/prewarm, material library, kart/world LOD, matriz visual completa.
 
 ## 1. Diagnóstico executivo
 

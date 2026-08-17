@@ -488,6 +488,12 @@ async function buildKarts() {
     };
 
   // Let the first kart paint before constructing the five AI karts.
+    playerKart._onTurboBoost = () => {
+    // Play turbo boost sound
+    audio.play('turboBoost', { volume: 0.6 });
+    // Optionally add a small screen shake
+    addShake(0.2, 0.2);
+  };
   await yieldFrame();
 
   aiKarts = [];
@@ -512,7 +518,13 @@ async function buildKarts() {
     wireGrassExit(kart);
     wireMiniBoost(kart);
     aiKarts.push(kart);
-    await yieldFrame();
+      playerKart._onTurboBoost = () => {
+    // Play turbo boost sound
+    audio.play('turboBoost', { volume: 0.6 });
+    // Optionally add a small screen shake
+    addShake(0.2, 0.2);
+  };
+  await yieldFrame();
   }
   // NOTE: AI controllers are created by RaceManager.init() (single source of
   // truth — AUDIT FIX: main.js used to keep a duplicate local array whose

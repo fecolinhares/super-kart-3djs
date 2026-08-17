@@ -27,6 +27,7 @@ import {
   turboPadTexture,
   turboPadChevronTexture,
   turboPadGlowTexture,
+  grassTexture,
 } from './Materials.js';
 
 const _cache = new Map();
@@ -98,16 +99,7 @@ export function getGrassTexture() {
   const cacheKey = `grass|${profileName}`;
   let tex = _cache.get(cacheKey);
   if (!tex) {
-    // Assume grassTexture() exists from Materials.js (lazy-created global).
-    // Import it here to avoid circular deps if needed.
-    const { _grassTex } = require('./Materials.js'); // eslint-disable-line
-    if (!_grassTex) {
-      // Trigger creation via the exported getter.
-      const { grassTexture } = require('./Materials.js');
-      tex = grassTexture();
-    } else {
-      tex = _grassTex;
-    }
+    tex = grassTexture();
     _cache.set(cacheKey, tex);
   }
   return tex;

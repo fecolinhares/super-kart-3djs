@@ -9,6 +9,17 @@
  * placement: trees every ~12m along the track, clustered rocks/bushes,
  * wildflower patches, staggered cloud lanes — nothing scattered at random.
  */
+
+// Density multipliers from quality profile
+function getDensityMultipliers() {
+  const profile = window.__sk3dQualityProfile;
+  if (!profile) return { foliage: 1, crowd: 1, particle: 1 };
+  return {
+    foliage: profile.foliageDensity ?? 1,
+    crowd: profile.crowdDensity ?? 1,
+    particle: profile.particleDensity ?? 1,
+  };
+}
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { toonMaterial, cartoonOutline, skyTexture } from '../render/Materials.js';
@@ -3777,7 +3788,7 @@ export class Environment {
     // gramado) + gate _onTrack por figura (segurança dupla).
     const ROWS = [3.2, 4.9, 6.6];
     const segN = SEGMENTS.reduce((a, s) => a + s.n, 0);
-    const total = segN * ROWS.length * 2;
+    const total = (segN * ROWS.length * 2) * getDensityMultipliers().foliage;
     const crowdColors = [0xe74c4c, 0xf4a93e, 0x5cb85c, 0x4a90d9, 0x9b6fd4, 0xe8789a, 0xf5f5f5, 0x7b8a9e, 0x34495e];
     // AUDIT (agent: 'repeated in nearly identical poses'): 4 pose variants.
     const POSES = [
