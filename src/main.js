@@ -24,11 +24,16 @@ import { Menu } from './ui/Menu.js';
 import { HUD } from './ui/HUD.js';
 import { TouchControls } from './ui/TouchControls.js';
 import { signedAngle } from './entities/PowerUp.js'; // steer-assist steering math (shared with AIController)
+import { createBootOverlay } from './ui/BootOverlay.js';
 
 // ---------------------------------------------------------------------------
 // Boot
 // ---------------------------------------------------------------------------
 const container = document.getElementById('app');
+const bootOverlay = createBootOverlay();
+const bootHold = new URLSearchParams(location.search).get('boothold');
+bootOverlay.setStage('starting renderer', 0.04);
+if (bootHold) window.__boothold = bootOverlay; // dev/test: freeze overlay for visual QA
 const { scene, camera, renderer, qualityProfile, capabilityProbe } = createScene(container);
 
 const DEMO = new URLSearchParams(location.search).has('demo');
@@ -46,6 +51,7 @@ try { savedTrackId = Number(localStorage.getItem('sk3d.track')); } catch { /* pr
 const TRACK_ID =
   Number(window.__sk3dTrack) === 2 || savedTrackId === 2 ||
   Number(new URLSearchParams(location.search).get('track')) === 2 ? 2 : 1;
+bootOverlay.setStage('reading controls', 0.10);
 
 // Difficulty/accessibility (audit r3): the CC selector scales the physics
 // speed envelope through CONFIG.physics, which KartPhysics reads live every
@@ -55,15 +61,18 @@ const BASE_BOOST_SPEED = CONFIG.physics.boostSpeed;
 
 const env = new Environment();
 env.trackId = TRACK_ID; // theme hook: 1 = sunny meadow, 2 = neon city
+bootOverlay.setStage('laying the circuit', 0.22);
 const track = buildTrack(scene, TRACK_ID === 2 ? CITY_PATH : TRACK_PATH);
   // MK8 turbo strips breathe (Feco QA 2026-08-12): additive glow overlay pulse.
   const turboGlowMat = (track.turboPads && track.turboPads.glowMat) || null;
 env.buildEnvironment(scene, track); // track passed so props avoid the road
+bootOverlay.setStage('dressing the world', 0.34);
 
 // AUDIT PERF (2026-08-13): instancing pós-build — vegetação/posts/placas
 // repetidos em InstancedMesh (764 → ~250 draw calls no Meadow).
 const mergedCount = (window.location.search.includes('noinst') ? 0 : autoInstancing(scene));
 console.log('[perf] auto-instancing merged', mergedCount, 'meshes');
+bootOverlay.setStage('lighting effects', 0.52);
 // Image-based lighting: chrome + car paint need an env map or metalness
 // renders BLACK. A procedural SUNNY-SKY env (instead of the grey RoomEnvironment)
 // makes clearcoat/paint reflect vivid sky blue — the console-racer look.
@@ -154,6 +163,7 @@ function buildSkyEnv(renderer) {
 scene.environment = buildSkyEnv(renderer);
 
 const postfx = new PostFX(renderer, scene, camera, qualityProfile);
+bootOverlay.setStage('loading race systems', 0.68);
 if (TEST) postfx.enabled = false; // software GL runs ~30x faster without bloom
 const audio = new AudioManager();
 const particles = new ParticleSystem(scene);
@@ -188,6 +198,7 @@ const menu = new Menu({
 });
 menu.restoreMute(); // persisted mute state (audit minor)
 const touch = new TouchControls({ onSteer: setTouchSteer, onItem: () => pressItem(), onPause: togglePause, onDrift: (b) => { touchDrift = b; } });
+bootOverlay.setStage('drawing the HUD', 0.82);
 // AUDIT r4: the touch item button only reports presses — wire the release
 // edges here so hold-to-throw-back works on touch too (pointerup/cancel/leave).
 touch.itemBtn.addEventListener('pointerup', () => releaseItem());
@@ -1460,6 +1471,7 @@ window.__sk3d = {
 };
 
 console.log('[Super Kart 3D.js] booted. Demo mode:', DEMO, '| State:', getState());
+bootOverlay.complete();
 
 // AUDIT (Jarvis QA loop 2026-08-11): runtime errors froze the game with NO
 // visible feedback (the rAF loop dies silently). Surface them on screen so
