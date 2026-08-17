@@ -1,5 +1,10 @@
 # Release Notes — Super Kart 3D.js
 
+**fix(R24) — boot de teste e auto-instancing render-safe (2026-08-17)**
+- `?test`/`?demo` chamava `startRace()` antes da inicialização de `startRacePending`, causando `ReferenceError` e abortando o boot. Estado movido para antes do auto-start.
+- `src/perf/instancing.js` agora inclui textura, alpha/normal maps, roughness, metalness, opacity, side, flatShading e vertexColors na chave. Antes, meshes com mesma cor/tipo mas materiais/texturas diferentes podiam ser mescladas e assumir o material do primeiro mesh.
+- Verificação: build em `SK3D_OUT_DIR=/tmp/sk3d-audit-r24`; `ai-backwards-test` 0/8; lane-probe Meadow 0–1 e Neon 0–2 bounces; procession 749 mudanças de ordem/60s.
+
 **tooling(R23) — captura SwiftShader genérica via CDP (2026-08-17)**
 - Adicionado `game-visual-qa-kit/scripts/capture-active.cjs`: captura gameplay ativa genérica via `Page.captureScreenshot`, sem `page.screenshot()`; limpa localStorage, suporta desktop/mobile, chama hooks opcionais SK3D (`skipCountdown`, `autoAccel`) e espera movimento/progresso.
 - Verificado: captura Neon desktop/mobile via CDP sem `pageerror`; o timeout de fonts/context foi eliminado. Limitação: SwiftShader ainda pode avançar o relógio do jogo muito lentamente; framing final deve ser confirmado no GPU real.

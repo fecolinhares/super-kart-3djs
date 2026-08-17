@@ -33,6 +33,11 @@ const { scene, camera, renderer } = createScene(container);
 
 const DEMO = new URLSearchParams(location.search).has('demo');
 const TEST = new URLSearchParams(location.search).has('test'); // fast no-postfx mode for gameplay testing
+// Must be initialized before the optional DEMO/TEST auto-start below. `let`
+// declarations are in TDZ until execution reaches their original declaration;
+// TEST boot used to call startRace() first and throw before the menu existed.
+let startRacePending = false;
+let deferredKartDisposals = [];
 // Track select: the menu's TRACKS screen publishes window.__sk3dTrack
 // before reloading with ?track=2, so the persisted choice wins on boot and
 // the query param covers the very first load (defaults to the meadow circuit).
@@ -708,8 +713,7 @@ function centerlineAssist() {
   return THREE.MathUtils.clamp(err / 0.7, -1, 1);
 }
 
-let startRacePending = false;
-let deferredKartDisposals = [];
+// State for deferred kart disposal is initialized with the boot flags above.
 
 function disposeDeferredKartGroup() {
   const group = deferredKartDisposals.shift();

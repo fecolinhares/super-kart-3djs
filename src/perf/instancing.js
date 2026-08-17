@@ -24,9 +24,18 @@
 import * as THREE from 'three';
 
 export function autoInstancing(scene, { minGroup = 8 } = {}) {
-  // key = geometry.type + params JSON + material.type + cor + transparent
-  // + parent uuid: só agrupa meshes do MESMO parent (senão world/local
-  // confunde e parent.remove() vira no-op — duplicou a cena, calls 764→1488).
+  const materialKey = (m) => [
+    m.type,
+    m.color?.getHexString?.() || '?',
+    m.map?.uuid || 'nomap',
+    m.alphaMap?.uuid || 'noalpha',
+    m.normalMap?.uuid || 'nonormal',
+    m.roughness ?? '', m.metalness ?? '', m.opacity ?? '',
+    m.side ?? '', m.flatShading ? 1 : 0, m.vertexColors ? 1 : 0,
+  ].join(':');
+  // key includes all render-affecting material identity; grouping only by
+  // color/type used to merge differently textured meshes and silently render
+  // the first mesh's texture across the whole group.
   const groups = new Map();
   scene.traverse((o) => {
     if (!o.isMesh || o.isInstancedMesh) return;
@@ -41,7 +50,7 @@ export function autoInstancing(scene, { minGroup = 8 } = {}) {
     if (m.emissive && m.emissive.getHex && m.emissive.getHex() !== 0) return;
     let params = '';
     try { params = JSON.stringify(g.parameters || {}); } catch { params = '?'; }
-    const key = `${g.type}|${params}|${m.type}|${m.color ? m.color.getHexString() : '?'}|${m.flatShading ? 1 : 0}|parent:${o.parent ? o.parent.uuid : 'root'}`;
+    const key = `${g.type}|${params}|${materialKey(m)}|parent:${o.parent ? o.parent.uuid : 'root'}`;
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(o);
   });
