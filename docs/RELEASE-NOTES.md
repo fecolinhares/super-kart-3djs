@@ -1,5 +1,10 @@
 # Release Notes — Super Kart 3D.js
 
+**docs(R25) — plano de evolução visual por benchmark externo (2026-08-17)**
+- Adicionado `docs/PLANO-EVOLUCAO-VISUAL-BENCHMARK.md` com diagnóstico, scorecard-alvo, arquitetura e fases P0/P1/P2 para elevar materiais, boot, render resilience, LOD/instancing, mundo, câmera, VFX, HUD/mobile e áudio.
+- O plano preserva física, IA, colisões, itens e corrida atuais; não publica a identificação da referência externa.
+- A análise visual final continua condicionada a capturas vision representativas e GPU real para framing, bloom e sombras.
+
 **fix(R24) — boot de teste e auto-instancing render-safe (2026-08-17)**
 - `?test`/`?demo` chamava `startRace()` antes da inicialização de `startRacePending`, causando `ReferenceError` e abortando o boot. Estado movido para antes do auto-start.
 - `src/perf/instancing.js` agora inclui textura, alpha/normal maps, roughness, metalness, opacity, side, flatShading e vertexColors na chave. Antes, meshes com mesma cor/tipo mas materiais/texturas diferentes podiam ser mescladas e assumir o material do primeiro mesh.
