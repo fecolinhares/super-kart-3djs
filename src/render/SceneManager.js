@@ -30,8 +30,10 @@ export function createScene(container) {
     // PCF + shadow.radius gives VISIBLY softer edges (the lighting agent
     // flagged: radius is INERT with PCFSoftShadowMap — the vision critic
     // wanted softer contact shadows). QA/?test drops to 1024.
-    const TEST = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('test');
+    const TEST = typeof window !== 'undefined' && new URLSearchParams(location.search).has('test');
     renderer.shadowMap.type = TEST ? THREE.PCFShadowMap : THREE.PCFShadowMap;
+    // Apply shadow map size from quality profile (cap)
+    renderer.shadowMap.mapSize.set(qualityProfile.shadowMapSize, qualityProfile.shadowMapSize);
   }
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
