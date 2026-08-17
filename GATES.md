@@ -19,7 +19,7 @@ Todas as pistas (Meadow/Neon), desktop/mobile, gameplay ativo e estados: menu, l
 - [ ] G9 Repetir G6-G8 até não haver correção segura verificável
       EVIDENCE: continuar após GPU/SwiftShader estável
 - [x] G10 Commit atômico/push por rodada, docs/vault/wiki/memória atualizados
-      EVIDENCE: pending commit desta rodada
+      EVIDENCE: commit `2c406ce`, deploy CI verde
 
 ## Critério de parada
 Só parar após reauditoria pós-correção. Problemas não verificáveis por SwiftShader devem ser separados como risco GPU real, nunca marcados como resolvidos.
