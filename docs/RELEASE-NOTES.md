@@ -4,7 +4,7 @@
 - IA: lane spread reduzido de ±1.2m para ±0.6m; `lane-probe` Meadow caiu de 9 bounces do kart0 para 0, evitando que rivais busquem o guardrail.
 - Neon: letreiros eram rejeitados por `_onTrack(..., 6)` apesar de estarem no sidewalk; rejeição reduzida para 1.2m, liberando street signage fora do asfalto.
 - Câmera: Neon ganhou +0.55m de distância de chase para revelar rota/rails sem alterar Meadow.
-- Harness desktop/mobile: sem `pageerror`; screenshots Neon em SwiftShader ainda podem expirar por custo do ambiente, portanto validação final de framing deve ser no GPU real.
+- R20b: AI Neon recebe steering adicional em curvas e throttle 0.72 durante erro alto; `KartPhysics` usa referência de progresso para colisão em hairpins, evitando selecionar segmento próximo errado e atravessar/ricochetear no rail.
 
 **fix(R19a) — loop desktop/mobile sem bloqueio por `requestAnimationFrame` (2026-08-17)**
 - O harness 2×pista/2×viewport mostrou que o carregamento podia permanecer em `Loading race…` e capturas Neon podiam expirar quando a construção aguardava `requestAnimationFrame` em SwiftShader/mobile.
