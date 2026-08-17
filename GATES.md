@@ -5,7 +5,9 @@ Cada fase deve ter: implementação mínima completa, build/probes, captura desk
 
 - [ ] A0 Ler plano completo e registrar ledger de skills/referências
 - [x] A1 Baseline medido: build, sim, lane, procession, draw calls/canvas/runtime
+      EVIDENCE: build passou; AI 0/8; Meadow/Neon lane probe; procession 749; `renderReport` low 640×400 = 1392 calls/1,079,775 tris/87 textures/945 geometries
 - [x] B1 VisualQualityProfile + capability probe + relatório GL
+      EVIDENCE: WebGL2 true, RGBA capability probe, profile low, software renderer detected, report exposto em `window.__sk3d.renderReport()`
 - [ ] B2 Boot progressivo + prewarm/fallback sem regressão em ?test/?demo/normal
 - [ ] B3 Render pipeline: resolution cap, pass gates, context loss/recovery
 - [ ] C1 MaterialLibrary cacheada com tiers e superfícies authored

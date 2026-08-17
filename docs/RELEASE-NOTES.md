@@ -4,6 +4,7 @@
 - Adicionado `src/render/VisualQualityProfile.js`: perfis low/medium/high/ultra, detecção coarse/software/device capabilities, texture cap, DPR cap, pixel policy, shadow/bloom/color-grade gates e probes RGBA8/RGBA16F.
 - `SceneManager` aplica uma única política ao DPR/sombras e expõe capability/quality report; `PostFX` usa o mesmo perfil; `window.__sk3d.renderReport()` disponibiliza calls, triangles, textures, geometries, renderer e drawing buffer.
 - Verificação: build `/tmp/sk3d-phase-b2`; boot `?test` com 6 karts e zero pageerrors por 20 amostras.
+- Medição `?test&quality=low` em SwiftShader 640×400: WebGL2 true, DPR 1, 1392 draw calls, 1,079,775 triangles, 87 textures, 945 geometries.
 
 
 **docs(R26) — apêndice forense de física e corrida (2026-08-17)**
