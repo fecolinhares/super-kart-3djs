@@ -19,6 +19,7 @@ export function createScene(container) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, qualityProfile.maxPixelRatio));
   renderer.userData ||= {};
   renderer.userData.qualityProfile = qualityProfile;
+  window.__sk3dQualityProfile = qualityProfile;
   renderer.userData.capabilityProbe = capabilityProbe;
   renderer.userData.qualityReport = () => qualityReport(renderer, qualityProfile);
   if (qualityProfile.info.software) {

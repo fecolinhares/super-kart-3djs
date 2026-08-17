@@ -136,11 +136,13 @@ export function cartoonOutline(mesh, color = 0x1b2a41, thickness = 0.045) {
  * opts: { repeat, wrap } — repeat = [x, y] tile counts.
  */
 export function canvasTexture(size, drawFn, opts = {}) {
+  const cap = Number(window.__sk3dQualityProfile?.textureCap) || size;
+  const resolvedSize = Math.max(64, Math.min(size, cap));
   const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
+  canvas.width = resolvedSize;
+  canvas.height = resolvedSize;
   const ctx = canvas.getContext('2d');
-  drawFn(ctx, size);
+  drawFn(ctx, resolvedSize);
   const tex = new THREE.CanvasTexture(canvas);
   // AUDIT r2: global anisotropy kills the moiré shimmer on repeated grass /
   // dirt / concrete tiles at grazing chase-cam angles (only roadTexture set

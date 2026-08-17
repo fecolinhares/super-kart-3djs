@@ -1,5 +1,10 @@
 # Release Notes — Super Kart 3D.js
 
+**fix(R28) — cap de texturas procedurais por quality profile (2026-08-17)**
+- `Materials.canvasTexture()` agora respeita `window.__sk3dQualityProfile.textureCap`, mantendo mínimo 64px e passando o tamanho resolvido ao gerador procedural.
+- O cap evita criar CanvasTextures de 1024/2048px em perfis low/medium; não altera física, IA ou gameplay.
+- Verificação: build `/tmp/sk3d-r27-texturecap`; `?test&quality=low` sem pageerrors, report WebGL2/DPR1/640×400; métricas pós: 1450 calls, 1,093,677 triangles, 87 textures, 943 geometries. A contagem é baseline de runtime e será otimizada na fase LOD/instancing, não foi vendida como ganho.
+
 **fix(R27) — perfil de qualidade e capability report (2026-08-17)**
 - Adicionado `src/render/VisualQualityProfile.js`: perfis low/medium/high/ultra, detecção coarse/software/device capabilities, texture cap, DPR cap, pixel policy, shadow/bloom/color-grade gates e probes RGBA8/RGBA16F.
 - `SceneManager` aplica uma única política ao DPR/sombras e expõe capability/quality report; `PostFX` usa o mesmo perfil; `window.__sk3d.renderReport()` disponibiliza calls, triangles, textures, geometries, renderer e drawing buffer.
