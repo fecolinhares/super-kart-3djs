@@ -1031,7 +1031,8 @@ function updateCamera(dt, t) {
   // bloqueou pista). REVERTIDO ao baseline exato — 7/10 era o teto mobile.
   const _mobile = isTouchMode(); // mobile/touch → chase mais aberta
   const dist =
-    CONFIG.camera.followDistance * (1 + speed01 * CAM_SPEED_PULLBACK) +
+    (CONFIG.camera.followDistance + (TRACK_ID === 2 ? (CONFIG.camera.neonFollowExtra || 0) : 0)) *
+    (1 + speed01 * CAM_SPEED_PULLBACK) +
     camBoostKick * CAM_BOOST_KICK;
 
   camTarget.copy(st.position).addScaledVector(_fwd, CONFIG.camera.lookAhead);

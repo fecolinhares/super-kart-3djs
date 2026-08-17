@@ -4960,7 +4960,7 @@ export class Environment {
       const side = sRand() < 0.5 ? -1 : 1;
       const sx = signProbe.x + signNrm.x * side * (5.6 + sRand() * 2);
       const sz = signProbe.z + signNrm.z * side * (5.6 + sRand() * 2);
-      if (this._onTrack(sx, sz, 6)) continue;
+      if (this._onTrack(sx, sz, 1.2)) continue;
       const sy = this._gy(sx, sz);
       const pole = new THREE.Mesh(new THREE.BoxGeometry(0.14, 3.1, 0.14), poleMat);
       pole.position.set(sx, sy + 1.55, sz);

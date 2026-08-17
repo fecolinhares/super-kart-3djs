@@ -143,6 +143,7 @@ export const CONFIG = {
     // (r20: 5.2 cropped the kart at the bottom edge — 5.7 keeps the size
     // without the heavy crop.)
     followDistance: 4.3, // AUDIT R5: critic recommended 4.0-4.3m — kart is the subject of the frame
+    neonFollowExtra: 0.55, // Neon has denser rails/lighting; reveal more route without shrinking Meadow
     followHeight: 2.3,
     lookAhead: 4.6,
     lookHeight: 1.2,

@@ -43,13 +43,13 @@ export class AIController {
     // ±2.79m — beyond the stable corridor on clockwise tracks (inside of
     // right-hand corners = right side), so LEFT lanes oscillated and the
     // largest offsets pinned karts into the guard rail (41 wall bounces/90s
-    // in the sim). SCALE the spread to ±1.2m instead of clamping: clamping
+    // SCALE the spread to ±0.6m instead of clamping: clamping
     // COLLAPSED two rivals onto the same lane (aiIndex 0 and 2 both hit
-    // -1.2 → overlapping cloud). Scaling keeps every lane distinct while
+    // -0.6 → overlapping cloud). Scaling keeps every lane distinct while
     // staying inside the stable corridor. Rivals that still can't hold a
     // left line naturally fall onto the racing line (MK8D CPUs do the same).
     this.laneOffset = aiIndex !== undefined && aiIndex !== null
-      ? (aiIndex * 0.61803398875 - Math.floor(aiIndex * 0.61803398875) - 0.5) * 2.4
+      ? (aiIndex * 0.61803398875 - Math.floor(aiIndex * 0.61803398875) - 0.5) * 1.2
       : 0;
     this._initPath();
   }
