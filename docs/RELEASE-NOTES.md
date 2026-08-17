@@ -1,5 +1,11 @@
 # Release Notes — Super Kart 3D.js
 
+**fix(R27) — perfil de qualidade e capability report (2026-08-17)**
+- Adicionado `src/render/VisualQualityProfile.js`: perfis low/medium/high/ultra, detecção coarse/software/device capabilities, texture cap, DPR cap, pixel policy, shadow/bloom/color-grade gates e probes RGBA8/RGBA16F.
+- `SceneManager` aplica uma única política ao DPR/sombras e expõe capability/quality report; `PostFX` usa o mesmo perfil; `window.__sk3d.renderReport()` disponibiliza calls, triangles, textures, geometries, renderer e drawing buffer.
+- Verificação: build `/tmp/sk3d-phase-b2`; boot `?test` com 6 karts e zero pageerrors por 20 amostras.
+
+
 **docs(R26) — apêndice forense de física e corrida (2026-08-17)**
 - Expandido `docs/PLANO-EVOLUCAO-VISUAL-BENCHMARK.md` com a extração estática de estados, checkpoints, substeps, suspensão, pneus, superfícies, drift/hop/boost, colisões, respawn, wrong-way e stats/AI.
 - O plano agora separa evidência estática de gameplay vision/GPU real e define os limites de validação sem source map.

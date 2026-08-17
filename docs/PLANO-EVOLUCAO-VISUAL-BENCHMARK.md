@@ -4,6 +4,18 @@
 >
 > **Regra de propriedade:** não copiar código, assets, textos, identidade visual ou implementação do benchmark. Reproduzir apenas princípios técnicos e de direção de arte com implementação própria.
 
+## Execução iniciada — R27
+
+Implementado no primeiro lote:
+
+- `src/render/VisualQualityProfile.js`: low/medium/high/ultra, detecção software/coarse/device, texture/DPR caps, gates de shadow/bloom/color-grade e probe RGBA8/RGBA16F.
+- `src/render/SceneManager.js`: uma política única aplica DPR/sombras e expõe capability report.
+- `src/render/PostFX.js`: respeita os gates do perfil.
+- `src/main.js`: expõe `qualityProfile`, `capabilityProbe` e `window.__sk3d.renderReport()`.
+- Verificado: build `/tmp/sk3d-phase-b2`; boot `?test` com 6 karts e zero pageerrors em 20 amostras.
+
+Pendentes deste plano: boot progressivo/prewarm, material library, kart/world LOD, VFX/audio/UI e matriz visual completa.
+
 ## 1. Diagnóstico executivo
 
 O benchmark não vence apenas por geometria. Ele combina cinco camadas coerentes:

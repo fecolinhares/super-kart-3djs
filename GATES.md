@@ -1,25 +1,25 @@
-# GATES.md — Auditoria autônoma completa Super Kart 3D.js
+# GATES.md — Execução do plano visual completo
 
-## Escopo obrigatório
-Todas as pistas (Meadow/Neon), desktop/mobile, gameplay ativo e estados: menu, largada, corrida, curva, drift/boost, item box, coins, pads, guardrail, finish, pause/restart e HUD.
+## Regra de execução
+Cada fase deve ter: implementação mínima completa, build/probes, captura desktop/mobile, vision quando captura existir, commit atômico, push e atualização docs/vault/wiki/memória. Captura SwiftShader que fecha target = `UNVERIFIED`, nunca aprovação.
 
-- [x] G1 Skills gaming/design/Three.js carregadas e ledger registrado
-- [ ] G2 Capturas vision: todas as pistas × desktop/mobile × estados relevantes — SwiftShader ainda encerra target em sessões longas; harness CDP/adaptador corrigido, evidência GPU pendente
-- [x] G3 Auditoria gameplay: core loop, controls, countdown, AI, collision, progression, feedback, restart
-      EVIDENCE: ai-backwards-test 8/8 clean; lane-probe Meadow 0–1 bounces, Neon 0–2 pós-R22; procession 749 standings changes/60s
-- [x] G4 Auditoria visual: scorecard Three.js + inspeção de código e comentários vision critic
-      EVIDENCE: achado confirmado de chave de auto-instancing incompleta; corrigido nesta rodada
-- [x] G5 Auditoria mobile/performance: resize, DPR, touch, WebGL, initialization, postfx
-      EVIDENCE: build em outDir local; EPERM é filesystem virtiofs ao copiar public/favicon.svg
-- [x] G6 Implementar correções P0/P1 e melhorias seguras P2
-      EVIDENCE: corrigido TDZ de startRacePending no boot ?test/?demo; chave de instancing agora inclui identidade render-affecting do material
-- [x] G7 Rebuild + probes + captures pós-correção
-      EVIDENCE: build /tmp/sk3d-audit-r24; ai-backwards 0/8; lane probes; procession
-- [ ] G8 Reauditar com vision nos artefatos pós — bloqueado por crash/fechamento do target SwiftShader, não marcado como resolvido
-- [ ] G9 Repetir G6-G8 até não haver correção segura verificável
-      EVIDENCE: continuar após GPU/SwiftShader estável
-- [x] G10 Commit atômico/push por rodada, docs/vault/wiki/memória atualizados
-      EVIDENCE: commit `2c406ce`, deploy CI verde
+- [ ] A0 Ler plano completo e registrar ledger de skills/referências
+- [x] A1 Baseline medido: build, sim, lane, procession, draw calls/canvas/runtime
+- [x] B1 VisualQualityProfile + capability probe + relatório GL
+- [ ] B2 Boot progressivo + prewarm/fallback sem regressão em ?test/?demo/normal
+- [ ] B3 Render pipeline: resolution cap, pass gates, context loss/recovery
+- [ ] C1 MaterialLibrary cacheada com tiers e superfícies authored
+- [ ] C2 Kart hero/mid/impostor + contact shadow + resources compartilhados
+- [ ] C3 WorldPropKit, landmarks, crowd, LOD/instancing seguro
+- [ ] D1 Pista/câmera/speed readability: superfície, kerb, rail, pad, decals
+- [ ] D2 VFX event-driven: drift/boost/item/hit/land/lap/finish/wrong-way
+- [ ] D3 Audio feedback/lifecycle/haptic audit e melhorias seguras
+- [ ] E1 HUD/menu/mobile: tokens, safe-area, portrait, touch targets, estados
+- [ ] F1 Regressão gameplay: AI, física, colisão, itens, restart, pause, finish
+- [ ] F2 QA visual matrix: Meadow/Neon × desktop/mobile × estados relevantes
+- [ ] F3 Vision re-audit pré/pós com mesmo prompt; GPU-real residuals separados
+- [ ] F4 Docs/release/vault/wiki/memory atualizados; redaction verificada
+- [ ] F5 Todo o plano implementado ou ABANDON explícito por bloqueio verificável
 
 ## Critério de parada
-Só parar após reauditoria pós-correção. Problemas não verificáveis por SwiftShader devem ser separados como risco GPU real, nunca marcados como resolvidos.
+Não declarar perfeição com SwiftShader incompleto. Se uma fase não for segura ou verificável, registrar causa, evidência e próximo passo concreto; nunca fabricar resultado.

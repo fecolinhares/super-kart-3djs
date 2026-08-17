@@ -52,7 +52,7 @@ const ColorGradeShader = {
 };
 
 export class PostFX {
-  constructor(renderer, scene, camera) {
+  constructor(renderer, scene, camera, qualityProfile = null) {
     this.renderer = renderer;
     this.scene = scene;
     this.camera = camera;
@@ -75,13 +75,13 @@ export class PostFX {
       const params = new URLSearchParams(window.location.search);
       const forceNoBloom = params.has('nobl');
       const gl = renderer.getContext();
-      let softGL = false;
+      let softGL = !!qualityProfile?.info?.software;
       try {
         const dbg = gl.getExtension('WEBGL_debug_renderer_info');
         const rn = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '';
         softGL = /swiftshader|llvmpipe|softpipe|software/i.test(rn);
       } catch { /* no ext */ }
-      this.bloom = forceNoBloom || softGL
+      this.bloom = forceNoBloom || softGL || qualityProfile?.bloom === false
         ? null
         : new UnrealBloomPass(
             // AUDIT PERF-R44 (2026-08-14, auditoria render #8): threshold a
@@ -100,7 +100,7 @@ export class PostFX {
       // rendered black on software GL. Real GPUs handle it fine, and the
       // MK8 punchy grade only matters there — so the pass comes back ONLY on
       // non-software GL (same gate as bloom). Software keeps the safe chain.
-      if (!softGL && !forceNoBloom) {
+      if (!softGL && !forceNoBloom && qualityProfile?.colorGrade !== false) {
         this.composer.addPass(new ShaderPass(ColorGradeShader));
       }
 

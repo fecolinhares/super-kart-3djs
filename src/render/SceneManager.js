@@ -4,6 +4,7 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
+import { createQualityProfile, createCapabilityProbe, qualityReport } from './VisualQualityProfile.js';
 
 export function createScene(container) {
   const renderer = new THREE.WebGLRenderer({
@@ -11,12 +12,19 @@ export function createScene(container) {
     powerPreference: 'high-performance',
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  // Mobile perf tier (audit v4 F8): coarse pointers get a lower pixel ratio —
-  // the GPU stays headroom-free for bloom + shadows on phones.
-  const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-  const cap = coarse ? Math.min(CONFIG.render.pixelRatioCap, 1.5) : CONFIG.render.pixelRatioCap;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, cap));
-  if (CONFIG.render.shadows) {
+  const qualityProfile = createQualityProfile(renderer);
+  const capabilityProbe = createCapabilityProbe(renderer);
+  // One policy drives DPR/shadows/postfx/world density. `?quality=` remains
+  // an explicit override for QA and real-device comparison.
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, qualityProfile.maxPixelRatio));
+  renderer.userData ||= {};
+  renderer.userData.qualityProfile = qualityProfile;
+  renderer.userData.capabilityProbe = capabilityProbe;
+  renderer.userData.qualityReport = () => qualityReport(renderer, qualityProfile);
+  if (qualityProfile.info.software) {
+    console.info('[render] software profile:', qualityProfile.name, qualityProfile.info.renderer);
+  }
+  if (qualityProfile.shadows && CONFIG.render.shadows) {
     renderer.shadowMap.enabled = true;
     // PCF + shadow.radius gives VISIBLY softer edges (the lighting agent
     // flagged: radius is INERT with PCFSoftShadowMap — the vision critic
@@ -72,5 +80,5 @@ export function createScene(container) {
   camera.position.set(0, 4, 9);
   camera.lookAt(0, 1, 0);
 
-  return { scene, camera, renderer };
+  return { scene, camera, renderer, qualityProfile, capabilityProbe };
 }

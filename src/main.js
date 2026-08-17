@@ -29,7 +29,7 @@ import { signedAngle } from './entities/PowerUp.js'; // steer-assist steering ma
 // Boot
 // ---------------------------------------------------------------------------
 const container = document.getElementById('app');
-const { scene, camera, renderer } = createScene(container);
+const { scene, camera, renderer, qualityProfile, capabilityProbe } = createScene(container);
 
 const DEMO = new URLSearchParams(location.search).has('demo');
 const TEST = new URLSearchParams(location.search).has('test'); // fast no-postfx mode for gameplay testing
@@ -153,7 +153,7 @@ function buildSkyEnv(renderer) {
 }
 scene.environment = buildSkyEnv(renderer);
 
-const postfx = new PostFX(renderer, scene, camera);
+const postfx = new PostFX(renderer, scene, camera, qualityProfile);
 if (TEST) postfx.enabled = false; // software GL runs ~30x faster without bloom
 const audio = new AudioManager();
 const particles = new ParticleSystem(scene);
@@ -1424,6 +1424,9 @@ window.__sk3d = {
   scene,
   camera,
   renderer,
+  qualityProfile,
+  capabilityProbe,
+  renderReport: () => renderer.userData.qualityReport?.(),
   getState,
   raceManager,
   playerKart: () => playerKart,
