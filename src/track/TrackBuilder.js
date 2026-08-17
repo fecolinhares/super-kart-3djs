@@ -869,20 +869,24 @@ function buildGuardRail(path, length, side, opts = {}) {
 
 /** Painted lane dash card: warm yellow with a worn darker border + grime
  *  speckle, so markings read as worn paint on asphalt (vision critic). */
-function dashTexture() {
+function dashTexture(neon = false) {
   const c = document.createElement('canvas');
   c.width = 128;
   c.height = 128;
   const g = c.getContext('2d');
-  g.fillStyle = '#ffd166';
+  // Neon City needs a clean, unlit-by-asphalt marking. The old worn brown
+  // border became a row of dark rectangles on the wet charcoal road.
+  g.fillStyle = neon ? '#ffe88a' : '#ffd166';
   g.fillRect(0, 0, 128, 128);
-  // Worn darker border — slightly irregular, hand-painted feel.
-  g.strokeStyle = 'rgba(120,82,18,0.55)';
-  g.lineWidth = 7;
-  g.strokeRect(3, 3, 122, 122);
-  g.strokeStyle = 'rgba(90,60,10,0.4)';
-  g.lineWidth = 3;
-  g.strokeRect(8, 8, 112, 112);
+  if (!neon) {
+    // Worn darker border — slightly irregular, hand-painted feel.
+    g.strokeStyle = 'rgba(120,82,18,0.55)';
+    g.lineWidth = 7;
+    g.strokeRect(3, 3, 122, 122);
+    g.strokeStyle = 'rgba(90,60,10,0.4)';
+    g.lineWidth = 3;
+    g.strokeRect(8, 8, 112, 112);
+  }
   // Grime speckle + worn patches.
   for (let i = 0; i < 170; i++) {
     g.fillStyle = Math.random() > 0.5 ? 'rgba(60,40,8,0.14)' : 'rgba(255,236,180,0.12)';
@@ -901,7 +905,7 @@ function dashTexture() {
   return tex;
 }
 
-function buildLaneDashes(path, length) {
+function buildLaneDashes(path, length, neon = false) {
   // AUDIT R16e (Feco real-GPU: 'component tracejado amarelo no centro' + o
   // contorno escuro): o lane dashes era AMARELO com count = length/3 = 131
   // dashs de 2.6m com gap de só 0.4m → virtualmente UMA LINHA CONTÍNUA, não
@@ -917,8 +921,19 @@ function buildLaneDashes(path, length) {
   const geo = new THREE.PlaneGeometry(0.42, dashLen); // AUDIT R16e: 0.45×2.6 → 0.42×1.4 (dash curto, não linha)
   // Painted look: worn darker border + grime on the dash card, slight
   // transparency so the asphalt grain shows through the paint.
-  const mat = toonMaterial(0xffffff, { side: THREE.DoubleSide, map: dashTexture(), transparent: true, opacity: 0.85 });
-  mat.toneMapped = false; // AUDIT visual 2026-08-12: amber dash read as dirty beige under ACES — white paint must stay white
+    // Neon City uses a clean unlit dash material. The wet-road PBR shader
+    // darkened the painted cards into the strange black rectangles Feco saw.
+    // Meadow keeps the worn PBR/toon treatment.
+    const mat = neon
+      ? new THREE.MeshBasicMaterial({ color: 0xffffff, map: dashTexture(true), side: THREE.DoubleSide, transparent: true, opacity: 0.96, depthWrite: false })
+      : toonMaterial(0xffffff, { side: THREE.DoubleSide, map: dashTexture(false), transparent: true, opacity: 0.85 });
+  mat.toneMapped = false;
+  if (neon) {
+    // MeshBasicMaterial is intentionally unlit; do not attach an `emissive`
+    // property here. Three.js sees that ad-hoc property and tries to write an
+    // emissive uniform that MeshBasicMaterial does not have (mobile crash).
+    mat.color.set(0xffffff);
+  }
   mat.polygonOffset = true;
   mat.polygonOffsetFactor = -2;
   mat.polygonOffsetUnits = -2;
@@ -2235,7 +2250,7 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   const roadDecals = buildRoadSponsorDecals(path);
   if (roadDecals) group.add(roadDecals);
 
-  const dashes = buildLaneDashes(path, length);
+  const dashes = buildLaneDashes(path, length, isCity);
   group.add(dashes);
 
   const arrows = buildDirectionArrows(path);

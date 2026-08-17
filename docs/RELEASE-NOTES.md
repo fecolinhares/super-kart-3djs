@@ -1,7 +1,9 @@
 # Release Notes — Super Kart 3D.js
 
-**Date:** 2026-08-09 · **Status:** 🚀 v0.2.0-draft (AAA visual/audio pass)
-**Live:** https://fecolinhares.github.io/super-kart-3djs/ · **License:** MIT
+**fix(R16g-h) — Neon + Start Race (2026-08-16)**
+- Neon: o screenshot mostrou os lane dashes como retângulos escuros no asfalto molhado. A causa era material PBR/toon com borda marrom desgastada e iluminação da pista neon. O modo Neon agora usa textura limpa amarelo-clara + `MeshBasicMaterial` não iluminado; Meadow mantém o acabamento desgastado. Sem propriedade `emissive` ad-hoc: isso quebrava o shader Basic com `uniform.value` indefinido.
+- Start Race: o pré-warm de shaders renderizava karts ocultos e gerava erro WebGL em alguns drivers; foi desativado. A limpeza antiga percorria/dispunha todos os meshes no clique; agora grupos antigos são removidos imediatamente e dispostos em baixa prioridade depois. A construção do jogador e de cada AI cede um frame (`requestAnimationFrame`) entre instâncias. O botão mostra `Loading race…` e bloqueia duplo clique.
+- QA local: build Vite passou em `/tmp/sk3d-r16gh-dist`; captura Neon sem erro de página após o fix; o teste headless concluiu a construção da corrida e ocultou o menu.
 
 ### Round 13 (2026-08-16) — auditoria com câmeras de INSPEÇÃO + fix chevrons
 

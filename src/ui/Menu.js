@@ -478,7 +478,14 @@ export class Menu {
   }
 
   bindEvents() {
-    this.startBtn.addEventListener('click', () => { this.onSound('uiSelect'); this.onStart(); });
+    this.startBtn.addEventListener('click', () => {
+      if (this.startBtn.disabled) return;
+      this.onSound('uiSelect');
+      this.startBtn.disabled = true;
+      this.startBtn.textContent = '⏳ Loading race…';
+      // Give the browser one paint before Three.js builds the race scene.
+      this.onStart();
+    });
     this.helpToggle.addEventListener('click', () => { this.onSound('uiClick'); this.toggleHelp(); });
 
     // Compact main-menu buttons open the full-screen selection screens.
@@ -818,6 +825,8 @@ export class Menu {
 
   /** Show the menu. Idempotent — DOM is built once in the constructor. */
   show() {
+    this.startBtn.disabled = false;
+    this.startBtn.textContent = '🏁 Start Race';
     this.reconcileMute(); // AUDIT MED-1: menu mute label went stale after pause-mute
     this.closeScreens();
     this.refreshPickLine();

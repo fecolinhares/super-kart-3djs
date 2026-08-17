@@ -273,7 +273,7 @@ function prewarmShaders() {
     console.warn('[perf] prewarm failed (non-fatal):', err);
   }
 }
-if (typeof Kart !== 'undefined' && typeof ItemBox !== 'undefined') prewarmShaders();
+if (false && typeof Kart !== 'undefined' && typeof ItemBox !== 'undefined') prewarmShaders(); // disabled: hidden-rig render throws on some mobile/WebGL drivers and causes a boot freeze; startRace now yields across frames
 if (DEMO || TEST) startRace(); // demo autopilot / fast test mode jump straight in
 
 // Quality gate (audio lifecycle): pause all audio when the tab is hidden.
@@ -434,7 +434,9 @@ function getPlayerCharIndex() {
   return Number.isFinite(idx) && idx >= 0 && idx < n ? idx : 0;
 }
 
-function buildKarts() {
+const yieldFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+
+async function buildKarts() {
   const slots = buildGridPositions(CONFIG.game.numKarts);
   const characters = CONFIG.kart.characters; // roster: [0] player, [1..5] AI
   // AUDIT r4: the menu's driver cards pick the player's character (was hard-
@@ -460,6 +462,8 @@ function buildKarts() {
     audio.play('uiClick');
     suppressNextItemToast = 1;
   };
+  // Let the first kart paint before constructing the five AI karts.
+  await yieldFrame();
 
   aiKarts = [];
   let aiNum = 2;
@@ -483,6 +487,7 @@ function buildKarts() {
     wireGrassExit(kart);
     wireMiniBoost(kart);
     aiKarts.push(kart);
+    await yieldFrame();
   }
   // NOTE: AI controllers are created by RaceManager.init() (single source of
   // truth — AUDIT FIX: main.js used to keep a duplicate local array whose
@@ -703,21 +708,72 @@ function centerlineAssist() {
   return THREE.MathUtils.clamp(err / 0.7, -1, 1);
 }
 
+let startRacePending = false;
+let deferredKartDisposals = [];
+
+function disposeDeferredKartGroup() {
+  const group = deferredKartDisposals.shift();
+  if (!group) return;
+  group.traverse((o) => {
+    if (!o.isMesh) return;
+    o.geometry?.dispose?.();
+    const materials = Array.isArray(o.material) ? o.material : [o.material];
+    for (const material of materials) {
+      // Shared cached textures are owned by Materials.js, not this kart.
+      if (material?.map && !material.map.userData?.shared) material.map.dispose?.();
+      material?.dispose?.();
+    }
+  });
+  if (deferredKartDisposals.length) setTimeout(disposeDeferredKartGroup, 50);
+}
+
+function scheduleDeferredKartDisposals() {
+  if (!deferredKartDisposals.length) return;
+  setTimeout(disposeDeferredKartGroup, 1000);
+}
+
+// AUDIT R16g-h: the click used to enter this whole constructor/dispose path
+// in one task. Schedule it after the menu paint so the button can acknowledge
+// the click; the heavy body remains exactly once and double-clicks are ignored.
 function startRace() {
+  if (startRacePending) return;
+  startRacePending = true;
+  requestAnimationFrame(() => {
+    startRacePending = false;
+    startRaceHeavy();
+  });
+}
+
+function startRaceHeavy() {
+  // AUDIT R16g-h: dispose in its own frame; building six karts and boxes
+  // immediately after this used to create one very long input task.
   // AUDIT r3: leak fix — Menu→StartRace re-added kart groups without
   // removing the previous ones (unbounded scene growth + draw calls).
   // Dispose old kart groups before rebuilding.
   if (playerKart) {
     scene.remove(playerKart.group);
-    playerKart.group.traverse((o) => { if (o.isMesh) { o.geometry?.dispose?.(); if (o.material?.map) o.material.map.dispose(); } });
+    deferredKartDisposals.push(playerKart.group);
   }
   for (const k of aiKarts) {
     scene.remove(k.group);
-    k.group.traverse((o) => { if (o.isMesh) { o.geometry?.dispose?.(); if (o.material?.map) o.material.map.dispose(); } });
+    deferredKartDisposals.push(k.group);
   }
-  applyDifficulty(); // CC → physics envelope (before karts: stats scale off the CC speed)
-  buildKarts();
-  applyPlayerStats(); // character stats → player kart (cruiseSpeed + gains)
+  requestAnimationFrame(() => {
+    startRaceBuild();
+  });
+}
+
+function startRaceBuild() {
+  applyDifficulty();
+  buildKarts().then(() => {
+    applyPlayerStats();
+    requestAnimationFrame(startRaceInit);
+  });
+}
+
+function startRaceInit() {
+  // Karts are built one per frame above; initialization now runs after the
+  // browser has had several chances to paint the loading state.
   // AUDIT r4: lap-split feedback — time each completed lap, track the best,
   // feed the HUD chip (MK8D consistency reward).
   playerKart._lastLapAt = 0;
@@ -803,6 +859,7 @@ function startRace() {
   countdownT = 0;
   countdownIndex = -1;
   setState(STATES.COUNTDOWN);
+  scheduleDeferredKartDisposals();
 }
 
 /** Toggle pause from keyboard or the mobile pause button. */
