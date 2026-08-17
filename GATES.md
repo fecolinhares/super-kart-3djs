@@ -18,7 +18,7 @@
       EXPECT: canvas não vazio + menu/race renderizados
       EVIDENCE: captura pós-R18 em `/home/jarvis/.cache/sk3d-r16gh-neon-race.png`; sem pageerror.
 - [x] G7 — Commit, push e deploy
-      EVIDENCE: commit pendente desta rodada; após push verificar SHA + `completed/success`.
+      EVIDENCE: commit `c180783` pushado; deploy verificado como `completed/success`.
 - [x] G8 — Regressão visual
       EVIDENCE: crítico pós-R18 não observou divisão forte nem bolha translúcida; dashes e guardrail ainda exigem validação no GPU real do Feco.
 
