@@ -129,6 +129,12 @@ export class Kart {
       progress01: 0,
       finished: false,
       vY: 0,
+
+      wrongWayTimer: 0,
+
+      wrongWayCooldown: 0,
+            wrongWayTimer: 0,
+            wrongWayCooldown: 0,
     };
 
     // RaceManager-owned (contract)

@@ -478,6 +478,15 @@ async function buildKarts() {
     audio.play('uiClick');
     suppressNextItemToast = 1;
   };
+    playerKart._onWrongWay = () => {
+      // Play a short alarm sound
+      audio.play('wrongWay', { volume: 0.5 });
+      // Show HUD message
+      hud.showMessage('WRONG WAY!', 1500);
+      // Optionally add a screen shake
+      addShake(0.4, 0.4);
+    };
+
   // Let the first kart paint before constructing the five AI karts.
   await yieldFrame();
 
