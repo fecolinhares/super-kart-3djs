@@ -242,7 +242,92 @@ Para cada artefato registrar:
 
 O harness CDP é a rota preferida no SwiftShader. Captura em SwiftShader que fecha o target deve ficar marcada como **não-verificada**, não como aprovação. GPU real é obrigatória para framing, bloom, sombras e materiais finais.
 
-## 5. Priorização e commits
+## 5. Apêndice forense — física e jogo observados no bundle
+
+Esta seção separa o que foi extraído estaticamente do bundle do que ainda exige gameplay em GPU real. Os nomes internos foram minificados, mas a estrutura e os valores abaixo foram recuperados por contexto de código, enums e constantes.
+
+### 5.1 Loop de corrida
+
+- Estados: `Menu → Countdown → Racing → Finished → Results`, com `Paused` reversível para Countdown/Racing.
+- Até 8 karts; 3 voltas; 32 checkpoints por circuito.
+- Grid formado por posição e lateral da pista; progresso monotônico por `t`, `lapIndex`, checkpoint e `raceDistance`.
+- Standings recalculado a partir de volta/progresso/checkpoint; finish order e lap times persistidos até Results.
+- Input tem edge detection para pause e bloqueia resume automático até throttle ser liberado, evitando retomar instantaneamente com acelerador preso.
+- Wrong-way: produto entre forward do kart e tangente da pista; exige velocidade >3.5 e orientação oposta por >0.55s; clear reduz o timer em 2.5×.
+- Watchdog: queda abaixo do terreno ou superfície ruim por mais de 2.2s dispara respawn no último `lastGoodT`; invulnerabilidade de 1.8s.
+
+### 5.2 Integração física
+
+- `dt` clamp entre `1/480` e `1/20`; quando há frame lento, subdivide até 6 substeps.
+- Integração semi-implícita: suspensão → gravidade → forças longitudinais/laterais → yaw → drag → velocidade máxima → posição.
+- Massa do kart: 200; inércia de yaw: `mass × 0.42`.
+- Gravidade: 20; top speed base: 30; aceleração base: 3000; resistência de ar/drag base: 4200; roll drag: 1500.
+- Velocidade longitudinal limitada ao top speed; ré limitada a -8.
+- Yaw rate limitado a ±7 e amortecido por frame.
+- Base do kart orientada pelo normal da pista quando no chão, com relaxamento mais lento no ar.
+
+### 5.3 Suspensão e pneus
+
+- Quatro rodas independentes, wheel radius .36, rest length .30, rest compression .12, max compression .24, max droop .13.
+- Half-track .66, half-base .80, centro de massa .34, tyre half-width .15.
+- Damping compressivo .44, rebound .66, anti-roll 58.
+- Cada roda faz probe no ponto de contato e laterais da banda; calcula normal, superfície, carga, compressão, slip e spin.
+- Suspensão acumula roll/pitch, ground normal, contacts, total force, bottom depth, dominant/worst surface e off-road load.
+- Forces por pneu usam velocidade de contato, direção longitudinal/lateral, grip da superfície, saturação e carga; o torque de cada pneu altera yaw rate.
+- Airborne não aplica a mesma assistência de grip; ao pousar, impactos acima de 1.5 geram evento `land`, squash e shake limitado.
+
+### 5.4 Superfícies
+
+Multiplicadores observados:
+
+| Superfície | Grip | Drag | Max speed | Rumble |
+|---|---:|---:|---:|---:|
+| Road | 1.00 | 1.00 | 1.00 | 0 |
+| Dirt | .78 | 1.50 | .82 | .035 |
+| Grass | .70 | 2.10 | .68 | .028 |
+| Sand | .62 | 2.60 | .60 | .045 |
+| Boost | 1.00 | .60 | 1.35 | 0 |
+| OffTrack | .55 | 3.20 | .50 | .05 |
+| Water | .45 | 4.00 | .35 | .02 |
+
+A tradução para o Super Kart deve manter os multiplicadores atuais como fonte de verdade e apenas adicionar feedback visual/sonoro/haptic por superfície.
+
+### 5.5 Drift, hop e boost
+
+- Drift começa com hop: input drift na roda, contato com chão, velocidade horizontal >4 e steer válido; impulso vertical de 3.05 e janela de hop .8s.
+- Direção do drift é determinada por steer ou yaw rate alinhado; threshold de steer .13.
+- Drift acumula tempo apenas em superfície válida e enquanto o kart tem contato; carga cai com off-road load.
+- Grace de drift evita cancelamento imediato; drift em reta por mais de 1s, stun, ar prolongado ou baixa velocidade libera/cancela.
+- Tiers em aproximadamente .55s, .95s e 1.9s; boosts correspondentes são aproximadamente 1.0s/1.12, 1.25 e 1.36 de força.
+- Drift tier 0 pode carregar brevemente o tempo de drift por .8s quando liberado cedo.
+- Boost pad aplica 1.1s com força 1.28, desde que contato seja detectado.
+- Landing com trick armado gera boost adicional; aterrissagem forte produz squash, driver jolt e camera shake.
+- Durante drift, lateral velocity e yaw recebem modelo separado do steering normal; fora do drift, lateral velocity é amortecida diretamente.
+
+### 5.6 Colisões
+
+- Wall collision usa normal e push-out; reflete componente normal com ganho 1.28, reduz energia conforme impacto, adiciona impulso de retorno e reduz yaw rate.
+- Impacto alto libera drift e emite `collide` com cooldown .12s.
+- Kart-kart collision usa raio combinado, separação ponderada por massa e impulso relativo; cooldown .14s.
+- Spin-out e squash removem boost/drift e reduzem velocidade; star/invuln protegem contra stun.
+- Respawn não é teleporte arbitrário: usa último ponto válido, normal da pista, yaw da tangente e reset completo de suspensão/pose.
+
+### 5.7 Driver stats e AI
+
+- O roster tem 8 pilotos com multiplicadores independentes de aceleração, top speed, weight e handling.
+- AI mantém controller separado do kart; recebe hazards, itens, bandas/lane e assist.
+- O sistema tem assistência de steering, rubber-band e escolha de alvo/itens, mas a física final continua no mesmo `Kart.step` do player.
+- Para o Super Kart, a regra é manter IA/física existentes e importar somente padrões comprovados: superfície como dado, progress anchor monotônico, substeps/clamp, respawn válido e feedback por evento.
+
+### 5.8 Evidência e limites desta reconstrução
+
+- Fonte analisada: HTML, manifest, bundle JS e CSS públicos, com busca de todos os subsistemas e extração de contextos de renderer, materiais, física, corrida, input, HUD, áudio, VFX, LOD e fallback.
+- Source map retornou `403`; portanto, nomes originais de arquivos/classes e comentários do projeto não estão disponíveis.
+- Boot desktop/mobile foi capturado e revisado por vision.
+- Gameplay ativo final não foi aprovado: SwiftShader encerrou o target em sessões longas. Física acima é evidência estática do código, não substitui playtest visual.
+- A execução futura deve preencher a matriz de gameplay com GPU real ou um ambiente que mantenha WebGL ativo; qualquer linha sem screenshot vision deve ficar marcada como `unverified`.
+
+## 6. Priorização e commits
 
 ### P0 — antes de qualquer redesign
 

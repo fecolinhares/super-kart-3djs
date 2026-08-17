@@ -1,5 +1,10 @@
 # Release Notes — Super Kart 3D.js
 
+**docs(R26) — apêndice forense de física e corrida (2026-08-17)**
+- Expandido `docs/PLANO-EVOLUCAO-VISUAL-BENCHMARK.md` com a extração estática de estados, checkpoints, substeps, suspensão, pneus, superfícies, drift/hop/boost, colisões, respawn, wrong-way e stats/AI.
+- O plano agora separa evidência estática de gameplay vision/GPU real e define os limites de validação sem source map.
+- A implementação proposta preserva a física/IA do Super Kart; importa apenas padrões comprovados de integração visual, feedback e render resilience.
+
 **docs(R25) — plano de evolução visual por benchmark externo (2026-08-17)**
 - Adicionado `docs/PLANO-EVOLUCAO-VISUAL-BENCHMARK.md` com diagnóstico, scorecard-alvo, arquitetura e fases P0/P1/P2 para elevar materiais, boot, render resilience, LOD/instancing, mundo, câmera, VFX, HUD/mobile e áudio.
 - O plano preserva física, IA, colisões, itens e corrida atuais; não publica a identificação da referência externa.
