@@ -720,7 +720,7 @@ function buildCurbs(path, length, side, opts = {}) {
   })();
 
   const mat = opts.neon
-    ? new THREE.MeshBasicMaterial({ map: zebraTex, color: 0xff2ec4, emissive: 0xff2ec4, emissiveIntensity: 0.5, side: THREE.DoubleSide })
+    ? new THREE.MeshBasicMaterial({ map: zebraTex, color: 0xff2ec4, side: THREE.DoubleSide })
     : new THREE.MeshBasicMaterial({ map: zebraTex, color: 0xffffff, side: THREE.DoubleSide });
   mat.map.repeat.set(1, 1); // R68: repeat=1 (o UV já codifica as repetições)
   mat.map.needsUpdate = true;
