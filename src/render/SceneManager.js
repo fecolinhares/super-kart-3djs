@@ -31,9 +31,9 @@ export function createScene(container) {
     // flagged: radius is INERT with PCFSoftShadowMap — the vision critic
     // wanted softer contact shadows). QA/?test drops to 1024.
     const TEST = typeof window !== 'undefined' && new URLSearchParams(location.search).has('test');
-    renderer.shadowMap.type = TEST ? THREE.PCFShadowMap : THREE.PCFShadowMap;
-    // Apply shadow map size from quality profile (cap)
-    renderer.shadowMap.mapSize.set(qualityProfile.shadowMapSize, qualityProfile.shadowMapSize);
+    renderer.shadowMap.type = TEST ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
+    // NOTE: shadow map size is applied per-light in Environment.js (sun.shadow.mapSize).
+    // renderer.shadowMap has no .mapSize property — it is a WebGLShadowMap, not LightShadow.
   }
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
