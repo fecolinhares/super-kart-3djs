@@ -20,9 +20,9 @@ let _toonResolved = false;
 const _liveBoxes = new Set();
 
 try {
-  import('../render/Materials.js')
+  import('../render/MaterialLibrary.js')
     .then((m) => {
-      _toonFactory = typeof m.toonMaterial === 'function' ? m.toonMaterial : null;
+      _toonFactory = typeof m.getToonMaterial === 'function' ? m.getToonMaterial : null;
       _toonResolved = true;
       for (const box of _liveBoxes) box._rebuildMaterial();
     })

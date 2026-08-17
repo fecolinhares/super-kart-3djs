@@ -9,7 +9,7 @@
  */
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { toonMaterial, cartoonOutline } from '../render/Materials.js';
+import { getToonMaterial, getCartoonOutlineMaterial } from '../render/MaterialLibrary.js';
 
 // ---------------------------------------------------------------------------
 // Item types & weighted roll
@@ -972,13 +972,13 @@ function buildShellMesh(color) {
   // 6-sided cones — raw MeshToonMaterial, no outline; read as a draft. Now
   // higher segments, the shared PBR toon pipeline (smooth shading + sheen)
   // and a cartoon outline; spikes spread like MK8 shells (3 top, 2 rear).
-  const bodyMat = toonMaterial(color, { emissive: color, emissiveIntensity: 0.25 });
+  const bodyMat = getToonMaterial(color, { emissive: color, emissiveIntensity: 0.25 });
   const body = new THREE.Mesh(new THREE.SphereGeometry(0.34, 24, 16), bodyMat);
   body.scale.set(1.05, 0.85, 1.55);
   cartoonOutline(body, 0x1b2a41, 0.05);
   g.add(body);
 
-  const spikeMat = toonMaterial(0xffffff, { emissive: 0xffffff, emissiveIntensity: 0.15 });
+  const spikeMat = getToonMaterial(0xffffff, { emissive: 0xffffff, emissiveIntensity: 0.15 });
   const spikeGeo = new THREE.ConeGeometry(0.09, 0.26, 8);
   for (let i = 0; i < 3; i++) {
     const spike = new THREE.Mesh(spikeGeo, spikeMat);

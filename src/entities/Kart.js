@@ -14,6 +14,7 @@
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import * as Materials from '../render/Materials.js';
+import { getToonMaterial, getPlasticMaterial, getCartoonOutlineMaterial } from '../render/MaterialLibrary.js';
 import { PowerUpType } from './PowerUp.js';
 import { KartPhysics } from './KartPhysics.js';
 
@@ -330,7 +331,7 @@ export class Kart {
   // ---- construction -------------------------------------------------------
 
   _mat(color, opts = {}) {
-    if (typeof Materials.toonMaterial === 'function') return Materials.toonMaterial(color, opts);
+    if (typeof getToonMaterial === 'function') return getToonMaterial(color, opts);
     return new THREE.MeshToonMaterial({ color, gradientMap: this._gradientTexture(), ...opts });
   }
 
@@ -1319,7 +1320,7 @@ export class Kart {
     this.group.add(drv);
 
     const suit = character
-      ? Materials.plasticMaterial(character.suitColor, { roughness: 0.55, clearcoat: 0.5, clearcoatRoughness: 0.4, envMapIntensity: 0.9 })
+      ? getPlasticMaterial(character.suitColor, { roughness: 0.55, clearcoat: 0.5, clearcoatRoughness: 0.4, envMapIntensity: 0.9 })
       : white;
     const up = new THREE.Vector3(0, 1, 0);
 
