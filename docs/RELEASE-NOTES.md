@@ -1,5 +1,10 @@
 # Release Notes — Super Kart 3D.js
 
+**fix(R19a) — loop desktop/mobile sem bloqueio por `requestAnimationFrame` (2026-08-17)**
+- O harness 2×pista/2×viewport mostrou que o carregamento podia permanecer em `Loading race…` e capturas Neon podiam expirar quando a construção aguardava `requestAnimationFrame` em SwiftShader/mobile.
+- A construção incremental de karts agora cede ao event loop via `setTimeout(0)`, mantendo o browser responsivo mesmo quando o rAF é throttled. O fluxo de corrida não depende mais de rAF para avançar fases de inicialização.
+- QA: sem `pageerror`; o harness ainda tem risco de timeout de screenshot em SwiftShader Neon, tratado como limitação do ambiente, não como aprovação visual.
+
 **fix(R18a-d) — auditoria completa da pista Neon (2026-08-17)**
 - Superfície: removidas as três faixas escuras, manchas radiais grandes e streaks fortes de `cityRoadTexture`; base única azul-carvão com reflexos neon pequenos.
 - Racing line: desativada na Neon porque o overlay de largura total criava a divisão esquerda/direita; Meadow mantém a linha de desgaste.

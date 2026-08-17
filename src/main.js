@@ -434,7 +434,7 @@ function getPlayerCharIndex() {
   return Number.isFinite(idx) && idx >= 0 && idx < n ? idx : 0;
 }
 
-const yieldFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+const yieldFrame = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 async function buildKarts() {
   const slots = buildGridPositions(CONFIG.game.numKarts);
@@ -738,10 +738,10 @@ function scheduleDeferredKartDisposals() {
 function startRace() {
   if (startRacePending) return;
   startRacePending = true;
-  requestAnimationFrame(() => {
+  setTimeout(() => {
     startRacePending = false;
     startRaceHeavy();
-  });
+  }, 0);
 }
 
 function startRaceHeavy() {
@@ -758,16 +758,14 @@ function startRaceHeavy() {
     scene.remove(k.group);
     deferredKartDisposals.push(k.group);
   }
-  requestAnimationFrame(() => {
-    startRaceBuild();
-  });
+  setTimeout(startRaceBuild, 0);
 }
 
 function startRaceBuild() {
   applyDifficulty();
   buildKarts().then(() => {
     applyPlayerStats();
-    requestAnimationFrame(startRaceInit);
+    setTimeout(startRaceInit, 0);
   });
 }
 

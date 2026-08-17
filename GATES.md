@@ -1,27 +1,31 @@
-# GATES.md — Loop de correção Neon R18
+# GATES.md — Auditoria completa 2 pistas × desktop/mobile
 
-## Resultado
-- [x] G1 — Superfície Neon dividida/manchada identificada e corrigida
-      EVIDENCE: `cityRoadTexture` agora usa base única; removidas 3 faixas escuras, 12 manchas grandes e streaks fortes.
-- [x] G2 — Artefato translúcido/bolha identificado e corrigido
-      EVIDENCE: reflexos radiais reduzidos de raio 40–90 para 12–30 px e alpha máximo 0.24; racing-line overlay desligado na Neon.
-- [x] G3 — Guardrails, edge seam e leitura Neon ajustados
-      EVIDENCE: edge shadow Neon 0.10; main rail prateado com emissive sutil.
-- [x] G4 — Dashes e colisão corrigidos
-      EVIDENCE: dashes usam Euler direto + cor sólida; colisão reamostra após integração e reserva 1.08m para rodas.
-- [x] G5 — Build de produção
-      CHECK: SK3D_OUT_DIR=/tmp/sk3d-r18-dist npm run build
-      EXPECT: ✓ built
-      EVIDENCE: `✓ built in 17.57s`.
-- [x] G6 — QA browser sem pageerror na Neon
-      CHECK: captura local em `http://localhost:3457/?track=2`
-      EXPECT: canvas não vazio + menu/race renderizados
-      EVIDENCE: captura pós-R18 em `/home/jarvis/.cache/sk3d-r16gh-neon-race.png`; sem pageerror.
-- [x] G7 — Commit, push e deploy
-      EVIDENCE: commit `c180783` pushado; deploy verificado como `completed/success`.
-- [x] G8 — Regressão visual
-      EVIDENCE: crítico pós-R18 não observou divisão forte nem bolha translúcida; dashes e guardrail ainda exigem validação no GPU real do Feco.
+## Escopo
+Meadow Circuit e Neon City; desktop 960x540 e mobile 390x844; gameplay ativo, superfície, dashes, kerbs, rails, kart/câmera, mundo, iluminação, HUD, colisão e console.
 
-## Riscos restantes
-- P1: skyline ainda usa prédios procedurais em caixas; requer pass separado de world kit.
-- P1: câmera em baixa velocidade pode enquadrar kart pequeno ou pista vazia no SwiftShader; validar no celular real.
+- [ ] G1 Capturas baseline: 2 pistas × 2 viewports em gameplay ativo
+  CHECK: find /home/jarvis/.cache/sk3d-r19-baseline -type f | wc -l
+  EXPECT: >= 4 PNG/JPG
+  EVIDENCE: pending
+- [ ] G2 Auditoria visual independente dos 4 frames
+  EXPECT: lista P0/P1/P2 por pista/viewport
+  EVIDENCE: pending
+- [ ] G3 Auditoria estrutural: dashes, road textures, rails, câmera, HUD
+  EXPECT: causas mapeadas em arquivos/linhas
+  EVIDENCE: pending
+- [ ] G4 Correções P0/P1 aplicadas sem quebrar Meadow/Neon
+  EVIDENCE: pending
+- [ ] G5 Build + diff check
+  CHECK: SK3D_OUT_DIR=/tmp/sk3d-r19-dist npm run build
+  EXPECT: ✓ built + diff limpo
+  EVIDENCE: pending
+- [ ] G6 QA browser 4 combinações sem pageerror
+  EXPECT: canvas não vazio e estado de corrida alcançado
+  EVIDENCE: pending
+- [ ] G7 Regressão visual pós-correções; repetir G2 até zero P0/P1
+  EVIDENCE: pending
+- [ ] G8 Deploy, docs, vault, wiki e memória atualizados
+  EVIDENCE: pending
+
+## Critério de parada
+Parar somente quando as quatro combinações não tiverem P0/P1 visível. P2 residual deve ser documentado com evidência, não escondido.
