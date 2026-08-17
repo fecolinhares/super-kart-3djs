@@ -1,5 +1,9 @@
 # Release Notes — Super Kart 3D.js
 
+**tooling(R23) — captura SwiftShader genérica via CDP (2026-08-17)**
+- Adicionado `game-visual-qa-kit/scripts/capture-active.cjs`: captura gameplay ativa genérica via `Page.captureScreenshot`, sem `page.screenshot()`; limpa localStorage, suporta desktop/mobile, chama hooks opcionais SK3D (`skipCountdown`, `autoAccel`) e espera movimento/progresso.
+- Verificado: captura Neon desktop/mobile via CDP sem `pageerror`; o timeout de fonts/context foi eliminado. Limitação: SwiftShader ainda pode avançar o relógio do jogo muito lentamente; framing final deve ser confirmado no GPU real.
+
 **fix(R22a) — hairpins Neon sem bounce de IA (2026-08-17)**
 - `lane-probe` mostrou Neon com **32 bounces/kart em 90s** nos hairpins; Meadow já estava em 0–1.
 - Causa: IA mantinha cruise de 100% mesmo com curvas compactas; throttle reduzido sozinho não baixava o envelope de velocidade.
