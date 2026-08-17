@@ -8,7 +8,8 @@ Cada fase deve ter: implementação mínima completa, build/probes, captura desk
       EVIDENCE: build passou; AI 0/8; Meadow/Neon lane probe; procession 749; `renderReport` low 640×400 = 1392 calls/1,079,775 tris/87 textures/945 geometries
 - [x] B1 VisualQualityProfile + capability probe + relatório GL
       EVIDENCE: WebGL2 true, RGBA capability probe, profile low, software renderer detected, report exposto em `window.__sk3d.renderReport()`
-- [ ] B2 Boot progressivo + prewarm/fallback sem regressão em ?test/?demo/normal
+- [x] B2 Boot progressivo + prewarm/fallback sem regressão em ?test/?demo/normal
+      EVIDENCE: R29 BootOverlay stages 0.04→0.82→complete; `?boothold=1` congela; CDP centralizado sem overflow desktop/mobile; cleared=true; error handler exibe fallback.
 - [ ] B3 Render pipeline: resolution cap, pass gates, context loss/recovery
 - [ ] C1 MaterialLibrary cacheada com tiers e superfícies authored
 - [ ] C2 Kart hero/mid/impostor + contact shadow + resources compartilhados

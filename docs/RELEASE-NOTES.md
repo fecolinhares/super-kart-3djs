@@ -1,5 +1,12 @@
 # Release Notes — Super Kart 3D.js
 
+**feat(R29) — boot overlay com progresso (2026-08-17)**
+- `src/ui/BootOverlay.js`: overlay de primeiro paint com logo "SUPER KART", barra de progresso, etapa descritiva (ARIA-live) e fade-out no boot.
+- `main.js`: stages progressivos ao longo do boot (renderer→circuit→world→effects→race systems→HUD) + `complete()`; hook `?boothold=1` congela o overlay para QA visual e `release()` libera; listener de `error` global exibe "boot error — reload to retry".
+- Verificação CDP em SwiftShader: card centralizado desktop 1280×800 e mobile 390×844, sem overflow horizontal; overlay some após boot (`cleared=true` em ambos).
+- Nota: revisão visual pixel-level bloqueada — provedor de visão auxiliar (endpoint OpenAI-compatible) retornou resposta inválida; validação estrutural registrada.
+- Pós-boot `?test&quality=low`: 906 calls, 992,339 triangles, 87 textures, 946 geometries (qualidade aplicada reduz chamadas vs 1450 baseline da fase anterior).
+
 **fix(R28) — cap de texturas procedurais por quality profile (2026-08-17)**
 - `Materials.canvasTexture()` agora respeita `window.__sk3dQualityProfile.textureCap`, mantendo mínimo 64px e passando o tamanho resolvido ao gerador procedural.
 - O cap evita criar CanvasTextures de 1024/2048px em perfis low/medium; não altera física, IA ou gameplay.

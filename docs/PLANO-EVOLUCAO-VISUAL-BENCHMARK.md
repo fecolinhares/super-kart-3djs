@@ -14,7 +14,8 @@ Implementado no primeiro lote:
 - `src/main.js`: expõe `qualityProfile`, `capabilityProbe` e `window.__sk3d.renderReport()`.
 - Verificado: build `/tmp/sk3d-phase-b2`; boot `?test` com 6 karts e zero pageerrors em 20 amostras.
 - Medição `?test&quality=low` em SwiftShader 640×400: profile low, WebGL2 true, DPR 1, drawing buffer 640×400, 1392 draw calls, 1,079,775 triangles, 87 textures, 945 geometries.
-- R28: `Materials.canvasTexture()` aplica `textureCap` por profile; pós-cap report low: 1450 calls, 1,093,677 triangles, 87 textures, 943 geometries. Baseline registrado; ganho ainda não declarado.
+- R28: `Materials.canvasTexture()` aplica cap de textura por profile; pós-cap low report 1450 calls, 1,093,677 tris, 87 textures, 943 geometries; baseline registrado sem alegar ganho.
+- R29: `BootOverlay.js` com logo/barra/etapa ARIA-live, stages 0.04→0.82→complete e `?boothold=1` para QA; centralizado sem overflow desktop/mobile; pós-boot low = 906 calls/992,339 tris/87 textures/946 geometries. Revisão pixel-level bloqueada por provedor de visão auxiliar inválido.
 
 Pendentes deste plano: boot progressivo/prewarm, material library, kart/world LOD, VFX/audio/UI e matriz visual completa.
 
