@@ -312,6 +312,7 @@ export class KartPhysics {
     }
 
     const tan = near.tan;
+    const speedAbs = Math.abs(s.speed);
 
     // ---- wrong-way detection ----
     const headingSin = Math.sin(s.heading);
@@ -336,7 +337,6 @@ export class KartPhysics {
     }
     const fwd = _fwd.set(Math.sin(s.heading), 0, Math.cos(s.heading));
     const right = _right.set(tan.z, 0, -tan.x);
-    const speedAbs = Math.abs(s.speed);
 
     // ---- steering ---------------------------------------------------------
     if (s.spinOut) {
