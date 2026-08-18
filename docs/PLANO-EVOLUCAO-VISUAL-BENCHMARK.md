@@ -15,9 +15,11 @@ Implementado no primeiro lote:
 - Verificado: build `/tmp/sk3d-phase-b2`; boot `?test` com 6 karts e zero pageerrors em 20 amostras.
 - Medição `?test&quality=low` em SwiftShader 640×400: profile low, WebGL2 true, DPR 1, drawing buffer 640×400, 1392 draw calls, 1,079,775 triangles, 87 textures, 945 geometries.
 - R28: `Materials.canvasTexture()` aplica cap de textura por profile; pós-cap low report 1450 calls, 1,093,677 tris, 87 textures, 943 geometries; baseline registrado sem alegar ganho.
-- R29: `BootOverlay.js` com logo/barra/etapa ARIA-live, stages 0.04→0.82→complete e `?boothold=1` para QA; centralizado sem overflow desktop/mobile; pós-boot low = 906 calls/992,339 tris/87 textures/946 geometries. Revisão pixel-level bloqueada por provedor de visão auxiliar inválido.
+- R29: `BootOverlay.js` com logo/barra/etapa ARIA-live, stages 0.04→0.82→complete e `?boothold=1` para QA; centralizado sem overflow desktop/mobile; pós-boot low = 906 calls/992,339 tris/87 textures/946 geometrias. Revisão pixel-level bloqueada por provedor de visão auxiliar inválido.
+- R30: corrigido `require()` dead code em MaterialLibrary, removido `KartLOD.js`, adicionada detecção de wrong-way em KartPhysics, hooks `_onWrongWay`/`_TurboBoost` em main.js. Runtime ok desktop+mobile.
+- **R31 (improve-threejs audit)**: audit completo do game loop (Steps 3-6 da skill improve-threejs). Resultado: **0 alocações no frame-loop**, dispose() coverage OK, color space OK, instancing OK. SK3D já é um projeto Three.js bem otimizado. Nenhuma correção HIGH/MEDIUM necessária.
 
-Pendentes deste plano: boot progressivo/prewarm, material library, kart/world LOD, matriz visual completa.
+Pendentes deste plano: matriz visual completa (bloqueada por vision).
 
 ## 1. Diagnóstico executivo
 
