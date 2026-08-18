@@ -17,7 +17,8 @@ Implementado no primeiro lote:
 - R28: `Materials.canvasTexture()` aplica cap de textura por profile; pós-cap low report 1450 calls, 1,093,677 tris, 87 textures, 943 geometries; baseline registrado sem alegar ganho.
 - R29: `BootOverlay.js` com logo/barra/etapa ARIA-live, stages 0.04→0.82→complete e `?boothold=1` para QA; centralizado sem overflow desktop/mobile; pós-boot low = 906 calls/992,339 tris/87 textures/946 geometrias. Revisão pixel-level bloqueada por provedor de visão auxiliar inválido.
 - R30: corrigido `require()` dead code em MaterialLibrary, removido `KartLOD.js`, adicionada detecção de wrong-way em KartPhysics, hooks `_onWrongWay`/`_TurboBoost` em main.js. Runtime ok desktop+mobile.
-- **R31 (improve-threejs audit)**: audit completo do game loop (Steps 3-6 da skill improve-threejs). Resultado: **0 alocações no frame-loop**, dispose() coverage OK, color space OK, instancing OK. SK3D já é um projeto Three.js bem otimizado. Nenhuma correção HIGH/MEDIUM necessária.
+- **R31 (improve-threejs audit)**: audit completo do game loop. **0 alocações no frame-loop**, dispose() OK, color space OK, instancing OK. SK3D já é um projeto Three.js bem otimizado. Nenhuma correção HIGH/MEDIUM necessária.
+- **R32 (bug audit)**: audit completo de bugs. **0 erros runtime** em todas as combinações testadas (Track 1/2, ?test, ?quality=low/high, desktop/mobile). Build atual quebrou (vite não encontrado) — precisa `npm ci` para restaurar. Latentes (geometrias sem dispose, listeners sem cleanup) são aceitáveis para jogo full-page. Nenhuma correção necessária.
 
 Pendentes deste plano: matriz visual completa (bloqueada por vision).
 
