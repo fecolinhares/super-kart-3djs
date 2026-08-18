@@ -975,7 +975,11 @@ function buildShellMesh(color) {
   const bodyMat = getToonMaterial(color, { emissive: color, emissiveIntensity: 0.25 });
   const body = new THREE.Mesh(new THREE.SphereGeometry(0.34, 24, 16), bodyMat);
   body.scale.set(1.05, 0.85, 1.55);
-  cartoonOutline(body, 0x1b2a41, 0.05);
+  const outlineMat = getCartoonOutlineMaterial(0x1b2a41, 0.05);
+  const hull = new THREE.Mesh(body.geometry.clone(), outlineMat);
+  hull.scale.setScalar(1.05);
+  hull.castShadow = false;
+  body.add(hull);
   g.add(body);
 
   const spikeMat = getToonMaterial(0xffffff, { emissive: 0xffffff, emissiveIntensity: 0.15 });
