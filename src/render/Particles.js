@@ -104,6 +104,22 @@ const TYPES = {
     system: 'additive', count: 8, speed: 3.0, size: 0.16, life: 0.55,
     drag: 2.0, grav: -0.8, grow: 0.6, spread: 1.6, color: 0xffe066,
   },
+  shield: {
+    // invincibility / star protective ripple — expanding ring read as a
+    // absorbed-impact shell (AAA VFX: clarity over clutter)
+    system: 'additive', count: 14, speed: 4.5, size: 0.30, life: 0.45,
+    drag: 3.0, grav: 0.0, grow: 2.4, spread: 2.6, color: 0x6cf0ff,
+  },
+  nearMiss: {
+    // side spark when a rival passes within graze distance without contact
+    system: 'additive', count: 6, speed: 5.0, size: 0.14, life: 0.35,
+    drag: 2.5, grav: 0.0, grow: 1.0, spread: 1.4, color: 0xfff0a0,
+  },
+  combo: {
+    // drift-chain combo pop — rewards sustained drift tiers
+    system: 'additive', count: 10, speed: 4.0, size: 0.20, life: 0.5,
+    drag: 2.0, grav: -0.5, grow: 1.2, spread: 1.8, color: 0xffd166,
+  },
   speedline: {
     // thin additive wind streaks at high velocity (MK8 speed-line cue)
     system: 'additive', count: 2, speed: 14, size: 0.09, life: 0.22,

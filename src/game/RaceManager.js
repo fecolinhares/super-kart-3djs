@@ -26,6 +26,9 @@ const CONTACT_SPIN_MS = 550;       // rammer spin duration (mild side-swipe)
 const CONTACT_SPIN_MS_MAX = 950;   // rammer spin duration (severe T-bone)
 const CONTACT_RAM_COOLDOWN = 1.1;  // s per kart between spin triggers
 const CONTACT_SFX_COOLDOWN = 0.22; // s between crash SFX (pack collisions)
+const NEARMISS_R = 3.2;            // graze band outside CONTACT_R (AAA VFX: near-miss telegraph)
+const NEARMISS_R2 = NEARMISS_R * NEARMISS_R;
+const NEARMISS_COOLDOWN = 0.6;     // s between near-miss sparks per pair
 
 // ---------------------------------------------------------------------------
 // Coin pickups (audit r3: "no coins") — small gold cylinders near the road
@@ -508,8 +511,24 @@ export class RaceManager {
         const dx = b.state.position.x - a.state.position.x;
         const dz = b.state.position.z - a.state.position.z;
         const d2 = dx * dx + dz * dz;
-        if (d2 >= CONTACT_R2 || d2 <= 0.0001) continue;
+        if (d2 >= NEARMISS_R2 || d2 <= 0.0001) continue;
         const d = Math.sqrt(d2);
+        // AAA VFX: near-miss telegraph — graze band just outside contact.
+        if (d2 >= CONTACT_R2) {
+          const acd = a._nearMissCd || 0;
+          const bcd = b._nearMissCd || 0;
+          if (acd <= 0 && bcd <= 0 && this.particles) {
+            const mx = (a.state.position.x + b.state.position.x) / 2;
+            const mz = (a.state.position.z + b.state.position.z) / 2;
+            const my = (a.state.position.y + b.state.position.y) / 2 + 0.5;
+            this.particles.emit('nearMiss', new THREE.Vector3(mx, my, mz), { count: 6, speed: 5, size: 0.14 });
+            a._nearMissCd = NEARMISS_COOLDOWN;
+            b._nearMissCd = NEARMISS_COOLDOWN;
+          }
+          if (acd > 0) a._nearMissCd = Math.max(0, acd - dt);
+          if (bcd > 0) b._nearMissCd = Math.max(0, bcd - dt);
+          continue;
+        }
         const overlap = (CONTACT_R - d) / 2;
         const nx = dx / d;
         const nz = dz / d;

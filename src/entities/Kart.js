@@ -1707,6 +1707,8 @@ export class Kart {
     this._boostMs = 0;
     this._starMs = 0;
     this._invMs = 0;
+    this._invFxPrev = false;
+    this._pendingShieldFx = false;
     this._spinMs = 0;
     this._scaleMs = 0;
     this._scaleTarget = 1;
@@ -1850,6 +1852,11 @@ export class Kart {
     if (b) {
       this._invCount += 1;
       this._invMs = Math.max(this._invMs, durationMs);
+      // AAA VFX: shield-ripple on entering invincibility (star / hit i-frames).
+      // Emit only on the rising edge so overlapping sources don't spam.
+      if (this._invCount === 1 && this._invFxPrev === false) {
+        this._pendingShieldFx = true;
+      }
       this.invincible = true;
     } else {
       this._invCount = Math.max(0, this._invCount - 1);
@@ -1998,6 +2005,21 @@ export class Kart {
         ctx.particles.emit('sparkle', this._pv, { count: 10, speed: 5, size: 0.14 });
       }
       this._boostVisPrev = this._boostMs > 0;
+      // Shield / invincibility ripple — rising edge only.
+      if (this._pendingShieldFx) {
+        this._pendingShieldFx = false;
+        this._invFxPrev = true;
+        this._localToWorld(this._pv, 0, 0.6, 0);
+        ctx.particles.emit('shield', this._pv, { count: 14, speed: 4.5, size: 0.3 });
+      }
+      if (!this.invincible) this._invFxPrev = false;
+      // Drift combo pop — reward sustained drift tiers (rising edge per tier).
+      if (s.drifting && s.driftCharge >= 0.45 && s.driftTier > (this._comboTierPrev || 0)) {
+        this._comboTierPrev = s.driftTier;
+        this._localToWorld(this._pv, this._sideFlip * 0.85, 0.7, -0.1);
+        ctx.particles.emit('combo', this._pv, { count: 10, speed: 4, size: 0.2 });
+      }
+      if (!s.drifting) this._comboTierPrev = 0;
       const speedAbs2 = Math.abs(s.speed);
       if (speedAbs2 > CONFIG.physics.maxSpeed * 0.78 && !s.spinOut) {
         this._lineAcc = (this._lineAcc || 0) + dt;
