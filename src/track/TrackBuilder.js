@@ -1647,7 +1647,7 @@ function buildSponsorBoards(path) {
   ];
   const SCHEMES = [
     { base: 0x2ec4ff, stripe: 0xffffff }, // cyan / white
-    { base: 0xff5a5f, stripe: 0xffffff }, // red / white
+    { base: 0xff9f45, stripe: 0x1b2a41 }, // orange/white — was red/white (0xff5a5f), "placa vermelha lateral"
     { base: 0xffd166, stripe: 0x1b2a41 }, // yellow / navy
   ];
   const boardGeo = new THREE.BoxGeometry(2.2, 1.1, 0.15);
@@ -2156,13 +2156,10 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
   if (isCity) {
     ribbonOpts.texture = cityRoadTexture; // baked neon spill on the asphalt
     ribbonOpts.emissiveMap = true; // the spill patches GLOW (vision 7/10 pass)
-    ribbonOpts.color = 0x4a5062; // charcoal, not black
-    // AUDIT R4 (critic R3 3/10 'neon preso às laterais, nada no asfalto'):
-    // emissive 0x2a1c4a (escuro) MULTIPLICA o emissiveMap — os spills não
-    // podiam brilhar mais que 42/28/74. Branco + intensity carrega as cores
-    // reais do mapa (magenta/ciano/amarelo) no asfalto.
+    ribbonOpts.color = 0xffffff; // deixar a textura cityRoadTexture (charcoal #4c5268) ser a cor base — o opts.color sobrescreve o material depois de mat.map ser setado, então 0xffffff preserva o charcoal natural
+    // AUDIT R4: emissive 0xffffff + intensity 0.8 carrega as cores reais do mapa (magenta/ciano/amarelo) sem saturar
     ribbonOpts.emissive = 0xffffff;
-    ribbonOpts.emissiveIntensity = 1.05;
+    ribbonOpts.emissiveIntensity = 0.8;
     // AUDIT PISTA R11 (2026-08-16): asfalto MOLHADO — clearcoat + sheen
     // especular contínuo (cue wet-street MK8); sem ele a rua lia matte.
     ribbonOpts.wet = true;
