@@ -188,3 +188,34 @@ const _profileCheck = setInterval(() => {
     _lastProfileName = current;
   }
 }, 1500);
+
+/**
+ * Named material-role kit (threejs-aaa-graphics-builder / technical-art.md).
+ * Central reference for shared material roles so every surface that plays the
+ * same part reuses one identity instead of one-off colors. UI/world signal
+ * colors are shared between HUD and diegetic markers (danger, reward, boost,
+ * shield, objective). Use getToonMaterial/getPlasticMaterial with these hexes
+ * rather than inventing new colors per call site.
+ */
+export const MATERIAL_ROLES = Object.freeze({
+  bodyPrimary: 0x2ec4ff,    // dominant player/world shell (neon cyan)
+  bodySecondary: 0xffd166,   // panel contrast (gold)
+  trim: 0x1b2a41,            // rails, bevel highlights, borders, edge highlights
+  hazard: 0xff5a5f,          // danger surfaces, damage cues, warning stripes
+  reward: 0xffd166,          // collectible surfaces with readable value (gold)
+  shieldBoost: 0x6cf0ff,     // shield, boost, status states (cyan glow)
+  glass: 0xa8d8ff,           // cockpit, shield, lens, visor
+  emissiveSignal: 0xff2ec4,  // authored glow strips, status lights, beacon cores (neon pink)
+  groundContact: 0x0d1117,   // dark matte surfaces, shadow receivers
+  decalDark: 0x1b2a41,       // panel lines, scratches, numbers, icons
+  decalLight: 0xf4f6f8,      // light trim, markings
+});
+
+/** Shared UI/world signal colors (hex strings for CSS + canvas parity). */
+export const SIGNAL_COLORS = Object.freeze({
+  danger: '#ff5a5f',
+  reward: '#ffd166',
+  boost: '#ff9f45',
+  shield: '#6cf0ff',
+  objective: '#2ec4ff',
+});
