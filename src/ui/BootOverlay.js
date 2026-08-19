@@ -42,8 +42,14 @@ export function createBootOverlay() {
       if (window.__boothold) return; // visual QA: freeze overlay, caller releases
       if (bar) bar.style.width = '100%';
       if (step) step.textContent = 'ready';
-      requestAnimationFrame(() => root.classList.add('done'));
-      setTimeout(() => root.remove(), 600);
+      // Double rAF garante que o estado inicial (overlay visível) foi pintado
+      // antes de iniciar a transição de opacity — evita fade instantâneo.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          root.classList.add('done');
+          setTimeout(() => root.remove(), 500);
+        });
+      });
     },
     release() { window.__boothold = null; root.remove(); },
     fail(message) {
