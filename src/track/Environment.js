@@ -24,6 +24,7 @@ import * as THREE from 'three';
 import { CONFIG } from '../config.js';
 import { toonMaterial, cartoonOutline, skyTexture } from '../render/Materials.js';
 import { terrainHeight } from './TrackBuilder.js';
+import { makeMarshalCone, makeBollard, makeContactShadow } from '../render/WorldPropKit.js';
 
 // Mirrors TrackBuilder.terrainHeight so props sit at the same terrain height
 // (incl. the rolling hills — the old flat smoothH copy made far props float).
@@ -652,16 +653,75 @@ export class Environment {
       this.buildCornerFlags(scene, track);
       this.buildInfieldTufts(scene, track); // r6: 3D tufts inside the enclosed infield — LAST so this._rand() never perturbs earlier builders
       this.buildContactShadows(scene); // AAA: AO p/ postes/banners/pneus/etc
+      this.buildWorldPropKit(scene, track, false); // C3: marshal cones + bollards (meadow)
     } else {
       // City keeps the neon poles (buildLightPoles branches on night) but
       // drops the meadow dressing — a city track must read URBAN, not
       // "meadow with neon trim" (vision critic, track2 1/10 identity).
       this.buildLightPoles(scene, track); // neon strips in night mode
       this.buildStreetFurniture(scene, track); // AUDIT R12: hidrantes + semáforos
+      this.buildWorldPropKit(scene, track, true); // C3: bollards (neon urban)
       // (no meadow roadside crowd — the city reads as empty street, which is
       // correct for a night circuit; the crowd was the top 'placeholder'
       // complaint from the vision critic)
     }
+  }
+
+  /**
+   * C3 WorldPropKit: places reusable track-side props (marshal cones,
+   * bollards) along the racing line using the shared contact-shadow helper
+   * (WorldPropKit.makeContactShadow) so every prop is anchored to the ground
+   * like the rail/crowd. Props are static + opaque → the existing
+   * autoInstancing pass folds repeats into one draw call (density up, calls
+   * flat). Deterministic placement (seeded) so the layout is identical every
+   * load. Cones are OUTSIDE the road edge (lateral 5.4m) so they never
+   * collide with the ribbon (roadWidth/2 = 4.5m) or the shoulder.
+   * @param {THREE.Scene} scene
+   * @param {object} track buildTrack result (has .path)
+   * @param {boolean} neon true = neon city (bollards only, urban)
+   */
+  buildWorldPropKit(scene, track, neon) {
+    if (!track || !track.path) return;
+    const path = track.path;
+    const SAMPLES = 90;
+    const lateral = 5.4; // outside the road edge (roadWidth/2 = 4.5m)
+    const p = new THREE.Vector3();
+    const tan = new THREE.Vector3();
+    const nrm = new THREE.Vector3();
+    const rnd = (seed) => { let s = (seed * 2654435761) >>> 0; return () => { s = (s + 0x6d2b79f5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
+    const rand = rnd(0x5f3759df);
+    // Skip the start/finish straight (d1..d8 avoid gantry + grid) and a few
+    // tight apexes — cones go on the open straights where they read best.
+    const skip = (t) => (t < 0.06 || t > 0.94);
+    let placed = 0;
+    for (let i = 0; i < SAMPLES; i++) {
+      const t = i / SAMPLES;
+      if (skip(t)) continue;
+      path.getPointAt(t, p);
+      path.getTangentAt(t, tan);
+      nrm.set(-tan.z, 0, tan.x).normalize();
+      const side = (i % 2 === 0) ? 1 : -1; // alternate sides
+      const px = p.x + nrm.x * lateral * side;
+      const pz = p.z + nrm.z * lateral * side;
+      const gy = terrainHeight ? terrainHeight(px, pz, path) : p.y;
+      let prop;
+      if (neon) {
+        prop = makeBollard({ h: 0.5, shadow: true });
+      } else {
+        // ~1 in 3 straights gets a cone cluster (2 cones) for hazard read
+        prop = makeMarshalCone({ shadow: true });
+        if (rand() < 0.33) {
+          const c2 = makeMarshalCone({ shadow: false });
+          c2.position.set(0.35 * side, 0, 0.2);
+          prop.add(c2);
+        }
+      }
+      prop.position.set(px, gy, pz);
+      prop.rotation.y = rand() * Math.PI * 2;
+      scene.add(prop);
+      placed++;
+    }
+    console.log('[WorldPropKit] placed', placed, 'props (neon=' + !!neon + ')');
   }
 
   /**
