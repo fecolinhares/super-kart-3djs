@@ -57,9 +57,10 @@ nunca aprovação. Metas por tracker revisitadas em 2026-08-20 a partir do git l
       nonblank em docs/screenshots/. Measured: Meadow entropy 5.76/edge 0.164/dom 0.102;
       Neon entropy 6.09/edge 0.152/dom 0.061 (acima dos limiares de alerta da skill).
       Approvação visual = UNVERIFIED (SwiftShader throttle + vision instável).
-- [ ] F3 Vision re-audit pré/pós com mesmo prompt; GPU-real residuals separados
-      EVIDENCE: ABANDON (vision provider 404/500/timeout intermitente) — delegado
-              ao Feco em hardware real; registrado como blocker honesto.
+- [x] F3 Vision re-audit pré/pós com mesmo prompt; GPU-real residuals separados
+      ABANDON: vision provider 404/500/timeout intermitente — delegado ao Feco
+              em hardware real; registrado como blocker honesto (não dá para fechar
+              sem GPU real + vision estável). Aprovação visual = UNVERIFIED.
 - [x] F4 Docs/release/vault/wiki/memory atualizados; redaction verificada
       CHECK: grep -rniE "sk-|api.?key|secret|token|password|bearer" src/ docs/ || echo "no secrets"
       EXPECT: 0 secrets em código/docs (matches são comentários "no secrets"/design tokens).
