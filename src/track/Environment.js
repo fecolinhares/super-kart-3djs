@@ -2641,8 +2641,8 @@ export class Environment {
     // textura) separados — 2 InstancedMesh (1 frame + 1 print) + postes
     // instanced: ~6 calls no total.
     const bannerEdgeMat = toonMaterial(0x6a5c48, {});
-    const frameGeo = new THREE.BoxGeometry(5.6, 1.0, 0.08);
-    const printGeo = new THREE.PlaneGeometry(5.5, 0.9);
+    const frameGeo = new THREE.BoxGeometry(5.6, 1.475, 0.08); // 4:1 (banner 5.5×1.375) — AUDIT FIX SK3D (2026-08-20): era 5.6×1.0 (5.6:1) com textura 512×128 (4:1) → esticava o logo ~1.4x. Agora geometry e textura têm o MESMO ratio.
+    const printGeo = new THREE.PlaneGeometry(5.5, 1.375); // 4:1 — matching _bannerTex (512×128)
     const poleGeo = new THREE.CylinderGeometry(0.07, 0.09, 3.0, 8);
     const dummyB = new THREE.Object3D();
     const maxBanners = 40;
@@ -2687,23 +2687,23 @@ export class Environment {
         poles.setMatrixAt(made * 2 + (off === -1 ? 0 : 1), dummyB.matrix);
       }
       // frame
-      dummyB.position.set(bx, by + 2.35, bz);
-      dummyB.lookAt(p.x, by + 2.35, p.z); // face the track
+      dummyB.position.set(bx, by + 2.5, bz);
+      dummyB.lookAt(p.x, by + 2.5, p.z); // face the track
       dummyB.rotation.z = 0;
       dummyB.scale.set(1, 1, 1);
       dummyB.updateMatrix();
       frames.setMatrixAt(made, dummyB.matrix);
       this._contactAOs.push({ x: bx, z: bz, r: 3.0 }); // AUDIT AAA: AO do banner
       // print front (+z local 0.05, 1cm à frente do box) e espelho back (-z)
-      dummyB.position.set(bx, by + 2.35, bz);
-      dummyB.lookAt(p.x, by + 2.35, p.z);
+      dummyB.position.set(bx, by + 2.5, bz);
+      dummyB.lookAt(p.x, by + 2.5, p.z);
       dummyB.rotation.z = 0;
       dummyB.translateZ(0.05);
       dummyB.scale.set(1, 1, 1);
       dummyB.updateMatrix();
       printsF.setMatrixAt(made, dummyB.matrix);
-      dummyB.position.set(bx, by + 2.35, bz);
-      dummyB.lookAt(p.x, by + 2.35, p.z);
+      dummyB.position.set(bx, by + 2.5, bz);
+      dummyB.lookAt(p.x, by + 2.5, p.z);
       dummyB.rotation.z = 0;
       dummyB.translateZ(-0.05);
       dummyB.scale.set(1, 1, 1);
