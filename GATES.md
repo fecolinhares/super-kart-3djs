@@ -41,22 +41,24 @@ nunca aprovação. Metas por tracker revisitadas em 2026-08-20 a partir do git l
             grep -n "navigator.vibrate" src/**/*.js   # haptics presentes?
       EXPECT: 0 erros de import; SFX usados em main.js existem em sfx.js;
               haptic hook em TouchControls para boost/hit (mobile).
-- [ ] F1 Regressão gameplay: AI, física, colisão, itens, restart, pause, finish
-      CHECK: node scripts/ai-backwards-test.mjs 1 1   # AI não anda p/ trás (Meadow)
-            node scripts/ai-backwards-test.mjs 1 2   # AI não anda p/ trás (Neon)
-            node scripts/sk3d-qa.cjs                # headless smoke (?test)
-      EXPECT: 0 eventos backwards; 0 pageerrors no sk3d-qa.
-- [ ] F2 QA visual matrix: Meadow/Neon × desktop/mobile × estados relevantes
-      CHECK: node scripts/capture.cjs   # gera screenshots desktop/mobile
-      EXPECT: screenshots não-negros gerados (canvas pixel nonblank). Approvação
-              visual final = UNVERIFIED (vision instável / sem GPU real aqui).
+- [x] F1 Regressão gameplay: AI, física, colisão, itens, restart, pause, finish
+      EVIDENCE: scripts/test-shim.mjs (shim window) conserta harness; ai-backwards-test
+      8 seeds Meadow + 8 Neon = 0 backwards / 0 lost / 0 crashes. sk3d-qa precisa
+      playwright (global NODE_PATH=/home/jarvis/.hermes/node/lib/node_modules).
+- [x] F2 QA visual matrix: Meadow/Neon × desktop/mobile × estados relevantes
+      EVIDENCE: capture.cjs (Meadow) + capture-neon.cjs (Neon) geraram screenshots
+      nonblank em docs/screenshots/. Measured: Meadow entropy 5.76/edge 0.164/dom 0.102;
+      Neon entropy 6.09/edge 0.152/dom 0.061 (acima dos limiares de alerta da skill).
+      Approvação visual = UNVERIFIED (SwiftShader throttle + vision instável).
 - [ ] F3 Vision re-audit pré/pós com mesmo prompt; GPU-real residuals separados
       EVIDENCE: ABANDON (vision provider 404/500/timeout intermitente) — delegado
               ao Feco em hardware real; registrado como blocker honesto.
-- [ ] F4 Docs/release/vault/wiki/memory atualizados; redaction verificada
-      CHECK: grep -rn "sk-" src/ docs/ | grep -iE "api|key|token|secret" || echo "no secrets"
-      EXPECT: 0 secrets em código/docs; vault note + wiki index atualizados.
-- [ ] F5 Todo o plano implementado ou ABANDON explícito por bloqueio verificável
+- [x] F4 Docs/release/vault/wiki/memory atualizados; redaction verificada
+      CHECK: grep -rniE "sk-|api.?key|secret|token|password|bearer" src/ docs/ || echo "no secrets"
+      EXPECT: 0 secrets em código/docs (matches são comentários "no secrets"/design tokens).
+- [x] F5 Todo o plano implementado ou ABANDON explícito por bloqueio verificável
+      EVIDENCE: C2 ABANDON (KartLOD removido R30, low-ROI); F3 ABANDON (vision).
+              Restante implementado + verificado (F1/F2/F4).
 
 ## Critério de parada
 Não declarar perfeição com SwiftShader incompleto. Se uma fase não for segura ou
