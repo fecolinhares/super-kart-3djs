@@ -8,12 +8,13 @@ nunca aprovação. Metas por tracker revisitadas em 2026-08-20 a partir do git l
 
 - [x] A0 Ler plano completo e registrar ledger de skills/referências
       EVIDENCE: skills threejs-* + obsidian + llm-wiki + unlazy carregadas; ledgers em PLANO-EVOLUCAO-VISUAL.md.
-- [x] G3 Fix banners de propaganda esticados (5ª rodada, 2026-08-20)
-      EVIDENCE: buildTracksideBanners usava printGeo Plane(5.5,0.9)=6.1:1 com
-      _bannerTex 512×128=4:1 → logo achatado ~1.4x. Fix: geometry 5.5×1.375
-      (4:1) casa EXATO com a textura → zero esticamento. Centro sobe p/ by+2.5.
-      Validação: ratio match determinístico (captura headless não pega banner
-      em reta, mas o fix é geométrico). Commit (fix banners).
+- [x] G4 Fix semáforo countdown + sponsor boards (6ª rodada, 2026-08-20)
+      EVIDENCE: semáforo: adicionados sockets pretos atrás de cada lâmpada
+      (montadas, não flutuantes); emissive verde no GO 1.4→0.85 (não lê como
+      "balão verde"). Sponsor boards: _sponsorBoardTexture 256×128→512×256
+      (2:1 = panelGeo), logo central nítido sem "olho". Trackside banners já
+      4:1 (G3). Headless não valida (SwiftShader não anima countdown nem
+      renderiza texto do banner) — validar em GPU real. Commits fix(gantry+boards).
 - [x] A1 Baseline medido: build, sim, lane, procession, draw calls/canvas/runtime
       EVIDENCE: build passa; ai-backwards 0/8; lane-probe Meadow/Neon; procession 749; renderReport low 640×400 = 1392 calls/1.08M tris/87 tex/945 geo.
 - [x] B1 VisualQualityProfile + capability probe + relatório GL
