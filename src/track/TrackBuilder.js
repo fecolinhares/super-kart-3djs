@@ -641,7 +641,7 @@ function buildCurbs(path, length, side, opts = {}) {
   const offset = roadW / 2 + 0.15;
   const curbW = 0.68;
   const curbH = 0.20;
-  const N = 400; // SK3D FIX (2026-08-20): 200→400 — kerb contínua segue curvas sem cunha
+  const N = 800; // SK3D FIX (2026-08-20): 400→800 — kerb zebra segue curvas sem esticamento (Feco: 'faixa vermelha lateral esticada')
   const nrm = new THREE.Vector3();
   const tan = new THREE.Vector3();
   const p = new THREE.Vector3();
@@ -1151,7 +1151,9 @@ function buildGantry(startLine) {
   const nrm = new THREE.Vector3(-startLine.direction.z, 0, startLine.direction.x).normalize();
 
   const pillarGeo = new THREE.CylinderGeometry(0.28, 0.36, 6.8, 10); // AUDIT R76: 6.1→6.8 (beam subiu p/ lampas visíveis)
-  const pillarMat = toonMaterial(0xff5a5f, {});
+  // SK3D FIX (2026-08-20, Feco real-GPU): pillars vermelhos (0xff5a5f) liam
+  // como "arco berrante sem estrutura". MK8D usa pilares CINZA estruturais.
+  const pillarMat = toonMaterial(0x3a4152, {});
   const footingGeo = new THREE.BoxGeometry(0.95, 0.16, 0.95);
   const footingMat = toonMaterial(0x2b3340, {});
   const braceMat = toonMaterial(0x2b3340, {});

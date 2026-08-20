@@ -570,10 +570,10 @@ export class Kart {
       // AI no grid'): o kart já tem castShadow=true (sombra projetada REAL) —
       // o blob é redundante. Núcleo 0.45 → 0.16, raio 1.35 → 1.8: ancoragem
       // preservada (cai p/ 0 em 1.8m) mas sem círculo visível no chão.
-      grad.addColorStop(0, 'rgba(0,0,0,0.16)');
-      grad.addColorStop(0.4, 'rgba(0,0,0,0.09)');
-      grad.addColorStop(0.75, 'rgba(0,0,0,0.03)');
-      grad.addColorStop(1, 'rgba(0,0,0,0)');
+    grad.addColorStop(0, 'rgba(0,0,0,0.08)'); // SK3D FIX (2026-08-20): core 0.16→0.08 — sombra de contato sutil, não mancha
+    grad.addColorStop(0.4, 'rgba(0,0,0,0.04)');
+    grad.addColorStop(0.75, 'rgba(0,0,0,0.015)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
       g.fillStyle = grad;
       g.fillRect(0, 0, 64, 64);
       const t = new THREE.CanvasTexture(c);
@@ -581,7 +581,7 @@ export class Kart {
       return t;
     })();
     const blob = new THREE.Mesh(
-      new THREE.CircleGeometry(1.8, 24), // AUDIT R13e: 1.35→1.8 (penumbra ainda mais longa, sem borda)
+      new THREE.CircleGeometry(1.2, 24), // SK3D FIX (2026-08-20, Feco real-GPU): 1.8→1.2 — blob grande lia como "mancha escura que segue o kart"
       new THREE.MeshBasicMaterial({
         map: blobTex,
         transparent: true,
@@ -590,7 +590,7 @@ export class Kart {
         polygonOffsetFactor: -2,
       })
     );
-    blob.scale.set(1, 1, 0.78); // narrower across the kart, longer along it
+    blob.scale.set(1, 1, 0.7); // narrower across the kart, longer along it
     blob.rotation.x = -Math.PI / 2;
     blob.position.y = 0.02;
     blob.renderOrder = 1;
