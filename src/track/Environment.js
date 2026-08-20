@@ -2599,7 +2599,14 @@ export class Environment {
     if (!track || !track.path) return;
     const path = track.path;
     const halfW = CONFIG.track.roadWidth / 2;
-    if (!this._bannerTex) {
+    // SK3D FIX (2026-08-20, Feco real-GPU): BUG RAIZ das faixas esticadas.
+    // _castleBannerTexture() (linha ~4231) também seta this._bannerTex como
+    // uma textura 256×256 QUADRADA e é chamada ANTES deste builder → o
+    // if(!this._bannerTex) aqui era falso e esta textura 512×128 NUNCA era
+    // criada. O banner usava a textura quadrada do castle num Plane 4:1 →
+    // esticamento "too wide/short". Renomeado para _tracksideBannerTex
+    // (slot próprio) para não colidir com o _bannerTex do castle.
+    if (!this._tracksideBannerTex) {
       const c = document.createElement('canvas');
       // AUDIT r6: 256x64 read soft on the 5.6m board (~46px/m) — 512x128
       // matches the finish/gantry texture standard.
@@ -2627,9 +2634,9 @@ export class Environment {
       g.fillText('SUPER KART GP', 256, 64);
       const tex = new THREE.CanvasTexture(c);
       tex.colorSpace = THREE.SRGBColorSpace;
-      this._bannerTex = tex;
+      this._tracksideBannerTex = tex;
     }
-    const bannerMat = new THREE.MeshBasicMaterial({ map: this._bannerTex, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+    const bannerMat = new THREE.MeshBasicMaterial({ map: this._tracksideBannerTex, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
     const poleMat = toonMaterial(0x8b7a5c, {});
     // AUDIT r10 (FECO): the BoxGeometry mapped the banner texture on ALL six
     // faces — the 0.08m-thick side faces showed the whole 5.6m texture
