@@ -3264,7 +3264,10 @@ export class Environment {
     c.width = 256;
     c.height = 128;
     const g = c.getContext('2d');
-    const COLORS = ['#ff5a5f', '#2ec4ff', '#ffd166', '#6cff8f', '#c86bff', '#ff9f45'];
+    // SK3D FIX (2026-08-20, Feco real-GPU): remover vermelho puro da paleta
+    // — lia como "faixa vermelha esticada nas laterais". Azul/cinza/verde
+    // sóbrios mantêm identidade sem confundir com kerb.
+    const COLORS = ['#2ec4ff', '#3fa44e', '#ffd166', '#6c8cff', '#c86bff', '#ff9f45'];
     const col = COLORS[Math.floor(this._rand() * COLORS.length)];
     g.fillStyle = col;
     g.fillRect(0, 0, 256, 128);
