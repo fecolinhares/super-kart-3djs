@@ -1284,20 +1284,25 @@ function buildGantry(startLine) {
     bracket.castShadow = false;
     group.add(bracket);
   }
-  // 5 lamp bodies — MK8D: caixa de luzes com lâmpadas VERMELHAS apagadas
-  // (acendem verde no GO). Material base escuro + emissive vermelho p/ não
-  // saturar para verde-ciano sob o colorGrade (ACES sat 1.45). Cara de
-  // "semaforo" óbvia, não esferas flutuantes.
-  const lampGeo = new THREE.SphereGeometry(0.46, 18, 16);
-  const lampOff = toonMaterial(0x1b2a41, { emissive: 0xff2a2a, emissiveIntensity: 0.9 });
-  const lampMat = lampOff;
+  // Light sockets: discos pretos atrás de cada lâmpada (buraco de luz) —
+  // as lâmpadas leem como MONTADAS no housing, não esferas flutuantes.
+  const socketGeo = new THREE.CircleGeometry(0.34, 16);
+  const socketMat = toonMaterial(0x0a0e16, {});
+  // 5 lamp bodies — MK8D: lâmpadas VERMELHAS apagadas (acendem verde no GO).
+  const lampGeo = new THREE.SphereGeometry(0.42, 18, 16);
+  const lampMat = toonMaterial(0x1b2a41, { emissive: 0xff2a2a, emissiveIntensity: 0.0 });
   for (let i = -2; i <= 2; i++) {
+    const socket = new THREE.Mesh(socketGeo, socketMat);
+    socket.position.copy(startLine.position).addScaledVector(nrm, i * 1.08);
+    socket.position.y = 5.62;
+    socket.position.z += 0.02;
+    socket.lookAt(socket.position.clone().add(startLine.direction));
+    socket.castShadow = false;
+    group.add(socket);
     const lamp = new THREE.Mesh(lampGeo, lampMat);
-    // Embutidas no housing: levemente à frente da face (z+0.18) mas DENTRO
-    // da moldura (panelTrim z-0.08, profundidade 0.14 → frente em z+0.06).
     lamp.position.copy(startLine.position).addScaledVector(nrm, i * 1.08);
     lamp.position.y = 5.62;
-    lamp.position.z += 0.16; // proud of the white panel face, inside the trim
+    lamp.position.z += 0.16;
     lamp.castShadow = false;
     group.add(lamp);
     startLights.push(lamp);

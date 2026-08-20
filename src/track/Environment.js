@@ -3261,8 +3261,10 @@ export class Environment {
   _sponsorBoardTexture() {
     if (this._sponsorTex) return this._sponsorTex;
     const c = document.createElement('canvas');
-    c.width = 256;
-    c.height = 128;
+    // SK3D FIX (2026-08-20): 256×128 → 512×256 (2:1, mesma proporção do
+    // panelGeo Box 2.6×1.3) — resolução maior evita borrão do logo à distância.
+    c.width = 512;
+    c.height = 256;
     const g = c.getContext('2d');
     // SK3D FIX (2026-08-20, Feco real-GPU): remover vermelho puro da paleta
     // — lia como "faixa vermelha esticada nas laterais". Azul/cinza/verde
@@ -3270,36 +3272,33 @@ export class Environment {
     const COLORS = ['#2ec4ff', '#3fa44e', '#ffd166', '#6c8cff', '#c86bff', '#ff9f45'];
     const col = COLORS[Math.floor(this._rand() * COLORS.length)];
     g.fillStyle = col;
-    g.fillRect(0, 0, 256, 128);
-    // AUDIT r5: the big white 'SUPER KART GP' wordmark read as a jagged
-    // black/white checker from chase distance (the critic flagged it as
-    // corrupted geometry). Smaller, softer wordmark + a subtle dark band.
+    g.fillRect(0, 0, 512, 256);
+    // AUDIT r5: wordmark menor/suave + banda escura sutil (não checker).
     g.fillStyle = 'rgba(0,0,0,0.18)';
-    g.fillRect(0, 96, 256, 32);
-    g.fillStyle = 'rgba(255,255,255,0.85)';
-    g.font = '800 26px "Baloo 2", "Nunito", Arial, sans-serif';
+    g.fillRect(0, 192, 512, 64);
+    g.fillStyle = 'rgba(255,255,255,0.9)';
+    g.font = '800 52px "Baloo 2", "Nunito", Arial, sans-serif';
     g.textAlign = 'center';
     g.textBaseline = 'middle';
-    g.fillText('SK GP', 128, 48);
-    g.fillStyle = 'rgba(255,255,255,0.55)';
-    g.font = '700 14px "Baloo 2", "Nunito", Arial, sans-serif';
-    g.fillText('SUPER KART', 128, 112);
-    // AUDIT R81 (Feco real-GPU 2026-08-15: 'placa com símbolo OLHO/PÁSSARO'):
-    // o logo circular (bola preta 224,22 + ponto branco) lia como um OLHO
-    // na distância de corrida — substituído por um raio/estrela simples
-    // (símbolo de velocidade, sem orbe que pareça olho).
-    g.strokeStyle = 'rgba(255,255,255,0.75)';
-    g.lineWidth = 3;
+    g.fillText('SK GP', 256, 96);
+    g.fillStyle = 'rgba(255,255,255,0.6)';
+    g.font = '700 28px "Baloo 2", "Nunito", Arial, sans-serif';
+    g.fillText('SUPER KART', 256, 224);
+    // SK3D FIX: símbolo de velocidade (raio/estrela) CLARO e central,
+    // sem orbe que pareça olho. 3 raios brancos saindo de um ponto.
+    g.strokeStyle = 'rgba(255,255,255,0.85)';
+    g.lineWidth = 5;
+    const cx = 256, cy = 160;
     for (let i = 0; i < 3; i++) {
       const a = (i / 3) * Math.PI * 2 - Math.PI / 2;
       g.beginPath();
-      g.moveTo(226, 22);
-      g.lineTo(226 + Math.cos(a) * 13, 22 + Math.sin(a) * 13);
+      g.moveTo(cx, cy);
+      g.lineTo(cx + Math.cos(a) * 26, cy + Math.sin(a) * 26);
       g.stroke();
     }
     g.fillStyle = '#ffffff';
     g.beginPath();
-    g.arc(226, 22, 4, 0, Math.PI * 2);
+    g.arc(cx, cy, 7, 0, Math.PI * 2);
     g.fill();
     const tex = new THREE.CanvasTexture(c);
     tex.colorSpace = THREE.SRGBColorSpace;

@@ -669,7 +669,10 @@ function setStartLights(state) {
     const on = i < lit || green;
     lamp.material.color.setHex(on ? (green ? LAMP_GREEN : LAMP_RED) : LAMP_OFF);
     lamp.material.emissive.setHex(on ? (green ? LAMP_GREEN : LAMP_RED) : 0x000000);
-    lamp.material.emissiveIntensity = on ? 1.4 : 0;
+    // SK3D FIX (2026-08-20, Feco real-GPU): emissive 1.4 → 0.85 — verdes no
+    // GO liam como "balões verdes flutuantes" (glow excessivo). 0.85 mantém
+    // a leitura de "luz acesa" sem saturar para orbes brilhantes.
+    lamp.material.emissiveIntensity = on ? 0.85 : 0;
   });
 }
 
