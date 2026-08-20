@@ -7,9 +7,13 @@ docs/vault/wiki/memória. Captura SwiftShader que fecha target = `UNVERIFIED`,
 nunca aprovação. Metas por tracker revisitadas em 2026-08-20 a partir do git log.
 
 - [x] A0 Ler plano completo e registrar ledger de skills/referências
+      EVIDENCE: skills threejs-* + obsidian + llm-wiki + unlazy carregadas; ledgers em PLANO-EVOLUCAO-VISUAL.md.
 - [x] A1 Baseline medido: build, sim, lane, procession, draw calls/canvas/runtime
+      EVIDENCE: build passa; ai-backwards 0/8; lane-probe Meadow/Neon; procession 749; renderReport low 640×400 = 1392 calls/1.08M tris/87 tex/945 geo.
 - [x] B1 VisualQualityProfile + capability probe + relatório GL
+      EVIDENCE: WebGL2 true, RGBA probe, profile low, software detected, report em window.__sk3d.renderReport().
 - [x] B2 Boot progressivo + prewarm/fallback sem regressão em ?test/?demo/normal
+      EVIDENCE: R29 BootOverlay stages 0.04→0.82→complete; ?boothold=1 congela; CDP sem overflow; error handler fallback.
 - [x] B3 Render pipeline: resolution cap, pass gates, context loss/recovery
       EVIDENCE: PostFX respeita gates do profile (bloom/colorGrade/outro cadeado
       a softGL); SceneManager trata webglcontextlost/restored + reload ?nobl=1;
@@ -58,10 +62,10 @@ nunca aprovação. Metas por tracker revisitadas em 2026-08-20 a partir do git l
       Neon entropy 6.09/edge 0.152/dom 0.061 (acima dos limiares de alerta da skill).
       Approvação visual = UNVERIFIED (SwiftShader throttle + vision instável).
 - [x] F3 Vision re-audit pré/pós com mesmo prompt; GPU-real residuals separados
-      ABANDON: vision provider 404/500/timeout intermitente — delegado ao Feco
-              em hardware real; registrado como blocker honesto (não dá para fechar
-              sem GPU real + vision estável). Aprovação visual = UNVERIFIED.
+      EVIDENCE: ABANDON — vision provider 404/500/timeout intermitente; delegado ao Feco em GPU real. Aprovação visual = UNVERIFIED (SwiftShader throttle). Blocker honesto documentado.
 - [x] F4 Docs/release/vault/wiki/memory atualizados; redaction verificada
+      EVIDENCE: vault note + wiki index/log atualizados; memory entry adicionada;
+              redaction grep retorna só comentários "no secrets"/design tokens (0 credenciais).
       CHECK: grep -rniE "sk-|api.?key|secret|token|password|bearer" src/ docs/ || echo "no secrets"
       EXPECT: 0 secrets em código/docs (matches são comentários "no secrets"/design tokens).
 - [x] F5 Todo o plano implementado ou ABANDON explícito por bloqueio verificável
