@@ -22,6 +22,19 @@ export class TouchControls {
     this.onPause = typeof onPause === 'function' ? onPause : () => {};
     this.onDrift = typeof onDrift === 'function' ? onDrift : () => {};
     this.steerValue = 0;
+    // D3 AUDIO/HAPTIC AUDIT (2026-08-20): mobile haptic feedback was absent
+    // entirely (navigator.vibrate never called). The game is fully playable
+    // on touch, so gameplay events must pulse the device. `haptic(pattern)`
+    // is a safe no-op when the API is missing (desktop, iOS Safari). Patterns
+    // are short and event-specific: tap on steer edge, pulse on drift, kick
+    // on boost/hit (MK8-style controller rumble surrogate).
+    this.haptic = (pattern) => {
+      try {
+        if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+          navigator.vibrate(pattern);
+        }
+      } catch { /* vibrate unsupported / blocked — silent */ }
+    };
     this._steerPressed = { left: false, right: false };
 
     this.root = document.createElement('div');
@@ -40,7 +53,7 @@ export class TouchControls {
     this.pauseBtn = this.root.querySelector('.sk3d-touch-pause');
     this.pauseBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); this.onPause(); });
     // Drift is hold-to-drift: press = drift on, release = drift off.
-    const setDrift = (b) => (e) => { e.preventDefault(); this.onDrift(b); };
+    const setDrift = (b) => (e) => { e.preventDefault(); this.onDrift(b); if (b) this.haptic(18); };
     this.driftBtn.addEventListener('pointerdown', setDrift(true));
     this.driftBtn.addEventListener('pointerup', setDrift(false));
     this.driftBtn.addEventListener('pointerleave', setDrift(false));
@@ -66,6 +79,19 @@ export class TouchControls {
     this.root.classList.toggle('sk3d-hidden', !this.isTouchDevice());
   }
 
+  /** Programmatic haptic pulse for gameplay events (boost/hit/etc).
+   *  @param {string} event one of: boost, hit, miniBoost, wrongWay, land */
+  pulse(event) {
+    switch (event) {
+      case 'boost': this.haptic([0, 30, 20, 40]); break;
+      case 'hit': this.haptic([0, 60, 30, 60]); break;
+      case 'miniBoost': this.haptic(20); break;
+      case 'wrongWay': this.haptic([0, 40, 40, 40]); break;
+      case 'land': this.haptic(12); break;
+      default: this.haptic(15);
+    }
+  }
+
   hide() {
     this.root.classList.add('sk3d-hidden');
   }
@@ -86,6 +112,7 @@ export class TouchControls {
       if (button.setPointerCapture) button.setPointerCapture(e.pointerId);
       this._steerPressed[side] = true;
       button.classList.add('is-active');
+      this.haptic(10); // steer edge tap
       update();
     });
     const release = () => {
@@ -103,6 +130,7 @@ export class TouchControls {
     button.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       button.classList.add('is-active');
+      this.haptic(25); // item use
       this.onItem();
     });
     button.addEventListener('pointerup', () => {

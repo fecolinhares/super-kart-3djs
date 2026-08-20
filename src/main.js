@@ -375,6 +375,7 @@ function wireMiniBoost(kart) {
     const label = type === 'banana' ? '💥 BANANA!' : type === 'blue' ? '💥 BLUE SHELL!' : '💥 SHELL HIT!';
     hud.showMessage(label);
     addShake(0.5, 0.5);
+    touch?.pulse?.('hit');
   };
   kart._onLightning = () => {
     // AUDIT (power-up audit, 2026-08-11): lightning hit the player with only
@@ -383,6 +384,7 @@ function wireMiniBoost(kart) {
     hud.showHitFlash('electric');
     audio?.play?.('lightning', { volume: 0.9 });
     addShake(0.6, 0.6);
+    touch?.pulse?.('hit');
   };
   kart._onDraftExit = () => {
     // Slingshot pop when leaving a wake (player only).
@@ -405,6 +407,7 @@ function wireMiniBoost(kart) {
   kart._onLand = () => {
     // Soft thump on touchdown — mostly for the player (AI landings are quiet).
     if (kart.isPlayer) audio.play('landing', { volume: 0.5 });
+    touch?.pulse?.('land');
   };
   kart._onRescued = () => {
     // AUDIT r7: the Lakitu hook was producer-only dead code — a rescued
@@ -417,6 +420,7 @@ function wireMiniBoost(kart) {
   kart._onMiniBoost = (charge01 = 1) => {
     const v = (kart.isPlayer ? 0.8 : 0.45) * (0.5 + charge01 * 0.5);
     audio.play('driftReleaseMiniBoost', { volume: v, pan: (kart.group.position.x - playerKart.group.position.x) * 0.02 });
+    if (kart.isPlayer) touch?.pulse?.('miniBoost');
     if (particles) {
       particles.emit('sparkle', kart.state.position.clone().add(new THREE.Vector3(0, 0.6, 0)), {
         count: Math.round(5 + charge01 * 13), speed: 3.0 + charge01 * 2.5, size: 0.22, spread: 1.4 + charge01 * 0.4, color: 0xffd166,
@@ -485,6 +489,7 @@ async function buildKarts() {
       hud.showMessage('WRONG WAY!', 1500);
       // Optionally add a screen shake
       addShake(0.4, 0.4);
+      touch?.pulse?.('wrongWay');
     };
 
   // Let the first kart paint before constructing the five AI karts.
@@ -493,6 +498,7 @@ async function buildKarts() {
     audio.play('boost', { volume: 0.6 });
     // Optionally add a small screen shake
     addShake(0.2, 0.2);
+    touch?.pulse?.('boost');
   };
   await yieldFrame();
 
@@ -523,6 +529,7 @@ async function buildKarts() {
     audio.play('boost', { volume: 0.6 });
     // Optionally add a small screen shake
     addShake(0.2, 0.2);
+    touch?.pulse?.('boost');
   };
   await yieldFrame();
   }

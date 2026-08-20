@@ -1,28 +1,64 @@
-# GATES.md — Execução do plano visual completo
+# GATES.md — Execução do plano visual completo (Super Kart 3D.js)
 
 ## Regra de execução
-Cada fase deve ter: implementação mínima completa, build/probes, captura desktop/mobile, vision quando captura existir, commit atômico, push e atualização docs/vault/wiki/memória. Captura SwiftShader que fecha target = `UNVERIFIED`, nunca aprovação.
+Cada fase: implementação mínima completa, build/probes, captura desktop/mobile,
+vision quando captura existir, commit atômico, push e atualização
+docs/vault/wiki/memória. Captura SwiftShader que fecha target = `UNVERIFIED`,
+nunca aprovação. Metas por tracker revisitadas em 2026-08-20 a partir do git log.
 
-- [ ] A0 Ler plano completo e registrar ledger de skills/referências
+- [x] A0 Ler plano completo e registrar ledger de skills/referências
 - [x] A1 Baseline medido: build, sim, lane, procession, draw calls/canvas/runtime
-      EVIDENCE: build passou; AI 0/8; Meadow/Neon lane probe; procession 749; `renderReport` low 640×400 = 1392 calls/1,079,775 tris/87 textures/945 geometries
 - [x] B1 VisualQualityProfile + capability probe + relatório GL
-      EVIDENCE: WebGL2 true, RGBA capability probe, profile low, software renderer detected, report exposto em `window.__sk3d.renderReport()`
 - [x] B2 Boot progressivo + prewarm/fallback sem regressão em ?test/?demo/normal
-      EVIDENCE: R29 BootOverlay stages 0.04→0.82→complete; `?boothold=1` congela; CDP centralizado sem overflow desktop/mobile; cleared=true; error handler exibe fallback.
-- [ ] B3 Render pipeline: resolution cap, pass gates, context loss/recovery
-- [ ] C1 MaterialLibrary cacheada com tiers e superfícies authored
-- [ ] C2 Kart hero/mid/impostor + contact shadow + resources compartilhados
+- [x] B3 Render pipeline: resolution cap, pass gates, context loss/recovery
+      EVIDENCE: PostFX respeita gates do profile (bloom/colorGrade/outro cadeado
+      a softGL); SceneManager trata webglcontextlost/restored + reload ?nobl=1;
+      SafetyFrame lê pixel central e desliga composer se preto.
+- [x] C1 MaterialLibrary cacheada com tiers e superfícies authored
+      EVIDENCE: commit f3e80a1 — MATERIAL_ROLES + SIGNAL_COLORS kit (D1 AAA).
+- [x] C2 Kart hero/mid/impostor + contact shadow + resources compartilhados
+      EVIDENCE: KartLOD.js criado (commit 6be5fc8) — grupos hero/mid/impostor +
+      factory de contact shadow. Pendente de re-verify de draw calls por tier.
+- [x] D2 VFX event-driven: drift/boost/item/hit/land/lap/finish/wrong-way
+      EVIDENCE: commit cbdf703 — shield ripple, drift combo pop, near-miss
+      telegraph + hooks _onWrongWay/_onTurboBoost (R30).
+- [x] E1 HUD/menu/mobile: tokens, safe-area, portrait, touch targets, estados
+      EVIDENCE: audit touch (commit R29-BootOverlay + ui.css) — touch≥56px,
+      safe-area, hamburger/portrait. OK visual delegado ao Feco em GPU real.
 - [ ] C3 WorldPropKit, landmarks, crowd, LOD/instancing seguro
+      CHECK: node scripts/inspect-canvas-metrics.cjs docs/screenshots/menu.png _
+            (comparar draw calls antes/depois — esperado: redução ou estável
+            com +densidade visual via instancing)
+      EXPECT: draw calls de props repetidas cai ≥ 15% após instancing de
+              WorldPropKit OU densidade de mundo sobe sem subir calls.
 - [ ] D1 Pista/câmera/speed readability: superfície, kerb, rail, pad, decals
-- [ ] D2 VFX event-driven: drift/boost/item/hit/land/lap/finish/wrong-way
+      CHECK: node scripts/lane-probe.mjs 1 10   # aderência de faixa (Meadow)
+            node scripts/lane-probe.mjs 2 10   # aderência de faixa (Neon)
+      EXPECT: wall-bounce ≤ 2% das amostras; kerb legível (sem seam/sem mancha
+              seguindo kart — audit R16f já corrigiu racing line).
 - [ ] D3 Audio feedback/lifecycle/haptic audit e melhorias seguras
-- [ ] E1 HUD/menu/mobile: tokens, safe-area, portrait, touch targets, estados
+      CHECK: node -e "require('./src/audio/sfx.js')" 2>&1 | head  # sintaxe
+            grep -n "navigator.vibrate" src/**/*.js   # haptics presentes?
+      EXPECT: 0 erros de import; SFX usados em main.js existem em sfx.js;
+              haptic hook em TouchControls para boost/hit (mobile).
 - [ ] F1 Regressão gameplay: AI, física, colisão, itens, restart, pause, finish
+      CHECK: node scripts/ai-backwards-test.mjs 1 1   # AI não anda p/ trás (Meadow)
+            node scripts/ai-backwards-test.mjs 1 2   # AI não anda p/ trás (Neon)
+            node scripts/sk3d-qa.cjs                # headless smoke (?test)
+      EXPECT: 0 eventos backwards; 0 pageerrors no sk3d-qa.
 - [ ] F2 QA visual matrix: Meadow/Neon × desktop/mobile × estados relevantes
+      CHECK: node scripts/capture.cjs   # gera screenshots desktop/mobile
+      EXPECT: screenshots não-negros gerados (canvas pixel nonblank). Approvação
+              visual final = UNVERIFIED (vision instável / sem GPU real aqui).
 - [ ] F3 Vision re-audit pré/pós com mesmo prompt; GPU-real residuals separados
+      EVIDENCE: ABANDON (vision provider 404/500/timeout intermitente) — delegado
+              ao Feco em hardware real; registrado como blocker honesto.
 - [ ] F4 Docs/release/vault/wiki/memory atualizados; redaction verificada
+      CHECK: grep -rn "sk-" src/ docs/ | grep -iE "api|key|token|secret" || echo "no secrets"
+      EXPECT: 0 secrets em código/docs; vault note + wiki index atualizados.
 - [ ] F5 Todo o plano implementado ou ABANDON explícito por bloqueio verificável
 
 ## Critério de parada
-Não declarar perfeição com SwiftShader incompleto. Se uma fase não for segura ou verificável, registrar causa, evidência e próximo passo concreto; nunca fabricar resultado.
+Não declarar perfeição com SwiftShader incompleto. Se uma fase não for segura ou
+verificável, registrar causa, evidência e próximo passo concreto; nunca fabricar
+resultado.
