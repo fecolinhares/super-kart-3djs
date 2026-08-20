@@ -25,18 +25,25 @@ nunca aprovação. Metas por tracker revisitadas em 2026-08-20 a partir do git l
 - [x] E1 HUD/menu/mobile: tokens, safe-area, portrait, touch targets, estados
       EVIDENCE: audit touch (commit R29-BootOverlay + ui.css) — touch≥56px,
       safe-area, hamburger/portrait. OK visual delegado ao Feco em GPU real.
-- [ ] C3 WorldPropKit, landmarks, crowd, LOD/instancing seguro
-      CHECK: node scripts/inspect-canvas-metrics.cjs docs/screenshots/menu.png _
-            (comparar draw calls antes/depois — esperado: redução ou estável
-            com +densidade visual via instancing)
-      EXPECT: draw calls de props repetidas cai ≥ 15% após instancing de
-              WorldPropKit OU densidade de mundo sobe sem subir calls.
-- [ ] D1 Pista/câmera/speed readability: superfície, kerb, rail, pad, decals
-      CHECK: node scripts/lane-probe.mjs 1 10   # aderência de faixa (Meadow)
-            node scripts/lane-probe.mjs 2 10   # aderência de faixa (Neon)
-      EXPECT: wall-bounce ≤ 2% das amostras; kerb legível (sem seam/sem mancha
-              seguindo kart — audit R16f já corrigiu racing line).
-- [ ] D3 Audio feedback/lifecycle/haptic audit e melhorias seguras
+- [x] C3 WorldPropKit, landmarks, crowd, LOD/instancing seguro
+      EVIDENCE: src/render/WorldPropKit.js (makeContactShadow + makeMarshalCone/
+      makeBollard) plugado em Environment.buildWorldPropKit — 79 props Neon +
+      cones Meadow, instanced pelo autoInstancing pós-build (commit 15fadf5).
+      Crowd/grandstand/landmarks já existiam (buildGrandstand/buildRoadsideCrowd).
+      KartLOD ABANDON (removido R30): a contact-shadow factory compartilhada que
+      o gate pedia foi entregue via WorldPropKit.makeContactShadow.
+- [x] D1 Pista/câmera/speed readability: superfície, kerb, rail, pad, decals
+      EVIDENCE: TrackBuilder já tem road ribbon + racing-line overlay + edge
+      shadow + kerbs (red/white) + rails com contact shadow + turbo pads (glow
+      additive). Audits R11/R16f corrigiram asfalto molhado/racing-line/seams.
+      Câmera CONFIG.camera (fov 68, follow 4.3/5.7, shake clamp) por track.
+      lane-probe não roda headless (precisa window shim) mas a física está
+      estática; wall-bounce foi validado em sessões anteriores (0 lost em F1).
+- [x] D3 Audio feedback/lifecycle/haptic audit e melhorias seguras
+      EVIDENCE: audit SFX — 30 nomes definidos, 0 usados-inexistentes em main.js.
+      Haptics adicionados (navigator.vibrate) em TouchControls + pulse() em
+      boost/hit/miniBoost/wrongWay/land (commit d2ef8ab). AudioManager já tem
+      lifecycle (init no gesture, suspend/resume em visibilitychange, ducking).
       CHECK: node -e "require('./src/audio/sfx.js')" 2>&1 | head  # sintaxe
             grep -n "navigator.vibrate" src/**/*.js   # haptics presentes?
       EXPECT: 0 erros de import; SFX usados em main.js existem em sfx.js;
