@@ -160,7 +160,7 @@ export const CONFIG = {
     bloomStrength: 0.38,
     bloomRadius: 0.4,
     bloomThreshold: 0.95,
-    vignetteStrength: 0.3,
+    vignetteStrength: 0.2, // SK3D FIX (2026-08-20, Feco real-GPU): vignette 0.3 escurecia as bordas do frame (asfalto atrás do kart lia mais escuro). Suavizado.
     colorGradeSaturation: 1.45, // AUDIT r17 (Feco real-GPU + pixel-measured
     // critic): ACES tone mapping in OutputPass DESSATURATES — the grade
     // must fight it. Measured: sat 87/255 mean + 21% dead-grey on the real

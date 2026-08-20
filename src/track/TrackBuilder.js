@@ -414,7 +414,7 @@ function buildRacingLineOverlay(path, length) {
     // — o reflexo especular da faixa central refletia o ambiente e mudava de
     // cor conforme o ângulo da câmera (lê como 'faixa que segue o kart').
     // Sem specular: só o desgaste escuro (textura), opacidade reduzida.
-    opacity: 0.28,
+    opacity: 0.18, // SK3D FIX (2026-08-20): racing line mais sutil — não escurece o asfalto atrás do kart (Feco: 'mancha escura acompanha o carro')
     roughness: 1.0,
   });
   mesh.material.depthWrite = false;
@@ -437,7 +437,7 @@ function buildEdgeShadowLine(path, length, neon = false) {
       lateral: side * (roadW / 2 - 0.12),
       color: 0x0d1117,
       transparent: true,
-      opacity: neon ? 0.10 : 0.22, // Neon asphalt already has edge value; avoid a second dark seam
+      opacity: neon ? 0.06 : 0.12, // SK3D FIX (2026-08-20, Feco real-GPU): faixa escura na borda lia como "mancha no asfalto". Reduzido p/ só ancorar o kerb, não escurecer a pista.
       roughness: 0.95,
       polygonOffset: true,
     });
@@ -641,35 +641,36 @@ function buildCurbs(path, length, side, opts = {}) {
   const offset = roadW / 2 + 0.15;
   const curbW = 0.68;
   const curbH = 0.20;
-  const N = 200; // segmentos da ribbon (contínua na curva)
+  const N = 400; // SK3D FIX (2026-08-20): 200→400 — kerb contínua segue curvas sem cunha
   const nrm = new THREE.Vector3();
   const tan = new THREE.Vector3();
   const p = new THREE.Vector3();
+  const pPrev = new THREE.Vector3();
   const pos = [];
   const uv = [];
   const idx = [];
   const edgeLen = length;
   const stoneLen = 0.5;
-  // AUDIT R68: textura = 1 par (vermelho+branco) por METRO — UV vai até
-  // edgeLen (repetições), não até `repeats` (= 2× edgeLen, que com o repeat
-  // antigo virava repeats²/2).
-  const repeats = Math.max(2, Math.round(edgeLen)); // repetições = nº de metros
+  const repeats = Math.max(2, Math.round(edgeLen));
+  let arcAcc = 0;
   for (let i = 0; i <= N; i++) {
     const t = i / N;
     path.getPointAt(t, p);
+    if (i > 0) arcAcc += p.distanceTo(pPrev);
+    pPrev.copy(p);
     path.getTangentAt(t, tan);
     nrm.set(-tan.z, 0, tan.x).normalize();
     const cx = p.x + nrm.x * side * offset;
     const cz = p.z + nrm.z * side * offset;
     const ox = nrm.x * (curbW / 2);
     const oz = nrm.z * (curbW / 2);
-    const y0 = p.y + 0.24; // top face band (kerb reads as a painted strip)
-    const y1 = p.y + 0.26; // ~2cm tall volume so it reads 3D, not a decal
-    const u = (i / N) * repeats;
-    pos.push(cx - ox, y0, cz - oz); uv.push(u, 0); // 0 outer-bottom
-    pos.push(cx + ox, y0, cz + oz); uv.push(u, 0); // 1 inner-bottom
-    pos.push(cx + ox, y1, cz + oz); uv.push(u, 1); // 2 inner-top
-    pos.push(cx - ox, y1, cz - oz); uv.push(u, 1); // 3 outer-top
+    const y0 = p.y + 0.24;
+    const y1 = p.y + 0.26;
+    const u = arcAcc; // SK3D FIX: UV por comprimento de arco REAL (não i/N) — zero esticamento em curvas
+    pos.push(cx - ox, y0, cz - oz); uv.push(u, 0);
+    pos.push(cx + ox, y0, cz + oz); uv.push(u, 0);
+    pos.push(cx + ox, y1, cz + oz); uv.push(u, 1);
+    pos.push(cx - ox, y1, cz - oz); uv.push(u, 1);
   }
   for (let i = 0; i < N; i++) {
     const a = i * 4;
@@ -1247,33 +1248,42 @@ function buildGantry(startLine) {
   // 5-light countdown, was 3) — raceManager/main animate them: red lamps
   // light up during countdown, all green on GO.
   const startLights = [];
-  // AUDIT visual 2026-08-12 R2: 5 spheres alone read as colored dots in the
-  // sky. MK8D start lights sit in a BLACK HOUSING PANEL hung under the beam
-  // (a traffic-light bank). Bigger shells, brighter always-on emissive so
-  // they read at distance; countdown/GO drives color+emissive (main.js).
-  // AUDIT R3 (blind critic: '5 lamps not countable at chase distance') —
-  // MK8 start-light modules are BIG: 0.42m lamps, wider panel, more spacing.
+  // AUDIT FIX SK3D (2026-08-20, Feco real-GPU): o painel preto 6x0.66
+  // flutuava a y5.62 SEM conexão ao beam (y6.45) — lia como "bloco escuro
+  // com bolas" no céu. MK8D: as 5 luzes ficam numa CAIXA BRANCA sólida
+  // pendurada no beam por 2 braçadeiras. Troca o painel preto por housing
+  // claro + braçadeiras estruturais ligando ao beam.
   const lampPanel = new THREE.Mesh(
-    new THREE.BoxGeometry(6.0, 0.66, 0.2),
-    toonMaterial(0x06080d, {})
-  ); // AUDIT R4: panel darker 0x06080d + bigger (contrast vs city sky)
+    new THREE.BoxGeometry(6.0, 0.78, 0.26),
+    toonMaterial(0xf4f6f8, {}) // housing claro (MK8D: caixa branca, não preta)
+  );
   lampPanel.position.copy(startLine.position).addScaledVector(nrm, 0);
   lampPanel.position.y = 5.62;
   lampPanel.castShadow = false;
   group.add(lampPanel);
-  // AUDIT R5: crisp trim box slightly larger behind the panel — the housing
-  // reads as a distinct object against the sky (critic: 'blends into scene').
+  // Moldura escura fina ao redor do housing (legibilidade das luzes).
   const panelTrim = new THREE.Mesh(
-    new THREE.BoxGeometry(6.2, 0.8, 0.12),
-    toonMaterial(0x1d2735, {})
+    new THREE.BoxGeometry(6.2, 0.92, 0.14),
+    toonMaterial(0x1b2a41, {})
   );
   panelTrim.position.copy(lampPanel.position);
-  panelTrim.position.y = 5.62;
-  panelTrim.position.z -= 0.06;
+  panelTrim.position.z -= 0.08;
   panelTrim.castShadow = false;
   group.add(panelTrim);
+  // 2 braçadeiras verticais ligando o beam (y6.45) ao housing (y5.62).
+  const bracketMat = toonMaterial(0x2b3340, {});
+  for (const bx of [-2.6, 2.6]) {
+    const bracket = new THREE.Mesh(
+      new THREE.BoxGeometry(0.18, 1.0, 0.18),
+      bracketMat
+    );
+    bracket.position.copy(startLine.position).addScaledVector(nrm, bx);
+    bracket.position.y = 6.05; // span ~5.55..6.55 (liga housing ao beam)
+    bracket.castShadow = false;
+    group.add(bracket);
+  }
   // 5 lamp bodies proud of the panel face (toward the racers).
-  const lampGeo = new THREE.SphereGeometry(0.52, 18, 16); // AUDIT R4: 0.42→0.52 — MK8 lamps are BIG at grid
+  const lampGeo = new THREE.SphereGeometry(0.52, 18, 16);
   const lampOff = toonMaterial(0xf2f4f8, { emissive: 0xa8bcd4, emissiveIntensity: 0.7 });
   const lampMat = lampOff;
   for (let i = -2; i <= 2; i++) {
