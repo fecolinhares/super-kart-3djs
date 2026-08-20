@@ -672,7 +672,7 @@ function setStartLights(state) {
     // SK3D FIX (2026-08-20, Feco real-GPU): emissive 1.4 → 0.85 — verdes no
     // GO liam como "balões verdes flutuantes" (glow excessivo). 0.85 mantém
     // a leitura de "luz acesa" sem saturar para orbes brilhantes.
-    lamp.material.emissiveIntensity = on ? 0.85 : 0;
+    lamp.material.emissiveIntensity = on ? 0.6 : 0; // SK3D FIX: 0.85→0.6 — verdes no GO não leem como "balão verde"
   });
 }
 

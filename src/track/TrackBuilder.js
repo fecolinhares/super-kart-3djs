@@ -1289,7 +1289,7 @@ function buildGantry(startLine) {
   const socketGeo = new THREE.CircleGeometry(0.34, 16);
   const socketMat = toonMaterial(0x0a0e16, {});
   // 5 lamp bodies — MK8D: lâmpadas VERMELHAS apagadas (acendem verde no GO).
-  const lampGeo = new THREE.SphereGeometry(0.42, 18, 16);
+  const lampGeo = new THREE.SphereGeometry(0.38, 18, 16); // SK3D FIX: 0.42→0.38 — menos "bola", mais "luz"
   const lampMat = toonMaterial(0x1b2a41, { emissive: 0xff2a2a, emissiveIntensity: 0.0 });
   for (let i = -2; i <= 2; i++) {
     const socket = new THREE.Mesh(socketGeo, socketMat);
