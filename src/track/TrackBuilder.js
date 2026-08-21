@@ -1700,7 +1700,13 @@ function buildGrassTufts(path, length) {
   const lateral = halfW + 1.8;
   const clusterCount = Math.max(1, Math.round(length / 4.5)); // AUDIT R12: 6m→4.5m — a beira lia 'esparsa'
   const perCluster = 5; // AUDIT R12: 4→5 cones
-  const total = (clusterCount * 2 * perCluster) * getDensityMultipliers().foliage; // both sides
+  // AUDIT FIX (2026-08-21, 'céu roxo na largada'): o multiplicador de
+  // densidade escalava SÓ o buffer; o loop abaixo itera TODOS os clusters e
+  // escrevia além da capacidade — a GPU lia matrizes de lixo e renderizava
+  // cones gigantes esticados cobrindo o céu. Buffer agora tem capacidade
+  // TOTAL do loop; a densidade é aplicada no count final (pós-loop).
+  const total = clusterCount * 2 * perCluster; // both sides
+  const tuftDensity = getDensityMultipliers().foliage;
   const geo = new THREE.ConeGeometry(0.08, 0.48, 6);
   const mat = toonMaterial(0xffffff, {});
   const mesh = new THREE.InstancedMesh(geo, mat, total);
@@ -1742,7 +1748,9 @@ function buildGrassTufts(path, length) {
   }
   mesh.instanceMatrix.needsUpdate = true;
   if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-  mesh.count = idx; // skip unused slots (start-straight clearance)
+  // AUDIT FIX (céu roxo): count = instâncias escritas, limitado pela fração
+  // de densidade — nunca acima do que o buffer comporta.
+  mesh.count = Math.min(idx, Math.floor(total * tuftDensity)); // skip unused slots (start-straight clearance)
 
   // AUDIT PISTA R11: flores 3D perto da pista — pontinhos de cor (branco/
   // amarelo/rosa/magenta/roxo) no prado; o crítico apontou 'grama uniforme,
@@ -1849,7 +1857,11 @@ function buildApexCones(path, length, roadW) {
   const ringGeo = new THREE.CylinderGeometry(0.185, 0.185, 0.06, 12);
   const coneMat = toonMaterial(0xff7b2e, {});
   const ringMat = toonMaterial(0xffffff, {});
-  const total = (apexes.length * perCorner) * getDensityMultipliers().foliage;
+  // AUDIT FIX (2026-08-21, 'céu roxo'): buffer com capacidade TOTAL do loop
+  // (≤15 instâncias — fator de densidade desnecessário neste volume); count
+  // sincronizado pós-loop. Antes: buffer ×0.3 com loop cheio e count nunca
+  // atribuído (ficava fracionário, ex. 4.5).
+  const total = apexes.length * perCorner;
   const cones = new THREE.InstancedMesh(coneGeo, coneMat, total);
   const rings = new THREE.InstancedMesh(ringGeo, ringMat, total);
   const p = new THREE.Vector3();
@@ -1882,6 +1894,9 @@ function buildApexCones(path, length, roadW) {
       idx++;
     }
   }
+  // AUDIT FIX (céu roxo): count sincronizado com as instâncias escritas.
+  cones.count = idx;
+  rings.count = idx;
   cones.instanceMatrix.needsUpdate = true;
   rings.instanceMatrix.needsUpdate = true;
   const g = new THREE.Group();
@@ -1946,7 +1961,10 @@ function buildBrakeBoards(path, length, roadW) {
     return t;
   };
   const labelMats = LABELS.map((l) => new THREE.MeshBasicMaterial({ map: labelTex(l), side: THREE.DoubleSide }));
-  const total = (apexes.length * BOARD_T.length) * getDensityMultipliers().foliage;
+  // AUDIT FIX (2026-08-21, 'céu roxo'): buffer com capacidade TOTAL do loop
+  // (≤9 frames — densidade desnecessária neste volume); count sincronizado
+  // pós-loop. Antes: buffer ×0.3 com loop escrevendo até 9 e count fracionário.
+  const total = apexes.length * BOARD_T.length;
   const frames = new THREE.InstancedMesh(frameGeo, frameMat, total);
   const prints = labelMats.map((m) => new THREE.InstancedMesh(printGeo, m, apexes.length));
   const dummy = new THREE.Object3D();
@@ -1977,6 +1995,8 @@ function buildBrakeBoards(path, length, roadW) {
       fIdx++;
     }
   }
+  // AUDIT FIX (céu roxo): count sincronizado com as instâncias escritas.
+  frames.count = fIdx;
   frames.instanceMatrix.needsUpdate = true;
   prints.forEach((m) => { m.instanceMatrix.needsUpdate = true; });
   const g = new THREE.Group();

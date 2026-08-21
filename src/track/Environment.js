@@ -3939,6 +3939,7 @@ export class Environment {
         for (const rowOff of ROWS) {
           let _gap = 0;
           for (let i = 0; i < seg.n; i++) {
+            if (idx >= total) break; // AUDIT FIX (céu roxo): nunca escrever além do buffer
             if (_gap > 0) { _gap--; continue; }
             if (this._rand() < 0.12) _gap = 1 + Math.floor(this._rand() * 3);
             // The wrap segment spans the SHORT arc past 1.0 (0.945→0.055),
@@ -3990,14 +3991,20 @@ export class Environment {
             dummy.scale.set(1, 1, 1);
             dummy.updateMatrix();
             berms.setMatrixAt(idx, dummy.matrix);
-            // Striped-shirt sash (30% of the crowd).
+            // Striped-shirt sash (30% of the crowd). AUDIT FIX (céu roxo):
+            // slot SEMPRE escrito — sem faixa = escala zero (slot nunca fica
+            // com matriz vazia nem vira caixa fantasma na origem).
             if (this._rand() < 0.3) {
               dummy.position.set(fx, bodyY - 0.02 * sy, fz);
               dummy.rotation.set(0, yaw, 0);
               dummy.scale.set(1, 1, 1); // AUDIT FIX 2026-08-16: sem sy (deformava)
-              dummy.updateMatrix();
-              stripes.setMatrixAt(idx, dummy.matrix);
+            } else {
+              dummy.position.set(0, 0, 0);
+              dummy.rotation.set(0, 0, 0);
+              dummy.scale.set(0, 0, 0);
             }
+            dummy.updateMatrix();
+            stripes.setMatrixAt(idx, dummy.matrix);
             // Contact shadow ON the berm top.
             dummy.position.set(fx, gy + 0.315, fz);
             dummy.rotation.set(-Math.PI / 2, 0, 0);
@@ -4061,6 +4068,13 @@ export class Environment {
         }
       }
     }
+    // AUDIT FIX (2026-08-21, 'céu roxo'): count sincronizado com as figuras
+    // realmente escritas (o buffer pode ser maior que o usado por gaps/gate
+    // _onTrack; sem isso o count fracionário do alloc lia slots vazios).
+    bodies.count = idx; heads.count = idx; armsL.count = idx; armsR.count = idx;
+    legsL.count = idx; legsR.count = idx; necks.count = idx;
+    feetL.count = idx; feetR.count = idx;
+    shadows.count = idx; berms.count = idx; stripes.count = idx;
     bodies.instanceMatrix.needsUpdate = true;
     if (bodies.instanceColor) bodies.instanceColor.needsUpdate = true;
     heads.instanceMatrix.needsUpdate = true;
