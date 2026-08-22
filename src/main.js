@@ -20,6 +20,7 @@ import { AIController } from './entities/AIController.js';
 import { createItemBoxes, ItemBox } from './entities/ItemBox.js';
 import { ParticleSystem } from './render/Particles.js';
 import { SkidMarks } from './effects/SkidMarks.js';
+import { updateWind } from './render/Materials.js'; // PREMIUM PASS: vento na grama/palmeiras
 import { Menu } from './ui/Menu.js';
 import { HUD } from './ui/HUD.js';
 import { TouchControls } from './ui/TouchControls.js';
@@ -106,10 +107,13 @@ function buildSkyEnv(renderer) {
     }
     g.globalAlpha = 1;
   } else {
-    grad.addColorStop(0, '#3f9fe8');   // deep sky
-    grad.addColorStop(0.55, '#8fd0f7'); // mid sky
-    grad.addColorStop(0.78, '#e8f4ff'); // horizon haze
-    grad.addColorStop(1, '#b8e6b8');   // ground tint
+    // PREMIUM PASS (2026-08-21): IBL casando com o novo domo shader — azul
+    // mais profundo no zênite, horizonte quente de sunset. O clearcoat/chrome
+    // dos karts reflete o MESMO céu que se vê, não um gradiente genérico.
+    grad.addColorStop(0, '#2e8fd8');   // deep sky (uTop do domo)
+    grad.addColorStop(0.55, '#7cc3f0'); // mid sky (uMid)
+    grad.addColorStop(0.78, '#ffe3c2'); // horizon WARM (banda sunset)
+    grad.addColorStop(1, '#9ccf8f');   // ground tint esverdeado (campo)
     g.fillStyle = grad;
     g.fillRect(0, 0, 512, 256);
   }
@@ -1132,6 +1136,8 @@ loop.start((dt, t) => {
   if (turboGlowMat) turboGlowMat.opacity = 0.06 + 0.08 * (0.5 + 0.5 * Math.sin(t * 2.6)); // AUDIT R67: 0.08-0.18 → 0.06-0.14 (crítico: 'branco estourado')
   // Environment animation (clouds, water, flags).
   env.update(dt, t);
+  // PREMIUM PASS: avança o vento nos materiais com sway (grama/palmeiras).
+  updateWind(t);
 
   const state = getState();
 

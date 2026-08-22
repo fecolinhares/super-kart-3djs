@@ -22,7 +22,7 @@ function getDensityMultipliers() {
 }
 import * as THREE from 'three';
 import { CONFIG } from '../config.js';
-import { toonMaterial, cartoonOutline, skyTexture } from '../render/Materials.js';
+import { toonMaterial, cartoonOutline, applyWindSway } from '../render/Materials.js';
 import { terrainHeight } from './TrackBuilder.js';
 import { makeMarshalCone, makeBollard, makeContactShadow } from '../render/WorldPropKit.js';
 
@@ -1200,8 +1200,8 @@ export class Environment {
     const nutGeo = new THREE.SphereGeometry(0.22, 12, 8);
     const trunkMat = toonMaterial(0xb07a4f, {});
     const ringMat = toonMaterial(0x8f6842, {});
-    const leafMat = toonMaterial(0x2fa84f, {});
-    const leafMatDark = toonMaterial(0x279142, {});
+    const leafMat = applyWindSway(toonMaterial(0x2fa84f, {}), { strength: 0.05, speed: 1.1 });
+    const leafMatDark = applyWindSway(toonMaterial(0x279142, {}), { strength: 0.05, speed: 1.25 });
     const nutMat = toonMaterial(0x8a5a33, {});
     const dummy = new THREE.Object3D();
     const col = new THREE.Color();
@@ -2945,6 +2945,8 @@ export class Environment {
     }
     if (!spots.length) return;
     const baseMat = toonMaterial(0xffffff, {});
+    // PREMIUM PASS: grama VIVA — sway nos tips por instância (base plantada).
+    applyWindSway(baseMat, { strength: 0.10, speed: 1.6 });
     const col = new THREE.Color();
     const PAL = [0x3faf4e, 0x4cc25e, 0x379c45];
     for (let vi = 0; vi < variants.length; vi++) {
@@ -3116,6 +3118,8 @@ export class Environment {
     }
     if (!spots.length) return;
     const baseMat = toonMaterial(0xffffff, {});
+    // PREMIUM PASS: meadow grass também respira (mesmo shader de sway).
+    applyWindSway(baseMat, { strength: 0.12, speed: 1.4 });
     const col = new THREE.Color();
     const PAL = [0x3faf4e, 0x4cc25e, 0x379c45]; // same green tints as the verges
     const dummy = new THREE.Object3D();

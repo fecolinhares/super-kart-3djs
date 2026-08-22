@@ -107,6 +107,52 @@ export function plasticMaterial(color, opts = {}) {
 const _outlineTmp = new THREE.Mesh();
 
 /**
+ * PREMIUM PASS (2026-08-21): wind-sway vertex injection (shader cookbook
+ * recipe c) — tips sway with a per-instance phase, base stays planted.
+ * Use ONLY on InstancedMesh foliage/banners (grass tufts, palm fronds,
+ * flags). Never on collidable geometry. The material keeps its PBR
+ * lighting; the sway is 2 trig ops per vertex. uTime is driven by the
+ * caller each frame via `windMaterials` registry (main.js update loop).
+ */
+export const windMaterials = new Set();
+export function applyWindSway(mat, { strength = 0.08, speed = 1.5 } = {}) {
+  if (!mat || mat.userData.windSway) return mat;
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = { value: 0 };
+    shader.uniforms.uSwayStrength = { value: strength };
+    shader.uniforms.uSwaySpeed = { value: speed };
+    mat.userData.shader = shader;
+    shader.vertexShader = 'uniform float uTime;\nuniform float uSwayStrength;\nuniform float uSwaySpeed;\n' +
+      shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        `#include <begin_vertex>
+         #ifdef USE_INSTANCING
+           float wPhase = instanceMatrix[3].x + instanceMatrix[3].z; // instance world offset
+         #else
+           float wPhase = 0.0;
+         #endif
+         float wH = max(transformed.y, 0.0); // base stays planted, tips move most
+         transformed.x += sin(uTime * uSwaySpeed + wPhase) * uSwayStrength * wH;
+         transformed.z += cos(uTime * uSwaySpeed * 0.73 + wPhase * 1.31) * uSwayStrength * 0.62 * wH;`
+      );
+  };
+  // cache key ÚNICO por (strength,speed) — sem isso three pode entregar um
+  // programa compilado de OUTRO material injetado (pitfall do cookbook).
+  mat.customProgramCacheKey = () => 'wind-sway-' + strength + '-' + speed;
+  mat.userData.windSway = true;
+  windMaterials.add(mat);
+  return mat;
+}
+
+/** Called once per frame from the main loop — advances every wind material. */
+export function updateWind(t) {
+  for (const m of windMaterials) {
+    if (m.userData.shader) m.userData.shader.uniforms.uTime.value = t;
+  }
+}
+
+
+/**
  * Adds a crisp dark cartoon outline to a mesh by cloning it as an
  * inverted-hull BackSide mesh (scaled slightly along normals). The outline
  * mesh is added to the same parent so it moves with the object.
