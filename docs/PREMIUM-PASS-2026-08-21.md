@@ -79,6 +79,6 @@ sessões: downscale <100KB + steer imediato, ou fallback direto.
 - **GPU real obrigatório**: bloom, color grade warmth, e o brilho real dos
   materiais clearcoat NÃO aparecem no SwiftShader (gate software). O Feco
   precisa validar em GPU: céu/sol, reflexos das rodas, grade quente.
-- Karts IA recoloridos = próxima rodada de maior impacto.
-- Normal maps procedurais asfalto/concreto (Fase B do plano R27).
-- Landmark memorável por setor (Fase D).
+- Karts IA recoloridos = ✅ FEITO 2026-08-22 (famílias de silhueta, `docs/PREMIUM-PASS-2026-08-22.md`, commit 670e932).
+- Normal maps procedurais asfalto/concreto (Fase B do plano R27) — PENDENTE.
+- Landmark memorável por setor (Fase D) — PENDENTE.
