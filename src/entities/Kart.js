@@ -2024,11 +2024,20 @@ export class Kart {
       const speedAbs2 = Math.abs(s.speed);
       if (speedAbs2 > CONFIG.physics.maxSpeed * 0.78 && !s.spinOut) {
         this._lineAcc = (this._lineAcc || 0) + dt;
+        // PREMIUM PASS: rajada dupla de speedlines nas DUAS laterais (antes:
+        // só um lado por _sideFlip — a cortina de velocidade lia assimétrica).
+        // Durante boost: mais densas e com tom quente (leitura de turbo).
         if (this._lineAcc >= 0.08) {
           this._lineAcc = 0;
-          this._localToWorld(this._pv, this._sideFlip * 0.85, 0.7, -0.1);
-          this._v.copy(this._back).multiplyScalar(14);
-          ctx.particles.emit('speedline', this._pv, { velocity: this._v, spread: 0.3, size: 0.09, color: 0xe8f4ff });
+          const hot = s.turboBoostMs > 0 || this._boostMs > 0;
+          for (const side of [-1, 1]) {
+            this._localToWorld(this._pv, side * 0.85, 0.7, -0.1);
+            this._v.copy(this._back).multiplyScalar(14);
+            ctx.particles.emit('speedline', this._pv, {
+              velocity: this._v, spread: 0.3, size: hot ? 0.12 : 0.09,
+              color: hot ? 0xfff0c0 : 0xe8f4ff,
+            });
+          }
         }
       }
     }
