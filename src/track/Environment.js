@@ -511,17 +511,70 @@ export class Environment {
     // AUDIT: night haze carries a purple tint so distance reads neon-lit, not void-black
     scene.fog = new THREE.Fog(night ? 0x251a3a : 0xbfe6ff, night ? 80 : 70, night ? 460 : 430);
 
-    // Sky dome (fog-free basic material with gradient texture). Track 2 uses
-    // a dark blue-purple night gradient (0x1a1a3a horizon → 0x3a2a6a zenith)
-    // with a faint star field instead of the sunny blue.
+    // Sky dome — PREMIUM PASS (2026-08-21): ShaderMaterial procedural (cookbook
+    // gradient-sky recipe) substitui a textura canvas. Gradiente contínuo sem
+    // banding, sol/lua com disc+halo físicos (pow), estrelas hash na noite,
+    // horizonte quente de sunset casando com o fog. 1 draw call, zero texturas.
+    // keyPos/sunDir definidos aqui (ANTES das luzes) — o sol do domo usa a
+    // MESMA direção da key light: o que se vê no céu é de onde a luz vem.
+    const keyPos = night ? [90, 115, -72] : [70, 90, 40];
+    this.sunDir = new THREE.Vector3(...keyPos).normalize();
+    const skyUniforms = {
+      uTop:      { value: new THREE.Color(night ? 0x241a4e : 0x2e8fd8) },
+      uMid:      { value: new THREE.Color(night ? 0x2a2a5a : 0x7cc3f0) },
+      uHorizon:  { value: new THREE.Color(night ? 0x251a3a : 0xd8f0fc) },
+      uSunColor: { value: new THREE.Color(night ? 0xe8ecf8 : 0xfff2cc) },
+      uSunDir:   { value: this.sunDir.clone() },
+      uNight:    { value: night ? 1 : 0 },
+    };
     const sky = new THREE.Mesh(
       // AUDIT FIX: 24 segments faceted the horizon (~135m chords at 520m
       // radius); 64x32 reads smooth even from the high chase camera.
       new THREE.SphereGeometry(520, 64, 32),
-      new THREE.MeshBasicMaterial({
-        map: night ? this._nightSkyTexture() : skyTexture(),
+      new THREE.ShaderMaterial({
         side: THREE.BackSide,
+        depthWrite: false,
         fog: false,
+        uniforms: skyUniforms,
+        vertexShader: /* glsl */`
+          varying vec3 vDir;
+          void main() {
+            vDir = normalize(position);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }`,
+        fragmentShader: /* glsl */`
+          varying vec3 vDir;
+          uniform vec3 uTop, uMid, uHorizon, uSunColor, uSunDir;
+          uniform float uNight;
+          float hash21(vec2 p) {
+            p = fract(p * vec2(234.34, 435.345));
+            p += dot(p, p + 34.23);
+            return fract(p.x * p.y);
+          }
+          void main() {
+            float h = clamp(vDir.y * 0.5 + 0.5, 0.0, 1.0);
+            // 3-stop: horizonte → mid → topo (pow abre o mid, céu mais alto)
+            vec3 col = mix(uHorizon, uMid, smoothstep(0.42, 0.62, h));
+            col = mix(col, uTop, smoothstep(0.60, 0.95, pow(h, 0.72)));
+            // sol/lua: disc nítido + halo largo (físico pow, sem textura)
+            float d = clamp(dot(normalize(vDir), normalize(uSunDir)), 0.0, 1.0);
+            float disc = pow(d, ${night ? '2400.0' : '900.0'});
+            float halo = pow(d, ${night ? '18.0' : '7.0'}) * ${night ? '0.22' : '0.30'};
+            col += uSunColor * (disc + halo);
+            // warm sunset band perto do horizonte no dia (MK8 golden hour)
+            if (uNight < 0.5) {
+              float band = exp(-abs(h - 0.50) * 14.0) * 0.16;
+              col += vec3(1.0, 0.82, 0.55) * band;
+            }
+            // estrelas determinísticas só na noite (células hash, fade no horizonte)
+            if (uNight > 0.5 && vDir.y > 0.06) {
+              vec2 cell = floor(vDir.xz / vDir.y * 38.0);
+              float star = step(0.994, hash21(cell));
+              float twinkle = 0.55 + 0.45 * sin(hash21(cell + 7.31) * 40.0);
+              col += vec3(0.9, 0.94, 1.0) * star * twinkle * smoothstep(0.06, 0.25, vDir.y);
+            }
+            gl_FragColor = vec4(col, 1.0);
+          }`,
       })
     );
     sky.position.y = -10;
@@ -549,10 +602,11 @@ export class Environment {
     // AUDIT r5: this non-casting light sat IDENTICAL to the shadow sun (their
     // combined 3.35 lit faces clipped ACES) — it's now a zero placeholder
     // (kept for the night-city headlight rig wiring, not emitted).
+    // PREMIUM PASS: keyPos/sunDir agora definidos no bloco do céu (o shader
+    // do domo usa a MESMA direção — sol visível = direção da key light).
     const keyColor = night ? 0x8fa8ff : 0xfff2d0;
-    const keyPos = night ? [90, 115, -72] : [70, 90, 40];
     const key = new THREE.DirectionalLight(keyColor, 0);
-    key.position.set(...keyPos);
+    key.position.copy(this.sunDir).multiplyScalar(150);
     scene.add(key);
     scene.add(key.target);
 
