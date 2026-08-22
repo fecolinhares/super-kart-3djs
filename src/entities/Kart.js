@@ -613,6 +613,7 @@ export class Kart {
       new THREE.Vector2(0.0, 0.96),
     ];
     const hull = new THREE.Mesh(new THREE.LatheGeometry(hullProfile, 48), carPaint);
+    hull.name = 'hull'; // AAA-2: nomeado p/ _applyBodyClass (variantes de silhueta)
     hull.scale.set(1, 0.72, 1.5); // AUDIT: lower body (MK8: wheels dominate the silhouette; old top y0.96 → ~0.79)
     hull.castShadow = true;
     this.group.add(hull);
@@ -935,6 +936,7 @@ export class Kart {
     // piloto (capa plana y 1.02-1.19 vs ombros ~1.05) — desce para 0.84 e o
     // blade 0.17→0.15: a linha de visão da chase cam passa ACIMA da asa.
     const wingGroup = new THREE.Group();
+    wingGroup.name = 'wing'; // AAA-2: nomeado p/ _applyBodyClass
     wingGroup.position.set(0, 0.84, -0.92);
     wingGroup.rotation.z = -Math.PI / 2; // blade spans X; convex face faces -Z
     const blade = new THREE.Mesh(
@@ -1315,9 +1317,13 @@ export class Kart {
       }
     }
     this._frontWheels = this._wheels.filter((w) => w.isFront);
+    // AAA-2: roda nomeada p/ variantes de silhueta (_applyBodyClass).
+    for (const w of this._wheels) w.spin.name = 'wheel-spin';
 
     // ---- driver: torso + shoulders + arms gripping the wheel -----------------
     const drv = new THREE.Group();
+    drv.name = 'driver'; // AAA-2: nomeado p/ _applyBodyClass
+
     // AUDIT R16 (FECO real-GPU 2026-08-14: 'corredores parecem em PÉ'):
     // R12-R15 exageraram (scale 1.3 + y 0.18) — o torso subiu demais acima
     // da asa e lê como piloto de pé. Postura MK8 real: piloto ENCOLHIDO no
@@ -1475,6 +1481,7 @@ export class Kart {
       blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide,
     });
     const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.17, 26, 18), helmetMat); // AUDIT FIX 2026-08-16: 0.185→0.17 (proporcional ao piloto encolhido)
+    helmet.name = 'helmet'; // AAA-2: nomeado p/ _applyBodyClass
     helmet.position.set(0, 1.30, 0.06); // AUDIT FIX 2026-08-16: 1.38→1.30
     helmet.castShadow = false;
     drv.add(helmet);
@@ -1537,6 +1544,118 @@ export class Kart {
     // this.pilotFill = new THREE.PointLight(0xffe8c4, 1.6, 1.8, 1.4);
     // this.pilotFill.position.set(0, 1.9, 1.2);
     // this.group.add(this.pilotFill);
+
+    this._applyBodyClass(character);
+  }
+
+  /**
+   * AAA-2 (2026-08-22) — FAMÍLIAS DE SILHUETA por personagem (gate R1).
+   *
+   * O crítico visual marcou "obstáculos/karts IA" como a categoria mais fraca
+   * do scorecard: 6 karts = o MESMO modelo recolorido (score 1). MK8 resolve
+   * isso com body classes — karts leves/médios/pesados têm proporções e peças
+   * diferentes. Aqui cada personagem recebe uma família que VARIA FORMA:
+   *
+   *   standard (Turbo, Daisy) — kart base, sem mutação.
+   *   speed   (Comet)         — casco alongado+baixo, asa mais larga, rodas
+   *                             traseiras gordas (dragster read).
+   *   heavy   (King)          — casco alto/largo, sidepods inflados, lâmina
+   *                             dupla na asa, piloto maior.
+   *   compact (Bolt, Pip)     — casco curto/empinado, asa estreita alta,
+   *                             spoiler-lip no nariz, rodas menores.
+   *
+   * Tudo é TRANSFORMAÇÃO de meshes existentes + poucos adds baratos (sem
+   * reescrever a fábrica; física/IA intocadas). Chamado do _buildMesh —
+   * restart recria o Kart inteiro, então nunca acumula mutações.
+   */
+  _applyBodyClass(character) {
+    const name = (character && character.name) || '';
+    let cls = 'standard';
+    if (name === 'Comet') cls = 'speed';
+    else if (name === 'King') cls = 'heavy';
+    else if (name === 'Bolt' || name === 'Pip') cls = 'compact';
+    if (cls === 'standard') return;
+    this.bodyClass = cls;
+
+    const hull = this.group.getObjectByName('hull');
+    const wing = this.group.getObjectByName('wing');
+    const driver = this.group.getObjectByName('driver');
+    const helmet = driver ? driver.getObjectByName('helmet') : null;
+    const paint = this._carPaintMat || this._bodyMat;
+
+    if (cls === 'speed') {
+      // Casco alongado + baixo (silhueta seta). Meio-comprimento do casco =
+      // raio máx do perfil (0.56) × scaleZ → 1.62 dá ponta em ~0.91 (nariz
+      // esférico termina em ~0.84 — alonga sem engolir placa/splitter).
+      if (hull) hull.scale.set(0.94, 0.66, 1.62);
+      // Asa mais larga e rasa (planador de alta velocidade).
+      if (wing) {
+        wing.scale.set(1.18, 1.0, 0.82);
+        wing.position.y = 0.80;
+      }
+      // Rodas traseiras GORDAS (read de dragster) — escala NÃO-uniforme do
+      // root inteiro no eixo LATERAL do kart (X): pneu, ombros, aro e disco
+      // engordam JUNTOS (mesmo frame — impossível desalinh peças). Raio
+      // intacto (y/z) = contato com o solo preservado.
+      for (const w of this._wheels) {
+        if (!w.isFront) w.root.scale.x = 2.0;
+      }
+    } else if (cls === 'heavy') {
+      // Casco alto e largo (tanque).
+      if (hull) hull.scale.set(1.12, 0.86, 1.42);
+      // Lâmina dupla na asa: segundo blade pintado sobre o principal.
+      if (wing) {
+        wing.scale.set(1.05, 1.18, 1.0);
+        const upperBlade = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.09, 0.09, 1.5, 24, 1, false, Math.PI, Math.PI),
+          paint
+        );
+        upperBlade.rotation.x = -0.16; // ângulo invertido do blade principal
+        upperBlade.position.y = 0.13;
+        upperBlade.castShadow = false;
+        wing.add(upperBlade);
+      }
+      // Sidepods inflados (massa lateral extra atrás do cockpit).
+      for (const s of [-1, 1]) {
+        const pod = new THREE.Mesh(new THREE.SphereGeometry(0.17, 20, 14), paint);
+        pod.name = 'heavy-pod';
+        pod.position.set(s * 0.56, 0.52, -0.28);
+        pod.scale.set(0.75, 0.7, 1.7);
+        pod.castShadow = true;
+        this.group.add(pod);
+      }
+      // Piloto maior (o King é grande).
+      if (driver) driver.scale.multiplyScalar(1.12);
+      if (helmet) helmet.scale.setScalar(1.1);
+    } else if (cls === 'compact') {
+      // Casco curto e empinado (bolha).
+      if (hull) hull.scale.set(1.02, 0.84, 1.28);
+      // Asa estreita e ALTA (acima do piloto — silhueta quiosque).
+      if (wing) {
+        wing.scale.set(0.78, 1.0, 0.95);
+        wing.position.y = 1.04;
+      }
+      // Pylon da asa cresce p/ alcançar a nova altura (era dimensionado p/ y 0.84).
+      // O pylon é filho DIRETO de this.group (CylinderGeometry, z < -0.8,
+      // y > 1.0 — os mounts laterais estão em y 1.06 mas são CylinderGeometry
+      // TAMBÉM; distinguir por x≈0).
+      const pylon = this.group.children.find((c) => c.isMesh &&
+        c.geometry && c.geometry.type === 'CylinderGeometry' &&
+        Math.abs(c.position.x) < 0.01 && c.position.z < -0.8 && c.position.y > 1.0);
+      if (pylon) {
+        pylon.scale.y = (1.04 - 0.84 + 0.4) / 0.4; // altura nova / altura antiga
+        pylon.position.y += (1.04 - 0.84) / 2;
+      }
+      // Spoiler-lip no nariz (duckbill) — assinatura dos compactos.
+      const lip = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.035, 0.16), this._bodyDarkMat || this._mat(0x232833));
+      lip.name = 'compact-lip';
+      lip.position.set(0, 0.72, 0.92);
+      lip.rotation.x = -0.22;
+      lip.castShadow = false;
+      this.group.add(lip);
+      // Rodas um pouco menores (kart leve).
+      for (const w of this._wheels) w.root.scale.setScalar(0.9);
+    }
   }
 
   // ---- public API -----------------------------------------------------------
