@@ -26,6 +26,9 @@ const ColorGradeShader = {
     tDiffuse: { value: null },
     saturation: { value: CONFIG.render.colorGradeSaturation },
     contrast: { value: CONFIG.render.colorGradeContrast },
+    // PREMIUM PASS (2026-08-21): warm MK8 grade — lift sombras levemente
+    // azuis + realce de altas luzes quentes (golden hour) sem matar brancos.
+    warmth: { value: 0.06 },
   },
   vertexShader: /* glsl */ `
     varying vec2 vUv;
@@ -38,12 +41,18 @@ const ColorGradeShader = {
     uniform sampler2D tDiffuse;
     uniform float saturation;
     uniform float contrast;
+    uniform float warmth;
     varying vec2 vUv;
     void main() {
       vec4 c = texture2D(tDiffuse, vUv);
       float l = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722));
       vec3 sat = mix(vec3(l), c.rgb, saturation);
       vec3 con = (sat - 0.5) * contrast + 0.5;
+      // warm grade: realça R, derruba B proporcional à luminância (só nas
+      // altas luzes — sombras ficam neutras/frias, contraste preservado).
+      float hi = smoothstep(0.35, 0.9, l);
+      con.r += warmth * hi;
+      con.b -= warmth * 0.6 * hi;
       gl_FragColor = vec4(con, c.a);
     }
   `,
