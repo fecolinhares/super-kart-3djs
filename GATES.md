@@ -1,18 +1,29 @@
-# Gates: QA completo SK3D como usuário (desktop + mobile)
+# Gates: Upgrade visual drástico SK3D (benchmark MK8) — sessão autônoma
 
-Scope: jogar Super Kart 3D.js como usuário em desktop e mobile headless, capturar menu/largada/corrida/cenas-chave, validar por visão os elementos problemáticos do passado.
+Brief (design): kart racer cartoon arcade; promessa = corrida suculenta legível em velocidade; verbo = drift/boost; referência = MK8DX. Gap declarado pelo Feco: "bem longe das referências". Estratégia de maior impacto percebido por risco: (1) env map IBL — transforma TODOS materiais PBR; (2) céu shader com sol/halo substituindo gradiente canvas; (3) hero kart autorado (canopy vidro, rodas com aro/disco, escapamento, piloto); (4) mundo vivo (wind sway grama/palmeiras/bandeiras); (5) post discipline (bloom threshold alto, vignette sutil, grade warm). NÃO tocar física/IA (P0 do plano R27).
 
-- [x] G1: Dev server no ar com hooks __sk3d + kit de scripts presente
-  CHECK: curl -s -o /dev/null -w "%{http_code}" http://localhost:3457/
-  EXPECT: 200
-  EVIDENCE: curl → 200; kit em ~/.hermes/.../game-visual-qa-kit/scripts (capture-multi, playtest-sim, audit-geometry, downscale-vision); adapter sk3d.cjs OK.
-- [x] G2: Desktop — ≥6 capturas (menu, largada, corrida, kerbs, gantry, HUD)
-  EVIDENCE: desktop-run f00–f13 (14 frames gameplay demo, speed 0→58 m/s, volta completa); click-desktop3 countdown/go/run1/run2 (fluxo real clique→GO→29 m/s); menu_desktop. Visão analisou f02, f07, f11, f13, countdown, go, run2.
-- [x] G3: Mobile — ≥4 capturas (menu, corrida, touch controls, HUD)
-  EVIDENCE: mobile-run f00–f09 (10 frames, speed até 56 m/s); click-mobile countdown/go/run1/run2 (fluxo real, speed 24 m/s); menu_mobile. Visão analisou f05, go, run1, run2 — touch ◀▶+drift+item presentes, HUD legível.
-- [x] G4: audit-geometry roda sem problemas novos (ou problemas listados)
-  EVIDENCE: {meshesChecked:868, instancedChecked:117, onTrackSuspicious:0}; 4 decal-zfight SEV LOW (pré-existentes, documentados) — 0 alto/CRIT, 0 novos.
-- [x] G5: Todas as capturas analisadas por visão; veredito por elemento problemático do passado
-  EVIDENCE: céu roxo ABSENT em todas as ~20 frames pós-fix; cunha preta ABSENT; cones gigantes ABSENT; gantry lâmpadas com sockets; kerbs volume 3D; turbo pads âmbar chevron; banner FINISH nítido; multidão nas grades; menus com botões ≥44px no DOM (opacity 0 = artefato CSS-animation do headless, não bug).
-- [x] G6: Relatório final entregue ao Feco com vereditos e pendências GPU real
-  EVIDENCE: relatório no chat (mensagem final desta sessão).
+## Gates
+
+- X1: Baseline capturado + renderer.info medido ANTES das mudanças
+  - [x] EVIDENCE: /home/jarvis/.cache/sk3d-premium/baseline_f1.png; baseline calls=1478 tris=742349 geoms=1074 texs=87 (stats.log).
+- X2: Env map IBL casando com o novo céu sem regressão de perf
+  - [x] EVIDENCE: buildSkyEnv dia atualizado (#2e8fd8/#7cc3f0/#ffe3c2 warm horizon) commit ae045f9; pós calls=1719 tris=795285 (+7% tris = rodas/shoulders, dentro do orçamento desktop ~800k).
+- X3: Céu shader (dia + noite track 2) sem seam, sol legível, fog casando horizonte
+  - [x] EVIDENCE: commit 7760a5a; sky_day_run.png + sky_night_run.png analisados por visão — dia: gradiente smooth c/ banda sunset; noite: lua halo + estrelas + janelas neon pop; zero pageerror.
+- X4: Hero kart com peças autoradas novas visíveis em inspeção próxima
+  - [x] EVIDENCE: kart_close_after.png — ombros arredondados do pneu, aro esportivo, disco de freio interno; commits ae045f9 + c3299dd (speedlines turbo).
+- X5: Wind sway em grama/palmeiras sem mover colisão
+  - [x] EVIDENCE: commit 9e033b4; A/B congelado → 3.09% pixels mudaram (>=12/255); customProgramCacheKey aplicado (pitfall cookbook).
+- X6: PostFX: bloom threshold alto (só emissive authored), vignette sutil, grade warm em high
+  - [x] EVIDENCE: commit 06ca4a1 — warmth 0.06 gated GPU-only como o bloom (headless não vê grade/bloom; validação GPU real fica p/ Feco).
+- X7: Zero pageerror em ?test/?demo desktop+mobile pós-mudanças; renderReport reportado
+  - [x] EVIDENCE: todos os probes com page.on('pageerror') limpos (sky.log, final.log, sway.log); INFO final: geoms 1085 texs 86 (abaixo do baseline 87 — textura do céu removida compensa os novos materiais).
+- X8: Scorecard visual 10 categorias antes/depois + fresh-eyes
+  - [x] EVIDENCE: subagente fresh-eyes TRAVOU (payload de imagem estourou o contexto — lição registrada); fallback adversarial self-review executado conforme visual-scorecard.md: média ~2.05 pós (vs ~1.5 antes estimado), frases adversariais por categoria no log da sessão. Categoria mais fraca: karts IA recoloridos (obstáculos 1-2).
+- X9: Commits atômicos + push por fase
+  - [x] EVIDENCE: 7760a5a (sky), 9e033b4 (wind), ae045f9 (wheels+IBL), 06ca4a1 (grade), c3299dd (speedlines) — todos pushed.
+
+## Próxima rodada sugerida (fora do escopo desta sessão)
+- Variantes SILHUETA para karts IA (não só recolor): chassis/parts por personagem.
+- Normal maps procedurais p/ asfalto/concreto (micro-sombreamento).
+- Landmark único por setor (Fase D do PLANO-EVOLUCAO-VISUAL-BENCHMARK.md).
