@@ -1157,7 +1157,7 @@ export class Kart {
     }
 
 
-    // ---- wheels: tire + tread + sidewall stripe + 5-spoke chrome rim --------
+    // ---- wheels: tire + rounded shoulder + sport rim + brake disc ----------
     const wR = KC.wheelRadius;
     const wW = KC.wheelWidth;
     const wy = wR;
@@ -1165,38 +1165,20 @@ export class Kart {
     const wx = KC.chassisWidth / 2 + 0.24; // AUDIT R11: 0.18→0.24 — bitola larga (postura MK8 wide stance)
     const faceX = wW / 2;
 
+    // PREMIUM PASS (2026-08-21): pneu MK8 real tem OMBRO ARREDONDADO — o
+    // cilindro puro lê como cano. Torus de shoulder arredonda as duas bordas
+    // da banda de rodagem sem anéis concêntricos na parede lateral (lição
+    // R80: nada de torus decorativos no sidewall — este é GEOMETRIA do ombro,
+    // mesmo material do pneu, raio = espessura do pneu).
     const tireGeo = new THREE.CylinderGeometry(wR, wR, wW, 28);
-    // Raised tread ribs (3 rings around the circumference — readable at close-up).
-    const treadGeo = new THREE.TorusGeometry(wR - 0.006, 0.015, 8, 40);
-    // Deep center groove ring (the "readable tread" cue).
-    const grooveGeo = new THREE.TorusGeometry(wR - 0.002, 0.008, 8, 40);
-    // Sidewall stripe ring — proud ring on the tire face (accent color).
-    // AUDIT (user: 'several rings floating in odd positions'): the accent ring
-    // sat at r=0.24 inside a r=0.34 tire — a small floating circle mid-wall.
-    // Move it to the tire-wall edge (r=0.30) so it reads as a sidewall stripe.
-    // AUDIT R20b (Feco real-GPU: 'anel amarelo fino nas rodas'): r=0.30 +
-    // toneMapped:false fazia a stripe BRILHAR como um anel separado sobre o
-    // pneu azul-escuro. r 0.30→0.27 (claro DENTRO do pneu) + toneMapped true
-    // (ACES suaviza — vira parede lateral, não anel).
-    // AUDIT R20c (Feco 3ª reclamação de anel): MESMO r0.27 a stripe AMARELA
-    // ainda lia como resíduo. Stripe vira CINZA-CLARO (parede lateral de pneu
-    // real, tipo kart azul MK8) — zero anel colorido.
-    const stripeGeo = new THREE.TorusGeometry(0.27, 0.016, 8, 32);
-    // Darker tire-wall band — sits just outside the accent stripe (rubber
-    // sidewall break between tread shoulder and painted stripe).
-    const wallBandGeo = new THREE.TorusGeometry(0.32, 0.013, 8, 36); // AUDIT: outer wall band at the tire edge
-    // Chrome rim parts (all in the YZ plane — axle along X).
-    // AUDIT (user: 'a gray ring spinning at the rear, looks misplaced'): the
-    // rim was 0.19/0.215 inside a 0.34 tire — a small ring floating mid-wheel
-    // with a visible gap. Enlarge so it reads as a proper rim filling the tire.
-    // AUDIT R75 (Feco real-GPU 2026-08-14: 'rodas parecem OLHOS — aro branco
-    // 75-85% do diâmetro, pneu fino'): rim 0.22/lip 0.24 num pneu 0.34 =
-    // aro dominante + chrome BRANCO = contraste olho. Reduz p/ 0.17/0.19
-    // (pneu com parede lateral visível — proporção kart real) + rim cinza
-    // médio (rimChrome escurecido em buildWheels).
+    const shoulderGeo = new THREE.TorusGeometry(wR - 0.02, 0.022, 10, 40);
+    // Sport rim MK8: 6 raios duplos em Y prateados + disco ventilado atrás.
     const rimDiscGeo = new THREE.CylinderGeometry(0.17, 0.17, 0.022, 24);
     const rimLipGeo = new THREE.TorusGeometry(0.19, 0.014, 8, 32);
     const spokeGeo = new THREE.BoxGeometry(0.022, 0.10, 0.05);
+    // PREMIUM PASS: disco de freio ventilado (aço escovado) + material.
+    const brakeDiscGeo = new THREE.CylinderGeometry(0.145, 0.145, 0.02, 24);
+    const brakeDiscMat = new THREE.MeshStandardMaterial({ color: 0x6b7482, metalness: 0.75, roughness: 0.42 });
     const hubGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.034, 18);
     const hubCapGeo = new THREE.SphereGeometry(0.034, 12, 10); // AUDIT R11: 0.026→0.034 (accent central maior — giro lê)
     const lugGeo = new THREE.SphereGeometry(0.013, 8, 6);
@@ -1224,6 +1206,15 @@ export class Kart {
         const tire = new THREE.Mesh(tireGeo, tireMat);
         tire.castShadow = true;
         tilt.add(tire);
+        // PREMIUM PASS: ombros arredondados nas duas bordas da banda de
+        // rodagem — mesmo material do pneu (GEOMETRIA do ombro, não decal).
+        for (const ox of [-wW / 2 + 0.004, wW / 2 - 0.004]) {
+          const shoulder = new THREE.Mesh(shoulderGeo, tireMat);
+          shoulder.rotation.x = Math.PI / 2;
+          shoulder.position.x = ox;
+          shoulder.castShadow = false;
+          tilt.add(shoulder);
+        }
         // AUDIT FIX R13g (Feco real-GPU: 'ainda vejo anel preto nos pneus' —
         // PERSISTE após R12j/R13d): os tread ribs (3 torus tireDark) + groove
         // (1 torus tireDark) criavam 4 ANÉIS CONCÊNTRICOS escuros na lateral
@@ -1265,14 +1256,18 @@ export class Kart {
         lip.position.x = rimX + 0.01;
         lip.castShadow = false;
         spin.add(lip);
-        // 5 spokes — thin radial boxes between hub and lip.
-        for (let i = 0; i < 5; i++) {
-          const a = (i / 5) * Math.PI * 2;
-          const spoke = new THREE.Mesh(spokeGeo, rimChrome);
-          spoke.rotation.x = a;
-          spoke.position.set(rimX + 0.008, Math.cos(a) * 0.12, Math.sin(a) * 0.12);
-          spoke.castShadow = false;
-          spin.add(spoke);
+        // PREMIUM PASS: 6 raios duplos em Y (roda de liga esportiva MK8) —
+        // par de boxes finos com leve ângulo em V; mais presença que o raio
+        // único fino, sem virar disco cheio.
+        for (let i = 0; i < 6; i++) {
+          const a = (i / 6) * Math.PI * 2;
+          for (const vOff of [-0.035, 0.035]) {
+            const spoke = new THREE.Mesh(spokeGeo, rimChrome);
+            spoke.rotation.x = a + vOff * 0.5;
+            spoke.position.set(rimX + 0.008, Math.cos(a) * 0.115, Math.sin(a) * 0.115);
+            spoke.castShadow = false;
+            spin.add(spoke);
+          }
         }
         const hub = new THREE.Mesh(hubGeo, rimChrome);
         hub.rotation.z = Math.PI / 2;
@@ -1284,6 +1279,12 @@ export class Kart {
         hubCap.scale.set(1.6, 1.6, 1.6); // accent cap, proud of the chrome hub (R11: 1.2→1.6)
         hubCap.castShadow = false;
         spin.add(hubCap);
+        // Disco de freio ventilado atrás dos raios (leitura mecânica premium).
+        const brakeDisc = new THREE.Mesh(brakeDiscGeo, brakeDiscMat);
+        brakeDisc.rotation.z = Math.PI / 2;
+        brakeDisc.position.x = -faceX - 0.008; // lado interno da roda
+        brakeDisc.castShadow = false;
+        tilt.add(brakeDisc);
         // 5 lug nuts matching the spokes.
         for (let i = 0; i < 5; i++) {
           const a = (i / 5) * Math.PI * 2;
