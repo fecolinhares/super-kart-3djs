@@ -620,6 +620,12 @@ export class Environment {
     // RIM (audit r3): a cool back-light separates karts/props from the
     // background — the 'pasted on' flatness came from no edge definition.
     const rim = new THREE.DirectionalLight(night ? 0x5a7ad8 : 0xfff0c8, night ? 0.45 : 0.9); // AUDIT R16a: 0.7→0.9 — rim mais forte (separação kart/fundo)
+    // AUDIT GPU-real (2026-08-23, LXC 105): karts IA somem no Neon — King roxo
+    // lê 6.5/10 no crítico cego 720p ("cor pouco contrastante"). Rim noturno
+    // 0.45 é fraco p/ separar cores escuras do fundo indigo. 0.45→0.85 +
+    // tint mais claro (mais separação de edge sem lavar a cena).
+    rim.color.set(night ? 0x9ab4ff : 0xfff0c8);
+    if (night) rim.intensity = 0.85;
     rim.position.set(night ? -40 : 30, 40, night ? -30 : 25); // opposite the key
     scene.add(rim);
     scene.add(rim.target);
