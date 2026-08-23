@@ -717,7 +717,7 @@ export class Banana {
     // Sombra de contato no chão (mesmo truque da sombra do blue shell) —
     // ancora o hazard na pista e vende a altura do arremesso.
     this._shadow = new THREE.Mesh(
-      new THREE.CircleGeometry(0.5, 16),
+      new THREE.CircleGeometry(0.72, 16),
       new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.32, depthWrite: false })
     );
     this._shadow.rotation.x = -Math.PI / 2;
@@ -973,7 +973,10 @@ function buildShellMesh(color) {
   // higher segments, the shared PBR toon pipeline (smooth shading + sheen)
   // and a cartoon outline; spikes spread like MK8 shells (3 top, 2 rear).
   const bodyMat = getToonMaterial(color, { emissive: color, emissiveIntensity: 0.25 });
-  const body = new THREE.Mesh(new THREE.SphereGeometry(0.34, 24, 16), bodyMat);
+  // AUDIT GPU-real (2026-08-23): shell leria ~25% do kart — MK8 shell é ~60%
+  // da largura. SphereGeometry 0.34→0.52 (pop-in usa mesh.scale, então a
+  // escala vai na GEOMETRIA, não no group).
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.52, 24, 16), bodyMat);
   body.scale.set(1.05, 0.85, 1.55);
   const outlineMat = getCartoonOutlineMaterial(0x1b2a41, 0.05);
   const hull = new THREE.Mesh(body.geometry.clone(), outlineMat);
@@ -983,16 +986,16 @@ function buildShellMesh(color) {
   g.add(body);
 
   const spikeMat = getToonMaterial(0xffffff, { emissive: 0xffffff, emissiveIntensity: 0.15 });
-  const spikeGeo = new THREE.ConeGeometry(0.09, 0.26, 8);
+  const spikeGeo = new THREE.ConeGeometry(0.14, 0.40, 8);
   for (let i = 0; i < 3; i++) {
     const spike = new THREE.Mesh(spikeGeo, spikeMat);
-    spike.position.set((i - 1) * 0.26, 0.3, 0);
+    spike.position.set((i - 1) * 0.40, 0.46, 0);
     g.add(spike);
   }
   // Two smaller rear spikes on the shell's tail (MK8 silhouette).
   for (let i = 0; i < 2; i++) {
-    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.18, 8), spikeMat);
-    spike.position.set((i - 0.5) * 0.2, 0.28, 0.62);
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.28, 8), spikeMat);
+    spike.position.set((i - 0.5) * 0.31, 0.43, 0.95);
     g.add(spike);
   }
   return g;
@@ -1045,13 +1048,15 @@ function buildBananaMesh() {
   const peelMat = new THREE.MeshBasicMaterial({ map: peelTex });
   peelMat.toneMapped = false;
   // Thick crescent torus (MK8 banana scale), arc 1.15π laid flat.
-  const arc = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.16, 12, 20, Math.PI * 1.15), peelMat);
+  // AUDIT GPU-real (2026-08-23): banana leria minúscula vs kart (~2m) —
+  // MK8 banana ≈ 45-50% da largura do kart. Torus 0.42/0.16 → 0.62/0.24.
+  const arc = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.24, 12, 20, Math.PI * 1.15), peelMat);
   arc.rotation.x = Math.PI / 2;
   arc.castShadow = true;
   g.add(arc);
   // Dark cartoon outline (BackSide shell) for contrast on dark asphalt.
   const outline = new THREE.Mesh(
-    new THREE.TorusGeometry(0.42, 0.16, 12, 20, Math.PI * 1.15),
+    new THREE.TorusGeometry(0.62, 0.24, 12, 20, Math.PI * 1.15),
     new THREE.MeshBasicMaterial({ color: 0x2a1c00, side: THREE.BackSide })
   );
   outline.scale.setScalar(1.07);
