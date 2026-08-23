@@ -4492,10 +4492,14 @@ export class Environment {
     // not inhabited buildings'): 6x7 cells with per-cell INTENSITY variety,
     // warm/cool mix, curtain tints, some whole dark floors. Reads as offices
     // and apartments, not uniform lit strips.
-    const cols = 6;
-    const rows = 7;
-    const cell = 28;
-    const gap = 7;
+    // AUDIT GPU-real (2026-08-23, LXC 105): prédios próximos da row A esticam
+    // a textura 256px por ~14m — janelas viram retângulos gigantes borrados
+    // (fachada lisa preta no 1º plano). Grid 6x7→12x16: células menores,
+    // fachadas próximas leem como janelas, distantes mantêm o brilho.
+    const cols = 12;
+    const rows = 16;
+    const cell = 15;
+    const gap = 3;
     const startX = (s - (cols * cell + (cols - 1) * gap)) / 2;
     const startY = (s - (rows * cell + (rows - 1) * gap)) / 2;
     const litTints = ['#ffe9c4', '#cfe4ff', '#fff7cc', '#ffd9a8', '#d8e8ff'];
