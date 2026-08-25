@@ -26,5 +26,5 @@ Ledger do loop: auditoria → problemas → fix → docs → commit atômico + p
 - [x] A3: Fix banner espelhado (rotateY 180 + FrontSide) — EVIDENCE: commit ac58eb5
 - [x] A4: Fix skid marks (opacity 0.28, life 3.0) — EVIDENCE: commit ac58eb5
 - [x] A5: Fix banda oliva Neon (parede #0d1322) — EVIDENCE: commit ac58eb5
-- [ ] A6: re-captura pós-fix + comparação visual pré/pós
+- [x] A6: re-captura pós-fix + comparação visual pré/pós — EVIDENCE: qa-gpu-runner/audit0825/t1fix_meadow.mp4, t2fix_neon.mp4; banner lê correto, banda oliva eliminada, skid marks reduzidos
 - [ ] A7: scorecard 10 categorias re-medido
