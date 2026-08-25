@@ -521,7 +521,9 @@ function buildTerrain(path, cityMode = false) {
     }
     geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
   }
-  const mat = toonMaterial(cityMode ? 0x2a2d38 : 0xffffff, cityMode ? { emissive: 0x151a30, emissiveIntensity: 0.35 } : {}); // AUDIT: city floor carries a faint cool glow — not void-black
+    // AUDIT R21b: emissive frio reduzido — o brilho quente das luzes + este
+    // glow liam como banda OLIVA no chão distante além do alcance do fog.
+    const mat = toonMaterial(cityMode ? 0x2a2d38 : 0xffffff, cityMode ? { emissive: 0x0d1120, emissiveIntensity: 0.22 } : {});
   if (!cityMode) {
     mat.map = grassTexture();
     mat.color.set(0xffffff);
@@ -2168,12 +2170,17 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
 
   // Dirt shoulders either side of the asphalt (softens the road→grass edge).
   // Textured now — was a flat tan ribbon (audit V3).
+  // AUDIT R21z (CAUSA RAIZ FINAL, GPU real): o shoulder TAN (#d9b98c) existia
+  // também no Neon — a faixa de terra em perspectiva + bloom + warm grade =
+  // a "COLINA/FIXA OLIVA" do horizonte (pixels medidos 70,61,2). Na cidade o
+  // shoulder vira concreto escuro (calçada urbana), não terra.
   const shoulder = buildRoadRibbon(path, length, {
     width: getRoadWidthAt() + 3.4,
     yOffset: 0.14,
-    texture: dirtTexture,
+    texture: isCity ? concreteTexture : dirtTexture,
     repeatU: length * 0.04,
     repeatV: 1,
+    ...(isCity ? { color: 0x3a3f4d } : {}),
   });
   shoulder.receiveShadow = true;
   group.add(shoulder);
