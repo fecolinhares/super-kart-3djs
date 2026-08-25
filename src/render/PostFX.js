@@ -28,7 +28,9 @@ const ColorGradeShader = {
     contrast: { value: CONFIG.render.colorGradeContrast },
     // PREMIUM PASS (2026-08-21): warm MK8 grade — lift sombras levemente
     // azuis + realce de altas luzes quentes (golden hour) sem matar brancos.
-    warmth: { value: 0.06 },
+    // AUDIT R21e (GPU real): warmth 0.06 + sat 1.45 AMPLIFICAVAM o glow do
+    // bloom âmbar sobre o chão noturno → faixa oliva. Neutro p/ noite.
+    warmth: { value: 0.02 },
   },
   vertexShader: /* glsl */ `
     varying vec2 vUv;

@@ -97,9 +97,11 @@ function buildSkyEnv(renderer) {
     g.fillRect(0, 0, 512, 256);
     // neon light clusters — bright pink/cyan points that read as city signs
     // in the reflections (small + intense = hard clearcoat highlights).
-    const neon = ['#ff2ec4', '#2ec4ff', '#ffe23c'];
+    // AUDIT R21d: AMARELO (#ffe23c) REMOVIDO — o env map tinge todo material
+    // PBR e o concreto do chão lia OLIVA em toda parte. Só neons frios agora.
+    const neon = ['#ff2ec4', '#2ec4ff'];
     for (let i = 0; i < 14; i++) {
-      g.fillStyle = neon[i % 3];
+      g.fillStyle = neon[i % 2]; // AUDIT R21d: 3→2 (amarelo fora)
       g.globalAlpha = 0.9;
       g.beginPath();
       g.arc(40 + Math.random() * 430, 30 + Math.random() * 120, 5 + Math.random() * 7, 0, Math.PI * 2);
@@ -167,6 +169,25 @@ function buildSkyEnv(renderer) {
 scene.environment = buildSkyEnv(renderer);
 
 const postfx = new PostFX(renderer, scene, camera, qualityProfile);
+// AUDIT R21j (GPU real LXC105): à noite o bloom global espalha o glow quente
+// dos neons sobre o domo/terreno roxos = faixa oliva no horizonte (provado:
+// ?nobl remove). Strength 0.35→0.22 só no Neon — mantém o glow LOCAL dos
+// neons próximos sem pintar o céu.
+if (TRACK_ID === 2 && postfx.bloom) postfx.bloom.strength = 0.22;
+// AUDIT R21k: grade NEUTRO no Neon — warmth+saturation empurravam o glow
+// difuso do horizonte para verde-oliva (vision: ?nobl = haze some). Noite
+// MK8: cores frias fiéis ao render, sem grade dourado. Os uniforms vivem em
+// pass.uniforms[...] do ShaderPass APÓS build (MaterialPass), mas o acesso
+// seguro é via pass.material.uniforms.
+if (TRACK_ID === 2) {
+  for (const pass of postfx.composer.passes) {
+    const u = pass.uniforms || (pass.material && pass.material.uniforms);
+    if (u && u.warmth) {
+      u.warmth.value = 0;
+      if (u.saturation) u.saturation.value = 1.0;
+    }
+  }
+}
 bootOverlay.setStage('loading race systems', 0.68);
 if (TEST) postfx.enabled = false; // software GL runs ~30x faster without bloom
 const audio = new AudioManager();

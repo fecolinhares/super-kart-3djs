@@ -157,11 +157,11 @@ export const CONFIG = {
     // VISION FIX: 0.5/0.93 blew out bright geometry (gantry sign, white
     // kerbs) — the critic read the bloom as 'overexposed'. 0.38 keeps the
     // glow on emissives (boost flames, item boxes) without washing whites.
-    bloomStrength: 0.38,
-    bloomRadius: 0.4,
-    bloomThreshold: 0.95,
+    bloomStrength: 0.35, // AUDIT R21f: 0.38→0.35 — glow âmbar acumulado sobre o domo lia como colina oliva no horizonte noturno
+    bloomRadius: 0.25, // AUDIT R21f: 0.4→0.25 — o spread largo do bloom pintava o domo roxo de oliva (provado: ?nobl = colina some)
+    bloomThreshold: 1.4, // AUDIT R22: 1.05→1.4 — billboards/janelas toneMapped:false (lum ~1.0) alimentavam o glow oliva no ponto de fuga; só HDR real passa agora
     vignetteStrength: 0.12, // SK3D FIX (2026-08-20, Feco real-GPU): 0.2→0.12 — vignette escurecia bordas (asfalto atrás do kart lia mais escuro que à frente)
-    colorGradeSaturation: 1.45, // AUDIT r17 (Feco real-GPU + pixel-measured
+    colorGradeSaturation: 1.25, // AUDIT R21e: 1.45→1.25 — saturava o glow âmbar do bloom em oliva no chão noturno // AUDIT r17 (Feco real-GPU + pixel-measured
     // critic): ACES tone mapping in OutputPass DESSATURATES — the grade
     // must fight it. Measured: sat 87/255 mean + 21% dead-grey on the real
     // GPU frame = washed. 1.45 restores the MK8 punch AFTER the ACES eats
