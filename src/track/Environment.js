@@ -509,7 +509,7 @@ export class Environment {
     // night fog color matches the sky horizon so the dome blends seamlessly.
     const night = this.trackId === 2;
     // AUDIT: night haze carries a purple tint so distance reads neon-lit, not void-black
-    scene.fog = new THREE.Fog(night ? 0x251a3a : 0xbfe6ff, night ? 80 : 70, night ? 460 : 430);
+    scene.fog = new THREE.Fog(night ? 0x141034 : 0xbfe6ff, night ? 45 : 70, night ? 150 : 430); // AUDIT R22g: roxo→índigo profundo — o roxo sob bloom+ACES lia levemente oliva no ponto de fuga
 
     // Sky dome — PREMIUM PASS (2026-08-21): ShaderMaterial procedural (cookbook
     // gradient-sky recipe) substitui a textura canvas. Gradiente contínuo sem
@@ -522,7 +522,7 @@ export class Environment {
     const skyUniforms = {
       uTop:      { value: new THREE.Color(night ? 0x241a4e : 0x2e8fd8) },
       uMid:      { value: new THREE.Color(night ? 0x2a2a5a : 0x7cc3f0) },
-      uHorizon:  { value: new THREE.Color(night ? 0x251a3a : 0xd8f0fc) },
+      uHorizon:  { value: new THREE.Color(night ? 0x141034 : 0xd8f0fc) }, // AUDIT R21: horizonte noturno azul-roxo profundo — o tom anterior (0x251a3a) + fog amarelado das luzes lia como banda OLIVA no horizonte central
       uSunColor: { value: new THREE.Color(night ? 0xe8ecf8 : 0xfff2cc) },
       uSunDir:   { value: this.sunDir.clone() },
       uNight:    { value: night ? 1 : 0 },
@@ -583,7 +583,11 @@ export class Environment {
     // AUDIT PISTA R11 (2026-08-16): anel de nevoeiro — camada atmosférica
     // entre a pista e as montanhas (banda mais próxima = r146). Profundidade
     // sem tocar no fog principal nem custar draw calls caros (30 placas).
-    this.buildHazeRing(scene, night ? 0x251a3a : 0xbfe6ff, night ? 205 : 185, night ? 26 : 30);
+    // AUDIT R21g (GPU real): à noite o anel NÃO é construído — ele era a
+    // superfície roxa clara (fog:false, depthWrite:false) sobre a qual o
+    // bloom âmbar pintava a "COLINA VERDE-OLIVA" do horizonte. Sem postfx
+    // (?nobl) ela sumia; com anel removido à noite, some também.
+    if (!night) this.buildHazeRing(scene, 0xbfe6ff, 185, 30);
     // AUDIT R12 (2ª camada de profundidade — Meadow): névoa BAIXA na base
     // das colinas (a camada R146/y6.5 é alta; sem a baixa a base lê recorte).
     if (!night) this.buildGroundHaze(scene, 0xbfe6ff, 100, 2.0, 38, 4.2, 0.5);
@@ -672,7 +676,7 @@ export class Environment {
     if (night) {
       this.buildNeonCity(scene, track);
       // AUDIT R12 (2ª camada — Neon): névoa baixa na base das torres (50-90m)
-      this.buildGroundHaze(scene, 0x251a3a, 72, 2.3, 34, 4.6, 0.55);
+      this.buildGroundHaze(scene, 0x141034, 72, 2.3, 34, 4.6, 0.75); // AUDIT R21f: alpha 0.55→0.75 — o haze mais denso abafa o glow bloom residual no horizonte
     }
 
     if (!night) {
@@ -4509,7 +4513,10 @@ export class Environment {
     const gap = 3;
     const startX = (s - (cols * cell + (cols - 1) * gap)) / 2;
     const startY = (s - (rows * cell + (rows - 1) * gap)) / 2;
-    const litTints = ['#ffe9c4', '#cfe4ff', '#fff7cc', '#ffd9a8', '#d8e8ff'];
+    // AUDIT R21h: 100% FRIAS — o último tint quente (#ffe9c4) × material
+    // color claro das rows × bloom × warm grade = MASSA OLIVA nas fachadas
+    // distantes (medido: texel [183,175,156] × #8b8a92 → bege → oliva).
+    const litTints = ['#cfe4ff', '#d8e8ff', '#cfe4ff', '#d8e8ff', '#eef6ff'];
     // Dark floors: pick 2-3 rows that stay mostly unlit (office closed).
     const darkFloors = new Set();
     const nDark = 2 + ((rand() * 2) | 0);
@@ -4534,7 +4541,7 @@ export class Environment {
           continue;
         }
         const roll = rand();
-        if (roll < 0.5) {
+        if (roll < 0.38) { // AUDIT R21d: 0.5→0.38 — menos janelas acesas (fachada não vira parede de luz)
           // lit window: intensity 0.4-1.0 — some barely lit, some blazing
           const bright = 0.4 + rand() * 0.6;
           ctx.globalAlpha = bright;
@@ -4556,8 +4563,10 @@ export class Environment {
           }
         } else {
           // bright accent window — a "someone left the light on" hot cell
-          ctx.fillStyle = '#fff2d0';
-          ctx.globalAlpha = 0.95;
+          // AUDIT R21h: accent agora FRIO (#dceaff) — o quente (#fff2d0)
+          // era a última fonte de âmbar nas fachadas (massa oliva à distância).
+          ctx.fillStyle = '#dceaff';
+          ctx.globalAlpha = 0.7;
           ctx.fillRect(x, y, w, h);
           ctx.globalAlpha = 1;
         }
@@ -4612,7 +4621,10 @@ export class Environment {
     const antMat = new THREE.MeshBasicMaterial({ color: 0x8892b8 });
     const tankGeo = new THREE.CylinderGeometry(0.5, 0.55, 1.1, 8);
     const tankMat = new THREE.MeshBasicMaterial({ color: 0x3a4152 });
-    const windowColors = [0xff9a3c, 0x3c9aff, 0xffe23c];
+    // AUDIT R21d (final): paleta FRIA dominante — janelas laranja/âmbar em
+    // massa liam como fachadas oliva (perto E longe). Noite urbana real:
+    // maioria branca-fria/azul, âmbar como ACENTO raro.
+    const windowColors = [0x9fc8ff, 0xd8e8ff, 0xff9a3c, 0x9fc8ff, 0xd8e8ff]; // 2/5 âmbar→peso 20%
     const dummy = new THREE.Object3D();
     const dir = new THREE.Vector3();
     // Row A hugs the track (16-26m); row B sits behind it (26-38m); row C is
@@ -4623,14 +4635,14 @@ export class Environment {
     // material flattened the far row into the near one).
     const rows = [
       { seed: 21000, base: 11, range: 8, haze: 0.0 }, // AUDIT MED: hug the roadside (was 16m — 9m dead band)
-      { seed: 22000, base: 26, range: 12, haze: 0.35 },
-      { seed: 23000, base: 50, range: 12, low: true, haze: 0.6 },
-      { seed: 24000, base: 74, range: 16, low: true, haze: 0.85 }, // far silhouette layer
+      { seed: 22000, base: 26, range: 12, haze: 0.5 }, // AUDIT R21b: haze + — amarelo vazava
+      { seed: 23000, base: 50, range: 12, low: true, haze: 0.75 },
+      { seed: 24000, base: 74, range: 16, low: true, haze: 0.92 }, // far silhouette layer
     ];
     // AUDIT PISTA R11 (2026-08-16): alvo de bruma roxo-azulado MAIS CLARO —
     // as fileiras longe liam como silhueta preta (0x1a2436 ~ vazio); agora a
     // cidade na distância lê como bruma iluminada (profundidade real MK8).
-    const fogCol = new THREE.Color(0x241f42); // night haze target
+    const fogCol = new THREE.Color(0x141034); // AUDIT R21b: alinhado ao novo fog 0x141034
     for (const row of rows) {
       const rand = rnd(row.seed);
       const count = 24 + Math.floor(rand() * 5); // 24-28 per row (denser skyline — vision critic: sparse)
@@ -4848,7 +4860,9 @@ export class Environment {
       const cabinMat = new THREE.MeshBasicMaterial({ color: 0x0d1017 });
       const wheelMat = new THREE.MeshBasicMaterial({ color: 0x14161c });
       // AUDIT R12: paleta viva de taxi noturno (antes cinza apagado)
-      const carCols = [0xff2e4d, 0xffd23c, 0x2ec4ff, 0xff2ec4, 0x3cff9a, 0xff9a3c];
+      // AUDIT R21d: 0xffd23c FORA — o reflexo wet ADITIVO do carro amarelo
+      // criava uma poça OLIVA GIGANTE no chão (a mancha da esquerda).
+      const carCols = [0xff2e4d, 0x2ec4ff, 0xff2ec4, 0x3cff9a, 0xff9a3c, 0x8a5cff];
       const { geo: aoGeo, mat: aoMat } = getAODiscParts();
       const carN = 22; // AUDIT R12: 14 → 22 (~1 a cada 15-28m de reta)
       const bodies = new THREE.InstancedMesh(carBodyGeo, bodyMat, carN);
@@ -4865,9 +4879,12 @@ export class Environment {
       // AUDIT R12 (reflexo): os carros estão FORA da ribbon wet (cobre só o
       // asfalto) e hoje não refletem nada na rua molhada. Elipse ADITIVA cor
       // da carroceria sob cada carro (smear wet-street MK8).
+      // AUDIT R21d: opacity 0.24→0.10 — o smear aditivo de carros laranja
+      // (0xff9a3c) criava POÇAS OLIVA GIGANTES no concreto (a mancha do
+      // infield). Reflexo sutil, não poça de tinta.
       const carReflGeo = new THREE.PlaneGeometry(2.6, 5.4);
       const carReflMat = new THREE.MeshBasicMaterial({
-        color: 0xffffff, transparent: true, opacity: 0.24,
+        color: 0xffffff, transparent: true, opacity: 0.1,
         blending: THREE.AdditiveBlending, depthWrite: false,
         side: THREE.DoubleSide, toneMapped: false,
       });
@@ -5027,9 +5044,11 @@ export class Environment {
         poolCv.width = 128; poolCv.height = 256;
         const pg = poolCv.getContext('2d');
         const grad = pg.createRadialGradient(64, 128, 2, 64, 128, 120);
-        grad.addColorStop(0, 'rgba(255,255,255,0.95)');
-        grad.addColorStop(0.16, 'rgba(255,255,255,0.55)');
-        grad.addColorStop(0.45, 'rgba(255,255,255,0.22)');
+        // AUDIT R21i: núcleo 0.95→0.5 — pools aditivos fortes + bloom + warm
+        // grade pintavam manchas oliva no chão (a faixa horizontal central).
+        grad.addColorStop(0, 'rgba(255,255,255,0.5)');
+        grad.addColorStop(0.16, 'rgba(255,255,255,0.3)');
+        grad.addColorStop(0.45, 'rgba(255,255,255,0.12)');
         grad.addColorStop(1, 'rgba(255,255,255,0)');
         pg.fillStyle = grad;
         // compressão vertical: elipse alongada no comprimento da pista

@@ -225,7 +225,11 @@ export function neonReflectionTexture() {
         const h = 40 + Math.random() * 88;
         const y = s - h - Math.random() * 10;
         const roll = Math.random();
-        const col = roll > 0.55 ? '255,209,102' : roll > 0.25 ? '120,220,255' : '255,120,220';
+        // AUDIT R22f (CAUSA RAIZ FINAL do haze oliva): 45% das bandas eram
+        // ÂMARELO (255,209,102) — a ribbon aditiva toneMapped:false acumulava
+        // amarelo no ponto de fuga da pista + bloom = glow verde-oliva no
+        // horizonte (vision 4-6.5/10 persistente). Reflexos agora só frios.
+        const col = roll > 0.55 ? '160,220,255' : roll > 0.25 ? '120,220,255' : '255,120,220';
         const g = ctx.createLinearGradient(0, y, 0, y + h);
         g.addColorStop(0, 'rgba(' + col + ',0)');
         g.addColorStop(0.5, 'rgba(' + col + ',0.55)');
@@ -345,7 +349,8 @@ export function concreteTexture() {
   _concreteTex = canvasTexture(
     256,
     (ctx, s) => {
-      ctx.fillStyle = '#4a4d5c';
+      ctx.fillStyle = '#62656f'; // AUDIT R21: neutral medium gray base
+      // Reduced warm shift that caused olive band when viewed through fog
       ctx.fillRect(0, 0, s, s);
       // speckle
       for (let i = 0; i < 900; i++) {
