@@ -2696,7 +2696,7 @@ export class Environment {
       tex.colorSpace = THREE.SRGBColorSpace;
       this._tracksideBannerTex = tex;
     }
-    const bannerMat = new THREE.MeshBasicMaterial({ map: this._tracksideBannerTex, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+    const bannerMat = new THREE.MeshBasicMaterial({ map: this._tracksideBannerTex, side: THREE.FrontSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
     const poleMat = toonMaterial(0x8b7a5c, {});
     // AUDIT r10 (FECO): the BoxGeometry mapped the banner texture on ALL six
     // faces — the 0.08m-thick side faces showed the whole 5.6m texture
@@ -2773,6 +2773,10 @@ export class Environment {
       dummyB.lookAt(p.x, by + 2.5, p.z);
       dummyB.rotation.z = 0;
       dummyB.translateZ(-0.05);
+      // AUDIT 2026-08-25 (GPU real LXC105): a cópia de trás herdava a mesma
+      // orientação → o texto lia ESPELHADO quando o banner era visto por trás.
+      // Girar 180° em Y faz a face de trás mostrar o texto correto.
+      dummyB.rotateY(Math.PI);
       dummyB.scale.set(1, 1, 1);
       dummyB.updateMatrix();
       printsB.setMatrixAt(made, dummyB.matrix);
@@ -4485,7 +4489,10 @@ export class Environment {
     canvas.width = s;
     canvas.height = s;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#10162a'; // dark wall base
+    ctx.fillStyle = '#0d1322'; // AUDIT 2026-08-25: parede mais escura/azul —
+    // janelas amarelas (0xffe23c) minificadas a 120m+ misturavam com a parede
+    // e liam como uma BANDA OLIVA no horizonte. Parede mais fria/escura
+    // aumenta o contraste e a média de cor volta ao azul-noturno.
     ctx.fillRect(0, 0, s, s);
     const rand = rnd(4242);
     // AUDIT R2 (blind critic 2026-08-13: 'windows look like light panels,
