@@ -10,6 +10,7 @@ Desktop and mobile web gameplay for Meadow and Neon City. Primary evidence is se
 - Build: `SK3D_OUT_DIR=/tmp/sk3d-dist-autonomous npm run build` passed.
 - `ai-backwards-test.mjs 20` passed in both tracks: 0 lost, 0 backwards, 0 crashes; all sampled onRoad=100%.
 - Audio fixes: `56d486e` preserves per-kart engine volume through pre-init mobile unlock; `1bbf3d8` schedules track fade/playlist advance after the last lookahead step instead of cutting the final beat.
+- HUD fix `512e4d0`: finish results now hide live telemetry/speedlines/draft behind the result card, eliminating stale LAP/speed/position competition.
 - Dev server: `http://localhost:3457/` HTTP 200.
 
 ## Vision scorecard trend
