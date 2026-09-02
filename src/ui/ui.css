@@ -1673,11 +1673,10 @@ html, body {
     font-size: 0.88rem; /* AUDIT imersão R11: proporcional ao dial 112px */
   }
 
-  /* AUDIT imersão (R11): speedo ghost no mobile — 0.5 de opacidade em
-     repouso, acende (1.0) só durante boost (setBoost) ou drift (setDriftCharge),
-     como o gauge MK8D que some em corrida e aparece na hora do drift. */
+  /* Mobile mantém o dial visível para leitura contínua; boost/drift ainda
+     podem elevar para 1.0, mas o HUD não desaparece sobre fundos claros. */
   .sk3d-speedo {
-    opacity: 0.5;
+    opacity: 0.78;
     transition: opacity 0.3s ease;
   }
   .sk3d-speedo.sk3d-speedo-active,
