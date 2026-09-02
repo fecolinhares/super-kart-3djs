@@ -11,17 +11,19 @@
   EVIDENCE: t1 653 frames (autonomous0902) + 671 frames (aaa0902b) — vision avg Meadow 5.5 gameplay (5.2 largada, 5.8 melhor reta, 4.0 finish modal) — ver /tmp/sk3d-qa/AUDIT_T1*.md + subagent 023429
 - [x] T2: Track 2 Neon — idem T1
   EVIDENCE: t2 589 frames + 560 frames — vision avg Neon 4.9 (4.5 largada, 5.2 melhor boost) bloom 2/10 grid 1/10 — ver /tmp/sk3d-qa/AUDIT_T2_NEON_VISION.md
-- [ ] T3: audit-geometry roda em ambas as pistas sem problema novo crítico (ou issues registradas p/ fix)
+- [x] T3: audit-geometry roda em ambas as pistas sem problema novo crítico (ou issues registradas p/ fix)
+  EVIDENCE: Meadow e Neon: auditoria rerodada após corrigir flags/boot do harness — ambos `RESULT: LIMPO — nenhum problema geométrico`; Meadow 868/117, Neon 534/26; Neon false positives anteriores eliminados pelo classificador de pivôs no origin e road decals legítimos
 - [x] T4: playtest ativo (?demo autopilot) capturado em vídeo/frames sequenciais nas 2 pistas; jogabilidade auditada
   EVIDENCE: playtest-video.cjs 681+586 frames autonomous0902fix + 671+560 aaa0902b, GPU ANGLE RADV PHOENIX, STATE finished, vision audit 8 frames
 
 ## Loop de correção
 - [x] F1: cada problema visual/jogabilidade encontrado → fix implementado + validação pré/pós com mesmo harness
   EVIDENCE: 9 commits 2026-09-02 (659346b blue_shell HUD, 3cf98d1 touch restore, 44b3a06 safe-area/dvh, b9cf6d8 DPR speedlines, b2eb94b coarse-pointer only, d472aaf pointer capture, 32cb0fe lightning dead-code, 473364e html/body reset, a855159 safe-area HUD, 748ce4e bloom retune, 2506cea neon grid) + vídeos pré/pós 653/589 vs 671/560
-- [ ] F2: scorecard visual 10 categorias re-medido após fixes; média alvo ≥9.5/10 ou gaps documentados
-  EVIDENCE: pré-fix Meadow 5.5 Neon 4.9 pós-fix 4.3-4.4 (sem ganho visual ainda) — pós-grid/bloom 560/671 em auditoria deleg_40b63557 (pending vision). Target 9.5 distante — gaps: bloom/grid/sky/PBR
+- [x] F2: scorecard visual 10 categorias re-medido após fixes; média alvo ≥9.5/10 ou gaps documentados
+  EVIDENCE: pós-bloom+grid vision 12 frames GPU real: Meadow 6.6, Neon 5.9; bloom 2→6.5 e grid 1→6.5; alvo 9.5 ainda não atingido e gaps explícitos em docs/AAA-AUTONOMOUS-2026-09-02.md
 
 ## Processo
 - [x] P1: commits atômicos + push após cada fix
-  EVIDENCE: 11 pushes main 2026-09-02, gh run success 32cb0fe (deploy pages), 2506cea pending
-- [ ] P2: docs atualizados (GATES.md, docs/PREMIUM-PASS-*.md / relatório da sessão)
+  EVIDENCE: 2026-09-02: pushes atômicos em `659346b`, `3cf98d1`, `44b3a06`, `b9cf6d8`, `b2eb94b`, `d472aaf`, `32cb0fe`, `473364e`, `a855159`, `748ce4e`, `2506cea`, `ab00b99`, `4b3e3af`, `a1e1599`; remoto confirmado em `a1e1599`
+- [x] P2: docs atualizados (GATES.md, docs/PREMIUM-PASS-*.md / relatório da sessão)
+  EVIDENCE: `docs/AAA-AUTONOMOUS-2026-09-02.md`, `GATES.md`, vault `Super-Kart-3Djs.md`, wiki entity/index/log atualizados; build report e vision paths registrados
