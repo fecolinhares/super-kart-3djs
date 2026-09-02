@@ -358,9 +358,9 @@ html, body {
 
 .sk3d-hud-top {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  right: 12px;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  left: calc(12px + env(safe-area-inset-left, 0px));
+  right: calc(12px + env(safe-area-inset-right, 0px));
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -1333,6 +1333,10 @@ html, body {
   z-index: 120;
   pointer-events: none;
   font-family: var(--sk3d-font);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 .sk3d-touch-btn {
