@@ -8,6 +8,7 @@ Desktop and mobile web gameplay for Meadow and Neon City. Primary evidence is se
 - Mobile gameplay captures after `a1e1599`: Meadow 1002 frames; Neon 1002 frames; viewport 390x844, `hasTouch=true`.
 - GPU: ANGLE Vulkan, AMD Radeon 780M, RADV PHOENIX.
 - Build: `SK3D_OUT_DIR=/tmp/sk3d-dist-autonomous npm run build` passed.
+- Gameplay simulation: `ai-backwards-test.mjs 20` passed in both tracks: 0 lost, 0 backwards, 0 crashes; all sampled onRoad=100%.
 - Dev server: `http://localhost:3457/` HTTP 200.
 
 ## Vision scorecard trend
