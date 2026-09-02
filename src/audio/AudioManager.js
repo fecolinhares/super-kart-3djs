@@ -107,7 +107,7 @@ export class AudioManager {
     }
     this._ctx = new Ctx();
     this._master = this._ctx.createGain();
-    this._master.gain.value = this._volume;
+    this._master.gain.value = this._muted ? 0 : this._volume;
 
     // --- EQ (subtractive + low-end body + presence) ---------------------
     const eq = this._ctx.createBiquadFilter();
