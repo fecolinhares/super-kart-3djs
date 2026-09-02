@@ -433,7 +433,7 @@ export class AIController {
         // can't grab it before the trap is useful — livelier item play.
         return d < -0.03;
       case PowerUpType.LIGHTNING:
-        return d > 5 && d < 150; // rival close ahead → shrink them
+        return d > 0.03 && d < 2.0; // rival ahead within ~2 laps worth; was d>5 (dead — progressScore delta is -1..1 per lap, 1000 per lap)
       default:
         return true;
     }
