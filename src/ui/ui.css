@@ -1571,6 +1571,10 @@ html, body {
     gap: 6px;
   }
 
+  .sk3d-hud-bottom-right {
+    transform: translateY(-18px);
+  }
+
   .sk3d-chip {
     padding: 4px 10px;
     font-size: 0.82rem;
@@ -1761,6 +1765,7 @@ html, body {
    ITEM/DRIFT viram ruído. Info crítica (posição/volta/moedas) permanece. */
 @media (max-width: 480px) {
   .sk3d-time { display: none; }
+  .sk3d-finish-hint { display: none; }
   .sk3d-item-label { display: none; }
   .sk3d-drift-label { display: none; }
 }
