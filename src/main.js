@@ -1084,8 +1084,9 @@ function updateCamera(dt, t) {
       _fwd.set(0, 0, 1).applyQuaternion(group.quaternion);
       _side.set(_fwd.z, 0, -_fwd.x);
       const sway = Math.sin(t * 0.13) * 3.4;
+      const demoBackDistance = CONFIG.camera.followDistance + (TRACK_ID === 2 ? 3.6 : 4.2);
       _camDesired.copy(st.position)
-        .addScaledVector(_fwd, -CONFIG.camera.followDistance - 4.2)
+        .addScaledVector(_fwd, -demoBackDistance)
         .addScaledVector(_side, sway);
       _camDesired.y += CONFIG.camera.followHeight + 2.2 + Math.sin(t * 0.4) * 0.8;
       const lerp = 1 - Math.exp(-2.4 * dt);
