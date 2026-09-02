@@ -1216,7 +1216,7 @@ function buildGantry(startLine) {
   // segmentation never distorts the texture).
   // MeshBasicMaterial: the toon gradient was washing the checker out.
   const banner = new THREE.Mesh(
-    new THREE.PlaneGeometry(roadW + 0.8, 1.30, 14, 1),
+    new THREE.PlaneGeometry(roadW + 0.8, 1.05, 14, 1),
     new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide }) // AUDIT 2026-09-02 mobile: reduzido para não bloquear linha de visão
   );
   banner.material.map = finishBannerTexture();
@@ -1258,7 +1258,7 @@ function buildGantry(startLine) {
   // pendurada no beam por 2 braçadeiras. Troca o painel preto por housing
   // claro + braçadeiras estruturais ligando ao beam.
   const lampPanel = new THREE.Mesh(
-    new THREE.BoxGeometry(6.0, 0.78, 0.26),
+    new THREE.BoxGeometry(6.0, 0.62, 0.26),
     toonMaterial(0xf4f6f8, {}) // housing claro (MK8D: caixa branca, não preta)
   );
   lampPanel.position.copy(startLine.position).addScaledVector(nrm, 0);
@@ -1267,7 +1267,7 @@ function buildGantry(startLine) {
   group.add(lampPanel);
   // Moldura escura fina ao redor do housing (legibilidade das luzes).
   const panelTrim = new THREE.Mesh(
-    new THREE.BoxGeometry(6.2, 0.92, 0.14),
+    new THREE.BoxGeometry(6.2, 0.74, 0.14),
     toonMaterial(0x1b2a41, {})
   );
   panelTrim.position.copy(lampPanel.position);
