@@ -1676,7 +1676,7 @@ html, body {
   /* Mobile mantém o dial visível para leitura contínua; boost/drift ainda
      podem elevar para 1.0, mas o HUD não desaparece sobre fundos claros. */
   .sk3d-speedo {
-    opacity: 0.78;
+    opacity: 0.92;
     transition: opacity 0.3s ease;
   }
   .sk3d-speedo.sk3d-speedo-active,
@@ -1748,7 +1748,7 @@ html, body {
   }
   .sk3d-speedo-unit {
     font-size: 0.68rem;
-    opacity: 0.95;
+    opacity: 1;
   }
 
   /* AUDIT: top row (lap+time+lapsplit | minimap+coins) overflow no phone —
