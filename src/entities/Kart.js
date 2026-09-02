@@ -570,7 +570,7 @@ export class Kart {
       // AI no grid'): o kart já tem castShadow=true (sombra projetada REAL) —
       // o blob é redundante. Núcleo 0.45 → 0.16, raio 1.35 → 1.8: ancoragem
       // preservada (cai p/ 0 em 1.8m) mas sem círculo visível no chão.
-    grad.addColorStop(0, 'rgba(0,0,0,0.08)'); // SK3D FIX (2026-08-20): core 0.16→0.08 — sombra de contato sutil, não mancha
+    grad.addColorStop(0, 'rgba(0,0,0,0.12)'); // AAA pass: grounding sutil do kart sem voltar à mancha preta
     grad.addColorStop(0.4, 'rgba(0,0,0,0.04)');
     grad.addColorStop(0.75, 'rgba(0,0,0,0.015)');
     grad.addColorStop(1, 'rgba(0,0,0,0)');
