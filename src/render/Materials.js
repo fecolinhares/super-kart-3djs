@@ -302,6 +302,21 @@ export function cityRoadTexture() {
         ctx.fillStyle = Math.random() > 0.5 ? '#535a70' : '#42485c';
         ctx.fillRect(Math.random() * s, Math.random() * s, 1.2, 1.2);
       }
+      // Micro wet-streaks: short, broken highlights add asphalt directionality
+      // without recreating the old continuous horizontal wear bands.
+      ctx.globalAlpha = 0.045;
+      for (let i = 0; i < 36; i++) {
+        const x = Math.random() * s;
+        const y = Math.random() * s;
+        const w = 8 + Math.random() * 20;
+        ctx.strokeStyle = i % 2 ? '#b4c8dc' : '#7d91aa';
+        ctx.lineWidth = 0.7 + Math.random() * 0.7;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + w, y + (Math.random() - 0.5) * 1.5);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
       // Neon reflection accents stay small and soft: they support the theme
       // without creating a giant translucent blob or a left/right seam.
       for (let i = 0; i < 6; i++) {
