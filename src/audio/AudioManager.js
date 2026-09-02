@@ -183,7 +183,7 @@ export class AudioManager {
 
     // Apply engine loops remembered before init().
     for (const [kartId, pending] of this._pendingEngine) {
-      this.setEngineLoop(kartId, pending.speed01, pending.pose);
+      this.setEngineLoop(kartId, pending.speed01, pending.pose, pending.vol);
     }
     this._pendingEngine.clear();
 
