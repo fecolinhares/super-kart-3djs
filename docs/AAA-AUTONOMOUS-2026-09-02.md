@@ -40,7 +40,7 @@ Desktop and mobile web gameplay for Meadow and Neon City. Primary evidence is se
 - **Iteração `9c729b6`:** `cityRoadTexture` recebeu 36 micro wet-streaks curtos (alpha `.045`), sem faixas contínuas. Capturas GPU: Meadow 1000/849 e Neon 1006/661 mobile/desktop; motion 0 lost/backwards/crashes. Vision pré/pós aprovou: variação mobile 4.5→6.5, ganhos desktop de profundidade/direção/naturalidade, sem z-fighting ou banding severo.
 - **Próximo eixo:** legibilidade mobile de minimap/ranking, sem aumentar obstrução do gameplay.
 - **Tentativa `a953bb6`:** minimap idle `.22→.42` e ranking `.55→.72` foram rejeitados por vision: ganho acionável não demonstrado e baseline desktop indisponível; revertido em `31aff06`, speedo `.92` preservado.
-- **QA áudio `2dfbc65`:** render OfflineAudioContext produziu 24 WAVs, 0 erros; `go` pico `.998` após kick `.58→.54`; `crash` pico `.9832` após ruído `.45→.43`. Espectrogramas confirmaram ataque/cauda limpos, sem clipping visual; clank metálico não isolado. Próximo: áudio completo/mix ou HUD com captura congelada.
+- **QA áudio `2dfbc65`:** render OfflineAudioContext produziu 24 WAVs, 0 erros; `go` pico `.998` após kick `.58→.54`; `crash` pico `.9832` após ruído `.45→.43`. Espectrogramas confirmaram ataque/cauda limpos, sem clipping visual; clank metálico não isolado. Runtime browser no GPU runner: mute pré-init, init, start/stop/restart music, pause/resume e visibility hidden/visible passaram; `pageerrors=0`, destroy limpou ctx. Próximo: captura congelada do HUD ou mix de gameplay.
 
 ## Vision scorecard trend
 | Pass | Meadow | Neon | Main signal |
