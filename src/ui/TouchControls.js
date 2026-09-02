@@ -53,11 +53,11 @@ export class TouchControls {
     this.pauseBtn = this.root.querySelector('.sk3d-touch-pause');
     this.pauseBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); this.onPause(); });
     // Drift is hold-to-drift: press = drift on, release = drift off.
-    const setDrift = (b) => (e) => { e.preventDefault(); this.onDrift(b); if (b) this.haptic(18); };
+    const setDrift = (b) => (e) => { e.preventDefault(); if (e.pointerId && e.target?.setPointerCapture) { try { if (b) e.target.setPointerCapture(e.pointerId); else if (e.target.hasPointerCapture?.(e.pointerId)) e.target.releasePointerCapture(e.pointerId); } catch {} } this.onDrift(b); if (b) this.haptic(18); };
     this.driftBtn.addEventListener('pointerdown', setDrift(true));
     this.driftBtn.addEventListener('pointerup', setDrift(false));
-    this.driftBtn.addEventListener('pointerleave', setDrift(false));
     this.driftBtn.addEventListener('pointercancel', setDrift(false));
+    this.driftBtn.addEventListener('lostpointercapture', () => this.onDrift(false));
 
     this.bindSteer(this.leftBtn, -1);
     this.bindSteer(this.rightBtn, 1);
@@ -128,16 +128,18 @@ export class TouchControls {
   bindItem(button) {
     button.addEventListener('pointerdown', (e) => {
       e.preventDefault();
+      if (e.pointerId && button.setPointerCapture) try { button.setPointerCapture(e.pointerId); } catch {}
       button.classList.add('is-active');
       this.haptic(25); // item use
       this.onItem();
     });
-    button.addEventListener('pointerup', () => {
+    const clear = (e) => {
+      if (e?.pointerId && button.hasPointerCapture?.(e.pointerId)) try { button.releasePointerCapture(e.pointerId); } catch {}
       button.classList.remove('is-active');
-    });
-    button.addEventListener('pointercancel', () => {
-      button.classList.remove('is-active');
-    });
+    };
+    button.addEventListener('pointerup', clear);
+    button.addEventListener('pointercancel', clear);
+    button.addEventListener('lostpointercapture', clear);
     button.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 }
