@@ -1339,6 +1339,7 @@ loop.start((dt, t) => {
             banana: ['🍌', 'Banana'],
             star: ['⭐', 'Star'],
             lightning: ['⚡', 'Lightning'],
+            blue_shell: ['💙', 'Blue Shell'],
           };
           const [icon, name] = ITEMS[changed] || ['❓', changed];
           const label = count > 1 ? `${icon} ${name} ×${count}` : `${icon} ${name}`;
