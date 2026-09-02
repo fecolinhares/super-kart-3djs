@@ -14,7 +14,7 @@
 - [x] T3: audit-geometry roda em ambas as pistas sem problema novo crítico (ou issues registradas p/ fix)
   EVIDENCE: Meadow e Neon: auditoria rerodada após corrigir flags/boot do harness — ambos `RESULT: LIMPO — nenhum problema geométrico`; Meadow 868/117, Neon 534/26; Neon false positives anteriores eliminados pelo classificador de pivôs no origin e road decals legítimos
 - [x] T4: playtest ativo (?demo autopilot) capturado em vídeo/frames sequenciais nas 2 pistas; jogabilidade auditada
-  EVIDENCE: pós-`9cc6afa`: paths exatos `/tmp/sk3d-desktop-9cc6afa_t1/frame_0177.jpg` + `frame_0806.jpg`, `/tmp/sk3d-desktop-9cc6afa_t2/frame_0177.jpg` + `frame_0675.jpg` (1280×720); vision Meadow 7.0, Neon 7.35, HUD substituído no finish. Mobile paths `/tmp/sk3d-mobile-9cc6afa_t1/frame_1001.jpg`, `/tmp/sk3d-mobile-9cc6afa_t2/frame_1008.jpg`; vision Meadow 7.2, Neon 7.5, FINAL LAP ausente no modal.
+  EVIDENCE: histórico validado pós-`9cc6afa`: paths `/tmp/sk3d-desktop-9cc6afa_t1/frame_0177.jpg` + `frame_0806.jpg`, `/tmp/sk3d-desktop-9cc6afa_t2/frame_0177.jpg` + `frame_0675.jpg`; vision Meadow 7.0, Neon 7.35; mobile Meadow 7.2, Neon 7.5, FINAL LAP ausente. Ciclo 2 recapturado separadamente: Meadow 1004 mobile/827 desktop, Neon 1009 mobile/654 desktop; fresh-eyes vision ainda pendente.
 
 ## Loop de correção
 - [x] F1: cada problema visual/jogabilidade encontrado → fix implementado + validação pré/pós com mesmo harness
