@@ -1706,7 +1706,7 @@ html, body {
   .sk3d-touch-btn {
     width: 78px;
     height: 78px;
-    bottom: 18px;
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
   }
 
   .sk3d-touch-arrow {
@@ -1727,16 +1727,25 @@ html, body {
 
   .sk3d-touch-item {
     right: 14px;
-    bottom: 14px;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
     width: 80px;
     height: 80px;
   }
 
   .sk3d-touch-drift {
     right: 108px;
-    bottom: 22px;
+    bottom: calc(22px + env(safe-area-inset-bottom, 0px));
     width: 74px;
     height: 74px;
+  }
+
+  .sk3d-speedo-value {
+    font-size: 2.7rem;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.78), 0 0 16px rgba(255, 209, 102, 0.7), 0 5px 10px rgba(27, 42, 65, 0.38);
+  }
+  .sk3d-speedo-unit {
+    font-size: 0.68rem;
+    opacity: 0.95;
   }
 
   /* AUDIT: top row (lap+time+lapsplit | minimap+coins) overflow no phone —
