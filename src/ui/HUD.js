@@ -160,9 +160,13 @@ export class HUD {
     // of radial speed lines, opacity ramps in above 80% top speed.
     this.speedlineCanvas = document.createElement('canvas');
     this.speedlineCanvas.className = 'sk3d-speedlines';
-    this.speedlineCanvas.width = window.innerWidth;
-    this.speedlineCanvas.height = window.innerHeight;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.speedlineCanvas.width = Math.round(window.innerWidth * dpr);
+    this.speedlineCanvas.height = Math.round(window.innerHeight * dpr);
+    this.speedlineCanvas.style.width = window.innerWidth + 'px';
+    this.speedlineCanvas.style.height = window.innerHeight + 'px';
     this.speedlineCtx = this.speedlineCanvas.getContext('2d');
+    this.speedlineCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     this.root.appendChild(this.speedlineCanvas);
     // AUDIT r5: the gauge scale was a load-time constant (MAX_KMH≈101) so the
     // needle PEGGED at 150cc. Now dynamic — startRace() calls setMaxKmh().
@@ -764,13 +768,19 @@ export class HUD {
     // (cheap guard — the HUD rebuilds per race anyway).
     const iw = window.innerWidth;
     const ih = window.innerHeight;
-    if (this.speedlineCanvas.width !== iw || this.speedlineCanvas.height !== ih) {
-      this.speedlineCanvas.width = iw;
-      this.speedlineCanvas.height = ih;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const needW = Math.round(iw * dpr);
+    const needH = Math.round(ih * dpr);
+    if (this.speedlineCanvas.width !== needW || this.speedlineCanvas.height !== needH) {
+      this.speedlineCanvas.width = needW;
+      this.speedlineCanvas.height = needH;
+      this.speedlineCanvas.style.width = iw + 'px';
+      this.speedlineCanvas.style.height = ih + 'px';
+      this.speedlineCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
     const a = speed01 > 0.8 ? Math.min(0.5, (speed01 - 0.8) * 2.2) : 0;
-    const w = this.speedlineCanvas.width;
-    const h = this.speedlineCanvas.height;
+    const w = iw;
+    const h = ih;
     ctx.clearRect(0, 0, w, h);
     if (a <= 0.01) return;
     ctx.globalAlpha = a;
