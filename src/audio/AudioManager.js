@@ -49,6 +49,8 @@ export class AudioManager {
     this._musicRequested = false;
     this._menuMusic = null;
     this._menuMusicRequested = false;
+    this._duckTimer = null;
+    this._duckGeneration = 0;
     this._engineLoops = new Map();    // kartId -> loop node graph
     this._pendingEngine = new Map();  // kartId -> { speed01, pose } (pre-init)
 
@@ -409,6 +411,11 @@ export class AudioManager {
   /** Stops the music (fast fade out). */
   stopMusic() {
     this._musicRequested = false;
+    this._duckGeneration += 1;
+    if (this._duckTimer) {
+      clearTimeout(this._duckTimer);
+      this._duckTimer = null;
+    }
     if (this._music) {
       this._music.stop();
       this._music = null;
@@ -869,7 +876,11 @@ export class AudioManager {
     if (this._music) this._music.setVolume(target);
     if (this._menuMusic) this._menuMusic.setVolume(target * 0.55);
     if (ms) {
-      setTimeout(() => {
+      if (this._duckTimer) clearTimeout(this._duckTimer);
+      const generation = ++this._duckGeneration;
+      this._duckTimer = setTimeout(() => {
+        this._duckTimer = null;
+        if (generation !== this._duckGeneration) return;
         if (this._music) this._music.setVolume(this._musicVolume);
         if (this._menuMusic) this._menuMusic.setVolume(this._musicVolume * 0.55);
       }, ms);
