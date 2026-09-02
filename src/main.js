@@ -976,6 +976,7 @@ function restartRace() {
   if (playerKart) playerKart.position = CONFIG.game.numKarts;
   hud.reset();
   hud.show();
+  if (isTouchMode()) touch.show?.();
   countdownT = 0;
   countdownIndex = -1;
   setState(STATES.COUNTDOWN);
