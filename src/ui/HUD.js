@@ -1048,6 +1048,7 @@ export class HUD {
       }
     }
     this.finishEl.classList.remove('sk3d-hidden');
+    this.root.classList.add('sk3d-finish-active');
 
     // Re-trigger the pop animation on the NEXT frame — remove+void+add in the
     // same tick silently fails on slow/headless frames and the `both` fill
@@ -1179,6 +1180,7 @@ export class HUD {
 
     this.countdownEl.classList.add('sk3d-hidden');
     this.finishEl.classList.add('sk3d-hidden');
+    this.root.classList.remove('sk3d-finish-active');
     this.toastEl.classList.add('sk3d-hidden');
   }
 }

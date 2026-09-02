@@ -356,6 +356,15 @@ html, body {
   display: block;
 }
 
+/* Finish is a distinct results state: remove live race telemetry behind the
+   card so stale LAP/speed/position cannot compete with the ranking. */
+.sk3d-finish-active > .sk3d-hud-top,
+.sk3d-finish-active > .sk3d-hud-bottom,
+.sk3d-finish-active > .sk3d-draft,
+.sk3d-finish-active > .sk3d-speedlines {
+  visibility: hidden;
+}
+
 .sk3d-hud-top {
   position: absolute;
   top: calc(12px + env(safe-area-inset-top, 0px));
