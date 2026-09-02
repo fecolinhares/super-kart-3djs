@@ -37,6 +37,8 @@ Desktop and mobile web gameplay for Meadow and Neon City. Primary evidence is se
 - **Validação `5fa172d`:** grounding aprovado com ressalva: Meadow mobile 6.0→7.25; Neon mobile 6.5→7.0; desktop score geral 8.25/10; nenhum círculo preto antigo inequívoco. A trilha escura Neon foi inspecionada e identificada como skid marks repetidos intencionais, não z-fighting/blob.
 - **Recaptura baseline para outline:** o primeiro batch pós `eb297af` não tinha pré disponível. Baseline foi reconstruído diretamente de `5fa172d` em servidor isolado `:3458`, mesmo harness/GPU: Meadow 998 mobile/832 desktop; Neon 1007 mobile/674 desktop; 20 frames em `/tmp/sk3d-vision-pre-5fa172d/`. Comparação pareada cega pré/pós concluída: manter outline; desktop Meadow 3.21→3.29 e Neon 3.43→3.50; mobile empate sem regressão visual relevante.
 - **Próximo eixo:** detalhe material/AO, sem reduzir skid marks intencionais.
+- **Iteração `9c729b6`:** `cityRoadTexture` recebeu 36 micro wet-streaks curtos (alpha `.045`), sem faixas contínuas. Capturas GPU: Meadow 1000/849 e Neon 1006/661 mobile/desktop; motion 0 lost/backwards/crashes. Vision pré/pós aprovou: variação mobile 4.5→6.5, ganhos desktop de profundidade/direção/naturalidade, sem z-fighting ou banding severo.
+- **Próximo eixo:** legibilidade mobile de minimap/ranking, sem aumentar obstrução do gameplay.
 
 ## Vision scorecard trend
 | Pass | Meadow | Neon | Main signal |
