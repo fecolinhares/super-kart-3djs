@@ -1361,7 +1361,7 @@ html, body {
 .sk3d-touch-btn {
   pointer-events: auto;
   position: absolute;
-  bottom: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   width: 86px; /* >= 56px touch target */
   height: 86px;
   display: flex;
@@ -1415,7 +1415,7 @@ html, body {
 
 .sk3d-touch-item {
   right: 20px;
-  bottom: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   width: 88px;
   height: 88px;
   border-radius: 50%;
@@ -1424,7 +1424,7 @@ html, body {
 
 .sk3d-touch-drift {
   right: 128px;
-  bottom: 28px;
+  bottom: calc(28px + env(safe-area-inset-bottom, 0px));
   width: 80px;
   height: 80px;
   border-radius: 50%;
@@ -1562,9 +1562,9 @@ html, body {
 
   /* compact HUD pinned to the top so touch buttons stay clear */
   .sk3d-hud-top {
-    top: 8px;
-    left: 8px;
-    right: 8px;
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    left: calc(8px + env(safe-area-inset-left, 0px));
+    right: calc(8px + env(safe-area-inset-right, 0px));
   }
 
   .sk3d-hud-left {
