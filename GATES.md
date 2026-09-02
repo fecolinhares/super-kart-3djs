@@ -14,7 +14,7 @@
 - [x] T3: audit-geometry roda em ambas as pistas sem problema novo crítico (ou issues registradas p/ fix)
   EVIDENCE: Meadow e Neon: auditoria rerodada após corrigir flags/boot do harness — ambos `RESULT: LIMPO — nenhum problema geométrico`; Meadow 868/117, Neon 534/26; Neon false positives anteriores eliminados pelo classificador de pivôs no origin e road decals legítimos
 - [x] T4: playtest ativo (?demo autopilot) capturado em vídeo/frames sequenciais nas 2 pistas; jogabilidade auditada
-  EVIDENCE: playtest-video.cjs 681+586 frames autonomous0902fix + 671+560 aaa0902b, GPU ANGLE RADV PHOENIX, STATE finished, vision audit 8 frames
+  EVIDENCE: pós-`9cc6afa`: paths exatos `/tmp/sk3d-desktop-9cc6afa_t1/frame_0177.jpg` + `frame_0806.jpg`, `/tmp/sk3d-desktop-9cc6afa_t2/frame_0177.jpg` + `frame_0675.jpg` (1280×720); vision Meadow 7.0, Neon 7.35, HUD substituído no finish. Mobile paths `/tmp/sk3d-mobile-9cc6afa_t1/frame_1001.jpg`, `/tmp/sk3d-mobile-9cc6afa_t2/frame_1008.jpg`; vision Meadow 7.2, Neon 7.5, FINAL LAP ausente no modal.
 
 ## Loop de correção
 - [x] F1: cada problema visual/jogabilidade encontrado → fix implementado + validação pré/pós com mesmo harness
@@ -24,6 +24,6 @@
 
 ## Processo
 - [x] P1: commits atômicos + push após cada fix
-  EVIDENCE: 2026-09-02: pushes atômicos em `659346b`, `3cf98d1`, `44b3a06`, `b9cf6d8`, `b2eb94b`, `d472aaf`, `32cb0fe`, `473364e`, `a855159`, `748ce4e`, `2506cea`, `ab00b99`, `4b3e3af`, `a1e1599`; remoto confirmado em `a1e1599`
+  EVIDENCE: 2026-09-02: pushes atômicos incluindo `9cc6afa`, `d238f9b`, `67cf182`; remoto confirmado após docs em execução
 - [x] P2: docs atualizados (GATES.md, docs/PREMIUM-PASS-*.md / relatório da sessão)
   EVIDENCE: `docs/AAA-AUTONOMOUS-2026-09-02.md`, `GATES.md`, vault `Super-Kart-3Djs.md`, wiki entity/index/log atualizados; build report e vision paths registrados
