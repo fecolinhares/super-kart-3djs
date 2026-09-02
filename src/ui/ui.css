@@ -1339,11 +1339,11 @@ html, body {
     border-color: rgba(255, 255, 255, 0.15);
     box-shadow: none;
   }
-  .sk3d-hud-idle .sk3d-minimap { opacity: 0.42; }
+  .sk3d-hud-idle .sk3d-minimap { opacity: 0.22; }
   /* Velocidade é telemetria crítica: nunca apagar no auto-hide. */
   .sk3d-hud-idle .sk3d-speedo { opacity: 0.92; }
-  /* Ranking remains readable during idle without restoring the heavy card. */
-  .sk3d-hud-idle .sk3d-position { opacity: 0.72; }
+  /* placa de posição: esmaece mas o número segue legível (info crítica) */
+  .sk3d-hud-idle .sk3d-position { opacity: 0.55; }
   .sk3d-hud-idle .sk3d-item-wrap { opacity: 0.4; }
 }
 
