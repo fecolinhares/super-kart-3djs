@@ -677,6 +677,7 @@ export class Environment {
       this.buildNeonCity(scene, track);
       // AUDIT R12 (2ª camada — Neon): névoa baixa na base das torres (50-90m)
       this.buildGroundHaze(scene, 0x141034, 72, 2.3, 34, 4.6, 0.75); // AUDIT R21f: alpha 0.55→0.75 — o haze mais denso abafa o glow bloom residual no horizonte
+      this.buildNeonGrid(scene, track); // AUDIT 2026-09-02 AAA: grid neon infinito substitui chão oliva (critic 1/10)
     }
 
     if (!night) {
@@ -5476,6 +5477,7 @@ export class Environment {
       }
       if (w.material.emissive) w.material.emissiveIntensity = 0.3 + shim * 0.35;
     }
+    if (this.neonGridMat) this.neonGridMat.uniforms.uTime.value = t;
     // Flags wave
     for (let i = 0; i < this.flagMeshes.length; i++) {
       const f = this.flagMeshes[i];
@@ -5521,5 +5523,48 @@ export class Environment {
       }
       spec.instanceMatrix.needsUpdate = true;
     }
+  }
+
+  /** AUDIT 2026-09-02 AAA: grid neon infinito — substitui o chão oliva plano (critic 1/10). */
+  buildNeonGrid(scene, track) {
+    const size = 900;
+    const geo = new THREE.PlaneGeometry(size, size, 1, 1);
+    const mat = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      fog: false,
+      uniforms: {
+        uTime: { value: 0 },
+      },
+      vertexShader: `varying vec2 vUv; varying vec3 vWorld; void main(){ vUv=uv; vec4 w=modelMatrix*vec4(position,1.0); vWorld=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`,
+      fragmentShader: `
+        varying vec2 vUv; varying vec3 vWorld;
+        uniform float uTime;
+        void main(){
+          vec2 uv = vWorld.xz;
+          float dist = length(uv);
+          float fade = 1.0 - smoothstep(180.0, 420.0, dist);
+          // grid lines: 8m spacing
+          vec2 g = abs(fract(uv / 8.0 - 0.5) - 0.5) / fwidth(uv / 8.0);
+          float line = min(g.x, g.y);
+          float grid = 1.0 - min(line, 1.0);
+          grid = pow(grid, 1.2);
+          // pulse
+          float pulse = 0.85 + 0.15 * sin(uTime * 1.2 + dist * 0.02);
+          vec3 col = mix(vec3(0.08,0.02,0.20), vec3(0.25,0.85,1.0), grid) * pulse;
+          // horizon fade to fog indigo
+          col = mix(vec3(0.08,0.04,0.20), col, fade);
+          float alpha = grid * fade * 0.9 + 0.08 * fade;
+          gl_FragColor = vec4(col, alpha);
+        }`,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.y = 0.08; // just above ground, below wet reflect 0.195
+    mesh.renderOrder = 0;
+    mesh.frustumCulled = false;
+    scene.add(mesh);
+    this.neonGrid = mesh;
+    this.neonGridMat = mat;
   }
 }
