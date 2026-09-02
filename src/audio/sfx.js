@@ -516,7 +516,7 @@ export function renderSfx(ctx, out, name, opts = {}) {
       // (bandpassed square gliding down) + a fast shard-hiss layer.
       kick(ctx, target, { at, vol: v(0.65), freq: 120, glideTo: 38, dur: 0.3 });
       noise(ctx, target, {
-        dur: 0.42, vol: v(0.45), at, filterType: 'lowpass', freq: 6000, q: 0.6,
+        dur: 0.42, vol: v(0.43), at, filterType: 'lowpass', freq: 6000, q: 0.6, // QA: dry peak headroom
         glideTo: 160, attack: 0.001, timeConstant: 0.14,
       });
       osc(ctx, target, {
@@ -579,7 +579,7 @@ export function renderSfx(ctx, out, name, opts = {}) {
     case 'go': {
       // Race start: kick punch + fat horn blast E5 -> A5 with sub body
       // and crowd-air on top — the arcade launch, not a beep.
-      kick(ctx, target, { at, vol: v(0.58), freq: 170, glideTo: 50, dur: 0.25 });
+      kick(ctx, target, { at, vol: v(0.54), freq: 170, glideTo: 50, dur: 0.25 }); // QA: keep dry peak below 1.0
       osc(ctx, target, { type: 'sine', freq: 160 * rate, glideTo: 60 * rate, dur: 0.22, vol: v(0.5), at, attack: 0.002 });
       horn(ctx, target, at, 659.25 * rate, 0.5, v(0.36));
       horn(ctx, target, at + 0.16, 880 * rate, 0.62, v(0.36));
