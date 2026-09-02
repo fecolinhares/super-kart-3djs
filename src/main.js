@@ -637,6 +637,25 @@ function disarmRear() {
   playerKart?.setItemRear?.(false);
 }
 
+function clearTransientInput() {
+  keys.clear();
+  touchSteer = 0;
+  touchDrift = false;
+  swapQueued = false;
+  input.steer = 0;
+  input.throttle = 0;
+  input.brake = false;
+  input.drift = false;
+  input.swapItem = false;
+  itemPressT = -1;
+  disarmRear();
+}
+
+window.addEventListener('blur', clearTransientInput);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') clearTransientInput();
+});
+
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
   audio.init(); // first gesture unlocks audio (autoplay policy)
