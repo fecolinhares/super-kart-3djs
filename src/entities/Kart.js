@@ -617,6 +617,9 @@ export class Kart {
     hull.scale.set(1, 0.72, 1.5); // AUDIT: lower body (MK8: wheels dominate the silhouette; old top y0.96 → ~0.79)
     hull.castShadow = true;
     this.group.add(hull);
+    // Player-only silhouette cue: a restrained toon contour keeps the hero
+    // readable against Neon bloom and Meadow asphalt without a bright halo.
+    if (this.isPlayer) this._outline(hull, 0.018);
     // Recessed cockpit tub — a dark dish sunk into the shell top; the driver
     // sits in it (the MK8 cockpit-opening read instead of a flat deck).
     const cockpit = new THREE.Mesh(new THREE.SphereGeometry(0.34, 28, 18), dark);
