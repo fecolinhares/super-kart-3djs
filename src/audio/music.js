@@ -430,7 +430,10 @@ export class MusicEngine {
       if (!this._playing) return;
     }
     if (this._step >= this._totalSteps()) {
-      this._finishTrack();
+      // `_nextStepTime` is the audio time immediately after the last step.
+      // Do not start the fade at `currentTime`: lookahead may have queued the
+      // final beat up to LOOKAHEAD seconds ahead.
+      this._finishTrack(this._nextStepTime);
     }
   }
 
@@ -444,13 +447,14 @@ export class MusicEngine {
     return t.chords.length * t.barsPerChord * 16 * t.cycles;
   }
 
-  _finishTrack() {
+  _finishTrack(trackEndTime = this._ctx.currentTime) {
     this._stopScheduler();
     this._playing = false;
     const now = this._ctx.currentTime;
+    const end = Math.max(now, trackEndTime);
     this._bus.gain.cancelScheduledValues(now);
     this._bus.gain.setValueAtTime(this._bus.gain.value, now);
-    this._bus.gain.linearRampToValueAtTime(0, now + 0.6);
+    this._bus.gain.linearRampToValueAtTime(0, end + 0.6);
     const cb = this._onEnded;
     const track = this._currentTrack;
     this._finishTimer = setTimeout(() => {
@@ -458,7 +462,7 @@ export class MusicEngine {
       if (cb) cb(track);
       // Guard: stop() (or a next() already pending) must not restart.
       if (!this._stopping) this._playNext(0.4);
-    }, 650);
+    }, Math.max(650, (end - now) * 1000 + 650));
   }
 
   /* ---------------- Vinyl texture ---------------- */
