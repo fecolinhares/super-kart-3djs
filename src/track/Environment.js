@@ -5544,17 +5544,22 @@ export class Environment {
           vec2 uv = vWorld.xz;
           float dist = length(uv);
           float fade = 1.0 - smoothstep(180.0, 420.0, dist);
-          // grid lines: 8m spacing
-          vec2 g = abs(fract(uv / 8.0 - 0.5) - 0.5) / fwidth(uv / 8.0);
+          // grid lines: 8m spacing — thickness grows with distance to avoid moiré
+          float spacing = 8.0;
+          float w = fwidth(uv.x / spacing) * 3.0; // adaptive line width
+          vec2 g = abs(fract(uv / spacing - 0.5) - 0.5) / w;
           float line = min(g.x, g.y);
           float grid = 1.0 - min(line, 1.0);
-          grid = pow(grid, 1.2);
+          grid = pow(grid, 1.0);
+          // distance fade: thin out grid beyond 300m
+          float distFade = 1.0 - smoothstep(280.0, 450.0, dist);
+          grid *= distFade;
           // pulse
           float pulse = 0.85 + 0.15 * sin(uTime * 1.2 + dist * 0.02);
           vec3 col = mix(vec3(0.08,0.02,0.20), vec3(0.25,0.85,1.0), grid) * pulse;
           // horizon fade to fog indigo
           col = mix(vec3(0.08,0.04,0.20), col, fade);
-          float alpha = grid * fade * 0.9 + 0.08 * fade;
+          float alpha = grid * fade * 0.85 + 0.06 * fade;
           gl_FragColor = vec4(col, alpha);
         }`,
     });

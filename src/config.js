@@ -160,7 +160,7 @@ export const CONFIG = {
     bloomStrength: 0.42, // AUDIT 2026-09-02 AAA pass: 0.35→0.42 — neon janelas/postes precisam glow (critic bloom 2/10)
     bloomRadius: 0.32, // AUDIT 2026-09-02: 0.25→0.32 — spread maior p/ janelas lerem como neon
     bloomThreshold: 1.1, // AUDIT 2026-09-02: 1.4→1.1 — janelas MeshBasic 1.0 precisam passar threshold p/ bloom (era 2/10)
-    vignetteStrength: 0.12, // SK3D FIX (2026-08-20, Feco real-GPU): 0.2→0.12 — vignette escurecia bordas (asfalto atrás do kart lia mais escuro que à frente)
+    vignetteStrength: 0.08, // AUDIT 2026-09-02 AAA: 0.12→0.08 — halo branco radial nos cantos (critic 4/10) vinha de vignette+bloom radius; reduzir
     colorGradeSaturation: 1.25, // AUDIT R21e: 1.45→1.25 — saturava o glow âmbar do bloom em oliva no chão noturno // AUDIT r17 (Feco real-GPU + pixel-measured
     // critic): ACES tone mapping in OutputPass DESSATURATES — the grade
     // must fight it. Measured: sat 87/255 mean + 21% dead-grey on the real
