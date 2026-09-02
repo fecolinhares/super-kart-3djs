@@ -1084,7 +1084,7 @@ function updateCamera(dt, t) {
       _fwd.set(0, 0, 1).applyQuaternion(group.quaternion);
       _side.set(_fwd.z, 0, -_fwd.x);
       const sway = Math.sin(t * 0.13) * 3.4;
-      const demoBackDistance = CONFIG.camera.followDistance + (TRACK_ID === 2 ? 3.6 : 4.2);
+      const demoBackDistance = CONFIG.camera.followDistance + (TRACK_ID === 2 && !isTouchMode() ? 3.6 : 4.2);
       _camDesired.copy(st.position)
         .addScaledVector(_fwd, -demoBackDistance)
         .addScaledVector(_side, sway);
