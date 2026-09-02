@@ -3,12 +3,14 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 (async () => {
   const url = process.argv[2], outdir = process.argv[3], track = process.argv[4] || '1';
+  const viewportName = process.argv[5] || 'desktop';
+  const viewport = viewportName === 'mobile' ? { width: 390, height: 844 } : { width: 1280, height: 720 };
   fs.mkdirSync(outdir, { recursive: true });
   const browser = await chromium.launch({
     executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH || '/usr/bin/chromium',
     args: ['--use-gl=angle','--use-angle=vulkan','--no-sandbox','--mute-audio','--disable-frame-rate-limit','--disable-gpu-vsync'],
   });
-  const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+  const ctx = await browser.newContext({ viewport, hasTouch: viewportName === 'mobile', isMobile: false });
   const page = await ctx.newPage();
   await page.addInitScript(() => localStorage.clear());
   await page.goto(url + '/?demo&track=' + track, { waitUntil: 'domcontentloaded', timeout: 120000 });
