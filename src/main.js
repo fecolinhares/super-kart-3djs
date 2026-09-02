@@ -892,7 +892,7 @@ function startRaceInit() {
       position: r.position,
       kart: r.kart,
       totalTime: r.kart?.totalTime,
-    })));
+    })), TRACK_ID === 2 ? 'Neon City' : 'Meadow Circuit');
     // Celebration burst as the player crosses the line (art-bible: reward juice).
     if (playerKart && playerKart.state) {
       const p = playerKart.state.position.clone();

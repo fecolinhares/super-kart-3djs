@@ -1066,6 +1066,16 @@ html, body {
   -webkit-text-fill-color: var(--sk3d-yellow);
 }
 
+.sk3d-finish-track {
+  color: var(--sk3d-pink);
+  font-family: var(--sk3d-font);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: -2px 0 6px;
+}
+
 .sk3d-finish-time {
   font-family: var(--sk3d-font);
   font-weight: 800;

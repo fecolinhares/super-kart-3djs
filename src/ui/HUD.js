@@ -137,6 +137,7 @@ export class HUD {
         <div class="sk3d-finish-card">
           <div class="sk3d-finish-trophy" aria-hidden="true">🏆</div>
           <div class="sk3d-finish-title">FINISHED <span class="sk3d-finish-place">1st</span>!</div>
+          <div class="sk3d-finish-track" aria-label="Track"></div>
           <div class="sk3d-finish-time">0:00.0</div>
           <div class="sk3d-finish-results" aria-label="Final standings"></div>
           <button type="button" class="sk3d-finish-btn">Race Again</button>
@@ -236,6 +237,7 @@ export class HUD {
     const pm = this.root.querySelector('.sk3d-pause-menu');
     if (pm) pm.addEventListener('click', () => window.__sk3d?.gotoMenu?.());
     this.finishTimeEl = this.root.querySelector('.sk3d-finish-time');
+    this.finishTrackEl = this.root.querySelector('.sk3d-finish-track');
     this.toastEl = this.root.querySelector('.sk3d-toast');
     this.toastEl.setAttribute('aria-live', 'polite'); // toast only (root was too chatty)
 
@@ -1030,8 +1032,9 @@ export class HUD {
 
   /** @param {number} place race rank (1-6) @param {number} time total time in seconds
    *  @param {Array} [standings] final order [{ position, kart, totalTime }] — AUDIT r21 */
-  showFinish(place, time, standings) {
+  showFinish(place, time, standings, trackName = '') {
     this.finishPlaceEl.textContent = ordinal(place);
+    if (this.finishTrackEl) this.finishTrackEl.textContent = trackName;
     this.finishTimeEl.textContent = formatTime(time);
     const listEl = this.root.querySelector('.sk3d-finish-results');
     if (listEl) {
