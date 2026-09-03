@@ -746,4 +746,4 @@ Escopo: re-medire o estado real e testar exatamente um candidato de grounding/ma
   EVIDENCE: diff bruto acima do limiar 2 foi `113513/921600 (0.123169)` desktop e `71853/329160 (0.218292)` mobile; alteração de pixels não foi usada como proxy de qualidade.
 
 - [x] RT7: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico/push ocorre apenas para mudança aceita ou documentação do bloqueio; QA não é staged.
-  EVIDENCE: relatório, vault, wiki/index/log e memória atualizados; `qa-gpu-runner/` e temporários fora do staging; commit documental e push serão verificados após o gate-check.
+  EVIDENCE: relatório, vault, wiki/index/log e memória atualizados; commit documental `ce794af` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi pushado para `origin/main`; `qa-gpu-runner/` e temporários fora do staging; `src/` sem diff.
