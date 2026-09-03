@@ -529,4 +529,4 @@ Escopo: re-medire o estado real e, se o GPU runner estiver acessível, testar um
   EVIDENCE: `git diff --name-only -- src` vazio.
 
 - [x] R7: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico pushado somente com mudança aceita/documentação; QA não staged.
-  EVIDENCE: repo report/GATES, vault `Super-Kart-3Djs.md`/`_index.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` e memória atualizados; `src/` sem diff; `qa-gpu-runner/` e `.hermes-tmp.*` não staged; commit documental será verificado após gate-check.
+  EVIDENCE: repo report/GATES, vault `Super-Kart-3Djs.md`/`_index.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` e memória atualizados; `src/` sem diff; `qa-gpu-runner/` e `.hermes-tmp.*` não staged; commit documental `90ea695` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi publicado em `origin/main`.
