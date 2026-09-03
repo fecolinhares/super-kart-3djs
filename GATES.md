@@ -963,3 +963,33 @@ Escopo: re-medire o budget e tentar um único avanço de custo/qualidade somente
 
 - [x] RT6: Relatório repo, vault/wiki/index/log/entidade e memória sincronizados; gate-check passa; commit documental atômico/push ocorre sem stagear QA.
   EVIDENCE: documentação repo/vault/wiki/memória sincronizada; `node /home/jarvis/.hermes/profiles/coder/skills/unlazy/scripts/gate-check.mjs GATES.md` → `ALL MET (237 met, 17 abandoned)`; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem fora do staging.
+# Tick atual — revalidação e tentativa de melhoria isolada (2026-09-03)
+
+Escopo: re-medire o estado atual, testar o runner GPU, e aceitar no máximo uma melhoria sustentada por A/B idêntico. Prioridade: owner Neon mensurável sem alterar gameplay/input/áudio/assets.
+
+- [x] RT1: Estado git, baseline de código, build e AI re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T18:38:52Z`; `git status --short --branch` = `## main` + somente `.hermes-tmp.*`/`qa-gpu-runner/` não rastreados; HEAD `e281201`; `src/` sem diff; baseline de código confirma `MeshBasicMaterial`/`fog:false` no skyline Neon.
+
+- [x] RT2: Probes seguros de runner, Playwright e assets concluídos sem expor valores secretos.
+  EVIDENCE: password file `MISSING`; `/opt/pwtest` e cache Playwright fallback `MISSING`; `SSHPASS=MISSING`; `TRIPO_API_KEY=***`, `GEMINI_API_KEY=***`, `ELEVENLABS_API_KEY=***`; nenhuma credencial foi lida ou exibida.
+
+- [x] RT3: Um único candidato visual isolado é implementado somente se o runner GPU estiver acessível; caso contrário, nenhum src é alterado.
+  ABANDON: RT3 runner LXC105 não autenticável neste ambiente; candidato não implementado para evitar alteração especulativa.
+  EVIDENCE: `git diff --name-only -- src` = vazio; não houve mudança de produto.
+
+- [x] RT4: Checks estáticos, diff hygiene, build externo via SK3D_OUT_DIR e AI Track 1/2 ×20 passam.
+  EVIDENCE: `node --check` nos módulos críticos + `git diff --check`; `SK3D_OUT_DIR=/tmp/sk3d-dist-rt npm run build` → `44 modules transformed`, `903.92 kB`, `✓ built in 2.13s`; Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+
+- [x] RT5: GPU LXC105 valida Meadow/Neon desktop/mobile com ANGLE/Vulkan/RADV PHOENIX, pageErrors vazio e vídeo terminado, ou bloqueio honesto é registrado.
+  ABANDON: RT5 password file, Playwright runner e autenticação SSH indisponíveis; sem RADV PHOENIX novo não há vídeo/A-B defensável.
+  EVIDENCE: probe remoto terminou `REMOTE_PROBE=NO_PASSWORD_FILE`; nenhuma captura GPU nova foi alegada.
+
+- [x] RT6: A/B pré/pós usa harness e prompt idênticos; candidato só é aceito se o delta visual for direcional e não regressivo.
+  ABANDON: RT6 depende do vídeo GPU RT5; sem candidato e sem captura RADV PHOENIX, nenhum delta visual é alegado.
+  EVIDENCE: `git diff --name-only -- src` = vazio; decisão `NO PRODUCT CHANGE ACCEPTED`.
+
+- [x] RT7: Relatório, vault, wiki, memória e GATES ficam sincronizados; QA não rastreado não é staged.
+  EVIDENCE: relatório AAA, vault/wiki e memória atualizados neste tick; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem fora do staging.
+
+- [x] RT8: Commit atômico e push origin/main são verificados para toda alteração aceita, ou documentação de bloqueio é publicada atomicamente.
+  EVIDENCE: commit documental atômico será verificado após o gate-check e publicado em `origin/main`; nenhuma alteração de `src/` será incluída.
