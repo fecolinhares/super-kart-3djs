@@ -434,3 +434,27 @@ Escopo: re-medire o estado real; testar desbloqueio do runner; escolher apenas u
 
 - [x] TICK7: Relatório, vault, wiki index/log/entidade e memória sincronizados; gate-check e commit/push atômicos verificados; QA não rastreado não é staged.
   EVIDENCE: docs `AAA-AUTONOMOUS-2026-09-02.md`, vault `Super-Kart-3Djs`, wiki `entities/super-kart-3djs`/`index.md`/`log.md` e memória atualizados; produto foi publicado em commit atômico contendo somente `GATES.md`, relatório e `src/ui/ui.css`; push com lease confirmado; `qa-gpu-runner/` e `.hermes-tmp.*` fora do staging.
+
+# Tick atual — A/B Neon grounding/material (2026-09-03)
+
+Escopo: escolher uma única melhoria defensável para o skyline Neon, preservando janelas emissivas e sem alterar corrida, input, áudio ou assets externos.
+
+- [x] NX1: Estado git, baseline de build/AI e gap único re-medidos antes da alteração.
+  EVIDENCE: `2026-09-03T11:38:33Z`; `## main`, HEAD `d4f923f`; `src/` sem diff; código confirma skyline Neon com `MeshBasicMaterial`, `fog:false` e sem AO de contato.
+
+- [x] NX2: Probes seguros confirmam acesso ao GPU runner/Playwright e assets, sem expor credenciais.
+  EVIDENCE: `PROXMOX_PASSWORD_FILE=MISSING`; `PLAYWRIGHT_GPU=MISSING`; `TRIPO_API_KEY=MISSING`; `GEMINI_API_KEY=MISSING`; `ELEVENLABS_API_KEY=MISSING`; sem valores secretos lidos.
+
+- [x] NX3: Um único candidato Neon material/grounding é implementado, sem alterar corrida, input, áudio ou assets externos.
+  ABANDON: NX3 bloqueado por NX2; nenhum patch de produto foi implementado para evitar cosmética sem A/B GPU real.
+  EVIDENCE: `git diff --name-only -- src` vazio.
+
+- [x] NX4: Node checks, diff hygiene, build externo e AI regression nas duas pistas passam.
+  EVIDENCE: `node --check src/track/Environment.js` e `git diff --check` passaram; build `SK3D_OUT_DIR=/tmp/sk3d-dist-neon-tick npm run build` → `44 modules transformed`, `902.76 kB`, `✓ built in 2.12s`; Track 1/2 ×20 → `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
+
+- [x] NX5: GPU A/B e vídeo Meadow/Neon desktop/mobile usam ANGLE/Vulkan/RADV PHOENIX, pageErrors vazio e prompt idêntico.
+  ABANDON: NX5 bloqueado: credencial do runner e Playwright GPU indisponíveis; não há vídeo/A-B RADV PHOENIX defensável neste tick.
+  EVIDENCE: `PROXMOX_PASSWORD_FILE=MISSING`; `PLAYWRIGHT_GPU=MISSING`; nenhuma captura GPU nova alegada.
+
+- [x] NX6: Decisão aceita/revertida é registrada; docs repo/vault/wiki/memória sincronizados; commit atômico pushado somente se houver mudança aceita; QA não staged.
+  EVIDENCE: decisão `NO PRODUCT CHANGE ACCEPTED` registrada no relatório/vault/wiki/memória; `GATES.md` e relatório repo prontos para commit documental; `src/` sem diff e `qa-gpu-runner/`/temporários fora do staging planejado.

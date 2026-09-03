@@ -117,6 +117,14 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Decision: **REVERTED / not accepted**. The only available pre frame was a finish-results modal, while the post frame was active grid gameplay; therefore the identical-prompt visual comparison was not a valid paired A/B. No source commit was created.
 - Blocker: repository does not currently contain `scripts/audit-geometry.cjs`; deterministic fixed-camera skyline capture or per-instance palette telemetry is required before the next attempt.
 
+## [2026-09-03T11:38Z] Autonomous tick — Neon grounding revalidation blocked; no product delta
+- Baseline remeasured at HEAD `d4f923f`; `src/` remained clean. `Environment.buildNeonCity()` still uses `MeshBasicMaterial`, `fog:false`, and no AO/contact layer; this remains the single highest-value visual gap.
+- Static checks passed: `node --check src/track/Environment.js` and `git diff --check`.
+- Production build passed outside virtiofs: `SK3D_OUT_DIR=/tmp/sk3d-dist-neon-tick npm run build` → `44 modules transformed`, `902.76 kB`, `✓ built in 2.12s`.
+- Deterministic AI regression passed: Track 1/2 ×20 seeds, `0 lost / 0 backwards / 0 crashes`; onRoad samples remained `100`.
+- Safe probes returned `PROXMOX_PASSWORD_FILE=MISSING`, `PLAYWRIGHT_GPU=MISSING`, and external generator keys `MISSING`; no secret value was read or persisted.
+- Decision: **NO PRODUCT CHANGE ACCEPTED**. Required LXC105 ANGLE/Vulkan/RADV PHOENIX video and identical-prompt A/B could not run; no visual claim is made. Next gap remains emissive-safe Neon material/AO grounding.
+
 ## [2026-09-03] Autonomous tick — Neon AO/material blocked; no product delta accepted
 - Baseline remeasured at HEAD `cc70de1`: `Environment.buildNeonCity()` already selects `windowColors.length` (five slots); the remaining evidence-backed gap is material/AO grounding that preserves emissive window readability.
 - Static checks passed: `node --check` for Environment/MaterialLibrary and QA scripts; AI regression Track 1/2 with 20 seeds each returned `0 lost / 0 backwards / 0 crashes`.
