@@ -359,7 +359,14 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - External production build passed via `SK3D_OUT_DIR=/tmp/sk3d-dist-autonomous-1054 npm run build`: `44 modules transformed`, `902.76 kB`, `2.14s`.
 - Deterministic AI regression passed on Track 1 and Track 2 with 20 seeds each: `0 lost`, `0 backwards`, `0 crashes`; sampled `onRoad=100`.
 - Safe probes: password file `MISSING`, Playwright local/fallback `MISSING`, `sshpass=SET`, SSH probe `EXIT_255`; asset probes `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`. No secret values were read or recorded.
-- Decision: **NO PRODUCT CHANGE ACCEPTED**. Without LXC105 ANGLE/Vulkan/RADV PHOENIX video and identical-protocol A/B, no visual improvement is defensible. Next gap remains selective emissive-safe AO/material Neon A/B after runner restoration.
+- Decision: **NO PRODUCT CHANGE ACCEPTED**. Without LXC105 ANGLE/Vulkan/RADV PHOENIX video and identical-protocol A/B, no visual improvement is defensible. Next highest-value gap remains selective emissive-safe AO/material Neon A/B after runner restoration.
+
+## [2026-09-03T13:10Z] Autonomous tick — runner bloqueado, sem delta de produto
+- Baseline real refeito em HEAD `d9d73a5`; `src/` sem diff; `Environment.js` confirma skyline Neon em `MeshBasicMaterial`, `fog:false`, sem `aoMap` executável.
+- Checks reais: `node --check src/main.js src/track/Environment.js src/render/MaterialLibrary.js`; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-ct npm run build` → `44 modules transformed`, `902.76 kB`, `2.15s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`; `git diff --check` passou.
+- Probes seguros: password file `MISSING`, `/opt/pwtest` `MISSING`, Playwright local `MISSING`; assets externos somente estados redigidos. Porta SSH está aberta, mas `SSH_RC=NO_PASSWORD_FILE`; nenhum segredo foi lido.
+- `scripts/audit-geometry.cjs` ainda não existe; isso permanece dívida de instrumentação, não justificativa para patch visual especulativo.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. Sem sessão LXC105/RADV PHOENIX não houve vídeo Meadow/Neon desktop/mobile nem A/B pareado. Próximo gap: restaurar rota autenticável e executar material híbrido/AO Neon emissive-safe.
 
 ## [2026-09-03T11:09Z] Autonomous tick — mobile touch controls de-emphasized
 - Baseline remeasured at HEAD `d79c186`: dev server `HTTP=200`; mobile `390×844` HUD bottom occupied `y=526..696`, touch controls `y=748..830`, preserving `52px` vertical separation.

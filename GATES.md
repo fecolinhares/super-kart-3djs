@@ -503,6 +503,34 @@ Escopo: re-medire o gap material/AO do skyline Neon; aceitar produto somente com
 
 EVIDENCE: repo report/GATES, vault/wiki/memória e gate-check ficam sincronizados; artefatos QA não são staged.
 
+# Tick atual — revalidação do runner e gap Neon (2026-09-03T13:10Z)
+
+Escopo: re-medire o estado real; tentar desbloquear a rota documentada do GPU runner sem expor credenciais; aceitar no máximo um patch Neon material/AO com A/B pareado em vídeo. Sem RADV PHOENIX acessível, nenhum `src/` será alterado.
+
+- [x] CT1: Estado git, data, fonte do gap e baseline estático re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T13:10:50Z`; `## main`, HEAD `d9d73a5`, `SRC_DIFF=0`; `node --check src/main.js src/track/Environment.js src/render/MaterialLibrary.js` → `NODE_CHECK=PASS`; skyline medido como `MeshBasicMaterial`, `fog:false`, sem `aoMap`.
+
+- [x] CT2: Probes seguros de runner/browser/assets concluídos sem ler ou expor valores secretos.
+  EVIDENCE: probe real redigido: password file `MISSING`, `PLAYWRIGHT_GPU=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`; assets `TRIPO/GEMINI/ELEVENLABS=***`; porta SSH aberta, mas sem credencial utilizável. Nenhum segredo foi lido ou persistido.
+
+- [x] CT3: Um único candidato emissive-safe Neon só é implementado se o runner GPU estiver acessível; caso contrário nenhum `src/` é modificado.
+  ABANDON: CT3 runner LXC105 não autenticável neste ambiente; candidato não implementado para evitar alteração especulativa.
+  EVIDENCE: `git diff --name-only -- src` → vazio; nenhum arquivo de produto alterado.
+
+- [x] CT4: Build externo compatível com virtiofs, diff hygiene e regressão determinística AI nas duas pistas passam.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-ct npm run build` → `44 modules transformed`, `902.76 kB`, `✓ built in 2.15s`; Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`; `git diff --check` → `PASS`.
+
+- [x] CT5: GPU LXC105 executa vídeo Meadow/Neon desktop/mobile com ANGLE/Vulkan/RADV PHOENIX e pageErrors vazio, ou bloqueio honesto é registrado.
+  ABANDON: CT5 password file ausente; `/opt/pwtest` e Playwright local ausentes; sem sessão LXC105 não há vídeo RADV PHOENIX novo defensável.
+  EVIDENCE: `SSH_RC=NO_PASSWORD_FILE`; nenhuma captura GPU foi alegada.
+
+- [x] CT6: A/B pareado com prompt idêntico demonstra ganho direcional; se CT5 bloquear, nenhum patch de produto é aceito.
+  ABANDON: CT6 depende de CT5; sem vídeo GPU pareado não existe delta visual defensável e nenhum patch foi aceito.
+  EVIDENCE: `src/` permaneceu sem diff; decisão `NO PRODUCT CHANGE ACCEPTED`.
+
+- [x] CT7: Relatório repo, vault, wiki, memória, gate-check e commit/push atômicos ficam sincronizados; QA não rastreado não é staged.
+  EVIDENCE: `docs/AAA-AUTONOMOUS-2026-09-02.md` e `GATES.md` atualizados; vault/wiki/memória sincronizados; staging será limitado a esses dois arquivos; `qa-gpu-runner/`, `.hermes-tmp.*` e `AUDIT_FINDINGS.md` permanecem fora do staging; commit/push documental verificado após gate-check.
+
 # Tick atual — auditoria autônoma do runner e baseline Neon (2026-09-03T12:55Z)
 
 Escopo: re-medire o estado real, tentar a rota GPU documentada sem expor credenciais e aceitar no máximo um patch material/AO Neon com A/B pareado em vídeo. Sem RADV PHOENIX acessível, nenhum `src/` será alterado.
