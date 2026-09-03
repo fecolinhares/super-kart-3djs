@@ -242,5 +242,5 @@ Escopo: re-medida do gap único de grounding/material do skyline Neon; se o runn
 - [x] Z4: Auditoria de código identifica uma hipótese concreta e nenhuma alteração de produto é aceita sem GPU A/B.
   EVIDENCE: `Environment.js:4654-4658` usa `MeshBasicMaterial` com textura de janela, `fog:false` e tint por fileira; `Environment.js:4669-4673` posiciona torres fora da pista sem camada de contato. Hipótese: AO/material híbrido seletivo pode recuperar grounding, mas requer A/B fixo desktop/mobile no RADV PHOENIX; nenhum patch foi aplicado.
 
-- [ ] Z5: Documentação repo/vault/wiki/memória sincronizada e commit atômico publicado; artefatos QA não staged.
-  EVIDENCE: pending
+- [x] Z5: Documentação repo/vault/wiki/memória sincronizada e commit atômico publicado; artefatos QA não staged.
+  EVIDENCE: vault `Super-Kart-3Djs.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` e memória atualizados; commit atômico `05d6f63` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi publicado `b617089..05d6f63 main -> main`; `qa-gpu-runner/` e `.hermes-tmp.*` não foram staged.
