@@ -396,3 +396,12 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Probes seguros: password file `MISSING`, `SSHPASS=SET` sem valor lido, `/opt/pwtest=MISSING`, Playwright local apenas diretório detectado, módulo/binary local indisponíveis; SSH `EXIT=255`/`AUTH_OR_NETWORK_BLOCKED`. Geradores externos permanecem `MISSING`; nenhum segredo foi exposto.
 - Browser/CDP deste ambiente não pôde ser usado (`127.0.0.1:9222` recusado); portanto não há runtime visual, vídeo ou A/B RADV PHOENIX novo.
 - Decisão: **NO PRODUCT CHANGE ACCEPTED**. Sem A/B pareado em vídeo Meadow/Neon, desktop `1280×720` e mobile `390×844`, com ANGLE/Vulkan/RADV PHOENIX, nenhum patch visual foi implementado. Próximo gap: material híbrido/AO Neon emissive-safe após restaurar a rota autenticável do runner.
+
+## [2026-09-03T13:25:01Z] Autonomous tick — runner bloqueado, sem delta de produto
+- Baseline real: HEAD `e143724`; `src/` sem diff; `Environment.buildNeonCity()` mantém `MeshBasicMaterial`/`fog:false` e não possui `aoMap` no bloco Neon. `node --check` nos módulos críticos e `git diff --check` passaram.
+- Build externo: `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1324 npm run build` passou com `44 modules transformed`, bundle `902.76 kB`, em `2.26s`.
+- Regressão determinística: Track 1/2 ×20 seeds, `0 lost / 0 backwards / 0 crashes`; dev server `HTTP 200`.
+- Probes seguros: password file `MISSING`, Playwright GPU/local `MISSING`, `SSHPASS=SET` sem leitura do valor, SSH batch `255`; geradores apenas estados redigidos (`TRIPO/GEMINI/ELEVENLABS=***`).
+- GPU/A-B/vídeo: bloqueados por autenticação do runner; nenhuma captura RADV PHOENIX nova foi alegada. Nenhum patch de produto foi implementado ou aceito.
+- Scorecard: sem recaptura/fresh-eyes neste tick; média não recalculada; falhas automáticas permanecem A/B GPU e evidência visual atualizada do gap Neon.
+- Próximo gap de maior valor: restaurar a rota autenticável do LXC105 e executar A/B fixo emissive-safe de material/AO Neon em Meadow/Neon, desktop/mobile.

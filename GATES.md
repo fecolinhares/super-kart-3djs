@@ -501,7 +501,35 @@ Escopo: re-medire o gap material/AO do skyline Neon; aceitar produto somente com
   ABANDON: Q5 depende de Q4; sem vídeo/A-B GPU não há delta visual defensável e nenhuma alteração de produto será aceita.
   EVIDENCE: `git diff --name-only -- src` vazio; nenhum patch visual foi implementado ou aceito neste tick.
 
-EVIDENCE: repo report/GATES, vault/wiki/memória e gate-check ficam sincronizados; artefatos QA não são staged.
+  EVIDENCE: repo report/GATES, vault/wiki/memória e gate-check ficam sincronizados; artefatos QA não são staged.
+
+# Tick atual — revalidação autônoma do runner e gap Neon (2026-09-03T13:24Z)
+
+Escopo: re-medire o estado real; sondar a rota autenticável do LXC105 sem expor credenciais; aceitar no máximo um patch material/AO Neon somente com A/B fixo e vídeo pareado. Sem RADV PHOENIX acessível, nenhum `src/` será alterado.
+
+- [x] CY1: Estado git, data, fonte do gap e baseline estático re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T13:25:01Z`; HEAD `e143724`; `SRC_DIFF=0`; `node --check` nos 3 módulos críticos e `git diff --check` passaram; fonte mantém `MeshBasicMaterial`/`fog:false` no skyline e não há `aoMap` no bloco Neon.
+
+- [x] CY2: Probes seguros de runner/browser/assets concluídos sem ler ou expor valores secretos.
+  EVIDENCE: `PASSWORD_FILE=MISSING`; `PLAYWRIGHT_GPU=MISSING`; `PLAYWRIGHT_LOCAL=MISSING`; `SSHPASS=SET` sem leitura de valor; SSH batch `255`; geradores apenas estados redigidos (`TRIPO/GEMINI/ELEVENLABS=***`).
+
+- [x] CY3: Um único candidato emissive-safe Neon só é implementado se o runner GPU estiver acessível; caso contrário nenhum `src/` é modificado.
+ABANDON: CY3 runner LXC105 não autenticável neste ambiente; candidato não implementado para evitar alteração especulativa.
+  EVIDENCE: `git diff --name-only -- src` → vazio; nenhuma regra de corrida/input/áudio/assets alterada.
+
+- [x] CY4: Build externo compatível com virtiofs, diff hygiene e regressão determinística AI nas duas pistas passam.
+  EVIDENCE: build `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1324 npm run build` → `44 modules transformed`, `902.76 kB`, `✓ built in 2.26s`; Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`; `git diff --check` → `PASS`.
+
+- [x] CY5: GPU LXC105 executa vídeo Meadow/Neon desktop/mobile com ANGLE/Vulkan/RADV PHOENIX e pageErrors vazio, ou bloqueio honesto é registrado.
+ABANDON: CY5 password file ausente, Playwright local/GPU ausentes e SSH batch `255`; sem sessão LXC105 não há vídeo RADV PHOENIX novo defensável.
+  EVIDENCE: `PASSWORD_FILE=MISSING`; `PLAYWRIGHT_GPU=MISSING`; `PLAYWRIGHT_LOCAL=MISSING`; nenhuma captura GPU foi alegada.
+
+- [x] CY6: A/B pareado com prompt idêntico demonstra ganho direcional; se CY5 bloquear, nenhum patch de produto é aceito.
+ABANDON: CY6 depende de CY5; sem vídeo GPU pareado não existe delta visual defensável e nenhum patch foi aceito.
+  EVIDENCE: `src/` permaneceu sem diff; decisão `NO PRODUCT CHANGE ACCEPTED`.
+
+- [x] CY7: Relatório repo, vault, wiki, memória, gate-check e commit/push atômicos ficam sincronizados; QA não rastreado não é staged.
+  EVIDENCE: atualização documental deste tick será verificada antes do commit; `qa-gpu-runner/`, `.hermes-tmp.*` e `AUDIT_FINDINGS.md` permanecem fora do staging.
 
 # Tick atual — revalidação do runner e gap Neon (2026-09-03T13:10Z)
 
