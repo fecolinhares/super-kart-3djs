@@ -172,3 +172,10 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Static checks passed for runtime/track/material/QA scripts and `git diff --check`.
 - Access probe returned `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`; SSH returned `Permission denied (publickey,password)` without exposing credentials.
 - Decision: **NO PRODUCT CHANGE ACCEPTED**. The evidence-backed highest-value gap remains controlled Neon material/AO A/B preserving emissive window contrast; GPU RADV PHOENIX video and vision comparison remain blocked until runner access is restored.
+
+## [2026-09-03] Autonomous tick — determinism audit, no product delta
+- Baseline remeasured at HEAD `53aec318`: production build outside the worktree passed with 44 modules and `902.68 kB`; AI regression Track 1/2, 20 seeds each, returned `0 lost / 0 backwards / 0 crashes`.
+- Audited `scripts/capture-skyline-fixed.cjs` against the previously observed independent-boot variance. The harness already seeds procedural randomness, stops the exposed game loop after setup, freezes the race state, disables CSS animation/transition, hides non-canvas DOM, uses the real PostFX path, and captures via CDP.
+- Asset probe remained `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`; no external asset was added.
+- Validation blocker remeasured safely: `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`. No LXC105 RADV PHOENIX video/A-B was run, and no visual/product change was accepted.
+- Decision: **NO PRODUCT CHANGE ACCEPTED**. This tick closes the audit line without speculative edits. Next highest-value gap remains controlled Neon material/AO A/B after restoring GPU-runner access.

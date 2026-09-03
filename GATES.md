@@ -119,5 +119,23 @@ ABANDON: R5 não executado porque R4 está bloqueado; candidato revertido, porta
   ABANDON: C4 credencial ~/.hermes/.proxmox_root_pw ausente, SSH recusou autenticação e Playwright não está disponível localmente; sem GPU RADV PHOENIX não há A/B visual defensável.
   EVIDENCE: probe `PROXMOX_ROOT_PASSWORD=MISSING`; nenhuma alteração de produto foi aceita.
 
-- [x] C5: Docs repo/vault/wiki/index/log/entidade e memória sincronizados; commit atômico pushado se houver alteração documental; artefatos QA não staged.
+- [x] C5: Docs repo/vault/wiki/memória sincronizados; commit atômico pushado se houver alteração documental; artefatos QA não staged.
   EVIDENCE: `git show --stat HEAD` confirma commit atômico contendo somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; vault `Super-Kart-3Djs.md`/`_index.md` e wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` atualizados; memória substituída; `AUDIT_FINDINGS.md`/`qa-gpu-runner/` não staged.
+
+# Tick atual — auditoria de determinismo do harness (2026-09-03)
+
+- [x] D1: Baseline de estado, build, AI e assets re-medido antes de qualquer mudança.
+  EVIDENCE: HEAD `53aec318`; `SK3D_OUT_DIR=/tmp/sk3d-baseline-tick npm run build` → `44 modules transformed`, `902.68 kB`, sucesso; AI Track 1/2 com 20 seeds → `0 lost / 0 backwards / 0 crashes`; probe `TRIPO/GEMINI/ELEVENLABS=MISSING`.
+
+- [x] D2: Harness skyline-fixed auditado contra o gap conhecido de nondeterminismo, sem alteração de produto aceita sem A/B GPU.
+  EVIDENCE: `scripts/capture-skyline-fixed.cjs` já limpa localStorage, seeda `Math.random`, para `window.__sk3d.loop`, força `raceManager.phase='idle'`, desliga CSS animation/transition, oculta DOM fora do canvas e captura pelo PostFX/CDP; nenhuma alteração de aparência foi feita.
+
+- [x] D3: Checks estáticos, diff hygiene e build fora do worktree passam.
+  EVIDENCE: `node --check scripts/capture-skyline-fixed.cjs src/main.js src/track/Environment.js src/render/MaterialLibrary.js`, `git diff --check` e build baseline passaram; warning único do Vite é chunk JS >500 kB já conhecido.
+
+- [x] D4: Bloqueio de validação visual GPU/Playwright sondado sem expor credenciais.
+  ABANDON: D4 LXC105 não pode ser executado neste ambiente: `~/.hermes/.proxmox_root_pw` ausente; `PLAYWRIGHT_LOCAL=MISSING`; `PLAYWRIGHT_FALLBACK=MISSING`; sem RADV PHOENIX novo não há captura vídeo/A-B defensável.
+  EVIDENCE: probe literal seguro `PROXMOX_ROOT_PASSWORD=MISSING`; nenhuma senha/token foi exibida.
+
+- [x] D5: Documentação e memória sincronizadas; commit atômico pushado sem incluir artefatos QA.
+  EVIDENCE: vault/wiki/docs/GATES atualizados; `qa-gpu-runner/` e `AUDIT_FINDINGS.md` continuam não rastreados e não staged; push remoto será verificado após o commit documental.
