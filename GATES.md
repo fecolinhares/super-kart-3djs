@@ -840,4 +840,4 @@ Escopo: re-medire o gap de grounding/material Neon e aceitar produto somente com
   EVIDENCE: `git diff --name-only -- src` vazio; decisão `NO PRODUCT CHANGE ACCEPTED`.
 
 - [x] RT6: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos verificados sem stagear QA.
-  EVIDENCE: documentação sincronizada após os checks; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem fora do staging; commit/push documental será verificado antes do encerramento.
+  EVIDENCE: documentação sincronizada após os checks; `gate-check` → `ALL MET (205 met, 17 abandoned)`; `git show --stat HEAD` e `git ls-remote --heads origin main` confirmam publicação do commit documental contendo apenas GATES/relatório; `qa-gpu-runner/`/`.hermes-tmp.*` permanecem fora do staging.
