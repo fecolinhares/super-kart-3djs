@@ -14,6 +14,12 @@
 - O primeiro probe usava `renderer.info` depois do reset de pass e produzia `calls=1`; foi corrigido antes do resultado final para contar chamadas reais de `renderer.render()`. Resultado é baseline de custo, não comparação de otimização.
 - Decisão: **QA INSTRUMENTATION ACCEPTED; NO PRODUCT CHANGE**. Nenhum arquivo `src/` foi alterado; próximo gap é testar um owner/pass isolado somente com A/B temporalmente pareado e vídeo visual preservado.
 
+## [2026-09-03T20:41Z] Autonomous tick — Vignette A/B temporal rejeitado
+- Hipótese isolada no QA: desligar temporariamente `VignetteShader`, sem mudar default, regras ou assets; `scripts/audit-frame-time.cjs` e `scripts/playtest-video.cjs` ganharam modo `no-vignette`.
+- GPU direto confirmou ANGLE/Vulkan `RADV PHOENIX`, WebGL2 e `pageErrors=[]`; baseline/candidato medidos em Meadow/Neon desktop/mobile. Calls medianas caíram `17→16` desktop e `16→15` mobile, mas o FPS/frame p95 não foi consistente: Meadow desktop `80.44→76.58 FPS` e mobile `112.82→99.14 FPS`.
+- Oito vídeos (pré/pós × Meadow/Neon × desktop/mobile) terminaram `phase=finished`; a crítica cega em frame_0030 encontrou estados temporais divergentes, sem delta visual atribuível ao Vignette. **NO PRODUCT CHANGE ACCEPTED**.
+- Checks finais: build externo `44 modules`, `903.92 kB`, `2.13s`; AI Track 1/2 ×20 `0 lost / 0 backwards / 0 crashes`; apenas instrumentação QA será publicada. Próximo gap: outro owner/pass com pareamento fixo mais determinístico.
+
 ## [2026-09-03T19:42Z] Autonomous tick — owner de performance revalidado, sem mudança de produto
 - Baseline re-medido em `HEAD 0a4a8ed`; `src/` permaneceu sem diff. O owner mensurável continua `kart-ai` com `1175 meshes/199650 tris` no breakdown anterior.
 - Checks locais passaram: `node --check` nos módulos/runtime/QA, `git diff --check`; build externo via `SK3D_OUT_DIR=/tmp/sk3d-dist-current-tick npm run build` → `44 modules transformed`, `903.92 kB`, `2.09s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.

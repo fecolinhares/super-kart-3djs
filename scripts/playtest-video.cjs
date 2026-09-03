@@ -11,6 +11,8 @@ const fs = require('fs');
 (async () => {
   const url = process.argv[2], outdir = process.argv[3], track = process.argv[4] || '1';
   const viewportName = process.argv[5] || 'desktop';
+  const mode = process.argv[6] || 'baseline';
+  const durationMs = Number(process.argv[7] || 60000);
   const viewport = viewportName === 'mobile' ? { width: 390, height: 844 } : { width: 1280, height: 720 };
   fs.mkdirSync(outdir, { recursive: true });
   const browser = await chromium.launch({
@@ -25,6 +27,13 @@ const fs = require('fs');
   const gpu = await page.evaluate(() => { const c = document.createElement('canvas'); const g = c.getContext('webgl2') || c.getContext('webgl'); const ext = g.getExtension('WEBGL_debug_renderer_info'); return ext ? g.getParameter(ext.UNMASKED_RENDERER_WEBGL) : 'unknown'; });
   console.log('GPU:', gpu);
   await page.waitForFunction(() => window.__sk3d && window.__sk3d.raceManager && window.__sk3d.raceManager.phase === 'race', null, { timeout: 180000 }).catch(() => console.log('WARN race state timeout'));
+  if (mode === 'no-vignette') {
+    await page.evaluate(() => {
+      const pass = window.__sk3d?.postfx?.composer?.passes?.find((item) => item.material?.uniforms?.offset && item.material?.uniforms?.darkness);
+      if (!pass) throw new Error('VignetteShader pass not found');
+      pass.enabled = false;
+    });
+  }
   const client = await page.context().newCDPSession(page);
   await client.send('Page.startScreencast', { format: 'jpeg', quality: 60, maxWidth: 1280, maxHeight: 720, everyNthFrame: 6 });
   let n = 0;
@@ -33,7 +42,7 @@ const fs = require('fs');
     fs.writeFileSync(`${outdir}/frame_${String(n).padStart(4,'0')}.jpg`, Buffer.from(ev.data, 'base64'));
     client.send('Page.screencastFrameAck', { sessionId: ev.sessionId }).catch(()=>{});
   });
-  await page.waitForTimeout(60000);
+  await page.waitForTimeout(durationMs);
   await client.send('Page.stopScreencast').catch(()=>{});
   const st = await page.evaluate(() => {
     if (!window.__sk3d) return 'no __sk3d';

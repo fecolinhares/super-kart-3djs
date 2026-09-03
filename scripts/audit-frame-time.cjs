@@ -8,6 +8,7 @@ const { chromium } = require('/opt/pwtest/node_modules/playwright');
 const baseUrl = (process.argv[2] || 'http://127.0.0.1:3457').replace(/\/$/, '');
 const outDir = process.argv[3] || path.resolve('qa-gpu-runner/tick-temporal');
 const durationMs = Number(process.argv[4] || 8000);
+const mode = process.argv[5] || 'baseline';
 const scenarios = [
   { track: 1, name: 'meadow-desktop', width: 1280, height: 720, hasTouch: false },
   { track: 1, name: 'meadow-mobile', width: 390, height: 844, hasTouch: true },
@@ -38,13 +39,18 @@ function percentile(values, p) {
       await page.goto(`${baseUrl}/?demo&track=${scenario.track}`, { waitUntil: 'domcontentloaded', timeout: 180000 });
       await page.waitForFunction(() => window.__sk3d?.renderer && window.__sk3d?.raceManager, null, { timeout: 180000 });
       await page.waitForTimeout(2500);
-      const data = await page.evaluate(async (duration) => {
+      const data = await page.evaluate(async ({ duration, mode }) => {
+        const game = window.__sk3d;
+        if (mode === 'no-vignette') {
+          const vignette = game.postfx?.composer?.passes?.find((pass) => pass.material?.uniforms?.offset && pass.material?.uniforms?.darkness);
+          if (!vignette) throw new Error('VignetteShader pass not found');
+          vignette.enabled = false;
+        }
         const percentile = (values, p) => {
           if (!values.length) return null;
           const sorted = [...values].sort((a, b) => a - b);
           return sorted[Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * p))];
         };
-        const game = window.__sk3d;
         const gl = game.renderer.getContext();
         const ext = gl.getExtension('WEBGL_debug_renderer_info');
         const gpu = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : 'unavailable';
@@ -92,8 +98,8 @@ function percentile(values, p) {
           triangles: { median: percentile(triangles, 0.50), max: triangles.length ? Math.max(...triangles) : null },
           wrapped,
         };
-      }, durationMs);
-      const result = { scenario, ...data, pageErrors };
+      }, { duration: durationMs, mode });
+      const result = { mode, scenario, ...data, pageErrors };
       results.push(result);
       fs.writeFileSync(path.join(outDir, `${scenario.name}.json`), `${JSON.stringify(result, null, 2)}\n`);
       console.log(JSON.stringify(result));
