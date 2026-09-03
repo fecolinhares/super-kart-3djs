@@ -1,5 +1,12 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T21:18Z] Autonomous tick — A/B temporal do Vignette rejeitado
+- Baseline re-medido no `HEAD adbce6c`: `src/` limpo; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-current npm run build` passou com `44 modules`, `903.92 kB` em `2.13s`; AI Track 1/2 ×20 retornou `0 lost / 0 backwards / 0 crashes`; dev server `HTTP 200`.
+- Runner direto `192.168.0.195` confirmou `/opt/pwtest`, DRM e ANGLE/Vulkan `RADV PHOENIX`; A/B temporal executado em Meadow/Neon desktop/mobile, WebGL2, `phase=race`, `pageErrors=[]`, samples `371–634`.
+- Calls medianas caíram `17→16` desktop e `16→15` mobile, mas o FPS foi inconsistente: Meadow desktop `76.886→74.352` (`-3.30%`), Meadow mobile `95.494→109.091` (`+14.24%`), Neon desktop `90.334→91.666` (`+1.47%`), Neon mobile `126.620→111.384` (`-12.03%`). Frame/render p95 também variaram, sem redução uniforme.
+- Oito sequências QA-only (`baseline/no-vignette × Meadow/Neon × desktop/mobile`) rodaram por 8s; todas reportaram `RADV PHOENIX`, sem pageerror emitido e `phase=race`. Não são claim de release ou de corrida concluída.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. O modo `no-vignette` permanece somente instrumentação QA; nenhum `src/` foi alterado. Próximo gap: outro owner/pass com probe temporal fixo e delta consistente.
+
 ## [2026-09-03T20:08Z] Autonomous tick — vídeo temporal do owner `kart-ai`, sem mudança
 - Baseline real no `HEAD df4053f`: `src/` limpo; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-baseline-2000 npm run build` passou com `44 modules`, bundle `903.92 kB` em `2.15s`; AI Track 1/2 ×20 retornou `0 lost / 0 backwards / 0 crashes`.
 - Breakdown fixo no GPU runner `192.168.0.195` confirmou ANGLE/Vulkan `RADV PHOENIX`, WebGL2 e `pageErrors=[]`; Meadow desktop/mobile mediu `1948/984 calls` e `1,089,095/821,397 tris`; `kart-ai` segue em `1175 meshes/199650 tris`.

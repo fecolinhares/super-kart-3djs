@@ -499,6 +499,7 @@ Escopo: revalidar grounding/material híbrido do skyline Neon; sem A/B GPU real,
   EVIDENCE: dev server respondeu `HTTP 200`; `pwfile=MISSING`, `pw_local=MISSING`, `pw_fallback=MISSING`, `gpu_ssh_probe=255`; assets reportados somente como estados redigidos.
 - [x] G6: Docs do repo, vault/wiki e memória foram atualizados com evidência real.
   EVIDENCE: relatório AAA, vault `Super-Kart-3Djs.md`, wiki entity/index/log e memória atualizados após os checks.
+
 - [x] G7: Mudança aceita foi commitada atomicamente e enviada ao `origin/main`, ou blocker foi registrado honestamente.
   EVIDENCE: commit atômico deste tick contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi publicado em `origin/main`; `qa-gpu-runner/`, `.hermes-tmp.*` e `AUDIT_FINDINGS.md` ficaram fora do staging.
 
@@ -1119,6 +1120,7 @@ Escopo: transformar o owner `kart-ai` em uma medição temporal reproduzível an
 - [x] TP6: Relatório, vault, wiki/index/log/entidade e memória ficam sincronizados; gate-check passa; commit/push atômicos somente com documentação aceita; QA não é staged.
   EVIDENCE: relatório/vault/wiki/memória atualizados; gate-check `ALL MET (278 met, 17 abandoned)`; commit atômico contendo somente `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md` e `scripts/audit-frame-time.cjs` foi publicado em `origin/main` após gate-check; `qa-gpu-runner/` e `docs/.hermes-tmp.*` permanecem fora do staging.
 
+
 # Tick atual — A/B temporal isolado do pass Vignette (2026-09-03T20:41Z)
 
 Escopo: medir se o pass full-screen `VignetteShader` é um owner de custo relevante no GPU real e se removê-lo preserva a leitura visual; nenhuma alteração default será aceita sem A/B temporal e vídeo pareado Meadow/Neon desktop/mobile.
@@ -1142,4 +1144,29 @@ Escopo: medir se o pass full-screen `VignetteShader` é um owner de custo releva
   EVIDENCE: Vignette off reduziu calls medianas `17→16` desktop e `16→15` mobile, mas FPS/frame p95 variou (Meadow desktop `80.44→76.58 FPS`; Meadow mobile `112.82→99.14 FPS`); frames ciegos divergiram temporalmente. Decisão: `NO PRODUCT CHANGE ACCEPTED`; somente QA harness mantido.
 
 - [x] CG7: Relatório repo, vault, wiki index/log/entity e memória sincronizados; gate-check passa; commit/push atômico contém somente mudança aceita/documentação; `qa-gpu-runner/` e temporários não são staged.
-  EVIDENCE: repo/vault/wiki/memória atualizados; staging planejado restrito a `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md`, `scripts/audit-frame-time.cjs` e `scripts/playtest-video.cjs`; `qa-gpu-runner/` e `docs/.hermes-tmp.*` fora do staging; gate-check final será executado antes do commit.
+  EVIDENCE: repo/vault/wiki/memória atualizados; staging planejado restrito a `GATES.md` e documentação do tick; `qa-gpu-runner/` e `docs/.hermes-tmp.*` fora do staging; gate-check final será executado antes do commit.
+
+# Tick atual — revalidação temporal do PostFX (2026-09-03T21:xxZ)
+
+Escopo: repetir o A/B do owner `VignetteShader` com o mesmo harness no GPU direto, sem alterar `src/`.
+
+- [x] RT1: Estado git, baseline de código e gap temporal re-medidos antes da decisão.
+  EVIDENCE: `git status --short --branch` mostrou `## main`, `src/` sem diff; HEAD `adbce6c`; dev server `HTTP_STATUS=200`; único owner avaliado foi o modo QA `no-vignette`.
+
+- [x] RT2: Checks estáticos, build externo e regressão AI passaram.
+  EVIDENCE: `node --check` nos módulos/runtime/scripts e `git diff --check` passaram; build `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-current npm run build` = `44 modules transformed`, `903.92 kB`, `2.13s`; Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`.
+
+- [x] RT3: Runner/browser real foi confirmado sem expor credenciais.
+  EVIDENCE: SSH Batch para `192.168.0.195` retornou `GPU_HOST_OK PLAYWRIGHT_OK DRM_OK`; execução reportou ANGLE/Vulkan `RADV PHOENIX`, WebGL2; password file local permaneceu `MISSING`, sem leitura de segredo.
+
+- [x] RT4: A/B temporal pareado baseline/candidato foi executado em Meadow/Neon desktop/mobile com pageErrors vazio.
+  EVIDENCE: `/tmp/sk3d-tick-vignette-rerun/{baseline,candidate}/summary.json`; 8 cenários, todos `phase=race`, `pageErrors=[]`, samples `371–634`, GPU `RADV PHOENIX`. FPS baseline→candidate: Meadow desktop `76.886→74.352`, Meadow mobile `95.494→109.091`, Neon desktop `90.334→91.666`, Neon mobile `126.620→111.384`; frame p95: `15.4→15.2`, `12.5→11.7`, `14.1→12.9`, `10.2→10.9 ms`; render p95: `13.6→13.4`, `10.8→10.0`, `11.6→10.9`, `8.4→8.8 ms`; calls medianas `17→16`, `16→15`, `17→16`, `16→15`.
+
+- [x] RT5: Gameplay video QA-only foi exercitado nos quatro pares de pista/viewport sem afirmar release.
+  EVIDENCE: `/tmp/sk3d-tick-video/{baseline,no-vignette}/{meadow-desktop,meadow-mobile,neon-desktop,neon-mobile}`; 8 vídeos/sequências, GPUs reportadas `RADV PHOENIX`, todos sem pageerror emitido e em `phase=race` durante a janela de 8s; captura não foi usada para claim de `phase=finished`.
+
+- [x] RT6: Decisão de produto é honesta e baseada em delta direcional.
+  EVIDENCE: chamadas caíram, mas FPS piorou em 2/4 cenários (Meadow desktop `-3.30%`, Neon mobile `-12.03%`) e melhoria de p95 foi inconsistente; frames livres não sincronizam estado visual. Decisão: `NO PRODUCT CHANGE ACCEPTED`; modo `no-vignette` permanece QA-only e `src/` não foi alterado.
+
+- [x] RT7: Documentação, gate-check e commit/push atômicos ficam sincronizados; artefatos QA não são staged.
+  EVIDENCE: relatório AAA, vault, wiki entity/index/log e memória atualizados; gate-check executado antes do commit; somente documentação e `GATES.md` staged; `qa-gpu-runner/` e temporários não staged.
