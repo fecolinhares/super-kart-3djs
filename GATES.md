@@ -196,7 +196,7 @@ Escopo: preservar a alteração já existente em `src/track/TrackBuilder.js` sem
 
 - [x] U4: A alteração pendente só é aceita como produto se A/B idêntico em vídeo/sequências Meadow e Neon, desktop 1280x720 e mobile 390x844, demonstrar ganho direcional; caso contrário permanece não aceita.
   ABANDON: U4 A/B GPU obrigatório bloqueado por U3; nenhum ganho visual é alegado e a alteração permanece fora de commit até evidência válida.
-  EVIDENCE: A/B GPU não executado por bloqueio U3; alteração local foi preservada sem commit e nenhum ganho visual foi alegado.
+  EVIDENCE: A/B GPU não executado por bloqueio U3; beam/housing agora constam no HEAD após commit concorrente `6c6a4cf`, mas nenhum ganho visual foi alegado neste tick.
 
 - [x] U5: Relatório, vault, wiki e memória sincronizados; nenhum artefato `qa-gpu-runner/` ou script untracked é staged; commit/push só ocorre para documentação verificada.
-  EVIDENCE: relatório AAA, vault, wiki entity/index/log e memória atualizados; `git diff --cached --name-only` vazio antes do commit; `qa-gpu-runner/` e `scripts/capture-finish-static.cjs` permanecem unstaged/untracked.
+  EVIDENCE: relatório AAA, vault, wiki entity/index/log e memória atualizados; `git diff --cached --name-only` vazio antes do commit; `qa-gpu-runner/` permanece unstaged/untracked.

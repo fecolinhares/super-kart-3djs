@@ -200,3 +200,7 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Deterministic AI regression passed on both tracks with 20 seeds each: `0 lost`, `0 backwards`, `0 crashes`; all reported onRoad `100%` in the sampled runs.
 - Runtime probe: dev server returned HTTP `200`; `PROXMOX_ROOT_PASSWORD=MISSING`; SSH to `root@192.168.0.102` returned `Permission denied (publickey,password)`. No secret was exposed and no GPU capture was claimed.
 - Decision: **NO PRODUCT CHANGE ACCEPTED IN THIS TICK**. The pending beam edit remains untouched for its owner; no visual A/B/video evidence exists, so it must not be committed as an AAA improvement. Next gap: restore LXC105 access and run identical desktop/mobile Meadow+Neon video A/B for the beam/housing.
+
+## [2026-09-03] Correction — concurrent gantry commit observed after tick measurement
+- Final re-measurement found HEAD `89f7c8c`, with concurrent commit `6c6a4cf` aligning the FINISH housing/sockets to the banner rotation; the beam remains `0.28m` navy.
+- This concurrent source change was not visually validated in this tick. Keep the product gain **unclaimed** until identical GPU RADV PHOENIX video/A-B covers Meadow and Neon at desktop/mobile sizes.
