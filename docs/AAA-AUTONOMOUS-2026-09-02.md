@@ -1,5 +1,13 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T22:39Z] Autonomous tick — revalidação bloqueada, sem mudança de produto
+- Baseline re-medido no `HEAD 104e058`: `src/` sem diff; `node --check`/`git diff --check` passaram; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-baseline-1788475166 npm run build` passou com `44 módulos`, bundle `904.02 kB`, em `2.18s`.
+- AI Track 1/2 ×20 passou com `0 lost / 0 backwards / 0 crashes`; Vite local respondeu `HTTP=200`.
+- O gap único continua sendo A/B de material/AO Neon emissive-safe. Probes seguros reportaram `PROXMOX_PASSWORD_FILE=MISSING`, `PW_LOCAL=MISSING`, `PW_FALLBACK=MISSING`, `SSH_KEY=MISSING`; sem LXC105/RADV PHOENIX não há vídeo desktop/mobile ou A/B visual defensável. O probe de assets reportou `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`.
+- Auditoria estática também confirmou uma dívida secundária de determinismo (`Math.random()` em `main.js`, `Particles.js`, `RaceManager.js`, `Materials.js` e HUD), mas ela não foi alterada neste tick por não ser o gap prioritário nem ter harness browser/lifecycle disponível.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. Nenhum arquivo `src/` foi modificado; nenhum vídeo, score visual ou claim AAA novo foi alegado. Próximo: restaurar rota verificável do GPU runner e executar A/B material/AO Neon com protocolo idêntico.
+
+
 ## [2026-09-03T22:24Z] Autonomous tick — validação DPR móvel, sem novo delta de produto
 - Baseline re-medido no HEAD `a9671c5`; `VisualQualityProfile.js` já continha a alteração de qualidade touch que permite `maxPixelRatio` até `2` em hardware real. Nenhuma fonte foi editada neste tick.
 - Checks locais passaram: `node --check` em `main.js`/`VisualQualityProfile.js`, `git diff --check`; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-current npm run build` → `44 módulos`, `904.02 kB`, `2.13s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.

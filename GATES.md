@@ -1241,3 +1241,22 @@ Escopo: re-medIr o HEAD atual e validar a alteração já presente em `VisualQua
   EVIDENCE: commit documental deste tick contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; `qa-gpu-runner/`, temporários e alteração de fonte já existente não foram staged; push `origin/main` verificado.
 - [x] G8: Próximo gap definido a partir das medições finais
   EVIDENCE: manter AO/material Neon emissive-safe como próximo gap; a validação DPR não mostrou delta visual direcional no contact sheet, mas comprovou ganho de resolução de framebuffer em DPR2 sem page errors.
+
+# Tick atual — revalidação autônoma e escolha de um único gap (2026-09-04)
+
+Escopo: re-medIr o estado atual antes de qualquer edição; testar somente uma hipótese de alto valor sustentada por evidência. Se a rota GPU ou a hipótese não forem defensáveis, nenhum código de produto será aceito.
+
+- [x] TICK1: Estado git, data, fonte do gap e baseline atual re-medidos antes de editar.
+  EVIDENCE: `2026-09-03T22:39:26Z`; `git status --short --branch` = `## main` + `GATES.md` modificado e QA/temporários não rastreados; HEAD `104e058`; `src/` sem diff; `Environment.js` mantém skyline Neon em `MeshBasicMaterial` e sem AO executável; `Math.random()` runtime continua dívida de determinismo em `main.js`, `Particles.js`, `RaceManager.js`, `Materials.js` e HUD.
+- [x] TICK2: Um único candidato é escolhido/implementado apenas se houver evidência e escopo isolável; sem cosmética especulativa.
+ABANDON: TICK2 nenhum candidato de produto foi implementado: o gap material/AO Neon não pode ser aceito sem A/B GPU; alterar determinismo/visuais sem esse controle seria especulativo.
+- [x] TICK3: Checks estáticos, diff hygiene, build externo `SK3D_OUT_DIR=/tmp/... npm run build` e AI Track 1/2 ×20 passam.
+  EVIDENCE: `node --check` nos módulos críticos + `git diff --check` passaram; `SK3D_OUT_DIR=/tmp/sk3d-dist-baseline-1788475166 npm run build` = `44 modules transformed`, `904.02 kB`, `2.18s`; AI Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`.
+- [x] TICK4: Runtime browser/GPU real, vídeo Meadow/Neon desktop/mobile `1280x720`/`390x844`, ANGLE/Vulkan `RADV PHOENIX`, pageErrors vazio e gameplay são verificados; se bloqueado, registrar `ABANDON` honesto.
+ABANDON: TICK4 GPU LXC105 não acionável neste ambiente: `PROXMOX_PASSWORD_FILE=MISSING`, `PW_LOCAL=MISSING`, `PW_FALLBACK=MISSING`, `SSH_KEY=MISSING`; nenhum RADV PHOENIX/vídeo/A-B foi alegado. O Vite local respondeu `HTTP=200` apenas.
+- [x] TICK5: A/B temporal/visual usa protocolo idêntico pré/pós; aceitar produto somente com ganho direcional defensável, caso contrário reverter.
+ABANDON: TICK5 não executado porque TICK4 está bloqueado; `src/` permaneceu sem alteração de produto e nenhum ganho foi alegado.
+- [x] TICK6: Relatório, vault, wiki, memória e gate-check sincronizados; commit/push atômico somente de documentação ou produto aceito; QA não staged.
+  EVIDENCE: `docs/AAA-AUTONOMOUS-2026-09-02.md` atualizado; vault `Super-Kart-3Djs.md`/`_index.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` atualizados; memória substituída; `git diff --cached --name-only` confirmou somente `GATES.md` e o relatório antes do commit; o commit documental contém esses 2 arquivos; `qa-gpu-runner/`, temporários e `src/` não foram staged.
+- [x] TICK7: Próximo gap é definido por medição real, sem declarar AAA completo abaixo dos thresholds.
+  EVIDENCE: próximo gap continua A/B de material/AO Neon emissive-safe; dívida secundária observada é `Math.random()` em caminhos runtime, mas fica fora do produto até haver harness determinístico e validação de lifecycle/visual. Scorecard AAA não é declarado completo.
