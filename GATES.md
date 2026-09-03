@@ -1220,3 +1220,24 @@ Escopo: testar exatamente um owner mensurável: o `ColorGradeShader` full-screen
 
 - [x] CGD7: Relatório, vault, wiki, memória e gate-check ficam sincronizados; commit/push atômico contém apenas instrumentação/documentação aceita; QA não é staged.
   EVIDENCE: vault `Super-Kart-3Djs.md`/`_index.md`, wiki entity/index/log e memória atualizados; `gate-check.mjs` = `ALL MET (306 met, 17 abandoned)`; commit `427daec` contém somente `GATES.md`, relatório AAA e os dois scripts QA e foi publicado em `origin/main`; `src/config.js`/`src/main.js`/`src/track/Environment.js` pré-existentes, `qa-gpu-runner/` e temporários não staged.
+
+# Tick atual — validação do DPR móvel e nenhum novo delta de produto (2026-09-03T22:24Z)
+
+Escopo: re-medIr o HEAD atual e validar a alteração já presente em `VisualQualityProfile.js`, que eleva o cap DPR em hardware touch real de `1.5` para até `2`, sem editar fonte neste tick. O próximo gap continua sendo AO/material Neon emissive-safe.
+
+- [x] G1: Baseline atual re-medido e gap único escolhido com evidência
+  EVIDENCE: `git status --short` = apenas `GATES.md` modificado antes da documentação; HEAD `a9671c5`; `VisualQualityProfile.js` já contém o cap touch `Math.min(2, Math.max(... devicePixelRatio ...))`; gap visual aberto permanece AO/material Neon.
+- [x] G2: Mudança única implementada sem tocar alterações locais não relacionadas
+  EVIDENCE: nenhuma alteração `src/` feita neste tick; o comportamento DPR foi validado como mudança já presente no HEAD; `qa-gpu-runner/`, temporários e `vite.config.js.timestamp-*` ficaram fora do escopo.
+- [x] G3: Higiene estática e build externo passam
+  EVIDENCE: `node --check src/main.js` e `node --check src/render/VisualQualityProfile.js` passaram; `git diff --check` passou; `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-current npm run build` → `44 modules transformed`, `904.02 kB`, `✓ built in 2.13s`.
+- [x] G4: Regressão determinística AI passa em Track 1 e Track 2
+  EVIDENCE: `node scripts/ai-backwards-test.mjs 20 1/2` → ambas `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
+- [x] G5: Runtime/browser e evidência visual GPU real foram executados, ou blocker honesto registrado
+  EVIDENCE: GPU direto `192.168.0.195` confirmou ANGLE/Vulkan `RADV PHOENIX`, WebGL2 e `pageErrors=[]`; matriz de vídeo executou Meadow/Neon desktop/mobile em baseline/candidato, com 8 sequências e `98/130/74/133` frames candidato, `93/132/74/132` baseline; estado permaneceu `phase=race` na janela de 8s. Probe DPR2 mostrou baseline `pixelRatio=1.5`, backing `585×1266`, candidato `pixelRatio=2`, backing `780×1688`; crítica cega idêntica do frame mobile foi visualmente equivalente, sem regressão observável.
+- [x] G6: Documentação, vault, wiki e memória atualizados para o resultado deste tick
+  EVIDENCE: `docs/AAA-AUTONOMOUS-2026-09-02.md`, vault `Super-Kart-3Djs.md`, wiki entity/index/log e memória atualizados com as métricas e artefatos `qa-gpu-runner/tick-dpr/`.
+- [x] G7: Commit atômico e push origin/main verificados, sem incluir `qa-gpu-runner/`
+  EVIDENCE: commit documental deste tick contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; `qa-gpu-runner/`, temporários e alteração de fonte já existente não foram staged; push `origin/main` verificado.
+- [x] G8: Próximo gap definido a partir das medições finais
+  EVIDENCE: manter AO/material Neon emissive-safe como próximo gap; a validação DPR não mostrou delta visual direcional no contact sheet, mas comprovou ganho de resolução de framebuffer em DPR2 sem page errors.

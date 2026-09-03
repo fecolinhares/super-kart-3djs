@@ -1,5 +1,13 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T22:24Z] Autonomous tick — validação DPR móvel, sem novo delta de produto
+- Baseline re-medido no HEAD `a9671c5`; `VisualQualityProfile.js` já continha a alteração de qualidade touch que permite `maxPixelRatio` até `2` em hardware real. Nenhuma fonte foi editada neste tick.
+- Checks locais passaram: `node --check` em `main.js`/`VisualQualityProfile.js`, `git diff --check`; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-current npm run build` → `44 módulos`, `904.02 kB`, `2.13s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+- GPU direto `192.168.0.195` confirmou ANGLE/Vulkan `RADV PHOENIX`, WebGL2 e `pageErrors=[]`. Vídeo QA executou Meadow/Neon desktop/mobile em pré/pós: 8 sequências, candidato `98/130/74/133` frames e baseline `93/132/74/132` frames; todos permaneceram em `phase=race` durante a janela de 8s.
+- Probe específico com `deviceScaleFactor=2` mediu baseline `pixelRatio=1.5`, framebuffer `585×1266`; candidato `pixelRatio=2`, framebuffer `780×1688`, ambos sem page errors. Crítica cega idêntica dos frames/contact sheets não encontrou regressão visual direcional; o ganho aceito é técnico (mais resolução), não um score AAA.
+- Decisão: **nenhum novo delta de produto neste tick**; a alteração DPR já publicada permanece validada. Artefatos em `qa-gpu-runner/tick-dpr/` são intencionalmente não rastreados. Próximo gap: A/B material/AO Neon emissive-safe com frame fixo.
+
+
 ## [2026-09-03T21:53Z] Autonomous tick — ColorGrade A/B rejeitado
 - Baseline re-medido no `HEAD 7762d43`; alterações pré-existentes do usuário em `src/config.js`, `src/main.js` e `src/track/Environment.js` foram preservadas e não participaram do candidato; checks estáticos, build externo e AI Track 1/2 ×20 passaram (`44 módulos`, `903.92 kB`, `2.21s`, `0 lost / 0 backwards / 0 crashes`).
 - O único candidato foi desabilitar o `ColorGradeShader` somente no harness QA `no-color-grade`; o default de `src/render/PostFX.js` não mudou. O modo mobile, onde o pass não existe, foi tratado como no-op explícito.
