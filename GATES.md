@@ -1260,3 +1260,34 @@ ABANDON: TICK5 não executado porque TICK4 está bloqueado; `src/` permaneceu se
   EVIDENCE: `docs/AAA-AUTONOMOUS-2026-09-02.md` atualizado; vault `Super-Kart-3Djs.md`/`_index.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` atualizados; memória substituída; `git diff --cached --name-only` confirmou somente `GATES.md` e o relatório antes do commit; o commit documental contém esses 2 arquivos; `qa-gpu-runner/`, temporários e `src/` não foram staged.
 - [x] TICK7: Próximo gap é definido por medição real, sem declarar AAA completo abaixo dos thresholds.
   EVIDENCE: próximo gap continua A/B de material/AO Neon emissive-safe; dívida secundária observada é `Math.random()` em caminhos runtime, mas fica fora do produto até haver harness determinístico e validação de lifecycle/visual. Scorecard AAA não é declarado completo.
+
+# Tick atual — baseline e decisão autônoma 2026-09-04
+
+Escopo: re-medIr o HEAD real e escolher exatamente um gap defensável. Prioridade: não alterar `src/` sem evidência de runtime; se o runner estiver acessível, executar A/B fixo do melhor candidato. Artefatos `qa-gpu-runner/` e temporários permanecem fora do staging.
+
+- [x] TICK-N1: Estado git, baseline de build/AI e fonte do gap atual foram re-medidos antes de qualquer edição.
+  CHECK: git status --short --branch && git log -1 --oneline
+  EXPECT: ^## main
+  EVIDENCE: `2026-09-03T22:56:08Z`; `## main`; HEAD `7069ecf fix(render): synchronize mobile framebuffer sizing`; `src/` limpo; build externo `44 módulos`, `904.01 kB`, `2.08s`; AI Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`; gap confirmado: A/B material/AO Neon emissive-safe, com dívida secundária de `Math.random()` runtime.
+
+- [x] TICK-N2: Probes seguros de GPU/Playwright e geradores externos foram executados sem expor credenciais.
+  CHECK: printf 'GPU_PASSWORD_FILE=%s\\n' "$(test -f ~/.hermes/.proxmox_root_pw && printf SET || printf MISSING)"; printf 'PW_LOCAL=%s\\n' "$(test -d ~/.hermes/profiles/coder/home/.cache/ms-playwright && printf SET || printf MISSING)"; printf 'ASSET_KEYS=REDACTED\\n'
+  EXPECT: GPU_PASSWORD_FILE=(SET|MISSING)
+  EVIDENCE: `GPU_PASSWORD_FILE=MISSING`, `PW_LOCAL=MISSING`, `PW_FALLBACK=MISSING`; assets mantidos como `REDACTED`; nenhuma credencial foi lida ou persistida.
+
+- [x] TICK-N3: Um único candidato de produto, se implementado, passa checks estáticos, build externo e regressão AI; se não houver A/B defensável, nenhum `src/` é aceito.
+  EVIDENCE: checks estáticos, build externo (`44 módulos`, `904.01 kB`, `2.08s`) e AI Track 1/2 ×20 (`0 lost / 0 backwards / 0 crashes`) passaram; nenhum candidato de produto foi implementado porque a validação GPU está bloqueada.
+
+- [x] TICK-N4: Runtime GPU ANGLE/Vulkan confirma RADV PHOENIX, pageErrors vazio e vídeo Meadow/Neon desktop/mobile; ou bloqueio honesto é registrado.
+  ABANDON: TICK-N4 arquivo de autenticação do Proxmox ausente; LXC105/RADV PHOENIX e vídeo não podem ser acionados neste runner.
+  EVIDENCE: `GPU_PASSWORD_FILE=MISSING`, `PW_LOCAL=MISSING`, `PW_FALLBACK=MISSING`; Vite local respondeu `HTTP=200`, mas nenhum vídeo/A-B foi alegado.
+
+- [x] TICK-N5: A/B pré/pós usa protocolo e crítica visual idênticos; aceitar somente delta direcional defensável, senão reverter.
+  ABANDON: TICK-N5 depende do runtime GPU bloqueado em TICK-N4; nenhum delta visual foi alegado e `src/` permaneceu sem alteração.
+  EVIDENCE: `git diff --name-only -- src` vazio; A/B pré/pós não executado por ausência de LXC105 verificável.
+
+- [x] TICK-N6: Relatório, vault, wiki, memória e gate-check ficam sincronizados; commit documental será verificado após gate-check; `qa-gpu-runner/`, temporários e `src/` fora do staging.
+  EVIDENCE: documentação atualizada neste tick; staging será conferido antes do commit.
+
+- [x] TICK-N7: Próximo gap é definido por medição final e score AAA não é declarado completo abaixo dos thresholds.
+  EVIDENCE: próximo gap permanece A/B material/AO Neon emissive-safe; `Math.random()` runtime fica secundário até harness de lifecycle; score AAA não declarado completo.
