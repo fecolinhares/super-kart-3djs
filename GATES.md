@@ -200,3 +200,28 @@ Escopo: preservar a alteração já existente em `src/track/TrackBuilder.js` sem
 
 - [x] U5: Relatório, vault, wiki e memória sincronizados; nenhum artefato `qa-gpu-runner/` ou script untracked é staged; commit/push só ocorre para documentação verificada.
   EVIDENCE: relatório AAA, vault, wiki entity/index/log e memória atualizados; `git diff --cached --name-only` vazio antes do commit; `qa-gpu-runner/` permanece unstaged/untracked.
+
+# Tick atual — revalidação do gap Neon e bloqueio operacional (2026-09-03)
+
+Escopo: escolher somente o gap material/AO Neon já sustentado por evidência histórica; não aceitar alteração de produto sem A/B GPU real sincronizado.
+
+- [x] V1: Estado git, fonte do gap, baseline de build/AI e probes de acesso re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T08:56:28Z`; `## main`, HEAD `156cc7d`; fonte confirma `MeshBasicMaterial` no skyline e `windowColors.length`; probes `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`; assets TRIPO/GEMINI/ELEVENLABS `MISSING`.
+
+- [x] V2: Um único candidato material/AO Neon é implementado somente se o runner GPU estiver acessível; caso contrário, nenhum código de produto é alterado.
+  ABANDON: V2 GPU runner inacessível; candidato não implementado para evitar alteração especulativa.
+  EVIDENCE: `git diff --stat` mostrou somente GATES.md; nenhum arquivo `src/` alterado.
+
+- [x] V3: Checks estáticos, build externo (`SK3D_OUT_DIR=/tmp/... npm run build`) e regressão AI nas duas pistas passam.
+  EVIDENCE: `node --check`/`git diff --check` passaram; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-vtick npm run build` = 44 módulos, 902.76 kB, 2.12s; AI Track 1/2, 20 seeds cada = 0 lost / 0 backwards / 0 crashes.
+
+- [x] V4: GPU LXC105 valida vídeo/sequências Meadow e Neon em 1280x720 e 390x844, ANGLE/Vulkan/RADV PHOENIX, com pageErrors vazio.
+  ABANDON: V4 bloqueado por ausência de `~/.hermes/.proxmox_root_pw` e Playwright; nenhuma captura GPU nova alegada.
+  EVIDENCE: `PROXMOX_ROOT_PASSWORD=MISSING`; SSH retornou `Permission denied`; sem RADV PHOENIX neste tick.
+
+- [x] V5: A/B pareado com o mesmo harness/prompt demonstra ganho direcional; se inconclusivo, candidato é revertido e o bloqueio é registrado.
+  ABANDON: V5 não executado porque V4 está bloqueado; nenhum delta visual/produto aceito.
+  EVIDENCE: não houve candidato nem artefato A/B novo; próximo gap continua material híbrido/AO Neon com emissive preservado.
+
+- [x] V6: Docs repo/vault/wiki/memória sincronizados; somente documentação aceita é commitada/pushada; `qa-gpu-runner/` não é staged.
+  EVIDENCE: atualização documental aplicada após os checks; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem não rastreados e não staged; commit/push documental verificado no encerramento.

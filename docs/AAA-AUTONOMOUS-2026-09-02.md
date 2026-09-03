@@ -201,6 +201,13 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Runtime probe: dev server returned HTTP `200`; `PROXMOX_ROOT_PASSWORD=MISSING`; SSH to `root@192.168.0.102` returned `Permission denied (publickey,password)`. No secret was exposed and no GPU capture was claimed.
 - Decision: **NO PRODUCT CHANGE ACCEPTED IN THIS TICK**. The pending beam edit remains untouched for its owner; no visual A/B/video evidence exists, so it must not be committed as an AAA improvement. Next gap: restore LXC105 access and run identical desktop/mobile Meadow+Neon video A/B for the beam/housing.
 
-## [2026-09-03] Correction — concurrent gantry commit observed after tick measurement
+## [2026-09-03] Autonomous tick — Neon material/AO revalidation blocked
+- Baseline remeasured at HEAD `156cc7d`: only `GATES.md` is modified; `.hermes-tmp.*` and `qa-gpu-runner/` remain untracked. The evidence-backed gap remains controlled Neon material/AO that preserves emissive window contrast.
+- Static validation passed: `node --check` on runtime/track/material/QA modules and `git diff --check`; external build `SK3D_OUT_DIR=/tmp/sk3d-dist-vtick npm run build` passed with 44 modules, 902.76 kB, 2.12s.
+- Deterministic AI regression passed on Track 1 and Track 2 with 20 seeds each: `0 lost`, `0 backwards`, `0 crashes`.
+- Safe probes: `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`; `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`; SSH returned `Permission denied` without exposing credentials. No GPU RADV PHOENIX video/A-B was run.
+- Decision: **NO PRODUCT CHANGE ACCEPTED**. No source appearance delta was implemented. Next highest-value gap remains the same material/AO Neon A/B after restoring LXC105 access.
+
+## [2026-09-03] Correction — concurrent commit observed after tick measurement
 - Final re-measurement found HEAD `89f7c8c`, with concurrent commit `6c6a4cf` aligning the FINISH housing/sockets to the banner rotation; the beam remains `0.28m` navy.
 - This concurrent source change was not visually validated in this tick. Keep the product gain **unclaimed** until identical GPU RADV PHOENIX video/A-B covers Meadow and Neon at desktop/mobile sizes.
