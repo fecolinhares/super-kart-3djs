@@ -102,4 +102,4 @@ ABANDON: R5 não executado porque R4 está bloqueado; candidato revertido, porta
   EVIDENCE: `PROXMOX_ROOT_PASSWORD=MISSING`; captura GPU/A-B não executada e nenhuma alteração visual foi aceita.
 
 - [x] B6: Docs repo/vault/wiki/index/log/entidade e memória atualizados; commit atômico pushado; qa-gpu-runner não staged.
-  EVIDENCE: atualização documental deste tick será commitada atomicamente após `gate-check`; `qa-gpu-runner/` e `AUDIT_FINDINGS.md` não serão staged.
+  EVIDENCE: commit atômico `f3e8611` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; vault/wiki/memória foram atualizados; `qa-gpu-runner/` e `AUDIT_FINDINGS.md` não foram staged.
