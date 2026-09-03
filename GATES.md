@@ -992,4 +992,4 @@ Escopo: re-medire o estado atual, testar o runner GPU, e aceitar no máximo uma 
   EVIDENCE: relatório AAA, vault/wiki e memória atualizados neste tick; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem fora do staging.
 
 - [x] RT8: Commit atômico e push origin/main são verificados para toda alteração aceita, ou documentação de bloqueio é publicada atomicamente.
-  EVIDENCE: commit documental atômico será verificado após o gate-check e publicado em `origin/main`; nenhuma alteração de `src/` será incluída.
+  EVIDENCE: commit documental atômico `de616ae` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; push `e281201..de616ae main -> main` confirmado; nenhuma alteração de `src/` foi incluída.
