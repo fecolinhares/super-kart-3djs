@@ -138,4 +138,4 @@ ABANDON: R5 não executado porque R4 está bloqueado; candidato revertido, porta
   EVIDENCE: probe literal seguro `PROXMOX_ROOT_PASSWORD=MISSING`; nenhuma senha/token foi exibida.
 
 - [x] D5: Documentação e memória sincronizadas; commit atômico pushado sem incluir artefatos QA.
-  EVIDENCE: vault/wiki/docs/GATES atualizados; `qa-gpu-runner/` e `AUDIT_FINDINGS.md` continuam não rastreados e não staged; push remoto será verificado após o commit documental.
+  EVIDENCE: vault/wiki/docs/GATES atualizados; commit `f1f3c3b` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; push `53aec31..f1f3c3b main -> main` confirmado; `qa-gpu-runner/` e `AUDIT_FINDINGS.md` continuam não rastreados e não staged.
