@@ -31,7 +31,7 @@ O bloom global foi desligado no gameplay: `strength=0`, `radius=0`, `threshold=1
 
 O véu residual persistia mesmo sem bloom e foi separado como novo loop de fog/overlay; não será atribuído ao bloom sem evidência.
 
-A captura do aparelho também revelou suavização de resolução: perfis touch limitavam o canvas a `1–1.5×` mesmo quando o display físico era maior. `VisualQualityProfile` agora permite até `2×` em GPU real touch, limitado ao DPR do aparelho; software continua limitado para não degradar performance.
+Matriz GPU DPR3 isolou a causa: `no-fog`, `no-vignette` e `no-speedlines` mantêm o haze; `no-postfx` remove-o. O composer completo estava suavizando a imagem mesmo com BloomPass desligado. O runtime agora faz bypass de PostFX quando `bloomStrength<=0`; captura final ficou nítida e contínua.
 
 ### P1 — Linha de chegada e sinais: beam e módulo corrigidos
 

@@ -169,9 +169,10 @@ function buildSkyEnv(renderer) {
 scene.environment = buildSkyEnv(renderer);
 
 const postfx = new PostFX(renderer, scene, camera, qualityProfile);
-// Bloom remains a restrained accent on the night track; never override the
-// global gameplay readability budget with a stronger Neon-only halo.
-if (TRACK_ID === 2 && postfx.bloom) postfx.bloom.strength = 0;
+// When global bloom is disabled for gameplay readability, bypass the entire
+// composer too. The mobile GPU A/B showed the composer path itself introduces
+// a white veil even with BloomPass strength=0; direct renderer output is crisp.
+if (CONFIG.render.bloomStrength <= 0) postfx.enabled = false;
 // AUDIT R21k: grade NEUTRO no Neon — warmth+saturation empurravam o glow
 // difuso do horizonte para verde-oliva (vision: ?nobl = haze some). Noite
 // MK8: cores frias fiéis ao render, sem grade dourado. Os uniforms vivem em
