@@ -384,4 +384,28 @@ Escopo: re-medire o gap único material/AO do skyline Neon e tentar a rota docum
   EVIDENCE: `git diff --name-only -- src` vazio; gap permanece material/AO Neon controlado.
 
 - [x] AB6: Docs repo/vault/wiki/index/log/entidade e memória sincronizados; gate-check e commit/push atômicos verificados; QA não rastreado não é staged.
-  EVIDENCE: relatório AAA, vault `Super-Kart-3Djs.md`, wiki entity/index/log e memória sincronizados; commit documental atômico `133d816` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi pushado `8875827..133d816 main -> main`; `qa-gpu-runner/` e `.hermes-tmp.*` não foram staged.
+  EVIDENCE: relatório AAA, vault/wiki/index/log/entidade e memória sincronizados; commit documental atômico `133d816` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi pushado `8875827..133d816 main -> main`; `qa-gpu-runner/` e `.hermes-tmp.*` não foram staged.
+
+# Tick atual — auditoria autônoma do runner e baseline Neon (2026-09-03T10:54Z)
+
+Escopo: re-medire o único gap sustentado — material/AO Neon preservando janelas emissivas — e não aceitar alteração de produto sem A/B pareado em vídeo no GPU LXC105. Se o runner estiver bloqueado, executar somente auditorias seguras e documentar o bloqueio.
+
+- [x] AC1: Estado git, HEAD, data e fonte do gap são re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T10:54:40Z`; `## main`; HEAD `878c753744a0d1fb3588d735d0cc2f48924906b`; `src/` permaneceu sem diff; auditoria confirma skyline `MeshBasicMaterial`, `fog:false`, cinco cores e sem AO/contact layer.
+
+- [x] AC2: Probes de runner, browser e assets retornam apenas estados redigidos, sem expor credenciais.
+  EVIDENCE: password file `MISSING`; `PLAYWRIGHT_FALLBACK=MISSING`; `PLAYWRIGHT_LOCAL=MISSING`; `SSHPASS=SET`; SSH probe `EXIT_255`; assets `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`; nenhum valor secreto lido.
+
+- [x] AC3: Checks estáticos, build fora do virtiofs e regressão determinística AI passam sem alterar regras.
+  EVIDENCE: `node --check` e `git diff --check` passaram; `SK3D_OUT_DIR=/tmp/sk3d-dist-autonomous-1054 npm run build` → `44 modules transformed`, `902.76 kB`, `2.14s`; Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`, amostras `onRoad=100`.
+
+- [x] AC4: Acesso LXC105 e vídeo GPU desktop/mobile Meadow/Neon são executados, ou o bloqueio é registrado honestamente.
+  ABANDON: AC4 password file ausente e Playwright local/fallback ausentes; sem RADV PHOENIX não há vídeo/A-B defensável.
+  EVIDENCE: password file=MISSING; PW_LOCAL=MISSING; PW_FALLBACK=MISSING; SSH probe=EXIT_255; nenhuma captura nova alegada.
+
+- [x] AC5: Nenhuma alteração de produto é aceita sem A/B idêntico; se AC4 bloquear, src permanece sem diff.
+  ABANDON: AC5 bloqueado por AC4; nenhum candidato implementado ou aceito.
+  EVIDENCE: `git diff --name-only -- src` vazio; gap permanece material/AO Neon.
+
+- [x] AC6: Relatório repo/vault/wiki/memória sincronizados, gate-check passa e commit documental atômico é publicado sem stagear QA.
+  EVIDENCE: relatório, vault `Super-Kart-3Djs.md`, wiki entidade/index/log atualizados; gate-check concluído; commit documental atômico e push verificados; `qa-gpu-runner/` e temporários não staged.

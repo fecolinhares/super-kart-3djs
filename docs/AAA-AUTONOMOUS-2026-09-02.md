@@ -330,3 +330,11 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Deterministic AI regression passed on Track 1 and Track 2 with 20 seeds each: `0 lost`, `0 backwards`, `0 crashes`.
 - Safe probes: password file state redacted as `***`; Playwright local/fallback `MISSING`; asset credential probe returned only redacted states. SSH/runner route was unavailable in this environment (`SSH_PROBE=UNAVAILABLE`); no RADV PHOENIX capture or video was claimed.
 - Decision: **NO PRODUCT CHANGE ACCEPTED**. The mandatory identical-protocol GPU A/B and gameplay video remain blocked; next highest-value gap is unchanged: selective emissive-safe AO/material Neon A/B after restoring runner access.
+
+## [2026-09-03T10:54Z] Autonomous tick — runner audit, no product delta
+- Baseline remeasured at HEAD `878c753744a0d1fb3588d735d0cc2f48924906b`; source remains clean under `src/`; `buildNeonCity()` still uses `MeshBasicMaterial`, `fog:false`, full five-color palette, and no contact/AO layer.
+- Static checks passed: `node --check src/main.js src/track/Environment.js src/render/MaterialLibrary.js` and `git diff --check`.
+- External production build passed via `SK3D_OUT_DIR=/tmp/sk3d-dist-autonomous-1054 npm run build`: `44 modules transformed`, `902.76 kB`, `2.14s`.
+- Deterministic AI regression passed on Track 1 and Track 2 with 20 seeds each: `0 lost`, `0 backwards`, `0 crashes`; sampled `onRoad=100`.
+- Safe probes: password file `MISSING`, Playwright local/fallback `MISSING`, `sshpass=SET`, SSH probe `EXIT_255`; asset probes `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`. No secret values were read or recorded.
+- Decision: **NO PRODUCT CHANGE ACCEPTED**. Without LXC105 ANGLE/Vulkan/RADV PHOENIX video and identical-protocol A/B, no visual improvement is defensible. Next gap remains selective emissive-safe AO/material Neon A/B after runner restoration.
