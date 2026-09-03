@@ -374,3 +374,10 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Checks: `node --check src/track/Environment.js src/render/MaterialLibrary.js src/main.js` passou; `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1208 npm run build` passou com `44 modules`, `902.76 kB`, `2.12s`; AI Track 1/2 ×20 retornou `0 lost / 0 backwards / 0 crashes`; dev server `HTTP=200`.
 - Probes seguros: `PASSWORD_FILE=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`; geradores reportados apenas como `[REDACTED]`. Nenhum segredo foi lido ou persistido.
 - Decisão: **NO PRODUCT CHANGE ACCEPTED**. Sem LXC105/RADV PHOENIX e vídeo A/B desktop `1280×720`/mobile `390×844` com prompt idêntico, não há delta visual defensável. Próximo gap: material híbrido/AO Neon emissive-safe após restaurar o runner.
+
+## [2026-09-03T12:40:51Z] Autonomous tick — runner inacessível, sem delta de produto
+- Baseline re-medido no HEAD `0320c39142527d6d6979a90700409e431f6ae62c`; `src/` sem diff antes da decisão. `Environment.js` continua com `MeshBasicMaterial`, `fog:false` e sem AO executável no skyline Neon (`SKYLINE_BASIC=True`, `SKYLINE_AO=False`).
+- Checks reais: `node --check src/main.js src/track/Environment.js src/render/MaterialLibrary.js`; `git diff --check`; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1240 npm run build` → `44 módulos`, `902.76 kB`, `2.25s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+- Probes seguros: password file ausente; `SSHPASS` não estava exportado para a rota SSH; LXC105 responde na porta 22, mas não houve autenticação; Playwright local e `/opt/pwtest` ausentes; geradores externos permanecem `MISSING`. Nenhum segredo foi lido ou registrado.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. Sem vídeo desktop/mobile no LXC105 com ANGLE/Vulkan/RADV PHOENIX e A/B pareado, nenhum patch Neon foi implementado. O próximo gap continua material híbrido/AO emissive-safe; o primeiro passo é restaurar uma rota autenticável ao runner.
+- Artefatos QA não foram staged; a alteração desta rodada é somente documentação/gates.

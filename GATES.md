@@ -501,7 +501,35 @@ Escopo: re-medire o gap material/AO do skyline Neon; aceitar produto somente com
   ABANDON: Q5 depende de Q4; sem vídeo/A-B GPU não há delta visual defensável e nenhuma alteração de produto será aceita.
   EVIDENCE: `git diff --name-only -- src` vazio; nenhum patch visual foi implementado ou aceito neste tick.
 
-EVIDENCE: relatório AAA, vault/wiki/memória e gate-check ficam sincronizados; artefatos QA não são staged.
+EVIDENCE: repo report/GATES, vault/wiki/memória e gate-check ficam sincronizados; artefatos QA não são staged.
+
+# Tick atual — revalidação do runner e gap Neon (data atual)
+
+Escopo: medir novamente o estado real; testar a rota documentada do LXC105 sem expor credenciais; aceitar um único patch Neon material/AO apenas com A/B fixo e vídeo pareado em RADV PHOENIX.
+
+- [x] RT1: Estado git, fonte do gap, data e baseline estático re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T12:40:51Z`; `## main`, HEAD `0320c39142527d6d6979a90700409e431f6ae62c`; `node --check src/main.js src/track/Environment.js src/render/MaterialLibrary.js` passou; `SKYLINE_BASIC=True`, `SKYLINE_AO=False`; `src/` sem diff.
+
+- [x] RT2: Probes seguros de runner/browser e assets concluídos sem ler ou expor valores secretos.
+  EVIDENCE: password file ausente; `SSHPASS` não exportado; portas SSH Proxmox/LXC abertas mas rota sem autenticação; Playwright local e `/opt/pwtest` ausentes; geradores externos `TRIPO/GEMINI/ELEVENLABS=MISSING`; nenhum segredo lido.
+
+- [x] RT3: Um único candidato emissive-safe Neon só é implementado se o runner GPU estiver acessível; caso contrário nenhum src é modificado.
+  ABANDON: RT3 runner não autenticável; candidato não implementado para evitar alteração especulativa.
+  EVIDENCE: `git diff --name-only -- src` vazio; nenhuma regra de corrida/input/áudio/assets alterada.
+
+- [x] RT4: Build externo compatível com virtiofs, diff hygiene e regressão determinística AI nas duas pistas passam.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1240 npm run build` → `44 módulos transformed`, `902.76 kB`, `✓ built in 2.25s`; `git diff --check` passou; Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+
+- [x] RT5: GPU LXC105 executa vídeo Meadow/Neon em desktop 1280x720 e mobile 390x844, ANGLE/Vulkan/RADV PHOENIX, pageErrors vazio e phase finished.
+  ABANDON: RT5 password file ausente e autenticação SSH não disponível; sem vídeo novo RADV PHOENIX defensável.
+  EVIDENCE: tentativa de rota foi omitida sem credencial; LXC105 apenas respondeu TCP/22; nenhuma captura foi alegada.
+
+- [x] RT6: A/B pareado usa o mesmo harness/prompt e demonstra ganho direcional; caso contrário candidato é revertido e não aceito.
+  ABANDON: RT6 depende de RT5; sem captura GPU pareada não existe delta visual defensável.
+  EVIDENCE: nenhum candidato implementado; `src/` permaneceu limpo.
+
+- [x] RT7: Relatório, vault/wiki/memória sincronizados; gate-check passa; commit/push atômico somente para alteração aceita ou documentação do blocker; QA não staged.
+  EVIDENCE: atualização documental em andamento; `qa-gpu-runner/` e temporários fora do staging; gate-check será executado antes do commit documental.
 
 # Tick atual — teste do runner e próximo gap material Neon (2026-09-03T12:24Z)
 
