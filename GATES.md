@@ -28,4 +28,4 @@ PY`
   EVIDENCE: A/B desktop repetido com o mesmo harness/câmera: `a_vs_b=8076/921600 (0.008763021), mean_abs_channel=0.023990162`; terceira execução `a_vs_c=23274/921600 (0.025253906), mean_abs_channel=0.016024667`. Capturas fixas são suficientemente estáveis para instrumentação/A-B (média absoluta <0.024), mas não são bit-identical; nenhuma alteração de aparência foi aceita. Vision confirmou skyline/UI legíveis e sem artefato grosseiro; gameplay video confirmou cenas ativas.
 
 - [x] T6: Docs, vault, wiki, memória e commit/push atômicos refletem a decisão; `qa-gpu-runner/` não entra no staging.
-  EVIDENCE: docs/vault/wiki atualizados; commit atômico e push serão verificados no fechamento; `qa-gpu-runner/` permanece fora do staging.
+  EVIDENCE: docs/vault/wiki atualizados; commit atômico `07baf65` criado e push verificado em `origin/main`; `qa-gpu-runner/` permanece fora do staging.
