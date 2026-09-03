@@ -693,4 +693,4 @@ Escopo: re-medire o estado atual; escolher somente o gap material/AO Neon susten
   EVIDENCE: `src/` permaneceu sem diff; decisão `NO PRODUCT CHANGE ACCEPTED`.
 
 - [x] CUR7: Relatório, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos somente para documentação ou mudança aceita; QA não é staged.
-  EVIDENCE: relatório `docs/AAA-AUTONOMOUS-2026-09-02.md`, vault `Super-Kart-3Djs.md`/`_index.md`, wiki entidade/`index.md`/`log.md` e memória atualizados; `src/` sem diff; `qa-gpu-runner/` e temporários não staged; commit documental atômico será verificado após gate-check.
+  EVIDENCE: relatório `docs/AAA-AUTONOMOUS-2026-09-02.md`, vault `Super-Kart-3Djs.md`/`_index.md`, wiki entidade/`index.md`/`log.md` e memória atualizados; `src/` sem diff; `qa-gpu-runner/` e temporários não staged; gate-check `ALL MET (166 met, 17 abandoned)`; commit documental `0442366` contém somente `GATES.md` e relatório e foi pushado para `origin/main`.
