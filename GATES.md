@@ -816,4 +816,4 @@ Escopo: re-medire o estado real e escolher exatamente um gap de maior valor. Só
   EVIDENCE: mesmo harness/câmera/prompt em pré/pós; diff acima do limiar 2 desktop `119650/921600 (0.129829)`, mobile `72272/329160 (0.219565)`; visão própria e fresh-eyes independente aceitaram coroamento/overhang visível, janelas legíveis e ausência de artefatos.
 
 - [x] AT7: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos verificados sem stagear QA.
-  EVIDENCE: documentação atualizada; commit/push serão verificados após gate-check, com `qa-gpu-runner/` e temporários fora do staging.
+  EVIDENCE: documentação repo/vault/wiki/memória atualizada; `gate-check` → `ALL MET (199 met, 17 abandoned)` antes do commit; commit de produto `1215b1e` contém somente `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md` e `src/track/Environment.js`, push `3482238..1215b1e main -> main` confirmado; `qa-gpu-runner/` e temporários permaneceram fora do staging.
