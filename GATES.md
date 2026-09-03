@@ -37,7 +37,7 @@ Escopo: re-medire o owner `kart-ai` e a rota GPU; sem aceitar nova alteração d
   EVIDENCE: `node --check`/`git diff --check`; `SK3D_OUT_DIR=/tmp/sk3d-dist-current-tick npm run build` → `44 modules transformed`, `903.92 kB`, `2.09s`; Track 1/2 ×20 → `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
 
 - [x] Q4: A/B de owner isolado com vídeo Meadow/Neon desktop/mobile e GPU ANGLE/Vulkan/RADV PHOENIX é executado, ou o bloqueio é registrado honestamente.
-  EVIDENCE: auditor remoto em `/tmp/sk3d-render-breakdown-tick` confirmou WebGL2, ANGLE/Vulkan `RADV PHOENIX`, `pageErrors=[]`; vídeo `?demo` terminou `phase=finished` em Meadow/Neon desktop/mobile com `849/998/689/1007` frames.
+  EVIDENCE: baseline/probe remoto confirmou WebGL2, ANGLE/Vulkan `RADV PHOENIX`, `pageErrors=[]`; vídeo `?demo` terminou `phase=finished` em Meadow/Neon desktop/mobile com `849/998/689/1007` frames. Não foi executado A/B de candidato novo porque o único candidato isolado conhecido (`kart-ai` shadow caster) já foi rejeitado; nenhum ganho foi alegado.
 
 - [x] Q5: Nenhuma alteração de produto é aceita sem delta direcional defensável; fonte permanece sem mudança em src se Q4 bloquear.
   EVIDENCE: probe atual mediu Meadow `1948 calls/1,089,095 tris` desktop e `977 calls/819,717 tris` mobile; `kart-ai` continua `1175 meshes/199650 tris`; não houve redução isolada de calls/frame-time demonstrada, e `git diff -- src` permanece vazio. Decisão: `NO PRODUCT CHANGE ACCEPTED`.
