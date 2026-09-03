@@ -23,6 +23,28 @@ Escopo: reduzir a obstrução do pórtico FINISH na aproximação sem remover o 
 - [x] G7: Docs de projeto, vault, wiki index/log/entidade e memória atualizados; commit atômico pushado em origin/main; qa-gpu-runner não staged.
   EVIDENCE: commit `fe64533` contém somente `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md` e `src/track/TrackBuilder.js`; `git push origin main` atualizou `82539e6..fe64533`; `qa-gpu-runner/` não foi staged.
 
+# Tick atual — revalidação do owner de performance e bloqueio operacional (2026-09-03T19:42Z)
+
+Escopo: re-medire o owner `kart-ai` e a rota GPU; sem aceitar nova alteração de produto se não houver métrica fixa pareada em RADV PHOENIX.
+
+- [x] Q1: Estado git, fonte do gap e baseline atual re-medidos antes de qualquer alteração.
+  EVIDENCE: `git status --short --branch` = `## main` + `qa-gpu-runner/` não rastreado; HEAD `0a4a8ed`; `src/` sem diff; owner mensurável `kart-ai` permanece `1175 meshes/199650 tris` no probe anterior.
+
+- [x] Q2: Acesso ao runner GPU e dependências de browser sondados sem expor credenciais.
+  EVIDENCE: `DIRECT_GPU_SSH_RC=0`; runner `192.168.0.195` confirmou `/opt/pwtest` e Chromium; estados de password/assets foram somente redigidos como `***`/`MISSING`.
+
+- [x] Q3: Checks estáticos, build externo compatível com virtiofs e regressão determinística AI passam sem alteração de produto.
+  EVIDENCE: `node --check`/`git diff --check`; `SK3D_OUT_DIR=/tmp/sk3d-dist-current-tick npm run build` → `44 modules transformed`, `903.92 kB`, `2.09s`; Track 1/2 ×20 → `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
+
+- [x] Q4: A/B de owner isolado com vídeo Meadow/Neon desktop/mobile e GPU ANGLE/Vulkan/RADV PHOENIX é executado, ou o bloqueio é registrado honestamente.
+  EVIDENCE: auditor remoto em `/tmp/sk3d-render-breakdown-tick` confirmou WebGL2, ANGLE/Vulkan `RADV PHOENIX`, `pageErrors=[]`; vídeo `?demo` terminou `phase=finished` em Meadow/Neon desktop/mobile com `849/998/689/1007` frames.
+
+- [x] Q5: Nenhuma alteração de produto é aceita sem delta direcional defensável; fonte permanece sem mudança em src se Q4 bloquear.
+  EVIDENCE: probe atual mediu Meadow `1948 calls/1,089,095 tris` desktop e `977 calls/819,717 tris` mobile; `kart-ai` continua `1175 meshes/199650 tris`; não houve redução isolada de calls/frame-time demonstrada, e `git diff -- src` permanece vazio. Decisão: `NO PRODUCT CHANGE ACCEPTED`.
+
+- [x] Q6: Relatório, vault, wiki, memória, gate-check e commit/push atômicos ficam sincronizados; qa-gpu-runner não é staged.
+  EVIDENCE: vault `Super-Kart-3Djs.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md`, `_index.md` e memória atualizados; `gate-check.mjs` → `ALL MET (265 met, 17 abandoned)`; somente `GATES.md` e o relatório AAA serão commitados; `qa-gpu-runner/` e temporários permanecem fora do staging.
+
 # Tick atual — gap AO/material Neon (2026-09-03)
 
 - [x] T1: Baseline atual re-medido e um único gap de maior valor confirmado por artefato/código.

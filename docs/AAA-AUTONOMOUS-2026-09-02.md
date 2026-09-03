@@ -1,5 +1,12 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T19:42Z] Autonomous tick — owner de performance revalidado, sem mudança de produto
+- Baseline re-medido em `HEAD 0a4a8ed`; `src/` permaneceu sem diff. O owner mensurável continua `kart-ai` com `1175 meshes/199650 tris` no breakdown anterior.
+- Checks locais passaram: `node --check` nos módulos/runtime/QA, `git diff --check`; build externo via `SK3D_OUT_DIR=/tmp/sk3d-dist-current-tick npm run build` → `44 modules transformed`, `903.92 kB`, `2.09s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+- Runner direto voltou: `192.168.0.195` confirmou `/opt/pwtest` e Chromium; auditoria confirmou WebGL2, ANGLE/Vulkan `RADV PHOENIX`, `pageErrors=[]`. Render breakdown atual: Meadow desktop/mobile `1948/977 calls`, `1,089,095/819,717 tris`; o custo segue alto.
+- Vídeo ativo `?demo` terminou `phase=finished` em Meadow/Neon desktop/mobile com `849/998/689/1007` frames. Não houve redução isolada de calls/frame-time demonstrada; a tentativa anterior de `castShadow=false` em `kart-ai` já havia piorado calls no mobile e não foi repetida como produto.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. Sem candidato seguro comprovado, nenhum arquivo `src/` foi alterado ou commitado. Próximo gap: probe fixo temporalmente pareado de outro owner/pass, priorizando uma redução mensurável sem degradar a leitura visual.
+
 ## [2026-09-03T18:54Z] Autonomous tick — `kart-ai` shadow-caster candidate rejected
 - Baseline re-measured at `HEAD a321b24`; `kart-ai` owner was `1175 meshes/199650 tris` in the existing GPU breakdown.
 - Candidate disabled `castShadow` only for AI kart descendants. Static checks/build passed (`44 modules`, `904.05 kB`, `2.44s`) and AI Track 1/2 ×20 stayed at `0 lost / 0 backwards / 0 crashes`.
