@@ -939,3 +939,27 @@ Escopo: re-medire o estado real após o auditor de budget; escolher um único av
 
 - [x] RBT7: Relatório, vault/wiki/memória são sincronizados; gate-check passa; commit atômico/push ocorre apenas para documentação verificada; QA não é staged.
   EVIDENCE: vault `Super-Kart-3Djs.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` e memória sincronizados; `node /home/jarvis/.hermes/profiles/coder/skills/unlazy/scripts/gate-check.mjs GATES.md` → `ALL MET (231 met, 17 abandoned)`; `git diff --check` passou; apenas `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` serão staged; `qa-gpu-runner/` e temporários fora do staging.
+
+# Tick atual — revalidação e tentativa de owner isolado (2026-09-03T18:24Z)
+
+Escopo: re-medire o budget e tentar um único avanço de custo/qualidade somente se a rota GPU LXC105 continuar verificável. Sem RADV PHOENIX, não aceitar alteração de produto.
+
+- [x] RT1: Estado git, data, baseline de budget e gap único são re-medidos antes de agir.
+  EVIDENCE: `2026-09-03T18:24:35Z`; `## main`; HEAD `e91b118`; `src/` sem diff; budget/owner atual permanece instrumentado e o gap de maior valor é uma redução isolada de `kart-ai`/passes, condicionada a A/B GPU.
+
+- [x] RT2: Probes seguros de runner, browser e geradores externos retornam apenas estados redigidos.
+  EVIDENCE: `PWFILE=MISSING`, `PWLOCAL=PRESENT`, `PWFALLBACK=MISSING`, `SSHPASS=SET`; nenhuma credencial foi lida ou exibida. Probes de geradores permanecem sem valores utilizáveis (`MISSING`).
+
+- [x] RT3: Auditoria estática, build externo e regressão AI nas duas pistas passam.
+  EVIDENCE: `node --check`/`git diff --check` passaram; `SK3D_OUT_DIR=/tmp/sk3d-dist-rt npm run build` → `44 modules`, `903.92 kB`, `✓ built in 2.15s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+
+- [x] RT4: GPU LXC105 com ANGLE/Vulkan/RADV PHOENIX executa breakdown/vídeo Meadow e Neon desktop/mobile com pageErrors vazio; se bloqueado, registrar ABANDON honesto.
+  ABANDON: RT4 password file ausente; `sshpass -e` sem `SSHPASS` exportado terminou `SSH_RC=139`; `/opt/pwtest` ausente localmente. Não há sessão LXC105/RADV PHOENIX nova defensável neste tick.
+  EVIDENCE: `PWFILE=MISSING`, `PWFALLBACK=MISSING`, `PWRUNNER=NO`; nenhuma captura/vídeo GPU novo foi alegado.
+
+- [x] RT5: Um único candidato de owner isolado só é aceito após A/B pareado e vídeo; sem evidência, nenhum arquivo src é alterado.
+  ABANDON: RT5 bloqueado por RT4; não houve candidato nem alteração de produto aceita.
+  EVIDENCE: `git diff --name-only -- src` retornou vazio; decisão `NO PRODUCT CHANGE ACCEPTED`.
+
+- [x] RT6: Relatório repo, vault/wiki/index/log/entidade e memória sincronizados; gate-check passa; commit documental atômico/push ocorre sem stagear QA.
+  EVIDENCE: documentação repo/vault/wiki/memória sincronizada; `node /home/jarvis/.hermes/profiles/coder/skills/unlazy/scripts/gate-check.mjs GATES.md` → `ALL MET (237 met, 17 abandoned)`; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem fora do staging.

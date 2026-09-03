@@ -1,5 +1,12 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T18:24Z] Autonomous tick — runner bloqueado, sem mudança de produto
+- Baseline real re-medido no `HEAD e91b118`: `src/` sem diff; auditor de budget mantém `kart-ai` como owner mensurável, mas não há redução segura sem A/B.
+- Checks passaram: `node --check`/`git diff --check`; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-rt npm run build` → `44 modules`, `903.92 kB`, `✓ built in 2.15s`.
+- AI Track 1/2 ×20 passou com `0 lost / 0 backwards / 0 crashes`; dev server `HTTP 200`.
+- Probe seguro: `PWFILE=MISSING`, browser local presente mas `/opt/pwtest` e fallback ausentes; tentativa SSH sem segredo terminou `SSH_RC=139`. Sem LXC105/RADV PHOENIX novo, vídeo/A-B não é defensável.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. Próximo gap: testar redução isolada de `kart-ai` ou passe PostFX quando a rota GPU verificável retornar.
+
 ## [2026-09-03T18:10Z] Autonomous tick — revalidação após instrumentação, sem mudança de produto
 - Baseline re-medido no `HEAD b6aab8a`; `src/` permaneceu sem diff. O auditor de budget anterior continua sendo o único avanço aceito e mantém owners mensuráveis, mas não demonstrou ainda uma redução isolável segura.
 - Checks estáticos passaram: `node --check scripts/audit-render-breakdown.cjs src/main.js src/track/Environment.js src/render/MaterialLibrary.js` e `git diff --check`.
