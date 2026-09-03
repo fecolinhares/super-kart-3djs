@@ -337,3 +337,27 @@ Escopo: re-medire o gap único de maior valor — grounding/material Neon preser
 
 - [x] X6: Docs repo/vault/wiki/memória sincronizados, gate-check passa e commit documental atômico é publicado sem stagear QA.
   EVIDENCE: `docs/AAA-AUTONOMOUS-2026-09-02.md`, vault `Super-Kart-3Djs.md`/`_index.md` e wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` atualizados; nenhuma alteração em `src/`; `qa-gpu-runner/` e `.hermes-tmp.*` não serão staged; gate-check será executado antes do commit documental atômico.
+
+# Tick atual — revalidação autônoma do gap Neon (2026-09-03)
+
+Escopo: medir novamente o maior gap sustentado por evidência, material/AO do skyline Neon, e aceitar apenas um delta demonstrado por A/B GPU real; se o runner continuar bloqueado, registrar o bloqueio e não alterar `src/`.
+
+- [x] AA1: Estado git, data, fonte do gap e baseline de código foram re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T10:25:36Z`; HEAD `62e7805`; `main` com apenas `GATES.md` modificado e artefatos QA/temporários não rastreados; `SKYLINE_BASIC=True`, `SKYLINE_AO=False`.
+
+- [x] AA2: Probes seguros de runner, browser local/fallback e geradores externos concluídos sem expor valores secretos.
+  EVIDENCE: probes reportaram somente estados redigidos: Proxmox password file `***`, Playwright fallback/local `MISSING`, geradores `***`; SSH `EXIT=255`/`AUTH_OR_NETWORK_BLOCKED`; nenhum segredo exibido.
+
+- [x] AA3: Checks estáticos, build fora do virtiofs e regressão determinística AI passam.
+  EVIDENCE: `node --check` nos 3 módulos + `git diff --check`; `SK3D_OUT_DIR=/tmp/sk3d-dist-aa npm run build` → `44 modules transformed`, `902.76 kB`, `2.15s`; Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+
+- [x] AA4: GPU LXC105 valida RADV PHOENIX, vídeo Meadow/Neon desktop/mobile e pageErrors vazio, ou o bloqueio é registrado honestamente.
+  ABANDON: AA4 Proxmox password file indisponível, Playwright local/fallback ausentes e SSH `EXIT=255`; não foi possível executar LXC105/RADV PHOENIX nem vídeo novo.
+  EVIDENCE: probe seguro `PROXMOX_PASSWORD_FILE=***`, Playwright `MISSING`, SSH `AUTH_OR_NETWORK_BLOCKED`; nenhuma captura GPU nova alegada.
+
+- [x] AA5: Uma alteração de produto é aceita somente após A/B pareado e vídeo com prompt idêntico; se AA4 bloquear, nenhum arquivo `src/` é modificado.
+  ABANDON: AA5 depende de AA4; sem A/B GPU pareado não há delta visual defensável e nenhum produto foi alterado.
+  EVIDENCE: `git diff --name-only -- src` vazio; gap permanece material/AO Neon.
+
+- [x] AA6: Docs repo/vault/wiki/index/log/entidade e memória sincronizados; gate-check passa e commit documental atômico é publicado sem stagear QA.
+  EVIDENCE: relatório AAA, vault `Super-Kart-3Djs.md`, wiki entity/index/log e memória atualizados; `git diff --name-only -- src` vazio; `gate-check` passou com `ALL MET (87 met, 11 abandoned)`; somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` serão commitados; `qa-gpu-runner/` e `.hermes-tmp.*` não serão staged.
