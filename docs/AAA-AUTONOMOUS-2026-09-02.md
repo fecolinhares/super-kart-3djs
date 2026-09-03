@@ -111,3 +111,11 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Gameplay evidence: GPU video sequences Meadow desktop/mobile `829/999` frames and Neon desktop/mobile `708/1005` frames; all finished normally. Vision found active nonblank scenes, legible HUD/touch controls, and no gross rendering artifact; FINISH gantry remains visually dominant and is still open.
 - Decision: **ACCEPTED as QA instrumentation only; no appearance change claimed.** The harness is stable enough for directional A/B (low mean absolute residual) but not bit-identical; future material changes still require the same fixed harness and explicit threshold.
 - Artifacts: `qa-gpu-runner/tick-skyline-deterministic/` and `qa-gpu-runner/tick-gameplay-video/` (intentionally untracked).
+
+## [2026-09-03] Autonomous tick — canvas-only skyline A/B
+- Gap: fixed captures still composited live HUD/menu DOM, contaminating material A/B with unrelated compositor timing.
+- Change: `scripts/capture-skyline-fixed.cjs` records the canvas bounding rect, clips CDP capture to it, and hides only body-level UI during the QA capture; normal runtime is untouched.
+- GPU evidence: LXC105 ANGLE Vulkan/RADV PHOENIX; desktop `1280×720`, mobile `390×844`; 3 JSONs, `pageErrors=[]`, palette total `83`.
+- Paired desktop evidence: `mean_abs_channel 0.023990162→0.010919777` (−54.48%); changed-pixel ratio `0.008763021→0.026639540`, so the improvement is accepted as lower residual energy, not pixel identity.
+- Vision confirmed the new artifact is nonblank WebGL scene-only with no HTML HUD/menu. Decision: **accepted QA instrumentation only; no product visual score claimed**.
+- Artifacts: `qa-gpu-runner/tick-skyline-canvas-only/` (intentionally untracked).

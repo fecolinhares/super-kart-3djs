@@ -65,7 +65,8 @@ const launchArgs = [
     game.raceManager.phase = 'idle';
     const style = document.createElement('style');
     style.dataset.sk3dFixedCapture = 'true';
-    style.textContent = '* { animation: none !important; transition: none !important; }';
+    style.textContent = '* { animation: none !important; transition: none !important; }\n' +
+      'body > :not(#app) { display: none !important; }';
     document.head.appendChild(style);
     // Use the real post-processing path; direct renderer.render() made this
     // harness disagree with the player-facing frame when bloom was enabled.
@@ -74,12 +75,17 @@ const launchArgs = [
     const canvas = document.querySelector('canvas');
     const gl = canvas?.getContext('webgl2') || canvas?.getContext('webgl');
     const ext = gl?.getExtension('WEBGL_debug_renderer_info');
+    const rect = canvas?.getBoundingClientRect();
     return {
       gpu: ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : 'unknown',
       palette: gameNeonPalette(),
       camera: { x: camera.position.x, y: camera.position.y, z: camera.position.z, fov: camera.fov },
       target,
       canvas: canvas ? { width: canvas.width, height: canvas.height } : null,
+      // Keep A/B focused on the actual game framebuffer. The DOM HUD/menu has
+      // independent compositor timing and made an otherwise fixed scene look
+      // unstable; the runtime page remains unchanged.
+      canvasClip: rect ? { x: rect.left, y: rect.top, width: rect.width, height: rect.height, scale: 1 } : null,
     };
 
     function gameNeonPalette() { return window.__sk3dNeonPalette; }
@@ -87,7 +93,12 @@ const launchArgs = [
   if (!/RADV PHOENIX/i.test(probe.gpu)) throw new Error(`GPU gate failed: ${probe.gpu}`);
   const cdp = await context.newCDPSession(page);
   await new Promise((resolve) => setTimeout(resolve, 250));
-  const screenshot = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+  const screenshot = await cdp.send('Page.captureScreenshot', {
+    format: 'png',
+    fromSurface: true,
+    captureBeyondViewport: false,
+    ...(probe.canvasClip ? { clip: probe.canvasClip } : {}),
+  });
   const outPath = path.join(outDir, mobile ? 'neon-skyline-mobile.png' : 'neon-skyline-desktop.png');
   fs.writeFileSync(outPath, Buffer.from(screenshot.data, 'base64'));
   const report = { ...probe, viewport, pageErrors, outPath };

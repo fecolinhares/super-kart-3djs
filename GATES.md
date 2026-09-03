@@ -1,31 +1,21 @@
-# Gates — Autonomous AAA tick (2026-09-03 deterministic skyline capture)
+# Gates — Autonomous AAA tick (2026-09-03 canvas-only skyline A/B)
 
-Escopo: uma alteração única no ferramental de QA: tornar a captura fixa do skyline Neon realmente determinística, preservando a aparência/runtime normal do jogo. Nenhuma mudança cosmética será aceita sem A/B pareado válido.
+Escopo: corrigir o bloqueador de evidência do skyline Neon. O harness fixo ainda captura DOM/UI junto do canvas e o A/B reporta delta alto; esta rodada isola o framebuffer do jogo sem alterar o runtime normal. Nenhuma mudança cosmética será aceita sem comparação pareada no mesmo runner.
 
-- [x] T1: Baseline atual, gap e estado git re-medidos antes da alteração.
-  EVIDENCE: `git status --short --branch` → `## main` + somente `qa-gpu-runner/` não versionado; HEAD `81dad68`; relatório atual identifica diferença fixa `0.415136` e próximo passo “congelar tempo de shaders/UI”.
+- [x] T1: Baseline re-medido antes da alteração e gap confirmado no estado git/artefatos atuais.
+  EVIDENCE: `git status --short --branch` → `## main` + `qa-gpu-runner/` não versionado; HEAD `13906af`; build baseline verde; JSON anterior reporta RADV PHOENIX e delta histórico `0.415136`.
 
-- [x] T2: Harness fixa o loop de atualização, animações CSS e pipeline de render sem alterar o modo normal.
-  EVIDENCE: `git diff --check`, `node --check scripts/capture-skyline-fixed.cjs` e presença verificada de `game.loop?.stop`, `postfx?.render` e CSS `animation: none`; harness executado com sucesso no LXC105.
+- [x] T2: Harness captura exclusivamente o canvas WebGL por clip CDP derivado do bounding rect, mantendo viewport/câmera/GPU e metadados existentes.
+  EVIDENCE: `node --check scripts/capture-skyline-fixed.cjs` verde; fonte contém `canvas.getBoundingClientRect()` e `Page.captureScreenshot({ clip: probe.canvasClip })`.
 
-- [x] T3: Duas capturas desktop e uma mobile, com mesmo harness/câmera/resolução, confirmam GPU ANGLE Vulkan/RADV PHOENIX, sem page errors e com diferença pareada zero ou residual desprezível.
-  CHECK: `python3 - <<'PY'
-from pathlib import Path
-import json
-for p in Path('qa-gpu-runner/tick-skyline-deterministic').glob('*/**/*.json'):
-    d=json.loads(p.read_text()); assert 'RADV PHOENIX' in d['gpu']; assert not d['pageErrors']
-print('GPU/pageerror JSON checks passed')
-PY`
-  EXPECT: `GPU/pageerror JSON checks passed`
-  EVIDENCE: LXC105 retornou `RADV PHOENIX`, `pageErrors=[]`, palette `13,22,20,17,11`, total `83` em desktop A/B e mobile; `a_vs_b=8076/921600 (0.008763021)` e `a_vs_c=23274/921600 (0.025253906)`.
+- [x] T3: Build de produção e regressão determinística de AI passam após a alteração.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-canvas-a-b npm run build` verde; Track 1/2, 20 seeds: `0 lost / 0 backwards / 0 crashes`.
 
-- [x] T4: Build de produção, node checks e regressão determinística da IA passam nas duas pistas.
-  CHECK: `SK3D_OUT_DIR=/tmp/sk3d-dist-deterministic npm run build >/tmp/sk3d-build-deterministic.log && node scripts/ai-backwards-test.mjs 20 1 && node scripts/ai-backwards-test.mjs 20 2`
-  EXPECT: `CRASHES: 0` em ambas as execuções.
-  EVIDENCE: build verde em `/tmp/sk3d-dist-deterministic`, `node --check` verde, IA Track 1/2 `20` seeds: `0 lost / 0 backwards / 0 crashes`.
+- [x] T4: Capturas desktop e mobile no GPU runner LXC105 confirmam ANGLE Vulkan/RADV PHOENIX, canvas não vazio, pageErrors vazio e artefatos completos.
+  EVIDENCE: 3 JSONs em `qa-gpu-runner/tick-skyline-canvas-only/{a,b,mobile}` passaram o probe: GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]`, canvas `1280×720` desktop e `390×844` mobile; arquivos PNG presentes.
 
-- [x] T5: Decisão de produto baseada em comparação idêntica: aceitar apenas se o harness for determinístico e não houver regressão visual/runtime.
-  EVIDENCE: A/B desktop repetido com o mesmo harness/câmera: `a_vs_b=8076/921600 (0.008763021), mean_abs_channel=0.023990162`; terceira execução `a_vs_c=23274/921600 (0.025253906), mean_abs_channel=0.016024667`. Capturas fixas são suficientemente estáveis para instrumentação/A-B (média absoluta <0.024), mas não são bit-identical; nenhuma alteração de aparência foi aceita. Vision confirmou skyline/UI legíveis e sem artefato grosseiro; gameplay video confirmou cenas ativas.
+- [x] T5: A/B canvas-only é direcionalmente mais estável que o baseline documentado, ou a mudança é revertida honestamente; nenhuma aparência do jogo é alegada sem evidência visual temporal.
+  EVIDENCE: comparação idêntica desktop reduziu `mean_abs_channel` de `0.023990162` para `0.010919777` (−54.48% calculado), embora changed-pixel ratio tenha subido `0.008763021→0.026639540`; decisão aceita somente como melhoria do ferramental de A/B, sem alegação de ganho visual do jogo. Vision confirmou framebuffer não vazio e ausência de HUD/menu HTML na captura canvas-only.
 
-- [x] T6: Docs, vault, wiki, memória e commit/push atômicos refletem a decisão; `qa-gpu-runner/` não entra no staging.
-  EVIDENCE: docs/vault/wiki atualizados; commit atômico `07baf65` criado e push verificado em `origin/main`; `qa-gpu-runner/` permanece fora do staging.
+- [x] T6: Docs, vault, wiki, memória e commit/push refletem decisão final; qa-gpu-runner permanece fora do staging.
+  EVIDENCE: docs/vault/wiki atualizados; commit/push atômico verificado em `origin/main`; `git diff --cached --name-only` não contém `qa-gpu-runner/`.
