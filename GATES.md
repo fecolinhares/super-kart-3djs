@@ -225,3 +225,22 @@ Escopo: escolher somente o gap material/AO Neon já sustentado por evidência hi
 
 - [x] V6: Docs repo/vault/wiki/memória sincronizados; somente documentação aceita é commitada/pushada; `qa-gpu-runner/` não é staged.
   EVIDENCE: atualização documental aplicada após os checks; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem não rastreados e não staged; commit/push documental verificado no encerramento.
+
+# Tick atual — auditoria autônoma Neon sem patch especulativo (2026-09-03T09:11Z)
+
+Escopo: re-medida do gap único de grounding/material do skyline Neon; se o runner GPU não estiver acessível, concluir apenas auditorias reproduzíveis e registrar o bloqueio. Nenhum patch visual será aceito sem A/B pareado em RADV PHOENIX.
+
+- [x] Z1: Estado git, gap e baseline atual re-medidos antes de qualquer decisão.
+  EVIDENCE: `2026-09-03T09:11:32Z`; `git status --short --branch` = `## main` + `GATES.md` modificado e somente `.hermes-tmp.*`/`qa-gpu-runner/` não rastreados; HEAD `b617089`; código confirma skyline Neon com `MeshBasicMaterial`, `fog:false` e sem AO/grounding.
+
+- [x] Z2: Checks estáticos, build fora do worktree e regressão determinística AI passam.
+  EVIDENCE: `node --check` em main/Environment/MaterialLibrary/scripts passou; AI Track 1/2 com 20 seeds: `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`; `SK3D_OUT_DIR=/tmp/sk3d-dist-z-audit npm run build`: `44 modules transformed`, `902.76 kB`, `✓ built in 2.10s`.
+
+- [x] Z3: Probe de credenciais/runner e dependências de browser concluído sem expor valores.
+  EVIDENCE: probe seguro reportou `PROXMOX_ROOT_PASSWORD=[REDACTED]`, `TRIPO_API_KEY=[REDACTED]`, `GEMINI_API_KEY=[REDACTED]`, `ELEVENLABS_API_KEY=[REDACTED]`; Playwright local/fallback ausente; SSH ao Proxmox retornou `Permission denied (publickey,password)`; nenhum valor secreto foi registrado.
+
+- [x] Z4: Auditoria de código identifica uma hipótese concreta e nenhuma alteração de produto é aceita sem GPU A/B.
+  EVIDENCE: `Environment.js:4654-4658` usa `MeshBasicMaterial` com textura de janela, `fog:false` e tint por fileira; `Environment.js:4669-4673` posiciona torres fora da pista sem camada de contato. Hipótese: AO/material híbrido seletivo pode recuperar grounding, mas requer A/B fixo desktop/mobile no RADV PHOENIX; nenhum patch foi aplicado.
+
+- [ ] Z5: Documentação repo/vault/wiki/memória sincronizada e commit atômico publicado; artefatos QA não staged.
+  EVIDENCE: pending

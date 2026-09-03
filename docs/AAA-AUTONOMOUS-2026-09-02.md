@@ -279,3 +279,10 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Visual test harness decision: required and retained (`capture-skyline-fixed.cjs` plus GPU gameplay video); not executed this tick because LXC105 access is blocked.
 - Console/page error: no new browser session; therefore no current page-error claim. Historical fixed captures recorded `pageErrors=[]`.
 - Screenshot/video: no new screenshot or video accepted this tick; historical GPU artifacts remain untracked under `qa-gpu-runner/`.
+
+## [2026-09-03] Autonomous tick — Neon grounding audit blocked, no product delta
+- Baseline remeasured at HEAD `b617089`: worktree had only the intentional `GATES.md` edit; `.hermes-tmp.*` and `qa-gpu-runner/` remained untracked. The single highest-value gap remains Neon skyline grounding/material separation.
+- Source audit confirmed `Environment.buildNeonCity()` uses one `MeshBasicMaterial` per skyline row with `fog:false`, a shared window texture, per-row haze tint, and no contact/AO layer under the tower instances. This is a concrete hypothesis, not proof that a specific AO recipe will improve the image.
+- Static checks passed; AI Track 1/2 with 20 seeds each returned `0 lost / 0 backwards / 0 crashes`; production build outside the worktree passed with `44 modules`, `902.76 kB`, `2.10s` using `SK3D_OUT_DIR=/tmp/sk3d-dist-z-audit`.
+- Safe access probes found the Proxmox credential path unavailable to this run, Playwright local/fallback unavailable, and SSH authentication refused. Values are intentionally redacted. No LXC105 `RADV PHOENIX` video or fixed-camera A/B was claimed.
+- Decision: **NO PRODUCT CHANGE ACCEPTED**. No source appearance delta was implemented. Next highest-value gap remains a selective AO/emissive-safe material A/B after restoring GPU-runner access; do not convert the skyline wholesale to lit PBR without preserving window contrast.
