@@ -16,6 +16,13 @@ Desktop and mobile web gameplay for Meadow and Neon City. Primary evidence is se
 - **Gap corrigido nesta rodada:** `67cf182` adiciona `Meadow Circuit`/`Neon City` no card de resultado; auditoria havia identificado ausência de identificação da pista.
 - **Gaps visuais restantes:** Meadow tem pórtico FINISH dominante na aproximação; ambos ainda têm materiais/AO planos; Neon possui grid distante com shimmer e bloom agrupado nas janelas. `http://localhost:3457/` HTTP 200.
 
+## [2026-09-03T11:52:38Z] Autonomous tick — runner bloqueado, sem delta de produto
+- Baseline re-medido no HEAD atual antes da decisão: `src/` sem diff; skyline Neon permanece `MeshBasicMaterial`, `fog:false`, sem AO/contact layer.
+- Checks locais: `node --check` nos módulos críticos e `git diff --check` passaram; build externo `SK3D_OUT_DIR=/tmp/sk3d-baseline-current npm run build` → `44 modules`, `902.76 kB`, `2.11s`.
+- Regressão determinística: Track 1/2 ×20 seeds, `0 lost / 0 backwards / 0 crashes`; servidor existente respondeu `HTTP 200`.
+- Probes seguros: arquivo de senha Proxmox `MISSING`, Playwright local/fallback `MISSING`, SSH probe `255`; assets externos reportados somente como estados redigidos. Nenhum segredo foi lido ou persistido.
+- Decisão: nenhum patch de produto foi implementado/aceito. O próximo gap permanece material híbrido/AO Neon emissive-safe, condicionado a vídeo A/B pareado no LXC105 com ANGLE/Vulkan e `RADV PHOENIX`.
+
 ## [2026-09-03T10:25:36Z] Autonomous tick — bloqueio operacional, sem delta de produto
 - Gap único re-medido no HEAD `62e7805`: skyline Neon continua em `MeshBasicMaterial`, `fog:false`, sem `aoMap`; `src/` ficou sem diff.
 - Checks: `node --check` em `main.js`, `Environment.js`, `MaterialLibrary.js`; `git diff --check`; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-aa npm run build` passou com `44 modules`, `902.76 kB`, `2.15s`.

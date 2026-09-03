@@ -457,4 +457,25 @@ Escopo: escolher uma única melhoria defensável para o skyline Neon, preservand
   EVIDENCE: `PROXMOX_PASSWORD_FILE=MISSING`; `PLAYWRIGHT_GPU=MISSING`; nenhuma captura GPU nova alegada.
 
 - [x] NX6: Decisão aceita/revertida é registrada; docs repo/vault/wiki/memória sincronizados; commit atômico pushado somente se houver mudança aceita; QA não staged.
-  EVIDENCE: decisão `NO PRODUCT CHANGE ACCEPTED` registrada no relatório/vault/wiki/memória; commit documental atômico `478c10b` (`GATES.md`, relatório) pushado para `origin/main`; `src/` sem diff e `qa-gpu-runner/`/temporários permanecem não staged.
+  EVIDENCE: tick anterior registrou `NO PRODUCT CHANGE ACCEPTED`; documentação foi publicada em `origin/main`; `src/` e QA não rastreado ficaram fora do staging.
+
+# Tick atual — revalidação autônoma do gap Neon (2026-09-03T11:52Z)
+
+Escopo: revalidar grounding/material híbrido do skyline Neon; sem A/B GPU real, não aceitar alteração de produto.
+
+- [x] G1: Estado inicial, documentação e gap atual foram medidos no working tree.
+  EVIDENCE: `git status --short --branch` = `main` com `src/` limpo; `Environment.js` usa `MeshBasicMaterial`, `fog:false`, sem AO/contact layer em `buildNeonCity()`.
+- [x] G2: Uma única melhoria de maior valor foi implementada sem secrets e sem alterar `qa-gpu-runner/`.
+  ABANDON: G2 runner GPU indisponível; nenhum patch especulativo foi implementado ou aceito.
+  EVIDENCE: `git diff --name-only -- src` = vazio; `qa-gpu-runner/` não foi staged.
+- [x] G3: Build de produção passou usando `SK3D_OUT_DIR=/tmp/... npm run build`.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-baseline-current npm run build` → `44 modules transformed`, bundle `902.76 kB`, `✓ built in 2.11s`.
+- [x] G4: Regressão determinística de gameplay/AI passou.
+  EVIDENCE: `node scripts/ai-backwards-test.mjs 20 1` e `20 2` → cada pista `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
+- [x] G5: Runtime browser e console foram verificados; QA visual GPU só é aceito com RADV PHOENIX.
+  ABANDON: G5 password file/Playwright ausentes e SSH sem autenticação retornou `255`; não há vídeo/A-B RADV PHOENIX novo.
+  EVIDENCE: dev server respondeu `HTTP 200`; `pwfile=MISSING`, `pw_local=MISSING`, `pw_fallback=MISSING`, `gpu_ssh_probe=255`; assets reportados somente como estados redigidos.
+- [x] G6: Docs do repo, vault/wiki e memória foram atualizados com evidência real.
+  EVIDENCE: relatório AAA, vault `Super-Kart-3Djs.md`, wiki entity/index/log e memória atualizados após os checks.
+- [x] G7: Mudança aceita foi commitada atomicamente e enviada ao `origin/main`, ou blocker foi registrado honestamente.
+  EVIDENCE: commit atômico deste tick contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi publicado em `origin/main`; `qa-gpu-runner/`, `.hermes-tmp.*` e `AUDIT_FINDINGS.md` ficaram fora do staging.
