@@ -912,3 +912,30 @@ Escopo: transformar o budget alto em evidência acionável, sem alteração visu
 
 - [x] RB6: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômico documenta a instrumentação; `qa-gpu-runner/` e temporários não são staged.
   EVIDENCE: gate-check executado antes do commit → `ALL MET (224 met, 17 abandoned)`; `git diff --check` passou; serão staged somente `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md` e `scripts/audit-render-breakdown.cjs`; `qa-gpu-runner/`/temporários fora do staging.
+
+# Tick atual — revalidação autônoma após instrumentação (2026-09-03T18:10Z)
+
+Escopo: re-medire o estado real após o auditor de budget; escolher um único avanço seguro. Sem GPU/Playwright verificável, não aceitar alteração de produto visual. Prioridade: confirmar se existe owner isolável e manter a regressão local executável.
+
+- [x] RBT1: Estado git, data, baseline do budget e gap único são re-medidos antes de qualquer decisão.
+  EVIDENCE: `2026-09-03T18:10:33Z`; `## main`; HEAD `b6aab8a`; fonte e relatório mantêm budget alto e owners instrumentados; `src/` sem diff.
+
+- [x] RBT2: Probes seguros de GPU runner, browser e geradores externos retornam apenas estados redigidos, sem ler ou exibir secrets.
+  EVIDENCE: `pwfile=MISSING`, `pwlocal=MISSING`, `pwfallback=MISSING`, `sshpass=SET`; nenhum conteúdo secreto foi lido ou exibido; dev server `HTTP 200`.
+
+- [x] RBT3: Auditoria estática do código e checks de higiene passam, sem alteração especulativa em src.
+  EVIDENCE: `node --check scripts/audit-render-breakdown.cjs src/main.js src/track/Environment.js src/render/MaterialLibrary.js` passou; `git diff --check` passou após corrigir whitespace do gate; `git diff --name-only -- src` vazio.
+
+- [x] RBT4: Build de produção fora do worktree e regressão AI nas duas pistas passam.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-rbt npm run build` → `44 modules transformed`, `903.92 kB`, `✓ built in 2.09s`; Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+
+- [x] RBT5: GPU LXC105 com ANGLE/Vulkan/RADV PHOENIX e vídeo Meadow/Neon desktop/mobile são executados, ou o bloqueio é registrado honestamente.
+  ABANDON: RBT5 runner indisponível neste ambiente: password file e Playwright ausentes; sem RADV PHOENIX novo não há A/B visual ou vídeo defensável.
+  EVIDENCE: `pwfile=MISSING`, `pwlocal=MISSING`, `pwfallback=MISSING`; nenhuma captura GPU nova alegada.
+
+- [x] RBT6: Uma melhoria de produto é aceita somente se houver owner isolável e A/B pareado; caso contrário src permanece sem alteração.
+  ABANDON: RBT6 depende da evidência GPU RBT5; não aceitar redução especulativa de calls/triângulos/PostFX.
+  EVIDENCE: `git diff --name-only -- src` vazio; decisão `NO PRODUCT CHANGE ACCEPTED`.
+
+- [x] RBT7: Relatório, vault/wiki/memória são sincronizados; gate-check passa; commit atômico/push ocorre apenas para documentação verificada; QA não é staged.
+  EVIDENCE: vault `Super-Kart-3Djs.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` e memória sincronizados; `node /home/jarvis/.hermes/profiles/coder/skills/unlazy/scripts/gate-check.mjs GATES.md` → `ALL MET (231 met, 17 abandoned)`; `git diff --check` passou; apenas `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` serão staged; `qa-gpu-runner/` e temporários fora do staging.

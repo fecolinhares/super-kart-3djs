@@ -1,5 +1,13 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T18:10Z] Autonomous tick — revalidação após instrumentação, sem mudança de produto
+- Baseline re-medido no `HEAD b6aab8a`; `src/` permaneceu sem diff. O auditor de budget anterior continua sendo o único avanço aceito e mantém owners mensuráveis, mas não demonstrou ainda uma redução isolável segura.
+- Checks estáticos passaram: `node --check scripts/audit-render-breakdown.cjs src/main.js src/track/Environment.js src/render/MaterialLibrary.js` e `git diff --check`.
+- Build compatível com virtiofs passou via `SK3D_OUT_DIR=/tmp/sk3d-dist-rbt npm run build`: `44 modules`, `903.92 kB`, `✓ built in 2.09s`.
+- Regressão determinística AI Track 1/2 ×20 passou com `0 lost / 0 backwards / 0 crashes`; dev server respondeu `HTTP 200`.
+- Probe seguro do runner: `pwfile=MISSING`, Playwright local/fallback `MISSING`; sem RADV PHOENIX novo não foi possível executar vídeo/A-B visual neste ambiente. Nenhum segredo foi lido ou registrado.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. Próximo gap continua a primeira redução de owner isolado — começando por `kart-ai`/passes somente quando o runner GPU voltar a ficar verificável.
+
 ## [2026-09-03T17:45Z] Autonomous tick — instrumentação de custo por subsistema/pass
 - Baseline re-medido no `HEAD 3981e7e`: build externo `44 módulos/903.92 kB/2.10s`; AI Track 1/2 ×20 com `0 lost / 0 backwards / 0 crashes`.
 - Adicionado `scripts/audit-render-breakdown.cjs`, auditor QA-only que lê `window.__sk3d`, separa `namedRoots`/buckets de meshes, triângulos e instancing, e lista passes PostFX. Nenhuma regra, aparência, áudio ou asset foi alterado.
