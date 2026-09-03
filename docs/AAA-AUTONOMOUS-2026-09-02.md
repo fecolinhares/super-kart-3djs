@@ -219,6 +219,13 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Final re-measurement found HEAD `89f7c8c`, with concurrent commit `6c6a4cf` aligning the FINISH housing/sockets to the banner rotation; the beam remains `0.28m` navy.
 - This concurrent source change was not visually validated in this tick. Keep the product gain **unclaimed** until identical GPU RADV PHOENIX video/A-B covers Meadow and Neon at desktop/mobile sizes.
 
+## [2026-09-03T09:42Z] Autonomous tick — Neon/audio operational revalidation; no product delta
+- Baseline remeasured at HEAD `8d701f0`: production build outside virtiofs passed with `44 modules transformed`, `902.76 kB`, `2.16s`; static checks and `git diff --check` passed.
+- Deterministic AI regression passed on both tracks with 20 seeds each: `0 lost`, `0 backwards`, `0 crashes`.
+- Highest-value gap remains controlled Neon hybrid material/AO grounding preserving emissive windows. Audio audit also found non-deterministic `Math.random()` in the runtime reverb/noise paths, but no audio patch was accepted without exact OfflineAudioContext render and lifecycle browser evidence.
+- Safe access probes: `PROXMOX_PASSWORD_FILE=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`; no secret was exposed. LXC105 RADV PHOENIX video/A-B and audio browser validation were blocked.
+- Decision: **NO PRODUCT CHANGE ACCEPTED**. No `src/` file changed. Next highest-value action is restoring runner/browser access, then run deterministic Neon material/AO A/B and exact audio lifecycle/render QA before touching product code.
+
 ## Evidence ledgers — current autonomous tick
 
 ### Skill-loading ledger

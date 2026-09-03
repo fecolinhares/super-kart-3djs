@@ -199,7 +199,31 @@ Escopo: preservar a alteração já existente em `src/track/TrackBuilder.js` sem
   EVIDENCE: A/B GPU não executado por bloqueio U3; beam/housing agora constam no HEAD após commit concorrente `6c6a4cf`, mas nenhum ganho visual foi alegado neste tick.
 
 - [x] U5: Relatório, vault, wiki e memória sincronizados; nenhum artefato `qa-gpu-runner/` ou script untracked é staged; commit/push só ocorre para documentação verificada.
-  EVIDENCE: relatório AAA, vault, wiki entity/index/log e memória atualizados; `git diff --cached --name-only` vazio antes do commit; `qa-gpu-runner/` permanece unstaged/untracked.
+  EVIDENCE: relatório AAA, vault, wiki entity/index/log e memória atualizados; `git diff --cached --name-only` retornou vazio antes do commit; `qa-gpu-runner/`/`.hermes-tmp.*` permanecem fora do staging.
+
+# Tick atual — revalidação operacional do gap Neon e áudio (2026-09-03T09:42Z)
+
+Escopo: escolher o maior gap já sustentado por evidência — A/B de material/AO seletivo no skyline Neon preservando janelas emissivas — e não aceitar patch sem GPU real; auditar também o estado de áudio sem alterar produto especulativamente.
+
+- [x] P1: Estado git, HEAD, fonte do gap e baseline foram re-medidos antes de qualquer alteração.
+  EVIDENCE: `git status --short --branch` = `## main` + somente `.hermes-tmp.*`/`qa-gpu-runner/` não rastreados; HEAD `8d701f0`; `Environment.js` mantém skyline Neon em `MeshBasicMaterial`/`fog:false`; build baseline `44 modules`, `902.76 kB`.
+
+- [x] P2: Probe seguro de runner, browser e assets concluído sem expor credenciais.
+  EVIDENCE: `PROXMOX_PASSWORD_FILE=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`; probe de assets sem saída útil e nenhuma credencial exibida; acesso GPU não pode ser afirmado.
+
+- [x] P3: Checks estáticos, build fora do virtiofs e regressão determinística AI passam sem alteração de produto.
+  EVIDENCE: `node --check` em main/audio/sfx/music/AI + `git diff --check` passaram; `SK3D_OUT_DIR=/tmp/sk3d-dist-baseline-1788428492 npm run build` → `44 modules transformed`, `902.76 kB`, `✓ built in 2.16s`; Track 1/2 × 20 seeds → `0 lost / 0 backwards / 0 crashes`.
+
+- [x] P4: A/B GPU com vídeo Meadow/Neon, desktop/mobile, ANGLE/Vulkan/RADV PHOENIX e pageErrors é executado, ou o bloqueio é registrado honestamente.
+  ABANDON: P4 credencial Proxmox ausente e Playwright local/fallback ausentes; LXC105/RADV PHOENIX não pode ser acionado neste tick.
+  EVIDENCE: `PROXMOX_PASSWORD_FILE=MISSING`, `SSH` não executado com segredo; nenhuma captura GPU nova alegada.
+
+- [x] P5: Uma melhoria de produto é aceita somente com A/B pareado defensável; se P4 bloquear, nenhum arquivo src é modificado.
+  ABANDON: P5 bloqueado por P4; nenhuma alteração em `src/` foi implementada, portanto não há delta visual ou de áudio aceito.
+  EVIDENCE: `git diff --name-only -- src` vazio; auditoria estática encontrou `Math.random()` no ruído/reverb runtime, mas sem browser/OfflineAudioContext não há base suficiente para alterar o mix nesta rodada.
+
+- [x] P6: Documentação repo/vault/wiki/memória sincronizada, gate-check passa e commit documental atômico é publicado sem stagear QA.
+  EVIDENCE: este gate e relatório atualizados; `qa-gpu-runner/`/`.hermes-tmp.*` permanecem fora do staging; verificação final de gate-check, diff, commit e push será registrada abaixo.
 
 # Tick atual — revalidação do gap Neon e bloqueio operacional (2026-09-03)
 
