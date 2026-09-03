@@ -4618,6 +4618,11 @@ export class Environment {
     cent.multiplyScalar(1 / 64);
 
     const geo = new THREE.BoxGeometry(10, 14, 8);
+    // A shallow overhanging roof plate gives each skyline block a readable
+    // architectural termination without touching the emissive window material.
+    // One instanced layer per row keeps the detail inside the city draw budget.
+    const roofGeo = new THREE.BoxGeometry(10.8, 0.22, 8.8);
+    const roofMat = new THREE.MeshBasicMaterial({ color: 0x27324a, fog: false });
     const antGeo = new THREE.CylinderGeometry(0.06, 0.1, 3.2, 5);
     const antMat = new THREE.MeshBasicMaterial({ color: 0x8892b8 });
     const tankGeo = new THREE.CylinderGeometry(0.5, 0.55, 1.1, 8);
@@ -4659,6 +4664,8 @@ export class Environment {
       });
       const paletteRowCounts = new Array(windowColors.length).fill(0);
       const towers = new THREE.InstancedMesh(geo, rowMat, count);
+      const roofTops = new THREE.InstancedMesh(roofGeo, roofMat, count);
+      roofTops.name = `neon-roof-caps-${row.seed}`;
       let idx = 0;
       for (let i = 0; i < count; i++) {
         const t = (((i / count + (rand() - 0.5) * (6 / len)) % 1) + 1) % 1; // ±3m along path
@@ -4690,6 +4697,10 @@ export class Environment {
         dummy.rotation.set(0, rand() * 0.25, 0);
         dummy.updateMatrix();
         towers.setMatrixAt(idx, dummy.matrix);
+        dummy.position.y = gy + h + 0.11;
+        dummy.scale.set(sx, 1, sz);
+        dummy.updateMatrix();
+        roofTops.setMatrixAt(idx, dummy.matrix);
         const paletteIndex = (rand() * windowColors.length) | 0;
         towers.setColorAt(idx, new THREE.Color(windowColors[paletteIndex]));
         paletteRowCounts[paletteIndex]++;
@@ -4697,12 +4708,15 @@ export class Environment {
       }
       if (idx > 0) {
         towers.count = idx;
+        roofTops.count = idx;
         paletteRowCounts.forEach((n, colorIndex) => { paletteCounts[colorIndex] += n; });
         paletteRows.push({ seed: row.seed, count: idx, counts: paletteRowCounts });
         towers.instanceMatrix.needsUpdate = true;
+        roofTops.instanceMatrix.needsUpdate = true;
         if (towers.instanceColor) towers.instanceColor.needsUpdate = true;
         towers.castShadow = false;
-        scene.add(towers);
+        roofTops.castShadow = false;
+        scene.add(towers, roofTops);
       }
     }
 

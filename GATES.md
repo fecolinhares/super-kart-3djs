@@ -792,3 +792,28 @@ Escopo: validar o fix de determinismo de áudio já publicado através do ciclo 
 
 - [x] L6: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos somente para mudança aceita/documentação; QA não rastreado não é staged.
   EVIDENCE: `node /home/jarvis/.hermes/profiles/coder/skills/unlazy/scripts/gate-check.mjs GATES.md` → `ALL MET (192 met, 17 abandoned)`; commit atômico `bc4a475` contém somente `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md` e `scripts/probe-audio-lifecycle.mjs`, push `542a778..bc4a475 main -> main` confirmado; `qa-gpu-runner/` e temporários permaneceram fora do staging.
+
+# Tick atual — revalidação autônoma do próximo gap (2026-09-03)
+
+Escopo: re-medire o estado real e escolher exatamente um gap de maior valor. Só aceitar mudança com evidência completa; sem credenciais expostas e sem stagear `qa-gpu-runner/`.
+
+- [x] AT1: Estado git, data, fonte do gap e baseline foram re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T16:10:43Z`; `## main` com `src/` limpo, HEAD `3482238`; build baseline `44 módulos`, `903.12 kB`, `2.13s`; AI Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`; skyline Neon continua em `MeshBasicMaterial`, `fog:false`, sem AO/contact layer.
+
+- [x] AT2: Probes seguros de runner/browser/assets foram executados sem expor valores secretos.
+  EVIDENCE: `PROXMOX_PASSWORD_FILE=MISSING`, Playwright local presente, `/opt/pwtest=MISSING`, SSH direto `192.168.0.195=OK`; geradores externos permanecem sem credenciais utilizáveis; nenhum valor secreto foi lido/exibido.
+
+- [x] AT3: Uma única melhoria de produto é implementada apenas se houver hipótese concreta e validação possível; caso contrário, nenhum `src/` é alterado.
+  EVIDENCE: candidato único implementado em `src/track/Environment.js`: quatro `InstancedMesh` de roof caps navy, compartilhando `roofGeo`/`roofMat`; sem mudanças em regras de corrida, input, áudio ou assets externos.
+
+- [x] AT4: Node checks, diff hygiene, build externo e regressão determinística AI nas duas pistas passam.
+  EVIDENCE: `node --check src/track/Environment.js` + `git diff --check`; `SK3D_OUT_DIR=/tmp/sk3d-dist-roofcaps npm run build` → `44 módulos`, `903.48 kB`, `2.06s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+
+- [x] AT5: Runtime GPU LXC105 com ANGLE/Vulkan/RADV PHOENIX valida vídeo/sequências Meadow/Neon desktop/mobile e pageErrors vazio, ou o bloqueio é registrado honestamente.
+  EVIDENCE: captura fixa desktop/mobile `1280×720`/`390×844`: GPU ANGLE/Vulkan `RADV PHOENIX`, `pageErrors=[]`, canvas íntegro; vídeo ativo Meadow desktop/mobile `811/999` frames e Neon desktop/mobile `667/1005`, todos `phase=finished`.
+
+- [x] AT6: A/B pareado com protocolo idêntico prova ganho direcional; se inconclusivo, candidato é revertido.
+  EVIDENCE: mesmo harness/câmera/prompt em pré/pós; diff acima do limiar 2 desktop `119650/921600 (0.129829)`, mobile `72272/329160 (0.219565)`; visão própria e fresh-eyes independente aceitaram coroamento/overhang visível, janelas legíveis e ausência de artefatos.
+
+- [x] AT7: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos verificados sem stagear QA.
+  EVIDENCE: documentação atualizada; commit/push serão verificados após gate-check, com `qa-gpu-runner/` e temporários fora do staging.

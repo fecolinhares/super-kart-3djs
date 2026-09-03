@@ -1,5 +1,13 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T16:10Z] Autonomous tick — roof caps Neon aceitos
+- Baseline real: HEAD `3482238`, `src/` limpo antes do candidato; skyline Neon usava caixas instanciadas com janela emissiva e sem coroamento arquitetural.
+- Candidato único: quatro camadas `InstancedMesh` de roof caps rasos (`10.8×0.22×8.8`) em material navy `MeshBasicMaterial`, compartilhando geometria/material e sem alterar corrida, input, áudio ou assets.
+- Checks: `node --check`, `git diff --check`, build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-roofcaps npm run build` passou com `44 módulos`, `903.48 kB`, `2.06s`; AI Track 1/2 ×20 retornou `0 lost / 0 backwards / 0 crashes`.
+- A/B fixo GPU: desktop/mobile `1280×720`/`390×844`, ANGLE/Vulkan `RADV PHOENIX`, `pageErrors=[]`, paleta `13,22,20,17,11`/83. Diff acima de limiar 2: desktop `119650/921600 (0.129829)`, mobile `72272/329160 (0.219565)`.
+- Vision pareada própria e fresh-eyes independente: caps criam coroamento/overhang visível; janelas permanecem legíveis; sem clipping, deformação ou artefato. Vídeo ativo: Meadow desktop/mobile `811/999` frames; Neon desktop/mobile `667/1005`; todos `phase=finished`, GPU `RADV PHOENIX`.
+- Decisão: **ACEITO**. Próximo gap: A/B de material/AO Neon seletivo para grounding sem reduzir o contraste emissivo.
+
 ## Scope
 Desktop and mobile web gameplay for Meadow and Neon City. Primary evidence is sequential GPU video capture on gpu-runner LXC 105 with Vulkan/RADV PHOENIX; vision auditors reviewed spaced frames from those sequences.
 
