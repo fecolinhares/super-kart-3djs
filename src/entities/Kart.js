@@ -2144,19 +2144,24 @@ export class Kart {
       }
       if (!s.drifting) this._comboTierPrev = 0;
       const speedAbs2 = Math.abs(s.speed);
-      if (speedAbs2 > CONFIG.physics.maxSpeed * 0.78 && !s.spinOut) {
+      // R24 haze: 3D wind streaks fired from 78% on EVERY kart (player + AI),
+      // reading as a white-streak wash over road and rivals at cruise speed.
+      // Contained: later onset, slower rate, smaller + softer sprites; the
+      // boost-hot variant is kept as the real velocity cue.
+      if (speedAbs2 > CONFIG.physics.maxSpeed * 0.86 && !s.spinOut) {
         this._lineAcc = (this._lineAcc || 0) + dt;
         // PREMIUM PASS: rajada dupla de speedlines nas DUAS laterais (antes:
         // só um lado por _sideFlip — a cortina de velocidade lia assimétrica).
         // Durante boost: mais densas e com tom quente (leitura de turbo).
-        if (this._lineAcc >= 0.08) {
+        if (this._lineAcc >= 0.12) {
           this._lineAcc = 0;
           const hot = s.turboBoostMs > 0 || this._boostMs > 0;
           for (const side of [-1, 1]) {
             this._localToWorld(this._pv, side * 0.85, 0.7, -0.1);
             this._v.copy(this._back).multiplyScalar(14);
             ctx.particles.emit('speedline', this._pv, {
-              velocity: this._v, spread: 0.3, size: hot ? 0.12 : 0.09,
+              velocity: this._v, spread: 0.3, size: hot ? 0.09 : 0.07,
+              alpha: hot ? 0.8 : 0.55,
               color: hot ? 0xfff0c0 : 0xe8f4ff,
             });
           }
