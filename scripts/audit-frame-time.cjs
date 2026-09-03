@@ -45,6 +45,9 @@ function percentile(values, p) {
           const vignette = game.postfx?.composer?.passes?.find((pass) => pass.material?.uniforms?.offset && pass.material?.uniforms?.darkness);
           if (!vignette) throw new Error('VignetteShader pass not found');
           vignette.enabled = false;
+        } else if (mode === 'no-color-grade') {
+          const grade = game.postfx?.composer?.passes?.find((pass) => pass.material?.uniforms?.saturation && pass.material?.uniforms?.contrast);
+          if (grade) grade.enabled = false;
         } else if (mode === 'no-bloom') {
           const bloom = game.postfx?.composer?.passes?.find((pass) => pass.constructor?.name && /BloomPass/.test(pass.constructor.name));
           if (!bloom) throw new Error('UnrealBloomPass not found');

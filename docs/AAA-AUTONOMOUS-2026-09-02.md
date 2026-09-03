@@ -1,5 +1,13 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T21:53Z] Autonomous tick — ColorGrade A/B rejeitado
+- Baseline re-medido no `HEAD 7762d43`; alterações pré-existentes do usuário em `src/config.js` e `src/main.js` foram preservadas e não participaram do candidato; checks estáticos, build externo e AI Track 1/2 ×20 passaram (`44 módulos`, `903.92 kB`, `2.21s`, `0 lost / 0 backwards / 0 crashes`).
+- O único candidato foi desabilitar o `ColorGradeShader` somente no harness QA `no-color-grade`; o default de `src/render/PostFX.js` não mudou. O modo mobile, onde o pass não existe, foi tratado como no-op explícito.
+- GPU direto `192.168.0.195` confirmou ANGLE/Vulkan `RADV PHOENIX`, WebGL2, `pageErrors=[]`, `phase=race`; A/B cobriu Meadow/Neon desktop/mobile com `647–1134` samples. Calls desktop `17→16`; Meadow desktop `80.969→83.833 FPS`, frame p95 `16.0→15.8 ms`; Neon desktop `89.648→96.405 FPS`, p95 `13.4→12.4 ms`.
+- Oito sequências de vídeo QA (`95–137` frames por cenário) cobriram Meadow/Neon desktop/mobile em pré/pós. Crítico cego idêntico nos oito frames representativos observou perda de contraste/tonalidade: Meadow pós mais lavado e Neon pós com menor separação visual.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. A instrumentação `no-color-grade` permanece QA-only; color grade continua ativo no produto. Artefatos: `qa-gpu-runner/tick-colorgrade-current/` (não staged).
+
+
 ## [2026-09-03T21:31Z] Autonomous tick — Bloom A/B rejeitado
 - Baseline re-medido no `HEAD e31ee81`: `src/` limpo antes do candidato, dev `HTTP_STATUS=200`; `node --check`/`git diff --check` passaram; build sanitizado via `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-final npm run build` passou com `44 modules`, `903.92 kB`, em `2.20s`; AI Track 1/2 ×20 ficou em `0 lost / 0 backwards / 0 crashes`.
 - O único candidato foi desligar temporariamente `UnrealBloomPass` no modo QA `no-bloom`; o default de `src/render/PostFX.js` não mudou. O detector foi tornado robusto ao nome minificado `_UnrealBloomPass`.

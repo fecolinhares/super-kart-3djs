@@ -1195,3 +1195,28 @@ Escopo: re-medrir o baseline no GPU real e testar exatamente um owner/pass candi
 
 - [x] FO7: Relatório, vault, wiki e memória ficam sincronizados; gate-check passa; somente mudança aceita/documentação é staged; qa-gpu-runner/ e temporários não são staged.
   EVIDENCE: vault `Super-Kart-3Djs.md`/`_index.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` e memória atualizados; staging real contém somente `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md`, `scripts/audit-frame-time.cjs`, `scripts/playtest-video.cjs`; `qa-gpu-runner/`, `docs/.hermes-tmp.*` e `vite.config.js.timestamp-*` permanecem não staged.
+
+# Tick atual — A/B temporal do ColorGrade desktop (2026-09-03T21:53Z)
+
+Escopo: testar exatamente um owner mensurável: o `ColorGradeShader` full-screen, presente somente em desktop/high/ultra. O candidato será desligado apenas nos harnesses QA; o default do produto e `src/` permanecem intactos até haver ganho temporal e visual defensável.
+
+- [x] CGD1: Estado git, data, relatório atual, código do owner e baseline foram re-medidos antes do candidato.
+  EVIDENCE: `2026-09-03T21:53:48Z`; `## main`; HEAD `7762d43`; alterações pré-existentes do usuário em `src/config.js` e `src/main.js` foram preservadas e excluídas do candidato; o owner medido foi somente o pass QA; desktop expõe dois `ShaderPass`, mobile um.
+
+- [x] CGD2: Candidato único foi implementado somente como modo QA `no-color-grade`, sem alterar default, gameplay, input, áudio ou assets.
+  EVIDENCE: `scripts/audit-frame-time.cjs` e `scripts/playtest-video.cjs` agora localizam o `ColorGradeShader` por `uniforms.saturation/contrast`; em mobile a ausência esperada vira no-op; `src/render/PostFX.js` não mudou.
+
+- [x] CGD3: A/B temporal pareado no GPU direto cobre Meadow/Neon desktop/mobile, ANGLE/Vulkan/RADV PHOENIX, WebGL2, `phase=race`, `pageErrors=[]` e samples suficientes.
+  EVIDENCE: `qa-gpu-runner/tick-colorgrade-current/summary.json`; 8 medições, samples `647–1134`, todos WebGL2, GPU ANGLE/Vulkan `RADV PHOENIX`, `phase=race`, `pageErrors=[]`; desktop calls `17→16`.
+
+- [x] CGD4: Sequências de vídeo QA pré/pós cobrem Meadow/Neon desktop/mobile e terminam sem erro; crítica visual usa frames do mesmo protocolo.
+  EVIDENCE: `qa-gpu-runner/tick-colorgrade-current/video/video-summary.txt` = `VIDEO_OK=8`; 8 sequências, `95–137` frames cada, GPU reportada `RADV PHOENIX`, sem erro emitido; 8 frames representativos revisados com prompt idêntico.
+
+- [x] CGD5: Checks estáticos, build externo e regressão determinística AI passam sem alteração de produto.
+  EVIDENCE: `node --check`/`git diff --check` PASS; `SK3D_OUT_DIR=/tmp/sk3d-dist-colorgrade-final npm run build` = `44 modules`, `903.92 kB`, `2.21s`; AI Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`.
+
+- [x] CGD6: Decisão de produto é baseada em delta direcional; aceitar somente se FPS/frame p95 melhorarem de modo consistente e não houver regressão visual; caso contrário manter QA-only.
+  EVIDENCE: melhoria temporal desktop foi inconsistente/pequena (`Meadow 80.969→83.833 FPS`, p95 `16.0→15.8 ms`; `Neon 89.648→96.405 FPS`, p95 `13.4→12.4 ms`), enquanto crítica cega mostrou perda de contraste/tonalidade: Meadow candidato mais lavado; Neon perdeu contraste e separação. Decisão: `NO PRODUCT CHANGE ACCEPTED`; instrumentação QA mantida.
+
+- [x] CGD7: Relatório, vault, wiki, memória e gate-check ficam sincronizados; commit/push atômico contém apenas instrumentação/documentação aceita; QA não é staged.
+  EVIDENCE: vault `Super-Kart-3Djs.md`/`_index.md`, wiki entity/index/log e memória atualizados; `gate-check.mjs` = `ALL MET (306 met, 17 abandoned)`; staging restrito a `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md`, `scripts/audit-frame-time.cjs` e `scripts/playtest-video.cjs`; `src/config.js`/`src/main.js` pré-existentes, `qa-gpu-runner/` e temporários não staged; commit/push será verificado agora.
