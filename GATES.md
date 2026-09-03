@@ -313,3 +313,27 @@ ABANDON: W5 depende de W4; nenhum delta de produto foi aceito e `git diff --name
 
 - [x] W6: Relatório, vault, wiki/index/log/memória e commit atômico ficam sincronizados; QA não rastreado não é staged.
   EVIDENCE: commit `8498da0` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; push `3bedd96..8498da0 main -> main` confirmado; vault/wiki/memória atualizados; `qa-gpu-runner/` e `.hermes-tmp.*` fora do staging.
+
+# Tick atual — revalidação operacional do gap Neon (2026-09-03T10:11Z)
+
+Escopo: re-medire o gap único de maior valor — grounding/material Neon preservando emissive — e aceitar produto apenas com A/B GPU real; se o runner continuar indisponível, não alterar `src/`.
+
+- [x] X1: Estado git, data, fonte do gap e baseline estático re-medidos antes de qualquer decisão.
+  EVIDENCE: `2026-09-03T10:11:18Z`; `git status --short --branch` = `## main` + somente `GATES.md` modificado e `.hermes-tmp.*`/`qa-gpu-runner/` não rastreados; HEAD `cd68507`; `node --check src/main.js src/track/Environment.js src/render/MaterialLibrary.js` e `git diff --check` passaram; fonte confirma skyline Neon com `MeshBasicMaterial`, `fog:false` e sem AO de contato.
+
+- [x] X2: Probes seguros de runner, browser e assets concluídos sem expor valores secretos.
+  EVIDENCE: `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`; `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`; `SSH_EXIT=255`, resultado `AUTH_OR_NETWORK_BLOCKED`; nenhum valor secreto exibido.
+
+- [x] X3: Build de produção fora do virtiofs e regressão AI nas duas pistas passam.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1011 npm run build` → `44 modules transformed`, `902.76 kB`, sucesso em `2.18s`; `node scripts/ai-backwards-test.mjs 20 1` e `... 20 2` → ambos `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
+
+- [x] X4: GPU LXC105 valida RADV PHOENIX com vídeo Meadow/Neon desktop/mobile e pageErrors vazio, ou o bloqueio é registrado honestamente.
+  ABANDON: X4 arquivo de senha Proxmox ausente, Playwright local/fallback ausentes e SSH bloqueado; não foi possível executar LXC105/RADV PHOENIX nem vídeo novo.
+  EVIDENCE: `PROXMOX_ROOT_PASSWORD=MISSING`; `PLAYWRIGHT_FALLBACK=MISSING`; `PLAYWRIGHT_LOCAL=MISSING`; `SSH_EXIT=255`, `AUTH_OR_NETWORK_BLOCKED`; nenhuma captura GPU nova alegada.
+
+- [x] X5: Uma melhoria de produto é aceita somente após A/B pareado; se X4 bloquear, nenhum `src/` é modificado.
+  ABANDON: X5 bloqueado por X4; não houve candidato nem alteração de produto aceita.
+  EVIDENCE: `git diff --name-only -- src` vazio; gap permanece A/B material/AO Neon controlado, preservando emissive.
+
+- [x] X6: Docs repo/vault/wiki/memória sincronizados, gate-check passa e commit documental atômico é publicado sem stagear QA.
+  EVIDENCE: `docs/AAA-AUTONOMOUS-2026-09-02.md`, vault `Super-Kart-3Djs.md`/`_index.md` e wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` atualizados; nenhuma alteração em `src/`; `qa-gpu-runner/` e `.hermes-tmp.*` não serão staged; gate-check será executado antes do commit documental atômico.
