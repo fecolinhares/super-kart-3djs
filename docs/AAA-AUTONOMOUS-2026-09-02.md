@@ -412,3 +412,10 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - GPU/A-B/vídeo: bloqueados por autenticação do runner; nenhuma captura RADV PHOENIX nova foi alegada. Nenhum patch de produto foi implementado ou aceito.
 - Scorecard: sem recaptura/fresh-eyes neste tick; média não recalculada; falhas automáticas permanecem A/B GPU e evidência visual atualizada do gap Neon.
 - Próximo gap de maior valor: restaurar a rota autenticável do LXC105 e executar A/B fixo emissive-safe de material/AO Neon em Meadow/Neon, desktop/mobile.
+
+## [2026-09-03T13:55:15Z] Autonomous tick — runner inacessível, sem delta de produto
+- Baseline real: HEAD `86a923f`; `src/` permaneceu sem diff; skyline Neon segue `MeshBasicMaterial`/`fog:false`, sem AO executável.
+- Checks reais: `node --check src/main.js src/track/Environment.js src/render/MaterialLibrary.js`; `git diff --check`; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1355 npm run build` → `44 modules transformed`, `902.76 kB`, `2.28s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+- Probes seguros: `PROXMOX_ROOT_PASSWORD=MISSING`, `SSHPASS=MISSING`, `PLAYWRIGHT_BROWSERS_PATH=MISSING`, geradores `TRIPO/GEMINI/ELEVENLABS=MISSING`; `sshpass` presente, mas password file ausente; cache local de browser existe, `/opt/pwtest` ausente. SSH batch ao Proxmox retornou `255` (`Permission denied`). Nenhum segredo foi lido.
+- Runtime: dev server respondeu `HTTP 200`; sem sessão LXC105 autenticada não foi possível provar ANGLE/Vulkan/RADV PHOENIX, vídeo ou A/B visual pareado.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. Nenhum arquivo `src/` foi alterado; não há score visual novo. Próximo gap: restaurar rota autenticável e executar A/B material/AO Neon emissive-safe com vídeo Meadow/Neon em desktop `1280×720` e mobile `390×844`.

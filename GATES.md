@@ -665,4 +665,32 @@ Escopo: re-medire o estado real e tentar autenticar o LXC105 por uma rota segura
   EVIDENCE: `git diff --name-only -- src` vazio; decisão `NO PRODUCT CHANGE ACCEPTED`.
 
 - [x] UN7: Relatório, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos somente para documentação ou mudança aceita; QA não é staged.
-  EVIDENCE: relatório, vault `Super-Kart-3Djs.md`, wiki entidade/index/log e memória atualizados; `src/` sem diff; `qa-gpu-runner/` e temporários não staged; gate-check executado antes do commit documental atômico.
+  EVIDENCE: relatório, vault/wiki/memória sincronizados; `src/` sem diff; `qa-gpu-runner/` e temporários não staged; gate-check executado antes do commit documental atômico.
+
+# Tick atual — revalidação autônoma do runner e gap Neon (2026-09-03T13:55Z)
+
+Escopo: re-medire o estado atual; escolher somente o gap material/AO Neon sustentado por evidência; aceitar produto apenas com A/B pareado em vídeo GPU real. Sem autenticação verificável, não alterar `src/`.
+
+- [x] CUR1: Estado git, data, fonte do gap e baseline estático re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T13:55:15Z`; `## main` com somente GATES modificado e QA/temporários não rastreados; `node --check src/main.js src/track/Environment.js src/render/MaterialLibrary.js` passou; fonte confirma skyline Neon `MeshBasicMaterial`/`fog:false` sem AO executável.
+
+- [x] CUR2: Probes seguros de runner/browser e geradores externos concluídos sem ler ou expor valores secretos.
+  EVIDENCE: `PROXMOX_ROOT_PASSWORD=MISSING`, `SSHPASS=MISSING`, `PLAYWRIGHT_BROWSERS_PATH=MISSING`, `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`; `sshpass_bin=PRESENT`, cache de browser local presente mas `/opt/pwtest` ausente; nenhum valor secreto lido.
+
+- [x] CUR3: Um único candidato de produto é implementado somente se a sessão GPU LXC105 for verificável; caso contrário `src/` permanece sem diff.
+  ABANDON: CUR3 sessão GPU LXC105 não foi autenticada; nenhum candidato especulativo foi implementado.
+  EVIDENCE: `git diff --name-only -- src` vazio; nenhum asset externo adicionado.
+
+- [x] CUR4: Build externo compatível com virtiofs, diff hygiene e regressão determinística AI nas duas pistas passam.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1355 npm run build` → `44 modules transformed`, `902.76 kB`, `✓ built in 2.28s`; `git diff --check` passou; Track 1/2 ×20 → `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0`, `CRASHES: 0`.
+
+- [x] CUR5: GPU LXC105 valida RADV PHOENIX com vídeo Meadow/Neon desktop/mobile, pageErrors vazio e sequência terminada; ou o bloqueio é registrado honestamente.
+  ABANDON: CUR5 Proxmox password file ausente, SSH batch retornou `255` (`Permission denied (publickey,password)`), e `/opt/pwtest` ausente; sem sessão LXC105 não há vídeo RADV PHOENIX neste tick.
+  EVIDENCE: `proxmox_pwfile=MISSING`; `ssh_rc=255`; nenhuma captura GPU nova alegada.
+
+- [x] CUR6: A/B pareado com o mesmo harness/prompt demonstra ganho direcional; se CUR5 bloquear, nenhum delta de produto é aceito.
+  ABANDON: CUR6 depende de CUR5; sem captura GPU pareada não existe delta visual defensável.
+  EVIDENCE: `src/` permaneceu sem diff; decisão `NO PRODUCT CHANGE ACCEPTED`.
+
+- [x] CUR7: Relatório, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos somente para documentação ou mudança aceita; QA não é staged.
+  EVIDENCE: relatório `docs/AAA-AUTONOMOUS-2026-09-02.md`, vault `Super-Kart-3Djs.md`/`_index.md`, wiki entidade/`index.md`/`log.md` e memória atualizados; `src/` sem diff; `qa-gpu-runner/` e temporários não staged; commit documental atômico será verificado após gate-check.
