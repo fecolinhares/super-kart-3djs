@@ -27,6 +27,7 @@ const fs = require('fs');
       rendererSize: r && [r.domElement.clientWidth, r.domElement.clientHeight],
       drawingBuffer: r && [r.getContext().drawingBufferWidth, r.getContext().drawingBufferHeight],
       cameraAspect: cam?.aspect,
+      quality: window.__sk3d?.renderReport?.(),
       composer: fx?.composer && { width: fx.composer.readBuffer?.width, height: fx.composer.readBuffer?.height },
       pageErrors: window.__pageErrors || [],
     };

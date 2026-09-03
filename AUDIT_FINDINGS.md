@@ -29,7 +29,9 @@ Probe executado: PNG direto fora do screencast; resultado refuta o P0 de pipelin
 
 O bloom global foi desligado no gameplay: `strength=0`, `radius=0`, `threshold=1.50`, incluindo o override Neon. PNG direto GPU após a alteração mostra kart, prédios e pista muito mais nítidos; build passou (`44 modules`, `903.92 kB`) e AI Track 1/2 passou `20 seeds` com `0 lost / 0 backwards / 0 crashes`.
 
-O véu residual persiste mesmo sem bloom e foi separado como novo loop de fog/overlay; não será atribuído ao bloom sem evidência.
+O véu residual persistia mesmo sem bloom e foi separado como novo loop de fog/overlay; não será atribuído ao bloom sem evidência.
+
+A captura do aparelho também revelou suavização de resolução: perfis touch limitavam o canvas a `1–1.5×` mesmo quando o display físico era maior. `VisualQualityProfile` agora permite até `2×` em GPU real touch, limitado ao DPR do aparelho; software continua limitado para não degradar performance.
 
 ### P1 — Linha de chegada e sinais: beam e módulo corrigidos
 

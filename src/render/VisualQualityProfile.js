@@ -81,6 +81,12 @@ export function createQualityProfile(renderer) {
     profile.maxPixelRatio = Math.min(profile.maxPixelRatio, 1);
   }
   if (info.maxTextureSize > 0) profile.textureCap = Math.min(profile.textureCap, info.maxTextureSize);
+  if (coarse && !info.software) {
+    // Mobile screenshots are commonly displayed above CSS-pixel size. A low
+    // 1.25x render gets visibly smeared by the device compositor; recover
+    // crisp geometry up to 2x without allowing pathological DPR values.
+    profile.maxPixelRatio = Math.min(2, Math.max(profile.maxPixelRatio, window.devicePixelRatio || 1));
+  }
   profile.maxPixelRatio = clamp(profile.maxPixelRatio, 0.75, 2);
   return Object.freeze(profile);
 }
