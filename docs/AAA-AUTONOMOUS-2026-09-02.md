@@ -1,5 +1,12 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T16:35Z] Autonomous tick — revalidação bloqueada, sem delta de produto
+- Baseline real: HEAD `7524e99`; `src/` limpo; skyline Neon mantém fachadas `MeshBasicMaterial`/`fog:false`, roof caps já aceitos e nenhum AO/material híbrido executável.
+- Checks: `node --check` em `main.js`, `Environment.js` e `MaterialLibrary.js` + `git diff --check` passaram; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-rt npm run build` passou com `44 módulos`, `903.48 kB`, `2.11s`.
+- Regressão determinística: Track 1/2 ×20 seeds, `0 lost / 0 backwards / 0 crashes`; assets `TRIPO/GEMINI/ELEVENLABS=MISSING`.
+- Runner bloqueado honestamente: `PROXMOX_PASSWORD_FILE=MISSING`, `/opt/pwtest=MISSING`, Playwright local `MISSING`; sem LXC105/RADV PHOENIX não há vídeo/A-B defensável.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. Nenhum arquivo `src/` foi alterado. Próximo gap: material/AO Neon seletivo emissive-safe após restaurar a rota GPU.
+
 ## [2026-09-03T16:10Z] Autonomous tick — roof caps Neon aceitos
 - Baseline real: HEAD `3482238`, `src/` limpo antes do candidato; skyline Neon usava caixas instanciadas com janela emissiva e sem coroamento arquitetural.
 - Candidato único: quatro camadas `InstancedMesh` de roof caps rasos (`10.8×0.22×8.8`) em material navy `MeshBasicMaterial`, compartilhando geometria/material e sem alterar corrida, input, áudio ou assets.

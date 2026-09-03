@@ -816,4 +816,28 @@ Escopo: re-medire o estado real e escolher exatamente um gap de maior valor. Só
   EVIDENCE: mesmo harness/câmera/prompt em pré/pós; diff acima do limiar 2 desktop `119650/921600 (0.129829)`, mobile `72272/329160 (0.219565)`; visão própria e fresh-eyes independente aceitaram coroamento/overhang visível, janelas legíveis e ausência de artefatos.
 
 - [x] AT7: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos verificados sem stagear QA.
-  EVIDENCE: documentação repo/vault/wiki/memória atualizada; `gate-check` → `ALL MET (199 met, 17 abandoned)` antes do commit; commit de produto `1215b1e` contém somente `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md` e `src/track/Environment.js`, push `3482238..1215b1e main -> main` confirmado; `qa-gpu-runner/` e temporários permaneceram fora do staging.
+  EVIDENCE: documentação repo/vault/memória atualizada; `gate-check` → `ALL MET (199 met, 17 abandoned)` antes do commit; commit de produto `1215b1e` contém somente `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md` e `src/track/Environment.js`, push `3482238..1215b1e main -> main` confirmado; `qa-gpu-runner/` e temporários permaneceram fora do staging.
+
+# Tick atual — revalidação do maior gap Neon (2026-09-03T16:35Z)
+
+Escopo: re-medire o gap de grounding/material Neon e aceitar produto somente com A/B GPU pareado; se o runner estiver bloqueado, fazer auditoria reproduzível e registrar o bloqueio sem alterar `src/`.
+
+- [x] RT1: Estado git, data, fonte do gap e baseline atual re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T16:35:20Z`; `git status --short --branch` = `## main` com `src/` limpo; HEAD `7524e99`; código confirma skyline Neon com `MeshBasicMaterial`, `fog:false`, roof caps já aceitos e sem AO/material híbrido executável.
+
+- [x] RT2: Probes seguros de runner/browser/assets concluídos sem expor credenciais.
+  EVIDENCE: `PROXMOX_PASSWORD_FILE=MISSING`, `PW_FALLBACK=MISSING`, `PW_LOCAL=MISSING`; credential probe retornou `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`; nenhum segredo foi lido ou exibido.
+
+- [x] RT3: Checks estáticos, build externo compatível com virtiofs e regressão AI nas duas pistas passam.
+  EVIDENCE: `node --check` em main/Environment/MaterialLibrary + `git diff --check` = PASS; `SK3D_OUT_DIR=/tmp/sk3d-dist-rt npm run build` = `44 modules transformed`, `903.48 kB`, `2.11s`; AI Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`.
+
+- [x] RT4: GPU LXC105 com ANGLE/Vulkan/RADV PHOENIX valida vídeo Meadow/Neon desktop/mobile, ou bloqueio honesto é registrado.
+  ABANDON: RT4 runner indisponível neste ambiente: `~/.hermes/.proxmox_root_pw`, `/opt/pwtest` e Playwright local ausentes; sem sessão LXC105 não há vídeo RADV PHOENIX defensável.
+  EVIDENCE: probe seguro retornou `PROXMOX_PASSWORD_FILE=MISSING`, `PW_FALLBACK=MISSING`, `PW_LOCAL=MISSING`; nenhuma credencial foi lida.
+
+- [x] RT5: Uma melhoria de produto é aceita somente com A/B pareado e vídeo; se RT4 bloquear, nenhum arquivo `src/` é modificado.
+  ABANDON: RT5 bloqueado por RT4; nenhum candidato material/AO foi implementado e não há delta de produto aceito.
+  EVIDENCE: `git diff --name-only -- src` vazio; decisão `NO PRODUCT CHANGE ACCEPTED`.
+
+- [x] RT6: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos verificados sem stagear QA.
+  EVIDENCE: documentação sincronizada após os checks; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem fora do staging; commit/push documental será verificado antes do encerramento.
