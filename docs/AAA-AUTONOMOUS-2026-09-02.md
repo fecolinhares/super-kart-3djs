@@ -173,6 +173,13 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Access probe returned `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`; SSH returned `Permission denied (publickey,password)` without exposing credentials.
 - Decision: **NO PRODUCT CHANGE ACCEPTED**. The evidence-backed highest-value gap remains controlled Neon material/AO A/B preserving emissive window contrast; GPU RADV PHOENIX video and vision comparison remain blocked until runner access is restored.
 
+## [2026-09-03] Autonomous tick — revalidação de baseline, sem delta de produto
+- Gap único mantido: A/B controlado de material/AO no skyline Neon preservando contraste emissivo.
+- Probe de assets: `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`; acesso GPU: `PROXMOX_ROOT_PASSWORD=MISSING`, Playwright local/fallback ausente. Nenhuma credencial foi exposta.
+- `node --check` passou; AI Track 1/2 com 20 seeds retornou `0 lost / 0 backwards / 0 crashes`.
+- Build direto no worktree encontrou falha operacional ENOENT no timestamp temporário do Vite; cópia sanitizada fora do worktree passou com `44 modules`, `902.68 kB`, `2.29s` usando `SK3D_OUT_DIR=/tmp/sk3d-dist-current`.
+- Sem LXC105 RADV PHOENIX e vídeo/A-B desktop/mobile, nenhuma mudança de produto foi implementada ou aceita. Próximo gap: material híbrido/AO Neon após restaurar o runner.
+
 ## [2026-09-03] Autonomous tick — determinism audit, no product delta
 - Baseline remeasured at HEAD `53aec318`: production build outside the worktree passed with 44 modules and `902.68 kB`; AI regression Track 1/2, 20 seeds each, returned `0 lost / 0 backwards / 0 crashes`.
 - Audited `scripts/capture-skyline-fixed.cjs` against the previously observed independent-boot variance. The harness already seeds procedural randomness, stops the exposed game loop after setup, freezes the race state, disables CSS animation/transition, hides non-canvas DOM, uses the real PostFX path, and captures via CDP.
