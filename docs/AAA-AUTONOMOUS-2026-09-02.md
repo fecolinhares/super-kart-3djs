@@ -1,5 +1,15 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T16:50Z] Autonomous tick — pilastras de fachada Neon aceitas
+- Gap único: o skyline Neon continuava legível como caixas repetidas, apesar dos roof caps aceitos; faltava articulação vertical nas fachadas.
+- Candidato único aceito em `src/track/Environment.js`: pilastras estreitas nos quatro cantos de cada torre, via uma `InstancedMesh` por fileira e material navy compartilhado; não cobre a textura emissiva nem toca corrida, input, áudio ou assets.
+- Checks: `node --check`, `git diff --check`; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-live-pilasters npm run build` passou com `44 módulos`, `903.92 kB`; AI Track 1/2 ×20 passou com `0 lost / 0 backwards / 0 crashes`.
+- A/B fixo pareado no GPU: desktop/mobile `1280×720`/`390×844`, ANGLE Vulkan `RADV PHOENIX`, `pageErrors=[]`, paleta idêntica `13/22/20/17/11` (83 torres). Diff acima de limiar 2: desktop `58093/921600 (0.063035)`, mobile `33246/329160 (0.101003)`; mean absolute channel `0.005384/0.004166`.
+- Fresh-eyes: pilastras acrescentaram bordas/ritmo vertical visível; janelas permaneceram legíveis; nenhum artefato ou obstrução foi encontrado. Vídeo ativo: Meadow desktop/mobile `812/1003` frames; Neon desktop/mobile `643/1010`; todos `phase=finished`.
+- Renderer pós: `743 calls`, `165556 triangles`, `1053 geometries`, `78 textures`; calls/textures excedem o contrato inicial e ficam registrados como risco de performance, não como aprovação irrestrita.
+- Decisão: **ACEITO**. Próximo gap: reduzir repetição/halo do skyline Neon com uma hipótese ainda mais localizada, ou priorizar uma auditoria de budget; não declarar AAA completo.
+
+
 ## [2026-09-03T16:35Z] Autonomous tick — revalidação bloqueada, sem delta de produto
 - Baseline real: HEAD `7524e99`; `src/` limpo; skyline Neon mantém fachadas `MeshBasicMaterial`/`fog:false`, roof caps já aceitos e nenhum AO/material híbrido executável.
 - Checks: `node --check` em `main.js`, `Environment.js` e `MaterialLibrary.js` + `git diff --check` passaram; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-rt npm run build` passou com `44 módulos`, `903.48 kB`, `2.11s`.

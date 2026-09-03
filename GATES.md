@@ -841,3 +841,25 @@ Escopo: re-medire o gap de grounding/material Neon e aceitar produto somente com
 
 - [x] RT6: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos verificados sem stagear QA.
   EVIDENCE: documentação sincronizada após os checks; `gate-check` → `ALL MET (205 met, 17 abandoned)`; `git show --stat HEAD` e `git ls-remote --heads origin main` confirmam publicação do commit documental contendo apenas GATES/relatório; `qa-gpu-runner/`/`.hermes-tmp.*` permanecem fora do staging.
+
+# Tick atual — revalidação viva e única decisão de produto (2026-09-03)
+
+Escopo: re-medire o estado atual, testar a rota direta do GPU runner e escolher exatamente um gap. Nenhum patch visual será aceito sem A/B pareado em vídeo Meadow/Neon, desktop/mobile, ANGLE/Vulkan/RADV PHOENIX.
+
+- [x] LIVE1: Estado Git, data, fonte do gap e baseline são re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T16:50:48Z`; `## main`, HEAD `69be222`; fonte `Environment.js` confirma `buildNeonCity()`, fachadas `MeshBasicMaterial`/`fog:false`, roof caps existentes e ausência de AO híbrido.
+
+- [x] LIVE2: Probes seguros de runner, browser e geradores externos retornam apenas estados redigidos.
+  EVIDENCE: rota direta `root@192.168.0.195` OK; Chromium `/usr/bin/chromium` e `/opt/pwtest` presentes; probes de geração `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`; nenhum segredo lido/exibido.
+
+- [x] LIVE3: Checks estáticos, build externo compatível com virtiofs e regressão AI nas duas pistas passam.
+  EVIDENCE: `node --check`, `git diff --check`; build `SK3D_OUT_DIR=/tmp/sk3d-dist-live-pilasters npm run build` = `44 módulos`, `903.92 kB`, sucesso; AI Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`.
+
+- [x] LIVE4: GPU runner direto ou via LXC105 comprova ANGLE/Vulkan/RADV PHOENIX e executa vídeo desktop/mobile Meadow/Neon com pageErrors vazio.
+  EVIDENCE: captura fixa pré/pós em `1280×720` e `390×844` reportou ANGLE Vulkan `RADV PHOENIX`, paleta `13/22/20/17/11`, total 83 e `pageErrors=[]`; vídeos pós Meadow desktop/mobile `812/1003` frames e Neon desktop/mobile `643/1010`, todos `phase=finished`.
+
+- [x] LIVE5: Uma única melhoria de produto é aceita somente com A/B pareado e prompt idêntico; caso LIVE4 bloqueie ou o delta seja inconclusivo, nenhum src é alterado.
+  EVIDENCE: candidato único em `Environment.js` adiciona pilastras de canto instanciadas; A/B fixo no mesmo harness/prompt mostrou ganho direcional de articulação/separação sem cobrir janelas. Diff acima de limiar 2: desktop `58093/921600 (0.063035)`, mobile `33246/329160 (0.101003)`; fresh-eyes gameplay não encontrou regressão. Renderer pós `743 calls/165556 triangles/1053 geometries/78 textures`.
+
+- [x] LIVE6: Relatório, vault, wiki/index/log/memória sincronizados; gate-check passa; commit/push atômicos somente após decisão; QA/temp não é staged.
+  EVIDENCE: documentação atualizada após aceitação; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem fora do staging; commit/push e gate-check verificados no encerramento deste tick.

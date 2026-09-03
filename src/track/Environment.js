@@ -4623,6 +4623,11 @@ export class Environment {
     // One instanced layer per row keeps the detail inside the city draw budget.
     const roofGeo = new THREE.BoxGeometry(10.8, 0.22, 8.8);
     const roofMat = new THREE.MeshBasicMaterial({ color: 0x27324a, fog: false });
+    // Narrow corner pilasters break the repeated box silhouette and give each
+    // tower a readable hard-surface frame without covering the emissive window
+    // texture. One instanced layer per row keeps the city cost predictable.
+    const pilasterGeo = new THREE.BoxGeometry(0.24, 13.2, 0.24);
+    const pilasterMat = new THREE.MeshBasicMaterial({ color: 0x596884, fog: false });
     const antGeo = new THREE.CylinderGeometry(0.06, 0.1, 3.2, 5);
     const antMat = new THREE.MeshBasicMaterial({ color: 0x8892b8 });
     const tankGeo = new THREE.CylinderGeometry(0.5, 0.55, 1.1, 8);
@@ -4665,6 +4670,8 @@ export class Environment {
       const paletteRowCounts = new Array(windowColors.length).fill(0);
       const towers = new THREE.InstancedMesh(geo, rowMat, count);
       const roofTops = new THREE.InstancedMesh(roofGeo, roofMat, count);
+      const pilasters = new THREE.InstancedMesh(pilasterGeo, pilasterMat, count * 4);
+      pilasters.name = `neon-facade-pilasters-${row.seed}`;
       roofTops.name = `neon-roof-caps-${row.seed}`;
       let idx = 0;
       for (let i = 0; i < count; i++) {
@@ -4701,6 +4708,19 @@ export class Environment {
         dummy.scale.set(sx, 1, sz);
         dummy.updateMatrix();
         roofTops.setMatrixAt(idx, dummy.matrix);
+        const cos = Math.cos(dummy.rotation.y);
+        const sin = Math.sin(dummy.rotation.y);
+        const cornerX = sx * 4.86;
+        const cornerZ = sz * 3.86;
+        const corners = [[-cornerX, -cornerZ], [cornerX, -cornerZ], [cornerX, cornerZ], [-cornerX, cornerZ]];
+        corners.forEach(([localX, localZ], cornerIndex) => {
+          const px = x + localX * cos - localZ * sin;
+          const pz = z + localX * sin + localZ * cos;
+          dummy.position.set(px, gy + h / 2, pz);
+          dummy.scale.set(1, h / 13.2, 1);
+          dummy.updateMatrix();
+          pilasters.setMatrixAt(idx * 4 + cornerIndex, dummy.matrix);
+        });
         const paletteIndex = (rand() * windowColors.length) | 0;
         towers.setColorAt(idx, new THREE.Color(windowColors[paletteIndex]));
         paletteRowCounts[paletteIndex]++;
@@ -4709,14 +4729,17 @@ export class Environment {
       if (idx > 0) {
         towers.count = idx;
         roofTops.count = idx;
+        pilasters.count = idx * 4;
         paletteRowCounts.forEach((n, colorIndex) => { paletteCounts[colorIndex] += n; });
         paletteRows.push({ seed: row.seed, count: idx, counts: paletteRowCounts });
         towers.instanceMatrix.needsUpdate = true;
         roofTops.instanceMatrix.needsUpdate = true;
+        pilasters.instanceMatrix.needsUpdate = true;
         if (towers.instanceColor) towers.instanceColor.needsUpdate = true;
         towers.castShadow = false;
         roofTops.castShadow = false;
-        scene.add(towers, roofTops);
+        pilasters.castShadow = false;
+        scene.add(towers, roofTops, pilasters);
       }
     }
 
