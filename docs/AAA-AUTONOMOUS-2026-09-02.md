@@ -73,3 +73,17 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 4. Improve Meadow mountain/vegetation material variation and Neon building/window variation.
 5. Add audio capture/instrumentation and audit the same gameplay sequence: engine, drift, boost, item, hit, finish, pause/restart.
 6. Do not claim AAA completion until visual scorecard and audio evidence converge.
+
+## [2026-09-03] Autonomous tick — Neon skyline palette experiment reverted
+- Gap selected from evidence: `Environment.buildNeonCity()` indexed a 5-color cold-dominant `windowColors` palette with `(rand() * 3)`, excluding 2 pale-blue variants and plausibly contributing to repeated/grouped distant facades.
+- Experiment: changed the index to `windowColors.length`; build passed, AI simulation passed, and GPU runner captured Meadow/Neon desktop+mobile with ANGLE Vulkan/RADV PHOENIX.
+- Decision: **REVERTED / not accepted**. Identical-prompt vision inspection did not establish a reliable directional improvement because the paired captures were not frame-synchronized; both showed persistent skyline bloom/halo and no defensible score delta. No source commit created.
+- Evidence: `qa-gpu-runner/tick-window-palette-pre/neon-desktop/` (650 frames) and `qa-gpu-runner/tick-window-palette/neon-desktop/` (652 frames), plus Meadow desktop/mobile and Neon mobile post captures; all GPU logs reported RADV PHOENIX and finished race state.
+- Blocker/next: build a deterministic fixed-camera skyline capture or instrument per-instance palette distribution before retrying; do not use free-running video frames for this isolated material A/B.
+
+## [2026-09-03] Autonomous tick — palette correction rejected pending deterministic A/B
+- Baseline remeasured: HEAD `c9af321`, HTTP 200, production build passed in `/tmp/sk3d-dist-tick`, and AI regression remained `0 lost / 0 backwards / 0 crashes` for 20 seeds on each track; asset probe remained `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`.
+- Candidate: change Neon skyline window selection from `(rand() * 3)` to `windowColors.length`; source audit confirmed this would expose all 5 declared colors instead of 3. The candidate was reverted.
+- GPU runtime: LXC105 reported ANGLE Vulkan with `RADV PHOENIX`; successful post-candidate sequences completed Meadow desktop `814` frames, Meadow mobile `994`, Neon desktop `679`, and Neon mobile `1008`, with `phase=finished` on the completed mobile runs. The first batch command had a quoting error and produced partial desktop directories; those artifacts remain untracked under `qa-gpu-runner/`.
+- Decision: **REVERTED / not accepted**. The only available pre frame was a finish-results modal, while the post frame was active grid gameplay; therefore the identical-prompt visual comparison was not a valid paired A/B. No source commit was created.
+- Blockers: repository does not currently contain `scripts/audit-geometry.cjs`; deterministic fixed-camera skyline capture or per-instance palette telemetry is required before the next attempt. Do not claim a visual score improvement from this tick.
