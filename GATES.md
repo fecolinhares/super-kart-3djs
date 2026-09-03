@@ -889,4 +889,4 @@ Escopo: re-medire o custo real do frame após a melhoria aceita; escolher exatam
   EVIDENCE: fonte `src/` permaneceu sem diff; o único resultado desta rodada é auditoria de custo e documentação.
 
 - [x] PB7: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos somente se houver mudança aceita; QA/temp não é staged.
-  EVIDENCE: relatório repo/vault/wiki/memória atualizado; `qa-gpu-runner/` e `.hermes-tmp.*` não staged; nenhum commit de produto será criado nesta rodada, apenas documentação após gate-check.
+  EVIDENCE: relatório repo/vault/wiki/memória atualizado; `qa-gpu-runner/` e `.hermes-tmp.*` não staged; commit documental `9f1ccf0` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi pushado para `origin/main`; nenhum commit de produto foi criado.
