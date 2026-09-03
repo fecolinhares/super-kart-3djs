@@ -223,7 +223,7 @@ Escopo: escolher o maior gap já sustentado por evidência — A/B de material/A
   EVIDENCE: `git diff --name-only -- src` vazio; auditoria estática encontrou `Math.random()` no ruído/reverb runtime, mas sem browser/OfflineAudioContext não há base suficiente para alterar o mix nesta rodada.
 
 - [x] P6: Documentação repo/vault/wiki/memória sincronizada, gate-check passa e commit documental atômico é publicado sem stagear QA.
-  EVIDENCE: este gate e relatório atualizados; `qa-gpu-runner/`/`.hermes-tmp.*` permanecem fora do staging; verificação final de gate-check, diff, commit e push será registrada abaixo.
+  EVIDENCE: `node /home/jarvis/.hermes/profiles/coder/skills/unlazy/scripts/gate-check.mjs GATES.md` → `ALL MET (71 met, 9 abandoned)`; commit atômico `8613aba` (`GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md`) pushado `8d701f0..8613aba main -> main`; `qa-gpu-runner/`/`.hermes-tmp.*` não staged.
 
 # Tick atual — revalidação do gap Neon e bloqueio operacional (2026-09-03)
 
