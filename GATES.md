@@ -993,3 +993,30 @@ Escopo: re-medire o estado atual, testar o runner GPU, e aceitar no máximo uma 
 
 - [x] RT8: Commit atômico e push origin/main são verificados para toda alteração aceita, ou documentação de bloqueio é publicada atomicamente.
   EVIDENCE: commit documental atômico `de616ae` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; push `e281201..de616ae main -> main` confirmado; nenhuma alteração de `src/` foi incluída.
+
+# Tick atual — owner `kart-ai` e redução de custo isolada
+
+Escopo: re-medire o estado real e testar exatamente uma redução reversível no owner `kart-ai`, sem alterar gameplay, input, áudio ou assets. Só aceitar produto com A/B GPU pareado, vídeo Meadow/Neon desktop/mobile, RADV PHOENIX e leitura visual preservada.
+
+- [x] KAI1: Estado git, data, fonte do custo e baseline estático re-medidos antes da alteração.
+  EVIDENCE: `2026-09-03T18:54:27Z`; HEAD `a321b24`; `src/` limpo antes do candidato; breakdown baseline tinha `kart-ai=1175 meshes/199650 tris`.
+
+- [x] KAI2: Probes seguros de runner/browser/assets concluídos sem expor valores secretos.
+  EVIDENCE: `PWFILE=MISSING`, `PWTEST=MISSING` local, `SSHPASS=MISSING`, cache local presente; acesso direto LXC105 retornou Chromium/Playwright/GPU node OK; geradores sem credenciais utilizáveis; nenhum segredo lido.
+
+- [x] KAI3: Um único candidato de redução do owner `kart-ai` é implementado somente após hipótese mensurável, preservando comportamento e sem secrets.
+  ABANDON: candidato de desligar castShadow dos karts AI foi revertido: o A/B não demonstrou redução defensável de custo nem preservação visual suficiente.
+  EVIDENCE: candidato reduziu `aiCasters 82→0` e casters totais `220→138`, mas não reduziu métricas confiáveis do renderer (`calls=1` em ambos os boots); `src/` terminou sem diff.
+
+- [x] KAI4: Checks estáticos, diff hygiene, build externo via `SK3D_OUT_DIR` e regressão determinística AI nas duas pistas passam.
+  EVIDENCE: `node --check`/`git diff --check` passaram; build `SK3D_OUT_DIR=/tmp/sk3d-dist-kai npm run build` → `44 modules`, `904.05 kB`, `✓ built in 2.44s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`; após revert checks passaram novamente.
+
+- [x] KAI5: GPU runner ANGLE/Vulkan/RADV PHOENIX executa vídeo/sequências Meadow/Neon em 1280x720 e 390x844, com pageErrors vazio e phase finished.
+  EVIDENCE: quatro runs `?demo&track=2` no LXC105 reportaram ANGLE/Vulkan `RADV PHOENIX`, `phase=finished`, frames pre/post desktop `664/676` e mobile `1006/1007`; auditor fixo reportou `pageErrors=[]` e canvas íntegro nos dois viewports.
+
+- [x] KAI6: A/B pareado com harness/prompt idênticos demonstra redução de custo sem regressão visual/funcional; candidato inconclusivo é revertido honestamente.
+  ABANDON: crítica visual pareada não foi conclusiva porque frames livres capturaram momentos/posições diferentes; `changed_ratio` bruto foi `0.928549` desktop e `0.534714` mobile, inválido como proxy de qualidade. Candidato revertido; nenhum ganho alegado.
+  EVIDENCE: contato A/B em `qa-gpu-runner/tick-kai-video/contact.jpg`; medição direta mostrou diferença de flags de sombra, mas não frame time/calls confiáveis.
+
+- [x] KAI7: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos somente para mudança aceita; QA não rastreado não é staged.
+  EVIDENCE: `node /home/jarvis/.hermes/profiles/coder/skills/unlazy/scripts/gate-check.mjs GATES.md` → `ALL MET (252 met, 17 abandoned)`; `src/` limpo; staging será limitado a `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; `qa-gpu-runner/` e temporários permanecem fora do staging.

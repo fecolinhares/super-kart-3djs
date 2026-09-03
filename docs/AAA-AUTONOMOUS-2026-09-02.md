@@ -1,5 +1,12 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T18:54Z] Autonomous tick — `kart-ai` shadow-caster candidate rejected
+- Baseline re-measured at `HEAD a321b24`; `kart-ai` owner was `1175 meshes/199650 tris` in the existing GPU breakdown.
+- Candidate disabled `castShadow` only for AI kart descendants. Static checks/build passed (`44 modules`, `904.05 kB`, `2.44s`) and AI Track 1/2 ×20 stayed at `0 lost / 0 backwards / 0 crashes`.
+- Direct LXC105 probe confirmed Chromium/Playwright/GPU; active runs used ANGLE/Vulkan `RADV PHOENIX`, ended `phase=finished`, with frames pre/post desktop `664/676` and mobile `1006/1007`.
+- Structural probe measured `aiCasters 82→0` and total casters `220→138`, but renderer calls remained unreliable (`calls=1` in both fixed boots). Free-running frame diff (`0.928549` desktop, `0.534714` mobile) was not a valid quality proxy because timing/positions differed.
+- Decision: **REVERTED / NO PRODUCT CHANGE ACCEPTED**. The source returned clean; next gap remains an isolated owner reduction only with a deterministic fixed-frame/performance probe.
+
 ## [2026-09-03T18:38Z] Autonomous tick — runner bloqueado, sem delta de produto
 - Baseline real re-medido no `HEAD e281201`; `src/` permaneceu limpo e o gap sustentado continua sendo um owner Neon mensurável/material-AO, sem candidato aceito.
 - Checks passaram: `node --check` nos módulos críticos, `git diff --check`; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-rt npm run build` → `44 modules transformed`, `903.92 kB`, `✓ built in 2.13s`.
