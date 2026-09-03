@@ -186,3 +186,10 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Asset probe remained `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`; no external asset was added.
 - Validation blocker remeasured safely: `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`. No LXC105 RADV PHOENIX video/A-B was run, and no visual/product change was accepted.
 - Decision: **NO PRODUCT CHANGE ACCEPTED**. This tick closes the audit line without speculative edits. Next highest-value gap remains controlled Neon material/AO A/B after restoring GPU-runner access.
+
+## [2026-09-03] Autonomous tick — demo camera candidate blocked and reverted
+- Gap selected from current evidence: the demo chase camera may keep too much route behind the kart, weakening player subject framing, especially on mobile.
+- Candidate changed only `src/main.js` demo camera extras (Meadow/Neon, touch/non-touch). Static checks passed: `node --check`, production build outside worktree (`44 modules`, `902.69 kB`, `3.59s`), and AI Track 1/2 with 20 seeds each (`0 lost / 0 backwards / 0 crashes`).
+- Runtime probe: HTTP `200` on `http://127.0.0.1:3457/`; asset probe `TRIPO/GEMINI/ELEVENLABS=MISSING`; GPU access probe `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`.
+- Decision: **REVERTED / not accepted**. Mandatory LXC105 ANGLE/Vulkan/RADV PHOENIX desktop/mobile video and identical-protocol A/B were unavailable, so no camera improvement is claimed. Source is back at the prior camera baseline.
+- Next highest-value gap: restore GPU-runner access, then run the camera A/B; do not retry the camera delta without synchronized Meadow/Neon desktop/mobile evidence.

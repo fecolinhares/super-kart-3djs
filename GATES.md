@@ -158,4 +158,24 @@ ABANDON: R5 não executado porque R4 está bloqueado; candidato revertido, porta
   EVIDENCE: probe `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`; não existe `/tmp/sk3d-tick-gpu-evidence/READY`.
 
 - [x] E5: Checks finais, documentação repo/vault/wiki/memória e commit/push atômicos concluídos; artefatos QA não staged.
-  EVIDENCE: `git diff --check` passou; commit `dd279f7` contém apenas `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi publicado em `origin/main` (`16d5892..dd279f7`); `AUDIT_FINDINGS.md` e `qa-gpu-runner/` não foram staged.
+  EVIDENCE: commit `dd279f7` contém apenas `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi publicado em `origin/main` (`16d5892..dd279f7`); `AUDIT_FINDINGS.md` e `qa-gpu-runner/` não foram staged.
+
+# Tick atual — câmera demo mantém o kart como sujeito (2026-09-03)
+
+- [x] F1: Baseline e gap único re-medidos; a alteração pendente é somente o enquadramento demo responsivo, sem regras de corrida.
+  EVIDENCE: `git diff` mostrou apenas 7 linhas de lógica de câmera em `src/main.js`; após a decisão, fonte voltou ao baseline.
+
+- [x] F2: Câmera demo reduz a distância extra em Meadow e Neon, desktop e mobile, sem alterar input, física, IA ou assets.
+ABANDON: F2 candidato revertido; sem A/B GPU não há evidência de ganho de protagonismo e não se aceita mudança especulativa.
+
+- [x] F3: Build de produção fora do worktree e regressão determinística AI passam.
+  EVIDENCE: `node --check src/main.js`; `SK3D_OUT_DIR=/tmp/sk3d-dist-camera-tick npm run build` → 44 módulos, 902.69 kB, sucesso; AI Track 1/2, 20 seeds → 0 lost, 0 backwards, 0 crashes.
+
+- [x] F4: A/B visual GPU real em gameplay/sequência desktop 1280x720 e mobile 390x844, Meadow e Neon, confirma melhor protagonismo sem regressão.
+ABANDON: F4 bloqueado: `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`; sem LXC105 RADV PHOENIX acessível, nenhum vídeo/A-B novo foi alegado.
+
+- [x] F5: Se F4 for inconclusivo/bloqueado, candidato é revertido ou marcado ABANDON honestamente; se aprovado, documentação e commit/push atômicos são verificados.
+  EVIDENCE: candidato de `src/main.js` revertido ao baseline; nenhum commit de produto criado.
+
+- [x] F6: GATES, relatório AAA, vault/wiki e memória ficam sincronizados; qa-gpu-runner não é staged.
+  EVIDENCE: documentação sincronizada; `qa-gpu-runner/` permanece untracked e não staged; commit documental será verificado após push.
