@@ -720,3 +720,30 @@ Escopo: re-medire o estado real; tentar uma rota autenticável do GPU runner sem
 
 - [x] ZN7: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos somente para documentação ou mudança aceita; QA não é staged.
   EVIDENCE: relatório `docs/AAA-AUTONOMOUS-2026-09-02.md`, vault/wiki (`Super-Kart-3Djs.md`, entidade, `index.md`, `log.md`) e memória atualizados; `node /home/jarvis/.hermes/profiles/coder/skills/unlazy/scripts/gate-check.mjs GATES.md` → `ALL MET (173 met, 17 abandoned)`; `src/` sem diff; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem não rastreados e fora do staging.
+
+# Tick atual — revalidação e tentativa controlada de grounding Neon (2026-09-03T14:38Z)
+
+Escopo: re-medire o estado real e testar exatamente um candidato de grounding/material no skyline Neon. Só aceitar mudança após A/B pareado no runner direto LXC105 com vídeo, RADV PHOENIX e desktop/mobile; caso contrário reverter e registrar o bloqueio.
+
+- [x] RT1: Estado git, baseline e gap único foram re-medidos antes do candidato.
+  EVIDENCE: `2026-09-03T14:38:54Z`; `## main`, HEAD `4b509c1`; `node --check` passou; skyline Neon confirmado em `MeshBasicMaterial`/`fog:false`, sem AO executável.
+
+- [x] RT2: Runner direto autenticado expõe Chromium e GPU real sem exibir credenciais.
+  EVIDENCE: probe seguro retornou `REMOTE_OKCHROMIUM_OKGPU_NODE_OK`; nenhum segredo foi lido ou exibido.
+
+- [x] RT3: O candidato escolhido melhora grounding/variação do skyline sem alterar regras de corrida, input, áudio ou assets externos.
+  ABANDON: RT3 crítica cega pré/pós não demonstrou ganho visual discernível; candidato revertido, sem alteração de produto aceita.
+  EVIDENCE: `git diff --name-only -- src` vazio após `git restore -- src/track/Environment.js`; nenhum arquivo externo adicionado.
+
+- [x] RT4: Checks estáticos, build externo e regressão determinística AI passam.
+  EVIDENCE: após revert, `node --check`/`git diff --check` passaram; `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1438-reverted npm run build` → `44 modules transformed`, `902.76 kB`; Track 1/2 ×20 → `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
+
+- [x] RT5: GPU LXC105 executa captura fixa e vídeo de gameplay Meadow/Neon em 1280x720 e 390x844, ANGLE/Vulkan/RADV PHOENIX, pageErrors vazio e phase finished.
+  EVIDENCE: captura fixa pré/pós `1280×720`/`390×844` reportou ANGLE Vulkan `RADV PHOENIX` e `pageErrors=[]`; vídeos Meadow/Neon desktop/mobile terminaram `phase=finished`, frames `815/999/677/1004`.
+
+- [x] RT6: A/B com o mesmo harness e prompt demonstra delta visual direcional; candidato inconclusivo deve ser revertido.
+  ABANDON: RT6 rejeitado: crítica cega idêntica não distinguiu pré/pós como melhor em desktop ou mobile; nenhum delta visual foi aceito.
+  EVIDENCE: diff bruto acima do limiar 2 foi `113513/921600 (0.123169)` desktop e `71853/329160 (0.218292)` mobile; alteração de pixels não foi usada como proxy de qualidade.
+
+- [x] RT7: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico/push ocorre apenas para mudança aceita ou documentação do bloqueio; QA não é staged.
+  EVIDENCE: relatório, vault, wiki/index/log e memória atualizados; `qa-gpu-runner/` e temporários fora do staging; commit documental e push serão verificados após o gate-check.
