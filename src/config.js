@@ -154,12 +154,11 @@ export const CONFIG = {
   render: {
     antialias: true,
     pixelRatioCap: 2,
-    // VISION FIX: 0.5/0.93 blew out bright geometry (gantry sign, white
-    // kerbs) — the critic read the bloom as 'overexposed'. 0.38 keeps the
-    // glow on emissives (boost flames, item boxes) without washing whites.
-    bloomStrength: 0.42, // AUDIT 2026-09-02 AAA pass: 0.35→0.42 — neon janelas/postes precisam glow (critic bloom 2/10)
-    bloomRadius: 0.32, // AUDIT 2026-09-02: 0.25→0.32 — spread maior p/ janelas lerem como neon
-    bloomThreshold: 1.1, // AUDIT 2026-09-02: 1.4→1.1 — janelas MeshBasic 1.0 precisam passar threshold p/ bloom (era 2/10)
+    // Bloom restrained for gameplay readability: keep emissive pickups/boosts
+    // alive without turning windows, kerbs and finish hardware into one halo.
+    bloomStrength: 0.20,
+    bloomRadius: 0.18,
+    bloomThreshold: 1.35,
     vignetteStrength: 0.08, // AUDIT 2026-09-02 AAA: 0.12→0.08 — halo branco radial nos cantos (critic 4/10) vinha de vignette+bloom radius; reduzir
     colorGradeSaturation: 1.25, // AUDIT R21e: 1.45→1.25 — saturava o glow âmbar do bloom em oliva no chão noturno // AUDIT r17 (Feco real-GPU + pixel-measured
     // critic): ACES tone mapping in OutputPass DESSATURATES — the grade
