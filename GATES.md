@@ -384,4 +384,4 @@ Escopo: re-medire o gap único material/AO do skyline Neon e tentar a rota docum
   EVIDENCE: `git diff --name-only -- src` vazio; gap permanece material/AO Neon controlado.
 
 - [x] AB6: Docs repo/vault/wiki/index/log/entidade e memória sincronizados; gate-check e commit/push atômicos verificados; QA não rastreado não é staged.
-  EVIDENCE: pending.
+  EVIDENCE: relatório AAA, vault `Super-Kart-3Djs.md`, wiki entity/index/log e memória sincronizados; commit documental atômico `133d816` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi pushado `8875827..133d816 main -> main`; `qa-gpu-runner/` e `.hermes-tmp.*` não foram staged.
