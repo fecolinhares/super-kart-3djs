@@ -1088,12 +1088,12 @@ function updateCamera(dt, t) {
       _camDesired.copy(st.position)
         .addScaledVector(_fwd, -demoBackDistance)
         .addScaledVector(_side, sway);
-      _camDesired.y += CONFIG.camera.followHeight + 2.2 + Math.sin(t * 0.4) * 0.8;
+      _camDesired.y += CONFIG.camera.followHeight + 1.2 + Math.sin(t * 0.4) * 0.5;
       const lerp = 1 - Math.exp(-2.4 * dt);
       camPos.lerp(_camDesired, lerp);
       camera.position.copy(camPos);
       _camLook.copy(st.position).addScaledVector(_fwd, 6);
-      _camLook.y += 1.5;
+      _camLook.y += 1.0;
       lookTarget.lerp(_camLook, Math.min(1, dt * 5));
       camera.lookAt(lookTarget);
     }

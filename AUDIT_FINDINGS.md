@@ -37,9 +37,11 @@ O pórtico continua com leitura ruim quando visto em aproximação: banner, hous
 
 A visão chase mostra prédios altos com janelas retangulares repetidas, pouca variação de silhueta e pouca ancoragem no chão. A cidade lê como paredes instanciadas, não como ambiente urbano. O problema é visual e de composição: janelas competem com a pista, mas os edifícios não fornecem profundidade graduada.
 
-### P1 — Câmera chase: kart perde protagonismo em alta velocidade
+### P1 — Câmera chase: kart perde protagonismo em alta velocidade — CORRIGIDO NO DEMO
 
-Neon usa extra de distância (`neonFollowExtra=0.55`) e o modo demo acrescenta distância adicional. O resultado é mais rota no enquadramento, porém kart e adversários ficam pequenos quando a pista abre; o jogador recebe excesso de skyline e pouca leitura de trajetória imediata.
+Neon usava distância extra excessiva no demo e altura/look target altos. O ajuste aceito usa extra de `0,8 m` mobile / `1,6 m` desktop no Neon e reduz a altura cinematográfica em `1,0 m`. PNG direto mobile em 15 s: `83 km/h`, kart inteiro e reconhecível, estrada à frente legível, sem crop do sujeito. O pelotão deixa de dominar a composição.
+
+Ressalva: a faixa inferior ainda concentra velocímetro, posição, item e controles touch; isso é um achado separado de layout mobile.
 
 ### P2 — Meadow: props e vegetação sem variedade de silhueta
 
@@ -55,10 +57,10 @@ HUD possui boa persistência de lap, posição, moedas e velocidade. No mobile, 
 
 ## Ordem do próximo loop
 
-1. Provar o pipeline mobile com métricas e screenshot não-screencast.
-2. Fazer A/B de bloom isolado: `0.42/0.32/1.1` versus configuração conservadora.
-3. Corrigir a faixa FINISH/sinais com hierarquia estrutural, não apenas reduzir altura.
-4. Revalidar câmera Neon e cidade com POV temporal.
-5. Rodar itens, drift, turbo pads e confetti em sequências dedicadas.
+1. Auditar e corrigir a faixa FINISH/sinais com hierarquia estrutural.
+2. Reorganizar HUD/controles mobile para liberar a faixa inferior sem perder áreas de toque.
+3. Revalidar Neon com cidade procedural e grounding/AO seletivo.
+4. Rodar itens, drift, turbo pads e confetti em sequências dedicadas.
+5. Auditar variedade de silhueta Meadow e materiais de props.
 
 Nenhuma conclusão de screenshot tardio foi usada para declarar qualidade de gameplay.

@@ -14,7 +14,7 @@ const fs = require('fs');
   const page = await ctx.newPage();
   await page.addInitScript(() => localStorage.clear());
   await page.goto(`${url}/?demo&track=2`, { waitUntil: 'domcontentloaded', timeout: 120000 });
-  await page.waitForTimeout(8000);
+  await page.waitForTimeout(15000);
   const metrics = await page.evaluate(() => {
     const c = document.querySelector('canvas');
     const r = window.__sk3d?.renderer;
