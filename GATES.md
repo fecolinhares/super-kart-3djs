@@ -43,7 +43,7 @@ Escopo: re-medire o owner `kart-ai` e a rota GPU; sem aceitar nova alteração d
   EVIDENCE: probe atual mediu Meadow `1948 calls/1,089,095 tris` desktop e `977 calls/819,717 tris` mobile; `kart-ai` continua `1175 meshes/199650 tris`; não houve redução isolada de calls/frame-time demonstrada, e `git diff -- src` permanece vazio. Decisão: `NO PRODUCT CHANGE ACCEPTED`.
 
 - [x] Q6: Relatório, vault, wiki, memória, gate-check e commit/push atômicos ficam sincronizados; qa-gpu-runner não é staged.
-  EVIDENCE: vault `Super-Kart-3Djs.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md`, `_index.md` e memória atualizados; `gate-check.mjs` → `ALL MET (265 met, 17 abandoned)`; somente `GATES.md` e o relatório AAA serão commitados; `qa-gpu-runner/` e temporários permanecem fora do staging.
+  EVIDENCE: vault `Super-Kart-3Djs.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md`, `_index.md` e memória atualizados; `gate-check.mjs` → `ALL MET (265 met, 17 abandoned)`; commit `ebb7ecf` contém somente `GATES.md` e o relatório AAA e foi pushado `0a4a8ed..ebb7ecf main -> main`; `qa-gpu-runner/` e temporários permanecem fora do staging.
 
 # Tick atual — gap AO/material Neon (2026-09-03)
 
