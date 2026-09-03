@@ -436,3 +436,11 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Probes seguros: `PROXMOX_ROOT_PASSWORD=MISSING`, `SSHPASS=MISSING`, `PLAYWRIGHT_BROWSERS_PATH=MISSING`, geradores `TRIPO/GEMINI/ELEVENLABS=MISSING`; `sshpass` presente, mas password file ausente; cache local de browser existe, `/opt/pwtest` ausente. SSH batch ao Proxmox retornou `255` (`Permission denied`). Nenhum segredo foi lido.
 - Runtime: dev server respondeu `HTTP 200`; sem sessão LXC105 autenticada não foi possível provar ANGLE/Vulkan/RADV PHOENIX, vídeo ou A/B visual pareado.
 - Decisão: **NO PRODUCT CHANGE ACCEPTED**. Nenhum arquivo `src/` foi alterado; não há score visual novo. Próximo gap: restaurar rota autenticável e executar A/B material/AO Neon emissive-safe com vídeo Meadow/Neon em desktop `1280×720` e mobile `390×844`.
+
+## [2026-09-03T15:23Z] Autonomous tick — determinismo de áudio aceito
+- Gap único escolhido por evidência estática: `Math.random()` ainda gerava ruído não reproduzível em `sfx.js` (SFX) e `AudioManager.js` (reverb/crowd), impedindo auditoria offline estável.
+- Alteração aceita: `mulberry32` local determinístico nos três buffers; nenhuma regra de corrida, input, mixagem, visual ou asset externo foi alterada. Novo smoke `scripts/audio-determinism-smoke.mjs` usa `web-audio-api` somente em `/tmp`.
+- QA offline completo: `30/30` receitas renderizadas, `maxPeak=0.853281`, `nondeterministic=none`; `AUDIO_RANDOM=PASS`; hashes repetidos do boost coincidiram.
+- Checks: `node --check`, `git diff --check`, build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-audio-determinism-final npm run build` (`44 modules`, `903.12 kB`, `2.26s`), AI Track 1/2 ×20 (`0 lost / 0 backwards / 0 crashes`).
+- Runtime browser lifecycle não foi alegado: `PLAYWRIGHT_LOCAL=MISSING`, `/opt/pwtest=MISSING`; tentativa Snap `--dump-dom` falhou por execução ES não observável. Nenhum segredo foi exposto.
+- Decisão: **PRODUCT CHANGE ACCEPTED** para determinismo de áudio; score visual não recalculado. Próximo gap: validar lifecycle de áudio com Playwright disponível e então retomar A/B material/AO Neon no GPU.

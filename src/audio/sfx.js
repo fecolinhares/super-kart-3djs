@@ -42,6 +42,19 @@ const SFX_PENTA = [N.C5, N.D5, N.E5, N.G5, N.A5, N.C6, N.D6, N.E6];
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
+// Deterministic noise keeps OfflineAudioContext renders reproducible while
+// preserving the same broadband texture in live playback. Audio variation is
+// supplied by pitch/pan/event timing, never by an unseeded global RNG.
+function mulberry32(seed) {
+  return () => {
+    seed |= 0;
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 // ------------------------------------------------------------
 // Engine gear map (audit r2): a continuous 55→205Hz RPM sweep reads as
 // a synth drone, not a kart. Piecewise gears with OVERLAPPING ranges
@@ -98,8 +111,9 @@ function noiseBuffer(ctx) {
     buf = ctx.createBuffer(1, len, ctx.sampleRate);
     const data = buf.getChannelData(0);
     let sum = 0;
+    const rng = mulberry32((ctx.sampleRate ^ len ^ 0x534658) | 0);
     for (let i = 0; i < len; i++) {
-      data[i] = Math.random() * 2 - 1;
+      data[i] = rng() * 2 - 1;
       sum += data[i];
     }
     const mean = sum / len;

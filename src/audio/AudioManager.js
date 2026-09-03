@@ -37,6 +37,16 @@ import { onStateChange, STATES } from '../game/GameState.js';
 const GESTURE_EVENTS = ['pointerdown', 'keydown', 'touchstart'];
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
+function mulberry32(seed) {
+  return () => {
+    seed |= 0;
+    seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 export class AudioManager {
   constructor() {
     this._ctx = null;
@@ -225,6 +235,7 @@ export class AudioManager {
     const buffer = ctx.createBuffer(2, len, sr);
     for (let ch = 0; ch < 2; ch++) {
       const data = buffer.getChannelData(ch);
+      const rng = mulberry32((sr ^ len ^ (ch * 0x9E3779B9) ^ 0x524556) | 0);
       let last = 0;
       for (let i = 0; i < len; i++) {
         if (i < preDelay) {
@@ -232,7 +243,7 @@ export class AudioManager {
           continue;
         }
         const t = (i - preDelay) / (len - preDelay); // 0..1 tail position
-        const white = Math.random() * 2 - 1;
+        const white = rng() * 2 - 1;
         last = last * 0.55 + white * 0.45; // lowpass the noise — warm tail
         const decay = Math.pow(1 - t, 2.6) * (ch === 1 ? 0.86 : 1.0);
         data[i] = last * decay * (t < 0.02 ? 1.6 : 1); // early-reflection bump
@@ -632,8 +643,9 @@ export class AudioManager {
     const buf = ctx.createBuffer(1, len, ctx.sampleRate);
     const data = buf.getChannelData(0);
     let sum = 0;
+    const rng = mulberry32((ctx.sampleRate ^ len ^ 0x435244) | 0);
     for (let i = 0; i < len; i++) {
-      data[i] = Math.random() * 2 - 1;
+      data[i] = rng() * 2 - 1;
       sum += data[i];
     }
     const mean = sum / len;

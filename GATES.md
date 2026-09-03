@@ -747,3 +747,26 @@ Escopo: re-medire o estado real e testar exatamente um candidato de grounding/ma
 
 - [x] RT7: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico/push ocorre apenas para mudança aceita ou documentação do bloqueio; QA não é staged.
   EVIDENCE: relatório, vault, wiki/index/log e memória atualizados; commit documental `ce794af` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi pushado para `origin/main`; `qa-gpu-runner/` e temporários fora do staging; `src/` sem diff.
+
+# Tick atual — determinismo dos ruídos procedurais de áudio (2026-09-03T15:23Z)
+
+Escopo: remover nondeterminismo comprovado de `sfx.js`/`AudioManager.js` sem mudar a paleta sonora, a mixagem, o gameplay, o visual ou assets externos. A alteração só é aceita se o mesmo render OfflineAudioContext for byte-reprodutível e os checks de áudio/runtime permanecerem verdes.
+
+- [x] AU1: Baseline de estado, fonte do defeito e disponibilidade de ferramentas foi re-medido antes da alteração.
+  EVIDENCE: `2026-09-03T15:23:22Z`; `git status` mostrou `main` com apenas GATES/artefatos não rastreados; baseline tinha `Math.random()` em `sfx.js` linhas 102 e `AudioManager.js` linhas 235/647; `node --check` passou.
+
+- [x] AU2: Ruído SFX e impulso de reverb usam PRNG determinístico local, sem `Math.random()` nesses caminhos e sem expor/persistir credenciais.
+  EVIDENCE: `AUDIO_RANDOM=PASS`; `mulberry32` determinístico foi aplicado aos buffers SFX, reverb e crowd; nenhum segredo foi lido, exibido ou persistido.
+
+- [x] AU3: Render offline do mesmo SFX com a mesma taxa/seed produz saída reproduzível e não clipa acima do limite seco aceito.
+  EVIDENCE: `node scripts/audio-determinism-smoke.mjs` → `AUDIO_DETERMINISM=PASS rendered=30/30 maxPeak=0.853281 nondeterministic=none`; hashes repetidos do boost coincidiram.
+
+- [x] AU4: Checks estáticos, diff hygiene, build externo e regressão AI nas duas pistas passam.
+  EVIDENCE: `STATIC_AUDIO=PASS`; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-audio-determinism-final npm run build` → `44 modules transformed`, `903.12 kB`, sucesso em `2.26s`; AI Track 1/2 ×20 → ambos `0 lost / 0 backwards / 0 crashes`.
+
+- [x] AU5: Runtime browser valida boot, áudio lazy/unlock, pause/resume e ausência de page errors; visual GPU só permanece requisito para mudanças visuais.
+  ABANDON: AU5 Playwright executável não está disponível no runner atual (`PLAYWRIGHT_LOCAL=MISSING`, `/opt/pwtest=MISSING`); o Chromium Snap não executou o módulo ES pelo harness `--dump-dom`, portanto não há alegação de runtime lifecycle.
+  EVIDENCE: probe seguro retornou `PWFILE=MISSING`, `PWTEST=MISSING`, `SSHPASS_BIN=PRESENT`; falha do harness registrada sem expor credenciais.
+
+- [x] AU6: Alteração aceita/revertida é documentada no relatório, vault, wiki e memória; gate-check passa; commit atômico/push ocorre sem stagear `qa-gpu-runner/`.
+  EVIDENCE: documentação e memória atualizadas; gate-check executado antes do commit; staging limitado a arquivos rastreados do tick, com `qa-gpu-runner/` e temporários fora do staging; commit/push verificados no encerramento.
