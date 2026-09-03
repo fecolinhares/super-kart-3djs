@@ -409,3 +409,28 @@ Escopo: re-medire o único gap sustentado — material/AO Neon preservando janel
 
 - [x] AC6: Relatório repo/vault/wiki/memória sincronizados, gate-check passa e commit documental atômico é publicado sem stagear QA.
   EVIDENCE: relatório, vault `Super-Kart-3Djs.md`, wiki entidade/index/log atualizados; gate-check concluído; commit documental atômico e push verificados; `qa-gpu-runner/` e temporários não staged.
+
+# Tick atual — auditoria autônoma do maior gap disponível (2026-09-03)
+
+Escopo: re-medire o estado real; testar desbloqueio do runner; escolher apenas uma melhoria demonstrável. Prioridade inicial: faixa inferior HUD/touch mobile, sem sacrificar alvos de toque. Se a validação GPU não estiver disponível, nenhum produto visual será aceito.
+
+- [x] TICK1: Estado git, baseline de build/AI, código HUD e data re-medidos antes de alteração.
+  EVIDENCE: `2026-09-03T11:09Z`; `git status --short --branch` = `## main`; HEAD `d79c186`; `src/` limpo antes do candidato; HTTP dev `200`; HUD mobile baseline medido em `390×844` com bottom HUD `y=526..696` e touch `y=748..830`.
+
+- [x] TICK2: Probes seguros de GPU runner, Playwright e geradores executados sem expor credenciais.
+  EVIDENCE: SSH via arquivo protegido alcançou LXC105; `/opt/pwtest` presente; GPU reportou RADV PHOENIX; geradores `TRIPO_API_KEY/GEMINI_API_KEY/ELEVENLABS_API_KEY=MISSING`; nenhum segredo foi exibido.
+
+- [x] TICK3: Um único candidato completo para a faixa HUD/touch mobile é implementado, ou o bloqueio é documentado sem modificar src/.
+  EVIDENCE: candidato aceito em `src/ui/ui.css`: backgrounds inativos touch `0.55→0.38`, item/drift `0.60→0.45`, pause `0.60→0.42`; estados ativos permanecem `0.95`; sem mudança de geometria ou input.
+
+- [x] TICK4: Checks estáticos, build externo e regressão determinística AI nas duas pistas passam.
+  EVIDENCE: `node --check` + `git diff --check`; `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-current npm run build` → `44 modules transformed`, `902.76 kB`, `✓ built in 2.21s`; Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+
+- [x] TICK5: GPU LXC105 ANGLE/Vulkan/RADV PHOENIX executa vídeo Meadow/Neon em 1280x720 e 390x844, pageErrors vazio e sequência termina; se bloqueado, ABANDON honesto.
+  EVIDENCE: vídeos candidatos LXC105: Meadow desktop `796`, Neon desktop `617`, Meadow mobile `1000`, Neon mobile `1008` frames; todos `phase=finished`, GPU ANGLE/Vulkan `RADV PHOENIX`; captura fixa candidata desktop/mobile `1280×720`/`390×844` registrou `pageErrors=[]`.
+
+- [x] TICK6: A/B pareado com prompt idêntico prova ganho direcional; caso contrário candidato é revertido/não aceito.
+  EVIDENCE: crítica cega com prompt idêntico em frames pré/pós: Neon mobile manteve controles legíveis e revelou mais pista entre/atrás dos controles; desktop Meadow permaneceu sem regressão porque a regra é touch-only. Candidato aceito como delta direcional de legibilidade, sem alegar score AAA absoluto.
+
+- [x] TICK7: Relatório, vault, wiki index/log/entidade e memória sincronizados; gate-check e commit/push atômicos verificados; QA não rastreado não é staged.
+  EVIDENCE: docs `AAA-AUTONOMOUS-2026-09-02.md`, vault `Super-Kart-3Djs`, wiki `entities/super-kart-3djs`/`index.md`/`log.md` e memória atualizados; commit atômico `0a23409` contém somente `GATES.md`, relatório e `src/ui/ui.css`; push `d79c186..0a23409 main -> main` confirmado; `qa-gpu-runner/` e `.hermes-tmp.*` fora do staging.

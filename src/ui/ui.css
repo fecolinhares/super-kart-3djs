@@ -1288,7 +1288,7 @@ html, body {
   height: 52px;
   font-size: 1.5rem;
   color: var(--sk3d-cream);
-  background: rgba(27, 42, 65, 0.6); /* AUDIT imersão R11: 0.85→0.6 */
+  background: rgba(27, 42, 65, 0.42); /* TICK 2026-09-03: inactive pause recedes without losing affordance */
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 14px;
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
@@ -1372,7 +1372,7 @@ html, body {
   gap: 2px;
   border-radius: 22px;
   border: 2px solid rgba(255, 255, 255, 0.5);
-  background: rgba(46, 196, 255, 0.55); /* AUDIT imersão R11: 0.85→0.55 */
+  background: rgba(46, 196, 255, 0.38); /* TICK 2026-09-03: inactive touch controls reveal the road; active state remains high-contrast */
   color: #fff;
   font-family: var(--sk3d-font);
   font-weight: 800;
@@ -1420,7 +1420,7 @@ html, body {
   width: 88px;
   height: 88px;
   border-radius: 50%;
-  background: rgba(255, 209, 102, 0.6); /* AUDIT imersão R11: 0.9→0.6 */
+  background: rgba(255, 209, 102, 0.45); /* TICK 2026-09-03: inactive action controls reveal the road */
 }
 
 .sk3d-touch-drift {
@@ -1429,7 +1429,7 @@ html, body {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: rgba(67, 214, 75, 0.6); /* AUDIT imersão R11: 0.9→0.6 */
+  background: rgba(67, 214, 75, 0.45); /* TICK 2026-09-03: inactive action controls reveal the road */
 }
 
 /* ---------- keyframes ---------- */

@@ -338,3 +338,11 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Deterministic AI regression passed on Track 1 and Track 2 with 20 seeds each: `0 lost`, `0 backwards`, `0 crashes`; sampled `onRoad=100`.
 - Safe probes: password file `MISSING`, Playwright local/fallback `MISSING`, `sshpass=SET`, SSH probe `EXIT_255`; asset probes `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`. No secret values were read or recorded.
 - Decision: **NO PRODUCT CHANGE ACCEPTED**. Without LXC105 ANGLE/Vulkan/RADV PHOENIX video and identical-protocol A/B, no visual improvement is defensible. Next gap remains selective emissive-safe AO/material Neon A/B after runner restoration.
+
+## [2026-09-03T11:09Z] Autonomous tick — mobile touch controls de-emphasized
+- Baseline remeasured at HEAD `d79c186`: dev server `HTTP=200`; mobile `390×844` HUD bottom occupied `y=526..696`, touch controls `y=748..830`, preserving `52px` vertical separation.
+- One focused UI change accepted in `src/ui/ui.css`: inactive touch backgrounds reduced `0.55→0.38`, item/drift `0.60→0.45`, pause `0.60→0.42`; active state remains high contrast (`0.95`). Hit areas and input handlers were not changed.
+- GPU gameplay video on LXC105/RADV PHOENIX completed: Meadow desktop `796`, Neon desktop `617`, Meadow mobile `1000`, Neon mobile `1008` frames; all ended `phase=finished`. Fixed-camera runtime checks at `1280×720` and `390×844` recorded `pageErrors=[]`.
+- Identical-prompt visual review of pre/post frames found the mobile candidate less visually competitive with the road while controls remained legible; desktop Meadow showed no scope regression because the change is touch-only. No absolute AAA score is claimed.
+- Static/build/regression: `node --check`, `git diff --check`, external build `44 modules / 902.76 kB / 2.21s`, AI Track 1/2 ×20 `0 lost / 0 backwards / 0 crashes`.
+- Asset probe: `TRIPO_API_KEY`, `GEMINI_API_KEY`, `ELEVENLABS_API_KEY` reported `MISSING`; no external assets added. Remaining highest-value gap: emissive-safe AO/material A/B for Neon.
