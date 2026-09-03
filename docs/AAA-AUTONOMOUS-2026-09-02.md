@@ -96,6 +96,13 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Paired desktop rerun was intentionally measured: `382589/921600` pixels differed (`0.415136`), with `sky=0.1103` and `road=0.7558`; the residual is animated/runtime/UI content, so no visual material change was accepted. The harness improvement is accepted; visual A/B remains blocked until the dynamic render path is masked or time-locked.
 - Artifacts: `qa-gpu-runner/tick-skyline-fixed/{a,b,mobile}/`; no source appearance delta.
 
+## [2026-09-03] Autonomous tick — operational revalidation; no product delta
+- Baseline remeasured at HEAD `69f1fe3`; current worktree contains only the intentional tick ledger change plus untracked QA artifacts/temp files. The evidence-backed gap remains controlled Neon material/AO grounding while preserving emissive window readability.
+- Static checks and production build passed outside virtiofs: `node --check` for `main.js`/`Environment.js`; `SK3D_OUT_DIR=/tmp/sk3d-dist-op-audit npm run build` → `44 modules transformed`, `902.76 kB`, `2.18s`.
+- Deterministic AI regression passed on both tracks with 20 seeds each: `0 lost`, `0 backwards`, `0 crashes`; onRoad remained `100` in sampled runs.
+- Safe probes: `PROXMOX_PASSWORD_FILE=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`; project/director asset probe scripts are absent, so no credentials were inspected or exposed. SSH to Proxmox returned `Permission denied (publickey,password)`.
+- Decision: **NO PRODUCT CHANGE ACCEPTED**. No `src/` file was modified; GPU LXC105 RADV PHOENIX video/A-B cannot be defensibly executed until runner authentication and Playwright access return. Next highest-value gap remains Neon hybrid material/AO A/B.
+
 ## [2026-09-03] Autonomous tick — palette correction rejected pending deterministic A/B
 - Baseline remeasured: HEAD `c9af321`, HTTP 200, production build passed in `/tmp/sk3d-dist-tick`, and AI regression remained `0 lost / 0 backwards / 0 crashes` for 20 seeds on each track; asset probe remained `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`.
 - Candidate: change Neon skyline window selection from `(rand() * 3)` to `windowColors.length`; source audit confirmed this would expose all 5 declared colors instead of 3. The candidate was reverted.

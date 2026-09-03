@@ -244,3 +244,26 @@ Escopo: re-medida do gap único de grounding/material do skyline Neon; se o runn
 
 - [x] Z5: Documentação repo/vault/wiki/memória sincronizada e commit atômico publicado; artefatos QA não staged.
   EVIDENCE: vault `Super-Kart-3Djs.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` e memória atualizados; commit atômico `05d6f63` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi publicado `b617089..05d6f63 main -> main`; `qa-gpu-runner/` e `.hermes-tmp.*` não foram staged.
+
+# Tick atual — revalidação operacional do gap Neon (2026-09-03)
+
+Escopo: re-medire o único gap material/AO Neon, testar se o runner GPU voltou, e aceitar produto somente com A/B pareado real. Se bloqueado, não alterar `src/`.
+
+- [x] O1: Estado git, data, fonte do gap e baseline atual foram re-medidos antes de agir.
+  EVIDENCE: `git status --short --branch` = `## main` + `GATES.md` modificado e `.hermes-tmp.*`/`qa-gpu-runner/` não rastreados; HEAD `69f1fe3`; `2026-09-03T09:27:34Z`; `Environment.js:4654-4658` confirma `MeshBasicMaterial`/`fog:false` no skyline.
+
+- [x] O2: Probes seguros de runner, browser e assets foram executados sem expor credenciais.
+  EVIDENCE: `PROXMOX_PASSWORD_FILE=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`, `PROJECT_PROBE=MISSING`, `DIRECTOR_PROBE=UNAVAILABLE`; nenhum valor secreto foi exibido ou persistido.
+
+- [x] O3: Checks estáticos, build externo e regressão determinística AI passam sem alterar regras.
+  EVIDENCE: `node --check src/main.js` e `src/track/Environment.js` passaram; `SK3D_OUT_DIR=/tmp/sk3d-dist-op-audit npm run build` → `44 modules transformed`, `902.76 kB`, `2.18s`; AI Track 1/2, 20 seeds cada → `0 lost / 0 backwards / 0 crashes`, onRoad 100% nos runs amostrados.
+
+- [x] O4: Acesso ao GPU runner LXC105 e Playwright com ANGLE/Vulkan/RADV PHOENIX é comprovado, ou bloqueio honesto é registrado.
+  ABANDON: O4 arquivo de senha Proxmox ausente e SSH recusou autenticação; Playwright local/fallback ausentes, portanto LXC105/RADV PHOENIX não pode ser acionado neste tick.
+  EVIDENCE: `PROXMOX_PASSWORD_FILE=MISSING`; `SSH_EXIT=255`, `Permission denied (publickey,password)`; não houve captura GPU nova.
+
+- [x] O5: Nenhuma alteração de produto é aceita sem A/B vídeo pareado Meadow/Neon desktop/mobile; se O4 bloquear, fonte permanece sem mudança em `src/`.
+  EVIDENCE: O4 bloqueou o protocolo obrigatório; `git diff --name-only -- src` vazio; decisão registrada como `NO PRODUCT CHANGE ACCEPTED`.
+
+- [x] O6: Relatório, vault, wiki, memória e commit atômico ficam sincronizados; `qa-gpu-runner/` e temporários não são staged.
+  EVIDENCE: relatório AAA, `Super-Kart-3Djs.md`, wiki entity/index/log e memória atualizados; `git diff --cached --name-only` retornou vazio antes do staging; `git diff --name-only -- src` retornou vazio; `qa-gpu-runner/`/`.hermes-tmp.*` permanecem fora do staging.
