@@ -211,3 +211,71 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 ## [2026-09-03] Correction — concurrent commit observed after tick measurement
 - Final re-measurement found HEAD `89f7c8c`, with concurrent commit `6c6a4cf` aligning the FINISH housing/sockets to the banner rotation; the beam remains `0.28m` navy.
 - This concurrent source change was not visually validated in this tick. Keep the product gain **unclaimed** until identical GPU RADV PHOENIX video/A-B covers Meadow and Neon at desktop/mobile sizes.
+
+## Evidence ledgers — current autonomous tick
+
+### Skill-loading ledger
+- `threejs-game-director`: loaded; orchestration and premium completion rules applied.
+- `threejs-gameplay-systems`: loaded; gameplay systems and deterministic AI regression checked.
+- `threejs-aaa-graphics-builder`: loaded; art direction, scorecard, external asset gate, and technical art constraints applied.
+- `threejs-game-ui-designer`: loaded; HUD/mobile risks remain covered by prior QA evidence.
+- `threejs-debug-profiler`: loaded; static/runtime/performance checks routed through the documented runner constraints.
+- `threejs-qa-release` + `game-visual-qa-kit`: loaded; release checks, fixed A/B, GPU video, and page-error requirements applied.
+- `obsidian`, `llm-wiki`, `unlazy`, `game-architect`, `webaudio-sfx-design`, `webaudio-sfx-synthesis`, and `game-dev-qa-test`: loaded for required documentation, gates, architecture, audio, and QA policy.
+
+### Reference ledger
+- Gameplay: `game-feel.md` loaded; no gameplay/product change made in this blocked tick.
+- AAA graphics: visual scorecard, implementation blueprint, model/render recipes, shader cookbook, and technical-art guidance are the governing references from the loaded skill set; no shader/material candidate accepted.
+- QA/release: GPU runner policy, visual verification, playtest, release, visual harness, and bot-playtest requirements applied; GPU execution blocked.
+
+### Phase ledger
+| Phase | State | Evidence |
+|---|---|---|
+| gameplay systems | verified/no change | AI regression Track 1/2, 20 seeds each: 0 lost/backwards/crashes |
+| aaa graphics | blocked/no change | material/AO Neon remains the single gap; no A/B GPU available |
+| debug/profile | verified | node checks, diff check, HTTP 200; no runtime source change |
+| qa/release | blocked for visual acceptance | LXC105 credential and Playwright unavailable |
+
+### Game design brief / core loop / level-encounter plan
+- **Game design brief:** arcade kart racing; drift/boost, items, shortcuts and readable racing line; no rule change in this tick.
+- **Core loop:** choose track → accelerate/drift → avoid hazards/use items → complete laps → finish/results → retry.
+- **Level/encounter plan:** Meadow uses open readable bends and roadside props; Neon uses long straights, hairpins, dashes, skyline and urban landmarks; pressure escalates through speed, AI traffic and item timing.
+
+### Premium visual scorecard (latest defensible evidence; current tick does not claim improvement)
+| Category | Evidence / status |
+|---|---|
+| art direction | Meadow/Neon authored themes; Neon material/AO gap open |
+| hero/player | prior GPU evidence exists; no current recapture |
+| obstacles/enemies | AI/runtime regression green; no visual delta |
+| rewards/interactables | prior item/HUD evidence; no current delta |
+| world/environment | Neon skyline repetitive/flat remains open |
+| materials/textures | current gap is selective AO/hybrid emissive material |
+| lighting/render | prior bloom pass accepted; current A/B blocked |
+| vfx/motion | prior gameplay video evidence; no current delta |
+| ui/hud | prior desktop/mobile evidence; no current delta |
+| performance evidence | build 44 modules, 902.76 kB; AI regression green |
+- **Measured evidence:** external build 44 modules / 902.76 kB / 2.12s; HTTP 200; AI 0 lost, 0 backwards, 0 crashes.
+- **Fresh-eyes review:** not run in this tick because no candidate capture exists; prior rejected material candidates remain explicitly rejected.
+- **Average:** not recomputed; no current visual score claim.
+- **Automatic failures remaining:** fresh-eyes review unavailable; current GPU A/B unavailable; Neon material/AO gap remains.
+
+### External asset sourcing ledger
+| Surface | Chosen source | Result |
+|---|---|---|
+| hero/player | procedural/hybrid existing | no new asset; generator probe blocked (`TRIPO_API_KEY=MISSING`) |
+| world/sky/background | procedural existing | no new asset; `GEMINI_API_KEY=MISSING` |
+| materials/textures/decals | procedural existing | no new asset; controlled GPU A/B required |
+| audio | WebAudio procedural existing | no audio change; `ELEVENLABS_API_KEY=MISSING` |
+- **Credential probe output:** `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`.
+- **3D generator / image generator:** loaded but not executed; no external output was fabricated.
+- **Chosen sources:** existing procedural Three.js and WebAudio synthesis; external generation not accepted without a successful output.
+
+### Technical art and render budget
+- Technical art: preserve emissive window contrast, avoid unverified PBR darkening, and keep AO selective/cheap; candidate not implemented.
+- Render budget: production bundle 902.76 kB; Vite emitted the known >500 kB chunk warning; no new draw-call or texture cost introduced.
+- VFX readability: no VFX change; prior bloom remains the latest accepted rendering change.
+
+### Visual test harness / runtime evidence
+- Visual test harness decision: required and retained (`capture-skyline-fixed.cjs` plus GPU gameplay video); not executed this tick because LXC105 access is blocked.
+- Console/page error: no new browser session; therefore no current page-error claim. Historical fixed captures recorded `pageErrors=[]`.
+- Screenshot/video: no new screenshot or video accepted this tick; historical GPU artifacts remain untracked under `qa-gpu-runner/`.
