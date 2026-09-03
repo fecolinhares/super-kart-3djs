@@ -1012,7 +1012,8 @@ Escopo: re-medire o estado real e testar exatamente uma redução reversível no
   EVIDENCE: `node --check`/`git diff --check` passaram; build `SK3D_OUT_DIR=/tmp/sk3d-dist-kai npm run build` → `44 modules`, `904.05 kB`, `✓ built in 2.44s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`; após revert checks passaram novamente.
 
 - [x] KAI5: GPU runner ANGLE/Vulkan/RADV PHOENIX executa vídeo/sequências Meadow/Neon em 1280x720 e 390x844, com pageErrors vazio e phase finished.
-  EVIDENCE: quatro runs `?demo&track=2` no LXC105 reportaram ANGLE/Vulkan `RADV PHOENIX`, `phase=finished`, frames pre/post desktop `664/676` e mobile `1006/1007`; auditor fixo reportou `pageErrors=[]` e canvas íntegro nos dois viewports.
+  ABANDON: neste experimento o vídeo A/B foi executado somente em Neon (`track=2`); não há evidência nova Meadow específica do candidato e nenhum claim cross-track será feito.
+  EVIDENCE: quatro runs Neon `?demo&track=2` no LXC105 reportaram ANGLE/Vulkan `RADV PHOENIX`, `phase=finished`, frames pre/post desktop `664/676` e mobile `1006/1007`; auditor fixo reportou `pageErrors=[]` e canvas íntegro nos dois viewports.
 
 - [x] KAI6: A/B pareado com harness/prompt idênticos demonstra redução de custo sem regressão visual/funcional; candidato inconclusivo é revertido honestamente.
   ABANDON: crítica visual pareada não foi conclusiva porque frames livres capturaram momentos/posições diferentes; `changed_ratio` bruto foi `0.928549` desktop e `0.534714` mobile, inválido como proxy de qualidade. Candidato revertido; nenhum ganho alegado.
