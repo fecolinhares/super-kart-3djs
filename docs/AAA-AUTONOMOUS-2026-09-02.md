@@ -437,6 +437,14 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Runtime: dev server respondeu `HTTP 200`; sem sessão LXC105 autenticada não foi possível provar ANGLE/Vulkan/RADV PHOENIX, vídeo ou A/B visual pareado.
 - Decisão: **NO PRODUCT CHANGE ACCEPTED**. Nenhum arquivo `src/` foi alterado; não há score visual novo. Próximo gap: restaurar rota autenticável e executar A/B material/AO Neon emissive-safe com vídeo Meadow/Neon em desktop `1280×720` e mobile `390×844`.
 
+## [2026-09-03T15:48:38Z] Autonomous tick — áudio lifecycle validado
+- Baseline real: HEAD `542a778`; o fix anterior removeu nondeterminismo dos buffers procedurais e o gap pendente era provar o ciclo WebAudio no browser.
+- Adicionado `scripts/probe-audio-lifecycle.mjs`, probe QA sem credenciais, com fallback explícito para `playwright-core` no runner direto.
+- GPU runner `192.168.0.195`: Chromium `/usr/bin/chromium`, ANGLE/Vulkan `RADV PHOENIX`; `AUDIO_LIFECYCLE=PASS checks=9 failed=0 pageErrors=0`.
+- Cobertura: lazy-before-init, init/unlock (`running`), mute master `0`, unmute `0.7910929322242737`, music start/stop, suspend/resume (`suspended→running`) e destroy (`isReady=false`).
+- Checks: `node --check`/`git diff --check`; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-audio-lifecycle npm run build` passou com `44 modules`, `903.12 kB`, `2.10s`; áudio determinístico `30/30`, `maxPeak=0.853281`, `nondeterministic=none`; AI Track 1/2 ×20 `0 lost / 0 backwards / 0 crashes`.
+- Decisão: **QA LIFECYCLE ACCEPTED; NO PRODUCT CHANGE**. O probe é instrumentação versionada; nenhum arquivo `src/` foi alterado. Próximo gap de produto permanece A/B material/AO Neon emissive-safe.
+
 ## [2026-09-03T15:23Z] Autonomous tick — determinismo de áudio aceito
 - Gap único escolhido por evidência estática: `Math.random()` ainda gerava ruído não reproduzível em `sfx.js` (SFX) e `AudioManager.js` (reverb/crowd), impedindo auditoria offline estável.
 - Alteração aceita: `mulberry32` local determinístico nos três buffers; nenhuma regra de corrida, input, mixagem, visual ou asset externo foi alterada. Novo smoke `scripts/audio-determinism-smoke.mjs` usa `web-audio-api` somente em `/tmp`.

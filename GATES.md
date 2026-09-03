@@ -770,3 +770,25 @@ Escopo: remover nondeterminismo comprovado de `sfx.js`/`AudioManager.js` sem mud
 
 - [x] AU6: Alteração aceita/revertida é documentada no relatório, vault, wiki e memória; gate-check passa; commit atômico/push ocorre sem stagear `qa-gpu-runner/`.
   EVIDENCE: documentação e memória atualizadas; gate-check executado antes do commit; staging limitado a arquivos rastreados do tick, com `qa-gpu-runner/` e temporários fora do staging; commit/push verificados no encerramento.
+
+# Tick atual — lifecycle browser do áudio procedural (2026-09-03)
+
+Escopo: validar o fix de determinismo de áudio já publicado através do ciclo real do browser; não alterar produto sem evidência. Se o runner/browser estiver indisponível, registrar bloqueio honesto e manter `src/` sem mudança.
+
+- [x] L1: Estado git, data, fonte do gap e baseline de áudio foram re-medidos antes de agir.
+  EVIDENCE: `2026-09-03T15:48:38Z`; `git status --short --branch` = `## main` com GATES modificado e apenas QA/temporários não rastreados; HEAD `542a778`; `sfx.js`/`AudioManager.js` determinísticos e lifecycle browser era o gap pendente.
+
+- [x] L2: Rota segura de browser/GPU e credenciais foi sondada sem expor valores secretos.
+  EVIDENCE: runner direto `192.168.0.195` respondeu; Playwright-core instalado somente em `/tmp/sk3d-pw`; Chromium `/usr/bin/chromium`; GPU probe no run retornou ANGLE/Vulkan `RADV PHOENIX`; nenhum segredo foi lido ou exibido.
+
+- [x] L3: Lifecycle browser real valida lazy unlock, mute, pause/resume, os hooks de suspend/resume usados pela visibility handler, stop/restart e destroy, ou o bloqueio é registrado honestamente.
+  EVIDENCE: `AUDIO_LIFECYCLE=PASS checks=9 failed=0 pageErrors=0`; `init-ready=running`, mute master `0`, unmute `0.7910929322242737`, suspend/resume `suspended→running`, destroy `isReady=false`.
+
+- [x] L4: Checks estáticos, build externo compatível com virtiofs e regressão determinística AI passam.
+  EVIDENCE: `node --check`/`git diff --check` passaram; build `SK3D_OUT_DIR=/tmp/sk3d-dist-audio-lifecycle npm run build` = `44 modules`, `903.12 kB`, `✓ built in 2.10s`; determinismo `30/30`, `maxPeak=0.853281`, `nondeterministic=none`; AI Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`.
+
+- [x] L5: Nenhuma alteração especulativa de produto é aceita; se L3 bloquear, `src/` permanece sem diff.
+  EVIDENCE: lifecycle passou; a única mudança deste tick é o probe QA `scripts/probe-audio-lifecycle.mjs`; `git diff --name-only -- src` vazio.
+
+- [x] L6: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos somente para mudança aceita/documentação; QA não rastreado não é staged.
+  EVIDENCE: `node /home/jarvis/.hermes/profiles/coder/skills/unlazy/scripts/gate-check.mjs GATES.md` → `ALL MET (192 met, 17 abandoned)`; commit atômico `bc4a475` contém somente `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md` e `scripts/probe-audio-lifecycle.mjs`, push `542a778..bc4a475 main -> main` confirmado; `qa-gpu-runner/` e temporários permaneceram fora do staging.
