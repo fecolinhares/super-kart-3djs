@@ -179,3 +179,24 @@ ABANDON: F4 bloqueado: `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_LOCAL=MISSIN
 
 - [x] F6: GATES, relatório AAA, vault/wiki e memória ficam sincronizados; qa-gpu-runner não é staged.
   EVIDENCE: commit documental `29baeaf` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi publicado em `origin/main`; `scripts/audit-mobile-render.cjs` permanece alteração independente; `qa-gpu-runner/` permanece untracked e não staged.
+
+# Tick atual — auditoria da alteração pendente do pórtico e bloqueio GPU (2026-09-03)
+
+Escopo: preservar a alteração já existente em `src/track/TrackBuilder.js` sem atribuir ganho visual sem A/B GPU; executar apenas auditorias/revalidação segura neste ambiente.
+
+- [x] U1: Estado git, diff existente, data e gap visual atual re-medidos antes da decisão.
+  EVIDENCE: `2026-09-03T08:39:07Z`; HEAD `f3038e6`; branch `main`; diff local em `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; alterações independentes já presentes em `AUDIT_FINDINGS.md` e `src/track/TrackBuilder.js`; untracked `qa-gpu-runner/`, `scripts/.hermes-tmp.j2euY6` e `scripts/audit-mobile-ui.cjs`.
+
+- [x] U2: Checks estáticos, build de produção fora do worktree e regressão determinística AI passam sem alterar a mudança pendente.
+  EVIDENCE: `node --check` e `git diff --check` passaram; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-current npm run build` → `44 modules transformed`, `902.68 kB`, `2.91s`; AI Track 1/2, 20 seeds cada → `0 lost / 0 backwards / 0 crashes`.
+
+- [x] U3: Acesso ao GPU runner e dependências de captura são sondados sem expor credenciais; se bloqueado, registrar ABANDON honesto.
+  ABANDON: U3 credencial do Proxmox ausente neste ambiente; não é possível provar RADV PHOENIX nem executar A/B visual desktop/mobile.
+  EVIDENCE: `PROXMOX_ROOT_PASSWORD=MISSING`; SSH `root@192.168.0.102` → `Permission denied (publickey,password)`; nenhuma credencial exibida.
+
+- [x] U4: A alteração pendente só é aceita como produto se A/B idêntico em vídeo/sequências Meadow e Neon, desktop 1280x720 e mobile 390x844, demonstrar ganho direcional; caso contrário permanece não aceita.
+  ABANDON: U4 A/B GPU obrigatório bloqueado por U3; nenhum ganho visual é alegado e a alteração permanece fora de commit até evidência válida.
+  EVIDENCE: A/B GPU não executado por bloqueio U3; alteração local foi preservada sem commit e nenhum ganho visual foi alegado.
+
+- [x] U5: Relatório, vault, wiki e memória sincronizados; nenhum artefato `qa-gpu-runner/` ou script untracked é staged; commit/push só ocorre para documentação verificada.
+  EVIDENCE: relatório AAA, vault, wiki entity/index/log e memória atualizados; `git diff --cached --name-only` vazio antes do commit; `qa-gpu-runner/` e `scripts/capture-finish-static.cjs` permanecem unstaged/untracked.
