@@ -29,9 +29,9 @@ Probe executado: PNG direto fora do screencast; resultado refuta o P0 de pipelin
 
 Neon desktop/mobile pós-candidato mostra janelas, rails e pista separados, com halo localizado e sem lavar o frame. Configuração aceita: `strength=0.20`, `radius=0.18`, `threshold=1.35`. Runtime GPU: desktop `622` frames e mobile `985`, `phase=finished`, `RADV PHOENIX`, sem regressão observada.
 
-### P1 — Linha de chegada e sinais: massa visual sem hierarquia
+### P1 — Linha de chegada e sinais: beam corrigido; módulo de lâmpadas pendente
 
-O pórtico continua com leitura ruim quando visto em aproximação: banner, housing claro e cinco lâmpadas competem no mesmo plano; o housing parece um bloco branco e os sinais pequenos perdem contraste contra o beam. O banner v2 reduziu a parede, mas não resolveu a hierarquia de leitura. O próximo passe deve simplificar a faixa: beam estrutural escuro, housing recuado, lâmpadas maiores e separadas, banner mais alto contraste e sem excesso de emissive.
+O beam ciano de `0,5m` foi substituído por beam escuro de `0,28m`; captura estática POV confirmou que a parede visual desapareceu e o banner `FINISH` ficou legível sobre a pista. O housing branco ainda domina/parece inclinado no enquadramento e somente quatro das cinco lâmpadas têm leitura inequívoca. Próximo passe: alinhar housing/sockets ao plano frontal da pista, garantir cinco lâmpadas visíveis e reduzir a sensação de peça flutuante.
 
 ### P1 — Neon: cidade procedural parece repetitiva e sem escala
 

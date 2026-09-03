@@ -1159,8 +1159,8 @@ function buildGantry(startLine) {
   const footingGeo = new THREE.BoxGeometry(0.95, 0.16, 0.95);
   const footingMat = toonMaterial(0x2b3340, {});
   const braceMat = toonMaterial(0x2b3340, {});
-  const beamGeo = new THREE.BoxGeometry(roadW + 5, 0.5, 0.7);
-  const beamMat = toonMaterial(0x2ec4ff, {});
+  const beamGeo = new THREE.BoxGeometry(roadW + 5, 0.28, 0.7);
+  const beamMat = toonMaterial(0x1b2a41, {});
   // AUDIT r11 (FECO): crisp checkered trim on the beam's track-facing
   // faces — the classic MK8D arch edge. MeshBasicMaterial keeps it unlit
   // and readable like the banner (groups 4/5 = +/-Z in BoxGeometry).
