@@ -503,6 +503,30 @@ Escopo: re-medire o gap material/AO do skyline Neon; aceitar produto somente com
 
 EVIDENCE: repo report/GATES, vault/wiki/memória e gate-check ficam sincronizados; artefatos QA não são staged.
 
+# Tick atual — auditoria autônoma do runner e baseline Neon (2026-09-03T12:55Z)
+
+Escopo: re-medire o estado real, tentar a rota GPU documentada sem expor credenciais e aceitar no máximo um patch material/AO Neon com A/B pareado em vídeo. Sem RADV PHOENIX acessível, nenhum `src/` será alterado.
+
+- [x] AR1: Estado git, data, fonte do gap e baseline estático re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T12:55:11Z`; `git status --short --branch` = `## main` com somente GATES e artefatos não rastreados; HEAD `b91216f`; `node --check src/main.js src/track/Environment.js src/render/MaterialLibrary.js` passou; fonte confirma `MeshBasicMaterial`, `fog:false`, sem AO executável no skyline Neon.
+
+- [x] AR2: Probes seguros de runner/browser/assets concluídos sem ler ou expor valores secretos.
+  EVIDENCE: `PASSWORD_FILE=MISSING`, `SSHPASS=SET` sem leitura de valor, `PLAYWRIGHT_GPU=MISSING`, diretório Playwright local detectado mas módulo/binary indisponíveis; SSH `EXIT=255`/`AUTH_OR_NETWORK_BLOCKED`; geradores externos apenas `MISSING`/redigidos.
+
+- [x] AR3: Build externo compatível com virtiofs, diff hygiene e regressão determinística AI nas duas pistas passam.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1255 npm run build` → `44 modules transformed`, `902.76 kB`, `✓ built in 2.18s`; `node scripts/ai-backwards-test.mjs 20 1/2` → cada pista `0 lost / 0 backwards / 0 crashes`; `git diff --check` passou.
+
+- [x] AR4: GPU LXC105 executa vídeo Meadow/Neon desktop/mobile com ANGLE/Vulkan/RADV PHOENIX, pageErrors vazio e phase finished, ou bloqueio honesto é registrado.
+  ABANDON: AR4 password file ausente, SSH `255`, `/opt/pwtest` ausente e CDP local recusado; sem vídeo RADV PHOENIX novo defensável.
+  EVIDENCE: probes reais reportaram `PASSWORD_FILE=MISSING`, `PLAYWRIGHT_GPU=MISSING`, `SSH=AUTH_OR_NETWORK_BLOCKED`; nenhuma captura foi alegada.
+
+- [x] AR5: A/B pareado com prompt idêntico demonstra ganho direcional; se AR4 bloquear, nenhum patch de produto é aceito.
+  ABANDON: AR5 depende de AR4; sem vídeo GPU pareado nenhum delta visual é defensável e nenhum arquivo `src/` foi alterado.
+  EVIDENCE: `git diff --name-only -- src` vazio; decisão `NO PRODUCT CHANGE ACCEPTED` registrada no relatório.
+
+- [x] AR6: Relatório repo, vault, wiki, memória, gate-check e commit/push atômicos ficam sincronizados; QA não rastreado não é staged.
+  EVIDENCE: relatório, vault `Super-Kart-3Djs.md`, wiki entity/log e memória atualizados; `git diff --name-only -- src` vazio; `qa-gpu-runner/` e `.hermes-tmp.*` fora do staging; gate-check executado antes do commit documental.
+
 # Tick atual — revalidação do runner e gap Neon (data atual)
 
 Escopo: medir novamente o estado real; testar a rota documentada do LXC105 sem expor credenciais; aceitar um único patch Neon material/AO apenas com A/B fixo e vídeo pareado em RADV PHOENIX.

@@ -381,3 +381,11 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Probes seguros: password file ausente; `SSHPASS` não estava exportado para a rota SSH; LXC105 responde na porta 22, mas não houve autenticação; Playwright local e `/opt/pwtest` ausentes; geradores externos permanecem `MISSING`. Nenhum segredo foi lido ou registrado.
 - Decisão: **NO PRODUCT CHANGE ACCEPTED**. Sem vídeo desktop/mobile no LXC105 com ANGLE/Vulkan/RADV PHOENIX e A/B pareado, nenhum patch Neon foi implementado. O próximo gap continua material híbrido/AO emissive-safe; o primeiro passo é restaurar uma rota autenticável ao runner.
 - Artefatos QA não foram staged; a alteração desta rodada é somente documentação/gates.
+
+## [2026-09-03T12:55:11Z] Autonomous tick — runner bloqueado, sem delta de produto
+- Baseline real: HEAD `b91216f`; `src/` permaneceu sem diff; `buildNeonCity()` continua com `MeshBasicMaterial`, `fog:false` e sem AO executável por torre (`SKYLINE_BASIC=True`, `SKYLINE_AO=False`).
+- Checks: `node --check src/main.js src/track/Environment.js src/render/MaterialLibrary.js`; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1255 npm run build` passou com `44 módulos`, bundle `902.76 kB`, em `2.18s`; `git diff --check` passou.
+- Regressão determinística: Track 1/2 ×20 seeds, `0 lost / 0 backwards / 0 crashes`; servidor existente respondeu `HTTP 200`.
+- Probes seguros: password file `MISSING`, `SSHPASS=SET` sem valor lido, `/opt/pwtest=MISSING`, Playwright local apenas diretório detectado, módulo/binary local indisponíveis; SSH `EXIT=255`/`AUTH_OR_NETWORK_BLOCKED`. Geradores externos permanecem `MISSING`; nenhum segredo foi exposto.
+- Browser/CDP deste ambiente não pôde ser usado (`127.0.0.1:9222` recusado); portanto não há runtime visual, vídeo ou A/B RADV PHOENIX novo.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. Sem A/B pareado em vídeo Meadow/Neon, desktop `1280×720` e mobile `390×844`, com ANGLE/Vulkan/RADV PHOENIX, nenhum patch visual foi implementado. Próximo gap: material híbrido/AO Neon emissive-safe após restaurar a rota autenticável do runner.
