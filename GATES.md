@@ -529,7 +529,7 @@ ABANDON: CY6 depende de CY5; sem vídeo GPU pareado não existe delta visual def
   EVIDENCE: `src/` permaneceu sem diff; decisão `NO PRODUCT CHANGE ACCEPTED`.
 
 - [x] CY7: Relatório repo, vault, wiki, memória, gate-check e commit/push atômicos ficam sincronizados; QA não rastreado não é staged.
-  EVIDENCE: atualização documental deste tick será verificada antes do commit; `qa-gpu-runner/`, `.hermes-tmp.*` e `AUDIT_FINDINGS.md` permanecem fora do staging.
+  EVIDENCE: gate-check `ALL MET (152 met, 17 abandoned)`; commit atômico `c10dcb5` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi pushado `e143724..c10dcb5 main -> main`; `qa-gpu-runner/`, `.hermes-tmp.*` e `AUDIT_FINDINGS.md` permanecem fora do staging.
 
 # Tick atual — revalidação do runner e gap Neon (2026-09-03T13:10Z)
 
