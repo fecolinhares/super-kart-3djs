@@ -457,4 +457,4 @@ Escopo: escolher uma única melhoria defensável para o skyline Neon, preservand
   EVIDENCE: `PROXMOX_PASSWORD_FILE=MISSING`; `PLAYWRIGHT_GPU=MISSING`; nenhuma captura GPU nova alegada.
 
 - [x] NX6: Decisão aceita/revertida é registrada; docs repo/vault/wiki/memória sincronizados; commit atômico pushado somente se houver mudança aceita; QA não staged.
-  EVIDENCE: decisão `NO PRODUCT CHANGE ACCEPTED` registrada no relatório/vault/wiki/memória; `GATES.md` e relatório repo prontos para commit documental; `src/` sem diff e `qa-gpu-runner/`/temporários fora do staging planejado.
+  EVIDENCE: decisão `NO PRODUCT CHANGE ACCEPTED` registrada no relatório/vault/wiki/memória; commit documental atômico `478c10b` (`GATES.md`, relatório) pushado para `origin/main`; `src/` sem diff e `qa-gpu-runner/`/temporários permanecem não staged.
