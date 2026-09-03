@@ -103,3 +103,21 @@ ABANDON: R5 não executado porque R4 está bloqueado; candidato revertido, porta
 
 - [x] B6: Docs repo/vault/wiki/index/log/entidade e memória atualizados; commit atômico pushado; qa-gpu-runner não staged.
   EVIDENCE: commit atômico `f3e8611` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; vault/wiki/memória foram atualizados; `qa-gpu-runner/` e `AUDIT_FINDINGS.md` não foram staged.
+
+# Tick atual — auditoria de desbloqueio GPU e nenhuma mudança especulativa (2026-09-03)
+
+- [x] C1: Estado git, baseline de build/AI e único gap atual re-medidos antes de agir.
+  EVIDENCE: `git status --short --branch` = `main` com `GATES.md` modificado e apenas `AUDIT_FINDINGS.md`/`qa-gpu-runner/` não rastreados; HEAD `0ec68f6`; gap único permanece A/B de material/AO Neon.
+
+- [x] C2: Acesso ao GPU runner e dependências Playwright sondados sem expor credenciais.
+  EVIDENCE: `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`; SSH retornou `Permission denied (publickey,password)`; nenhum segredo foi exibido.
+
+- [x] C3: Auditorias estáticas, build fora do worktree e regressão determinística AI executados.
+  EVIDENCE: `node --check` main/Environment/MaterialLibrary/scripts e `git diff --check` passaram; build `SK3D_OUT_DIR=/tmp/sk3d-dist-unlock-audit npm run build` = 44 módulos, 902.68 kB, 2.10s; AI Track 1/2 20 seeds = `0 lost / 0 backwards / 0 crashes`.
+
+- [x] C4: Validação visual GPU desktop/mobile Meadow/Neon ou bloqueio honesto registrado; nenhuma alteração especulativa aceita sem A/B.
+  ABANDON: C4 credencial ~/.hermes/.proxmox_root_pw ausente, SSH recusou autenticação e Playwright não está disponível localmente; sem GPU RADV PHOENIX não há A/B visual defensável.
+  EVIDENCE: probe `PROXMOX_ROOT_PASSWORD=MISSING`; nenhuma alteração de produto foi aceita.
+
+- [x] C5: Docs repo/vault/wiki/index/log/entidade e memória sincronizados; commit atômico pushado se houver alteração documental; artefatos QA não staged.
+  EVIDENCE: `git show --stat HEAD` confirma commit atômico contendo somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; vault `Super-Kart-3Djs.md`/`_index.md` e wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` atualizados; memória substituída; `AUDIT_FINDINGS.md`/`qa-gpu-runner/` não staged.

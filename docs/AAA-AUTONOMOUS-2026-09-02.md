@@ -166,3 +166,9 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Candidate added a shared `BoxGeometry` roof-cap layer as one emissive-safe `MeshBasicMaterial` `InstancedMesh` per skyline row, preserving the existing window material and avoiding the rejected PBR darkening.
 - Static checks/build/AI passed during the candidate (`44 modules`, `902.99 kB`, 20 seeds per track: 0 lost/backwards/crashes), then source was reverted because the mandatory LXC105 GPU proof was unavailable.
 - Blocker: `~/.hermes/.proxmox_root_pw` is absent and SSH to `root@192.168.0.102` returned `Permission denied (publickey,password)`; no visual delta is accepted. Next attempt requires restoring GPU-runner access before any material/geometry A/B.
+
+## [2026-09-03] Autonomous tick — GPU unlock audit, no product delta
+- Baseline remeasured at HEAD `0ec68f6`: production build outside the worktree passed with 44 modules and 902.68 kB; AI regression Track 1/2, 20 seeds each, returned `0 lost / 0 backwards / 0 crashes`.
+- Static checks passed for runtime/track/material/QA scripts and `git diff --check`.
+- Access probe returned `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`; SSH returned `Permission denied (publickey,password)` without exposing credentials.
+- Decision: **NO PRODUCT CHANGE ACCEPTED**. The evidence-backed highest-value gap remains controlled Neon material/AO A/B preserving emissive window contrast; GPU RADV PHOENIX video and vision comparison remain blocked until runner access is restored.
