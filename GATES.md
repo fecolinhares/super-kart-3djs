@@ -1201,7 +1201,7 @@ Escopo: re-medrir o baseline no GPU real e testar exatamente um owner/pass candi
 Escopo: testar exatamente um owner mensurável: o `ColorGradeShader` full-screen, presente somente em desktop/high/ultra. O candidato será desligado apenas nos harnesses QA; o default do produto e `src/` permanecem intactos até haver ganho temporal e visual defensável.
 
 - [x] CGD1: Estado git, data, relatório atual, código do owner e baseline foram re-medidos antes do candidato.
-  EVIDENCE: `2026-09-03T21:53:48Z`; `## main`; HEAD `7762d43`; alterações pré-existentes do usuário em `src/config.js` e `src/main.js` foram preservadas e excluídas do candidato; o owner medido foi somente o pass QA; desktop expõe dois `ShaderPass`, mobile um.
+  EVIDENCE: `2026-09-03T21:53:48Z`; `## main`; HEAD `7762d43`; alterações pré-existentes do usuário em `src/config.js`, `src/main.js` e `src/track/Environment.js` foram preservadas e excluídas do candidato; o owner medido foi somente o pass QA; desktop expõe dois `ShaderPass`, mobile um.
 
 - [x] CGD2: Candidato único foi implementado somente como modo QA `no-color-grade`, sem alterar default, gameplay, input, áudio ou assets.
   EVIDENCE: `scripts/audit-frame-time.cjs` e `scripts/playtest-video.cjs` agora localizam o `ColorGradeShader` por `uniforms.saturation/contrast`; em mobile a ausência esperada vira no-op; `src/render/PostFX.js` não mudou.
@@ -1219,4 +1219,4 @@ Escopo: testar exatamente um owner mensurável: o `ColorGradeShader` full-screen
   EVIDENCE: melhoria temporal desktop foi inconsistente/pequena (`Meadow 80.969→83.833 FPS`, p95 `16.0→15.8 ms`; `Neon 89.648→96.405 FPS`, p95 `13.4→12.4 ms`), enquanto crítica cega mostrou perda de contraste/tonalidade: Meadow candidato mais lavado; Neon perdeu contraste e separação. Decisão: `NO PRODUCT CHANGE ACCEPTED`; instrumentação QA mantida.
 
 - [x] CGD7: Relatório, vault, wiki, memória e gate-check ficam sincronizados; commit/push atômico contém apenas instrumentação/documentação aceita; QA não é staged.
-  EVIDENCE: vault `Super-Kart-3Djs.md`/`_index.md`, wiki entity/index/log e memória atualizados; `gate-check.mjs` = `ALL MET (306 met, 17 abandoned)`; staging restrito a `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md`, `scripts/audit-frame-time.cjs` e `scripts/playtest-video.cjs`; `src/config.js`/`src/main.js` pré-existentes, `qa-gpu-runner/` e temporários não staged; commit/push será verificado agora.
+  EVIDENCE: vault `Super-Kart-3Djs.md`/`_index.md`, wiki entity/index/log e memória atualizados; `gate-check.mjs` = `ALL MET (306 met, 17 abandoned)`; commit `427daec` contém somente `GATES.md`, relatório AAA e os dois scripts QA e foi publicado em `origin/main`; `src/config.js`/`src/main.js`/`src/track/Environment.js` pré-existentes, `qa-gpu-runner/` e temporários não staged.
