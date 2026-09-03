@@ -42,3 +42,23 @@ ABANDON: T5 candidato foi rejeitado: diff bruto pós-baseline `0.3759819878` des
 
 - [x] T6: Docs repo/vault/wiki/memória atualizados, commit atômico pushado em origin/main e qa-gpu-runner não staged.
   EVIDENCE: documentação do bloqueio atualizada e commit de documentação/GATES pushado após os checks; `qa-gpu-runner/` permanece untracked e não staged.
+
+# Tick atual — grounding Neon sem perder emissive (2026-09-03)
+
+- [x] N1: Baseline atual re-medido e gap único confirmado em código/artefatos.
+  EVIDENCE: HEAD `de14c5d`, único gap material/AO Neon confirmado; baseline skyline mantém `MeshBasicMaterial` emissivo e sem AO por torre; probe de assets `TRIPO/GEMINI/ELEVENLABS=MISSING`.
+
+- [x] N2: Alteração focada melhora separação/grounding do skyline Neon preservando legibilidade das janelas, sem alterar corrida, input ou assets externos.
+ABANDON: N2 AO instanciado foi revertido: A/B GPU mudou `0.123166` desktop e `0.218562` mobile dos pixels (>2), mas a crítica visual cega não demonstrou ganho direcional inequívoco de grounding; rejeitado para não aprovar cosmética inconclusiva.
+
+- [x] N3: Checks estáticos, diff hygiene, build fora do worktree e regressão AI passam.
+  EVIDENCE: candidato e reversão passaram `node --check`, `git diff --check`, build `SK3D_OUT_DIR=/tmp/sk3d-dist-neon-grounding-reverted npm run build` (`44 modules`, `902.68 kB`); AI Track 1/2 `20 seeds`: `0 lost / 0 backwards / 0 crashes`.
+
+- [x] N4: Runtime GPU LXC105 valida Meadow e Neon em desktop/mobile, ANGLE/Vulkan/RADV PHOENIX, pageErrors vazio e sequência terminada.
+  EVIDENCE: skyline A/B pré/pós: GPU ANGLE Vulkan `RADV PHOENIX`, canvas `1280x720`/`390x844`, `pageErrors=[]`, paleta `13,22,20,17,11`, total `83`; gameplay vídeo: Meadow desktop/mobile `603/811`, Neon desktop/mobile `670/908` frames, todos `phase=finished`.
+
+- [x] N5: A/B visual pareado e vídeo de gameplay com mesmo protocolo demonstram delta direcional; se inconclusivo, reverter e registrar ABANDON.
+ABANDON: N5 não demonstrou melhoria visual direcional defensável; pré/pós foram preservados em `qa-gpu-runner/tick-neon-ao-{pre,post}-{desktop,mobile}` e fonte voltou ao baseline.
+
+- [x] N6: Docs repo/vault/wiki/memória atualizados; commit atômico pushado origin/main; qa-gpu-runner não staged.
+  EVIDENCE: commit final deste tick contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; push com `--force-with-lease` confirmado no remoto; `qa-gpu-runner/` permanece untracked e não staged.

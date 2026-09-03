@@ -150,5 +150,13 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Active video recheck after revert: GPU LXC105 `RADV PHOENIX`, Meadow desktop/mobile `853/998` frames and Neon desktop/mobile `665/1007` frames; all ended `phase=finished`.
 
 ## [2026-09-03] QA runner — Playwright fallback corrigido
-- `scripts/playtest-video.cjs` agora tenta `require('playwright')` e cai automaticamente para `/opt/pwtest/node_modules/playwright` no runner GPU.
-- Smoke real sem `NODE_PATH`: mobile `390×844`, GPU `RADV PHOENIX`, fase `finished`, `998` frames.
+- `scripts/playtest-video.cjs` agora tenta `require('playwright')` e cai automaticamente para `/opt/pwtest/node_modules/playwright` quando o pacote não está no `node_modules` do projeto.
+- Smoke sem `NODE_PATH`: mobile `390×844`, RADV PHOENIX, `phase=finished`, `998` frames.
+
+## [2026-09-03] Autonomous tick — Neon grounding AO rejeitado
+- Gap: skyline Neon continua com grounding/AO plano; materiais emissivos foram preservados após o PBR anterior escurecer janelas.
+- Candidato: um `InstancedMesh` de discos AO roxo-escuros sob cada torre, sem tocar corrida/input e com custo de um draw call.
+- Checks: `node --check`, `git diff --check`, build fora do worktree (`44 modules`, `902.68 kB`) e AI Track 1/2 (`20 seeds`, 0 lost/backwards/crashes) passaram.
+- GPU LXC105: ANGLE Vulkan/RADV PHOENIX; skyline pré/pós `1280×720` e `390×844`, `pageErrors=[]`, paleta `13,22,20,17,11`/83; vídeo Meadow desktop/mobile `603/811`, Neon `670/908`, todos `phase=finished`.
+- A/B mudou `0.123166` dos pixels desktop e `0.218562` mobile (>2), mas fresh-eyes não demonstrou ganho visual inequívoco de grounding; fonte revertida ao baseline. Métricas de cena mantiveram contraste `248.8→248.9` desktop e `224.8→225.0` mobile, sem evidência de melhoria material.
+- Decisão: **REVERTIDO / não aceito**. Próxima hipótese deve usar AO seletivo integrado ao material/emissive map ou um tratamento de base visível, com A/B fixo e segmentado.
