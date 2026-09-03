@@ -101,7 +101,15 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Candidate: change Neon skyline window selection from `(rand() * 3)` to `windowColors.length`; source audit confirmed this would expose all 5 declared colors instead of 3. The candidate was reverted.
 - GPU runtime: LXC105 reported ANGLE Vulkan with `RADV PHOENIX`; successful post-candidate sequences completed Meadow desktop `814` frames, Meadow mobile `994`, Neon desktop `679`, and Neon mobile `1008`, with `phase=finished` on the completed mobile runs. The first batch command had a quoting error and produced partial desktop directories; those artifacts remain untracked under `qa-gpu-runner/`.
 - Decision: **REVERTED / not accepted**. The only available pre frame was a finish-results modal, while the post frame was active grid gameplay; therefore the identical-prompt visual comparison was not a valid paired A/B. No source commit was created.
-- Blockers: repository does not currently contain `scripts/audit-geometry.cjs`; deterministic fixed-camera skyline capture or per-instance palette telemetry is required before the next attempt.
+- Blocker: repository does not currently contain `scripts/audit-geometry.cjs`; deterministic fixed-camera skyline capture or per-instance palette telemetry is required before the next attempt.
+
+## [2026-09-03] Autonomous tick — Neon AO/material blocked; no product delta accepted
+- Baseline remeasured at HEAD `cc70de1`: `Environment.buildNeonCity()` already selects `windowColors.length` (five slots); the remaining evidence-backed gap is material/AO grounding that preserves emissive window readability.
+- Static checks passed: `node --check` for Environment/MaterialLibrary and QA scripts; AI regression Track 1/2 with 20 seeds each returned `0 lost / 0 backwards / 0 crashes`.
+- Production build passed outside the worktree: `SK3D_OUT_DIR=/tmp/sk3d-dist-blocked-gpu npm run build` → 44 modules, 902.68 kB, 2.14s.
+- Asset probe: `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`; no external asset was added.
+- GPU blocker remeasured without exposing secrets: `PROXMOX_ROOT_PASSWORD=MISSING`; LXC105 desktop/mobile RADV PHOENIX video/A-B could not be run. Local Playwright fallback was also unavailable (`Cannot find module 'playwright'` with project and `/opt/pwtest` resolution).
+- Decision: **NO PRODUCT CHANGE ACCEPTED**. Existing source remains intact; no visual improvement is claimed. Next highest-value gap remains controlled Neon material/AO A/B after restoring LXC105 access and Playwright availability.
 
 ## [2026-09-03] Skyline telemetry tick — accepted
 - `Environment.buildNeonCity()` now samples the full declared five-slot `windowColors` palette and publishes `window.__sk3dNeonPalette` with per-row counts and total; no external assets or credentials.

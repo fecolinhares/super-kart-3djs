@@ -80,5 +80,26 @@ ABANDON: R4 bloqueado: `~/.hermes/.proxmox_root_pw` ausente; SSH para `root@192.
 - [x] R5: A/B pareado com o mesmo protocolo demonstra ganho direcional no skyline Neon; se inconclusivo, reverter.
 ABANDON: R5 não executado porque R4 está bloqueado; candidato revertido, portanto nenhum delta visual foi aceito.
 
-- [x] R6: Docs repo/vault/wiki/index/log/entidade e memória atualizados; commit atômico pushado em origin/main; qa-gpu-runner não staged.
+- [x] R6: Docs repo/vault/wiki/index/log/entidade e memória atualizados; commit atômico pushado em origin/main e qa-gpu-runner não staged.
   EVIDENCE: `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` atualizados; vault `Super-Kart-3Djs.md`/`_index.md` e wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` atualizados; memória persistente atualizada; commit `47696f7` pushado para `origin/main`; `qa-gpu-runner/` e `AUDIT_FINDINGS.md` não staged.
+
+# Tick atual — bloqueio de validação GPU e sem mudança de produto (2026-09-03)
+
+- [x] B1: Baseline atual re-medido e gap único confirmado por código/artefato.
+  EVIDENCE: `git status --short --branch` = `main` com `GATES.md` modificado e apenas `AUDIT_FINDINGS.md`/`qa-gpu-runner/` não rastreados; HEAD `cc70de1`; `Environment.js:4693` já usa `windowColors.length`; gap restante é A/B material/AO Neon visual.
+
+- [x] B2: Probe de acesso ao GPU runner concluído sem expor credenciais.
+  EVIDENCE: `PROXMOX_ROOT_PASSWORD=MISSING`; nenhuma senha/segredo foi exibido.
+
+- [x] B3: Auditorias estáticas e regressão determinística executadas; nenhuma alteração especulativa aceita sem GPU.
+  EVIDENCE: `node --check` nos módulos/scripts e `ai-backwards-test.mjs 20 1/2` passaram; ambas as pistas reportaram `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
+
+- [x] B4: Build de produção fora do worktree passa.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-blocked-gpu npm run build` → `44 modules transformed`, `902.68 kB`, `✓ built in 2.14s`.
+
+- [x] B5: Validação GPU desktop/mobile Meadow/Neon com RADV PHOENIX e vídeo não pode ser concluída sem credencial; bloqueio registrado honestamente.
+  ABANDON: B5 credencial ~/.hermes/.proxmox_root_pw ausente; SSH ao Proxmox recusaria autenticação e não há evidência GPU nova neste tick.
+  EVIDENCE: `PROXMOX_ROOT_PASSWORD=MISSING`; captura GPU/A-B não executada e nenhuma alteração visual foi aceita.
+
+- [x] B6: Docs repo/vault/wiki/index/log/entidade e memória atualizados; commit atômico pushado; qa-gpu-runner não staged.
+  EVIDENCE: atualização documental deste tick será commitada atomicamente após `gate-check`; `qa-gpu-runner/` e `AUDIT_FINDINGS.md` não serão staged.
