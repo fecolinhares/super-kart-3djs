@@ -158,4 +158,4 @@ ABANDON: R5 não executado porque R4 está bloqueado; candidato revertido, porta
   EVIDENCE: probe `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`; não existe `/tmp/sk3d-tick-gpu-evidence/READY`.
 
 - [x] E5: Checks finais, documentação repo/vault/wiki/memória e commit/push atômicos concluídos; artefatos QA não staged.
-  EVIDENCE: `git diff --check` passou; commit documental atômico será verificado após push; `AUDIT_FINDINGS.md`, `qa-gpu-runner/` e timestamp temporário permanecem fora do staging.
+  EVIDENCE: `git diff --check` passou; commit `dd279f7` contém apenas `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi publicado em `origin/main` (`16d5892..dd279f7`); `AUDIT_FINDINGS.md` e `qa-gpu-runner/` não foram staged.
