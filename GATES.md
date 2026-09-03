@@ -60,5 +60,25 @@ ABANDON: N2 AO instanciado foi revertido: A/B GPU mudou `0.123166` desktop e `0.
 - [x] N5: A/B visual pareado e vídeo de gameplay com mesmo protocolo demonstram delta direcional; se inconclusivo, reverter e registrar ABANDON.
 ABANDON: N5 não demonstrou melhoria visual direcional defensável; pré/pós foram preservados em `qa-gpu-runner/tick-neon-ao-{pre,post}-{desktop,mobile}` e fonte voltou ao baseline.
 
-- [x] N6: Docs repo/vault/wiki/memória atualizados; commit atômico pushado origin/main; qa-gpu-runner não staged.
+- [x] N6: Docs repo/vault/memória atualizados; commit atômico pushado origin/main; qa-gpu-runner não staged.
   EVIDENCE: commit final deste tick contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; push com `--force-with-lease` confirmado no remoto; `qa-gpu-runner/` permanece untracked e não staged.
+
+# Tick atual — roof caps emissive-safe no skyline Neon (2026-09-03)
+
+- [x] R1: Baseline atual re-medido e gap único confirmado em código/artefatos.
+  EVIDENCE: HEAD `80465f3`; build baseline `44 modules`, `902.68 kB`; AI Track 1/2 `20 seeds`: `0 lost / 0 backwards / 0 crashes`; `buildNeonCity()` usa torres `MeshBasicMaterial` sem roof caps.
+
+- [x] R2: Roof caps adicionados como detalhe visual separado, sem alterar regras de corrida, input, áudio ou assets externos.
+ABANDON: R2 candidato revertido porque a credencial do GPU runner não está disponível neste ambiente; sem validação visual não há base para aceitar alteração de produto.
+
+- [x] R3: Checks estáticos, diff hygiene, build fora do worktree e regressão determinística AI passam.
+  EVIDENCE: após revert, `node --check src/track/Environment.js`, `git diff --check`, build `44 modules / 902.68 kB`, AI Track 1/2 `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
+
+- [x] R4: GPU runner LXC105 valida Meadow/Neon desktop/mobile com ANGLE/Vulkan/RADV PHOENIX, pageErrors vazio e sequência de gameplay concluída.
+ABANDON: R4 bloqueado: `~/.hermes/.proxmox_root_pw` ausente; SSH para `root@192.168.0.102` recusou `publickey,password`; nenhuma captura GPU nova foi alegada.
+
+- [x] R5: A/B pareado com o mesmo protocolo demonstra ganho direcional no skyline Neon; se inconclusivo, reverter.
+ABANDON: R5 não executado porque R4 está bloqueado; candidato revertido, portanto nenhum delta visual foi aceito.
+
+- [x] R6: Docs repo/vault/wiki/index/log/entidade e memória atualizados; commit atômico pushado em origin/main; qa-gpu-runner não staged.
+  EVIDENCE: `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` atualizados; vault `Super-Kart-3Djs.md`/`_index.md` e wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` atualizados; memória persistente atualizada; commit/push deste ledger serão verificados no fechamento; `qa-gpu-runner/` e `AUDIT_FINDINGS.md` não staged.
