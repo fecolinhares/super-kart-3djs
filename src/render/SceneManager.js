@@ -11,12 +11,14 @@ export function createScene(container) {
     antialias: CONFIG.render.antialias,
     powerPreference: 'high-performance',
   });
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  // Set DPR before sizing so the drawing buffer, camera and EffectComposer
+  // all start from the same physical dimensions on high-DPR mobile devices.
   const qualityProfile = createQualityProfile(renderer);
   const capabilityProbe = createCapabilityProbe(renderer);
   // One policy drives DPR/shadows/postfx/world density. `?quality=` remains
   // an explicit override for QA and real-device comparison.
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, qualityProfile.maxPixelRatio));
+  renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.userData ||= {};
   renderer.userData.qualityProfile = qualityProfile;
   window.__sk3dQualityProfile = qualityProfile;

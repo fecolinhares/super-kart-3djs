@@ -10,7 +10,7 @@ const fs = require('fs');
     executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH || '/usr/bin/chromium',
     args: ['--use-gl=angle', '--use-angle=vulkan', '--no-sandbox', '--mute-audio'],
   });
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: false });
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, hasTouch: true, isMobile: false });
   const page = await ctx.newPage();
   await page.addInitScript(() => localStorage.clear());
   await page.goto(`${url}/?demo&track=2`, { waitUntil: 'domcontentloaded', timeout: 120000 });
