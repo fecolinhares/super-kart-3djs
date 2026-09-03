@@ -178,4 +178,4 @@ ABANDON: F4 bloqueado: `PROXMOX_ROOT_PASSWORD=MISSING`, `PLAYWRIGHT_LOCAL=MISSIN
   EVIDENCE: candidato de `src/main.js` revertido ao baseline; nenhum commit de produto criado.
 
 - [x] F6: GATES, relatório AAA, vault/wiki e memória ficam sincronizados; qa-gpu-runner não é staged.
-  EVIDENCE: documentação sincronizada; `qa-gpu-runner/` permanece untracked e não staged; commit documental será verificado após push.
+  EVIDENCE: commit documental `29baeaf` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi publicado em `origin/main`; `scripts/audit-mobile-render.cjs` permanece alteração independente; `qa-gpu-runner/` permanece untracked e não staged.
