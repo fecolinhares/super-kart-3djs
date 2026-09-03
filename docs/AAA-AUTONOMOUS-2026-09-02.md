@@ -361,3 +361,9 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Identical-prompt visual review of pre/post frames found the mobile candidate less visually competitive with the road while controls remained legible; desktop Meadow showed no scope regression because the change is touch-only. No absolute AAA score is claimed.
 - Static/build/regression: `node --check`, `git diff --check`, external build `44 modules / 902.76 kB / 2.21s`, AI Track 1/2 ×20 `0 lost / 0 backwards / 0 crashes`.
 - Asset probe: `TRIPO_API_KEY`, `GEMINI_API_KEY`, `ELEVENLABS_API_KEY` reported `MISSING`; no external assets added. Remaining highest-value gap: emissive-safe AO/material A/B for Neon.
+
+## [2026-09-03T12:08Z] Autonomous tick — Neon grounding revalidation blocked
+- Baseline refeito em HEAD `9830930`: `src/` segue sem diff de produto; `buildNeonCity()` usa `MeshBasicMaterial`/`fog:false` e não possui `aoMap` ou camada AO executável. O `grep` bruto de `contact` foi desconsiderado por atingir comentários, não implementação.
+- Checks: `node --check src/track/Environment.js src/render/MaterialLibrary.js src/main.js` passou; `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1208 npm run build` passou com `44 modules`, `902.76 kB`, `2.12s`; AI Track 1/2 ×20 retornou `0 lost / 0 backwards / 0 crashes`; dev server `HTTP=200`.
+- Probes seguros: `PASSWORD_FILE=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`; geradores reportados apenas como `[REDACTED]`. Nenhum segredo foi lido ou persistido.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. Sem LXC105/RADV PHOENIX e vídeo A/B desktop `1280×720`/mobile `390×844` com prompt idêntico, não há delta visual defensável. Próximo gap: material híbrido/AO Neon emissive-safe após restaurar o runner.

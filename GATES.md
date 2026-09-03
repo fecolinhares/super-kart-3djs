@@ -479,3 +479,27 @@ Escopo: revalidar grounding/material híbrido do skyline Neon; sem A/B GPU real,
   EVIDENCE: relatório AAA, vault `Super-Kart-3Djs.md`, wiki entity/index/log e memória atualizados após os checks.
 - [x] G7: Mudança aceita foi commitada atomicamente e enviada ao `origin/main`, ou blocker foi registrado honestamente.
   EVIDENCE: commit atômico deste tick contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi publicado em `origin/main`; `qa-gpu-runner/`, `.hermes-tmp.*` e `AUDIT_FINDINGS.md` ficaram fora do staging.
+
+# Tick atual — revalidação autônoma do maior gap Neon (2026-09-03T12:08Z)
+
+Escopo: re-medire o gap material/AO do skyline Neon; aceitar produto somente com A/B GPU RADV PHOENIX e vídeo pareado. Se o runner permanecer bloqueado, não alterar `src/` e registrar o bloqueio.
+
+- [x] Q1: Estado git, data, fonte do gap e baseline estático re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T12:08:21Z`; `git status --short --branch` = `## main` + somente `GATES.md` modificado e `qa-gpu-runner/`/`.hermes-tmp.*` não rastreados; HEAD `9830930`; `node --check src/track/Environment.js src/render/MaterialLibrary.js src/main.js` passou. Auditoria confirmou skyline ainda com `MeshBasicMaterial`, `fog:false` e sem `aoMap`/camada AO executável.
+
+- [x] Q2: Probes seguros de runner, Playwright e geradores externos concluídos sem expor credenciais.
+  EVIDENCE: probe seguro retornou `PASSWORD_FILE=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`; geradores retornaram apenas estados redigidos (`TRIPO_API_KEY=[REDACTED]`, `GEMINI_API_KEY=[REDACTED]`, `ELEVENLABS_API_KEY=[REDACTED]`). Nenhum segredo foi lido, exibido ou persistido.
+
+- [x] Q3: Build externo compatível com virtiofs e regressão determinística AI nas duas pistas passam.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1208 npm run build` → `44 modules transformed`, `902.76 kB`, `✓ built in 2.12s`; `node scripts/ai-backwards-test.mjs 20 1` e `20 2` → cada pista `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
+
+- [x] Q4: GPU LXC105 executa vídeo Meadow/Neon desktop/mobile com ANGLE/Vulkan/RADV PHOENIX e pageErrors vazio, ou o bloqueio é registrado honestamente.
+  ABANDON: Q4 runner bloqueado neste ambiente: password file ausente, Playwright local/fallback ausentes; sem RADV PHOENIX não há vídeo novo defensável.
+  EVIDENCE: `PASSWORD_FILE=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`, `PLAYWRIGHT_LOCAL=MISSING`; nenhuma captura LXC105/RADV PHOENIX ou vídeo novo foi alegada.
+
+- [x] Q5: Uma melhoria de produto é aceita somente com A/B pareado e prompt idêntico; se Q4 bloquear, nenhum arquivo `src/` é modificado.
+  ABANDON: Q5 depende de Q4; sem vídeo/A-B GPU não há delta visual defensável e nenhuma alteração de produto será aceita.
+  EVIDENCE: `git diff --name-only -- src` vazio; nenhum patch visual foi implementado ou aceito neste tick.
+
+- [x] Q6: Relatório, vault/wiki/memória e gate-check ficam sincronizados; artefatos QA não são staged.
+  EVIDENCE: relatório AAA, vault `Super-Kart-3Djs.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` e memória atualizados; `git diff --name-only` = `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md`; `git diff --name-only -- src` vazio; `git diff --cached --name-only` vazio; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem não rastreados e fora do staging. Gate-check será executado antes do commit documental.
