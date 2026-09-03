@@ -154,11 +154,11 @@ export const CONFIG = {
   render: {
     antialias: true,
     pixelRatioCap: 2,
-    // Bloom restrained for gameplay readability: keep emissive pickups/boosts
-    // alive without turning windows, kerbs and finish hardware into one halo.
-    bloomStrength: 0.20,
-    bloomRadius: 0.18,
-    bloomThreshold: 1.35,
+    // Gameplay baseline: bloom disabled until emissive layers are isolated.
+    // Global glow was reading as a dreamlike veil on the real GPU.
+    bloomStrength: 0.0,
+    bloomRadius: 0.0,
+    bloomThreshold: 1.50,
     vignetteStrength: 0.08, // AUDIT 2026-09-02 AAA: 0.12→0.08 — halo branco radial nos cantos (critic 4/10) vinha de vignette+bloom radius; reduzir
     colorGradeSaturation: 1.25, // AUDIT R21e: 1.45→1.25 — saturava o glow âmbar do bloom em oliva no chão noturno // AUDIT r17 (Feco real-GPU + pixel-measured
     // critic): ACES tone mapping in OutputPass DESSATURATES — the grade

@@ -169,11 +169,9 @@ function buildSkyEnv(renderer) {
 scene.environment = buildSkyEnv(renderer);
 
 const postfx = new PostFX(renderer, scene, camera, qualityProfile);
-// AUDIT R21j (GPU real LXC105): à noite o bloom global espalha o glow quente
-// dos neons sobre o domo/terreno roxos = faixa oliva no horizonte (provado:
-// ?nobl remove). Strength 0.35→0.22 só no Neon — mantém o glow LOCAL dos
-// neons próximos sem pintar o céu.
-if (TRACK_ID === 2 && postfx.bloom) postfx.bloom.strength = 0.22;
+// Bloom remains a restrained accent on the night track; never override the
+// global gameplay readability budget with a stronger Neon-only halo.
+if (TRACK_ID === 2 && postfx.bloom) postfx.bloom.strength = 0;
 // AUDIT R21k: grade NEUTRO no Neon — warmth+saturation empurravam o glow
 // difuso do horizonte para verde-oliva (vision: ?nobl = haze some). Noite
 // MK8: cores frias fiéis ao render, sem grade dourado. Os uniforms vivem em

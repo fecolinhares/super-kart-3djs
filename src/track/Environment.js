@@ -509,7 +509,7 @@ export class Environment {
     // night fog color matches the sky horizon so the dome blends seamlessly.
     const night = this.trackId === 2;
     // AUDIT: night haze carries a purple tint so distance reads neon-lit, not void-black
-    scene.fog = new THREE.Fog(night ? 0x141034 : 0xbfe6ff, night ? 45 : 70, night ? 150 : 430); // AUDIT R22g: roxo→índigo profundo — o roxo sob bloom+ACES lia levemente oliva no ponto de fuga
+    scene.fog = new THREE.Fog(night ? 0x141034 : 0xbfe6ff, night ? 120 : 70, night ? 420 : 430);
 
     // Sky dome — PREMIUM PASS (2026-08-21): ShaderMaterial procedural (cookbook
     // gradient-sky recipe) substitui a textura canvas. Gradiente contínuo sem

@@ -25,9 +25,11 @@ O problema de produto que permanece é composição: o kart fica parcialmente co
 
 Probe executado: PNG direto fora do screencast; resultado refuta o P0 de pipeline quebrado.
 
-### P1 — Bloom: halo global e perda de separação — CORRIGIDO
+### P1 — Bloom: halo global e perda de separação — DESLIGADO
 
-Neon desktop/mobile pós-candidato mostra janelas, rails e pista separados, com halo localizado e sem lavar o frame. Configuração aceita: `strength=0.20`, `radius=0.18`, `threshold=1.35`. Runtime GPU: desktop `622` frames e mobile `985`, `phase=finished`, `RADV PHOENIX`, sem regressão observada.
+O bloom global foi desligado no gameplay: `strength=0`, `radius=0`, `threshold=1.50`, incluindo o override Neon. PNG direto GPU após a alteração mostra kart, prédios e pista muito mais nítidos; build passou (`44 modules`, `903.92 kB`) e AI Track 1/2 passou `20 seeds` com `0 lost / 0 backwards / 0 crashes`.
+
+O véu residual persiste mesmo sem bloom e foi separado como novo loop de fog/overlay; não será atribuído ao bloom sem evidência.
 
 ### P1 — Linha de chegada e sinais: beam e módulo corrigidos
 
