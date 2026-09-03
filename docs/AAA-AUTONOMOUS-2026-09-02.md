@@ -521,3 +521,10 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Checks: `node --check`, `git diff --check`, build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-audio-determinism-final npm run build` (`44 modules`, `903.12 kB`, `2.26s`), AI Track 1/2 ×20 (`0 lost / 0 backwards / 0 crashes`).
 - Runtime browser lifecycle não foi alegado: `PLAYWRIGHT_LOCAL=MISSING`, `/opt/pwtest=MISSING`; tentativa Snap `--dump-dom` falhou por execução ES não observável. Nenhum segredo foi exposto.
 - Decisão: **PRODUCT CHANGE ACCEPTED** para determinismo de áudio; score visual não recalculado. Próximo gap: validar lifecycle de áudio com Playwright disponível e então retomar A/B material/AO Neon no GPU.
+
+## [2026-09-03T19:20Z] Autonomous tick — owner `kart-ai` rejeitado após probe fixo
+- Baseline GPU LXC105 re-medido com ANGLE/Vulkan `RADV PHOENIX`, WebGL2 e `pageErrors=[]`: Meadow `1948 calls/1,089,095 tris` desktop e `957 calls/818,183 tris` mobile; Neon `1586/307,268` desktop e `869/192,542` mobile; `kart-ai` = `1175 meshes/199650 tris`.
+- Candidato único desligou `castShadow` nos descendentes AI. Build externo passou (`44 modules`, `903.92 kB`, `2.31s`) e AI Track 1/2 ×20 permaneceu `0 lost / 0 backwards / 0 crashes`.
+- Probe candidato não mostrou redução: Meadow mobile `957→968` calls e Neon mobile `869→873`; sem frame-time pareado e sem delta confiável, candidato foi revertido. Nenhuma mudança em `src/` foi aceita.
+- Vídeo pós-revert no GPU: Meadow desktop/mobile `743/939` frames; Neon desktop/mobile `616/992`; todos `phase=finished`, renderer `RADV PHOENIX`.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. Próximo gap: probe fixo de outro owner/pass ou material/AO Neon somente com métrica e A/B temporalmente pareados; não declarar AAA completo.

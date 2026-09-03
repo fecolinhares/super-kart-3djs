@@ -1021,3 +1021,30 @@ Escopo: re-medire o estado real e testar exatamente uma redução reversível no
 
 - [x] KAI7: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos somente para mudança aceita; QA não rastreado não é staged.
   EVIDENCE: `node /home/jarvis/.hermes/profiles/coder/skills/unlazy/scripts/gate-check.mjs GATES.md` → `ALL MET (252 met, 17 abandoned)`; `src/` limpo; staging será limitado a `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; `qa-gpu-runner/` e temporários permanecem fora do staging.
+
+# Tick atual — revalidação do runner e probe determinístico de custo
+
+Escopo: re-medir o estado real e testar somente um owner de custo isolado com captura fixa; nenhum patch de produto será aceito sem métricas pareadas, vídeo e preservação visual em Meadow/Neon desktop/mobile.
+
+- [x] RK1: Estado git, baseline de build/AI, relatório atual e owner de custo são re-medidos antes de alteração.
+  EVIDENCE: `2026-09-03T19:20:20Z`; HEAD `5e10f34`; `src/` limpo antes do candidato; breakdown GPU atual mediu Meadow `1948 calls/1,089,095 tris` desktop e `957 calls/818,183 tris` mobile; Neon `1586 calls/307,268 tris` desktop e `869 calls/192,542 tris` mobile; owner `kart-ai=1175 meshes/199650 tris`.
+
+- [x] RK2: Probes seguros de runner, browser e assets concluem sem expor credenciais.
+  EVIDENCE: acesso SSH por chave ao `192.168.0.195` confirmado; `/opt/pwtest`, Chromium e `/dev/dri/renderD128` presentes; renderer confirmou `RADV PHOENIX`; password file local ausente; nenhum segredo lido ou exibido.
+
+- [x] RK3: Um único candidato reversível de custo é implementado apenas após hipótese mensurável, preservando comportamento e sem secrets.
+  ABANDON: RK3 candidato `castShadow=false` nos descendentes `kart-ai` foi revertido: a hipótese não produziu redução mensurável defensável no renderer e nenhum produto foi aceito.
+  EVIDENCE: alteração temporária somente em `src/main.js`; `src/` voltou a ficar sem diff após a decisão.
+
+- [x] RK4: Checks estáticos, build externo com `SK3D_OUT_DIR=/tmp/...` e AI Track 1/2 ×20 passam.
+  EVIDENCE: `node --check`/`git diff --check` passaram; build externo final `SK3D_OUT_DIR=/tmp/sk3d-dist-rk-final npm run build` → `44 modules transformed`, `903.92 kB`, `✓ built in 2.31s`; Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+
+- [x] RK5: GPU LXC105 executa captura fixa e vídeo Meadow/Neon em `1280×720` e `390×844`, ANGLE/Vulkan/RADV PHOENIX, `pageErrors=[]`, `phase=finished`.
+  EVIDENCE: breakdown fixo em quatro viewports reportou `pageErrors=[]`, WebGL2 e ANGLE Vulkan/RADV PHOENIX; vídeo pós-revert `playtest-video.cjs`: Meadow desktop/mobile `743/939` frames, Neon desktop/mobile `616/992` frames, todos `phase=finished`.
+
+- [x] RK6: A/B pareado com harness/prompt idênticos demonstra ganho de custo sem regressão visual/funcional; candidato inconclusivo é revertido honestamente.
+  ABANDON: RK6 candidato não demonstrou ganho: baseline/candidato mobile variaram Meadow `957→968` calls e Neon `869→873`; diferenças ficaram dentro da variabilidade e não houve frame-time pareado; candidato revertido, sem alegar delta visual/performance.
+  EVIDENCE: logs remotos `/tmp/sk3d-baseline-rk-{meadow,neon}` e `/tmp/sk3d-candidate-rk-{meadow,neon}`; candidato não permaneceu em `src/`.
+
+- [x] RK7: Docs repo/vault/wiki/memória sincronizados, gate-check passa, commit/push atômicos somente para mudança aceita e `qa-gpu-runner/` não é staged.
+  EVIDENCE: relatório/vault/wiki/memória atualizados; `src/` sem diff; `qa-gpu-runner/` não staged; gate-check executado antes do commit documental.
