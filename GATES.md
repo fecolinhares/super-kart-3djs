@@ -35,7 +35,7 @@ ABANDON: T2 candidato MeshStandard + roof caps piorou a leitura no GPU: prédios
   EVIDENCE: `node --check` + `git diff --check` passaram após revert; `SK3D_OUT_DIR=/tmp/sk3d-dist-aotick npm run build` → `44 modules transformed`, `903.11 kB`, sucesso; AI Track 1/2 20 seeds → `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
 
 - [x] T4: Runtime GPU LXC105 valida desktop/mobile em Meadow e Neon com ANGLE/Vulkan/RADV PHOENIX, pageErrors vazio e sequência de gameplay concluída.
-  EVIDENCE: capturas fixas candidata pré/reversão no LXC105 retornaram GPU `ANGLE ... RADV PHOENIX`, canvas `1280x720` e `390x844`, `pageErrors=[]`; as quatro sequências históricas do runner terminaram normalmente em Meadow/Neon desktop/mobile.
+  EVIDENCE: capturas fixas candidata pré/reversão no LXC105 retornaram GPU `ANGLE ... RADV PHOENIX`, canvas `1280x720` e `390x844`, `pageErrors=[]`; vídeo ativo pós-revert Meadow desktop/mobile `853/998` e Neon desktop/mobile `665/1007`, todos `phase=finished`.
 
 - [x] T5: A/B visual pareado usa o mesmo prompt e evidência de vídeo/sequência; aceitar apenas delta direcional defensável, caso contrário reverter.
 ABANDON: T5 candidato foi rejeitado: diff bruto pós-baseline `0.3759819878` desktop e `0.2247902844` mobile; crítico cego observou escurecimento das janelas/prédios e regressão de contraste. Não houve commit de produto.
