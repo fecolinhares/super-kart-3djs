@@ -1095,4 +1095,26 @@ Escopo: re-medIr o owner `kart-ai` e executar o vídeo real nas quatro combinaç
   EVIDENCE: nenhum patch de produto aceito; próximo gap é adicionar/usar probe fixo de frame-time/pass antes de novo candidato `kart-ai`/PostFX.
 
 - [x] TICK7: Docs repo/vault/wiki/memória sincronizados; gate-check e commit/push atômico concluídos; QA/temporários fora do staging.
-  EVIDENCE: relatório, vault `Super-Kart-3Djs.md`, wiki entity/index/log, `_index.md` e memória atualizados; `qa-gpu-runner/` e `docs/.hermes-tmp.*` fora do staging; commit/push verificados após gate-check.
+  EVIDENCE: relatório, vault, wiki entity/index/log, `_index.md` e memória atualizados; `qa-gpu-runner/` e `docs/.hermes-tmp.*` fora do staging; commit/push verificados após gate-check.
+
+# Tick atual — probe temporal do owner de performance (2026-09-03T20:22Z)
+
+Escopo: transformar o owner `kart-ai` em uma medição temporal reproduzível antes de qualquer otimização; nenhuma alteração de produto será aceita sem A/B fixo e vídeo GPU.
+
+- [x] TP1: Estado git, data, relatório atual, owner e baseline estático re-medidos antes de agir.
+  EVIDENCE: `2026-09-03T20:22:24Z`; `git status --short --branch` = `## main`; HEAD `072cdeb`; `src/` sem diff; owner `kart-ai` confirmado no breakdown histórico como `1175 meshes/199650 tris`; build baseline executado.
+
+- [x] TP2: Probes seguros confirmam runner GPU/browser e geradores sem expor credenciais.
+  EVIDENCE: SSH direto `192.168.0.195` retornou `GPU_HOST_OK`, `PLAYWRIGHT_OK`, `DRM_OK`; credencial local não foi lida; estados sensíveis mantidos redigidos.
+
+- [x] TP3: Auditoria reproduzível mede frame-time/FPS e breakdown por pass em RADV PHOENIX para Meadow/Neon desktop/mobile, sem alterar produto.
+  EVIDENCE: `qa-gpu-runner/tick-temporal/summary.json`; quatro cenários, todos `RADV PHOENIX`, WebGL2, `phase=race`, `pageErrors=[]`; passes Render/Bloom/Shader/Output; render calls median `16/17`; FPS aproximado Meadow d/m `72.99/93.97`, Neon d/m `94.92/116.35`; frame p95 `15.2/13.6/13.0/10.1 ms`; callback/render p95 `14.2/11.8/10.7/8.3 ms`.
+
+- [x] TP4: Checks estáticos, build externo via SK3D_OUT_DIR e AI regression Track 1/2 ×20 passam.
+  EVIDENCE: `qa-gpu-runner/tick-temporal/local-checks.txt` registra `NODE=PASS`, `DIFF=PASS`, `BUILD=PASS modules=44 bundle=903.92kB duration=2.29s`, `AI_TRACK1=PASS seeds=20 lost=0 backwards=0 crashes=0`, `AI_TRACK2=PASS seeds=20 lost=0 backwards=0 crashes=0`.
+
+- [x] TP5: Nenhuma mudança de produto é aceita sem delta temporal pareado e preservação visual; se o probe não for defensável, src permanece sem diff e o bloqueio é documentado.
+  EVIDENCE: instrumentação limitada a `scripts/audit-frame-time.cjs` (QA-only); `git diff --name-only -- src` vazio; não houve candidato de produto nem claim de otimização. O probe é aceito como baseline temporal, não como aprovação de redução.
+
+- [x] TP6: Relatório, vault, wiki/index/log/entidade e memória ficam sincronizados; gate-check passa; commit/push atômicos somente com documentação aceita; QA não é staged.
+  EVIDENCE: relatório/vault/wiki/memória atualizados; gate-check `ALL MET (278 met, 17 abandoned)`; commit atômico contendo somente `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md` e `scripts/audit-frame-time.cjs` foi publicado em `origin/main` após gate-check; `qa-gpu-runner/` e `docs/.hermes-tmp.*` permanecem fora do staging.

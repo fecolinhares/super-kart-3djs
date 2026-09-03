@@ -5,7 +5,14 @@
 - Breakdown fixo no GPU runner `192.168.0.195` confirmou ANGLE/Vulkan `RADV PHOENIX`, WebGL2 e `pageErrors=[]`; Meadow desktop/mobile mediu `1948/984 calls` e `1,089,095/821,397 tris`; `kart-ai` segue em `1175 meshes/199650 tris`.
 - Vídeo ativo `?demo` real, quatro combinações, terminou `phase=finished`: Meadow desktop `831` frames, Meadow mobile `1001`, Neon desktop `648`, Neon mobile `1009`; todos com `RADV PHOENIX`.
 - O owner foi reavaliado, mas ainda não existe frame-time por pass/owner. O candidato anterior de `castShadow=false` já foi rejeitado; não houve alteração especulativa nesta rodada. **NO PRODUCT CHANGE ACCEPTED**.
-- Próximo gap: probe fixo que meça frame-time/pass temporalmente pareado antes de testar outro owner.
+- Próximo gap: probe fixo que meça frame-time/pass temporalmente pareado antes de novo candidato `kart-ai`/PostFX.
+
+## [2026-09-03T20:22Z] Autonomous tick — baseline temporal de render aceito, sem mudança de produto
+- Baseline real em `HEAD 072cdeb`: `src/` limpo; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-tp-final npm run build` passou com `44 modules`, bundle `903.92 kB` em `2.29s`; AI Track 1/2 ×20 retornou `0 lost / 0 backwards / 0 crashes`.
+- Novo auditor QA-only `scripts/audit-frame-time.cjs` mediu quatro cenários no GPU runner direto `192.168.0.195`, sem tocar em `src/`: Meadow/Neon × desktop/mobile, WebGL2, ANGLE/Vulkan `RADV PHOENIX`, `phase=race`, `pageErrors=[]`.
+- Métricas temporais: FPS aproximado Meadow desktop/mobile `72.99/93.97`, Neon desktop/mobile `94.92/116.35`; p95 de frame `15.2/13.6/13.0/10.1 ms`; p95 do render instrumentado `13.4/11.8/10.7/8.3 ms`; chamadas de render por frame `17/16/17/16`. Passes observados: Render, Bloom, Shader e Output (duas variantes Shader no desktop).
+- O primeiro probe usava `renderer.info` depois do reset de pass e produzia `calls=1`; foi corrigido antes do resultado final para contar chamadas reais de `renderer.render()`. Resultado é baseline de custo, não comparação de otimização.
+- Decisão: **QA INSTRUMENTATION ACCEPTED; NO PRODUCT CHANGE**. Nenhum arquivo `src/` foi alterado; próximo gap é testar um owner/pass isolado somente com A/B temporalmente pareado e vídeo visual preservado.
 
 ## [2026-09-03T19:42Z] Autonomous tick — owner de performance revalidado, sem mudança de produto
 - Baseline re-medido em `HEAD 0a4a8ed`; `src/` permaneceu sem diff. O owner mensurável continua `kart-ai` com `1175 meshes/199650 tris` no breakdown anterior.
