@@ -1,5 +1,13 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-04T23:10Z] Autonomous tick — A/B plinth Neon rejeitado
+- Baseline real re-medido no `HEAD 06c0ae7`: `src/` limpo antes do candidato; build externo final via `SK3D_OUT_DIR=/tmp/sk3d-dist-cur-final npm run build` passou com `44 módulos`, `903.98 kB`, em `2.11s`; AI Track 1/2 ×20 retornou `0 lost / 0 backwards / 0 crashes`.
+- Runner direto confirmou `GPU_HOST_OK PLAYWRIGHT_OK DRM_OK`; captura fixa no LXC105 usou ANGLE/Vulkan `RADV PHOENIX`, canvas `1280×720` e `390×844`, `pageErrors=[]`, paleta Neon determinística `13/22/20/17/11` (83 torres).
+- Candidato único adicionou plinth instanciado emissive-safe sob as torres Neon. A/B pareado com o mesmo capturador/prompt não mostrou diferença visual discernível: skyline, grounding e janelas ficaram essencialmente idênticos; diff bruto acima do limiar 2 foi `6.8844%` desktop e `14.0488%` mobile, sem valor probatório de melhoria.
+- O candidato foi totalmente revertido; `src/` voltou limpo. Vídeo QA ativo pós-reversão em Meadow/Neon desktop/mobile terminou sem erro emitido, GPU `RADV PHOENIX`, `98/131/83/131` frames e `phase=race` durante a janela de 8s.
+- Decisão: **REVERTED / NO PRODUCT CHANGE ACCEPTED**. Próximo gap segue material/AO Neon emissive-safe com hipótese mais visível e pareamento fixo; score AAA não é declarado completo.
+
+
 ## [2026-09-03T22:56Z] Autonomous tick — runner bloqueado, sem mudança de produto
 - Baseline re-medido no `HEAD 7069ecf`: `src/` sem diff; `node --check`/`git diff --check` passaram; build externo via `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1788476149` passou com `44 módulos`, bundle `904.01 kB`, em `2.08s`.
 - AI Track 1/2 ×20 passou com `0 lost / 0 backwards / 0 crashes`; Vite local respondeu `HTTP=200`.

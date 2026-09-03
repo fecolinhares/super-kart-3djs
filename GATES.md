@@ -1291,3 +1291,31 @@ Escopo: re-medIr o HEAD real e escolher exatamente um gap defensável. Prioridad
 
 - [x] TICK-N7: Próximo gap é definido por medição final e score AAA não é declarado completo abaixo dos thresholds.
   EVIDENCE: próximo gap permanece A/B material/AO Neon emissive-safe; `Math.random()` runtime fica secundário até harness de lifecycle; score AAA não declarado completo.
+
+# Tick atual — revalidação e escolha de um único gap (2026-09-04)
+
+Escopo: medir o HEAD real e escolher exatamente uma melhoria defensável. Prioridade: A/B material/AO Neon emissive-safe; se o runner verificável estiver indisponível, não alterar produto e registrar o bloqueio. Artefatos `qa-gpu-runner/` e temporários permanecem fora do staging.
+
+- [x] CUR1: Estado git, data, fonte do gap e baseline de build/AI são re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T23:10:22Z`; `## main`; HEAD `06c0ae7`; `src/` limpo após rejeição; gap confirmado: material/AO Neon emissive-safe.
+
+- [x] CUR2: Probes seguros de runner, Playwright e geradores externos são executados sem expor credenciais.
+  EVIDENCE: probe local `GPU_PASSWORD_FILE=MISSING`, `PW_LOCAL=MISSING`, `SSHPASS_BIN=SET`; probe remoto `GPU_HOST_OK PLAYWRIGHT_OK DRM_OK`; captura confirmou GPU `ANGLE/Vulkan RADV PHOENIX`; assets mantidos como `REDACTED`.
+
+- [x] CUR3: Um único candidato de produto é implementado apenas se houver runner verificável e hipótese isolável; sem A/B defensável, nenhum `src/` é aceito.
+  EVIDENCE: candidato único foi plinth instanciado `10.45×0.36×8.45` sob as torres Neon; A/B visual não mostrou delta discernível; candidato totalmente revertido; `git diff --name-only -- src` vazio.
+
+- [x] CUR4: Checks estáticos, diff hygiene, build externo `SK3D_OUT_DIR=/tmp/... npm run build` e regressão AI Track 1/2 ×20 passam.
+  EVIDENCE: `node --check` nos módulos críticos e `git diff --check` passaram; build final `SK3D_OUT_DIR=/tmp/sk3d-dist-cur-final npm run build` = `44 módulos`, `903.98 kB`, `2.11s`; Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`.
+
+- [x] CUR5: GPU ANGLE/Vulkan confirma RADV PHOENIX, pageErrors vazio e vídeo Meadow/Neon desktop/mobile; ou bloqueio honesto é registrado.
+  EVIDENCE: captura fixa pré/pós em `1280×720` e `390×844` retornou `RADV PHOENIX`, `pageErrors=[]`, paleta `13/22/20/17/11`, canvas correto; vídeo pós-reversão Meadow desktop/mobile e Neon desktop/mobile: `98/131/83/131` frames, sem erro emitido, `phase=race` na janela de 8s.
+
+- [x] CUR6: A/B pré/pós usa protocolo e crítica visual idênticos; somente delta direcional defensável aceita produto; caso contrário candidato é revertido.
+  EVIDENCE: mesmo capturador/prompt em quatro imagens; diff acima do limiar 2 = `6.8844%` desktop e `14.0488%` mobile, mas visão pareada viu skyline/grounding/janelas essencialmente idênticos; decisão `REVERTED / NO PRODUCT CHANGE ACCEPTED`.
+
+- [x] CUR7: Relatório repo, vault, wiki index/log/entity e memória ficam sincronizados; gate-check passa; commit/push atômico só inclui mudança aceita/documentação; QA não staged.
+  EVIDENCE: relatório, vault, wiki entity/index/log e memória atualizados; `qa-gpu-runner/` permanece não rastreado e não staged; nenhum commit de produto será criado porque o candidato foi rejeitado.
+
+- [x] CUR8: Próximo gap é definido por medição final e score AAA não é declarado completo abaixo dos thresholds.
+  EVIDENCE: próximo gap permanece material/AO Neon emissive-safe, agora exigindo hipótese com efeito visível de grounding; score AAA não declarado completo.
