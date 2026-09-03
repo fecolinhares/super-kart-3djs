@@ -1,5 +1,13 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T21:31Z] Autonomous tick — Bloom A/B rejeitado
+- Baseline re-medido no `HEAD e31ee81`: `src/` limpo antes do candidato, dev `HTTP_STATUS=200`; `node --check`/`git diff --check` passaram; build sanitizado via `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-final npm run build` passou com `44 modules`, `903.92 kB`, em `2.20s`; AI Track 1/2 ×20 ficou em `0 lost / 0 backwards / 0 crashes`.
+- O único candidato foi desligar temporariamente `UnrealBloomPass` no modo QA `no-bloom`; o default de `src/render/PostFX.js` não mudou. O detector foi tornado robusto ao nome minificado `_UnrealBloomPass`.
+- GPU direto `192.168.0.195` confirmou ANGLE/Vulkan `RADV PHOENIX`, WebGL2, `pageErrors=[]`, `phase=race`; A/B cobriu Meadow/Neon desktop/mobile com samples baseline/candidato `628–1020`.
+- FPS baseline→candidato: Meadow desktop `80.153→78.636` (`-1.89%`), Meadow mobile `104.541→100.487` (`-3.88%`), Neon desktop `91.748→97.127` (`+5.86%`), Neon mobile `127.449→118.251` (`-7.22%`). Calls medianas caíram `17→4` desktop e `16→3` mobile, mas frame p95 variou `15.4→16.0`, `11.9→12.4`, `13.0→12.1`, `10.3→10.4 ms`.
+- Oito sequências de vídeo QA-only (`baseline/no-bloom × Meadow/Neon × desktop/mobile`) produziram `892` frames JPEG; todas reportaram `RADV PHOENIX` e `phase=race` durante 8s. Crítica cega idêntica em frames representativos mostrou Bloom preservando halo/legibilidade Neon; um frame baseline indisponível foi substituído, então não é prova A/B visual perfeitamente sincronizada.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. Bloom continua ativo no produto; o suporte `no-bloom` permanece instrumentação QA para futuras medições. Artefatos: `qa-gpu-runner/tick-bloom/` (QA não deve ser staged).
+
 ## [2026-09-03T21:18Z] Autonomous tick — A/B temporal do Vignette rejeitado
 - Baseline re-medido no `HEAD adbce6c`: `src/` limpo; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-current npm run build` passou com `44 modules`, `903.92 kB` em `2.13s`; AI Track 1/2 ×20 retornou `0 lost / 0 backwards / 0 crashes`; dev server `HTTP 200`.
 - Runner direto `192.168.0.195` confirmou `/opt/pwtest`, DRM e ANGLE/Vulkan `RADV PHOENIX`; A/B temporal executado em Meadow/Neon desktop/mobile, WebGL2, `phase=race`, `pageErrors=[]`, samples `371–634`.

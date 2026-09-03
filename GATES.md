@@ -1169,4 +1169,29 @@ Escopo: repetir o A/B do owner `VignetteShader` com o mesmo harness no GPU diret
   EVIDENCE: chamadas caíram, mas FPS piorou em 2/4 cenários (Meadow desktop `-3.30%`, Neon mobile `-12.03%`) e melhoria de p95 foi inconsistente; frames livres não sincronizam estado visual. Decisão: `NO PRODUCT CHANGE ACCEPTED`; modo `no-vignette` permanece QA-only e `src/` não foi alterado.
 
 - [x] RT7: Documentação, gate-check e commit/push atômicos ficam sincronizados; artefatos QA não são staged.
-  EVIDENCE: relatório AAA, vault, wiki entity/index/log e memória atualizados; gate-check executado antes do commit; somente documentação e `GATES.md` staged; `qa-gpu-runner/` e temporários não staged.
+  EVIDENCE: relatório AAA, vault, wiki index/log/entity e memória atualizados; gate-check executado antes do commit; somente documentação e `GATES.md` staged; `qa-gpu-runner/` e temporários não staged.
+
+# Tick atual — auditoria do próximo owner temporal (2026-09-03T21:31Z)
+
+Escopo: re-medrir o baseline no GPU real e testar exatamente um owner/pass candidato; aceitar produto somente se o A/B temporal e visual for direcionalmente defensável. Nenhum segredo ou artefato QA será versionado.
+
+- [x] FO1: Estado git, relatório atual, código do owner e baseline de build/AI são re-medidos antes do candidato.
+  EVIDENCE: `2026-09-03T21:31:49Z`; `## main`, HEAD `e31ee81`; `src/` limpo antes do candidato; dev `HTTP_STATUS=200`; baseline AI Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`.
+
+- [x] FO2: Um único owner/pass candidato é definido a partir do breakdown atual sem alterar o default até a decisão.
+  EVIDENCE: único candidato foi `UnrealBloomPass` desligado somente em modo QA `no-bloom`; o default em `src/render/PostFX.js` permaneceu ativo e nenhum arquivo `src/` foi alterado.
+
+- [x] FO3: A/B temporal no GPU direto cobre Meadow/Neon desktop/mobile, WebGL2, ANGLE/Vulkan RADV PHOENIX, pageErrors vazios e amostragem suficiente.
+  EVIDENCE: `qa-gpu-runner/tick-bloom/{tick-bloom-baseline,tick-bloom-candidate}/`; 8 medições, GPU `ANGLE (AMD, Vulkan 1.4.318, RADV PHOENIX)`, WebGL2, `pageErrors=[]`, samples `628–1020` baseline/candidato, `phase=race`.
+
+- [x] FO4: Checks estáticos, build externo com SK3D_OUT_DIR e AI Track 1/2 ×20 passam.
+  EVIDENCE: `node --check`/`git diff --check` passaram; build sanitizado `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-final npm run build` → `44 modules transformed`, `903.92 kB`, `✓ built in 2.20s`; AI Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`.
+
+- [x] FO5: Sequências de vídeo gameplay pré/pós em Meadow/Neon desktop 1280x720 e mobile 390x844 terminam sem erro; visão usa protocolo idêntico ou o bloqueio é declarado.
+  EVIDENCE: `qa-gpu-runner/tick-bloom/tick-bloom-video/`; 8 sequências (4 pares), `892` frames JPEG capturados, GPU `RADV PHOENIX`, todas em `phase=race` durante 8s e sem erro emitido pelo runner. Crítica visual idêntica foi aplicada a frames representativos; um frame baseline foi temporalmente indisponível e substituído por frame existente, portanto o sinal visual é qualitativo, não A/B perfeitamente sincronizado.
+
+- [x] FO6: Decisão honesta: aceitar apenas melhoria temporal/visual direcional; caso contrário reverter e manter src sem mudança.
+  EVIDENCE: `no-bloom` reduziu calls `17→4`, `16→3`, mas FPS variou `-1.89%/-3.88%/+5.86%/-7.22%` em Meadow d/m e Neon d/m; frame p95 variou `+0.6/+0.5/-0.9/+0.1 ms`; visão mostrou perda de halo/legibilidade neon em frames sem Bloom. Decisão: `NO PRODUCT CHANGE ACCEPTED`; somente suporte QA `no-bloom` foi mantido.
+
+- [x] FO7: Relatório, vault, wiki e memória ficam sincronizados; gate-check passa; somente mudança aceita/documentação é staged; qa-gpu-runner/ e temporários não são staged.
+  EVIDENCE: vault `Super-Kart-3Djs.md`/`_index.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` e memória atualizados; staging real contém somente `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md`, `scripts/audit-frame-time.cjs`, `scripts/playtest-video.cjs`; `qa-gpu-runner/`, `docs/.hermes-tmp.*` e `vite.config.js.timestamp-*` permanecem não staged.

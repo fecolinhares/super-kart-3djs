@@ -27,12 +27,15 @@ const fs = require('fs');
   const gpu = await page.evaluate(() => { const c = document.createElement('canvas'); const g = c.getContext('webgl2') || c.getContext('webgl'); const ext = g.getExtension('WEBGL_debug_renderer_info'); return ext ? g.getParameter(ext.UNMASKED_RENDERER_WEBGL) : 'unknown'; });
   console.log('GPU:', gpu);
   await page.waitForFunction(() => window.__sk3d && window.__sk3d.raceManager && window.__sk3d.raceManager.phase === 'race', null, { timeout: 180000 }).catch(() => console.log('WARN race state timeout'));
-  if (mode === 'no-vignette') {
-    await page.evaluate(() => {
-      const pass = window.__sk3d?.postfx?.composer?.passes?.find((item) => item.material?.uniforms?.offset && item.material?.uniforms?.darkness);
-      if (!pass) throw new Error('VignetteShader pass not found');
+  if (mode === 'no-vignette' || mode === 'no-bloom') {
+    await page.evaluate((selectedMode) => {
+      const passes = window.__sk3d?.postfx?.composer?.passes || [];
+      const pass = selectedMode === 'no-bloom'
+        ? passes.find((item) => item.constructor?.name && /BloomPass/.test(item.constructor.name))
+        : passes.find((item) => item.material?.uniforms?.offset && item.material?.uniforms?.darkness);
+      if (!pass) throw new Error(selectedMode === 'no-bloom' ? 'BloomPass not found' : 'VignetteShader pass not found');
       pass.enabled = false;
-    });
+    }, mode);
   }
   const client = await page.context().newCDPSession(page);
   await client.send('Page.startScreencast', { format: 'jpeg', quality: 60, maxWidth: 1280, maxHeight: 720, everyNthFrame: 6 });
