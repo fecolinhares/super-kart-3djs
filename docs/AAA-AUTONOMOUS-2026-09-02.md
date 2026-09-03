@@ -322,3 +322,11 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Safe probes: Proxmox password path `[REDACTED]`, Playwright local/fallback `MISSING`; SSH authentication refused. No external asset was added.
 - Decision: **NO PRODUCT CHANGE ACCEPTED**. Required paired A/B with gameplay video on Meadow/Neon, desktop `1280×720`, mobile `390×844`, ANGLE/Vulkan/RADV PHOENIX and `pageErrors=[]` is blocked in this environment.
 - Next highest-value gap: selective emissive-safe AO/material A/B for Neon after runner restoration; `qa-gpu-runner/` and temporary files remain untracked.
+
+## [2026-09-03T10:39Z] Autonomous tick — runner revalidation, no product delta
+- Baseline remeasured at HEAD `8875827`; `src/` remained clean and `Environment.buildNeonCity()` still uses `MeshBasicMaterial`, `fog:false`, and no contact/AO layer under tower instances.
+- Static checks passed: `node --check src/main.js src/track/Environment.js src/render/MaterialLibrary.js` and `git diff --check`.
+- External production build passed via `SK3D_OUT_DIR=/tmp/sk3d-dist-ab npm run build`: `44 modules transformed`, `902.76 kB`, `✓ built in 2.22s`.
+- Deterministic AI regression passed on Track 1 and Track 2 with 20 seeds each: `0 lost`, `0 backwards`, `0 crashes`.
+- Safe probes: password file state redacted as `***`; Playwright local/fallback `MISSING`; asset credential probe returned only redacted states. SSH/runner route was unavailable in this environment (`SSH_PROBE=UNAVAILABLE`); no RADV PHOENIX capture or video was claimed.
+- Decision: **NO PRODUCT CHANGE ACCEPTED**. The mandatory identical-protocol GPU A/B and gameplay video remain blocked; next highest-value gap is unchanged: selective emissive-safe AO/material Neon A/B after restoring runner access.

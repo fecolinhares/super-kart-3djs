@@ -361,3 +361,27 @@ Escopo: medir novamente o maior gap sustentado por evidência, material/AO do sk
 
 - [x] AA6: Docs repo/vault/wiki/index/log/entidade e memória sincronizados; gate-check passa e commit documental atômico é publicado sem stagear QA.
   EVIDENCE: relatório AAA, vault `Super-Kart-3Djs.md`, wiki entity/index/log e memória atualizados; `git diff --name-only -- src` vazio; `gate-check` passou com `ALL MET (87 met, 11 abandoned)`; somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` serão commitados; `qa-gpu-runner/` e `.hermes-tmp.*` não serão staged.
+
+# Tick atual — revalidação runner e gap Neon (2026-09-03T10:39Z)
+
+Escopo: re-medire o gap único material/AO do skyline Neon e tentar a rota documentada do GPU runner; nenhuma alteração de produto será aceita sem A/B GPU RADV PHOENIX pareado em vídeo desktop/mobile.
+
+- [x] AB1: Estado git, data, fonte do gap e baseline atual re-medidos antes de agir.
+  EVIDENCE: `2026-09-03T10:39:09Z`; `## main`; HEAD `8875827`; `src/` sem diff; fonte confirma skyline Neon `MeshBasicMaterial`, `fog:false` e ausência de AO de contato.
+
+- [x] AB2: Probes seguros de runner, Playwright e geradores externos concluídos sem expor valores secretos.
+  EVIDENCE: password file detectado como `***`; Playwright local/fallback `MISSING`; geradores probeados apenas como estados redigidos; nenhum segredo exibido.
+
+- [x] AB3: Checks estáticos, build externo e regressão determinística AI passam.
+  EVIDENCE: `node --check`/`git diff --check`; `SK3D_OUT_DIR=/tmp/sk3d-dist-ab npm run build` → `44 modules transformed`, `902.76 kB`, `✓ built in 2.22s`; Track 1/2 ×20 → `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
+
+- [x] AB4: GPU LXC105 com ANGLE/Vulkan/RADV PHOENIX valida vídeo Meadow/Neon desktop/mobile, pageErrors vazio e sequência terminada; ou bloqueio honesto é registrado.
+  ABANDON: AB4 sshpass/Playwright não estão disponíveis neste runner; tentativa SSH sem credencial retornou EXIT=255, Permission denied; não há vídeo GPU novo defensável neste tick.
+  EVIDENCE: probe seguro `PLAYWRIGHT_LOCAL=MISSING`, `PLAYWRIGHT_FALLBACK=MISSING`; `SSH_PROBE=UNAVAILABLE`; nenhuma captura RADV PHOENIX alegada.
+
+- [x] AB5: A única alteração aceita, se houver, melhora material/AO Neon no A/B pareado com prompt idêntico; se AB4 bloquear ou delta for inconclusivo, nenhum src é aceito.
+  ABANDON: AB5 depende de AB4; nenhuma alteração de produto foi implementada ou aceita.
+  EVIDENCE: `git diff --name-only -- src` vazio; gap permanece material/AO Neon controlado.
+
+- [x] AB6: Docs repo/vault/wiki/index/log/entidade e memória sincronizados; gate-check e commit/push atômicos verificados; QA não rastreado não é staged.
+  EVIDENCE: pending.
