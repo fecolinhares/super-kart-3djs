@@ -141,6 +141,13 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Paired pre/post vision confirmed more visible racing line and a thinner, still recognizable FINISH banner in both viewports, without a new artifact. Build and AI regression remained green.
 - Decision: **ACCEPTED**. Source is currently uncommitted pending final staging; `qa-gpu-runner/` remains intentionally untracked.
 
+## [2026-09-03] Autonomous tick — Neon material candidate rejected
+- Baseline remeasured on HEAD `6f8a79b`: build outside worktree passed at `902.68 kB`; AI Track 1/2 with 20 seeds each returned `0 lost / 0 backwards / 0 crashes`; asset probe remained `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`.
+- Gap selected from repeated evidence: Neon skyline buildings were flat/repetitive because the four tower rows used `MeshBasicMaterial`; candidate changed them to `MeshStandardMaterial` and added shared roof caps.
+- GPU LXC105 evidence: ANGLE/Vulkan `RADV PHOENIX`, fixed captures `1280×720` and `390×844`, `pageErrors=[]`. Raw paired diff was `0.3759819878` desktop and `0.2247902844` mobile.
+- Fresh-eyes visual result: candidate darkened facade/window readability and weakened skyline separation, most visibly on mobile. **Reverted; no product visual improvement accepted.**
+- Remaining blocker: need a material/AO treatment that preserves the current emissive window contrast; do not retry flat-to-lit conversion without a controlled emissive-map/material A/B.
+
 ## [2026-09-03] QA runner — Playwright fallback corrigido
 - `scripts/playtest-video.cjs` agora tenta `require('playwright')` e cai automaticamente para `/opt/pwtest/node_modules/playwright` no runner GPU.
 - Smoke real sem `NODE_PATH`: mobile `390×844`, GPU `RADV PHOENIX`, fase `finished`, `998` frames.
