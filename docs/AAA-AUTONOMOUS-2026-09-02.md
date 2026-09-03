@@ -300,3 +300,11 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Static checks passed; AI Track 1/2 with 20 seeds each returned `0 lost / 0 backwards / 0 crashes`; production build outside the worktree passed with `44 modules`, `902.76 kB`, `2.10s` using `SK3D_OUT_DIR=/tmp/sk3d-dist-z-audit`.
 - Safe access probes found the Proxmox credential path unavailable to this run, Playwright local/fallback unavailable, and SSH authentication refused. Values are intentionally redacted. No LXC105 `RADV PHOENIX` video or fixed-camera A/B was claimed.
 - Decision: **NO PRODUCT CHANGE ACCEPTED**. No source appearance delta was implemented. Next highest-value gap remains a selective AO/emissive-safe material A/B after restoring GPU-runner access; do not convert the skyline wholesale to lit PBR without preserving window contrast.
+
+## [2026-09-03T09:56Z] Autonomous tick — runner revalidation, no product delta
+- Baseline remeasured at HEAD `3bedd96`; critical `node --check` and `git diff --check` passed.
+- External production build via `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1000 npm run build` passed: `44 modules transformed`, `902.76 kB`, `2.14s`.
+- Deterministic AI regression: Track 1 and Track 2, 20 seeds each, `0 lost`, `0 backwards`, `0 crashes`; sampled runs reported `onRoad=100`.
+- Safe probes: Proxmox password path `[REDACTED]`, Playwright local/fallback `MISSING`; SSH authentication refused. No external asset was added.
+- Decision: **NO PRODUCT CHANGE ACCEPTED**. Required paired A/B with gameplay video on Meadow/Neon, desktop `1280×720`, mobile `390×844`, ANGLE/Vulkan/RADV PHOENIX and `pageErrors=[]` is blocked in this environment.
+- Next highest-value gap: selective emissive-safe AO/material A/B for Neon after runner restoration; `qa-gpu-runner/` and temporary files remain untracked.

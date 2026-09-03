@@ -291,3 +291,25 @@ Escopo: re-medire o único gap material/AO Neon, testar se o runner GPU voltou, 
 
 - [x] O6: Relatório, vault, wiki, memória e commit atômico ficam sincronizados; `qa-gpu-runner/` e temporários não são staged.
   EVIDENCE: relatório AAA, `Super-Kart-3Djs.md`, wiki entity/index/log e memória atualizados; `git diff --cached --name-only` retornou vazio antes do staging; `git diff --name-only -- src` retornou vazio; `qa-gpu-runner/`/`.hermes-tmp.*` permanecem fora do staging.
+
+# Tick atual — revalidação autônoma e bloqueio do runner (2026-09-03T10:00Z)
+
+Escopo: revalidar o gap único de maior valor (grounding/material Neon) e aceitar uma alteração de produto somente com A/B GPU pareado em Meadow/Neon, desktop/mobile e vídeo; se o runner continuar indisponível, nenhum `src/` será alterado.
+
+- [x] W1: Estado git, fonte do gap, data e baseline estático re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T09:56:24Z`; `git status --short --branch` = `## main` + GATES modificado e apenas `.hermes-tmp.*`/`qa-gpu-runner/` não rastreados; HEAD anterior `3bedd96`; `src/` sem diff.
+
+- [x] W2: Probes seguros de runner, browser e assets executados sem expor credenciais.
+  EVIDENCE: `PROXMOX_PASSWORD_FILE=[REDACTED]`; `PLAYWRIGHT_FALLBACK=MISSING`; `PLAYWRIGHT_LOCAL=MISSING`; assets `TRIPO_API_KEY=[REDACTED]`, `GEMINI_API_KEY=[REDACTED]`, `ELEVENLABS_API_KEY=[REDACTED]`; SSH recusou autenticação sem exibir segredo.
+
+- [x] W3: Checks estáticos, build externo e regressão determinística AI passam.
+  EVIDENCE: `node --check` main/Environment/sfx/AudioManager + `git diff --check`; `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1000 npm run build` = `44 modules transformed`, `902.76 kB`, `2.14s`; Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`, amostras `onRoad=100`.
+
+- [x] W4: GPU LXC105 valida RADV PHOENIX, vídeo Meadow/Neon desktop/mobile, pageErrors vazio e sequência terminada; se bloqueado, registrar ABANDON honesto.
+ABANDON: W4 runner bloqueado: password file [REDACTED]/indisponível, Playwright local/fallback ausentes e SSH `Permission denied (publickey,password)`; nenhum RADV PHOENIX novo foi alegado.
+
+- [x] W5: Uma única melhoria de produto é aceita somente após A/B pareado com prompt idêntico; se W4 bloquear, fonte permanece sem alteração em `src/`.
+ABANDON: W5 depende de W4; nenhum delta de produto foi aceito e `git diff --name-only -- src` permaneceu vazio.
+
+- [x] W6: Relatório, vault, wiki/index/log/memória e commit atômico ficam sincronizados; QA não rastreado não é staged.
+  EVIDENCE: commit `8498da0` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md`; push `3bedd96..8498da0 main -> main` confirmado; vault/wiki/memória atualizados; `qa-gpu-runner/` e `.hermes-tmp.*` fora do staging.
