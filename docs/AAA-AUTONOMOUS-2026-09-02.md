@@ -1,5 +1,12 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T17:16Z] Autonomous tick — budget audit pós-pilastras, sem delta de produto
+- Baseline real: HEAD `cf89f07`; `src/` permaneceu sem diff de produto. Build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-current-tick npm run build` passou com `44 modules`, `903.92 kB`, `2.19s`; AI Track 1/2 ×20 retornou `0 lost / 0 backwards / 0 crashes`.
+- Runtime GPU direto no runner `192.168.0.195` confirmou ANGLE/Vulkan `RADV PHOENIX`, WebGL2, `pageErrors=[]` nas capturas fixas Neon desktop/mobile (`1280×720`/`390×844`), palette `13/22/20/17/11`, total `83`.
+- Budget medido no frame completo: desktop profile `high` = `1593 calls`, `307480 triangles`, `79 textures`, `1055 geometries`; mobile profile `medium` = `1057 calls`, `228098 triangles`, `76 textures`, `992 geometries`. Auditoria de cena Neon contou `1978` meshes; skyline já usa InstancedMesh/frustum culling e auto-instancing está ativo.
+- Gameplay vídeo GPU terminou normalmente: Meadow desktop/mobile `847/1003` frames; Neon desktop/mobile `633/1008`; todos `phase=finished`. Nenhuma regressão funcional foi observada; não há score visual novo alegado.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. O custo está acima do budget histórico, mas não há um único owner atribuível com redução segura e A/B visual disponível nesta rodada; alterar densidade/instancing/PostFX sem alvo seria especulativo. Próximo gap: instrumentar custo por subsistema/pass e então testar uma redução isolada.
+
 ## [2026-09-03T16:50Z] Autonomous tick — pilastras de fachada Neon aceitas
 - Gap único: o skyline Neon continuava legível como caixas repetidas, apesar dos roof caps aceitos; faltava articulação vertical nas fachadas.
 - Candidato único aceito em `src/track/Environment.js`: pilastras estreitas nos quatro cantos de cada torre, via uma `InstancedMesh` por fileira e material navy compartilhado; não cobre a textura emissiva nem toca corrida, input, áudio ou assets.

@@ -863,3 +863,30 @@ Escopo: re-medire o estado atual, testar a rota direta do GPU runner e escolher 
 
 - [x] LIVE6: Relatório, vault, wiki/index/log/memória sincronizados; gate-check passa; commit/push atômicos somente após decisão; QA/temp não é staged.
   EVIDENCE: documentação atualizada após aceitação; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem fora do staging; produto commitado atomicamente em `70edf1c` e push `69be222..70edf1c main -> main` confirmado; commit documental final será verificado no encerramento deste tick.
+
+# Tick atual — auditoria de budget pós-pilastras Neon (2026-09-03T17:16Z)
+
+Escopo: re-medire o custo real do frame após a melhoria aceita; escolher exatamente uma otimização mensurável, sem degradar Meadow/Neon desktop/mobile. O alvo prioritário é o budget de render já acima do contrato (`743 calls`, `1053 geometries`, `78 textures`).
+
+- [x] PB1: Estado git, baseline de build/AI e fonte do budget são re-medidos antes de qualquer alteração.
+  EVIDENCE: `2026-09-03T17:16:27Z`; `## main`, HEAD `cf89f07`; `node --check`/`git diff --check` passaram; build externo baseline `44 modules`, `903.92 kB`, `2.19s`; AI Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`; runtime report posterior mediu desktop `1593 calls/307480 tris/79 tex/1055 geo` e mobile `1057 calls/228098 tris/76 tex/992 geo`.
+
+- [x] PB2: Runtime GPU direto comprova ANGLE/Vulkan/RADV PHOENIX e coleta métricas renderer em Meadow/Neon, desktop/mobile, sem pageErrors.
+  EVIDENCE: fixed Neon canvas capture em desktop `1280×720` e mobile `390×844` reportou ANGLE/Vulkan `RADV PHOENIX`, palette `13/22/20/17/11` total `83`, `pageErrors=[]`; render reports high desktop `1593/307480/79/1055` e medium mobile `1057/228098/76/992`; probes Meadow/Neon usaram o mesmo runner direto.
+
+- [x] PB3: Uma única otimização de maior retorno é implementada apenas se houver custo atribuível e hipótese reversível; caso contrário nenhum src é aceito.
+  ABANDON: PB3 auditoria atribuiu custo a muitas famílias estáticas/instanciadas e passes do PostFX, sem um único owner seguro que pudesse ser reduzido sem A/B visual; nenhum `src/` foi alterado.
+  EVIDENCE: cena Neon contém `1978` meshes, `743` calls no snapshot histórico pós-pilastras e `1593` calls no runtime completo; `autoInstancing` já está ativo e os skyline meshes são instanciados/frustum-culled. Otimização sem alvo isolado seria especulativa.
+
+- [x] PB4: Checks estáticos, build externo (`SK3D_OUT_DIR=/tmp/... npm run build`) e regressão AI nas duas pistas passam.
+  EVIDENCE: `node --check`/`git diff --check` passaram; `SK3D_OUT_DIR=/tmp/sk3d-dist-current-tick npm run build` → `44 modules transformed`, `903.92 kB`, `✓ built in 2.19s`; Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+
+- [x] PB5: Vídeo/sequência GPU pós-otimização em Meadow/Neon desktop 1280x720 e mobile 390x844 termina normalmente, preserva pageErrors vazio e não cria regressão visual/funcional.
+  EVIDENCE: GPU runner direto, ANGLE/Vulkan `RADV PHOENIX`: Meadow desktop/mobile `847/1003` frames; Neon desktop/mobile `633/1008`; todos `phase=finished`. Fixed Neon desktop/mobile teve `pageErrors=[]`; nenhuma alteração de produto foi aplicada.
+
+- [x] PB6: A/B ou comparação pré/pós com protocolo idêntico demonstra redução de custo sem piora de leitura; candidato inconclusivo é revertido honestamente.
+  ABANDON: PB6 não há candidato de produto: a auditoria não encontrou redução isolável defensável, portanto não existe A/B de otimização a aprovar; nenhum delta visual é alegado.
+  EVIDENCE: fonte `src/` permaneceu sem diff; o único resultado desta rodada é auditoria de custo e documentação.
+
+- [x] PB7: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos somente se houver mudança aceita; QA/temp não é staged.
+  EVIDENCE: relatório repo/vault/wiki/memória atualizado; `qa-gpu-runner/` e `.hermes-tmp.*` não staged; nenhum commit de produto será criado nesta rodada, apenas documentação após gate-check.
