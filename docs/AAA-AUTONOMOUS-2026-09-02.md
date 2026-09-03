@@ -140,3 +140,7 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Fixed GPU capture reports for Meadow desktop/mobile: `1280×720` and `390×844`, `pageErrors=[]`, ANGLE Vulkan `RADV PHOENIX`; artifacts `qa-gpu-runner/finish-v2-{desktop,mobile}/finish.png`.
 - Paired pre/post vision confirmed more visible racing line and a thinner, still recognizable FINISH banner in both viewports, without a new artifact. Build and AI regression remained green.
 - Decision: **ACCEPTED**. Source is currently uncommitted pending final staging; `qa-gpu-runner/` remains intentionally untracked.
+
+## [2026-09-03] QA runner — Playwright fallback corrigido
+- `scripts/playtest-video.cjs` agora tenta `require('playwright')` e cai automaticamente para `/opt/pwtest/node_modules/playwright` no runner GPU.
+- Smoke real sem `NODE_PATH`: mobile `390×844`, GPU `RADV PHOENIX`, fase `finished`, `998` frames.

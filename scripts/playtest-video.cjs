@@ -1,5 +1,12 @@
 // Playtest ativo: ?demo autopilot, frames sequenciais via CDP screencast no GPU runner
-const { chromium } = require('playwright');
+let chromium;
+try {
+  ({ chromium } = require('playwright'));
+} catch (error) {
+  // O runner GPU mantém Playwright fora do projeto (/opt/pwtest). Resolver o
+  // caminho localmente evita depender de NODE_PATH na chamada remota.
+  ({ chromium } = require('/opt/pwtest/node_modules/playwright'));
+}
 const fs = require('fs');
 (async () => {
   const url = process.argv[2], outdir = process.argv[3], track = process.argv[4] || '1';
