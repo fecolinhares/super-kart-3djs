@@ -1266,6 +1266,7 @@ function buildGantry(startLine) {
   );
   lampPanel.position.copy(startLine.position).addScaledVector(nrm, 0);
   lampPanel.position.y = 5.62;
+  lampPanel.rotation.y = banner.rotation.y;
   lampPanel.castShadow = false;
   group.add(lampPanel);
   // Moldura escura fina ao redor do housing (legibilidade das luzes).
@@ -1274,6 +1275,7 @@ function buildGantry(startLine) {
     toonMaterial(0x1b2a41, {})
   );
   panelTrim.position.copy(lampPanel.position);
+  panelTrim.rotation.y = banner.rotation.y;
   panelTrim.position.z -= 0.08;
   panelTrim.castShadow = false;
   group.add(panelTrim);
@@ -1286,6 +1288,7 @@ function buildGantry(startLine) {
     );
     bracket.position.copy(startLine.position).addScaledVector(nrm, bx);
     bracket.position.y = 6.05; // span ~5.55..6.55 (liga housing ao beam)
+    bracket.rotation.y = banner.rotation.y;
     bracket.castShadow = false;
     group.add(bracket);
   }
