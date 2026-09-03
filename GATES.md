@@ -1070,3 +1070,29 @@ Escopo: re-medir o estado real e testar somente um owner de custo isolado com ca
 
 - [x] RK7: Docs repo/vault/wiki/memória sincronizados, gate-check passa, commit/push atômicos somente para mudança aceita e `qa-gpu-runner/` não é staged.
   EVIDENCE: relatório/vault/wiki/memória atualizados; `src/` sem diff; `qa-gpu-runner/` não staged; gate-check executado antes do commit documental.
+
+# Tick atual — revalidação temporal do owner de performance (2026-09-03T20:08Z)
+
+Escopo: re-medIr o owner `kart-ai` e executar o vídeo real nas quatro combinações; não aceitar alteração sem hook de custo temporalmente pareado e sem A/B visual idêntico.
+
+- [x] TICK1: Estado git, fonte do gap e baseline local re-medidos antes de agir.
+  EVIDENCE: `HEAD df4053f`; `## main`; `src/` sem diff; build baseline `44 modules`, `903.92 kB`; owner `kart-ai=1175 meshes/199650 tris`.
+
+- [x] TICK2: Runner GPU, browser e asset probe sondados sem expor credenciais.
+  EVIDENCE: SSH direto `192.168.0.195` retornou `GPU_HOST_OK PLAYWRIGHT_OK DRM_OK`; renderer do audit `ANGLE ... RADV PHOENIX`; probe de assets executado, estados sensíveis não registrados.
+
+- [x] TICK3: Um único gap/owner é avaliado com hipótese mensurável; nenhuma mudança especulativa permanece.
+  ABANDON: TICK3 `kart-ai` continua owner dominante, mas o renderer não expõe frame-time por owner; repetir `castShadow=false` não é defensável após o A/B anterior sem redução pareada. `src/` permaneceu limpo.
+  EVIDENCE: breakdown fixo atual Meadow desktop/mobile `1948/984 calls`, `1,089,095/821,397 tris`; `kart-ai=1175 meshes/199650 tris`; decisão `NO PRODUCT CHANGE ACCEPTED`.
+
+- [x] TICK4: Checks estáticos, build externo e regressão determinística AI passam.
+  EVIDENCE: `node --check` + `git diff --check`; `SK3D_OUT_DIR=/tmp/sk3d-dist-baseline-2000 npm run build` → `44 modules`, `903.92 kB`, `2.15s`; Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+
+- [x] TICK5: Vídeo GPU real Meadow/Neon desktop/mobile termina normalmente com ANGLE/Vulkan/RADV PHOENIX.
+  EVIDENCE: `playtest-video.cjs` remoto em `?demo`: Meadow desktop `831`, Meadow mobile `1001`, Neon desktop `648`, Neon mobile `1009` frames; quatro logs reportaram `RADV PHOENIX` e `phase=finished`; audit fixo reportou `pageErrors=[]` e WebGL2.
+
+- [x] TICK6: Decisão de produto é baseada em evidência e o relatório registra o próximo owner/probe.
+  EVIDENCE: nenhum patch de produto aceito; próximo gap é adicionar/usar probe fixo de frame-time/pass antes de novo candidato `kart-ai`/PostFX.
+
+- [x] TICK7: Docs repo/vault/wiki/memória sincronizados; gate-check e commit/push atômico concluídos; QA/temporários fora do staging.
+  EVIDENCE: relatório, vault `Super-Kart-3Djs.md`, wiki entity/index/log, `_index.md` e memória atualizados; `qa-gpu-runner/` e `docs/.hermes-tmp.*` fora do staging; commit/push verificados após gate-check.

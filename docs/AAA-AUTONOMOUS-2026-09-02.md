@@ -1,5 +1,12 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T20:08Z] Autonomous tick — vídeo temporal do owner `kart-ai`, sem mudança
+- Baseline real no `HEAD df4053f`: `src/` limpo; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-baseline-2000 npm run build` passou com `44 modules`, bundle `903.92 kB` em `2.15s`; AI Track 1/2 ×20 retornou `0 lost / 0 backwards / 0 crashes`.
+- Breakdown fixo no GPU runner `192.168.0.195` confirmou ANGLE/Vulkan `RADV PHOENIX`, WebGL2 e `pageErrors=[]`; Meadow desktop/mobile mediu `1948/984 calls` e `1,089,095/821,397 tris`; `kart-ai` segue em `1175 meshes/199650 tris`.
+- Vídeo ativo `?demo` real, quatro combinações, terminou `phase=finished`: Meadow desktop `831` frames, Meadow mobile `1001`, Neon desktop `648`, Neon mobile `1009`; todos com `RADV PHOENIX`.
+- O owner foi reavaliado, mas ainda não existe frame-time por pass/owner. O candidato anterior de `castShadow=false` já foi rejeitado; não houve alteração especulativa nesta rodada. **NO PRODUCT CHANGE ACCEPTED**.
+- Próximo gap: probe fixo que meça frame-time/pass temporalmente pareado antes de testar outro owner.
+
 ## [2026-09-03T19:42Z] Autonomous tick — owner de performance revalidado, sem mudança de produto
 - Baseline re-medido em `HEAD 0a4a8ed`; `src/` permaneceu sem diff. O owner mensurável continua `kart-ai` com `1175 meshes/199650 tris` no breakdown anterior.
 - Checks locais passaram: `node --check` nos módulos/runtime/QA, `git diff --check`; build externo via `SK3D_OUT_DIR=/tmp/sk3d-dist-current-tick npm run build` → `44 modules transformed`, `903.92 kB`, `2.09s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
