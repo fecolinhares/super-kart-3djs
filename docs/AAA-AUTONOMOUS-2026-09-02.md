@@ -3,6 +3,13 @@
 ## Scope
 Desktop and mobile web gameplay for Meadow and Neon City. Primary evidence is sequential GPU video capture on gpu-runner LXC 105 with Vulkan/RADV PHOENIX; vision auditors reviewed spaced frames from those sequences.
 
+## [2026-09-03T12:24:38Z] Autonomous tick — runner bloqueado, sem delta de produto
+- Baseline real: HEAD `573af50`; skyline Neon ainda usa `MeshBasicMaterial`, `fog:false`, sem AO executável (`SKYLINE_BASIC=True`, `SKYLINE_AO=False`); `src/` permaneceu sem diff.
+- Checks: `node --check` nos módulos críticos e `git diff --check` passaram; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1224 npm run build` passou com `44 modules`, bundle `902.76 kB`, em `2.21s`.
+- Regressão determinística: Track 1/2 ×20 seeds, `0 lost / 0 backwards / 0 crashes`; dev server `HTTP 200`.
+- Probes seguros: `PASSWORD_FILE=MISSING`, `PLAYWRIGHT=SSH_PASS`; geradores `TRIPO/GEMINI/ELEVENLABS=MISSING`. Sem autenticação do LXC105, não há vídeo/A-B ANGLE/Vulkan/RADV PHOENIX novo.
+- Decisão: nenhum patch de produto implementado ou aceito. Próximo gap permanece material híbrido/AO Neon emissive-safe condicionado à restauração verificável do runner.
+
 ## Evidence
 - Desktop gameplay captures: Meadow 653/671 frames; Neon 589/560 frames.
 - Mobile gameplay captures after `a1e1599`: Meadow 1002 frames; Neon 1002 frames; viewport 390x844, `hasTouch=true`.

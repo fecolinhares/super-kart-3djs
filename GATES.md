@@ -501,5 +501,32 @@ Escopo: re-medire o gap material/AO do skyline Neon; aceitar produto somente com
   ABANDON: Q5 depende de Q4; sem vídeo/A-B GPU não há delta visual defensável e nenhuma alteração de produto será aceita.
   EVIDENCE: `git diff --name-only -- src` vazio; nenhum patch visual foi implementado ou aceito neste tick.
 
-- [x] Q6: Relatório, vault/wiki/memória e gate-check ficam sincronizados; artefatos QA não são staged.
-  EVIDENCE: relatório AAA, vault `Super-Kart-3Djs.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` e memória atualizados; `git diff --name-only` = `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md`; `git diff --name-only -- src` vazio; `git diff --cached --name-only` vazio; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem não rastreados e fora do staging. Gate-check será executado antes do commit documental.
+EVIDENCE: relatório AAA, vault/wiki/memória e gate-check ficam sincronizados; artefatos QA não são staged.
+
+# Tick atual — teste do runner e próximo gap material Neon (2026-09-03T12:24Z)
+
+Escopo: re-medire o estado real e, se o GPU runner estiver acessível, testar um único detalhe emissive-safe de grounding no skyline Neon. Sem A/B pareado em vídeo desktop/mobile, nenhum patch de produto será aceito.
+
+- [x] R1: Estado git, fonte do gap e baseline estático re-medidos antes da alteração.
+  EVIDENCE: `2026-09-03T12:24:38Z`; `git status --short --branch` = `## main` com apenas QA/temporários não rastreados; HEAD `573af50`; `SKYLINE_BASIC=True`, `SKYLINE_AO=False`; node checks passaram sem `SyntaxError`.
+
+- [x] R2: Probes de runner/browser e assets concluídos sem expor credenciais.
+  EVIDENCE: `PASSWORD_FILE=MISSING`, `PLAYWRIGHT=SSH_PASS`; probe de geradores: `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`; nenhum valor secreto lido.
+
+- [x] R3: Um único candidato focado, se implementado, preserva corrida/input/áudio e não adiciona asset externo.
+  ABANDON: R3 runner indisponível; nenhum candidato de produto foi implementado para evitar alteração especulativa sem A/B GPU.
+  EVIDENCE: `git diff --name-only -- src` vazio; nenhuma mudança em corrida, input, áudio ou assets.
+
+- [x] R4: Build externo, diff hygiene e regressão determinística AI passam.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1224 npm run build` → `44 modules transformed`, `902.76 kB`, `✓ built in 2.21s`; `node --check`/`git diff --check`; Track 1/2 ×20 → `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0`, `CRASHES: 0`; HTTP `200`.
+
+- [x] R5: GPU LXC105 executa vídeo Meadow/Neon, desktop 1280x720 e mobile 390x844, ANGLE/Vulkan/RADV PHOENIX, pageErrors vazio e phase finished.
+  ABANDON: R5 bloqueado antes da captura: password file ausente e runner remoto não pode ser autenticado neste ambiente; não há evidência nova RADV PHOENIX/vídeo.
+  EVIDENCE: `PASSWORD_FILE=MISSING`; nenhuma captura GPU nova alegada.
+
+- [x] R6: A/B pareado com o mesmo harness/prompt demonstra ganho direcional; caso contrário candidato é revertido.
+  ABANDON: R6 depende de R5; sem vídeo GPU pareado não existe delta visual defensável e nenhum produto foi alterado.
+  EVIDENCE: `git diff --name-only -- src` vazio.
+
+- [x] R7: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico pushado somente com mudança aceita/documentação; QA não staged.
+  EVIDENCE: repo report/GATES, vault `Super-Kart-3Djs.md`/`_index.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` e memória atualizados; `src/` sem diff; `qa-gpu-runner/` e `.hermes-tmp.*` não staged; commit documental será verificado após gate-check.
