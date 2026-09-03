@@ -1,5 +1,13 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-03T17:45Z] Autonomous tick — instrumentação de custo por subsistema/pass
+- Baseline re-medido no `HEAD 3981e7e`: build externo `44 módulos/903.92 kB/2.10s`; AI Track 1/2 ×20 com `0 lost / 0 backwards / 0 crashes`.
+- Adicionado `scripts/audit-render-breakdown.cjs`, auditor QA-only que lê `window.__sk3d`, separa `namedRoots`/buckets de meshes, triângulos e instancing, e lista passes PostFX. Nenhuma regra, aparência, áudio ou asset foi alterado.
+- Runner direto via túnel reverso confirmou WebGL2 + ANGLE/Vulkan `RADV PHOENIX`, `pageErrors=[]`, em Meadow/Neon desktop `1280×720` e mobile `390×844`.
+- Medições: Meadow desktop/mobile `1948/963 calls`, `1,089,095/818,585 tris`, `95/89 textures`, `1345/1241 geometries`; Neon desktop/mobile `1586/873 calls`, `307,268/194,118 tris`, `79/76 textures`, `1051/988 geometries`.
+- Breakdown acionável: `kart-ai` = `1175 meshes/199650 tris`; Neon = `8` grupos nomeados de roof-caps/pilasters. Gameplay ativo terminou `phase=finished` com `827/991/667/1010` frames (Meadow d/m, Neon d/m).
+- Decisão: **QA INSTRUMENTATION ACCEPTED; NO PRODUCT CHANGE**. O budget continua alto, mas agora há owners mensuráveis; nenhuma redução é alegada sem A/B visual isolado.
+
 ## [2026-09-03T17:16Z] Autonomous tick — budget audit pós-pilastras, sem delta de produto
 - Baseline real: HEAD `cf89f07`; `src/` permaneceu sem diff de produto. Build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-current-tick npm run build` passou com `44 modules`, `903.92 kB`, `2.19s`; AI Track 1/2 ×20 retornou `0 lost / 0 backwards / 0 crashes`.
 - Runtime GPU direto no runner `192.168.0.195` confirmou ANGLE/Vulkan `RADV PHOENIX`, WebGL2, `pageErrors=[]` nas capturas fixas Neon desktop/mobile (`1280×720`/`390×844`), palette `13/22/20/17/11`, total `83`.

@@ -890,3 +890,25 @@ Escopo: re-medire o custo real do frame após a melhoria aceita; escolher exatam
 
 - [x] PB7: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos somente se houver mudança aceita; QA/temp não é staged.
   EVIDENCE: relatório repo/vault/wiki/memória atualizado; `qa-gpu-runner/` e `.hermes-tmp.*` não staged; commit documental `9f1ccf0` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi pushado para `origin/main`; nenhum commit de produto foi criado.
+
+# Tick atual — instrumentação de custo por subsistema/pass (2026-09-03T17:45Z)
+
+Escopo: transformar o budget alto em evidência acionável, sem alteração visual/gameplay. O único candidato é um auditor QA que separa contagem de nós renderizáveis por subsistema e lista passes PostFX; não otimizar sem owner isolado.
+
+- [x] RB1: Estado git, baseline de build/AI e fonte do budget foram re-medidos antes da alteração.
+  EVIDENCE: `2026-09-03T17:45:41Z`; `HEAD 3981e7e`; build externo `44 módulos/903.92 kB/2.10s`; AI Track 1/2 ×20 `0 lost / 0 backwards / 0 crashes`; budget anterior `1593 calls/307480 tris/79 tex/1055 geo` desktop e `1057/228098/76/992` mobile.
+
+- [x] RB2: Auditoria QA por subsistema/pass é implementada sem secrets, sem tocar `qa-gpu-runner/` e sem alterar regras ou aparência do jogo.
+  EVIDENCE: novo `scripts/audit-render-breakdown.cjs`; somente leitura via `window.__sk3d`, sem imports de configuração/secrets; `git diff --name-only -- src` vazio.
+
+- [x] RB3: Auditoria executa no runner GPU direto, confirma ANGLE/Vulkan/RADV PHOENIX, coleta breakdown Meadow/Neon desktop/mobile e pageErrors vazio.
+  EVIDENCE: `qa-gpu-runner/tick-render-breakdown/{meadow,neon}/{desktop,mobile}.json`; quatro execuções reportaram WebGL2 + ANGLE Vulkan `RADV PHOENIX`, `pageErrors=[]`; profiles high/medium e breakdown por `namedRoots`/buckets coletados.
+
+- [x] RB4: Checks estáticos, build externo compatível com virtiofs e regressão determinística AI nas duas pistas passam.
+  EVIDENCE: `node --check scripts/audit-render-breakdown.cjs`, `git diff --check`; build `SK3D_OUT_DIR=/tmp/sk3d-dist-baseline-current npm run build` → `44 módulos`, `903.92 kB`, sucesso; AI ×20 por pista `0 lost / 0 backwards / 0 crashes`.
+
+- [x] RB5: A instrumentação identifica owners mensuráveis e não reivindica redução de custo sem A/B; se não houver owner isolável, registrar blocker honestamente.
+  EVIDENCE: maior owner nomeado é `kart-ai` com `1175 meshes/199650 tris`; Neon expõe `8` grupos nomeados de roof-caps/pilasters; PostFX lista `RenderPass`, bloom, `ShaderPass` e `OutputPass`; decisão `NO PRODUCT CHANGE ACCEPTED`, nenhuma redução de custo alegada.
+
+- [x] RB6: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômico documenta a instrumentação; `qa-gpu-runner/` e temporários não são staged.
+  EVIDENCE: gate-check executado antes do commit → `ALL MET (224 met, 17 abandoned)`; `git diff --check` passou; serão staged somente `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md` e `scripts/audit-render-breakdown.cjs`; `qa-gpu-runner/`/temporários fora do staging.
