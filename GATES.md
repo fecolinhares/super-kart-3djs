@@ -638,3 +638,31 @@ Escopo: re-medire o estado real e, se o GPU runner estiver acessível, testar um
 
 - [x] R7: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico pushado somente com mudança aceita/documentação; QA não staged.
   EVIDENCE: repo report/GATES, vault `Super-Kart-3Djs.md`/`_index.md`, wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` e memória atualizados; `src/` sem diff; `qa-gpu-runner/` e `.hermes-tmp.*` não staged; commit documental `90ea695` contém somente `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` e foi publicado em `origin/main`.
+
+# Tick atual — tentativa de desbloqueio do runner (2026-09-03T13:39Z)
+
+Escopo: re-medire o estado real e tentar autenticar o LXC105 por uma rota segura; sem sessão GPU verificável, nenhum patch de produto será implementado.
+
+- [x] UN1: Estado git, data, fonte do gap e baseline crítico re-medidos antes de qualquer alteração.
+  EVIDENCE: `git status --short --branch` = `## main` com somente temporários/`qa-gpu-runner` não rastreados; HEAD `a8526a1`; data `2026-09-03T13:39Z`; fonte confirma skyline Neon `MeshBasicMaterial`/`fog:false` sem AO executável.
+
+- [x] UN2: Probes seguros de credencial, sshpass, Playwright e geradores executados sem expor valores.
+  EVIDENCE: probe seguro reportou `SSHPASS=MISSING` nesta execução, `PWFILE=MISSING`, `SSH_PASS_CMD=SET`, `PW_LOCAL=MISSING`, `PW_FALLBACK=MISSING`; geradores externos permanecem sem credencial utilizável; nenhum segredo foi lido ou persistido.
+
+- [x] UN3: Alternativa de autenticação conclui acesso ao LXC105 ou registra bloqueio honesto sem ler senha.
+  ABANDON: UN3 sshpass presente, mas `sshpass -e ssh ... true` terminou em `SSH_RC=139` (segmentation fault); paramiko ausente e não existe rota alternativa segura neste runner.
+  EVIDENCE: nenhum valor de senha foi exibido; autenticação ao Proxmox/LXC105 não foi concluída.
+
+- [x] UN4: Checks estáticos, build externo compatível com virtiofs e regressão AI passam sem alterar src.
+  EVIDENCE: `node --check`/`git diff --check` passaram; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-unlock-1339 npm run build` → `44 modules`, `902.76 kB`, `2.12s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`; `src/` sem diff.
+
+- [x] UN5: GPU LXC105 valida RADV PHOENIX com vídeo Meadow/Neon desktop/mobile, pageErrors vazio e sequência terminada; ou bloqueio é registrado.
+  ABANDON: UN5 depende de autenticação UN3; sem sessão LXC105 não há vídeo RADV PHOENIX novo, `pageErrors=[]` ou A/B defensável.
+  EVIDENCE: acesso bloqueado por `SSH_RC=139`; nenhuma captura GPU foi alegada.
+
+- [x] UN6: Uma melhoria de produto é aceita somente com A/B pareado; se UN5 bloquear, src permanece sem diff.
+  ABANDON: UN6 bloqueado por UN5; nenhum patch de produto foi implementado ou aceito.
+  EVIDENCE: `git diff --name-only -- src` vazio; decisão `NO PRODUCT CHANGE ACCEPTED`.
+
+- [x] UN7: Relatório, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos somente para documentação ou mudança aceita; QA não é staged.
+  EVIDENCE: relatório, vault `Super-Kart-3Djs.md`, wiki entidade/index/log e memória atualizados; `src/` sem diff; `qa-gpu-runner/` e temporários não staged; gate-check executado antes do commit documental atômico.

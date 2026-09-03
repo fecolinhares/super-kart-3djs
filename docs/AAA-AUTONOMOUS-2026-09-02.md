@@ -3,6 +3,13 @@
 ## Scope
 Desktop and mobile web gameplay for Meadow and Neon City. Primary evidence is sequential GPU video capture on gpu-runner LXC 105 with Vulkan/RADV PHOENIX; vision auditors reviewed spaced frames from those sequences.
 
+## [2026-09-03T13:39Z] Autonomous tick — sshpass local instável, sem delta de produto
+- Baseline real: HEAD `a8526a1`; `src/` sem diff; skyline Neon permanece `MeshBasicMaterial`/`fog:false`, sem AO executável.
+- Checks: `node --check`/`git diff --check` passaram; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-unlock-1339 npm run build` passou com `44 modules`, bundle `902.76 kB`, em `2.12s`.
+- Regressão determinística: Track 1/2 ×20 seeds, `0 lost / 0 backwards / 0 crashes`.
+- Probe seguro: `PWFILE=MISSING`, Playwright local/fallback `MISSING`; nesta execução `SSHPASS=MISSING` no subprocesso. `sshpass` está instalado, mas `sshpass -e ssh ... true` terminou `SSH_RC=139` (segmentation fault). Nenhum segredo foi lido ou exibido.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. Sem sessão LXC105 não há vídeo RADV PHOENIX, A/B pareado ou evidência visual nova. Próximo gap: restaurar uma rota SSH estável e executar A/B material/AO Neon emissive-safe.
+
 ## [2026-09-03T12:24:38Z] Autonomous tick — runner bloqueado, sem delta de produto
 - Baseline real: HEAD `573af50`; skyline Neon ainda usa `MeshBasicMaterial`, `fog:false`, sem AO executável (`SKYLINE_BASIC=True`, `SKYLINE_AO=False`); `src/` permaneceu sem diff.
 - Checks: `node --check` nos módulos críticos e `git diff --check` passaram; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1224 npm run build` passou com `44 modules`, bundle `902.76 kB`, em `2.21s`.
