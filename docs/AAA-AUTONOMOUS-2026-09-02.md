@@ -3,6 +3,14 @@
 ## Scope
 Desktop and mobile web gameplay for Meadow and Neon City. Primary evidence is sequential GPU video capture on gpu-runner LXC 105 with Vulkan/RADV PHOENIX; vision auditors reviewed spaced frames from those sequences.
 
+## [2026-09-03T14:10Z] Autonomous tick — material híbrido Neon rejeitado
+- Baseline real: HEAD `4b509c1`; `src/` limpo no início/fim; `buildNeonCity()` continua `MeshBasicMaterial`/`fog:false`, sem AO executável. Asset probe seguro: geradores sem estado utilizável; nenhum segredo lido.
+- Candidato único: fachada base opaca + camada de janelas transparente expandida `0.4%`, para separar volume de emissive sem repetir o PBR que escureceu as fachadas.
+- Checks do candidato e final: `node --check`, `git diff --check`, build externo. Final `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1410-final npm run build` passou com `44 modules`, `902.76 kB`, `2.56s`; AI Track 1/2 ×20: `0 lost / 0 backwards / 0 crashes`.
+- GPU LXC105: ANGLE Vulkan `RADV PHOENIX`; captura fixa desktop/mobile `1280×720`/`390×844`, `pageErrors=[]`, paleta `13,22,20,17,11`/83. Gameplay final: Meadow desktop/mobile `823/996` frames; Neon desktop/mobile `674/1003`; todos `phase=finished`.
+- A/B cego idêntico não demonstrou ganho direcional inequívoco de grounding/separação. Diff bruto candidato vs pré: desktop `218399/921600 (0.236978)` e mobile `71682/329160 (0.217773)` pixels acima de limiar 2; mudança de pixels não foi aceita como melhoria.
+- Decisão: **REVERTED / NO PRODUCT CHANGE ACCEPTED**. Próximo gap: novo material híbrido emissive-safe, mas com alvo visual mais específico e A/B fixo no mesmo protocolo.
+
 ## [2026-09-03T13:39Z] Autonomous tick — sshpass local instável, sem delta de produto
 - Baseline real: HEAD `a8526a1`; `src/` sem diff; skyline Neon permanece `MeshBasicMaterial`/`fog:false`, sem AO executável.
 - Checks: `node --check`/`git diff --check` passaram; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-unlock-1339 npm run build` passou com `44 modules`, bundle `902.76 kB`, em `2.12s`.

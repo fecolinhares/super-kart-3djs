@@ -694,3 +694,29 @@ Escopo: re-medire o estado atual; escolher somente o gap material/AO Neon susten
 
 - [x] CUR7: Relatório, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos somente para documentação ou mudança aceita; QA não é staged.
   EVIDENCE: relatório `docs/AAA-AUTONOMOUS-2026-09-02.md`, vault `Super-Kart-3Djs.md`/`_index.md`, wiki entidade/`index.md`/`log.md` e memória atualizados; `src/` sem diff; `qa-gpu-runner/` e temporários não staged; gate-check `ALL MET (166 met, 17 abandoned)`; commit documental `0442366` contém somente `GATES.md` e relatório e foi pushado para `origin/main`.
+
+# Tick atual — revalidação autônoma do maior gap Neon (2026-09-03T14:10Z)
+
+Escopo: re-medire o estado real; tentar uma rota autenticável do GPU runner sem expor credenciais; aceitar somente um patch material/AO Neon após A/B pareado em vídeo RADV PHOENIX. Sem sessão verificável, não alterar `src/`.
+
+- [x] ZN1: Estado git, data, fonte do gap e baseline estático re-medidos antes de agir.
+  EVIDENCE: `2026-09-03T14:10:37Z`; `## main`, HEAD `4b509c1`; `node --check` em main/Environment/MaterialLibrary passou; skyline confirmado como `MeshBasicMaterial`, `fog:false`, sem AO executável.
+
+- [x] ZN2: Probes seguros de runner, browser e geradores externos concluídos sem ler ou expor valores secretos.
+  EVIDENCE: `PWFILE=MISSING`, `SSHPASS=MISSING`, Playwright local `MISSING`, `/opt/pwtest=PRESENT`; rota direta LXC `root@192.168.0.195` respondeu `REMOTE=OK`, Chromium `/usr/bin/chromium`, `/dev/dri/renderD128=PRESENT`; geradores probeados apenas com estados redigidos, nenhum segredo lido.
+
+- [x] ZN3: Um único candidato de produto material/AO Neon foi implementado e revertido quando o A/B não demonstrou ganho defensável; `src/` terminou sem diff.
+  EVIDENCE: candidato híbrido fachada opaca + camada de janelas transparente testado em `Environment.js`, build/AI/GPU executados; `git restore -- src/track/Environment.js`; `git diff --name-only -- src` vazio.
+
+- [x] ZN4: Build de produção fora do virtiofs, diff hygiene e regressão determinística AI nas duas pistas passam.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-tick-1410-final npm run build` → `44 modules`, `902.76 kB`, `✓ built in 2.56s`; `node --check`/`git diff --check` passaram; Track 1/2 ×20 → `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
+
+- [x] ZN5: GPU LXC105 valida RADV PHOENIX com vídeo Meadow/Neon desktop/mobile, pageErrors vazio e fase terminada.
+  EVIDENCE: captura fixa pré/pós e gameplay final no LXC105 com ANGLE Vulkan `RADV PHOENIX`; vídeos finais Meadow desktop/mobile `823/996` frames e Neon desktop/mobile `674/1003`, todos `phase=finished`; skyline pré/pós desktop/mobile `1280×720`/`390×844`, `pageErrors=[]`, paleta `13,22,20,17,11`, total `83`.
+
+- [x] ZN6: A/B pareado com o mesmo harness/prompt demonstra ganho direcional; se inconclusivo, candidato é rejeitado honestamente.
+  ABANDON: ZN6 crítico cego não demonstrou ganho direcional inequívoco de grounding/separação; janelas continuaram legíveis e o candidato foi revertido. Diff bruto: desktop `218399/921600 (0.236978)`, mobile `71682/329160 (0.217773)` pixels acima de limiar 2; mudança de pixels não foi tratada como melhoria.
+  EVIDENCE: imagens pareadas `qa-gpu-runner/tick-1410-skyline/{desktop,mobile}` e `post-{desktop,mobile}`, mesmo prompt; decisão `REVERTED / NO PRODUCT CHANGE ACCEPTED`.
+
+- [x] ZN7: Relatório repo, vault/wiki/memória sincronizados; gate-check passa; commit/push atômicos somente para documentação ou mudança aceita; QA não é staged.
+  EVIDENCE: relatório `docs/AAA-AUTONOMOUS-2026-09-02.md`, vault/wiki (`Super-Kart-3Djs.md`, entidade, `index.md`, `log.md`) e memória atualizados; `node /home/jarvis/.hermes/profiles/coder/skills/unlazy/scripts/gate-check.mjs GATES.md` → `ALL MET (173 met, 17 abandoned)`; `src/` sem diff; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem não rastreados e fora do staging.
