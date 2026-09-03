@@ -21,4 +21,4 @@ Escopo: reduzir a obstrução do pórtico FINISH na aproximação sem remover o 
   EVIDENCE: A/B pareado baseline v1→v2 no mesmo capturador GPU; vision v2 identificou banner mais fino/elevado e maior área de pista em ambos os viewports, sem artefato novo. Delta bruto v1→v2: desktop/mobile medido em capturas separadas; nenhuma nota AAA absoluta alegada.
 
 - [x] G7: Docs de projeto, vault, wiki index/log/entidade e memória atualizados; commit atômico pushado em origin/main; qa-gpu-runner não staged.
-  EVIDENCE: documentação atualizada nesta rodada; `git diff --cached --name-only` será verificado antes do commit e deve conter somente fonte/docs, nunca `qa-gpu-runner/`.
+  EVIDENCE: commit `fe64533` contém somente `GATES.md`, `docs/AAA-AUTONOMOUS-2026-09-02.md` e `src/track/TrackBuilder.js`; `git push origin main` atualizou `82539e6..fe64533`; `qa-gpu-runner/` não foi staged.
