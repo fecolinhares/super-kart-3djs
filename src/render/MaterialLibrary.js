@@ -40,7 +40,7 @@ function hashCoreProps(props) {
 }
 
 function getQualityProfileName() {
-  return window.__sk3dQualityProfile?.name ?? 'medium';
+  return typeof window !== 'undefined' ? window.__sk3dQualityProfile?.name ?? 'medium' : 'medium';
 }
 
 /**

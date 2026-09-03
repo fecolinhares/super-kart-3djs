@@ -4626,6 +4626,10 @@ export class Environment {
     // massa liam como fachadas oliva (perto E longe). Noite urbana real:
     // maioria branca-fria/azul, âmbar como ACENTO raro.
     const windowColors = [0x9fc8ff, 0xd8e8ff, 0xff9a3c, 0x9fc8ff, 0xd8e8ff]; // 2/5 âmbar→peso 20%
+    // Deterministic palette telemetry: records the effective distribution after
+    // road-safety rejection, without touching materials or instance transforms.
+    const paletteCounts = new Array(windowColors.length).fill(0);
+    const paletteRows = [];
     const dummy = new THREE.Object3D();
     const dir = new THREE.Vector3();
     // Row A hugs the track (16-26m); row B sits behind it (26-38m); row C is
@@ -4653,6 +4657,7 @@ export class Environment {
         fog: false,
         toneMapped: false, // AUDIT R11: janelas acesas brilham sob ACES
       });
+      const paletteRowCounts = new Array(windowColors.length).fill(0);
       const towers = new THREE.InstancedMesh(geo, rowMat, count);
       let idx = 0;
       for (let i = 0; i < count; i++) {
@@ -4685,16 +4690,29 @@ export class Environment {
         dummy.rotation.set(0, rand() * 0.25, 0);
         dummy.updateMatrix();
         towers.setMatrixAt(idx, dummy.matrix);
-        towers.setColorAt(idx, new THREE.Color(windowColors[(rand() * 3) | 0]));
+        const paletteIndex = (rand() * windowColors.length) | 0;
+        towers.setColorAt(idx, new THREE.Color(windowColors[paletteIndex]));
+        paletteRowCounts[paletteIndex]++;
         idx++;
       }
       if (idx > 0) {
         towers.count = idx;
+        paletteRowCounts.forEach((n, colorIndex) => { paletteCounts[colorIndex] += n; });
+        paletteRows.push({ seed: row.seed, count: idx, counts: paletteRowCounts });
         towers.instanceMatrix.needsUpdate = true;
         if (towers.instanceColor) towers.instanceColor.needsUpdate = true;
         towers.castShadow = false;
         scene.add(towers);
       }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.__sk3dNeonPalette = {
+        colors: windowColors.slice(),
+        counts: paletteCounts.slice(),
+        rows: paletteRows.map((row) => ({ seed: row.seed, count: row.count, counts: row.counts.slice() })),
+        total: paletteCounts.reduce((sum, n) => sum + n, 0),
+      };
     }
 
     // --- glowing shop signs on the CLOSE tower row (street-level neon
