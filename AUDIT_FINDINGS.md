@@ -51,9 +51,9 @@ A variedade percebida depende demais de copas/escala. Troncos e bases de árvore
 
 Caixas de item são legíveis, mas os sinais de pickup/roulette não dominam claramente a pista em movimento. O efeito de brilho deve permanecer localizado; não pode contaminar kerbs, HUD ou linha de visão. Shell/banana/star e confetti não foram considerados comprovados nesta amostra quando não estavam simultaneamente visíveis; precisam de passes temporais dedicados.
 
-### P2 — HUD/mobile
+### P2 — HUD/mobile: densidade perceptual, sem overlap CSS
 
-HUD possui boa persistência de lap, posição, moedas e velocidade. No mobile, os botões têm leitura e área de toque adequadas, porém ocupam a borda inferior em conjunto com velocímetro; depois de corrigir o canvas, deve-se revalidar se o kart não fica escondido por essa faixa.
+O PNG mostra a faixa inferior visualmente carregada, mas o probe DOM real refuta colisão: HUD `y=526..696`, touch `y=748..830` (52 px de folga); speedo `112×112`; botões entre `74×74` e `80×80`, todos acima do mínimo de toque. Classificado P2 de densidade, não bug estrutural. Qualquer redesign deve preservar essas áreas e ser validado com gameplay ativo.
 
 ## Ordem do próximo loop
 
