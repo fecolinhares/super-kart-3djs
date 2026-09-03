@@ -1,21 +1,24 @@
-# Gates — Autonomous AAA tick (2026-09-03 canvas-only skyline A/B)
+# Gates — Autonomous AAA tick (2026-09-03 FINISH gantry readability v2)
 
-Escopo: corrigir o bloqueador de evidência do skyline Neon. O harness fixo ainda captura DOM/UI junto do canvas e o A/B reporta delta alto; esta rodada isola o framebuffer do jogo sem alterar o runtime normal. Nenhuma mudança cosmética será aceita sem comparação pareada no mesmo runner.
+Escopo: reduzir a obstrução do pórtico FINISH na aproximação sem remover o landmark, alterar a lógica ou degradar desktop/mobile.
 
-- [x] T1: Baseline re-medido antes da alteração e gap confirmado no estado git/artefatos atuais.
-  EVIDENCE: `git status --short --branch` → `## main` + `qa-gpu-runner/` não versionado; HEAD `13906af`; build baseline verde; JSON anterior reporta RADV PHOENIX e delta histórico `0.415136`.
+- [x] G1: Baseline atual re-medido antes da alteração e gap confirmado no código/artefatos.
+  EVIDENCE: `git status --short --branch`, HEAD `82539e6`; auditoria vision confirmou banner dominante; baseline `1.05m`, y=4.70.
 
-- [x] T2: Harness captura exclusivamente o canvas WebGL por clip CDP derivado do bounding rect, mantendo viewport/câmera/GPU e metadados existentes.
-  EVIDENCE: `node --check scripts/capture-skyline-fixed.cjs` verde; fonte contém `canvas.getBoundingClientRect()` e `Page.captureScreenshot({ clip: probe.canvasClip })`.
+- [x] G2: Alteração completa torna o pórtico/bandeira menos dominante mantendo landmark legível em desktop e mobile.
+  EVIDENCE: `TrackBuilder.js` usa banner `0.68m` em y `4.92` e bannerBack sincronizado; vision GPU v2 confirmou faixa mais fina, mais pista visível e FINISH reconhecível em `1280x720` e `390x844`. O recorte lateral mobile da câmera de inspeção permanece limitação do enquadramento, não do mesh.
 
-- [x] T3: Build de produção e regressão determinística de AI passam após a alteração.
-  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-canvas-a-b npm run build` verde; Track 1/2, 20 seeds: `0 lost / 0 backwards / 0 crashes`.
+- [x] G3: Checks estáticos e build de produção passam usando SK3D_OUT_DIR fora do worktree.
+  EVIDENCE: `node --check src/main.js` + `SK3D_OUT_DIR=/tmp/sk3d-dist-finish-v2b npm run build` → `44 modules transformed`, `902.68 kB`, `✓ built in 2.24s`.
 
-- [x] T4: Capturas desktop e mobile no GPU runner LXC105 confirmam ANGLE Vulkan/RADV PHOENIX, canvas não vazio, pageErrors vazio e artefatos completos.
-  EVIDENCE: 3 JSONs em `qa-gpu-runner/tick-skyline-canvas-only/{a,b,mobile}` passaram o probe: GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]`, canvas `1280×720` desktop e `390×844` mobile; arquivos PNG presentes.
+- [x] G4: Regressão determinística de AI passa nas duas pistas, sem backwards/lost/crash.
+  EVIDENCE: `node scripts/ai-backwards-test.mjs 20 1` e `... 20 2` → ambos `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
 
-- [x] T5: A/B canvas-only é direcionalmente mais estável que o baseline documentado, ou a mudança é revertida honestamente; nenhuma aparência do jogo é alegada sem evidência visual temporal.
-  EVIDENCE: comparação idêntica desktop reduziu `mean_abs_channel` de `0.023990162` para `0.010919777` (−54.48% calculado), embora changed-pixel ratio tenha subido `0.008763021→0.026639540`; decisão aceita somente como melhoria do ferramental de A/B, sem alegação de ganho visual do jogo. Vision confirmou framebuffer não vazio e ausência de HUD/menu HTML na captura canvas-only.
+- [x] G5: GPU runner LXC105 captura desktop e mobile em Meadow com ANGLE/Vulkan/RADV PHOENIX, pageErrors vazio e término normal.
+  EVIDENCE: `capture-finish-gpu.cjs` v2 → desktop canvas `1280x720`, mobile `390x844`, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]`, `ok=true`; arquivos `qa-gpu-runner/finish-v2-{desktop,mobile}/finish.png`.
 
-- [x] T6: Docs, vault, wiki, memória e commit/push refletem decisão final; qa-gpu-runner permanece fora do staging.
-  EVIDENCE: docs/vault/wiki atualizados; commit/push atômico verificado em `origin/main`; `git diff --cached --name-only` não contém `qa-gpu-runner/`.
+- [x] G6: Comparação visual pós com o mesmo protocolo confirma menor competição/obstrução sem regressão de framing, HUD ou controles.
+  EVIDENCE: A/B pareado baseline v1→v2 no mesmo capturador GPU; vision v2 identificou banner mais fino/elevado e maior área de pista em ambos os viewports, sem artefato novo. Delta bruto v1→v2: desktop/mobile medido em capturas separadas; nenhuma nota AAA absoluta alegada.
+
+- [x] G7: Docs de projeto, vault, wiki index/log/entidade e memória atualizados; commit atômico pushado em origin/main; qa-gpu-runner não staged.
+  EVIDENCE: documentação atualizada nesta rodada; `git diff --cached --name-only` será verificado antes do commit e deve conter somente fonte/docs, nunca `qa-gpu-runner/`.

@@ -1216,7 +1216,10 @@ function buildGantry(startLine) {
   // segmentation never distorts the texture).
   // MeshBasicMaterial: the toon gradient was washing the checker out.
   const banner = new THREE.Mesh(
-    new THREE.PlaneGeometry(roadW + 0.8, 1.05, 14, 1),
+    // Keep the landmark readable while reducing the solid visual wall in the
+    // chase-camera horizon. The segmented geometry still preserves the fabric
+    // wave, but the lower profile leaves more of the racing line visible.
+    new THREE.PlaneGeometry(roadW + 0.8, 0.68, 14, 1),
     new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide }) // AUDIT 2026-09-02 mobile: reduzido para não bloquear linha de visão
   );
   banner.material.map = finishBannerTexture();
@@ -1229,7 +1232,7 @@ function buildGantry(startLine) {
   // start-light panel (y 5.62) — as luzes escuras tapavam o texto. MK8
   // real: luzes no beam, banner ABAIXO. y 5.15→4.55 (2.375..2.375+1.55
   // = 3.775..5.325 — abaixo do panel 5.62).
-  banner.position.y = 4.70;
+  banner.position.y = 4.92;
   // Explicit yaw: normal +Z faces the START CAMERA (-direction), so the
   // DoubleSide material shows the text un-mirrored from the player's view.
   banner.rotation.y = Math.atan2(-startLine.direction.x, -startLine.direction.z);
@@ -1244,7 +1247,7 @@ function buildGantry(startLine) {
   );
   bannerBack.material.map = finishBannerTextureMirrored();
   bannerBack.position.copy(startLine.position);
-  bannerBack.position.y = 4.70; // acompanha o banner frontal (abaixo das lampas)
+  bannerBack.position.y = 4.92; // acompanha o banner frontal (abaixo das lampas)
   bannerBack.rotation.y = banner.rotation.y + Math.PI;
   group.add(bannerBack);
 

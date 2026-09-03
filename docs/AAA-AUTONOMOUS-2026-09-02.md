@@ -74,6 +74,14 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 5. Add audio capture/instrumentation and audit the same gameplay sequence: engine, drift, boost, item, hit, finish, pause/restart.
 6. Do not claim AAA completion until visual scorecard and audio evidence converge.
 
+## [2026-09-03] Autonomous tick — FINISH gantry v2 aceito
+- Gap: o banner FINISH ainda dominava a aproximação e bloqueava área útil da pista.
+- Experimento anterior `1.05→0.82m` foi rejeitado por A/B inconclusivo. Nesta iteração, `TrackBuilder.buildGantry()` usa banner `0.68m`, posição `y=4.92` (back face sincronizado).
+- Build passou (`902.68 kB`); AI 20 seeds por pista: `0 lost / 0 backwards / 0 crashes`.
+- GPU LXC105: ANGLE Vulkan/RADV PHOENIX, capturas diretas desktop `1280×720` e mobile `390×844`, `pageErrors=[]`, `ok=true`.
+- Vision pareada confirmou menos parede visual e mais pista visível nos dois viewports, sem artefato novo. Ressalva: o capturador de inspeção mobile corta laterais do texto por FOV; não é evidência de regressão do runtime.
+- Decisão: **ACEITO** como melhoria visual do pórtico; AO/materiais planos e bloom Neon continuam próximos gaps.
+
 ## [2026-09-03] Autonomous tick — Neon skyline palette experiment reverted
 - Gap selected from evidence: `Environment.buildNeonCity()` indexed a 5-color cold-dominant `windowColors` palette with `(rand() * 3)`, excluding 2 pale-blue variants and plausibly contributing to repeated/grouped distant facades.
 - Experiment: changed the index to `windowColors.length`; build passed, AI simulation passed, and GPU runner captured Meadow/Neon desktop+mobile with ANGLE Vulkan/RADV PHOENIX.
@@ -119,3 +127,10 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Paired desktop evidence: `mean_abs_channel 0.023990162→0.010919777` (−54.48%); changed-pixel ratio `0.008763021→0.026639540`, so the improvement is accepted as lower residual energy, not pixel identity.
 - Vision confirmed the new artifact is nonblank WebGL scene-only with no HTML HUD/menu. Decision: **accepted QA instrumentation only; no product visual score claimed**.
 - Artifacts: `qa-gpu-runner/tick-skyline-canvas-only/` (intentionally untracked).
+
+## [2026-09-03] Autonomous tick — FINISH gantry A/B rejected
+- Gap selected from repeated GPU/vision findings: the FINISH gantry/banner dominates the approach and competes with the kart/road.
+- Experiment: banner height `1.05→0.82m`, y `4.70→4.82m`, with mirrored back face kept aligned. Build and AI regression passed.
+- GPU LXC105: ANGLE Vulkan/RADV PHOENIX. Detailed sequences: Meadow desktop `624`, Neon desktop `745`, Meadow mobile `868`, Neon mobile `940` frames; completed normally. The runner did not emit pageErrors, so that field is not claimed.
+- Same-protocol fresh-eyes comparison of PRÉ/PÓS contact sheets found no defensible directional improvement: Meadow composition was effectively unchanged and Neon retained the same dominant framing. **Decision: reverted; no product commit.**
+- The temporary source experiment was restored to HEAD `82539e6`. Next highest-value gap: build a fixed, element-targeted FINISH capture with explicit page-error telemetry before another visual edit; do not use free-running frames for small geometry deltas.
