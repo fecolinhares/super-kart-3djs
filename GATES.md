@@ -1,23 +1,21 @@
-# Gates — Autonomous AAA tick (2026-09-03 skyline telemetry)
+# Gates — Autonomous AAA tick (2026-09-03 fixed skyline A/B)
 
-Escopo: uma mudança única, reversível e mensurável: expor e verificar a distribuição determinística de variantes de janelas Neon para viabilizar A/B visual válido. Não declarar AAA completo.
+Escopo: uma mudança única, reversível e mensurável: executar a captura fixa do skyline Neon já instrumentada, decidir pela evidência se existe ganho visual aceitável; se houver, aplicar somente o menor ajuste demonstrável.
 
-- [x] T1: Baseline atual re-medido e gap escolhido por evidência.
-  EVIDENCE: `git status --short --branch && git rev-parse --short HEAD` → `## main`, HEAD `111227c`; `curl` → `HTTP 200`; fonte confirmou `windowColors` com 5 slots e seleção anterior `(rand() * 3)`.
+- [x] T1: Baseline atual e gap de maior valor re-medidos antes de editar código.
+  EVIDENCE: `git status --short --branch && git rev-parse --short HEAD` → `## main`, HEAD `bcd60fd`, único estado não versionado permitido `qa-gpu-runner/`; `curl http://localhost:3457/` → `HTTP 200`; gap confirmado no relatório: A/B fixa do skyline.
 
-- [x] T2: Instrumentação mínima aplicada sem alterar a aparência nem incluir credenciais/assets.
-  EVIDENCE: `node --check src/track/Environment.js`, `src/render/MaterialLibrary.js`, `scripts/ai-backwards-test.mjs` e `scripts/audit-neon-palette.cjs` → sem saída; probe → `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`.
+- [x] T2: A/B fixa do skyline Neon usa o mesmo harness, a mesma câmera e a mesma resolução, com GPU real confirmada.
+  EVIDENCE: novo `scripts/capture-skyline-fixed.cjs`; duas execuções desktop e uma mobile no LXC105 com viewport `1280x720`/`390x844`, câmera derivada de `track.path` (`fov=48`), `phase=idle`; todas reportaram `ANGLE Vulkan ... RADV PHOENIX`, paleta `13,22,20,17,11`, total `83`, `pageErrors=[]`.
 
-- [x] T3: Build de produção passa usando saída fora do virtiofs.
-  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-skyline npm run build` → `✓ built in 2.10s`; warning existente de chunk >500 kB.
+- [x] T3: Decisão de implementação é baseada em evidência: melhoria aceita com delta visual ou nenhuma alteração/reversão documentada.
+  EVIDENCE: comparação de duas capturas desktop do mesmo harness: `pixels_different=382589/921600 (0.415136)`, `mean_abs=1.5608`; diferença concentrada em gameplay/UI animados (`sky=0.1103`, `road=0.7558`). Não há pré/pós de código visual nem delta direcional defensável; nenhuma alteração de aparência foi aceita. O harness de captura fixa foi aceito como melhoria de QA.
 
-- [x] T4: Regressão determinística de IA passa nas duas pistas.
-  EVIDENCE: `node scripts/ai-backwards-test.mjs 20 1 && ... 20 2` → Track 1 e Track 2: `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`; `onRoad=100` nos seeds reportados.
+- [x] T4: Build de produção passa usando saída fora do virtiofs e regressão determinística de IA passa nas duas pistas.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-skyline-fixed npm run build` → `✓ built in 2.14s`, bundle `902.67 kB`; `node --check` passou; `ai-backwards-test.mjs 20 1/2` → `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0` em ambas.
 
-- [x] T5: Telemetria determinística reporta a paleta Neon completa e o runtime não tem erros em GPU real.
-  EVIDENCE: LXC105 audit → `audit-neon-palette PASS`, ANGLE Vulkan `RADV PHOENIX`, `COUNTS: 13,22,20,17,11`, `TOTAL: 83`, `ROWS: 4`; reload idêntico e pageerrors vazio. Vídeo GPU: Meadow desktop `817` / mobile `994`; Neon desktop `651` / mobile `1004`, todos `phase=finished`.
+- [x] T5: Runtime GPU real pós-decisão não tem page errors e confirma RADV PHOENIX; capturas desktop/mobile Meadow/Neon são artefatos válidos.
+  EVIDENCE: fixed skyline JSONs registram `pageErrors=[]`, canvas `1280x720` e `390x844`; vídeos GPU do ciclo corrente permanecem válidos: Meadow `817` desktop/`994` mobile, Neon `651` desktop/`1004` mobile, todos `phase=finished`; captura fixa Neon desktop/mobile em `qa-gpu-runner/tick-skyline-fixed/`.
 
-- [x] T6: Docs, vault, wiki, memória e commit/push atômicos refletem a decisão; qa-gpu-runner permanece não versionado.
-  EVIDENCE: documentação e notas atualizadas nesta rodada; commit `b6c0d15` criado e `git push origin main` confirmou `111227c..b6c0d15 main -> main`; `qa-gpu-runner/` segue untracked e fora do staging.
-
-Resultado: instrumentação + correção da seleção de paleta aceitas; nenhum score visual alegado sem A/B fixo sincronizado. Próxima ação: captura fixa do skyline usando `__sk3dNeonPalette`.
+- [x] T6: Docs, vault, wiki, memória e commit/push atômicos refletem o resultado; qa-gpu-runner permanece não versionado.
+  EVIDENCE: `docs/AAA-AUTONOMOUS-2026-09-02.md`, vault `Super-Kart-3Djs.md`, wiki entity/index/log atualizados; commit/push registrados no relatório final; `qa-gpu-runner/` continua fora do staging.

@@ -81,6 +81,13 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Evidence: `qa-gpu-runner/tick-window-palette-pre/neon-desktop/` (650 frames) and `qa-gpu-runner/tick-window-palette/neon-desktop/` (652 frames), plus Meadow desktop/mobile and Neon mobile post captures; all GPU logs reported RADV PHOENIX and finished race state.
 - Blocker/next: build a deterministic fixed-camera skyline capture or instrument per-instance palette distribution before retrying; do not use free-running video frames for this isolated material A/B.
 
+## [2026-09-03] Autonomous tick — fixed skyline capture harness
+- Baseline: HEAD `bcd60fd`, local HTTP `200`, asset probe `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`; build and AI baseline remained green.
+- Added `scripts/capture-skyline-fixed.cjs`: clears localStorage, derives camera from the loaded `track.path`, freezes `raceManager.phase='idle'`, captures through CDP, records palette/camera/canvas/pageerrors, and rejects non-`RADV PHOENIX` runners.
+- GPU evidence: LXC105 ANGLE Vulkan/RADV PHOENIX; desktop `1280x720` and mobile `390x844`; palette identical `13,22,20,17,11`, total `83`; `pageErrors=[]`.
+- Paired desktop rerun was intentionally measured: `382589/921600` pixels differed (`0.415136`), with `sky=0.1103` and `road=0.7558`; the residual is animated/runtime/UI content, so no visual material change was accepted. The harness improvement is accepted; visual A/B remains blocked until the dynamic render path is masked or time-locked.
+- Artifacts: `qa-gpu-runner/tick-skyline-fixed/{a,b,mobile}/`; no source appearance delta.
+
 ## [2026-09-03] Autonomous tick — palette correction rejected pending deterministic A/B
 - Baseline remeasured: HEAD `c9af321`, HTTP 200, production build passed in `/tmp/sk3d-dist-tick`, and AI regression remained `0 lost / 0 backwards / 0 crashes` for 20 seeds on each track; asset probe remained `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`.
 - Candidate: change Neon skyline window selection from `(rand() * 3)` to `windowColors.length`; source audit confirmed this would expose all 5 declared colors instead of 3. The candidate was reverted.
