@@ -862,4 +862,4 @@ Escopo: re-medire o estado atual, testar a rota direta do GPU runner e escolher 
   EVIDENCE: candidato único em `Environment.js` adiciona pilastras de canto instanciadas; A/B fixo no mesmo harness/prompt mostrou ganho direcional de articulação/separação sem cobrir janelas. Diff acima de limiar 2: desktop `58093/921600 (0.063035)`, mobile `33246/329160 (0.101003)`; fresh-eyes gameplay não encontrou regressão. Renderer pós `743 calls/165556 triangles/1053 geometries/78 textures`.
 
 - [x] LIVE6: Relatório, vault, wiki/index/log/memória sincronizados; gate-check passa; commit/push atômicos somente após decisão; QA/temp não é staged.
-  EVIDENCE: documentação atualizada após aceitação; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem fora do staging; commit/push e gate-check verificados no encerramento deste tick.
+  EVIDENCE: documentação atualizada após aceitação; `qa-gpu-runner/` e `.hermes-tmp.*` permanecem fora do staging; produto commitado atomicamente em `70edf1c` e push `69be222..70edf1c main -> main` confirmado; commit documental final será verificado no encerramento deste tick.
