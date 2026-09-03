@@ -18,6 +18,6 @@ Escopo: uma mudança única, reversível e mensurável: expor e verificar a dist
   EVIDENCE: LXC105 audit → `audit-neon-palette PASS`, ANGLE Vulkan `RADV PHOENIX`, `COUNTS: 13,22,20,17,11`, `TOTAL: 83`, `ROWS: 4`; reload idêntico e pageerrors vazio. Vídeo GPU: Meadow desktop `817` / mobile `994`; Neon desktop `651` / mobile `1004`, todos `phase=finished`.
 
 - [x] T6: Docs, vault, wiki, memória e commit/push atômicos refletem a decisão; qa-gpu-runner permanece não versionado.
-  EVIDENCE: documentação e notas atualizadas nesta rodada; commit/push será verificado após o commit; `qa-gpu-runner/` segue untracked e fora do staging.
+  EVIDENCE: documentação e notas atualizadas nesta rodada; commit `b6c0d15` criado e `git push origin main` confirmou `111227c..b6c0d15 main -> main`; `qa-gpu-runner/` segue untracked e fora do staging.
 
 Resultado: instrumentação + correção da seleção de paleta aceitas; nenhum score visual alegado sem A/B fixo sincronizado. Próxima ação: captura fixa do skyline usando `__sk3dNeonPalette`.
