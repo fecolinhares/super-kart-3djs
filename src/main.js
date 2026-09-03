@@ -1515,6 +1515,7 @@ window.__sk3d = {
   scene,
   camera,
   renderer,
+  loop, // QA: deterministic harnesses may stop simulation after setup
   qualityProfile,
   capabilityProbe,
   renderReport: () => renderer.userData.qualityReport?.(),

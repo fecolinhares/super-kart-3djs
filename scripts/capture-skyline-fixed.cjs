@@ -25,7 +25,19 @@ const launchArgs = [
     args: launchArgs,
   });
   const context = await browser.newContext({ viewport, hasTouch: mobile, isMobile: false });
-  await context.addInitScript(() => localStorage.clear());
+  await context.addInitScript(() => {
+    localStorage.clear();
+    // The game creates procedural canvas textures during boot. Seed Math.random
+    // in this QA-only context so independent boots produce identical pixels.
+    let state = 0x6d2b79f5;
+    Math.random = () => {
+      state |= 0;
+      state = (state + 0x6d2b79f5) | 0;
+      let t = Math.imul(state ^ (state >>> 15), 1 | state);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  });
   const page = await context.newPage();
   const pageErrors = [];
   page.on('pageerror', (error) => pageErrors.push(error.message));
@@ -47,10 +59,18 @@ const launchArgs = [
     camera.updateProjectionMatrix();
     window.__freezeCam = true;
     game.updateCamera = () => {};
-    // Freeze the whole race after boot: this makes paired A/B captures compare
-    // the skyline, not a different kart/UI animation timestamp.
+    // Freeze simulation and presentation after boot: without stopping the
+    // loop, wind/turbo/UI animation advances between setup and CDP capture.
+    game.loop?.stop();
     game.raceManager.phase = 'idle';
-    game.renderer.render(game.scene, game.camera);
+    const style = document.createElement('style');
+    style.dataset.sk3dFixedCapture = 'true';
+    style.textContent = '* { animation: none !important; transition: none !important; }';
+    document.head.appendChild(style);
+    // Use the real post-processing path; direct renderer.render() made this
+    // harness disagree with the player-facing frame when bloom was enabled.
+    game.postfx?.render?.();
+    if (!game.postfx?.enabled) game.renderer.render(game.scene, game.camera);
     const canvas = document.querySelector('canvas');
     const gl = canvas?.getContext('webgl2') || canvas?.getContext('webgl');
     const ext = gl?.getExtension('WEBGL_debug_renderer_info');
@@ -66,6 +86,7 @@ const launchArgs = [
   });
   if (!/RADV PHOENIX/i.test(probe.gpu)) throw new Error(`GPU gate failed: ${probe.gpu}`);
   const cdp = await context.newCDPSession(page);
+  await new Promise((resolve) => setTimeout(resolve, 250));
   const screenshot = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
   const outPath = path.join(outDir, mobile ? 'neon-skyline-mobile.png' : 'neon-skyline-desktop.png');
   fs.writeFileSync(outPath, Buffer.from(screenshot.data, 'base64'));

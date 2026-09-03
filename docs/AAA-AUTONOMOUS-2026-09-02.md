@@ -102,3 +102,12 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - GPU video sequences: Meadow desktop `817`, mobile `994`; Neon desktop `651`, mobile `1004` frames; all ended `phase=finished`.
 - `MaterialLibrary.getQualityProfileName()` gained a Node-safe `typeof window` guard, fixing the deterministic AI harness import.
 - Accepted as an instrumentation/product-correctness pass. No visual score delta claimed until a fixed-camera A/B uses the telemetry.
+
+## [2026-09-03] Autonomous tick — deterministic skyline capture stabilized
+- Gap selected: the previous fixed-camera harness still allowed the update loop, procedural `Math.random()` textures, and CSS animations to mutate pixels between boots/capture (`0.415136` desktop pixel delta).
+- Change: `src/main.js` exposes the existing `GameLoop` through the QA-only `window.__sk3d.loop`; `scripts/capture-skyline-fixed.cjs` seeds `Math.random()` in the browser context, stops the loop after setup, disables CSS animation/transition, and renders through the real `PostFX` path before CDP capture.
+- Mechanical evidence: `SK3D_OUT_DIR=/tmp/sk3d-dist-deterministic npm run build` passed (`902.68 kB`); AI 20 seeds × both tracks passed with `0 lost / 0 backwards / 0 crashes`; asset probe remained `TRIPO_API_KEY=MISSING`, `GEMINI_API_KEY=MISSING`, `ELEVENLABS_API_KEY=MISSING`.
+- GPU evidence: LXC105 ANGLE Vulkan/RADV PHOENIX; fixed skyline desktop/mobile `1280×720`/`390×844`; palette `13,22,20,17,11`, total `83`, `pageErrors=[]`. Pair deltas: `a_vs_b 8076/921600 (0.008763021), mean_abs_channel 0.023990162`; third run `a_vs_c 23274/921600 (0.025253906), mean_abs_channel 0.016024667`.
+- Gameplay evidence: GPU video sequences Meadow desktop/mobile `829/999` frames and Neon desktop/mobile `708/1005` frames; all finished normally. Vision found active nonblank scenes, legible HUD/touch controls, and no gross rendering artifact; FINISH gantry remains visually dominant and is still open.
+- Decision: **ACCEPTED as QA instrumentation only; no appearance change claimed.** The harness is stable enough for directional A/B (low mean absolute residual) but not bit-identical; future material changes still require the same fixed harness and explicit threshold.
+- Artifacts: `qa-gpu-runner/tick-skyline-deterministic/` and `qa-gpu-runner/tick-gameplay-video/` (intentionally untracked).
