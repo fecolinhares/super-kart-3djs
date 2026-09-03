@@ -81,4 +81,4 @@ ABANDON: R4 bloqueado: `~/.hermes/.proxmox_root_pw` ausente; SSH para `root@192.
 ABANDON: R5 não executado porque R4 está bloqueado; candidato revertido, portanto nenhum delta visual foi aceito.
 
 - [x] R6: Docs repo/vault/wiki/index/log/entidade e memória atualizados; commit atômico pushado em origin/main; qa-gpu-runner não staged.
-  EVIDENCE: `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` atualizados; vault `Super-Kart-3Djs.md`/`_index.md` e wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` atualizados; memória persistente atualizada; commit/push deste ledger serão verificados no fechamento; `qa-gpu-runner/` e `AUDIT_FINDINGS.md` não staged.
+  EVIDENCE: `GATES.md` e `docs/AAA-AUTONOMOUS-2026-09-02.md` atualizados; vault `Super-Kart-3Djs.md`/`_index.md` e wiki `entities/super-kart-3djs.md`/`index.md`/`log.md` atualizados; memória persistente atualizada; commit `47696f7` pushado para `origin/main`; `qa-gpu-runner/` e `AUDIT_FINDINGS.md` não staged.
