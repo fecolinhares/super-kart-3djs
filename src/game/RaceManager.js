@@ -447,7 +447,12 @@ export class RaceManager {
               kart._sampleIndex = Math.min(191, Math.max(0, Math.round(st.progress01 * 192)));
             }
             kart._stuckT = 0;
-            kart._onRescue?.();
+            // R25: same MK8D semantics as the stuck rescue below — a rescued
+            // kart shouldn't keep a free shield/shell, and the player gets
+            // the Lakitu feedback (was _onRescue: no such hook, silent no-op).
+            kart.heldItem = null;
+            kart.heldItem2 = null;
+            kart._onRescued?.();
           }
         }
         continue;
