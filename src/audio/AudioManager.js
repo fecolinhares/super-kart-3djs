@@ -843,7 +843,9 @@ export class AudioManager {
   setMasterVolume(v) {
     this._volume = Math.max(0, Math.min(1, v));
     if (this._ctx && this._master) {
-      this._master.gain.setTargetAtTime(this._volume, this._ctx.currentTime, 0.02);
+      // R25: never reopen audio while muted — the UI still reads Sound off.
+      const target = this._muted ? 0 : this._volume;
+      this._master.gain.setTargetAtTime(target, this._ctx.currentTime, 0.02);
     }
   }
 
