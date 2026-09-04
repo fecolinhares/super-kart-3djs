@@ -1515,3 +1515,20 @@ Sem física/input/áudio/geometria/assets.
   EVIDENCE: censo acima (56.0%→11.7%, jitter -0.51→-0.01). GPU LXC105 `tmp-capture-gameplay.cjs` (?demo track=1, vite :3472): `tuft-pre-d/pre-m/post-d/post-m` → GPU `ANGLE ... RADV PHOENIX`, `10/10/10/10` frames, `lastPhase=finished` (mobile terminou cedo: frame_0005 já em FINISHED), `pageErrors=[]` nos 4. Método PRE: `git stash` + sleep 50s p/ HMR; pop restaurou o fix.
 - [x] M5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
   EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js`); `scripts/tmp-census-tufts.mjs` untracked fora do staging junto de `qa-gpu-runner/`.
+
+# Tick atual — auditoria visual full-matrix pós-tuft (2026-09-04, NO PRODUCT CHANGE)
+
+Escopo: varredura de regressão visual pós-fix tuft (5e7bd1e) em Meadow/Neon ×
+desktop/mobile no GPU real; escolher UM gap evidenciado ou documentar
+honestamente a ausência dele. Sem alteração especulativa.
+
+- [x] V1: Baseline re-medido e bateria estática/determinística verde antes de qualquer juízo.
+  EVIDENCE: HEAD `5e7bd1e`, branch `main`, `src/` limpo (só untracked `qa-gpu-runner/` + `scripts/tmp-census-tufts.mjs`); `node --check src/track/Environment.js` OK; `git diff --check` OK; `SK3D_OUT_DIR=/tmp/sk3d-dist-tick0904c npm run build` → `built in 2.08s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes` ambas.
+- [x] V2: Gameplay ?demo capturado nas 4 configs no LXC105 com ANGLE/Vulkan/RADV PHOENIX e pageErrors vazio.
+  EVIDENCE: `tmp-capture-gameplay.cjs` via Proxmox .102 pct exec 105, vite local `:3473` (LAN .103→.195): `md/mm/nd/nm` → GPU `ANGLE ... RADV PHOENIX`, `10/10/10/10` frames, fases `finished/finished/race/race`, `pageErrors=[]` nos 4; job saiu `ALL-CAPTURES-DONE` (exit 0).
+- [x] V3: 9 frames auditados com prompts idênticos/cegos cobrindo largada, mid-race, rescue, finish e HUD mobile.
+  EVIDENCE: md0 (pack + boost flames + DRAFT), md1 (AI kart + SUPER KART GP legível + tire stack OK), md2 (FINISH gantry + crowd), md5 (tela FINISHED 4th), mm1 (rescue Lakitu visível + grama verde saudável pós-tuft), nd0 (pack + DRAFT + torres), nd2 (2 karts em drift + smoke translúcido), nd4 (boost pad + item box + NEO KART legível), nm2 (touch LEFT/RIGHT/DRIFT/ITEM + karts à frente). Nenhum defeito concreto (nada flutuando/afundando/preto/ilegível).
+- [x] V4: Candidatos sem evidência foram descartados em vez de virarem patch (timer mobile, tire stack, streaks no céu).
+  EVIDENCE: timer ausente no mobile = intencional (`ui.css`: `.sk3d-time{display:none}` ≤480px, "MK8D não mostra relógio em corrida"); tire stack preto-branco-preto = design documentado (torus flat 0x14161c + meio branco, `buildTireStacks`); riscos brancos finos no céu mobile = sem par desktop, sem repetibilidade → não-gaps.
+- [x] V5: Nenhum src/ alterado; docs/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
+  EVIDENCE: `git diff -- src` vazio; ver commit atômico (só GATES.md + docs AAA); `qa-gpu-runner/` e `scripts/tmp-census-tufts.mjs` untracked fora do staging; vite `:3473` encerrado.
