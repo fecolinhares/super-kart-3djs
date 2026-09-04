@@ -1788,3 +1788,33 @@ delta direcional. Sem física/input/áudio/assets externos.
   EVIDENCE: mesma estação t=0.0275, mesmo kart/cam d; GPU `RADV PHOENIX`, `pageErrors=[]` 2/2; banner deslocado 1.0m, 32 banners, diff numérico PRE→POST `28.84%`. Crítica cega mesmo prompt: PRE "1/3 da tela, texto cortado" → POST "filete na borda, pista/crowd visíveis". Gameplay POST Meadow d 30s (timestamp 0:11.5): pista limpa, banners com postes no chão, `phase=finished`, `pageErrors=[]`. Decisão: PRODUCT CHANGE ACCEPTED.
 - [x] K5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push; qa-gpu-runner e helpers tmp fora do staging.
   EVIDENCE: ver commit atômico (só GATES.md + `src/track/Environment.js`); `qa-gpu-runner/` untracked fora do staging; helpers em /tmp + /opt/pwtest (não commitados); vite `:3481` encerrado pós-tick.
+
+# Tick atual — Neon signage: shop signs em branco + verso espelhado dos billboards (2026-09-05T00:00Z)
+
+Escopo: letreiros shop Neon eram caixas de cor sólida sem texto (close-up
+determinístico shop0-front: placa verde-menta em branco, pernas escuras) e
+billboards usam material único texturizado no Box → verso lê espelhado.
+Fix isolado no bloco de signage de `src/track/Environment.js`: textura
+canvas com palavra real por cor (4 cores → 4 pares frente/verso), verso
+desespelhado, laterais escuras. Sem física/input/áudio/câmera.
+
+- [x] W1: Baseline re-medido (git, checks estáticos, build SK3D_OUT_DIR, AI x20/pista) + capturas GPU Meadow/Neon d/m com RADV PHOENIX + pageErrors vazio.
+  CHECK: test -f /tmp/tick23/ab.json
+  EXPECT: exit 0
+  EVIDENCE: HEAD `8358e3a`, `src/` limpo (só `qa-gpu-runner/` untracked); `node --check` + `git diff --check` OK; build `/tmp/sk3d-dist-tick23` 4.40s; AI Track 1/2 x20 zero lost/backwards/crash. Capturas `?demo` 40s `tmp-capture-gameplay.cjs` no LXC105 (vite :3482): Meadow d/m + Neon d/m, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4, 10 frames cada, lastPhase finished/finished/race/race.
+- [x] W2: Gap único eleito por crítica vision mesmo prompt, registrado com 3 evidências visuais.
+  CHECK: test -f /tmp/tick23/gap.txt
+  EXPECT: exit 0
+  EVIDENCE: gap = shop signs Neon em branco. (1) close-up determinístico PRE `shop0-front` (?test+freezeCam+fov35, mesmo letreiro -81.6/38.7): placa verde-menta SÓLIDA, sem texto; (2) código: `new MeshBasicMaterial({color})` único por cor, sem canvas; (3) crop gameplay `neon-d frame_0002`: letreiro amarelo com perna cruzando a face lê como placeholder. Candidato inicial (pirâmides/linha em 1 frame Meadow) ABANDONADO após 4 probes: sem cones y>20, sem thin-meshes, balões = esferas off-screen, repro mesmo race-clock com céu limpo.
+- [x] W3: Fix focado e isolado (diff só no sistema do gap), checks + build + AI passam.
+  CHECK: test -f /tmp/tick23/verdict.txt
+  EXPECT: exit 0
+  EVIDENCE: diff só `src/track/Environment.js` (textura canvas TURBO/NITRO/APEX/PISTON + moldura) + `src/perf/instancing.js` (chave/array multimaterial — sem ele os 12 letreiros colapsavam em 1 InstancedMesh escuro: 0/12 presentes). `node --check` + `git diff --check` OK; build `/tmp/sk3d-dist-tick23c` 4.12s; AI Track 1/2 x20 zero.
+- [x] W4: A/B GPU pareado determinístico (mesma estação/câmera, RADV PHOENIX, pageErrors vazio) + crítica cega mesmo prompt confirma direção; se inconclusivo, revert + ABANDON.
+  CHECK: test -f /tmp/tick23/docs.txt
+  EXPECT: exit 0
+  EVIDENCE: mesmo letreiro/câmera 7m/fov35 `tmp-tick23-probe15.cjs`, GPU `RADV PHOENIX`, `pageErrors=[]`; sonda 0/12→12/12 meshes individuais MAP frente+verso, posições byte-idênticas. Crítica cega mesmo prompt: PRE "placa em branco" → POST frente "PISTON + logo nítido", verso "PISTON legível, NÃO espelhado" (canvas pré-espelhado lia espelhado → Box UV por face confirmado, sem mirror). Billboard NEON KART nítido. Gameplay POST Neon 40s: 10 frames, phase=race, `pageErrors=[]`. Decisão: PRODUCT CHANGE ACCEPTED.
+- [x] W5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push; qa-gpu-runner não staged.
+  CHECK: test -f /tmp/tick23/pushed.txt
+  EXPECT: exit 0
+  EVIDENCE: docs AAA + vault + wiki entity/log/index + memória atualizados; ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js` + `src/perf/instancing.js`); `qa-gpu-runner/` untracked fora do staging; helpers em /tmp + /opt/pwtest (não commitados); vite `:3482` encerrado pós-tick.

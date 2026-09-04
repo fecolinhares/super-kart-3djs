@@ -20,6 +20,14 @@
  *  - mesh tem userData.skipInstancing;
  *  - material transparente / com emissive animado (banner, pad glow);
  *  - grupo < 8 meshes (overhead do InstancedMesh não compensa).
+ *
+ * FIX 2026-09-05 (multimaterial): a chave agrupava só material[0] e o
+ * InstancedMesh recebia só material[0] — 12 shop signs com array
+ * [borda×4, frente, verso] + texturas distintas colapsavam num único
+ * InstancedMesh escuro (sumiam da cena: viraram instâncias da borda).
+ * Agora a chave cobre o array INTEIRO e o InstancedMesh recebe o array
+ * completo (Box tem 6 groups → renderer instancia por grupo). Checagens
+ * de transparent/emissive valem para QUALQUER face do array.
  */
 import * as THREE from 'three';
 
@@ -44,13 +52,16 @@ export function autoInstancing(scene, { minGroup = 8 } = {}) {
     if (o.parent && o.parent.name) return; // grupo nomeado = lógica própria
     const g = o.geometry;
     if (!g || !g.type || g.attributes == null) return;
-    const m = Array.isArray(o.material) ? o.material[0] : o.material;
-    if (!m) return;
-    if (m.transparent) return;
-    if (m.emissive && m.emissive.getHex && m.emissive.getHex() !== 0) return;
+    // FIX 2026-09-05 (multimaterial): array inteiro na identidade — agrupar
+    // só por material[0] fundia meshes com faces/texturas distintas.
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    if (!mats.length || mats.some((m) => !m)) return;
+    if (mats.some((m) => m.transparent)) return;
+    if (mats.some((m) => m.emissive && m.emissive.getHex && m.emissive.getHex() !== 0)) return;
     let params = '';
     try { params = JSON.stringify(g.parameters || {}); } catch { params = '?'; }
-    const key = `${g.type}|${params}|${materialKey(m)}|parent:${o.parent ? o.parent.uuid : 'root'}`;
+    const matKey = mats.map(materialKey).join('+');
+    const key = `${g.type}|${params}|${matKey}|parent:${o.parent ? o.parent.uuid : 'root'}`;
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(o);
   });
@@ -60,7 +71,9 @@ export function autoInstancing(scene, { minGroup = 8 } = {}) {
     if (meshes.length < minGroup) continue;
     const first = meshes[0];
     const geo = first.geometry;
-    const mat = Array.isArray(first.material) ? first.material[0] : first.material;
+    // FIX 2026-09-05 (multimaterial): preservar o array COMPLETO — passar só
+    // material[0] apagava as demais faces (foi o que sumiu com os letreiros).
+    const mat = first.material;
     const parent = first.parent;
     if (!parent) continue;
     const inst = new THREE.InstancedMesh(geo, mat, meshes.length);

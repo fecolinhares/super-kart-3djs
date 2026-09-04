@@ -4850,6 +4850,36 @@ export class Environment {
       const signGeo = new THREE.BoxGeometry(3.4, 0.8, 0.14);
       const signCols = [0xff2ec4, 0x2ec4ff, 0xffe23c, 0x3cff9a];
       const signLegMat = new THREE.MeshBasicMaterial({ color: 0x232a3a });
+      // FIX 2026-09-05 (shop-sign-text): letreiros eram caixas de cor sólida
+      // (close-up determinístico lia placeholder em branco). Textura canvas
+      // por cor: palavra real + disco logo; mesma textura frente+verso
+      // (BoxGeometry mapeia UV por face p/ leitura correta de fora);
+      // laterais emolduradas escuras.
+      const SHOP_WORDS = ['TURBO', 'NITRO', 'APEX', 'PISTON'];
+      const _shopCss = (hex) => '#' + hex.toString(16).padStart(6, '0');
+      const shopTex = (bgCss, word) => {
+        const cv = document.createElement('canvas');
+        cv.width = 256; cv.height = 64;
+        const c = cv.getContext('2d');
+        c.fillStyle = bgCss; c.fillRect(0, 0, 256, 64);
+        c.fillStyle = '#141030';
+        c.beginPath(); c.arc(30, 32, 18, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#ffffff';
+        c.beginPath(); c.arc(30, 32, 9, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#141030';
+        c.font = '900 40px "Baloo 2", "Nunito", Arial, sans-serif';
+        c.textAlign = 'left'; c.textBaseline = 'middle';
+        c.fillText(word, 58, 34, 190);
+        const t = new THREE.CanvasTexture(cv);
+        t.colorSpace = THREE.SRGBColorSpace;
+        return t;
+      };
+      const _shopEdge = new THREE.MeshBasicMaterial({ color: 0x141030 });
+      const _shopMats = signCols.map((col, i) => {
+        const css = _shopCss(col);
+        const face = new THREE.MeshBasicMaterial({ map: shopTex(css, SHOP_WORDS[i]) });
+        return [_shopEdge, _shopEdge, _shopEdge, _shopEdge, face, face];
+      });
       const s2Rand = rnd(5551);
       const shopProbe = new THREE.Vector3();
       const shopTan = new THREE.Vector3();
@@ -4888,10 +4918,7 @@ export class Environment {
         if (!found) continue;
         const sy = this._gy(sx, sz);
         const cy = sy + 2.6 + s2Rand() * 0.8;
-        const sign = new THREE.Mesh(
-          signGeo,
-          new THREE.MeshBasicMaterial({ color: signCols[(s2Rand() * 4) | 0] })
-        );
+        const sign = new THREE.Mesh(signGeo, _shopMats[(s2Rand() * 4) | 0]);
         // Yaw fold-proof via atan2 da direcao ao centro da pista (NUNCA
         // ler rotation apos lookAt: Euler XYZ folda o yaw real). Mesma
         // altura => lookAt puro yaw => rotation.y direta equivale.
@@ -4925,6 +4952,9 @@ export class Environment {
         const cv = document.createElement('canvas');
         cv.width = 256; cv.height = 128; // AUDIT R25: 128→256 — texto real legível a distância
         const c = cv.getContext('2d');
+        // NOTA 2026-09-05: BoxGeometry já mapeia UV por face p/ leitura
+        // correta de fora (evidência GPU: canvas pré-espelhado lia ESPELHADO
+        // no verso). Mesma textura frente+verso — sem canvas espelhado.
         c.fillStyle = bg; c.fillRect(0, 0, 256, 128);
         // bold logo disc + REAL WORD (critic Neon 7.5/10 'letreiros ilegíveis')
         c.fillStyle = fg;
@@ -4941,6 +4971,7 @@ export class Environment {
         t.colorSpace = THREE.SRGBColorSpace;
         return t;
       };
+      const bbEdgeMat = new THREE.MeshBasicMaterial({ color: 0x141030 });
       const bbMats = [
         new THREE.MeshBasicMaterial({ map: bbTex('#141030', '#ff2ec4', '#fff', 'NEON') }),
         new THREE.MeshBasicMaterial({ map: bbTex('#1a1440', '#2ec4ff', '#fff', 'NEO') }),
@@ -4972,7 +5003,10 @@ export class Environment {
       }
       for (const b of bbPos) {
         // AUDIT R25b: 7→9m largura (texto legível a distância da chase cam)
-        const board = new THREE.Mesh(new THREE.BoxGeometry(9, 4.4, 0.4), bbMats[b.m]);
+        const board = new THREE.Mesh(
+          new THREE.BoxGeometry(9, 4.4, 0.4),
+          [bbEdgeMat, bbEdgeMat, bbEdgeMat, bbEdgeMat, bbMats[b.m], bbMats[b.m]]
+        );
         board.position.set(...b.p);
         // AUDIT R25c: lookAt o centro da pista — face frontal visível
         if (b.look) {
