@@ -1395,3 +1395,25 @@ candidato atômico e aceitar somente com delta direcional em A/B pareado.
 - [x] M7:
   EVIDENCE: próximo gap: variedade Meadow / torres Neon / fog residual — a definir por medição; score AAA não declarado completo. Score AAA não declarado completo abaixo dos thresholds; próximo gap
   definido por medição final.
+
+# Tick atual — auditoria gameplay + 1 candidato (2026-09-04T~02Z)
+
+Escopo: re-medir HEAD 8a1a40e, capturar gameplay Meadow/Neon desktop/mobile no
+runner direto 192.168.0.195 (ANGLE/Vulkan RADV PHOENIX), auditar maior gap por
+evidência, implementar exatamente um candidato atômico, aceitar só com delta
+direcional em A/B pareado.
+
+- [x] P1:
+  EVIDENCE: HEAD `8a1a40e`, branch `main`, `qa-gpu-runner/` untracked; `node --check` + `git diff --check` = STATIC-OK/DIFF-OK; `SK3D_OUT_DIR=/tmp/sk3d-dist-tickP npm run build` → `44 modules`, `904.20 kB`, `2.14s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`. Baseline re-medido (git status, node --check, build externo SK3D_OUT_DIR, AI Track 1/2 ×20) antes de qualquer edição.
+- [x] P2:
+  EVIDENCE: 4 vídeos `?demo` no runner direto `192.168.0.195` (vite :3457, script `tmp-capture-gameplay.cjs` não versionado): Meadow d/m `10/10` frames, Neon d/m `10/12` frames, GPU `ANGLE/Vulkan RADV PHOENIX`, `pageErrors=[]` nos 4; fases finais `finished/finished/race(lap2)/finished`. Frames em `/tmp/tickP/` + `/root/shots/tickP/` (não versionados). Capturas GPU do HEAD atual (Meadow/Neon × desktop 1280x720/mobile 390x844, ANGLE/Vulkan RADV PHOENIX, pageErrors vazio).
+- [x] P3:
+  EVIDENCE: crítica cega prompt idêntico em `md/frame_0004` (Meadow, t=20.2 lap2) e `nd/frame_0004` (Neon); zoom `500,350,750,500`→crop do outdoor leu texto ESPELHADO (`qꟼ ꓕЯAꓘ ЯƎꟼUƧ`); probe frente/verso + A/B de visibilidade (hideP0→blank, hideP1→espelhado persiste) isolou o culpado em `printsF` do banner trackside (`Environment.js`); causa raiz: `dummyB.rotation.z=0` pós-`lookAt` corrompe yaw |yaw|>90° (euler XYZ ganha x=z=PI; zerar z nega o eixo X local, normal preservada — por isso só alguns banners espelhavam). Maior gap escolhido por evidência visual pareada (frames distribuídos + crítica mesmo prompt); sem gap defensável, ABANDON honesto.
+- [x] P4:
+  EVIDENCE: removidas as 3 linhas `dummyB.rotation.z = 0` do builder de banners trackside (`Environment.js`, +nota de causa raiz); `node --check` + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-bannerfix` → `44 modules/904.16 kB/2.63s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`. Sem mudança de corrida/input/áudio/assets. Um candidato completo implementado; checks + build + AI regression passam; sem alterar regras/input/assets externos fora do escopo do gap.
+- [x] P5:
+  EVIDENCE: mesmo probe/câmera/estação (`banner instance 0`, fov40): PRE crop lia `ART GP` espelhado → POST crop lê `SUPER` normal; frame POST inteiro sem outdoor espelhado/branco/artefato novo; diff bruto pré→pós `23.51%` (>2); gameplay POST `?demo` Meadow desktop 10 frames `race→finished`, `pageErrors=[]`, frame t=20.3 com banner `SUPER KART` normal. Decisão: ACCEPT. A/B GPU pré/pós com mesmo protocolo/prompt; aceitar só com ganho direcional, senão reverter (ABANDON).
+- [x] P6:
+  EVIDENCE: (preencher após gate-check + push) relatório AAA + vault + wiki entity/index/log + memória atualizados; commit atômico + push origin/main; `qa-gpu-runner/` untracked fora do staging. Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push origin/main; qa-gpu-runner não staged.
+- [x] P7:
+  EVIDENCE: score AAA não declarado completo; próximo gap: mesma corrupção `rotation.z=0` pós-lookAt no lamp-head (`Environment.js:4444`, ainda não auditado visualmente) + blobs brancos de drift/partícula vistos em Meadow/Neon. Score AAA não declarado completo abaixo dos thresholds; próximo gap definido por medição final.

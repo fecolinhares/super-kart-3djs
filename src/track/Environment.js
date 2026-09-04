@@ -2764,7 +2764,11 @@ export class Environment {
       // frame
       dummyB.position.set(bx, by + 2.5, bz);
       dummyB.lookAt(p.x, by + 2.5, p.z); // face the track
-      dummyB.rotation.z = 0;
+      // NOTE (2026-09-04): NEVER zero rotation.z after lookAt here. lookAt
+      // yields pure yaw (target at same elevation), but its XYZ-euler form
+      // carries x=z=PI for |yaw|>90deg; forcing z=0 then rebuilds a
+      // different basis with the local X axis negated — normal still faces
+      // the track, but the print reads MIRRORED. Pure yaw needs no fixup.
       dummyB.scale.set(1, 1, 1);
       dummyB.updateMatrix();
       frames.setMatrixAt(made, dummyB.matrix);
@@ -2772,14 +2776,12 @@ export class Environment {
       // print front (+z local 0.05, 1cm à frente do box) e espelho back (-z)
       dummyB.position.set(bx, by + 2.5, bz);
       dummyB.lookAt(p.x, by + 2.5, p.z);
-      dummyB.rotation.z = 0;
       dummyB.translateZ(0.05);
       dummyB.scale.set(1, 1, 1);
       dummyB.updateMatrix();
       printsF.setMatrixAt(made, dummyB.matrix);
       dummyB.position.set(bx, by + 2.5, bz);
       dummyB.lookAt(p.x, by + 2.5, p.z);
-      dummyB.rotation.z = 0;
       dummyB.translateZ(-0.05);
       // AUDIT 2026-08-25 (GPU real LXC105): a cópia de trás herdava a mesma
       // orientação → o texto lia ESPELHADO quando o banner era visto por trás.
