@@ -1818,3 +1818,34 @@ desespelhado, laterais escuras. Sem física/input/áudio/câmera.
   CHECK: test -f /tmp/tick23/pushed.txt
   EXPECT: exit 0
   EVIDENCE: docs AAA + vault + wiki entity/log/index + memória atualizados; ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js` + `src/perf/instancing.js`); `qa-gpu-runner/` untracked fora do staging; helpers em /tmp + /opt/pwtest (não commitados); vite `:3482` encerrado pós-tick.
+
+# Tick atual — turbo pad surfacing Neon/mobile (2026-09-04T21:30Z)
+
+Escopo: pad de turbo lê como laje amarela chapada sem borda (mobile portrait
+`neon-m frame_0005`: metade inferior do frame) + glow chevrons desalinhados
+da base (0.20/0.50/0.80 vs 0.26/0.50/0.74 = duplo fantasma no pulse
+0.06-0.14). Fix SÓ em `src/render/Materials.js` (textura 512x128 + máscara
+glow): edge trim lateral, âmbar aprofundado, contorno chevron mais forte,
+glow realinhado. Sem geometria/física/input/áudio. A/B determinístico
+pareado no GPU LXC105, keep/revert por delta direcional.
+
+- [x] Y1: Baseline re-medido (git src limpo, checks, build SK3D_OUT_DIR, AI 20x2 zero) + 4 gameplays GPU ?demo 40s (Meadow/Neon x d/m, RADV PHOENIX, pageErrors[]) + gap eleito por crítica vision mesmo prompt com 3 evidências.
+  CHECK: test -f /tmp/tick25/ab.json
+  EXPECT: exit 0
+  EVIDENCE: HEAD `1335332` src limpo; `node --check` + `git diff --check` OK; build `/tmp/sk3d-dist-tick24` 4.33s; AI 20x2 `0/0/0`; 4 gameplays 40s `RADV PHOENIX` pageErrors[] 4/4; gap = pad laje amarela sem borda (neon-m frame_0005 meia-tela + neon-d mid-field flat + glow desalinhado 0.20 vs 0.26 no código).
+- [x] Y2: Repro determinístico do pad (?test track 2, kart sobre o pad, freezeCam) captura PRE d/m com RADV PHOENIX + pageErrors[].
+  CHECK: test -f /tmp/tick25/pre-meta.txt
+  EXPECT: exit 0
+  EVIDENCE: `tmp-capture-pad.cjs` padT=0.1653 8 pads, `RADV PHOENIX`, pageErrors[] 2/2, glow fixo 0.10, RNG seedado; `/tmp/tick25/pad-pre-{desktop,mobile}.png`.
+- [x] Y3: Fix isolado só em Materials.js (edge trim + âmbar + contorno + glow align); checks + build + AI passam; posições/tamanhos dos chevrons da base preservados (R12c/R13c).
+  CHECK: test -f /tmp/tick25/verdict.txt
+  EXPECT: exit 0
+  EVIDENCE: diff só `src/render/Materials.js` (moldura #5f2f00 + filete, âmbar aprofundado, contorno 3.5/0.75, glow 0.26/0.50/0.74 half 0.09); `node --check` OK; build `/tmp/sk3d-dist-tick25` 2.14s; AI 20x2 `0/0/0`.
+- [x] Y4: A/B GPU pareado mesmo protocolo confirma delta direcional (borda legível, sem duplo fantasma, sem regressão); se inconclusivo, revert total + ABANDON honesto.
+  CHECK: test -f /tmp/tick25/docs.txt
+  EXPECT: exit 0
+  EVIDENCE: mesma estação padT=0.1653 d/m, `RADV PHOENIX`, pageErrors[]; diff `2.77%` d / `8.00%` m; crítica cega PRE→POST (borda definida, âmbar dourado, chevron simples); gameplay POST Neon 24s 6 frames race pageErrors[]. Decisão: ACCEPT.
+- [ ] Y5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push origin main; qa-gpu-runner/ fora do staging.
+  CHECK: test -f /tmp/tick25/pushed.txt
+  EXPECT: exit 0
+  EVIDENCE: pending

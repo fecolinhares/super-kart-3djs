@@ -855,11 +855,24 @@ export function turboPadTexture() {
   // (Feco QA 2026-08-12: the old #ffd94a start + white wash read as a blown
   // white blob with no arrow contrast — MK8 amber is a MEDIUM gold.)
   const g = ctx.createLinearGradient(0, 0, W, 0);
-  g.addColorStop(0, '#ffc233');
-  g.addColorStop(0.5, '#ffa01f');
-  g.addColorStop(1, '#e87800');
+  g.addColorStop(0, '#ffb52e');
+  g.addColorStop(0.5, '#f5971a');
+  g.addColorStop(1, '#d96a00');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
+  // TICK25 (pad edge definition): o pad lia como laje amarela chapada sem
+  // borda (mobile portrait: metade do frame). Moldura escura em TODA a volta
+  // da textura (laterais = topo/fundo do canvas, V across; entrada/saída =
+  // esq/dir, U travel) + filete interno claro. As setas têm 12% de margem
+  // (R12c), então a moldura de 10/6px nunca as toca.
+  ctx.fillStyle = '#5f2f00';
+  ctx.fillRect(0, 0, W, 10);          // lateral edge (V=0)
+  ctx.fillRect(0, H - 10, W, 10);     // lateral edge (V=1)
+  ctx.fillRect(0, 0, 6, H);           // entry edge (U=0)
+  ctx.fillRect(W - 6, 0, 6, H);       // exit edge (U=1)
+  ctx.fillStyle = 'rgba(255,217,122,0.9)';
+  ctx.fillRect(0, 10, W, 2);
+  ctx.fillRect(0, H - 12, W, 2);
   // Three BIG ">>>" chevrons down the length, tips +X, strong glow.
   // AUDIT R78 (crítico pós-R77: 'chevrons estourados, sem definição'): a
   // BASE do pad ainda tinha lineWidth 22 + shadow 0.9 — chevrons viravam
@@ -890,10 +903,11 @@ export function turboPadTexture() {
     ctx.stroke();
   }
   // Contorno escuro fino para separar as setas do laranja (definição).
+  // TICK25: 2.5/0.55 → 3.5/0.75 — no mobile o branco lavava no âmbar claro.
   ctx.save();
   ctx.shadowBlur = 0;
-  ctx.strokeStyle = 'rgba(150,80,0,0.55)';
-  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = 'rgba(120,60,0,0.75)';
+  ctx.lineWidth = 3.5;
   for (const fx of [0.26, 0.50, 0.74]) {
     const cx = W * fx;
     const cy = H / 2;
@@ -978,10 +992,14 @@ export function turboPadGlowTexture() {
   ctx.lineJoin = 'round';
   ctx.shadowColor = 'rgba(255,255,255,0.9)';
   ctx.shadowBlur = 8; // AUDIT R67: 10→8 — halo menor
-  for (const fx of [0.20, 0.50, 0.80]) {
+  // TICK25: 0.20/0.50/0.80 → 0.26/0.50/0.74 + half 0.11→0.09 — a máscara do
+  // glow DESALINHADA da base criava duplo fantasma permanente no pulse
+  // 0.06-0.14 (30px de offset em 512). Mesmos centros e largura da base;
+  // o halo continua vindo do shadowBlur.
+  for (const fx of [0.26, 0.50, 0.74]) {
     const cx = W * fx;
     const cy = H / 2;
-    const half = W * 0.11; // AUDIT R67: 0.13→0.11 — setas menores, separadas
+    const half = W * 0.09; // AUDIT R67: 0.13→0.11 — setas menores, separadas
     const hh = H * 0.30;   // AUDIT R67: 0.34→0.30
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
@@ -992,10 +1010,10 @@ export function turboPadGlowTexture() {
   ctx.shadowBlur = 14;
   ctx.lineWidth = 5;
   ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-  for (const fx of [0.20, 0.50, 0.80]) {
+  for (const fx of [0.26, 0.50, 0.74]) {
     const cx = W * fx;
     const cy = H / 2;
-    const half = W * 0.11;
+    const half = W * 0.09;
     const hh = H * 0.30;
     ctx.beginPath();
     ctx.moveTo(cx - half, cy - hh);
