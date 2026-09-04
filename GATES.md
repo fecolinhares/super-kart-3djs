@@ -1417,3 +1417,21 @@ direcional em A/B pareado.
   EVIDENCE: relatório AAA + vault `Super-Kart-3Djs.md` + wiki entity/index/log + memória atualizados; `gate-check.mjs` → `ALL MET (349 met, 31 abandoned)`; commit `f7964f8` (`8a1a40e..f7964f8 main -> main`) contém somente GATES/docs/`src/track/Environment.js`; `qa-gpu-runner/` untracked fora do staging. Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push origin/main; qa-gpu-runner não staged.
 - [x] P7:
   EVIDENCE: score AAA não declarado completo; próximo gap: mesma corrupção `rotation.z=0` pós-lookAt no lamp-head (`Environment.js:4444`, ainda não auditado visualmente) + blobs brancos de drift/partícula vistos em Meadow/Neon. Score AAA não declarado completo abaixo dos thresholds; próximo gap definido por medição final.
+
+# Tick atual — outdoor Neon "NEON" cortado (2026-09-04)
+
+Escopo: corrigir o overflow do texto no canvas dos large billboards Neon
+(`bbTex` pinta `word` 900 64px em x=110 num canvas 256px: `NEON` ≈180px →
+termina ~290px, fora do canvas; no GPU o board rosa lê `NEO`). Sem alterar
+corrida, input, áudio, geometria ou assets externos.
+
+- [x] Q1: Baseline re-medido e gap único confirmado por código + frame GPU.
+  EVIDENCE: HEAD `0f18920`, branch `main`, `src/` limpo; `node --check` + `git diff --check` STATIC/DIFF-OK; build baseline `/tmp/sk3d-dist-tick0904b` 44 módulos; AI Track 1/2 ×20 `0 lost / 0 backwards / 0 crashes`. Gap: `bbTex` pinta `NEON` 900 64px em x=110 num canvas 256px (≈180px → termina ~290px, fora); frame GPU PRE `nd_frame_0008` lê `NEO` no board rosa.
+- [x] Q2: Candidato completo e isolado (só `bbTex` ganha `maxWidth`, sem tocar lookAt/geometria).
+  EVIDENCE: `src/track/Environment.js` 2 linhas: `fillText(word,110,52,140)` + `fillText('KART',110,96,140)`; `git diff --check` limpo; sem mudança de corrida/input/áudio/geometria/assets. Lamp-head `rotation.z=0` (:4446) analisado e REJEITADO como gap (box simétrico — zeroing é visualmente no-op); haze-ring `:825` correto (mantém gradiente vertical).
+- [x] Q3: Checks estáticos, build externo SK3D_OUT_DIR=/tmp/... e AI Track 1/2 ×20 passam.
+  EVIDENCE: `node --check src/track/Environment.js` OK; `SK3D_OUT_DIR=/tmp/sk3d-dist-bbtext npm run build` → `44 modules transformed`, `884K` JS, `built in 2.56s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes` ambas.
+- [x] Q4: A/B GPU pareado (mesmo protocolo/prompt, RADV PHOENIX, pageErrors vazio) mostra texto completo no pós.
+  EVIDENCE: ink-check determinístico `tmp-bbink.cjs` (?demo track 2, `RADV PHOENIX`, `pageErrors=[]` ambos): PRE lastInk `[255,245,255]` (boards 0 e 2 cortados na borda) → POST `[246,245,249]` (margem ≥6px; board 1 inalterado 245). Gameplay POST Neon desktop 20 frames `phase=race`, `pageErrors=[]`. Crítica mesmo prompt em crops: PRE `NEO|` (N cortado) → POST `NEON` completo. Decisão: ACCEPT.
+- [x] Q5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
+  EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js`); `qa-gpu-runner/` untracked fora do staging. gate-check: ALL MET (354 met, 31 abandoned).

@@ -4807,9 +4807,9 @@ export class Environment {
         c.fillStyle = fg;
         c.font = '900 64px "Baloo 2", "Nunito", Arial, sans-serif'; // AUDIT R25b: 52→64px
         c.textAlign = 'left'; c.textBaseline = 'middle';
-        c.fillText(word || 'NEON', 110, 52);
+        c.fillText(word || 'NEON', 110, 52, 140); // maxWidth: NEON 900 64px ≈180px estourava o canvas 256 (lia "NEO")
         c.font = '800 36px "Baloo 2", "Nunito", Arial, sans-serif';
-        c.fillText('KART', 110, 96);
+        c.fillText('KART', 110, 96, 140);
         const t = new THREE.CanvasTexture(cv);
         t.colorSpace = THREE.SRGBColorSpace;
         return t;
