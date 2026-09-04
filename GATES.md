@@ -1710,3 +1710,33 @@ direcional. Sem física/input/áudio/assets externos.
 ABANDON: M4 candidato revertido — `src/` = HEAD, sem mudança de produto.
 - [x] M5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push; qa-gpu-runner não staged.
   EVIDENCE: ver commit atômico (só GATES.md + docs AAA); `qa-gpu-runner/` untracked fora do staging; helper `tmp-capture-road.cjs` em /tmp + /opt/pwtest (não commitado).
+
+# Tick atual — fonte dominante do smear Neon por isolamento (2026-09-04T20:00Z)
+
+Escopo: o tick 18:00Z provou que as streaks lineares da `cityRoadTexture` eram
+contribuidor menor (riscos persistem no foreground). Este tick isola a fonte
+dominante por toggles em runtime no GPU (sem editar src): overlay aditivo
+`neonReflectionTexture` (opacity 0.35, toneMapped false) vs emissiveMap da
+ribbon (emissiveIntensity 0.8) vs decals/dashes. Só implementa fix se o
+isolamento apontar um sistema com delta direcional. Sem física/input/áudio.
+
+- [x] D1: Baseline re-medido (git, checks estáticos, build SK3D_OUT_DIR, AI x20/pista) + vite dedicado no ar.
+  CHECK: test -f /tmp/tick20/vite.url
+  EXPECT: exit 0
+  EVIDENCE: HEAD `53db0f7`, `src/` limpo; `node --check` + `git diff --check` OK; build `/tmp/sk3d-dist-tick20` 2.73s; AI T1/T2 x20 zero lost/backwards/crash; vite `:3479` LAN .103 local 200.
+- [x] D2: Isolamento GPU por toggles (mesma câmera grazing, RADV PHOENIX, pageErrors vazio) identifica o sistema dominante.
+  CHECK: test -f /tmp/tick20/isolate.json
+  EXPECT: exit 0
+  EVIDENCE: `tmp-isolate-road.cjs` 1 boot + 4 variantes (?test track 2, seeded RNG): GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]`, additive=53 meshes, emissive=19. Crítica cega mesmo prompt: V0 streaky / V1 (aditivo off) streaky / V2 (emissive off) limpo / V3 (ambos) mais limpo → fonte dominante = emissiveMap glow da ribbon (poças/streaks baked amplificados), overlay aditivo INOCENTE.
+- [x] D3: Se isolado, fix focado em um sistema + checks + build + AI passam; se não isolado, ABANDON honesto sem mudança.
+  CHECK: test -f /tmp/tick20/verdict.txt
+  EXPECT: exit 0
+  EVIDENCE: diff só `src/track/TrackBuilder.js` (5+/2-): `ribbonOpts.emissiveIntensity` 0.8→0.3 no branch isCity, overlay aditivo + wet/clearcoat intocados; `node --check` + `git diff --check` OK; build `/tmp/sk3d-dist-tick20fix` 5.17s; AI T1/T2 x20 zero.
+- [x] D4: A/B GPU pareado mesmo protocolo + crítica cega mesmo prompt confirma direção; se inconclusivo, revert + ABANDON.
+  CHECK: test -f /tmp/tick20/ab.json
+  EXPECT: exit 0
+  EVIDENCE: `tmp-capture-road.cjs` mesma câmera (-70/2.5/17.2) PRE (HEAD via copyfile + HMR 55s) vs POST d/m; GPU `RADV PHOENIX`, `pageErrors=[]` 4/4. Diff numérico PRE→POST 42.55% d / 54.48% m (inclui shimmer). Crítica cega mesmo prompt d/m: PRE streaks multicoloridos full-width → POST navy limpo, dashes/edge-lines/pink-cue intactos. Gameplay POST `?demo` Neon 24s: 12 frames, phase=race, `pageErrors=[]`. Decisão: PRODUCT CHANGE ACCEPTED.
+- [x] D5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push; qa-gpu-runner não staged.
+  CHECK: test -f /tmp/tick20/docs.txt
+  EXPECT: exit 0
+  EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/track/TrackBuilder.js`); `qa-gpu-runner/` untracked fora do staging; vite `:3479` encerrado pós-tick.

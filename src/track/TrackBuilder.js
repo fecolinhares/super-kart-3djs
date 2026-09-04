@@ -2196,9 +2196,12 @@ export function buildTrack(scene, trackPath = TRACK_PATH) {
     ribbonOpts.texture = cityRoadTexture; // baked neon spill on the asphalt
     ribbonOpts.emissiveMap = true; // the spill patches GLOW (vision 7/10 pass)
     ribbonOpts.color = 0xffffff; // deixar a textura cityRoadTexture (charcoal #4c5268) ser a cor base — o opts.color sobrescreve o material depois de mat.map ser setado, então 0xffffff preserva o charcoal natural
-    // AUDIT R4: emissive 0xffffff + intensity 0.8 carrega as cores reais do mapa (magenta/ciano/amarelo) sem saturar
+    // AUDIT R4: emissive 0xffffff carrega as cores reais do mapa (magenta/ciano/amarelo) sem saturar.
+    // TICK 20:00Z (isolamento GPU V0/V1 streaky, V2/V3 limpo): intensity 0.8
+    // amplificava as micro-streaks/poças do mapa em GLOW multicolorido que em
+    // grazing lia como sujeira; 0.3 mantém o spill legível sem o smear.
     ribbonOpts.emissive = 0xffffff;
-    ribbonOpts.emissiveIntensity = 0.8;
+    ribbonOpts.emissiveIntensity = 0.3;
     // AUDIT PISTA R11 (2026-08-16): asfalto MOLHADO — clearcoat + sheen
     // especular contínuo (cue wet-street MK8); sem ele a rua lia matte.
     ribbonOpts.wet = true;
