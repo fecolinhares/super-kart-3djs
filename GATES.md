@@ -1613,3 +1613,24 @@ lookAt) + pernas amostradas no ground por poste. Sem física/input/áudio/assets
   EVIDENCE: sonda POST (d/m, `pageErrors=[]`): `POLE-ATTACHED-ALL` — board 0 localX `∓3.4` exato, offPlane `0.13` (resíduo do tilt do board, < 0.325), bases `-0.18..+0.10` ≈ terreno. A/B mesmo prompt: PRE poste cruza o centro e oclui `NEON/KART` + flutua → POST postes flanqueiam extremidades, assentados, texto legível, sem artefato. Gameplay POST `?demo` Neon desktop: 5 frames, `lastPhase=race`, `pageErrors=[]`, RADV PHOENIX.
 - [x] N5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push; qa-gpu-runner e tmp-*.mjs fora do staging.
   EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js`); `qa-gpu-runner/`, `scripts/tmp-*.mjs` e `qa-gpu-runner/tmp-bb-pole-probe.cjs` untracked fora do staging; vite `:3476` encerrado.
+
+# Tick atual — fachadas Neon idênticas (1 textura p/ ~100 torres, 2026-09-04T13:00Z)
+
+Escopo: `buildNeonCity` usa UMA `_windowTex` cacheada (seed fixa 4242)
+compartilhada pelos 4 rows (~100 torres) — padrão de janelas idêntico em
+toda torre = repetição visível ("cidade Neon repetitiva"). Fix: variante de
+textura por row (seed = row.seed), mesmo layout 12x16/paleta fria, sem
+física/input/áudio/assets/geometria.
+
+- [x] W1: Baseline re-medido e repetição confirmada no código antes do fix.
+  EVIDENCE: HEAD `49ce150`, `src/` limpo; `buildNeonCity` chamava `this._windowTexture()` 1 call-site com cache único `if (this._windowTex) return` e `rnd(4242)` fixo — 1 textura p/ ~100 torres (4 rows). `node --check` Environment.js+main.js OK.
+- [x] W2: Fix focado e isolado (só `_windowTexture` + call-site em Environment.js).
+  EVIDENCE: candidato = `_windowTexture(seed)` com cache por seed + call-site `this._windowTexture(row.seed)` (1 variante/row, mesmo layout 12x16/paleta); diff isolado só `src/track/Environment.js` (13+/7-); sem física/input/áudio/assets/geometria.
+- [x] W3: Checks estáticos, build externo SK3D_OUT_DIR=/tmp/... e AI Track 1/2 ×20 passam.
+  EVIDENCE: `node --check` + `git diff --check` OK; `SK3D_OUT_DIR=/tmp/sk3d-dist-facade npm run build` → `built in 9.77s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes` ambas. Pós-revert: build `2.83s`, AI `0/0/0` ambas.
+- [x] W4: Determinismo + A/B GPU LXC105 pareado Neon (RADV PHOENIX, pageErrors vazio) confirma direção.
+  EVIDENCE: helper `tmp-capture-facade.cjs` (torre mediana row-A, 55m, fov 55) via vite `:3477` → POST d/m + PRE d/m (HEAD via copyfile, HMR 45s), mesma câmera/torre; GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]`, 4/4. Diff numérico PRE→POST: `0.33%` d / `0.27%` m pixels >2. Crítica cega mesmo prompt: frames idênticos, variedade 6–7/10 ambos (tint por instância já diferencia as torres; reshuffle de layout sub-perceptual a distância de gameplay).
+ABANDON: W4 candidato revertido — delta direcional defensável ausente (0.33%/0.27% + veredito cego idêntico); `src/` de volta ao HEAD, sem mudança de produto.
+- [ ] W5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
+  CHECK: git status --short
+  EXPECT: GATES
