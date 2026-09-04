@@ -776,3 +776,11 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Checks: `node --check` + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-mullion` → `2.69s`; AI Track 1/2 x20 → `0/0/0` ambas.
 - Infra: helper local `qa-gpu-runner/tmp-capture-facade.cjs` virou ghost 0-byte (virtiofs) — recuperado do runner (`/opt/pwtest`) via base64; `pct push` lê do host (falhou) → push via `pct exec cat >` stdin; PRE via copyfile do HEAD (nunca stash no virtiofs).
 - Decisão: **PRODUCT CHANGE ACCEPTED**. Próximo gap: variedade Meadow / fog residual — a definir por medição; score AAA não declarado completo.
+
+## [2026-09-04T18:00Z] Autonomous tick — smear no asfalto Neon: candidato REVERTIDO (contribuidor menor)
+
+- Baseline: HEAD `c9b854d`, `src/` limpo; `node --check` + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-tick18` → `2.61s`; AI Track 1/2 x20 → `0 lost / 0 backwards / 0 crashes`.
+- Eleição do gap por evidência: capturas `?demo` 40s no LXC105 (Meadow/Neon x d/m, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4) + crítica vision nativa mesmo prompt em 8 frames + crop do asfalto. Gap eleito: asfalto Neon lê borrado/sujo em ângulo rasante (riscos finos multicoloridos sobre a pista); controle Meadow com asfalto limpo; fog residual sem evidência (céu limpo, torres nítidas).
+- Candidato (só `src/render/Materials.js`): remove camada de 8 streaks lineares (gradiente 12-30x2px, alpha 0.22) + micro-streaks 36→18 (alpha 0.045→0.03, comp. 8-28→6-14); grit + poças radiais + overlay wet intactos; dummy RNG preserva sequência seedada.
+- Prova A/B GPU (helper `tmp-capture-road.cjs`, ?test track 2, câmera grazing fixa, RNG seedado, PRE via copyfile HEAD, mesma câmera d/m): `RADV PHOENIX`, `pageErrors=[]` 4/4; diff numérico `24.05%` d / `33.19%` m (shimmer temporal domina). Crítica cega mesmo prompt: POST marginalmente mais limpo no mid-field, mas riscos persistem no foreground d/m.
+- Decisão: **NO PRODUCT CHANGE** (`src/` = HEAD). Lição: a camada linear da textura era contribuidor menor — a fonte dominante do smear está em outro sistema (overlay wet da ribbon, poças de luz, ou specular do material), a investigar com instrumento por-sistema no próximo tick. Próximo gap: fonte dominante do smear / variedade Meadow — a definir por medição; score AAA não declarado completo.
