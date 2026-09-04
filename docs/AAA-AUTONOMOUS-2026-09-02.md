@@ -698,3 +698,13 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - 9 frames auditados (prompts cegos por frame): largada com boost flames + DRAFT (md0/nd0), AI karts + billboards legíveis (md1/nd4), FINISH gantry + tela FINISHED (md2/md5), rescue Lakitu com toast visível + grama verde saudável pós-tuft (mm1), drift com smoke translúcido (nd2), touch controls mobile (nm2). Nenhum defeito concreto.
 - Falsos gaps descartados com prova: timer mobile oculto = intencional (CSS ≤480px, padrão MK8D); tire stack = design documentado; streaks finas no céu mobile sem par desktop = não reproduzível.
 - Decisão: **NO PRODUCT CHANGE ACCEPTED**. Próximo gap: fog residual / variedade Meadow restante / torres Neon — a definir por medição; score AAA não declarado completo.
+
+## [2026-09-04T09:00Z] Autonomous tick — Neon roof caps + pilasters enterrados ACEITO (h/12 vs box 14m)
+- Baseline re-medido no HEAD `388e217`: `src/` limpo; `node --check` + `git diff --check` OK.
+- Root cause em `src/track/Environment.js` (`buildNeonCity`): box `BoxGeometry(10,14,8)` com escala Y `h/12` → altura real `7h/6`, topo em `gy+13h/12`. Roof plate em `gy+h+0.11` ficava 0.67-2.50m DENTRO do box em todas as alturas (6/6 = invisível); pilastras (`4.86sx`, largura 0.24) proud só p/ sx<0.86 (~35%). Detalhe instanciado caro e invisível.
+- Repro: `scripts/tmp-roof-bury-probe.mjs` (lê as constantes reais do fonte) → PRE `BURY-CONFIRMED`.
+- Fix (3 hunks, sem física/input/áudio/geometria além do grounding visual, sem assets): escala Y `h/12`→`h/14` (topo real = gy+h, roof assenta exato); cantos `5sx-0.06`/`4sz-0.06` (face externa 0.06 proud em todo sx); tank `+1.1`→`+0.77` (assenta na plate, que agora está no topo real; antes a base ficava enterrada).
+- Checks pós-fix: probe `BURY-FIXED` (roof 0/6, pilastras 5/5); `node --check` + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-roof` → `built in 2.19s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+- A/B GPU LXC105 (`tmp-capture-roof.cjs`, ?test track 2, torre row-A instance 1 idêntica, PRE via stash + HMR): `RADV PHOENIX`, `pageErrors=[]` nos 4; diff pareado `15.89%` desktop / `41.75%` mobile (pixels >2). Crítica mesmo prompt: PRE plate lia como faixa horizontal cortando a fachada com box acima (topo inacabado) → POST cap nítido terminando a torre + nub de antena visível, desktop e mobile.
+- Gameplay POST `?demo` Neon desktop 4 frames `phase=race`, `pageErrors=[]`, sem artefato.
+- Decisão: **PRODUCT CHANGE ACCEPTED**. Próximo gap: variedade Meadow restante / fog residual — a definir por medição; score AAA não declarado completo.

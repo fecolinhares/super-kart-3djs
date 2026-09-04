@@ -4708,14 +4708,18 @@ export class Environment {
         // grounding. Far rows skipped: geometry candidates there were
         // pixel-identical in paired A/B, and a flat disc reads even less.
         if (row.near) this._contactAOs.push({ x, z, r: Math.max(sx * 10, sz * 8) * 0.5 + 1.5 });
-        dummy.scale.set(sx, h / 12, sz);
+        // FIX 2026-09-04: a geometria do box tem 14m de altura, logo a
+        // escala Y é h/14 para o topo real ser gy+h (antes h/12 enterrava o
+        // roof cap 0.67-2.50m dentro do box, invisível em todas as alturas).
+        dummy.scale.set(sx, h / 14, sz);
         if (h > 22) {
           const ant = new THREE.Mesh(antGeo, antMat);
           ant.position.set(x, gy + h + 1.6, z);
           scene.add(ant);
           // AUDIT: rooftop machinery — a water tank beside the antenna
+          // FIX 2026-09-04: assenta na roof plate (topo gy+h+0.22).
           const tank = new THREE.Mesh(tankGeo, tankMat);
-          tank.position.set(x + (sx * 2.6), gy + h + 1.1, z);
+          tank.position.set(x + (sx * 2.6), gy + h + 0.77, z);
           scene.add(tank);
         }
         dummy.rotation.set(0, rand() * 0.25, 0);
@@ -4727,8 +4731,11 @@ export class Environment {
         roofTops.setMatrixAt(idx, dummy.matrix);
         const cos = Math.cos(dummy.rotation.y);
         const sin = Math.sin(dummy.rotation.y);
-        const cornerX = sx * 4.86;
-        const cornerZ = sz * 3.86;
+        // FIX 2026-09-04: cantos orgulhosos da fachada (face externa 0.06
+        // para fora da superfície do box); antes 4.86/3.86 enterrava a
+        // pilastra (0.24 de largura) dentro da torre p/ sx >= ~0.86.
+        const cornerX = sx * 5 - 0.06;
+        const cornerZ = sz * 4 - 0.06;
         const corners = [[-cornerX, -cornerZ], [cornerX, -cornerZ], [cornerX, cornerZ], [-cornerX, cornerZ]];
         corners.forEach(([localX, localZ], cornerIndex) => {
           const px = x + localX * cos - localZ * sin;

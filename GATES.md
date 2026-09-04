@@ -1532,3 +1532,18 @@ honestamente a ausência dele. Sem alteração especulativa.
   EVIDENCE: timer ausente no mobile = intencional (`ui.css`: `.sk3d-time{display:none}` ≤480px, "MK8D não mostra relógio em corrida"); tire stack preto-branco-preto = design documentado (torus flat 0x14161c + meio branco, `buildTireStacks`); riscos brancos finos no céu mobile = sem par desktop, sem repetibilidade → não-gaps.
 - [x] V5: Nenhum src/ alterado; docs/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
   EVIDENCE: `git diff -- src` vazio; ver commit atômico (só GATES.md + docs AAA); `qa-gpu-runner/` e `scripts/tmp-census-tufts.mjs` untracked fora do staging; vite `:3473` encerrado.
+
+# Tick atual — Neon roof caps + pilasters enterrados (2026-09-04T09:00Z)
+
+Escopo: corrigir a escala Y das torres Neon (h/12 vs geometria 14m) que enterra roof caps e pilastras dentro do box; sem física/input/áudio/assets.
+
+- [x] R1: Baseline atual re-medido e gap confirmado por matemática determinística no código.
+  EVIDENCE: HEAD `388e217`, `src/` limpo; probe `tmp-roof-bury-probe.mjs` PRE: `BURY-CONFIRMED` (roof enterrado 0.67-2.50m em 6/6 alturas; pilastras proud só 2/5 sx).
+- [x] R2: Fix aplicado — escala h/14 + cantos orgulhosos da fachada, sem mudar regras/assets.
+  EVIDENCE: `Environment.js` 3 hunks (y-scale h/12→h/14, cantos 4.86/3.86→5sx-0.06/4sz-0.06, tank y +1.1→+0.77); probe POST: `BURY-FIXED` (roof 0/6, pilastras 5/5 proud 0.06); `node --check` + `git diff --check` OK.
+- [x] R3: Build de produção fora do worktree + regressão AI Track 1/2 ×20 passam.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-roof npm run build` → `built in 2.19s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+- [x] R4: A/B GPU LXC105 pareado pré/pós em torres próximas, RADV PHOENIX, pageErrors vazio.
+  EVIDENCE: `tmp-capture-roof.cjs` (?test track 2, torre instance 1 idêntica d/m): GPU `RADV PHOENIX`, `pageErrors=[]` nos 4; diff pareado `15.89%` desktop / `41.75%` mobile; crítica mesmo prompt: PRE plate como faixa na fachada (topo inacabado) → POST cap nítido no topo + antena visível d/m. Gameplay POST `?demo` Neon desktop 4 frames `phase=race`, `pageErrors=[]`.
+- [x] R5: Docs repo/vault/wiki/memória atualizados; commit atômico pushado; qa-gpu-runner não staged.
+  EVIDENCE: commit + push origin main; `git status --short` sem qa-gpu-runner staged
