@@ -1456,3 +1456,21 @@ Sem física/input/áudio/geometria/assets.
   EVIDENCE: `tmp-capture-particles.cjs` ?test track 1 (PRE via stash local, FS compartilhado); GPU `RADV PHOENIX` nos 4; kart desktop idêntico `(-66.5,0.55,3.53)`; diff pré→pós `31.28%` desktop / `32.16%` mobile (pixels >2); crítica mesmo prompt em crops idênticos: PRE bola laranja superexposta opaca → POST brasa translúcida contida com roda visível através. Decisão: ACCEPT.
 - [x] D5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
   EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/render/Particles.js`); gameplay POST `?demo` Meadow desktop 10 frames `phase=finished`, `pageErrors=[]`; `qa-gpu-runner/` untracked fora do staging.
+
+# Tick atual — music-shuffle string-na-playlist (2026-09-04, R25 pendente)
+
+Escopo: `_shufflePlaylist()` empurra `this._lastTrack` (string) para dentro de
+`_playlist` (objetos) — no 4º `_playNext` do 2º ciclo o scheduler lê
+`.chords/.bpm` de uma string e lança, matando a música em sessões longas.
+Fix: empurrar o objeto removido pelo splice. Sem física/input/visual/assets.
+
+- [x] S1: Baseline re-medido e bug reproduzido deterministicamente antes do fix.
+  EVIDENCE: HEAD `01db26c`, branch `main`, `src/` limpo; `node --check` + `git diff --check` OK; build baseline `/tmp/sk3d-dist-shuffle-base` OK (`built in 2.23s`); AI Track 1/2 ×20 `0 lost / 0 backwards / 0 crashes`. Repro `/tmp/repro-shuffle.mjs` (stub ctx, 9× `_playNext`): PRE-fix lançou em `#7` (`Cannot read properties of undefined (reading 'length')` — string na playlist no 4º play do 2º ciclo).
+- [x] S2: Fix atômico e isolado (só o bloco shuffle em `src/audio/music.js`).
+  EVIDENCE: `git diff` = 1 hunk (`const [t] = list.splice(idx, 1); list.push(t)` + nota R25-FIX); sem física/input/visual/áudio-mix/assets.
+- [x] S3: Checks estáticos, build externo SK3D_OUT_DIR=/tmp/... e AI Track 1/2 ×20 passam.
+  EVIDENCE: `node --check src/audio/music.js` + `git diff --check` OK; `SK3D_OUT_DIR=/tmp/sk3d-dist-shufflefix npm run build` → `44 modules transformed`, `904.20 kB`, `built in 2.12s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes` ambas.
+- [x] S4: Repro pós-fix passa (9 tracks consecutivas válidas) + smoke de determinismo de áudio passa; lifecycle browser tentado no GPU runner (resultado honesto).
+  EVIDENCE: repro pós-fix `NO-BUG: 9 consecutive tracks`; matriz `/tmp/verify-shuffle-matrix.mjs` 5 seeds × 12 tracks `MATRIX-PASS` (inclui contrato closer-não-reabre) + `MATRIX-DETERMINISTIC` em 2 runs; browser servido `:3471` (transform fresco, marker=1; `:3458` stale marker=0 evitado) → `SHUFFLE_BROWSER=PASS tracks=9 invalid=0`, GPU `RADV PHOENIX`, `pageErrors=0`; `probe-audio-lifecycle.mjs` → `AUDIO_LIFECYCLE=PASS checks=9 failed=0 pageErrors=0`. Smoke `audio-determinism-smoke.mjs` BLOCKED no env (pacote `/tmp/sk3d-audio-qa/.../web-audio-api` sem entry `index.js`); `sfx.js` não tocado neste tick.
+- [x] S5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
+  EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/audio/music.js`); `qa-gpu-runner/` (inclui `tmp-shuffle-browser.cjs`) untracked fora do staging.

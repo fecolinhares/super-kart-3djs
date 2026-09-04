@@ -374,8 +374,12 @@ export class MusicEngine {
     if (this._lastTrack) {
       const idx = list.findIndex((t) => t.name === this._lastTrack);
       if (idx > -1) {
-        list.splice(idx, 1);
-        list.push(this._lastTrack);
+        // AUDIT R25-FIX: push the spliced TRACK OBJECT, not the name
+        // string — `_playNext` reads `.chords/.bpm` off the entry, so a
+        // bare string threw on the 4th play of the 2nd cycle and killed
+        // the music in long sessions.
+        const [t] = list.splice(idx, 1);
+        list.push(t);
       }
     }
     this._playlist = list;

@@ -663,3 +663,11 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Gameplay POST `?demo` Meadow desktop 10 frames `phase=finished`, `pageErrors=[]`.
 - Decisão: **PRODUCT CHANGE ACCEPTED**. Próximo gap: variedade Meadow / torres Neon / shoulder 0.14 + music-shuffle (R25) — a definir por medição; score AAA não declarado completo.
 - Infra: `git` não roda no runner (gitdir em `/home/jarvis/gitdirs` só existe local) — stash local + sleep 50s p/ recompile do vite; ssh Proxmox .102 sem password file continua negado, rota direta .195 com chave OK. Servidor :3470 dedicado deste tick (matar ao final).
+
+## [2026-09-04T05:00Z] Autonomous tick — music-shuffle string-na-playlist ACEITO (R25 pendente)
+- Baseline re-medido no HEAD `01db26c`: `src/` limpo; `node --check` + `git diff --check` OK; build externo OK (`2.23s`); AI Track 1/2 ×20 `0 lost / 0 backwards / 0 crashes`.
+- Root cause em `src/audio/music.js` (`_shufflePlaylist`): `this._lastTrack` é string (`track.name`) mas `_playlist` guarda objetos — `list.push(this._lastTrack)` injetava string; no 4º `_playNext` do 2º ciclo o scheduler lia `.chords/.bpm` da string e lançava (`Cannot read properties of undefined`), matando a música em sessões longas. Repro Node (stub ctx, 9× `_playNext`) lançou em `#7` pré-fix.
+- Fix (1 hunk, sem física/input/visual/mix/assets): `const [t] = list.splice(idx, 1); list.push(t)` + nota R25-FIX.
+- Checks pós-fix: `node --check`, `git diff --check`, build `SK3D_OUT_DIR=/tmp/sk3d-dist-shufflefix` → `44 modules`, `904.20 kB`, `2.12s`; AI Track 1/2 ×20 `0/0/0`.
+- Prova: repro `9 consecutive tracks` válidas; matriz 5 seeds × 12 tracks `MATRIX-PASS` (contrato closer-não-reabre + determinística em 2 runs); browser no runner direto (`:3471` fresco, marker=1; `:3458` stale evitado) → `SHUFFLE_BROWSER=PASS tracks=9 invalid=0`, `RADV PHOENIX`, `pageErrors=0`; `probe-audio-lifecycle.mjs` → `AUDIO_LIFECYCLE=PASS checks=9 failed=0 pageErrors=0`. Smoke `audio-determinism-smoke.mjs` BLOCKED no env (sem entry `index.js`); `sfx.js` intacto.
+- Decisão: **PRODUCT CHANGE ACCEPTED**. Próximo gap: shoulder 0.14 absoluto (KartPhysics) — a definir por medição; score AAA não declarado completo.
