@@ -5102,7 +5102,12 @@ export class Environment {
       const carCabinGeo = new THREE.BoxGeometry(1.7, 0.7, 2.1);
       const wheelGeo = new THREE.CylinderGeometry(0.32, 0.32, 0.22, 10);
       const bodyMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-      const cabinMat = new THREE.MeshBasicMaterial({ color: 0x0d1017 });
+      // TICK28 (crítico cego: cabine = 'tijolo preto' sólido): a cabine vira
+      // VIDRO azul-aço (#39586e, unlit) + teto fino na cor da carroceria —
+      // separação vidro/teto quebra a leitura de bloco chapado.
+      const cabinMat = new THREE.MeshBasicMaterial({ color: 0x39586e });
+      const roofGeo = new THREE.BoxGeometry(1.74, 0.16, 2.14);
+      const roofMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
       const wheelMat = new THREE.MeshBasicMaterial({ color: 0x14161c });
       // AUDIT R12: paleta viva de taxi noturno (antes cinza apagado)
       // AUDIT R21d: 0xffd23c FORA — o reflexo wet ADITIVO do carro amarelo
@@ -5112,6 +5117,7 @@ export class Environment {
       const carN = 22; // AUDIT R12: 14 → 22 (~1 a cada 15-28m de reta)
       const bodies = new THREE.InstancedMesh(carBodyGeo, bodyMat, carN);
       const cabins = new THREE.InstancedMesh(carCabinGeo, cabinMat, carN);
+      const roofs = new THREE.InstancedMesh(roofGeo, roofMat, carN);
       const wheels = new THREE.InstancedMesh(wheelGeo, wheelMat, carN * 4);
       const aoDiscs = new THREE.InstancedMesh(aoGeo, aoMat, carN);
       // AUDIT R12: faróis (2/carro, branco-quente) + lanternas (2/carro,
@@ -5177,6 +5183,14 @@ export class Environment {
         cd.scale.set(s, 1, s);
         cd.updateMatrix();
         cabins.setMatrixAt(carIdx, cd.matrix);
+        // TICK28: teto fino na cor da carroceria sobre o vidro (cabin top =
+        // 0.85+0.35=1.2 → teto centrado em 1.28).
+        cd.position.set(px, gy + 1.28, pz);
+        cd.rotation.set(0, yaw, 0);
+        cd.scale.set(s, 1, s);
+        cd.updateMatrix();
+        roofs.setMatrixAt(carIdx, cd.matrix);
+        roofs.setColorAt(carIdx, col);
         for (let w = 0; w < 4; w++) {
           const lx = (w % 2 === 0 ? -1 : 1) * 1.25; // lateral no frame do carro
           const lz = (w < 2 ? -1 : 1) * 1.35;       // longitudinal
@@ -5222,18 +5236,20 @@ export class Environment {
         if (carIdx >= carN) break;
       }
       if (carIdx > 0) {
-        bodies.count = carIdx; cabins.count = carIdx; wheels.count = carIdx * 4; aoDiscs.count = carIdx;
+        bodies.count = carIdx; cabins.count = carIdx; roofs.count = carIdx; wheels.count = carIdx * 4; aoDiscs.count = carIdx;
         headLights.count = carIdx * 2; tailLights.count = carIdx * 2; carRefls.count = carIdx;
         bodies.instanceMatrix.needsUpdate = true;
         if (bodies.instanceColor) bodies.instanceColor.needsUpdate = true;
         cabins.instanceMatrix.needsUpdate = true;
+        roofs.instanceMatrix.needsUpdate = true;
+        if (roofs.instanceColor) roofs.instanceColor.needsUpdate = true;
         wheels.instanceMatrix.needsUpdate = true;
         aoDiscs.instanceMatrix.needsUpdate = true;
         headLights.instanceMatrix.needsUpdate = true;
         tailLights.instanceMatrix.needsUpdate = true;
         carRefls.instanceMatrix.needsUpdate = true;
         if (carRefls.instanceColor) carRefls.instanceColor.needsUpdate = true;
-        scene.add(bodies, cabins, wheels, aoDiscs, headLights, tailLights, carRefls);
+        scene.add(bodies, cabins, roofs, wheels, aoDiscs, headLights, tailLights, carRefls);
       }
     }
 

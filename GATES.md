@@ -1880,3 +1880,23 @@ editar src sem delta direcional. Vite dedicado `:3484` (LAN .103).
   EVIDENCE: `tmp-tick27-render-probe.cjs` (?demo, RADV PHOENIX, pageErrors[] 4/4): Meadow-d `1462 calls/1014211 tris/1531 geos/109 tex` (finished), Meadow-m `538/740641/1519/103` (race), Neon-d `1419/271486/1212/100` (race), Neon-m `649/145172/1201/98` (race). Sem erro, sem anomalia; mobile ~40% dos calls do desktop (DPR/instancing OK).
 - [x] A4: Docs repo + commit atômico + push origin main; qa-gpu-runner/ fora do staging; vite :3484 encerrado.
   EVIDENCE: commit contém só `GATES.md` + `docs/AAA-AUTONOMOUS-2026-09-02.md`; `git push origin main`; `qa-gpu-runner/` untracked fora do staging; helpers em /tmp + /opt/pwtest (não commitados).
+
+# Tick atual — Neon parked cars: cabine-tijolo preta + laje sem leitura (2026-09-05T01:00Z)
+
+Escopo: carros estacionados Neon liam como lajes chapadas (gameplay neon-d
+frame_0003: sedan mint = slab sem volume; close-up determinístico confirma
+cabine = bloco preto sólido #0d1017 sem vidro/teto). Fix SÓ no bloco
+parked-cars de `src/track/Environment.js`: cabine vira vidro azul-aço +
+teto fino na cor da carroceria. Sem geometria de pista/física/input/áudio.
+A/B determinístico pareado no GPU LXC105, keep/revert por delta direcional.
+
+- [x] C1: Baseline re-medido (git src limpo, checks, build SK3D_OUT_DIR, AI 20x2 zero) + 4 gameplays GPU ?demo 40s (Meadow/Neon x d/m, RADV PHOENIX, pageErrors[]).
+  EVIDENCE: HEAD `28f2fc3` src limpo (só `qa-gpu-runner/` untracked); `node --check` main/Environment/TrackBuilder/Materials + `git diff --check` OK; build `/tmp/sk3d-dist-tick28` 44 modules `2.12s`; AI Track 1/2 x20 zero lost/backwards/crash. Capturas `?demo` 40s `tmp-capture-gameplay.cjs` no LXC105 (vite :3485): Meadow d/m + Neon d/m, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4, lastPhase finished/finished/race/race.
+- [x] C2: Gap único eleito por crítica vision mesmo prompt, registrado com 3 evidências visuais.
+  EVIDENCE: gap = parked cars Neon chapados. (1) gameplay `neon-d frame_0003`: sedans mint/ciano nas laterais = slabs planas sem volume; (2) close-up determinístico `tmp-tick28-car.cjs` (?test track 2, carro idx1 a 13.9m do grid, fov35): carroceria ciano chapada + cabine TIJOLO PRETO sólido + rodas semicírculos pretos, zero separação vidro/teto; (3) código: `cabinMat #0d1017` sólido + `bodyMat` branco chapado unlit, sem faixa de vidro nem teto. Meadow sem gap maior (crowd/banners/karts fortes nos 4 frames varridos).
+- [x] C3: Fix focado e isolado (diff só no bloco parked-cars), checks + build + AI passam.
+  EVIDENCE: diff só `src/track/Environment.js` (22+/3-: cabinMat #0d1017→#39586e vidro + roofs InstancedMesh 1.74x0.16x2.14 na cor da carroceria em gy+1.28 + counts/needsUpdate/add); `node --check` + `git diff --check` OK; build `/tmp/sk3d-dist-tick28b` 44 modules `3.09s`; AI Track 1/2 x20 zero lost/backwards/crash.
+- [x] C4: A/B GPU pareado mesmo protocolo (mesmo carro/câmera, RADV PHOENIX, pageErrors[]) + crítica cega mesmo prompt confirma direção; se inconclusivo, revert total + ABANDON honesto.
+  EVIDENCE: sonda `tmp-tick28-car.cjs` (?test track 2, freezeCam fov35, phase idle) mesma estação byte-idêntica PRE→POST d (carro idx1 -55.53/22.96, grid sub-cm) e m (carro idx3, PRE via `git show HEAD:` + restore por cp, sem stash); GPU `RADV PHOENIX`, `pageErrors=[]` 4/4; diff numérico `34.75%` d / `26.48%` m pixels >2; crítica cega mesmo prompt PRE `tijolo preto sólido` → POST `faixa de vidro azul-aço + teto na cor` (d e m, touch mobile intacto); gameplay POST Neon 24s 6 frames `phase=race` sem placas pretas/espelhadas. Decisão: PRODUCT CHANGE ACCEPTED.
+- [ ] C5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push origin main; qa-gpu-runner/ fora do staging.
+  EVIDENCE: docs AAA + vault + wiki entity/log + memória atualizados; ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js`); `qa-gpu-runner/` untracked fora do staging; helpers em /tmp + /opt/pwtest (não commitados); vite `:3485` encerrado pós-tick.
