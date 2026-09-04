@@ -794,3 +794,12 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Checks: `node --check` + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-tick20fix` → `5.17s`; AI Track 1/2 x20 → `0/0/0` ambas; gate-check `ALL MET (417 met, 43 abandoned)`.
 - Infra: `pct push` lê do host → push de helpers via `pct exec cat >` stdin; pull de PNGs via base64; numpy do venv quebrado em CPU sem AVX2 (X86_V2) → diff via PIL histogram; PRE via copyfile do HEAD (nunca stash no virtiofs).
 - Decisão: **PRODUCT CHANGE ACCEPTED**. Próximo gap: variedade Meadow / fog residual — a definir por medição; score AAA não declarado completo.
+
+## [2026-09-04T22:00Z] Autonomous tick — auditoria drift smoke Neon: candidato REFUTADO, NO PRODUCT CHANGE
+
+- Baseline: HEAD `8fa9405`, `src/` limpo; `node --check` + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-tick21` → `2.78s`; AI Track 1/2 x20 → `0 lost / 0 backwards / 0 crashes`.
+- Eleição por evidência: 4 capturas `?demo` 40s no LXC105 (Meadow/Neon x d/m, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4, 10 frames cada) + 7 críticas vision mesmo protocolo em 12 frames. Smear Neon CONFIRMADO resolvido (asfalto navy limpo no gameplay). Candidato: drift smoke (0xf2f5f8, grow 2.4) como neve no night; postes Neon validados por código (halfW+3.6, fora da pista).
+- Refutação controlada: helper `tmp-capture-drift.cjs` (variante do `tmp-capture-particles.cjs` com track via env + drift DEFAULT sem override de cor, 36 ticks @60Hz) no Neon → PRE `RADV PHOENIX`, `pageErrors=[]`; crítica cega: fumaça lê como halos brancos suaves nas rodas — correta. `src/` nunca tocado.
+- Barra preta full-height no frame PRE explicada por probe geométrico no GPU (matrixWorld direto, sem THREE global): poste a 1.06m da câmera artificial do helper; 0 ocorrências em 40 frames de gameplay real (chase cam nunca clipa). Artefato de captura.
+- Infra: primeiro disparo do gameplay usou URL com `?demo` duplicado (2× timeout 180s); uso correto é 1 combo/execução via `CAPTURE_OUT` + `--mobile`/`--track`. Vite dedicado `:3480` (LAN .103) encerrado pós-tick; helper variante em /tmp + /opt/pwtest (não commitado).
+- Decisão: **NO PRODUCT CHANGE** (`src/` = HEAD; ABANDON V3/V4 em GATES.md). Próximo gap: rampa laranja chapada em close (1 frame transitório, precisa isolamento) / pontos brancos gameplay (boost/sparkle?) — a definir por medição; score AAA não declarado completo.

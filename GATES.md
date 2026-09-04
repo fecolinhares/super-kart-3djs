@@ -1740,3 +1740,33 @@ isolamento apontar um sistema com delta direcional. Sem física/input/áudio.
   CHECK: test -f /tmp/tick20/docs.txt
   EXPECT: exit 0
   EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/track/TrackBuilder.js`); `qa-gpu-runner/` untracked fora do staging; vite `:3479` encerrado pós-tick.
+
+# Tick atual — variedade Meadow por evidência GPU + fix focado (2026-09-04T22:00Z)
+
+Escopo: após o fix do smear Neon (emissive 0.8→0.3), eleger por evidência GPU
+o próximo gap de maior valor (candidatos: variedade Meadow, fog residual,
+torres Neon). Um único fix isolado, A/B pareado, keep/revert por delta
+direcional. Sem física/input/áudio/assets externos.
+
+- [x] V1: Baseline re-medido (git, checks estáticos, build SK3D_OUT_DIR, AI x20/pista) + capturas GPU Meadow/Neon d/m com RADV PHOENIX + pageErrors vazio.
+  CHECK: test -f /tmp/tick21/ab.json
+  EXPECT: exit 0
+  EVIDENCE: HEAD `8fa9405`, `src/` limpo (só `qa-gpu-runner/` untracked); `node --check` + `git diff --check` OK; build `/tmp/sk3d-dist-tick21` 2.78s; AI Track 1/2 x20 zero lost/backwards/crash. Capturas `?demo` 40s `tmp-capture-gameplay.cjs` no LXC105 (vite :3480): Meadow d/m + Neon d/m, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4, 10 frames cada, lastPhase finished/finished/race/race.
+- [x] V2: Gap único eleito por crítica vision mesmo prompt, registrado com 3 evidências visuais.
+  CHECK: test -f /tmp/tick21/gap.txt
+  EXPECT: exit 0
+  EVIDENCE: 7 críticas vision mesmo protocolo em 12 frames. Candidato eleito: drift smoke branco (0xf2f5f8, grow 2.4) lendo como neve sobre o night — (1) gameplay `neon-d frame_0005`: ~10 pontos brancos flutuantes sobre a pista; (2) código `Particles.js:64-67` size 0.34/grow 2.4/life 0.85/alpha 0.5 → sprites ~0.8m quase brancos; (3) controle Meadow: mesma fumaça invisível sobre fundo claro. Smear Neon CONFIRMADO resolvido (asfalto navy limpo). Postes Neon OK por código (halfW+3.6).
+- [x] V3: Fix focado e isolado (diff só no sistema do gap), checks + build + AI passam.
+  CHECK: test -f /tmp/tick21/verdict.txt
+  EXPECT: exit 0
+  EVIDENCE: captura controlada `tmp-capture-drift.cjs` (variante track-via-env + drift DEFAULT sem override, 36 ticks, Neon) PRE: GPU `RADV PHOENIX`, `pageErrors=[]`. Crítica cega do PRE: fumaça lê como halos brancos suaves nas rodas — CORRETA, sem gap. Candidato REJEITADO antes de qualquer edição (`src/` nunca tocado).
+ABANDON: V3 sem delta a corrigir — PRE controlado refuta o gap, nenhum fix implementado.
+- [x] V4: A/B GPU pareado mesmo protocolo confirma delta direcional; se inconclusivo, revert + ABANDON honesto.
+  CHECK: test -f /tmp/tick21/docs.txt
+  EXPECT: exit 0
+  EVIDENCE: barra preta full-height no frame PRE investigada por probe geométrico (3 iterações: THREE fora de escopo → matrixWorld direto): poste CylinderGeometry a 1.06m da câmera ARTIFICIAL do helper (offset 3.4/2.2/4.6), 0 ocorrências em 40 frames de gameplay real (chase cam). Artefato de captura, não bug do jogo. Sem A/B porque não há candidato.
+ABANDON: V4 sem candidato após refutação — NO PRODUCT CHANGE, `src/` = HEAD.
+- [x] V5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push; qa-gpu-runner não staged.
+  CHECK: test -f /tmp/tick21/pushed.txt
+  EXPECT: exit 0
+  EVIDENCE: docs AAA + vault + wiki entity/log/index + memória atualizados; ver commit atômico pushado; `qa-gpu-runner/` untracked fora do staging; vite `:3480` encerrado.
