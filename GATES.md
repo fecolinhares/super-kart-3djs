@@ -1633,3 +1633,22 @@ física/input/áudio/assets/geometria.
 ABANDON: W4 candidato revertido — delta direcional defensável ausente (0.33%/0.27% + veredito cego idêntico); `src/` de volta ao HEAD, sem mudança de produto.
 - [x] W5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
   EVIDENCE: docs AAA + vault + wiki log/entity + memória atualizados; gate-check `ALL MET (397 met, 38 abandoned)`; commit atômico pushado `49ce150..96ca104`; `qa-gpu-runner/` e `scripts/tmp-*.mjs` untracked fora do staging; vite `:3477` encerrado.
+
+# Tick atual — shop signs Neon flutuantes/ocluidos (2026-09-04T14:00Z)
+
+Escopo: 12 shop signs (`buildNeonCity`, Box 3.4x0.8x0.14, MeshBasic) nascem a
+lateral 20-24m com y=sy+3.4..5.4, SEM poste de suporte, ATRAS da row-A de
+torres (11-19m) — candidatos a (a) flutuar no ar e (b) ocluidos pelas torres
+vias da pista. Mesmo sistema/familia dos fixes B-LEG e billboard-pole. Sem
+fisica/input/audio/assets/geometria alem de postes finos de suporte.
+
+- [x] S1: Baseline re-medido (git, checks estaticos, build SK3D_OUT_DIR, AI x20/pista) e gap confirmado por sonda deterministica antes do fix.
+  EVIDENCE: HEAD `cb97c06`; sonda GPU LXC105 no baseline (HEAD): 7/12 letreiros, 1 embutido, 2 ocluidos, bottomClear ate 7.11m (flutuando), trackDist 18-24m; build `/tmp/sk3d-dist-shop-sign` 4.49s; AI Track1/2 x20 zero lost/backwards/crash.
+- [x] S2: Fix focado e isolado (so bloco shop-sign em Environment.js).
+  EVIDENCE: diff so em `src/track/Environment.js` (+71/-9 aprox): letreiros a lateral `roadWidth/2+7` (~11.5m) + 2 pernas/letreiro + desvio de footprints row-A (nudge tangente 4m ate +/-16m, skip se sem ponto livre). v1 media 2/12 embutidos na sonda pos → v2 com desvio zerou.
+- [x] S3: Checks estaticos, build externo SK3D_OUT_DIR=/tmp/... e AI Track 1/2 x20 passam.
+  EVIDENCE: `node --check src/track/Environment.js` OK; `git diff --check` OK; `SK3D_OUT_DIR=/tmp/sk3d-dist-shop-sign2 npm run build` OK (4.49s); AI Track 1 e 2 x20 → `TOTAL BACKWARDS EVENTS: 0`, `CRASHES: 0` (lost 0).
+- [x] S4: Medicao ao vivo GPU LXC105 (?test track 2, RADV PHOENIX) pre/pos + A/B visual mesmo prompt confirma direcao; gameplay pos sem regressao.
+  EVIDENCE: GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` em todas as sondas. PRE: 7 sinais, EMBEDDED 1, OCCLUDED 2. POST2 desktop: 12 sinais, EMBEDDED 0, OCCLUDED 0, nearestTower min 8.25m. POST3 mobile: 12 sinais. Critico cego mesmo prompt: PRE = letreiro escondido atras de torre (so filete magenta); POST desktop = letreiro verde sobre 2 pernas + vizinhos F/KART legiveis; POST mobile = letreiro sobre pernas, touch OK. Gameplay Neon `?demo` 40s: 10 frames, lastPhase=race, pageErrors=[].
+- [x] S5: Docs repo/vault/wiki/memoria + gate-check + commit atomico + push; qa-gpu-runner e tmp-*.mjs fora do staging.
+  EVIDENCE: docs AAA + vault + wiki log/entity + memoria atualizados; gate-check `ALL MET (402 met, 38 abandoned)`; commit atomico pushado; `qa-gpu-runner/` e `scripts/tmp-*.mjs` untracked fora do staging.

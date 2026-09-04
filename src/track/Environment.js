@@ -4674,6 +4674,11 @@ export class Environment {
     const paletteRows = [];
     const dummy = new THREE.Object3D();
     const dir = new THREE.Vector3();
+    // FIX 2026-09-04 (shop-sign): footprints da fileira proxima (row-A,
+    // 11-19m radial) para os letreiros desviarem das torres em vez de
+    // nascerem embutidos nas fachadas. So a row near importa: letreiros
+    // ficam a ~11.5m da pista; fileiras B+ estao alem de 26m.
+    const nearTowers = [];
     // Row A hugs the track (16-26m); row B sits behind it (26-38m); row C is
     // a LOWER midground fill (50-62m) so the city has depth layers (vision
     // critic: 'few buildings at intermediate and far distances').
@@ -4745,6 +4750,9 @@ export class Environment {
         dummy.rotation.set(0, rand() * 0.25, 0);
         dummy.updateMatrix();
         towers.setMatrixAt(idx, dummy.matrix);
+        // FIX 2026-09-04 (shop-sign): registra footprint da row-A para o
+        // desvio dos letreiros (hx=sx*5, hz=sz*4 do box 10x14x8).
+        if (row.near) nearTowers.push({ x, z, hx: sx * 5, hz: sz * 4, yaw: dummy.rotation.y });
         dummy.position.y = gy + h + 0.11;
         dummy.scale.set(sx, 1, sz);
         dummy.updateMatrix();
@@ -4801,27 +4809,72 @@ export class Environment {
     {
       const signGeo = new THREE.BoxGeometry(3.4, 0.8, 0.14);
       const signCols = [0xff2ec4, 0x2ec4ff, 0xffe23c, 0x3cff9a];
+      const signLegMat = new THREE.MeshBasicMaterial({ color: 0x232a3a });
       const s2Rand = rnd(5551);
       const shopProbe = new THREE.Vector3();
       const shopTan = new THREE.Vector3();
       const shopNrm = new THREE.Vector3();
+      // FIX 2026-09-04 (shop-sign): row-A fica a 11-19m radial do centroide
+      // e o letreiro a 11.5m da normal da pista — 2/12 nasciam DENTRO das
+      // torres (sonda GPU pos-fix v1: embedded=true). Desvia ao longo da
+      // tangente em passos de 4m (alternando o sentido, ate +/-16m); se
+      // nenhum ponto livrar, pula o letreiro (menos letreiro > embutido).
+      // Pad 2.0m cobre o corpo (3.4m) + pernas (+/-1.3m).
+      const _shopInTower = (qx, qz, pad) => {
+        for (const fp of nearTowers) {
+          const lx = qx - fp.x, lz = qz - fp.z;
+          const c = Math.cos(-fp.yaw), s = Math.sin(-fp.yaw);
+          const rx = lx * c - lz * s, rz = lx * s + lz * c;
+          if (Math.abs(rx) < fp.hx + pad && Math.abs(rz) < fp.hz + pad) return true;
+        }
+        return false;
+      };
+      const _shopLat = CONFIG.track.roadWidth / 2 + 7;
       for (let i = 0; i < 12; i++) {
-        const t = (i + 0.5) / 12;
-        path.getPointAt(t, shopProbe);
-        path.getTangentAt(t, shopTan);
-        shopNrm.set(-shopTan.z, 0, shopTan.x).normalize();
         const side = s2Rand() < 0.5 ? -1 : 1;
-        const sx = shopProbe.x + shopNrm.x * side * (20 + s2Rand() * 4);
-        const sz = shopProbe.z + shopNrm.z * side * (20 + s2Rand() * 4);
-        if (this._onTrack(sx, sz, 8)) continue;
+        let sx = 0, sz = 0, found = false;
+        for (let attempt = 0; attempt < 9 && !found; attempt++) {
+          const step = attempt === 0 ? 0 : ((attempt % 2 === 1 ? 1 : -1) * Math.ceil(attempt / 2) * 4) / len;
+          const t = (((i + 0.5) / 12 + step) % 1 + 1) % 1;
+          path.getPointAt(t, shopProbe);
+          path.getTangentAt(t, shopTan);
+          shopNrm.set(-shopTan.z, 0, shopTan.x).normalize();
+          const cx = shopProbe.x + shopNrm.x * side * _shopLat;
+          const cz = shopProbe.z + shopNrm.z * side * _shopLat;
+          if (this._onTrack(cx, cz, 2)) continue;
+          if (_shopInTower(cx, cz, 2.0)) continue;
+          sx = cx; sz = cz; found = true;
+        }
+        if (!found) continue;
         const sy = this._gy(sx, sz);
+        const cy = sy + 2.6 + s2Rand() * 0.8;
         const sign = new THREE.Mesh(
           signGeo,
           new THREE.MeshBasicMaterial({ color: signCols[(s2Rand() * 4) | 0] })
         );
-        sign.position.set(sx, sy + 3.4 + s2Rand() * 2, sz);
-        sign.lookAt(shopProbe.x, sign.position.y, shopProbe.z);
+        // Yaw fold-proof via atan2 da direcao ao centro da pista (NUNCA
+        // ler rotation apos lookAt: Euler XYZ folda o yaw real). Mesma
+        // altura => lookAt puro yaw => rotation.y direta equivale.
+        const _syaw = Math.atan2(shopProbe.x - sx, shopProbe.z - sz);
+        sign.position.set(sx, cy, sz);
+        sign.rotation.y = _syaw;
         scene.add(sign);
+        // Pernas no frame rotacionado: local +X sob rotationY =
+        // (cos, 0, -sin). Altura do chao a base do letreiro, por perna.
+        const _scos = Math.cos(_syaw);
+        const _ssin = Math.sin(_syaw);
+        const _sbot = cy - 0.4;
+        for (const dx of [-1.3, 1.3]) {
+          const px = sx + dx * _scos;
+          const pz = sz - dx * _ssin;
+          const pgy = this._gy(px, pz);
+          const poleH = Math.max(0.5, _sbot - pgy);
+          const leg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1, 0.18), signLegMat);
+          leg.scale.y = poleH;
+          leg.position.set(px, pgy + poleH / 2, pz);
+          leg.rotation.y = _syaw;
+          scene.add(leg);
+        }
       }
     }
 

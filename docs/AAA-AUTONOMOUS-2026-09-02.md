@@ -746,3 +746,13 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Checks: `node --check` + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-facade` → `9.77s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`. Pós-revert: build `2.83s`, AI `0/0/0` ambas.
 - Infra: virtiofs com cache dentry corrompido mid-tick (ghosts 0-byte, ENOENT em open) — `sudo drop_caches` limpou; `git stash push` TRUNCOU `Environment.js` (chmod EPERM no checkout, arquivo 0 bytes) — restaurado do blob do stash via `shutil.copyfile` (sem chmod); PRE via copyfile do HEAD (nunca stash/checkout no virtiofs); criação de arquivos novos no mount falha (helper via /tmp + scp + `pct push`); `pct pull` + `scp` p/ trazer PNGs. Stash dropado pós-restore.
 - Decisão: **NO PRODUCT CHANGE** (`src/` = HEAD; ABANDON W4 em GATES.md). Lição: variedade de fachada precisa mudar grade/paleta por row (não só reshuffle de células) p/ ser visível; ou aceitar que o tint já resolve. Próximo gap: variedade Meadow / torres Neon (grade) / fog residual — a definir por medição; score AAA não declarado completo.
+
+## [2026-09-04T14:00Z] Autonomous tick — shop signs Neon flutuantes/ocluidos: fix ACEITO
+
+- Gap por-sistema (mesma familia B-LEG/billboard-pole): 12 shop signs (`buildNeonCity`, Box 3.4x0.8x0.14) a lateral 20-24m ATRAS da row-A (11-19m), sem suporte.
+- Prova PRE ao vivo LXC105 (`qa-gpu-runner/tmp-shop-sign-probe.cjs`, GPU ANGLE RADV PHOENIX, `pageErrors=[]`): 7/12 sinais, EMBEDDED 1, OCCLUDED 2, bottomClear ate 7.11m, trackDist 18-24m. Frame PRE: letreiro escondido atras de torre (so filete magenta visivel).
+- Fix (so `src/track/Environment.js`): lateral `roadWidth/2+7` (~11.5m) + 2 pernas/letreiro ate o `_gy` + desvio de footprints row-A (nudge tangente 4m ate +/-16m, skip se sem ponto livre). v1 do fix mediu 2/12 embutidos na sonda pos → v2 com desvio zerou.
+- Prova POST: desktop 12 sinais, EMBEDDED 0, OCCLUDED 0, nearestTower min 8.25m; mobile 12 sinais. Critico cego mesmo prompt: POST desktop = letreiro verde sobre 2 pernas + vizinhos F/KART legiveis; POST mobile = letreiro sobre pernas, touch OK. Gameplay Neon `?demo` 40s: 10 frames, lastPhase=race, `pageErrors=[]`.
+- Checks: `node --check` + `git diff --check` OK; build SK3D_OUT_DIR fora do worktree → `built in 4.49s`; AI Track 1/2 x20 → `0 lost / 0 backwards / 0 crashes`.
+- Infra: PRE via `git show HEAD:... >` + HMR 50s (restore do fix via /tmp copyfile, `node --check` apos cada escrita); helper ja existia no runner (`/opt/pwtest`), push via `pct exec cat >` stdin, pull via base64.
+- Decisão: **PRODUCT CHANGE ACCEPTED**. Próximo gap: variedade Meadow / fog residual / torres Neon (grade) — a definir por medição; score AAA não declarado completo.
