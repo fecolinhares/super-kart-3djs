@@ -146,7 +146,7 @@ export class ParticleSystem {
   _createSystem(capacity, blending, shape) {
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(capacity * 3), 3).setUsage(THREE.DynamicDrawUsage));
-    geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(capacity * 3), 3).setUsage(THREE.DynamicDrawUsage));
+    geo.setAttribute('aColor', new THREE.BufferAttribute(new Float32Array(capacity * 3), 3).setUsage(THREE.DynamicDrawUsage));
     geo.setAttribute('aSize', new THREE.BufferAttribute(new Float32Array(capacity), 1).setUsage(THREE.DynamicDrawUsage));
     geo.setAttribute('aAlpha', new THREE.BufferAttribute(new Float32Array(capacity), 1).setUsage(THREE.DynamicDrawUsage));
     geo.setDrawRange(0, 0);
@@ -217,7 +217,7 @@ export class ParticleSystem {
     const size = opts.size ?? cfg.size;
     const life = opts.duration ?? cfg.life;
     const spread = opts.spread ?? cfg.spread;
-    const pal = Array.isArray(opts.color) ? opts.color : null;
+    const pal = Array.isArray(opts.color) ? opts.color : (Array.isArray(cfg.color) ? cfg.color : null);
     const color = pal ? null : (opts.color ?? cfg.color);
     const velocity = opts.velocity;
 
@@ -267,7 +267,7 @@ export class ParticleSystem {
       const sys = this._systems[key];
       const { geo } = sys;
       const positions = geo.attributes.position.array;
-      const colors = geo.attributes.color.array;
+      const colors = geo.attributes.aColor.array;
       const sizes = geo.attributes.aSize.array;
       const alphas = geo.attributes.aAlpha.array;
 
@@ -318,7 +318,7 @@ export class ParticleSystem {
 
       geo.setDrawRange(0, sys.count);
       geo.attributes.position.needsUpdate = true;
-      geo.attributes.color.needsUpdate = true;
+      geo.attributes.aColor.needsUpdate = true;
       geo.attributes.aSize.needsUpdate = true;
       geo.attributes.aAlpha.needsUpdate = true;
     }

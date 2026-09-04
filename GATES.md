@@ -1367,3 +1367,31 @@ Sem alterar corrida, input, áudio, materiais emissivos ou assets externos.
 
 - [x] R5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
   EVIDENCE: relatório AAA + vault `Super-Kart-3Djs.md` + wiki entity/log + memória atualizados; TICK-N1/N2 convertidos p/ evidência (CHECK obsoleto removido); `git diff --cached` só com GATES/docs/src; `qa-gpu-runner/` untracked fora do staging.
+
+# Tick atual — auditoria de gameplay + 1 candidato (2026-09-04)
+
+Escopo: re-medir HEAD, capturar gameplay atual Meadow/Neon desktop/mobile no
+GPU runner, auditar o maior gap por evidência, implementar exatamente um
+candidato atômico e aceitar somente com delta direcional em A/B pareado.
+
+- [x] M1:
+  EVIDENCE: HEAD `c722ccd`, branch `main`; `node --check` + `git diff --check` = STATIC-OK/DIFF-OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-tick0904` → `44 modules`, `904.11 kB`, `2.15s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`. Baseline re-medido (git status, node --check, build externo
+  SK3D_OUT_DIR, AI Track 1/2 ×20) antes de qualquer edição.
+- [x] M2:
+  EVIDENCE: 4 vídeos `?demo` no runner direto `192.168.0.195` (vite :3457): Meadow d/m `900/1000` frames, Neon d/m `741/1009` frames, todos `phase=finished`, GPU `ANGLE/Vulkan RADV PHOENIX`, screencast JPEG q60. Artefatos em `/root/shots/tick0904/` (não versionado). Capturas GPU LXC105 do HEAD atual (Meadow/Neon × desktop
+  1280x720/mobile 390x844, ANGLE/Vulkan RADV PHOENIX, pageErrors vazio).
+- [x] M3:
+  EVIDENCE: frames distribuídos auditados com prompt idêntico — frame Meadow `frame_0450` era tela FINISH; `frame_0150` mid-race mostrou trilha de blobs pretos no asfalto atrás do kart (zoom `500,350,750,500` confirmou 6+ dots na trajetória). Gap único: partículas exhaust/drift pretas. Maior gap escolhido por evidência visual pareada (frames
+  distribuídos + crítica mesmo prompt); sem gap defensável, ABANDON honesto.
+- [x] M4:
+  EVIDENCE: `src/render/Particles.js` 4 linhas: atributo geometria `color`→`aColor` (3 refs) + branch paleta `cfg.color` array. `node --check`/`git diff --check` OK; build `44 modules/904.14 kB/2.07s`; AI Track 1/2 ×20 `0/0/0`. Sem mudança de corrida/input/áudio/assets. Um candidato completo implementado; checks + build + AI regression
+  passam; sem alterar regras/input/assets externos fora do escopo do gap.
+- [x] M5:
+  EVIDENCE: A/B `tmp-capture-particles.cjs` (?test track 1, seed fixa, burst fixo, câmera relativa, 18 ticks): PRE via stash × POST/POST2, GPU `RADV PHOENIX`, `pageErrors=[]`, kart desktop idêntico `(-66.5,0.55,3.53)`. Diff pré→post2: desktop `25.14%`, mobile `33.44%` pixels >2. Crop pareado: PRE fumaça preta → POST chama laranja; confete preto → multicolorido (verde/roxo/laranja/azul/vermelho). Gameplay pós-fix Meadow 909 frames finished, pista sem trilha preta. Decisão: ACCEPT. A/B GPU pré/pós com mesmo protocolo/prompt; aceitar só com ganho
+  direcional, senão reverter (ABANDON).
+- [x] M6:
+  EVIDENCE: relatório AAA + vault + wiki entity/index/log + memória atualizados (ver commit); gate-check passa; commit atômico + push origin/main; `qa-gpu-runner/` untracked fora do staging. Docs repo/vault/wiki/memória sincronizados; gate-check passa;
+  commit atômico + push origin/main; qa-gpu-runner não staged.
+- [x] M7:
+  EVIDENCE: próximo gap: variedade Meadow / torres Neon / fog residual — a definir por medição; score AAA não declarado completo. Score AAA não declarado completo abaixo dos thresholds; próximo gap
+  definido por medição final.
