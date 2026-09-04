@@ -1,11 +1,26 @@
 # AAA Autonomous QA — 2026-09-02
 
+## [2026-09-04T01:00Z] Autonomous tick — AO de contato Neon ACEITO (root cause: coletor nunca instanciado no night)
+- Baseline re-medido no `HEAD 3c65a1a`: worktree trazia linha órfã de tick interrompido (`_contactAOs.push r=5.0` p/ todas as fileiras) + blocos NEXT/AO1 em GATES/docs não commitados; arquivos tmp (`docs/.hermes-tmp.*`, `stderr.txt`, `vite.config.js.timestamp-*`, `src/track/.hermes-tmp.*`) removidos.
+- Achado raiz: `buildContactShadows()` era chamado SOMENTE no branch Meadow (`if (!night)`); no modo night os discs `_contactAOs` (postes neon r=1.7 incluídos) nunca eram instanciados — A/B inicial do candidato deu diff zero (`0.09%` vista, `0.02%` near) e expôs o bug.
+- Candidato final em `src/track/Environment.js`: (1) discs footprint-fitted `max(sx*10,sz*8)*0.5+1.5` só na fileira roadside A (`near:true`, 11-19m), sem tocar ordem `rand()`; (2) chamada `buildContactShadows(scene)` no branch night. Nenhuma regra de corrida, input, áudio, material emissivo ou asset externo alterado.
+- Checks: `node --check` + `git diff --check` OK; build externo `SK3D_OUT_DIR=/tmp/sk3d-dist-roadside-ao2` → `44 modules`, `904.11 kB`, `2.15s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes`.
+- A/B GPU pareado (vite :3461 no gpu-runner, ANGLE/Vulkan `RADV PHOENIX`, `pageErrors=[]`, mesma torre `instance 8`, mesma câmera `y=4.07 fov=55`): near desktop `meanAbsDiff=4.8306 pctOver2=22.4865%`, mobile `7.7181%`; vista `34.33%/47.06%` (inclui shimmer de animação — composição sem regressão). Crítica cega mesmo prompt: base item-box flutuante/bases duras (5/10) → cand sombra de contato/bases ancoradas (7/10).
+- Vídeo `?demo` 30s pós-accept: Neon d/m `309/498` frames `phase=race`, Meadow d/m `402/495` frames `phase=finished`; frames distribuídos auditados (Neon kart+HUD íntegros, Meadow sem leak de AO). Artefatos em `qa-gpu-runner/roadside-ao/` (não versionado) + helpers `tmp-diff-png.py` (stdlib-only) e `tmp-capture-near.cjs`.
+- Decisão: **PRODUCT CHANGE ACCEPTED**. Próximo gap: variedade da Meadow / torres IA recoloridas / fog residual — a definir por medição; score AAA não declarado completo.
+
 ## [2026-09-04T23:10Z] Autonomous tick — A/B plinth Neon rejeitado
 - Baseline real re-medido no `HEAD 06c0ae7`: `src/` limpo antes do candidato; build externo final via `SK3D_OUT_DIR=/tmp/sk3d-dist-cur-final npm run build` passou com `44 módulos`, `903.98 kB`, em `2.11s`; AI Track 1/2 ×20 retornou `0 lost / 0 backwards / 0 crashes`.
 - Runner direto confirmou `GPU_HOST_OK PLAYWRIGHT_OK DRM_OK`; captura fixa no LXC105 usou ANGLE/Vulkan `RADV PHOENIX`, canvas `1280×720` e `390×844`, `pageErrors=[]`, paleta Neon determinística `13/22/20/17/11` (83 torres).
 - Candidato único adicionou plinth instanciado emissive-safe sob as torres Neon. A/B pareado com o mesmo capturador/prompt não mostrou diferença visual discernível: skyline, grounding e janelas ficaram essencialmente idênticos; diff bruto acima do limiar 2 foi `6.8844%` desktop e `14.0488%` mobile, sem valor probatório de melhoria.
 - O candidato foi totalmente revertido; `src/` voltou limpo. Vídeo QA ativo pós-reversão em Meadow/Neon desktop/mobile terminou sem erro emitido, GPU `RADV PHOENIX`, `98/131/83/131` frames e `phase=race` durante a janela de 8s.
-- Decisão: **REVERTED / NO PRODUCT CHANGE ACCEPTED**. Próximo gap segue material/AO Neon emissive-safe com hipótese mais visível e pareamento fixo; score AAA não é declarado completo.
+- Decisão: **REVERTED / NO PRODUCT CHANGE ACCEPTED**. Próximo gap segue material/AO Neon emissive-safe com hipótese mais visível.
+
+## [2026-09-03T23:31Z] Autonomous tick — fundações Neon rejeitadas
+- Baseline re-medido no `HEAD 83d0113`: `src/` limpo, Vite local `HTTP=200`, layout City PASS, skyline determinístico `83` torres. Build externo pós-candidato: `44 módulos`, `904.35 kB`, `2.64s`; AI Track 1/2 ×20: `0 lost / 0 backwards / 0 crashes`.
+- Rota direta ao runner `192.168.0.195` confirmou Playwright/Chromium; captura fixa usou ANGLE/Vulkan `RADV PHOENIX`, WebGL2, `pageErrors=[]`, `1280×720` e `390×844`, paleta `13/22/20/17/11`.
+- Candidato único adicionou fundações navy instanciadas sob cada torre. A/B no mesmo capturador/prompt: diff acima de limiar 2 `7.0342%` desktop e `14.1244%` mobile, porém visão pareada não encontrou base/grounding legível nem composição melhor; frames ficaram essencialmente idênticos.
+- Candidato totalmente revertido; nenhuma mudança em `src/` aceita. Artefatos pré/pós preservados em `qa-gpu-runner/tick-foundation/` e não versionados. Próximo gap: hipótese material/AO Neon com efeito de grounding realmente visível.
 
 
 ## [2026-09-03T22:56Z] Autonomous tick — runner bloqueado, sem mudança de produto

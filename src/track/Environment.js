@@ -726,6 +726,9 @@ export class Environment {
       this.buildLightPoles(scene, track); // neon strips in night mode
       this.buildStreetFurniture(scene, track); // AUDIT R12: hidrantes + semáforos
       this.buildWorldPropKit(scene, track, true); // C3: bollards (neon urban)
+      this.buildContactShadows(scene); // AUDIT AAA tick: o coletor _contactAOs
+      // também recebe discs no modo night (postes neon + torres roadside);
+      // sem esta chamada os discs Neon nunca eram instanciados.
       // (no meadow roadside crowd — the city reads as empty street, which is
       // correct for a night circuit; the crowd was the top 'placeholder'
       // complaint from the vision critic)
@@ -4649,7 +4652,7 @@ export class Environment {
     // color multiplied toward the night fog so depth reads (the shared
     // material flattened the far row into the near one).
     const rows = [
-      { seed: 21000, base: 11, range: 8, haze: 0.0 }, // AUDIT MED: hug the roadside (was 16m — 9m dead band)
+      { seed: 21000, base: 11, range: 8, haze: 0.0, near: true }, // AUDIT MED: hug the roadside (was 16m — 9m dead band)
       { seed: 22000, base: 26, range: 12, haze: 0.5 }, // AUDIT R21b: haze + — amarelo vazava
       { seed: 23000, base: 50, range: 12, low: true, haze: 0.75 },
       { seed: 24000, base: 74, range: 16, low: true, haze: 0.92 }, // far silhouette layer
@@ -4691,6 +4694,11 @@ export class Environment {
         // monoliths; roof antennas on the tallest.
         const sx = 0.55 + rand() * 0.95;
         const sz = 0.55 + rand() * 0.95;
+        // AUDIT AAA tick: contact-AO disc fitted to the tower footprint, only
+        // for the roadside row (11-19m) where the chase camera can read
+        // grounding. Far rows skipped: geometry candidates there were
+        // pixel-identical in paired A/B, and a flat disc reads even less.
+        if (row.near) this._contactAOs.push({ x, z, r: Math.max(sx * 10, sz * 8) * 0.5 + 1.5 });
         dummy.scale.set(sx, h / 12, sz);
         if (h > 22) {
           const ant = new THREE.Mesh(antGeo, antMat);

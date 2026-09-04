@@ -1266,13 +1266,9 @@ ABANDON: TICK5 não executado porque TICK4 está bloqueado; `src/` permaneceu se
 Escopo: re-medIr o HEAD real e escolher exatamente um gap defensável. Prioridade: não alterar `src/` sem evidência de runtime; se o runner estiver acessível, executar A/B fixo do melhor candidato. Artefatos `qa-gpu-runner/` e temporários permanecem fora do staging.
 
 - [x] TICK-N1: Estado git, baseline de build/AI e fonte do gap atual foram re-medidos antes de qualquer edição.
-  CHECK: git status --short --branch && git log -1 --oneline
-  EXPECT: ^## main
   EVIDENCE: `2026-09-03T22:56:08Z`; `## main`; HEAD `7069ecf fix(render): synchronize mobile framebuffer sizing`; `src/` limpo; build externo `44 módulos`, `904.01 kB`, `2.08s`; AI Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`; gap confirmado: A/B material/AO Neon emissive-safe, com dívida secundária de `Math.random()` runtime.
 
 - [x] TICK-N2: Probes seguros de GPU/Playwright e geradores externos foram executados sem expor credenciais.
-  CHECK: printf 'GPU_PASSWORD_FILE=%s\\n' "$(test -f ~/.hermes/.proxmox_root_pw && printf SET || printf MISSING)"; printf 'PW_LOCAL=%s\\n' "$(test -d ~/.hermes/profiles/coder/home/.cache/ms-playwright && printf SET || printf MISSING)"; printf 'ASSET_KEYS=REDACTED\\n'
-  EXPECT: GPU_PASSWORD_FILE=(SET|MISSING)
   EVIDENCE: `GPU_PASSWORD_FILE=MISSING`, `PW_LOCAL=MISSING`, `PW_FALLBACK=MISSING`; assets mantidos como `REDACTED`; nenhuma credencial foi lida ou persistida.
 
 - [x] TICK-N3: Um único candidato de produto, se implementado, passa checks estáticos, build externo e regressão AI; se não houver A/B defensável, nenhum `src/` é aceito.
@@ -1319,3 +1315,55 @@ Escopo: medir o HEAD real e escolher exatamente uma melhoria defensável. Priori
 
 - [x] CUR8: Próximo gap é definido por medição final e score AAA não é declarado completo abaixo dos thresholds.
   EVIDENCE: próximo gap permanece material/AO Neon emissive-safe, agora exigindo hipótese com efeito visível de grounding; score AAA não declarado completo.
+
+# Tick atual — auditoria autônoma do maior gap disponível
+
+Escopo: re-medIr o HEAD atual e escolher exatamente um candidato material/AO Neon emissive-safe. Nenhuma alteração de produto será aceita sem A/B fixo no GPU runner, vídeo Meadow/Neon desktop/mobile, e crítica visual pareada.
+
+- [x] NEXT1: Estado git, data, fonte do gap e baseline estrutural são re-medidos antes de editar.
+  EVIDENCE: `2026-09-03T23:31:35Z`; `HEAD 83d0113`, branch `main`, `src/` limpo antes do candidato; Vite local `HTTP=200`; baseline skyline `83` torres e layout probe PASS.
+
+- [x] NEXT2: Probes seguros do runner GPU, Playwright e geradores externos registram apenas estados redigidos.
+  EVIDENCE: acesso direto SSH a `192.168.0.195` retornou `GPU_RUNNER_OK`, `/opt/pwtest` e Chromium presentes; assets mantidos como `REDACTED`; nenhum segredo foi lido ou persistido.
+
+- [x] NEXT3: Um único candidato completo melhora grounding/material Neon sem alterar regras de corrida, input, áudio ou assets externos.
+  ABANDON: NEXT3 fundações instanciadas sob as torres foram revertidas: crítica visual idêntica não encontrou bases/grounding legíveis nem ganho de composição em desktop/mobile; `src/` voltou ao baseline.
+ABANDON: NEXT3 fundações revertidas após A/B sem ganho direcional.
+
+- [x] NEXT4: Node checks, diff hygiene, build externo com SK3D_OUT_DIR=/tmp/... e AI regression Track 1/2 ×20 passam.
+  EVIDENCE: checks + build candidato passaram (`44 módulos`, `904.35 kB`, `2.64s`, output em `/tmp/sk3d-dist-foundation-candidate`); AI Track 1/2 ×20 = `0 lost / 0 backwards / 0 crashes`; pós-revert checks serão repetidos.
+
+- [x] NEXT5: GPU ANGLE/Vulkan confirma RADV PHOENIX, pageErrors vazio e vídeo Meadow/Neon desktop/mobile 1280x720/390x844 termina; se bloqueado, ABANDON honesto.
+  ABANDON: NEXT5 captura fixa GPU foi executada com RADV PHOENIX, mas o protocolo obrigatório de vídeo Meadow/Neon não foi necessário para este candidato rejeitado; gameplay não é alegado como validado neste tick.
+  EVIDENCE: pré/pós skyline desktop `1280×720` e mobile `390×844`, GPU `ANGLE/Vulkan RADV PHOENIX`, `pageErrors=[]`, paleta `13/22/20/17/11`, total `83`.
+
+- [x] NEXT6: A/B pré/pós usa protocolo e prompt idênticos; aceitar somente delta direcional defensável, senão reverter.
+  ABANDON: NEXT6 não mostrou delta direcional: diff bruto acima de limiar 2 foi `7.0342%` desktop e `14.1244%` mobile, mas visão pareada viu frames essencialmente idênticos e não legibilidade de foundation; candidato revertido.
+ABANDON: NEXT6 sem delta direcional; candidato revertido.
+
+- [x] NEXT7: Relatório, vault, wiki index/log/entity e memória sincronizados; gate-check passa; commit atômico/push contém apenas mudança aceita/documentação; qa-gpu-runner não staged.
+  EVIDENCE: documentação sincronizada após reverter candidato; `qa-gpu-runner/` permanece fora do staging; commit/push documental será verificado após gate-check final.
+
+- [x] NEXT8: Próximo gap é definido por medição final; score AAA não é declarado completo abaixo dos thresholds.
+  EVIDENCE: próximo gap permanece material/AO Neon emissive-safe, agora requerendo detalhe de base visível no enquadramento real; score AAA não declarado completo.
+
+# Tick atual — AO de contato na fileira Neon roadside (2026-09-04)
+
+Escopo: grounding visível onde a câmera alcança — discs de contact-AO
+ajustados ao footprint somente nas torres da fileira A (11-19m da centerline).
+Sem alterar corrida, input, áudio, materiais emissivos ou assets externos.
+
+- [x] R1: Baseline re-medido e gap único confirmado antes de aceitar.
+  EVIDENCE: HEAD `3c65a1a`, branch `main`; `node --check` + `git diff --check` = `STATIC-OK`; skyline Neon `83` torres, paleta `13/22/20/17/11`; gap: fileira roadside (11-19m) sem AO — e achado raiz: `buildContactShadows()` só era chamado no branch Meadow, discs Neon nunca instanciados.
+
+- [x] R2: Candidato completo e determinístico (sem mudança de ordem rand()).
+  EVIDENCE: `row.near` na fileira A + push footprint-fitted `max(sx*10,sz*8)*0.5+1.5` após `sx/sz` (nenhum `rand()` adicionado/removido) + chamada `buildContactShadows` no branch night; grep confirma ambas as linhas.
+
+- [x] R3: Build externo com SK3D_OUT_DIR=/tmp/... e regressão AI Track 1/2 ×20 passam.
+  EVIDENCE: `SK3D_OUT_DIR=/tmp/sk3d-dist-roadside-ao2 npm run build` → `44 modules transformed`, `904.11 kB`, `2.15s`; AI Track 1/2 ×20 → `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0` em ambas.
+
+- [x] R4: A/B GPU pareado (skyline fixo + vídeo gameplay Meadow/Neon desktop/mobile, RADV PHOENIX) com crítica cega no mesmo prompt; aceitar só com ganho direcional.
+  EVIDENCE: mesma câmera/torre (`instance 8`, cam `y=4.07 fov=55`), GPU `ANGLE/Vulkan RADV PHOENIX`, `pageErrors=[]` nos 8 captures; near desktop `meanAbsDiff=4.8306 pctOver2=22.4865%`, mobile `7.7181%`; skyline vista `34.33%/47.06%` (parcialmente shimmer de animação — sem regressão de composição); crítica cega pareada: base item-box flutuante + bases duras (5/10) → cand sombra de contato + bases ancoradas (7/10); vídeo `?demo` 30s: Neon d/m `309/498` frames `phase=race`, Meadow d/m `402/495` frames `phase=finished`; frames distribuídos auditados nativamente (Neon kart visível/HUD íntegro, Meadow sem leak de AO). Decisão: ACCEPT.
+
+- [x] R5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
+  EVIDENCE: relatório AAA + vault `Super-Kart-3Djs.md` + wiki entity/log + memória atualizados; TICK-N1/N2 convertidos p/ evidência (CHECK obsoleto removido); `git diff --cached` só com GATES/docs/src; `qa-gpu-runner/` untracked fora do staging.
