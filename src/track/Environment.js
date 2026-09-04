@@ -5361,25 +5361,43 @@ export class Environment {
     // --- neon street signs (vision critic: 'street-level detail' — small
     // glowing billboards on poles along the sidewalks, every ~60m) ---
     const poleMat = toonMaterial(0x3a4152, {});
-    // Sign textures with a fake 2-line 'text' (bars) so they READ as
-    // signage, not as props on poles (vision critic: small flat boards
-    // were indistinguishable from crowd props).
-    const signTex = (bg, bar1, bar2) => {
+    // Sign textures with a REAL word per color (tick 26: the fake 2-line
+    // bars read as placeholder slabs in close-up chase frames — same class
+    // already fixed on shop signs in tick 23). Portrait 128x192 canvas for
+    // the 1.4x2.4 board: frame + logo disc + word + sub-line.
+    const signTex = (bg, fg, accent, word, sub) => {
       const cv = document.createElement('canvas');
-      cv.width = 64; cv.height = 96;
+      cv.width = 128; cv.height = 192;
       const c = cv.getContext('2d');
-      c.fillStyle = bg; c.fillRect(0, 0, 64, 96);
-      c.fillStyle = bar1; c.fillRect(8, 22, 48, 14);
-      c.fillStyle = bar2; c.fillRect(12, 48, 40, 10);
-      c.fillStyle = bar1; c.fillRect(8, 66, 30, 10);
+      c.fillStyle = bg; c.fillRect(0, 0, 128, 192);
+      c.strokeStyle = fg; c.lineWidth = 6;
+      c.strokeRect(5, 5, 118, 182);
+      c.fillStyle = fg;
+      c.beginPath(); c.arc(64, 48, 22, 0, Math.PI * 2); c.fill();
+      c.fillStyle = accent;
+      c.beginPath(); c.arc(64, 48, 11, 0, Math.PI * 2); c.fill();
+      c.fillStyle = fg;
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.font = '900 26px "Baloo 2", "Nunito", Arial, sans-serif';
+      c.fillText(word, 64, 106, 112);
+      c.font = '800 20px "Baloo 2", "Nunito", Arial, sans-serif';
+      c.fillText(sub, 64, 140, 112);
+      c.fillStyle = accent; c.fillRect(34, 158, 60, 8);
       const t = new THREE.CanvasTexture(cv);
       t.colorSpace = THREE.SRGBColorSpace;
       return t;
     };
+    const signEdgeMat = new THREE.MeshBasicMaterial({ color: 0x141030 });
     const signMats = [
-      new THREE.MeshBasicMaterial({ map: signTex('#ff2ec4', '#fff', '#2ec4ff') }),
-      new THREE.MeshBasicMaterial({ map: signTex('#2ec4ff', '#fff', '#ff2ec4') }),
-      new THREE.MeshBasicMaterial({ map: signTex('#ffd23c', '#141030', '#ff2ec4') }),
+      [signEdgeMat, signEdgeMat, signEdgeMat, signEdgeMat,
+        new THREE.MeshBasicMaterial({ map: signTex('#ff2ec4', '#ffffff', '#2ec4ff', 'TURBO', 'GP') }),
+        new THREE.MeshBasicMaterial({ map: signTex('#ff2ec4', '#ffffff', '#2ec4ff', 'TURBO', 'GP') })],
+      [signEdgeMat, signEdgeMat, signEdgeMat, signEdgeMat,
+        new THREE.MeshBasicMaterial({ map: signTex('#2ec4ff', '#141030', '#ff2ec4', 'NITRO', 'GP') }),
+        new THREE.MeshBasicMaterial({ map: signTex('#2ec4ff', '#141030', '#ff2ec4', 'NITRO', 'GP') })],
+      [signEdgeMat, signEdgeMat, signEdgeMat, signEdgeMat,
+        new THREE.MeshBasicMaterial({ map: signTex('#ffd23c', '#141030', '#ff2ec4', 'APEX', 'GP') }),
+        new THREE.MeshBasicMaterial({ map: signTex('#ffd23c', '#141030', '#ff2ec4', 'APEX', 'GP') })],
     ];
     const sRand = rnd(9917);
     const signProbe = new THREE.Vector3();

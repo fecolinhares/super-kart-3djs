@@ -1849,3 +1849,20 @@ pareado no GPU LXC105, keep/revert por delta direcional.
   CHECK: test -f /tmp/tick25/pushed.txt
   EXPECT: exit 0
   EVIDENCE: commit `68adb03` (só GATES.md + AAA docs + Materials.js); push `1335332..68adb03 main`; vault + wiki entity/log/index + memória atualizados; `qa-gpu-runner/` untracked fora do staging; gate-check ALL MET.
+
+# Tick atual — variedade Meadow / próximo gap visual (2026-09-05T00:30Z)
+
+Escopo: re-medir baseline, eleger UM gap por crítica vision mesmo prompt em
+gameplays GPU Meadow/Neon d/m, fix isolado único, A/B pareado, keep/revert
+por delta direcional. Sem física/input/áudio/assets externos.
+
+- [x] Z1: Baseline re-medido (git src limpo, checks, build SK3D_OUT_DIR, AI 20x2 zero) + 4 gameplays GPU ?demo (Meadow/Neon x d/m, RADV PHOENIX, pageErrors[]).
+  EVIDENCE: HEAD `3ddc66f` src limpo (só `qa-gpu-runner/` untracked); `node --check` main/Environment/TrackBuilder/Materials + `git diff --check` OK; build `/tmp/sk3d-dist-tick26` 44 modules `906.86 kB` 2.13s; AI Track 1/2 x20 zero lost/backwards/crash. Capturas `?demo` 40s `tmp-capture-gameplay.cjs` no LXC105 (vite :3483): Meadow d/m + Neon d/m, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4, 10 frames cada, lastPhase finished/finished/race/race.
+- [x] Z2: Gap único eleito por crítica vision mesmo prompt, registrado com 3 evidências visuais.
+  EVIDENCE: gap = neon street signs com fake-texto em barras. (1) gameplay `neon-d frame_0008`: placa magenta GIGANTE no 1º plano (~1/6 do frame) com barras brancas/ciano, zero texto legível; (2) código `src/track/Environment.js` bloco `signTex`: canvas 64x96 desenha só `fillRect` bars, comentário assume `fake 2-line 'text' (bars)`; (3) mesma classe já aceita nos shop signs (tick 23 W4: 0/12→12/12 + verso desespelhado) — padrão real-word provado. Meadow sem gap maior (finish modal limpo, karts detalhados); demais Neon OK (PISTON nítido, plaza legível).
+- [x] Z3: Fix focado e isolado (diff só no sistema do gap), checks + build + AI passam.
+  EVIDENCE: diff só `src/track/Environment.js` bloco street-signs (signTex 64x96 bars → 128x192 palavra real TURBO/NITRO/APEX + moldura/disco + laterais escuras multimaterial, padrão tick 23); `node --check` + `git diff --check` OK; build `/tmp/sk3d-dist-tick26b` 44 modules `907.52 kB`; AI Track 1/2 x20 zero lost/backwards/crash.
+- [x] Z4: A/B GPU pareado mesmo protocolo confirma delta direcional; se inconclusivo, revert total + ABANDON honesto.
+  EVIDENCE: sonda `tmp-tick26-sign.cjs` (?test track 2, freezeCam 7m fov35) mesma estação byte-idêntica PRE→POST (letreiro 41.45/3.31/55.74, cam 41.45/3.71/62.74), GPU `RADV PHOENIX`, `pageErrors=[]` 4/4, contagens 12 singles + 9 instanciados estáveis; diff numérico `2.18%` concentrado na face; crítica cega mesmo prompt PRE `barras sem texto` → POST `NITRO legível + moldura + disco`; gameplay POST Neon 24s 6 frames `phase=race` sem placas pretas/espelhadas; mobile POST NITRO nítido. Decisão: PRODUCT CHANGE ACCEPTED.
+- [x] Z5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push origin main; qa-gpu-runner/ fora do staging.
+  EVIDENCE: docs AAA + vault + wiki entity/log/index + memória atualizados; ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js`); `qa-gpu-runner/` untracked fora do staging; helpers em /tmp + /opt/pwtest (não commitados); vite `:3483` encerrado pós-tick.

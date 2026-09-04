@@ -834,3 +834,13 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Checks: `node --check` + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-tick25` → `2.14s`; AI Track 1/2 x20 → `0/0/0` ambas.
 - Infra: runner oversubscribed por chromes stale (06:45/18:0x, 50 proc) travando boot mobile 30min — limpos os mains 413252/415125/441425/441665 + nodes tick21 (restou só minha cadeia); helper `tmp-capture-pad.cjs` via `pct exec cat >` stdin; /tmp/tick25 da sessão paralela de áudio — meus PNGs/txt convivem sem colisão (nomes pad-*).
 - Decisão: **PRODUCT CHANGE ACCEPTED**. Próximo gap: variedade Meadow (montanhas chapadas brancas / copas escuras) / torres Neon escuras / portrait mobile com meio-frame de céu — a definir por medição; score AAA não declarado completo.
+
+## Tick 26 — neon street signs com palavra real (2026-09-05)
+
+- Gap (crítica vision em 4 gameplays GPU ?demo 40s Meadow/Neon d/m, `RADV PHOENIX`, `pageErrors=[]` 4/4): `neon-d frame_0008` mostra placa magenta gigante em 1º plano com barras brancas/ciano e zero texto; código confirma `signTex` 64x96 de `fillRect` bars (`fake 2-line 'text'`). Mesma classe dos shop signs (tick 23). Meadow sem gap maior (modal FINISH limpo, karts detalhados).
+- Repro determinístico (`tmp-tick26-sign.cjs`, ?test track 2, letreiro mais próximo da linha, freezeCam 7m fov35): PRE ciano com barras, estação 41.45/3.31/55.74, 12 singles + 9 instanciados, `RADV PHOENIX`, `pageErrors=[]`.
+- Fix (só `src/track/Environment.js`, bloco street-signs): `signTex` 128x192 com palavra real por cor (TURBO/NITRO/APEX + GP), moldura + disco logo + laterais escuras multimaterial (padrão billboards/shop signs). Sem geometria/física/input/áudio.
+- Prova A/B pareada mesma estação byte-idêntica d/m: diff `2.18%` na face; crítica cega mesmo prompt PRE `barras placeholder` → POST `NITRO legível`; contagens estáveis 12+9; gameplay POST Neon 24s 6 frames `phase=race` sem placas pretas/espelhadas; mobile POST nítido (NITRO + touch OK).
+- Checks: `node --check` + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-tick26b` → 44 modules `907.52 kB`; AI Track 1/2 x20 → `0/0/0` ambas.
+- Infra: helper via `pct exec ... 'cat > /opt/pwtest/...'` stdin (pct push não enxerga worktree fora do host); `THREE` não é global no evaluate (usar `path.getPointAt(t)` sem target); loops ssh multi-captura com quoting aninhado falham silenciosos — 1 captura por chamada.
+- Decisão: **PRODUCT CHANGE ACCEPTED**. Próximo gap: carros estacionados Neon em lajes chapadas (gameplay POST mostra slabs menta/roxo/amarelo sem volume) / variedade Meadow — a definir por medição; score AAA não declarado completo.
