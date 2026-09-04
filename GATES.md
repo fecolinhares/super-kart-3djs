@@ -1670,3 +1670,24 @@ física/input/áudio/assets externos salvo se o gap eleito exigir.
   EVIDENCE: `tmp-capture-facade.cjs` (torre row-A instance 2, 55m, fov 55) PRE (HEAD via copyfile + HMR 50s) vs POST, mesma câmera/torre d/m; GPU `RADV PHOENIX`, `pageErrors=[]` 4/4. Diff numérico PRE→POST: `23.61%` d / `19.82%` m pixels >2 (vs 0.33% do reshuffle W4). Crítica cega mesmo prompt d/m: PRE faixas verticais esticadas/borradas → POST janelas menores, quadradas, densas e nítidas, leitura de prédio habitado; torres âmbar distantes idênticas (isolamento). Gameplay POST `?demo` Neon d 24s: 6 frames, `lastPhase=race`, `pageErrors=[]`, sem artefato (torres próximas com janelas, HUD/itens/pista OK). Decisão: PRODUCT CHANGE ACCEPTED.
 - [x] E5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push; qa-gpu-runner não staged.
   EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js`); `qa-gpu-runner/` untracked fora do staging; vite `:3478` encerrado pós-tick.
+
+# Tick atual — células gigantes em torres row-A próximas (2026-09-04T16:00Z)
+
+Escopo: grade portrait 8x22 (tick 15:00Z) resolveu a 55m, mas faces row-A a
+5-15m da pista ainda leem como painéis gigantes brancos (~1.5m/célula em tela
+cheia). Fix: mullion-cross nas células acesas SÓ da textura near (4 panes por
+célula de perto, fundem no mipmap à distância); grade/paleta/layout/RNG da
+legada intactos. Sem física/input/áudio/assets/geometria.
+
+- [x] F1: Baseline re-medido (git, checks estáticos, build SK3D_OUT_DIR, AI x20/pista) + gap close-range confirmado por captura GPU dedicada (não só gameplay).
+  CHECK: test -f /tmp/tick16/tick16-neon-d_frame_0005.jpg
+  EXPECT: exit 0
+  EVIDENCE: HEAD `92a0f6b`, `src/` limpo (só `qa-gpu-runner/` untracked); `node --check` + `git diff --check` OK; build `/tmp/sk3d-dist-tick16` 2.66s; AI Track 1/2 x20 zero lost/backwards/crash. Capturas `?demo` 40s LXC105 (Neon/Meadow x d/m): GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4, 10 frames cada. Gap: zoom do frame Neon-d 0005 mostra face row-A próxima com células brancas gigantes (~1.5m, painéis de luz) vs torres distantes nítidas; grade 8x22 do tick 15:00Z só resolveu a 55m. IA-roster verificado (sem duplicatas, cores distintas em código + frame) — gap "recoloridos" FECHADO sem mudança.
+- [x] F2: Fix focado e isolado (só `_windowTexture` + call-site near em Environment.js; zero chamadas rand() novas; textura legada byte-idêntica).
+  EVIDENCE: diff só `src/track/Environment.js` (19+/2-): `opts.mullion` + chave de cache `-m` + cruz de caixilho `#0d1322` (vertical `w*0.14`, horizontal `max(1.5px, h*0.16)`) nas células lit/accent, sem `rand()` novo (layout idêntico); call-site near `mullion: true`; demais rows no caminho legado intacto. Sem física/input/áudio/assets/geometria.
+- [x] F3: Checks estáticos, build externo SK3D_OUT_DIR=/tmp/... e AI Track 1/2 x20 passam.
+  EVIDENCE: `node --check src/track/Environment.js` + `git diff --check` OK; `SK3D_OUT_DIR=/tmp/sk3d-dist-mullion npm run build` → `built in 2.69s`; AI Track 1/2 x20 → `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0` ambas (lost 0).
+- [x] F4: A/B GPU pareado close-range (mesma torre/câmera d/m, RADV PHOENIX, pageErrors vazio) + crítica cega mesmo prompt confirma direção; se inconclusivo, revert + ABANDON.
+  EVIDENCE: helper `tmp-capture-facade-near.cjs` (torre row-A instance 2, 16m, fov 50; PRE via copyfile HEAD + HMR 45-50s), mesma torre/câmera d/m; GPU `RADV PHOENIX`, `pageErrors=[]` 4/4. Diff numérico PRE→POST: `11.45%` d / `21.85%` m pixels >2. Crítica cega mesmo prompt: PRE painéis gigantes lisos → POST janelas 4-panes (escritórios habitados); torres distantes âmbar/cool idênticas (isolamento). Mobile POST: 4-panes sem moiré/artefato. Gameplay POST `?demo` Neon d 24s: 6 frames, `lastPhase=race`, `pageErrors=[]`, sem artefato (caixilho funde à distância como projetado). Decisão: PRODUCT CHANGE ACCEPTED.
+- [ ] F5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push; qa-gpu-runner e helpers tmp fora do staging.
+  EVIDENCE: pending

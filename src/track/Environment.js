@@ -4529,7 +4529,12 @@ export class Environment {
     const seed = opts.seed ?? 4242;
     const cols = opts.cols ?? 12;
     const rows = opts.rows ?? 16;
-    const key = `${seed}-${cols}x${rows}`;
+    const mullion = !!opts.mullion; // FIX 2026-09-04 (near-mullion): células
+    // da row near têm ~1.5m no mundo — de perto leem como painéis gigantes
+    // lisos. Cruz de caixilho na cor da parede divide cada célula acesa em
+    // 4 panes (detalhe close-range; no mipmap funde e o look 55m não muda).
+    // Só na textura near: legada mantém chave/layout/RNG byte-idênticos.
+    const key = `${seed}-${cols}x${rows}${mullion ? '-m' : ''}`;
     if (!this._windowTexCache) this._windowTexCache = {};
     if (this._windowTexCache[key]) return this._windowTexCache[key];
     const s = 256;
@@ -4596,6 +4601,13 @@ export class Environment {
           ctx.fillStyle = litTints[(rand() * litTints.length) | 0];
           ctx.fillRect(x, y, w, h);
           ctx.globalAlpha = 1;
+          if (mullion) {
+            // caixilho 4-panes: barras na cor da parede, sem rand() novo
+            // (layout/RNG idênticos; só detalhe adicionado).
+            ctx.fillStyle = '#0d1322';
+            ctx.fillRect(x + w * 0.43, y, Math.max(1, w * 0.14), h);
+            ctx.fillRect(x, y + h * 0.42, w, Math.max(1.5, h * 0.16));
+          }
           // curtain divider — thin vertical darker slit (visible at this size)
           if (rand() < 0.45) {
             ctx.fillStyle = 'rgba(10,14,30,0.55)';
@@ -4617,6 +4629,11 @@ export class Environment {
           ctx.globalAlpha = 0.7;
           ctx.fillRect(x, y, w, h);
           ctx.globalAlpha = 1;
+          if (mullion) {
+            ctx.fillStyle = '#0d1322';
+            ctx.fillRect(x + w * 0.43, y, Math.max(1, w * 0.14), h);
+            ctx.fillRect(x, y + h * 0.42, w, Math.max(1.5, h * 0.16));
+          }
         }
       }
     }
@@ -4718,7 +4735,7 @@ export class Environment {
         // FIX 2026-09-04 (facade-grade): row near (11-19m) usa grade
         // portrait 8x22 p/ janelas menores/nítidas no 1º plano; demais rows
         // mantêm o layout 12x16 legado byte-idêntico.
-        map: row.near ? this._windowTexture({ seed: row.seed, cols: 8, rows: 22 }) : this._windowTexture(),
+        map: row.near ? this._windowTexture({ seed: row.seed, cols: 8, rows: 22, mullion: true }) : this._windowTexture(),
         color: new THREE.Color(1, 1, 1).lerp(fogCol, row.haze),
         fog: false,
         toneMapped: false, // AUDIT R11: janelas acesas brilham sob ACES
