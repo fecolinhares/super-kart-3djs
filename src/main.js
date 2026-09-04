@@ -869,6 +869,11 @@ function startRaceInit() {
     const now = raceManager.elapsed;
     const lapMs = Math.round(Math.max(0, now - (playerKart._lastLapAt || 0)) * 1000);
     playerKart._lastLapAt = now;
+    // R26: the grid sits ~0.5s before the line — that first crossing is race
+    // start, not a completed lap. Sub-5s laps are physically impossible on
+    // either track (shortest real laps run 8s+), so seed the timer silently
+    // instead of freezing BEST at 0:00.5 for the whole race.
+    if (lapMs < 5000) return;
     if (lap === 1) {
       playerKart._bestLapMs = lapMs;
       hud.setLapSplit?.(lapMs, lapMs, true);
