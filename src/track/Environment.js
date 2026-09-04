@@ -2768,8 +2768,12 @@ export class Environment {
       path.getPointAt(t, p);
       nrm.set(-tan.z, 0, tan.x).normalize();
       const side = (i / 6) % 2 === 0 ? 1 : -1;
-      const bx = p.x + nrm.x * side * (halfW + 2.4);
-      const bz = p.z + nrm.z * side * (halfW + 2.4);
+      // AAA tick 2026-09-04 (banner-skim): halfW+2.4 punha o print de 5.6m a
+      // ~1.5m da chase cam quando o kart corre junto à borda — o banner
+      // preenchia 1/3 da tela (skim-pre.png determinístico, t=0.0275).
+      // halfW+3.4 dá 1m de folga à câmera; o banner segue legível (5.6m).
+      const bx = p.x + nrm.x * side * (halfW + 3.4);
+      const bz = p.z + nrm.z * side * (halfW + 3.4);
       if (this._onTrack(bx, bz, 2)) continue; // never on the road
       const by = p.y; // anchor at path elevation (rail base line)
       for (const off of [-1, 1]) {

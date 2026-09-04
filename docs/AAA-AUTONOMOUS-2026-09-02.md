@@ -803,3 +803,13 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Barra preta full-height no frame PRE explicada por probe geométrico no GPU (matrixWorld direto, sem THREE global): poste a 1.06m da câmera artificial do helper; 0 ocorrências em 40 frames de gameplay real (chase cam nunca clipa). Artefato de captura.
 - Infra: primeiro disparo do gameplay usou URL com `?demo` duplicado (2× timeout 180s); uso correto é 1 combo/execução via `CAPTURE_OUT` + `--mobile`/`--track`. Vite dedicado `:3480` (LAN .103) encerrado pós-tick; helper variante em /tmp + /opt/pwtest (não commitado).
 - Decisão: **NO PRODUCT CHANGE** (`src/` = HEAD; ABANDON V3/V4 em GATES.md). Próximo gap: rampa laranja chapada em close (1 frame transitório, precisa isolamento) / pontos brancos gameplay (boost/sparkle?) — a definir por medição; score AAA não declarado completo.
+
+## [2026-09-04T23:00Z] Autonomous tick — banner-skim Meadow: PRODUCT CHANGE ACCEPTED
+
+- Baseline: HEAD `c804f03`, `src/` limpo; `node --check` + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-tick22` → `3.61s`; AI Track 1/2 x20 → `0 lost / 0 backwards / 0 crashes`.
+- Eleição por evidência: 4 capturas `?demo` 40s no LXC105 (Meadow/Neon x d/m, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4, 10 frames cada) + críticas vision mesmo prompt. Gap = banner-skim: `meadow-d frame_0002` (0:11.5) com metade esquerda tomada por faixas vermelhas/brancas; repro determinístico `tmp-skim-ab.cjs` (?test, kart na borda t=0.0275) mostra banner "SUPER KART GP" preenchendo 1/3 do frame; código: prints 5.6m a halfW+2.4 (maior objeto na linha mais próxima). Probe cam↔superfície: mínimo 1.96m no ?demo.
+- Fix (só `src/track/Environment.js`, 6+/2-, Meadow-only `if (!night)`): lateral halfW+2.4→+3.4 (+1m folga à câmera).
+- Prova A/B GPU determinística (mesma estação t=0.0275, mesmo kart/cam d, `RADV PHOENIX`, `pageErrors=[]` 2/2): banner deslocado 1.0m, 32 banners, diff numérico `28.84%`. Crítica cega mesmo prompt: PRE "1/3 da tela, texto cortado" → POST "filete na borda, pista/crowd visíveis". Gameplay POST Meadow d 30s: pista limpa, banners com postes no chão, `phase=finished`, `pageErrors=[]`.
+- Checks: `node --check` + `git diff --check` OK; build → `5.53s`; AI Track 1/2 x20 → `0/0/0`.
+- Infra: helpers `tmp-probe-banner.cjs` (distância cam↔ret do banner via instanceMatrix, sem THREE global) e `tmp-skim-ab.cjs` (?test + teleporte + RNG seedado) em /tmp + /opt/pwtest (não commitados); vite `:3481` encerrado pós-tick.
+- Decisão: **PRODUCT CHANGE ACCEPTED**. Próximo gap: variedade Meadow (copas planas) / torres Neon / fog residual — a definir por medição; score AAA não declarado completo.

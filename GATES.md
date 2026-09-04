@@ -1770,3 +1770,21 @@ ABANDON: V4 sem candidato após refutação — NO PRODUCT CHANGE, `src/` = HEAD
   CHECK: test -f /tmp/tick21/pushed.txt
   EXPECT: exit 0
   EVIDENCE: docs AAA + vault + wiki entity/log/index + memória atualizados; ver commit atômico pushado; `qa-gpu-runner/` untracked fora do staging; vite `:3480` encerrado.
+
+# Tick atual — banner-skim Meadow (chase cam colada no trackside banner) (2026-09-04T23:00Z)
+
+Escopo: a chase cam passava a ~1.5m dos banners "SUPER KART GP" (5.6m) quando
+o kart corria junto à borda — o banner preenchia 1/3 da tela. Um único fix
+isolado (lateral dos banners), A/B determinístico pareado, keep/revert por
+delta direcional. Sem física/input/áudio/assets externos.
+
+- [x] K1: Baseline re-medido (git, checks estáticos, build SK3D_OUT_DIR, AI x20/pista) + capturas GPU Meadow/Neon d/m com RADV PHOENIX + pageErrors vazio.
+  EVIDENCE: HEAD `c804f03`, `src/` limpo (só `qa-gpu-runner/` untracked); `node --check` main/Environment/TrackBuilder/Materials + `git diff --check` OK; build `/tmp/sk3d-dist-tick22` 3.61s; AI Track 1/2 x20 zero lost/backwards/crash. Capturas `?demo` 40s `tmp-capture-gameplay.cjs` no LXC105 (vite :3481): Meadow d/m + Neon d/m, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4, 10 frames cada, lastPhase finished/finished/race/race.
+- [x] K2: Gap único eleito por crítica vision mesmo prompt, registrado com 3 evidências visuais.
+  EVIDENCE: gap = banner-skim Meadow. (1) gameplay `meadow-d frame_0002` (0:11.5): metade esquerda tomada por faixas vermelhas/brancas gigantes; (2) repro determinístico `tmp-skim-ab.cjs` (?test, kart na borda t=0.0275): banner preenche 1/3 esquerdo, texto cortado; (3) código `buildTracksideBanners`: prints 5.6m a halfW+2.4 — maior objeto na linha mais próxima (tire stacks menores ficam em halfW+2.6 "clear of chase-camera line"). Probe cam↔superfície: mínimo 1.96m no ?demo. Neon sem gap maior; Meadow mobile OK.
+- [x] K3: Fix focado e isolado (diff só no sistema do gap), checks + build + AI passam.
+  EVIDENCE: diff só `src/track/Environment.js` (6+/2-): lateral halfW+2.4→+3.4 (+1m folga; Meadow-only `if (!night)`, Neon intocado). `node --check` + `git diff --check` OK; build `/tmp/sk3d-dist-tick22` 5.53s; AI Track 1/2 x20 zero.
+- [x] K4: A/B GPU pareado determinístico (mesma estação/câmera/kart, RADV PHOENIX, pageErrors vazio) + crítica cega mesmo prompt confirma direção; se inconclusivo, revert + ABANDON.
+  EVIDENCE: mesma estação t=0.0275, mesmo kart/cam d; GPU `RADV PHOENIX`, `pageErrors=[]` 2/2; banner deslocado 1.0m, 32 banners, diff numérico PRE→POST `28.84%`. Crítica cega mesmo prompt: PRE "1/3 da tela, texto cortado" → POST "filete na borda, pista/crowd visíveis". Gameplay POST Meadow d 30s (timestamp 0:11.5): pista limpa, banners com postes no chão, `phase=finished`, `pageErrors=[]`. Decisão: PRODUCT CHANGE ACCEPTED.
+- [x] K5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push; qa-gpu-runner e helpers tmp fora do staging.
+  EVIDENCE: ver commit atômico (só GATES.md + `src/track/Environment.js`); `qa-gpu-runner/` untracked fora do staging; helpers em /tmp + /opt/pwtest (não commitados); vite `:3481` encerrado pós-tick.
