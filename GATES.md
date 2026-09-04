@@ -1474,3 +1474,24 @@ Fix: empurrar o objeto removido pelo splice. Sem física/input/visual/assets.
   EVIDENCE: repro pós-fix `NO-BUG: 9 consecutive tracks`; matriz `/tmp/verify-shuffle-matrix.mjs` 5 seeds × 12 tracks `MATRIX-PASS` (inclui contrato closer-não-reabre) + `MATRIX-DETERMINISTIC` em 2 runs; browser servido `:3471` (transform fresco, marker=1; `:3458` stale marker=0 evitado) → `SHUFFLE_BROWSER=PASS tracks=9 invalid=0`, GPU `RADV PHOENIX`, `pageErrors=0`; `probe-audio-lifecycle.mjs` → `AUDIO_LIFECYCLE=PASS checks=9 failed=0 pageErrors=0`. Smoke `audio-determinism-smoke.mjs` BLOCKED no env (pacote `/tmp/sk3d-audio-qa/.../web-audio-api` sem entry `index.js`); `sfx.js` não tocado neste tick.
 - [x] S5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
   EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/audio/music.js`); `qa-gpu-runner/` (inclui `tmp-shuffle-browser.cjs`) untracked fora do staging.
+
+# Tick atual — shoulder path-relative (2026-09-04, H1 pendente)
+
+Escopo: `KartPhysics.step` fixa `near.groundY = 0.14` ABSOLUTO no shoulder,
+mas o ribbon do shoulder é construído com `yOffset: 0.14` PATH-RELATIVO
+(`p.y + 0.14`, TrackBuilder.js:2183). Meadow tem elevação 0.0→3.0m; Neon
+é plano em y=0.3. No trecho alto de Meadow o kart no shoulder afunda ~3m
+abaixo do ribbon visível; no Neon afunda 0.3m. O branch on-road usa
+`near.groundY += 0.18` (relativo, correto). Fix: `= 0.14` → `+= 0.14`.
+Sem física além do grounding, sem input/áudio/assets.
+
+- [x] H1: Baseline re-medido e bug reproduzido deterministicamente antes do fix.
+  EVIDENCE: HEAD `0f7803c`, branch `main`, `src/` limpo; `node --check` + `git diff --check` OK. Repro single-step `./tmp-repro-shoulder.mjs` (real KartPhysics + real path, kart lateral halfW+1.0, 1 step, `_prevY`): PRE-fix Meadow HIGH pathY=3.065 groundY=0.520 (err 3.065m) + Neon pathY=0.300 groundY=0.520 (err 0.300m) → `SHOULDER-PROBE=FAIL`. Causa: `near.groundY = 0.14` absoluto vs ribbon em `p.y + 0.14` (TrackBuilder.js:2183, yOffset 0.14 relativo); branch on-road usa `+= 0.18` (correto).
+- [x] H2: Fix atômico e isolado (só a linha do shoulder em KartPhysics.js).
+  EVIDENCE: `git diff` = 1 hunk (`near.groundY = 0.14` → `near.groundY += 0.14` + nota de causa raiz); sem física além do grounding, sem input/áudio/geometria/assets.
+- [x] H3: Checks estáticos, build externo SK3D_OUT_DIR=/tmp/... e AI Track 1/2 ×20 passam.
+  EVIDENCE: `node --check src/entities/KartPhysics.js` + `git diff --check` OK; `SK3D_OUT_DIR=/tmp/sk3d-dist-shoulder npm run build` → `44 modules transformed`, `built in 2.16s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes` ambas.
+- [x] H4: Repro pós-fix passa (shoulder path-relative nas duas pistas) + gameplay GPU sem regressão.
+  EVIDENCE: repro POST `SHOULDER-PROBE=PASS` (Meadow err 0.001, Neon err 0.000). 4 vídeos `?demo` no runner direto `192.168.0.195` (vite :3472, `tmp-capture-gameplay.cjs`): Meadow d/m + Neon d/m 10 frames cada, GPU `ANGLE/Vulkan RADV PHOENIX`, `pageErrors=[]`, fases `finished/finished/race/race`. Crítica mesmo prompt em frames mid-race (md_frame_0002, mm_frame_0002, nd_frame_0005): karts assentados, sem afundar/flutuar, sem artefato grosseiro. Decisão: ACCEPT.
+- [x] H5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
+  EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/entities/KartPhysics.js`); `qa-gpu-runner/` untracked fora do staging; `tmp-repro-shoulder.mjs` removido do worktree (repro guardado em /tmp).

@@ -276,12 +276,16 @@ export class KartPhysics {
     // shoved into the grass would bury or float up to 5m without this.
     if (Math.abs(near.lateralDist) > halfW + 0.5) {
       // AUDIT (user: 'still sinks a little'): the dirt SHOULDER ribbon is
-      // visible at y=0.14 (width roadW+3.4), but off-road karts rode the
-      // terrain (-0.05) → 0.19m below the shoulder. Ride the shoulder while
-      // on it, then the terrain beyond it.
+      // visible at p.y + 0.14 (buildRoadRibbon yOffset 0.14, PATH-RELATIVE),
+      // but off-road karts rode the terrain (-0.05) → below the shoulder.
+      // Ride the shoulder while on it, then the terrain beyond it.
+      // AUDIT 2026-09-04: groundY was an ABSOLUTE 0.14 — on Meadow's hills
+      // (path.y up to ~3m) the kart snapped meters below the visible ribbon
+      // (single-step probe: err 3.065m HIGH / 0.30m Neon flat). Relative +=
+      // mirrors the on-road branch (+= 0.18) and the ribbon builder.
       const shoulderEdge = halfW + 1.7;
       if (Math.abs(near.lateralDist) < shoulderEdge) {
-        near.groundY = 0.14;
+        near.groundY += 0.14;
       } else {
         near.groundY = Math.max(terrainHeight(s.position.x, s.position.z, track.path), near.groundY - 0.3); // AUDIT: hard clamp — never more than 0.3m below the path (karts used to dive 0.6m) // near.groundY IS sp.y (from nearestSample) — sp is not in step scope
       }
