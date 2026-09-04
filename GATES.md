@@ -1570,3 +1570,24 @@ real + ground amostrado na posição da perna. Sem física/input/áudio/assets.
   EVIDENCE: probe `BILLBOARD-PROBE=PASS` (6 stations maxGap 0.19, lateral 15.5m vs guard 12.5m, lookAt, frame-rotated). Runtime `?test` track 1: PRE `boards=0` → POST `boardCount=6`, `RADV PHOENIX`, `pageErrors=[]` (d/m). Attach ao vivo pós-fix (instanced count 12, worldToLocal por board): `detached=0/12`, `worst=0.00m`. Crítica mesmo prompt (3 frames): PRE grama vazia, sem board → POST d/m board `SUPER KART 3D.js` legível, perna conectada sob a borda, sem flutuação. Gameplay POST `?demo` Meadow desktop: 5 frames, `phase=finished`, `pageErrors=[]`. NOTA METODOLÓGICA: intermediário com `rotation.y` pós-lookAt mediu 8/12 detached ao vivo (Euler-XYZ folda yaw real 2.02→1.12) — rejeitado antes de qualquer commit; fix final usa frame `sx/sz` sem Euler.
 - [x] B5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
   EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js`); `qa-gpu-runner/` e `scripts/tmp-*.mjs` untracked fora do staging; vite `:3474` dedicado encerrado.
+
+# Tick atual — sweep invariantes props vs pista pós-billboard (2026-09-04T11:00Z)
+
+Escopo: o fix dos billboards (20b928b) moveu 6 spots para path-relative
+lateral 15.5m + pernas yaw-rotated. Cobertura nova: varredura determinística
+de TODOS os props regulares (Meadow + Neon) contra a centerline — nada
+dentro da pista (colisão visual), nada flutuando/enterrado. Sem
+física/input/áudio/assets. Se o sweep passar limpo: NO PRODUCT CHANGE.
+CHECK/EXPECT por gate; EVIDENCE com medida real.
+
+- [x] P1: Baseline re-medido (git, checks estáticos, build SK3D_OUT_DIR, AI ×20/pista).
+  EVIDENCE: HEAD `20b928b`, `src/` limpo (só untracked `qa-gpu-runner/` + `scripts/tmp-*.mjs`); `node --check` Environment.js+main.js OK, `git diff --check` OK; `SK3D_OUT_DIR=/tmp/sk3d-dist-propsweep npm run build` → `44 modules`, `904.47 kB`, `built in 2.76s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes` ambas.
+- [x] P2: Probe de cena no GPU LXC105 (?test track 1, RADV PHOENIX) enumera props e checa invariantes (centro+raio vs centerline 400 amostras; base vs terrainHeight).
+  EVIDENCE: `tmp-prop-sweep.cjs` no LXC105 via Proxmox .102 pct exec 105, vite local `:3475` (LAN .103→runner): GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]`, `585` meshes regulares + `103` InstancedMesh (`18412` instâncias, `1714` skipped). Track 2 não rodado — instrumento invalidado no track 1 (ver P3), rodar de novo seria medir com régua quebrada.
+ABANDON: P2-track2 instrumento invalidado — ~10k flags, esmagadora maioria falso-positivo (moedas/item-box flutuam por design; tire stacks na borda leem ON-ROAD; partes de figuras compostas avaliadas como props independentes; ver P3).
+- [x] P3: Toda violação encontrada vira fix isolado + re-probe verde; se zero violações, src/ permanece intocado.
+  EVIDENCE: `git diff -- src` vazio — nenhuma violação real. Clusters triados: (a) boxes r=0.44 FLOAT em escada 0.5→2.16m = corpos da plateia (`bodyGeo 0.52×0.6×0.34`, r≈0.43) com bounce do update() + berm 0.3m — parte de figura composta, não prop solto; (b) boxes BURIED-LOW a dist ~7.7m com minY ~1.15m sob `terrainHeight`, mas `_gy` do jogo É `terrainHeight(x,z,trackPath)` (Environment.js:493) — mesmo modelo; foto GPU do cluster exato mostra berms/pés assentados, sem caixa afundada visível. Instrumento mede parte-dinâmica como estática → rejeitado, sem patch especulativo.
+- [x] P4: Gameplay ?demo pós (se fix) ou auditoria de frames (se sem fix) sem regressão, pageErrors vazio.
+  EVIDENCE: `tmp-look.cjs` (?test track 1, câmera (-52,4,14)→(-55,0,5) no cluster): GPU `RADV PHOENIX`, `pageErrors=[]`; vision nativa: plateia em pé sobre os berms verdes, pés assentados, nada flutuando/enterrado; billboards `SUPER KART GP` legíveis sobre postes. Frame salvo em `/tmp/look-crowd.png` (763706 bytes).
+- [x] P5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push; qa-gpu-runner e tmp-*.mjs fora do staging.
+  EVIDENCE: ver commit atômico (só GATES.md + docs AAA); `qa-gpu-runner/` e `scripts/tmp-*.mjs` untracked fora do staging; vite `:3475` encerrado.
