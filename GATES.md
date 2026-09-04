@@ -1845,7 +1845,7 @@ pareado no GPU LXC105, keep/revert por delta direcional.
   CHECK: test -f /tmp/tick25/docs.txt
   EXPECT: exit 0
   EVIDENCE: mesma estação padT=0.1653 d/m, `RADV PHOENIX`, pageErrors[]; diff `2.77%` d / `8.00%` m; crítica cega PRE→POST (borda definida, âmbar dourado, chevron simples); gameplay POST Neon 24s 6 frames race pageErrors[]. Decisão: ACCEPT.
-- [ ] Y5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push origin main; qa-gpu-runner/ fora do staging.
+- [x] Y5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push origin main; qa-gpu-runner/ fora do staging.
   CHECK: test -f /tmp/tick25/pushed.txt
   EXPECT: exit 0
-  EVIDENCE: pending
+  EVIDENCE: commit `68adb03` (só GATES.md + AAA docs + Materials.js); push `1335332..68adb03 main`; vault + wiki entity/log/index + memória atualizados; `qa-gpu-runner/` untracked fora do staging; gate-check ALL MET.
