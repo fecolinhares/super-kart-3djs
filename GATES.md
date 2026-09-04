@@ -1866,3 +1866,17 @@ por delta direcional. Sem física/input/áudio/assets externos.
   EVIDENCE: sonda `tmp-tick26-sign.cjs` (?test track 2, freezeCam 7m fov35) mesma estação byte-idêntica PRE→POST (letreiro 41.45/3.31/55.74, cam 41.45/3.71/62.74), GPU `RADV PHOENIX`, `pageErrors=[]` 4/4, contagens 12 singles + 9 instanciados estáveis; diff numérico `2.18%` concentrado na face; crítica cega mesmo prompt PRE `barras sem texto` → POST `NITRO legível + moldura + disco`; gameplay POST Neon 24s 6 frames `phase=race` sem placas pretas/espelhadas; mobile POST NITRO nítido. Decisão: PRODUCT CHANGE ACCEPTED.
 - [x] Z5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push origin main; qa-gpu-runner/ fora do staging.
   EVIDENCE: docs AAA + vault + wiki entity/log/index + memória atualizados; ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js`); `qa-gpu-runner/` untracked fora do staging; helpers em /tmp + /opt/pwtest (não commitados); vite `:3483` encerrado pós-tick.
+
+# Tick atual — auditoria visual + renderer stats, sem mudança de produto (2026-09-04T22:00Z)
+
+Escopo: re-medir baseline, varrer 4 gameplays GPU por UM gap defensável; sem
+editar src sem delta direcional. Vite dedicado `:3484` (LAN .103).
+
+- [x] A1: Baseline re-medido (git src limpo, checks, build SK3D_OUT_DIR, AI 20x2 zero) + 4 gameplays GPU ?demo 40s (Meadow/Neon x d/m, RADV PHOENIX, pageErrors[]).
+  EVIDENCE: HEAD `94f8123` src limpo (só `qa-gpu-runner/` untracked); `node --check` main/Environment/TrackBuilder/Materials + `git diff --check` OK; build `/tmp/sk3d-dist-tick27` 44 modules `2.24s`; AI Track 1/2 x20 zero lost/backwards/crash. Capturas `tmp-capture-gameplay.cjs` no LXC105: Meadow d/m + Neon d/m, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4, 10 frames cada, lastPhase finished/finished/race/race.
+- [x] A2: Varredura vision mesmo protocolo em 6 frames distribuídos (mid-race + mobile), gap único eleito ou NO-CHANGE honesto.
+  EVIDENCE: 6 críticas vision (meadow-d/m + neon-d/m, mid-race e portrait): karts/HUD/touch fortes; fix tick 26 visível em gameplay (`neon-d frame_0002`: NITRO/TURBO legíveis); turbo pad tick 25 íntegro em 1º plano. Branco chapado dos picos distantes Meadow = haze intencional auditado (bandas `haze 0.55/0.30/0.18/0.12`, audits r20/R21b) — sem defeito concreto isolado; nenhum outro gap atingiu barra de evidência. Decisão: NO PRODUCT CHANGE.
+- [x] A3: Sonda quantitativa renderer.info no GPU (calls/tris/geos/tex, fase, pageErrors) nas 4 combinações, sem regressão vs histórico.
+  EVIDENCE: `tmp-tick27-render-probe.cjs` (?demo, RADV PHOENIX, pageErrors[] 4/4): Meadow-d `1462 calls/1014211 tris/1531 geos/109 tex` (finished), Meadow-m `538/740641/1519/103` (race), Neon-d `1419/271486/1212/100` (race), Neon-m `649/145172/1201/98` (race). Sem erro, sem anomalia; mobile ~40% dos calls do desktop (DPR/instancing OK).
+- [x] A4: Docs repo + commit atômico + push origin main; qa-gpu-runner/ fora do staging; vite :3484 encerrado.
+  EVIDENCE: commit contém só `GATES.md` + `docs/AAA-AUTONOMOUS-2026-09-02.md`; `git push origin main`; `qa-gpu-runner/` untracked fora do staging; helpers em /tmp + /opt/pwtest (não commitados).

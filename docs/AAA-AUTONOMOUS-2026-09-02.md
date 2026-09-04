@@ -844,3 +844,12 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Checks: `node --check` + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-tick26b` → 44 modules `907.52 kB`; AI Track 1/2 x20 → `0/0/0` ambas.
 - Infra: helper via `pct exec ... 'cat > /opt/pwtest/...'` stdin (pct push não enxerga worktree fora do host); `THREE` não é global no evaluate (usar `path.getPointAt(t)` sem target); loops ssh multi-captura com quoting aninhado falham silenciosos — 1 captura por chamada.
 - Decisão: **PRODUCT CHANGE ACCEPTED**. Próximo gap: carros estacionados Neon em lajes chapadas (gameplay POST mostra slabs menta/roxo/amarelo sem volume) / variedade Meadow — a definir por medição; score AAA não declarado completo.
+
+## Tick 27 — auditoria visual + renderer stats, NO PRODUCT CHANGE (2026-09-04T22:00Z)
+
+- Baseline: HEAD `94f8123`, `src/` limpo (só `qa-gpu-runner/` untracked); `node --check` + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-tick27` → 44 modules `2.24s`; AI Track 1/2 x20 → `0/0/0` ambas; vite dedicado `:3484` (LAN .103).
+- Varredura: 4 gameplays `?demo` 40s no LXC105 (Meadow/Neon x d/m, `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4, 10 frames, finished/finished/race/race) + 6 críticas vision. Frames `.jpg` (harness salva jpg, não png — pull via `pct exec -- base64` path literal). Frames 0005 Meadow pegaram modal FINISHED (corrida curta do ?demo) — mid-race usar 0002/0003.
+- Achados: jogo forte em todas as combinações; tick 26 confirmado em gameplay ativa (NITRO/TURBO legíveis em `neon-d frame_0002`); turbo pad íntegro em 1º plano. Picos brancos distantes Meadow = haze auditado (bandas 0.55/0.30/0.18/0.12, r20/R21b) — mexer seria reverter tuning auditado sem defeito isolado.
+- Sonda renderer (`tmp-tick27-render-probe.cjs`, `window.__sk3d.renderer.info`): Meadow-d 1462 calls/1.01M tris, Meadow-m 538/741k, Neon-d 1419/271k, Neon-m 649/145k; geos ~1200-1530, tex ~98-109; `pageErrors=[]` 4/4. Sem regressão.
+- Infra: HOME do cron coder = `/home/jarvis/.hermes/profiles/coder/home` — pw Proxmox em `/home/jarvis/.hermes/.proxmox_root_pw` (path absoluto); push de helper via stdin `pct exec ... 'base64 -d > dest'`; capture salva `.jpg`.
+- Decisão: **NO PRODUCT CHANGE ACCEPTED**. Próximo gap: inspeção dedicada da cordilheira Meadow (?test + freezeCam mirando picos, várias distâncias) antes de qualquer edit de banda — ou carros estacionados Neon (nota tick 26, sem evidência fresca neste tick); score AAA não declarado completo.
