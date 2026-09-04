@@ -1900,3 +1900,36 @@ A/B determinístico pareado no GPU LXC105, keep/revert por delta direcional.
   EVIDENCE: sonda `tmp-tick28-car.cjs` (?test track 2, freezeCam fov35, phase idle) mesma estação byte-idêntica PRE→POST d (carro idx1 -55.53/22.96, grid sub-cm) e m (carro idx3, PRE via `git show HEAD:` + restore por cp, sem stash); GPU `RADV PHOENIX`, `pageErrors=[]` 4/4; diff numérico `34.75%` d / `26.48%` m pixels >2; crítica cega mesmo prompt PRE `tijolo preto sólido` → POST `faixa de vidro azul-aço + teto na cor` (d e m, touch mobile intacto); gameplay POST Neon 24s 6 frames `phase=race` sem placas pretas/espelhadas. Decisão: PRODUCT CHANGE ACCEPTED.
 - [x] C5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push origin main; qa-gpu-runner/ fora do staging.
   EVIDENCE: docs AAA + vault + wiki entity/log + memória atualizados; ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js`); `qa-gpu-runner/` untracked fora do staging; helpers em /tmp + /opt/pwtest (não commitados); vite `:3485` encerrado pós-tick.
+
+# Tick atual — auditoria visual completa + fix harness zumbi, sem mudança de produto (2026-09-05T02:00Z)
+
+Escopo: re-medir baseline, varrer 4 gameplays GPU (Meadow/Neon x d/m) por UM
+gap defensável com sondas determinísticas; sem editar src sem delta
+direcional. Infra: `tmp-capture-gameplay.cjs` não fechava o browser no FAIL
+(zumbis chromium acumulavam e matavam a GPU do runner) → try/finally.
+Vite dedicado `:3486` (LAN .103).
+
+- [x] D1: Baseline re-medido (git src limpo, checks, build SK3D_OUT_DIR, AI 20x2 zero) + 4 gameplays GPU ?demo 40s (Meadow/Neon x d/m, RADV PHOENIX, pageErrors[]).
+  CHECK: test -f /tmp/tick29/ab.json
+  EXPECT: exit 0
+  EVIDENCE: HEAD `4ecde09` src limpo (só `qa-gpu-runner/` untracked); `node --check` main/Environment/TrackBuilder/Materials + `git diff --check` OK; build `/tmp/sk3d-dist-tick29` 44 modules `2.15s`; AI Track 1/2 x20 zero lost/backwards/crash. Capturas `?demo` 40s no LXC105 (vite :3486): Meadow d/m + Neon d/m, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4, 10 frames cada, lastPhase finished/finished/finished/race.
+- [x] D2: Varredura vision mesmo prompt em 8 frames distribuídos (mid-race d + portrait m, Meadow + Neon); 3 suspeitos levantados com localização no frame.
+  CHECK: test -f /tmp/tick29/gap.txt
+  EXPECT: exit 0
+  EVIDENCE: 8 críticas vision mesmo protocolo (`/tmp/tick29-local/*.jpg`): (1) barra branca vertical dominante em `neon-d frame_0002` (~1/8 largura, suspeita strip estourada); (2) parked cars lendo como slabs chapados à distância (`neon-d frame_0002` esq + `frame_0005` táxi amarelo); (3) minimap apagado no mobile (círculo tênue no portrait). Meadow sem gap maior (karts/crowd/banners/HUD fortes; FINISH legível).
+- [x] D3: Sondas determinísticas pareadas refutam/confirmam cada suspeito com medição, sem chute.
+  CHECK: test -f /tmp/tick29/verdict.txt
+  EXPECT: exit 0
+  EVIDENCE: (1) strip REFUTADA: close-up `tmp-probe-strip.cjs` (?test track 2, 1.9m, fov35, `RADV PHOENIX`, pageErrors[]) mostra rosa vívido, sem blowout branco; (2) vidro/teto CONFIRMADOS: `tmp-probe-car-side.cjs` (5m, altura das rodas) mostra faixa de vidro `#39586e` + teto na cor (in-page measure: cabins 22x `#39586e` sem instanceColor, roofs 22x com cor); (3) minimap REFUTADO: mesmo SVG 120px d/m, o apagado era compressão JPEG (44KB). Rodas meio-cortadas no close-up = quad de reflexo aditivo ocluindo em ângulo rasante (irrelevante na chase-cam). Decisão: NO PRODUCT CHANGE.
+- [x] D4: Fix de infra no harness do runner (zumbis chromium) aplicado com backup + verificação funcional.
+  CHECK: test -f /tmp/tick29/docs.txt
+  EXPECT: exit 0
+  EVIDENCE: `/opt/pwtest/tmp-capture-gameplay.cjs` (backup `.bak`): `let browser=null` + `try/finally { await browser?.close() }`; `node --check` OK; captura verify 10s pós-patch → `RADV PHOENIX`, 3 frames `phase=race`, pageErrors[], 0 processos lingering (antes: FAIL deixava node+chromium vivos sugando 108% CPU e as capturas seguintes estouravam waitForFunction 180s).
+- [x] D5: Armadilhas operacionais registradas (base URL com ?demo duplica path do harness → 404 sem boot; pkill -f casa com o próprio bash pai → suicídio; FAIL sem close → zumbi GPU).
+  CHECK: test -f /tmp/tick29/pitfalls.txt
+  EXPECT: exit 0
+  EVIDENCE: 3 timeouts de 180s diagnosticados nesta tick: causa 1 = base `...:3486/?demo` + harness anexa `/?demo&track=` (path `/?demo/?demo&track=1` → 404, `__sk3d` nunca boota); causa 2 = `pkill -9 -f tmp-capture-gameplay` mata o próprio `bash -c` que contém o padrão; causa 3 = catch sem `browser.close()`. Todas com fix aplicado e verificado.
+- [x] D6: Docs repo/vault/wiki/memória + gate-check + commit atômico + push origin main; qa-gpu-runner/ fora do staging; vite :3486 encerrado.
+  CHECK: test -f /tmp/tick29/pushed.txt
+  EXPECT: exit 0
+  EVIDENCE: ver commit atômico (só GATES.md + docs AAA); `qa-gpu-runner/` untracked fora do staging; helpers em /tmp + /opt/pwtest (não commitados); vite `:3486` encerrado pós-tick.
