@@ -4519,8 +4519,19 @@ export class Environment {
    *  cells. MeshBasicMaterial keeps the facade self-lit at night, and the
    *  per-instance color tints every lit cell (dark walls × tint stay dark,
    *  so only the windows glow in orange / electric blue / yellow). */
-  _windowTexture() {
-    if (this._windowTex) return this._windowTex;
+  _windowTexture(opts = {}) {
+    // FIX 2026-09-04 (facade-grade): a row near (11-19m) estica a textura
+    // quadrada 12x16 em faces de até 30m de altura (box 10x14x8, escala
+    // h/14) — janelas gigantes borradas no 1º plano (GPU frame_0008). Grade
+    // portrait por row (near 8x22, demais 12x16) = densidade de grade, não
+    // reshuffle de células (lição W4: reshuffle é sub-perceptual). Cache por
+    // chave; sem física/input/áudio/assets/geometria.
+    const seed = opts.seed ?? 4242;
+    const cols = opts.cols ?? 12;
+    const rows = opts.rows ?? 16;
+    const key = `${seed}-${cols}x${rows}`;
+    if (!this._windowTexCache) this._windowTexCache = {};
+    if (this._windowTexCache[key]) return this._windowTexCache[key];
     const s = 256;
     const canvas = document.createElement('canvas');
     canvas.width = s;
@@ -4531,7 +4542,7 @@ export class Environment {
     // e liam como uma BANDA OLIVA no horizonte. Parede mais fria/escura
     // aumenta o contraste e a média de cor volta ao azul-noturno.
     ctx.fillRect(0, 0, s, s);
-    const rand = rnd(4242);
+    const rand = rnd(seed);
     // AUDIT R2 (blind critic 2026-08-13: 'windows look like light panels,
     // not inhabited buildings'): 6x7 cells with per-cell INTENSITY variety,
     // warm/cool mix, curtain tints, some whole dark floors. Reads as offices
@@ -4540,12 +4551,16 @@ export class Environment {
     // a textura 256px por ~14m — janelas viram retângulos gigantes borrados
     // (fachada lisa preta no 1º plano). Grid 6x7→12x16: células menores,
     // fachadas próximas leem como janelas, distantes mantêm o brilho.
-    const cols = 12;
-    const rows = 16;
-    const cell = 15;
+    // Grade dimensionada p/ caber no canvas 256 em qualquer densidade:
+    // célula = (s - gaps)/n por eixo (near 8x22 → ~27x8.8px). A grade
+    // padrão 12x16 mantém o layout legado exato (célula 15 centralizada)
+    // para as demais rows não mudarem 1 texel.
     const gap = 3;
-    const startX = (s - (cols * cell + (cols - 1) * gap)) / 2;
-    const startY = (s - (rows * cell + (rows - 1) * gap)) / 2;
+    const legacy = cols === 12 && rows === 16;
+    const cw = legacy ? 15 : (s - (cols - 1) * gap) / cols;
+    const ch = legacy ? 15 : (s - (rows - 1) * gap) / rows;
+    const startX = legacy ? (s - (cols * cw + (cols - 1) * gap)) / 2 : 0;
+    const startY = legacy ? (s - (rows * ch + (rows - 1) * gap)) / 2 : 0;
     // AUDIT R21h: 100% FRIAS — o último tint quente (#ffe9c4) × material
     // color claro das rows × bloom × warm grade = MASSA OLIVA nas fachadas
     // distantes (medido: texel [183,175,156] × #8b8a92 → bege → oliva).
@@ -4559,12 +4574,12 @@ export class Environment {
       for (let c = 0; c < cols; c++) {
         // AUDIT R3 (critic: 'too regular, no per-window variety'): jitter
         // position + size so the facade reads as real windows, not a grid.
-        const jx = (rand() - 0.5) * (cell * 0.5);
-        const jy = (rand() - 0.5) * (cell * 0.5);
-        const w = cell * (0.7 + rand() * 0.5);
-        const h = cell * (0.7 + rand() * 0.5);
-        const x = startX + c * (cell + gap) + jx;
-        const y = startY + r * (cell + gap) + jy;
+        const jx = (rand() - 0.5) * (cw * 0.5);
+        const jy = (rand() - 0.5) * (ch * 0.5);
+        const w = cw * (0.7 + rand() * 0.5);
+        const h = ch * (0.7 + rand() * 0.5);
+        const x = startX + c * (cw + gap) + jx;
+        const y = startY + r * (ch + gap) + jy;
         if (!floorLit) {
           // mostly dark floor — one dim survivor window
           if (rand() < 0.14) {
@@ -4605,9 +4620,10 @@ export class Environment {
         }
       }
     }
-    this._windowTex = new THREE.CanvasTexture(canvas);
-    this._windowTex.colorSpace = THREE.SRGBColorSpace;
-    return this._windowTex;
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    this._windowTexCache[key] = tex;
+    return tex;
   }
 
   /**
@@ -4699,7 +4715,10 @@ export class Environment {
       const rand = rnd(row.seed);
       const count = 24 + Math.floor(rand() * 5); // 24-28 per row (denser skyline — vision critic: sparse)
       const rowMat = new THREE.MeshBasicMaterial({
-        map: this._windowTexture(),
+        // FIX 2026-09-04 (facade-grade): row near (11-19m) usa grade
+        // portrait 8x22 p/ janelas menores/nítidas no 1º plano; demais rows
+        // mantêm o layout 12x16 legado byte-idêntico.
+        map: row.near ? this._windowTexture({ seed: row.seed, cols: 8, rows: 22 }) : this._windowTexture(),
         color: new THREE.Color(1, 1, 1).lerp(fogCol, row.haze),
         fog: false,
         toneMapped: false, // AUDIT R11: janelas acesas brilham sob ACES

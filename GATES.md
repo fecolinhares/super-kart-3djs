@@ -1652,3 +1652,21 @@ fisica/input/audio/assets/geometria alem de postes finos de suporte.
   EVIDENCE: GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` em todas as sondas. PRE: 7 sinais, EMBEDDED 1, OCCLUDED 2. POST2 desktop: 12 sinais, EMBEDDED 0, OCCLUDED 0, nearestTower min 8.25m. POST3 mobile: 12 sinais. Critico cego mesmo prompt: PRE = letreiro escondido atras de torre (so filete magenta); POST desktop = letreiro verde sobre 2 pernas + vizinhos F/KART legiveis; POST mobile = letreiro sobre pernas, touch OK. Gameplay Neon `?demo` 40s: 10 frames, lastPhase=race, pageErrors=[].
 - [x] S5: Docs repo/vault/wiki/memoria + gate-check + commit atomico + push; qa-gpu-runner e tmp-*.mjs fora do staging.
   EVIDENCE: docs AAA + vault + wiki log/entity + memoria atualizados; gate-check `ALL MET (402 met, 38 abandoned)`; commit atomico pushado; `qa-gpu-runner/` e `scripts/tmp-*.mjs` untracked fora do staging.
+
+# Tick atual — eleger gap único por evidência GPU + fix focado (2026-09-04T15:00Z)
+
+Escopo: capturar Neon/Meadow desktop+mobile no LXC105 (RADV PHOENIX),
+criticar com vision nativa no mesmo prompt, eleger UM gap de maior valor,
+implementar fix isolado e decidir keep/revert por A/B pareado. Sem
+física/input/áudio/assets externos salvo se o gap eleito exigir.
+
+- [x] E1: Baseline re-medido (git, checks estáticos, build SK3D_OUT_DIR, AI x20/pista) e capturas GPU d/m com RADV PHOENIX + pageErrors vazio.
+  EVIDENCE: HEAD `db5d7a6`, `src/` limpo (só `qa-gpu-runner/` untracked); `node --check` Environment.js+main.js + `git diff --check` OK; build `/tmp/sk3d-dist-tick15` 2.68s; AI Track 1/2 x20 zero lost/backwards/crash. Capturas `?demo` 40s `tmp-capture-gameplay.cjs` no LXC105: Neon d/m + Meadow d/m, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4, 10 frames cada, lastPhase finished/race/finished/finished.
+- [x] E2: Gap único eleito por crítica vision mesmo prompt (frames Neon/Meadow d/m), registrado com 3 evidências visuais.
+  EVIDENCE: gap = row-A Neon (11-19m) estica textura quadrada 12x16 em faces de até 30m (box 10x14x8, escala h/14) → janelas gigantes borradas no 1º plano. Evidências: (1) gameplay `neon-d frame_0008`: torre direita com células ~2m borradas; (2) código: face 3:1 (15m x 30m) vs textura 1:1 256px; (3) frames 0002/0004/0006: torres próximas com faixas verticais esticadas vs âmbar distantes nítidas. Hipótese rival "torres-void pretas" REJEITADA pelos frames 0004/0008 (torres escuras têm janelas cool visíveis). Meadow forte, mobile OK — nenhum gap maior.
+- [x] E3: Fix focado e isolado (diff só no sistema do gap), checks + build + AI passam.
+  EVIDENCE: diff só `src/track/Environment.js` (37+/18-): `_windowTexture(opts)` com cache por chave + grade portrait 8x22 p/ row near (seed da row), demais rows no layout 12x16 legado byte-idêntico (mesma seed, mesmas constantes, mesma ordem de `rand()`); sem física/input/áudio/assets/geometria. `node --check` + `git diff --check` OK; build `/tmp/sk3d-dist-facadegrade` 4.72s; AI Track 1/2 x20 zero.
+- [x] E4: A/B GPU pareado mesmo protocolo confirma delta direcional; se inconclusivo, revert + ABANDON honesto.
+  EVIDENCE: `tmp-capture-facade.cjs` (torre row-A instance 2, 55m, fov 55) PRE (HEAD via copyfile + HMR 50s) vs POST, mesma câmera/torre d/m; GPU `RADV PHOENIX`, `pageErrors=[]` 4/4. Diff numérico PRE→POST: `23.61%` d / `19.82%` m pixels >2 (vs 0.33% do reshuffle W4). Crítica cega mesmo prompt d/m: PRE faixas verticais esticadas/borradas → POST janelas menores, quadradas, densas e nítidas, leitura de prédio habitado; torres âmbar distantes idênticas (isolamento). Gameplay POST `?demo` Neon d 24s: 6 frames, `lastPhase=race`, `pageErrors=[]`, sem artefato (torres próximas com janelas, HUD/itens/pista OK). Decisão: PRODUCT CHANGE ACCEPTED.
+- [x] E5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push; qa-gpu-runner não staged.
+  EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js`); `qa-gpu-runner/` untracked fora do staging; vite `:3478` encerrado pós-tick.
