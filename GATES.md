@@ -1495,3 +1495,23 @@ Sem física além do grounding, sem input/áudio/assets.
   EVIDENCE: repro POST `SHOULDER-PROBE=PASS` (Meadow err 0.001, Neon err 0.000). 4 vídeos `?demo` no runner direto `192.168.0.195` (vite :3472, `tmp-capture-gameplay.cjs`): Meadow d/m + Neon d/m 10 frames cada, GPU `ANGLE/Vulkan RADV PHOENIX`, `pageErrors=[]`, fases `finished/finished/race/race`. Crítica mesmo prompt em frames mid-race (md_frame_0002, mm_frame_0002, nd_frame_0005): karts assentados, sem afundar/flutuar, sem artefato grosseiro. Decisão: ACCEPT.
 - [x] H5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
   EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/entities/KartPhysics.js`); `qa-gpu-runner/` untracked fora do staging; `tmp-repro-shoulder.mjs` removido do worktree (repro guardado em /tmp).
+
+# Tick atual — Meadow tuft r2/r3 não-normalizado (2026-09-04, ~56% capim seco vs 16% projetado)
+
+Escopo: `buildMeadowGrassField` (Environment.js:3029-3039) usa hash
+`sin%1` com sinal; `r1` é normalizado (`r1<0?r1+1:r1`) mas `r2`/`r3` não.
+`r2` negativo conta como `tall` (`r2<0.16`) → ~56% dos tufts viram capim
+alto seco amarelado (PAL[3..4]) em vez dos ~16% projetados; `r3` negativo
+enviesa o jitter tangencial. Fix: normalizar `r2`/`r3` como `r1`.
+Sem física/input/áudio/geometria/assets.
+
+- [x] M1: Baseline re-medido e bug reproduzido deterministicamente antes do fix.
+  EVIDENCE: `node scripts/tmp-census-tufts.mjs` → `LEN=394.6 N=247 TOTAL=470`, `PRE_TALL=263 (56.0%) POST_TALL=55 (11.7%)`, `JIT_MEAN_PRE=-0.5134 JIT_MEAN_POST=-0.0092`, `CENSUS=BUG-CONFIRMED`. Causa: `sin%1` com sinal; `r1` normalizado mas `r2`/`r3` não → `r2<0` contava como tall (~56% vs ~16% projetado) e `r3` enviesava o jitter.
+- [x] M2: Fix atômico e isolado (só normalização r2/r3 em `buildMeadowGrassField`).
+  EVIDENCE: `git diff --stat` pós-fix = só `src/track/Environment.js` (+13/-4: `r1n/r2n/r3n` normalizados, `off/tall/fx/fz/sc` usam formas normalizadas) + `GATES.md`; sem física/input/áudio/geometria/assets.
+- [x] M3: Checks estáticos, build externo SK3D_OUT_DIR=/tmp/... e AI Track 1/2 ×20 passam.
+  EVIDENCE: `node --check src/track/Environment.js` OK; `SK3D_OUT_DIR=/tmp/sk3d-dist-tuft-r26 npm run build` → `44 modules transformed`, `904.22 kB`, `built in 2.16s`; `node scripts/ai-backwards-test.mjs 20 1` e `20 2` → `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0` ambos.
+- [x] M4: Censo determinístico pré→pós + A/B GPU pareado Meadow (RADV PHOENIX, pageErrors vazio) confirma direção.
+  EVIDENCE: censo acima (56.0%→11.7%, jitter -0.51→-0.01). GPU LXC105 `tmp-capture-gameplay.cjs` (?demo track=1, vite :3472): `tuft-pre-d/pre-m/post-d/post-m` → GPU `ANGLE ... RADV PHOENIX`, `10/10/10/10` frames, `lastPhase=finished` (mobile terminou cedo: frame_0005 já em FINISHED), `pageErrors=[]` nos 4. Método PRE: `git stash` + sleep 50s p/ HMR; pop restaurou o fix.
+- [x] M5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
+  EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js`); `scripts/tmp-census-tufts.mjs` untracked fora do staging junto de `qa-gpu-runner/`.

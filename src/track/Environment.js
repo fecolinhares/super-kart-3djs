@@ -3030,12 +3030,19 @@ export class Environment {
         const r1 = (Math.sin(j) * 43758.5453) % 1;
         const r2 = (Math.sin(j + 13) * 43758.5453) % 1;
         const r3 = (Math.sin(j + 29) * 43758.5453) % 1;
-        const off = halfW + 4.5 + (r1 < 0 ? r1 + 1 : r1) * 17.5; // 4.5..22m
-        const tall = r2 < 0.16; // ~16% grama alta seca
-        const fx = p.x + nrm.x * off * side + tan.x * (r3 - 0.5) * 0.8;
-        const fz = p.z + nrm.z * off * side + tan.z * (r3 - 0.5) * 0.8;
+        // R26-FIX: % keeps the sign, so r2/r3 land in (-1,1); only r1 was
+        // normalized below. Raw r2<0 counted as tall (r2<0.16) → ~56% dry
+        // tall tufts instead of the designed ~16%, and raw r3 biased the
+        // tangent jitter. Normalize r2/r3 exactly like r1.
+        const r1n = r1 < 0 ? r1 + 1 : r1;
+        const r2n = r2 < 0 ? r2 + 1 : r2;
+        const r3n = r3 < 0 ? r3 + 1 : r3;
+        const off = halfW + 4.5 + r1n * 17.5; // 4.5..22m
+        const tall = r2n < 0.16; // ~16% grama alta seca
+        const fx = p.x + nrm.x * off * side + tan.x * (r3n - 0.5) * 0.8;
+        const fz = p.z + nrm.z * off * side + tan.z * (r3n - 0.5) * 0.8;
         const gy = this._gy(fx, fz);
-        const sc = tall ? 1.6 + r2 * 0.7 : 0.8 + r1 * 0.6;
+        const sc = tall ? 1.6 + r2n * 0.7 : 0.8 + r1n * 0.6;
         spots.push({ x: fx, z: fz, gy, sc, v: (i + side) % variants.length, c: tall ? 3 + ((i % 2)) : (i % 3) });
       }
     }
