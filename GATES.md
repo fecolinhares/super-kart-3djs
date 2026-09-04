@@ -1631,6 +1631,5 @@ física/input/áudio/assets/geometria.
 - [x] W4: Determinismo + A/B GPU LXC105 pareado Neon (RADV PHOENIX, pageErrors vazio) confirma direção.
   EVIDENCE: helper `tmp-capture-facade.cjs` (torre mediana row-A, 55m, fov 55) via vite `:3477` → POST d/m + PRE d/m (HEAD via copyfile, HMR 45s), mesma câmera/torre; GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]`, 4/4. Diff numérico PRE→POST: `0.33%` d / `0.27%` m pixels >2. Crítica cega mesmo prompt: frames idênticos, variedade 6–7/10 ambos (tint por instância já diferencia as torres; reshuffle de layout sub-perceptual a distância de gameplay).
 ABANDON: W4 candidato revertido — delta direcional defensável ausente (0.33%/0.27% + veredito cego idêntico); `src/` de volta ao HEAD, sem mudança de produto.
-- [ ] W5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
-  CHECK: git status --short
-  EXPECT: GATES
+- [x] W5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
+  EVIDENCE: docs AAA + vault + wiki log/entity + memória atualizados; gate-check `ALL MET (397 met, 38 abandoned)`; commit atômico pushado `49ce150..96ca104`; `qa-gpu-runner/` e `scripts/tmp-*.mjs` untracked fora do staging; vite `:3477` encerrado.
