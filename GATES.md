@@ -1547,3 +1547,26 @@ Escopo: corrigir a escala Y das torres Neon (h/12 vs geometria 14m) que enterra 
   EVIDENCE: `tmp-capture-roof.cjs` (?test track 2, torre instance 1 idêntica d/m): GPU `RADV PHOENIX`, `pageErrors=[]` nos 4; diff pareado `15.89%` desktop / `41.75%` mobile; crítica mesmo prompt: PRE plate como faixa na fachada (topo inacabado) → POST cap nítido no topo + antena visível d/m. Gameplay POST `?demo` Neon desktop 4 frames `phase=race`, `pageErrors=[]`.
 - [x] R5: Docs repo/vault/wiki/memória atualizados; commit atômico pushado; qa-gpu-runner não staged.
   EVIDENCE: commit + push origin main; `git status --short` sem qa-gpu-runner staged
+
+# Tick atual — pernas dos billboards Meadow ignoram o yaw (2026-09-04T10:00Z)
+
+Escopo: sistema de billboards-logo de Meadow (buildProps) — dois bugs encadeados.
+B-LEG: boards com yaw (|ry| até 3.0) mas pernas em `s.x ± 2.0` no eixo-mundo
+(até ~1.6m fora do plano do board). B-SPAWN (achado na validação GPU): os 6
+spots hardcoded caem TODOS dentro do guard `_onTrack(x,z,8)` (raio
+roadWidth/2+8 = 12.5m; minDist medidas 3-9.5m) → ZERO boards nascem no layout
+atual (cena ?test track 1: nenhum BoxGeometry 4.6×2.3×0.35 em 2395 meshes).
+Fix: spots path-relative (6 estações, lados alternados, lateral halfW+11 =
+15.5m), boards com lookAt p/ a pista, pernas com offset rotacionado pelo yaw
+real + ground amostrado na posição da perna. Sem física/input/áudio/assets.
+
+- [x] B1: Baseline re-medido e bugs reproduzidos deterministicamente antes do fix.
+  EVIDENCE: probe matemático `tmp-billboard-legs-probe.mjs` PRE (world-axis): `DETACHED=10/12`, `WORST_OFFPLANE=1.64m` (half-depth 0.175) → `BUG-CONFIRMED`. Sonda de cena no LXC105 (`?test` track 1, 2395 meshes, `pageErrors=[]`): zero BoxGeometry `4.6×2.3×0.35`; sonda de distância ao path: 6 spots com minDist 3–9.5m, todos < raio 12.5m do guard → `SPAWN=0/6 CONFIRMED`.
+- [x] B2: Fix focado e isolado (só `buildProps` + assinatura/call-site em Environment.js).
+  EVIDENCE: `git diff --stat -- src` = só `src/track/Environment.js` (spots t/side path-relative + lookAt + pernas yaw-rotated + `buildProps(scene, track)`); sem física/input/áudio/assets.
+- [x] B3: Checks estáticos, build externo SK3D_OUT_DIR=/tmp/... e AI Track 1/2 ×20 passam.
+  EVIDENCE: `node --check src/track/Environment.js` + `git diff --check` OK; `SK3D_OUT_DIR=/tmp/sk3d-dist-billboard2 npm run build` → `44 modules`, `built in 3.40s`; AI Track 1/2 ×20 → `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0` ambas.
+- [x] B4: Probe pós-fix passa + A/B GPU LXC105 pareado pré/pós (RADV PHOENIX, pageErrors vazio) confirma direção + gameplay pós sem regressão.
+  EVIDENCE: probe `BILLBOARD-PROBE=PASS` (6 stations maxGap 0.19, lateral 15.5m vs guard 12.5m, lookAt, frame-rotated). Runtime `?test` track 1: PRE `boards=0` → POST `boardCount=6`, `RADV PHOENIX`, `pageErrors=[]` (d/m). Attach ao vivo pós-fix (instanced count 12, worldToLocal por board): `detached=0/12`, `worst=0.00m`. Crítica mesmo prompt (3 frames): PRE grama vazia, sem board → POST d/m board `SUPER KART 3D.js` legível, perna conectada sob a borda, sem flutuação. Gameplay POST `?demo` Meadow desktop: 5 frames, `phase=finished`, `pageErrors=[]`. NOTA METODOLÓGICA: intermediário com `rotation.y` pós-lookAt mediu 8/12 detached ao vivo (Euler-XYZ folda yaw real 2.02→1.12) — rejeitado antes de qualquer commit; fix final usa frame `sx/sz` sem Euler.
+- [x] B5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
+  EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js`); `qa-gpu-runner/` e `scripts/tmp-*.mjs` untracked fora do staging; vite `:3474` dedicado encerrado.

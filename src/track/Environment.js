@@ -697,7 +697,7 @@ export class Environment {
       // --- palms & props ---------------------------------------------------
       this.buildPalms(scene);
       this.buildForest(scene);
-      this.buildProps(scene);
+      this.buildProps(scene, track);
       this.buildFieldLandmarks(scene);
       this.buildInfield(scene, track); // r5: densify the enclosed infield grass
       this.buildRoadsideFlowersAndRocks(scene, track);
@@ -1664,7 +1664,7 @@ export class Environment {
 
   }
 
-  buildProps(scene) {
+  buildProps(scene, track) {
     // --- Rocks: grouped boulders (2-3 per cluster) on organized ring
     //     positions — detail-1 dodecahedrons stay faceted, not flat.
     const rockGeo = new THREE.DodecahedronGeometry(0.7, 1);
@@ -2022,28 +2022,48 @@ export class Environment {
     const boardMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
     boardMat.map = boardTex;
     const boardGeo = new THREE.BoxGeometry(4.6, 2.3, 0.35);
+    // Path-relative stations: the old hardcoded world coords all fell
+    // inside the _onTrack guard (radius roadWidth/2+8 = 12.5m) on the
+    // current Meadow layout, so ZERO boards spawned. Six stations spread
+    // around the loop, alternating sides, clear of the sponsor-board
+    // stations (t 0.05/0.28/0.55/0.82 at halfW+2.6) and facing the road.
     const spots = [
-      { x: -30, z: -62, ry: 0.6 },
-      { x: 40, z: -58, ry: -0.4 },
-      { x: 62, z: 8, ry: 2.4 },
-      { x: 30, z: 58, ry: 2.0 },
-      { x: -48, z: 46, ry: -2.2 },
-      { x: -66, z: -16, ry: 3.0 },
+      { t: 0.10, side: 1 }, { t: 0.26, side: -1 }, { t: 0.42, side: 1 },
+      { t: 0.59, side: -1 }, { t: 0.75, side: 1 }, { t: 0.91, side: -1 },
     ];
+    const lateral = CONFIG.track.roadWidth / 2 + 11; // 15.5m: outside the 12.5m guard + 3m slack
+    const bp = new THREE.Vector3();
+    const btan = new THREE.Vector3();
+    const bnrm = new THREE.Vector3();
     for (const s of spots) {
-      if (this._onTrack(s.x, s.z, 8)) continue; // keep billboards off the road
+      track.path.getPointAt(s.t, bp);
+      track.path.getTangentAt(s.t, btan);
+      bnrm.set(-btan.z, 0, btan.x).normalize();
+      const bx = bp.x + bnrm.x * lateral * s.side;
+      const bz = bp.z + bnrm.z * lateral * s.side;
+      if (this._onTrack(bx, bz, 8)) continue; // keep billboards off the road
+      const bgy = this._gy(bx, bz);
       const board = new THREE.Mesh(boardGeo, boardMat);
-      board.position.set(s.x, this._gy(s.x, s.z) + 1.5, s.z);
-      board.rotation.y = s.ry;
+      const by = bgy + 1.5;
+      board.position.set(bx, by, bz);
+      board.lookAt(bp.x, by, bp.z); // face the road, stays vertical
       board.castShadow = true;
       scene.add(board);
-      // legs
+      // legs (fold-proof: NEVER read board.rotation.y after lookAt —
+      // Euler-XYZ extracts y as asin(m13), folding true yaws beyond ±90°
+      // (e.g. true 2.02 reads as 1.12) and stranding the poles ~1.6m off
+      // the board face. Build the road-facing frame directly instead.)
+      const dxr = bp.x - bx, dzr = bp.z - bz;
+      const rl = Math.hypot(dxr, dzr) || 1;
+      const sx = dzr / rl, sz = -dxr / rl; // local +X = cross(up, roadDir)
       for (const side of [-1, 1]) {
         const leg = new THREE.Mesh(
           new THREE.CylinderGeometry(0.09, 0.09, 1.5, 8),
           toonMaterial(0x8b7a5c, {})
         );
-        leg.position.set(s.x + side * 2.0, this._gy(s.x, s.z) + 0.75, s.z);
+        const lx = bx + side * 2.0 * sx;
+        const lz = bz + side * 2.0 * sz;
+        leg.position.set(lx, this._gy(lx, lz) + 0.75, lz);
         scene.add(leg);
       }
     }
