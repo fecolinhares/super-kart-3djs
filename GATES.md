@@ -1435,3 +1435,24 @@ corrida, input, áudio, geometria ou assets externos.
   EVIDENCE: ink-check determinístico `tmp-bbink.cjs` (?demo track 2, `RADV PHOENIX`, `pageErrors=[]` ambos): PRE lastInk `[255,245,255]` (boards 0 e 2 cortados na borda) → POST `[246,245,249]` (margem ≥6px; board 1 inalterado 245). Gameplay POST Neon desktop 20 frames `phase=race`, `pageErrors=[]`. Crítica mesmo prompt em crops: PRE `NEO|` (N cortado) → POST `NEON` completo. Decisão: ACCEPT.
 - [x] Q5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
   EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js`); `qa-gpu-runner/` untracked fora do staging. gate-check: ALL MET (354 met, 31 abandoned).
+
+# Tick atual — drift smoke translúcido (2026-09-04)
+
+Escopo: fumaça de drift (`TYPES.drift`, normal blending, grow 2.4) nasce com
+alpha 1 em branco puro (`0xffffff` tier-0 via Kart.js) e lê como blobs sólidos
+no GPU — visível no frame Neon `nd/frame_0005` (draft atrás dos karts IA).
+Fix: `alpha` por família em TYPES + fallback `opts.alpha ?? cfg.alpha ?? 1`.
+Sem física/input/áudio/geometria/assets.
+
+- [x] D1: Baseline re-medido e gap único confirmado por código + frame GPU.
+  EVIDENCE: HEAD `ee2d55b`, branch `main`, `src/` limpo antes do fix; `TYPES.drift` sem alpha + `_burst` com `opts.alpha ?? 1` → drift tier-0 `0xffffff` opaco (Kart.js:2378); frame GPU Neon `nd/frame_0005` mostra blobs branco-azuis sobre a pista atrás dos karts IA.
+- [x] D2: Candidato completo e isolado (só Particles.js: campo alpha + fallback).
+  EVIDENCE: `git diff` = 2 hunks em `src/render/Particles.js` (`alpha: 0.5` no TYPES.drift + `opts.alpha ?? cfg.alpha ?? 1` no _burst); `git diff --check` limpo; sem física/input/áudio/geometria/assets.
+- [x] D3: Checks estáticos, build externo SK3D_OUT_DIR=/tmp/... e AI Track 1/2 ×20 passam.
+  EVIDENCE: `node --check src/render/Particles.js` STATIC-OK; `SK3D_OUT_DIR=/tmp/sk3d-dist-driftalpha npm run build` → `44 modules transformed`, `904.20 kB`, `built in 2.15s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes` ambas.
+- [x] D4: A/B GPU pareado (mesmo probe/seed/câmera, RADV PHOENIX, pageErrors vazio) mostra fumaça translúcida no pós.
+  CHECK: test -f /tmp/tick0904c/post-d.png
+  EXPECT: exit 0
+  EVIDENCE: `tmp-capture-particles.cjs` ?test track 1 (PRE via stash local, FS compartilhado); GPU `RADV PHOENIX` nos 4; kart desktop idêntico `(-66.5,0.55,3.53)`; diff pré→pós `31.28%` desktop / `32.16%` mobile (pixels >2); crítica mesmo prompt em crops idênticos: PRE bola laranja superexposta opaca → POST brasa translúcida contida com roda visível através. Decisão: ACCEPT.
+- [x] D5: Docs repo/vault/wiki/memória sincronizados; gate-check passa; commit atômico + push; qa-gpu-runner não staged.
+  EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/render/Particles.js`); gameplay POST `?demo` Meadow desktop 10 frames `phase=finished`, `pageErrors=[]`; `qa-gpu-runner/` untracked fora do staging.

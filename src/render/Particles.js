@@ -64,6 +64,7 @@ const TYPES = {
   drift: {
     system: 'normal', count: 1, speed: 1.4, size: 0.34, life: 0.85,
     drag: 1.4, grav: 0.8, grow: 2.4, spread: 0.4, color: 0xf2f5f8,
+    alpha: 0.5, // wake smoke reads as solid white blobs at alpha 1 (GPU Neon)
   },
   pickup: {
     system: 'additive', count: 10, speed: 3.2, size: 0.14, life: 0.6,
@@ -247,7 +248,7 @@ export class ParticleSystem {
       sys.drag[slot] = cfg.drag;
       sys.grav[slot] = opts.gravity ?? cfg.grav;
       sys.phase[slot] = Math.random() * Math.PI * 2;
-      sys.alpha0[slot] = opts.alpha ?? 1;
+      sys.alpha0[slot] = opts.alpha ?? cfg.alpha ?? 1;
       sys.flutter[slot] = cfg.system === 'square' ? 1 : 0;
 
       if (pal) {

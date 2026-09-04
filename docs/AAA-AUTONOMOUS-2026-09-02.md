@@ -652,3 +652,14 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Checks pos-fix: `node --check`, `git diff --check`, build `SK3D_OUT_DIR=/tmp/sk3d-dist-bbtext` -> `44 modules`, `884K` JS, `2.56s`; AI Track 1/2 x20 `0/0/0`.
 - Infra: probe dedicado em `?test` travou (RAF morto no headless p/ `waitForFunction` padrao + `process.env` inexistente em `page.evaluate`); resolvido com harness `?demo` provado. Leftover `tmp-banner-faces.cjs` de tick anterior (1h wedged, 60% CPU) limpo no runner.
 - Decisao: **PRODUCT CHANGE ACCEPTED**. Proximo gap: blobs brancos de drift/smoke (alpha 1, 0xffffff) ou variedade Meadow — a definir por medicao; score AAA nao declarado completo.
+
+## [2026-09-04T04:00Z] Autonomous tick — drift smoke translúcido ACEITO (alpha por família)
+- Baseline re-medido no HEAD `ee2d55b`: `src/` limpo; `node --check` + `git diff --check` OK; build externo OK; AI Track 1/2 ×20 `0 lost / 0 backwards / 0 crashes`.
+- Auditoria de gameplay no runner direto (`192.168.0.195`, vite :3470, ANGLE/Vulkan `RADV PHOENIX`): 4 vídeos `?demo` Meadow d/m + Neon d/m (10 frames cada, `pageErrors=[]`). Frame Neon `nd/frame_0005` (lap 2/3) mostrou blobs branco-azuis sólidos sobre a pista atrás dos karts IA.
+- Root cause em `src/render/Particles.js`: `TYPES.drift` (normal blending, grow 2.4) sem alpha + `_burst` com `opts.alpha ?? 1` → drift tier-0 `0xffffff` (Kart.js:2378) nasce opaco e lê como blob sólido.
+- Fix (2 hunks, sem física/input/áudio/geometria/assets): `alpha: 0.5` no TYPES.drift + fallback `opts.alpha ?? cfg.alpha ?? 1` no `_burst`.
+- Checks pós-fix: `node --check`, `git diff --check`, build `SK3D_OUT_DIR=/tmp/sk3d-dist-driftalpha` → `44 modules`, `904.20 kB`, `2.15s`; AI Track 1/2 ×20 `0/0/0`.
+- A/B GPU pareado (`tmp-capture-particles.cjs`, ?test track 1, seed fixa, PRE via stash local — runner não tem gitdir, FS é compartilhado): GPU `RADV PHOENIX`, `pageErrors=[]` nos 4; kart desktop idêntico `(-66.5,0.55,3.53)`; diff pré→pós `31.28%` desktop / `32.16%` mobile (pixels >2). Crítica mesmo prompt em crops idênticos: PRE bola laranja superexposta opaca → POST brasa translúcida contida com roda visível através.
+- Gameplay POST `?demo` Meadow desktop 10 frames `phase=finished`, `pageErrors=[]`.
+- Decisão: **PRODUCT CHANGE ACCEPTED**. Próximo gap: variedade Meadow / torres Neon / shoulder 0.14 + music-shuffle (R25) — a definir por medição; score AAA não declarado completo.
+- Infra: `git` não roda no runner (gitdir em `/home/jarvis/gitdirs` só existe local) — stash local + sleep 50s p/ recompile do vite; ssh Proxmox .102 sem password file continua negado, rota direta .195 com chave OK. Servidor :3470 dedicado deste tick (matar ao final).
