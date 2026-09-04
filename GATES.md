@@ -1591,3 +1591,25 @@ ABANDON: P2-track2 instrumento invalidado — ~10k flags, esmagadora maioria fal
   EVIDENCE: `tmp-look.cjs` (?test track 1, câmera (-52,4,14)→(-55,0,5) no cluster): GPU `RADV PHOENIX`, `pageErrors=[]`; vision nativa: plateia em pé sobre os berms verdes, pés assentados, nada flutuando/enterrado; billboards `SUPER KART GP` legíveis sobre postes. Frame salvo em `/tmp/look-crowd.png` (763706 bytes).
 - [x] P5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push; qa-gpu-runner e tmp-*.mjs fora do staging.
   EVIDENCE: ver commit atômico (só GATES.md + docs AAA); `qa-gpu-runner/` e `scripts/tmp-*.mjs` untracked fora do staging; vite `:3475` encerrado.
+
+# Tick atual — postes das billboards Neon ignoram o yaw (2026-09-04T12:00Z)
+
+Escopo: billboards grandes de Neon (buildNeonCity, 3 boards 9×4.4×0.4 com
+lookAt p/ o centro da pista). Mesma família do bug B-LEG de Meadow: após o
+lookAt, os light poles usam offset em eixo-mundo (`b.p[0] + dx`) em vez do
+frame rotacionado pelo yaw — até ~3.4m fora do plano do board (half-thickness
+0.2). Bônus no mesmo sistema: postes com base absoluta 1.7m (altura 5.4
+centrada em 4.4) flutuam sobre o `terrainHeight` em vez de assentar no chão.
+Fix: yaw fold-proof via atan2 da direção lookAt (NUNCA ler rotation.y pós
+lookAt) + pernas amostradas no ground por poste. Sem física/input/áudio/assets.
+
+- [x] N1: Baseline re-medido e bug reproduzido deterministicamente antes do fix.
+  EVIDENCE: HEAD `3588174`, `src/` limpo; `node --check` OK. Sonda ao vivo LXC105 (`?test` track 2, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]`, 3 boards/6 poles): board 0 yaw `-1.556` → postes em localX `∓0.05` (centro do board!) com offPlane `3.467/3.311m` (half-thickness 0.2) → `POLE-DETACHED=2/6`; base dos postes `1.7` absoluto (~1.75m de flutuação sobre o terreno ≈-0.05). Frame PRE válido mostra poste atravessando o texto NEON/KART.
+- [x] N2: Fix focado e isolado (só bloco billboard em Environment.js).
+  EVIDENCE: `git diff --stat -- src` = só `src/track/Environment.js` (21+/3-, 1 hunk: yaw fold-proof via atan2 + postes yaw-rotacionados com altura até o `_gy`); sem física/input/áudio/assets.
+- [x] N3: Checks estáticos, build externo SK3D_OUT_DIR=/tmp/... e AI Track 1/2 ×20 passam.
+  EVIDENCE: `node --check` Environment.js+main.js + `git diff --check` OK; `SK3D_OUT_DIR=/tmp/sk3d-dist-neonbb npm run build` → `built in 2.83s`; AI Track 1/2 ×20 → `0 lost / 0 backwards / 0 crashes` ambas.
+- [x] N4: Medição ao vivo GPU LXC105 (?test track 2, RADV PHOENIX) pré/pós + A/B visual mesmo prompt confirma direção; gameplay pós sem regressão.
+  EVIDENCE: sonda POST (d/m, `pageErrors=[]`): `POLE-ATTACHED-ALL` — board 0 localX `∓3.4` exato, offPlane `0.13` (resíduo do tilt do board, < 0.325), bases `-0.18..+0.10` ≈ terreno. A/B mesmo prompt: PRE poste cruza o centro e oclui `NEON/KART` + flutua → POST postes flanqueiam extremidades, assentados, texto legível, sem artefato. Gameplay POST `?demo` Neon desktop: 5 frames, `lastPhase=race`, `pageErrors=[]`, RADV PHOENIX.
+- [x] N5: Docs repo/vault/wiki/memória + gate-check + commit atômico + push; qa-gpu-runner e tmp-*.mjs fora do staging.
+  EVIDENCE: ver commit atômico (só GATES.md + docs AAA + `src/track/Environment.js`); `qa-gpu-runner/`, `scripts/tmp-*.mjs` e `qa-gpu-runner/tmp-bb-pole-probe.cjs` untracked fora do staging; vite `:3476` encerrado.

@@ -727,3 +727,13 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Decisão: NO PRODUCT CHANGE (`git diff -- src` vazio). Lição: sweep genérico sem whitelist por sistema repete o erro 2026-08-15 — invariantes só valem por sistema (como roof-bury e billboard-legs), nunca full-scene cego. Track 2 não rodado com régua quebrada (ABANDON honesto em GATES.md).
 - Infra: vite dedicado `:3475` (LAN .103) encerrado pós-tick; capturadores `tmp-prop-sweep.cjs`/`tmp-look.cjs` untracked em `qa-gpu-runner/`, fora do staging.
 - Próximo gap: variedade Meadow / torres Neon / fog residual — a definir por medição com instrumento por-sistema, nunca sweep cego.
+
+## [2026-09-04T12:00Z] Autonomous tick — postes das billboards Neon ignoravam o yaw: fix ACEITO
+
+- Gap por-sistema (família B-LEG de Meadow): billboards grandes de Neon (3x 9x4.4x0.4, lookAt p/ o centro) com light poles em offset eixo-mundo (`b.p[0]+dx`) + base absoluta 1.7m.
+- Prova PRE ao vivo LXC105 (`?test` track 2, `qa-gpu-runner/tmp-bb-pole-probe.cjs` untracked, GPU ANGLE RADV PHOENIX, `pageErrors=[]`): board 0 yaw `-1.556` → postes em localX ~0.05 (centro do board) com offPlane `3.467/3.311m` → `POLE-DETACHED=2/6`; bases `1.7` (~1.75m de flutuação). Frame PRE válido: poste cruza o centro e oclui o texto NEON/KART.
+- Fix (só `src/track/Environment.js`, 1 hunk, 21+/3-): yaw fold-proof via atan2(look-pos) (nunca Euler pós-lookAt) + postes em frame rotacionado com altura do topo do board ao `_gy` por poste.
+- Prova POST (d/m, `pageErrors=[]`): `POLE-ATTACHED-ALL` — localX +-3.4 exato, offPlane `0.13` (tilt do board, < 0.325), bases `-0.18..+0.10` ≈ terreno. A/B mesmo prompt: PRE poste no texto + flutuando → POST postes flanqueiam, assentados, NEON KART legível, sem artefato. Gameplay POST `?demo` Neon desktop: 5 frames, `lastPhase=race`, `pageErrors=[]`.
+- Checks: `node --check` + `git diff --check` OK; build SK3D_OUT_DIR fora do worktree → `built in 2.83s`; AI Track 1/2 x20 → `0 lost / 0 backwards / 0 crashes`.
+- Infra: vite `:3476` (LAN .103) dedicado, encerrado pós-tick; push do helper via `pct exec cat >` stdin, pull via base64. Pitfall: `game.loop.stop()` antes do screenshot congela o frame pré-câmera — não parar o loop, só `__freezeCam` + `phase=idle`.
+- Decisão: **PRODUCT CHANGE ACCEPTED**. Próximo gap: variedade Meadow / repetição das torres Neon / fog residual — a definir por medição; score AAA não declarado completo.

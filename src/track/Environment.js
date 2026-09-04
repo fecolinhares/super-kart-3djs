@@ -4888,11 +4888,29 @@ export class Environment {
           board.rotation.set(...b.r);
         }
         scene.add(board);
-        // light poles flanking the board (street-level mass)
+        // FIX 2026-09-04 (pole-yaw): os postes flanqueavam o board em
+        // eixo-mundo (b.p[0]+dx) mesmo após o lookAt — com yaw ~±90° os
+        // postes paravam no CENTRO do board, 3.4m fora do plano
+        // (half-thickness 0.2). Yaw fold-proof via atan2 da direção
+        // lookAt (NUNCA ler rotation após lookAt: Euler XYZ folda o yaw
+        // real). Local +X sob rotationY(yaw) = (cos, 0, -sin).
+        // Postes assentados no chão: altura do topo do board ao _gy.
+        const _lx = b.look ? b.look[0] - b.p[0] : 0;
+        const _lz = b.look ? b.look[2] - b.p[2] : 1;
+        const _yawB = Math.atan2(_lx, _lz);
+        const _cosB = Math.cos(_yawB);
+        const _sinB = Math.sin(_yawB);
+        const _topY = b.p[1] + 2.2; // borda superior do board (9×4.4)
         const poleMat2 = toonMaterial(0x3a4152, {});
         for (const dx of [-3.4, 3.4]) {
-          const pole = new THREE.Mesh(new THREE.BoxGeometry(0.25, 5.4, 0.25), poleMat2);
-          pole.position.set(b.p[0] + dx, b.p[1] - 1.0, b.p[2]);
+          const px = b.p[0] + dx * _cosB;
+          const pz = b.p[2] - dx * _sinB;
+          const pgy = this._gy(px, pz);
+          const poleH = Math.max(0.5, _topY - pgy);
+          const pole = new THREE.Mesh(new THREE.BoxGeometry(0.25, 1, 0.25), poleMat2);
+          pole.scale.y = poleH;
+          pole.position.set(px, pgy + poleH / 2, pz);
+          pole.rotation.y = _yawB;
           scene.add(pole);
         }
       }
