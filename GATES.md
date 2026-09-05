@@ -1971,3 +1971,23 @@ Escopo: eliminar o overlap transiente toast×painel FINISHED (tick 30) com fix c
   EVIDENCE: POST mesmo probe: toastVisibleAfterLate=false, toastVisibleDuringRace=true, finishVisible=true, pageErrors=[], RADV PHOENIX; gameplays ?demo 24s 4/4 (6 frames, finished/race/race/race, pageErrors=[]); vision frame Meadow-d: FINISHED 2nd + standings, zero pill.
 - [x] F6: Docs/vault/wiki/memória + commit atômico + push; qa-gpu-runner fora do staging.
   EVIDENCE: ver commit atomico abaixo; qa-gpu-runner/ untracked fora do staging.
+
+# Tick 32 — nuvens distantes chapadas como slabs brancos: distance-fade (2026-09-05)
+
+Escopo: eliminar a leitura de "slabs brancos chapados" no horizonte Meadow
+com fade atmosférico manual só no material das nuvens, sem alterar corrida,
+input, áudio, fog da cena ou nuvens próximas. Sem fix especulativo: causa
+provada por intervenção antes do edit.
+
+- [x] H1: Baseline re-medido (git src limpo, checks, build SK3D_OUT_DIR, AI 20x2 zero) + 4 gameplays GPU ?demo (Meadow/Neon x d/m, RADV PHOENIX, pageErrors[]).
+  EVIDENCE: HEAD `7915217`, `git diff -- src` = 0 bytes, `node --check` main/Environment/HUD + `git diff --check` OK; build `/tmp/sk3d-dist-tick32` 44 modules `2.11s`; AI Track 1/2 x20 zero lost/backwards/crash. Capturas `tmp-capture-gameplay.cjs` no LXC105 (vite :3492): Meadow d/m + Neon d/m, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4, 12 frames cada, lastPhase finished/finished/race/finished. Pitfall novo: flag mobile é `--mobile` (`--viewport=mobile` é ignorado e captura 1280x720).
+- [x] H2: Varredura vision mesmo prompt em 4 frames mid-race (frame_0002 d/m Meadow/Neon); 1 gap eleito com localização.
+  EVIDENCE: `/tmp/tick32-local/*-frame_0002.jpg` (d 1280x720, m 390x844): Meadow d/m mostram trapézios brancos planos com bordas duras no horizonte (esq/centro); zoom `meadow-d-mtn-zoom.jpg` confirma slabs vs pico 3D central íntegro. Neon-m mostra riscos finos no céu (zoom `neon-m-sky-zoom.jpg`: pontos = estrelas OK + poucas linhas finas = postes/antenas, gap menor registrado p/ próximo tick).
+- [x] H3: Sonda por intervenção prova a causa (esconder cada categoria e fotografar do mesmo vantage).
+  EVIDENCE: `tmp-tick32-slab.cjs` + `exact-hide.js` (?test track 1, freezeCam, `RADV PHOENIX`, câmera byte-idêntica [-60,6.1,-7.6]): red-test (nuvens→vermelho) provou slabs≠nuvens; `no-sun`/`no-wcirc` mantêm slabs; `no-mtn` (4 IMs auto-instanced) limpa TODO o horizonte → slabs=montanhas far. Achados de infra no caminho: montanhas viram 4 InstancedMesh (19/20/20/12 = 49 rochas + 22 ridges) via `autoInstancing` (origem 0,0,0 — matchers por distância falham); `fog:true` da cena lava 60%+ a 300m; da chase-cam baixa só o topo nevado passa do horizonte. CORREÇÃO HONESTA: o veredito inicial "no-clouds elimina slabs" era misread do auditor (shapes fora da banda + drift); o A/B drift-free (H4) é a prova válida.
+- [x] H4: Fix mínimo nas bandas far de montanhas + A/B pareado drift-free com delta direcional.
+  EVIDENCE: `src/track/Environment.js` (bandas 318/262/202: neve azulada + snowLift + haze reduzido; rockMat/hazeMat `fog:false`). A/B `mtn-ab.js` (nuvens escondidas nas duas versões, mesmo vantage): banda horizonte px>215 `14.9%→5.7%` (-62% relativo); crítica cega mesmo prompt PRE `slabs brancos chapados` → POST `silhuetas azul-acinzentadas integradas`. Caminho até o mecanismo: red-test provou slabs≠nuvens; censo achou autoInstancing (71 instâncias); exact-hide provou slabs=montanhas (no-mtn limpa tudo); da chase-cam baixa só o topo nevado passa do horizonte. Correções honestas registradas: veredito inicial "no-clouds remove slabs" era misread; cloud distance-fade (sem efeito mensurável) foi revertido antes do fix final.
+- [x] H5: Checks estáticos, build fora do worktree e regressão AI passam; gameplay POST Meadow/Neon d/m sem regressão.
+  EVIDENCE: `node --check` Environment.js + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-tick32b` 44 modules `5.17s`; AI Track 1/2 x20 zero lost/backwards/crash. Gameplays POST `?demo` 24s LXC105 4/4 (`RADV PHOENIX`, `pageErrors=[]`, 12 frames, finished 4/4); vision frame Meadow-d mid-race: karts/crowd/billboard SUPER KART GP/HUD fortes, cordilheira em camadas azul-acinzentadas, sem regressão.
+- [x] H6: Docs repo/vault/wiki/memória + commit atômico + push origin main; qa-gpu-runner/ fora do staging; vite :3492 encerrado.
+  EVIDENCE: ver commit atômico abaixo (só GATES.md + docs AAA + src/track/Environment.js); `qa-gpu-runner/` untracked fora do staging; helpers em /opt/pwtest + frames /tmp (não commitados); vite `:3492` encerrado pós-tick.

@@ -885,9 +885,9 @@ export class Environment {
     // layers and DoubleSide so jitter-inverted windings never rasterize
     // black. Deterministic local rnd() — this._rand is never touched.
     const bands = [
-      { radius: 318, count: 14, rock: 0xcfdcf2, dark: 0x8fa6cf, snow: 0xf4f8ff, baseH: 40, seed: 11, offset: 0.6, haze: 0.55 }, // farthest — pale haze silhouette
-      { radius: 262, count: 13, rock: 0x93a5e0, dark: 0x5b6aa8, snow: 0xf0f6ff, baseH: 34, seed: 27, offset: 0.2, haze: 0.3 }, // AUDIT r20: 0.42 washed the snow patches out — 0.3 keeps the ridge contrast
-      { radius: 202, count: 12, rock: 0x5d70c4, dark: 0x36428c, snow: 0xfffdf4, baseH: 28, seed: 43, offset: 0.2, haze: 0.18 }, // AUDIT r20: 0.28 → 0.18
+      { radius: 318, count: 14, rock: 0x93a7cf, dark: 0x5f739e, snow: 0xbdc9ea, baseH: 40, seed: 11, offset: 0.6, haze: 0.35, snowLift: 0.22 }, // farthest — TICK32: da chase-cam baixa só o topo passa do horizonte; neve azulada (glacial distante) + snowline alta p/ não ler slab branco
+      { radius: 262, count: 13, rock: 0x93a5e0, dark: 0x51619c, snow: 0xc6d4ea, baseH: 34, seed: 27, offset: 0.2, haze: 0.24, snowLift: 0.14 }, // AUDIT r20: 0.42 washed the snow patches out — 0.3 keeps the ridge contrast; TICK32: 0.3→0.24 p/ separar da banda far; neve azulada (slabs brancos persistem nesta banda)
+      { radius: 202, count: 12, rock: 0x5d70c4, dark: 0x36428c, snow: 0xd2dff0, baseH: 28, seed: 43, offset: 0.2, haze: 0.16, snowLift: 0.1 }, // AUDIT r20: 0.28 → 0.18; TICK32: 0.18→0.16 + neve azulada + snowLift (banda intocada era dona dos slabs restantes)
       { radius: 146, count: 10, rock: 0x39468e, dark: 0x1c2658, snow: 0xffffff, baseH: 24, seed: 61, offset: 0.2, haze: 0.12 },  // closest — deepest + brightest
     ];
     // Day fog color = the atmospheric haze target (scene.fog is 0xbfe6ff).
@@ -900,6 +900,7 @@ export class Environment {
         transparent: true,
         opacity: 0.22,
         depthWrite: false,
+        fog: false, // TICK32: scene fog (70→430) lavava 60%+ p/ branco chapado; o haze baked (band.haze) é o controle de perspectiva aérea
       });
       for (let i = 0; i < band.count; i++) {
         const rand = rnd(band.seed * 1000 + i);
@@ -936,15 +937,17 @@ export class Environment {
         const snow = new THREE.Color(band.snow).lerp(fogCol, band.haze * 0.85);
         const layerColors = { dark, mid, snow };
         // Unlit backdrop material: vertexColors for the layers, DoubleSide so
-        // jitter-inverted windings never rasterize black.
-        const rockMat = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide });
+        // jitter-inverted windings never rasterize black. fog:false (TICK32):
+        // o haze baked por banda controla a perspectiva aérea; o fog da cena
+        // misturava 60%+ de 0xbfe6ff a 300m e achatava tudo em slabs brancos.
+        const rockMat = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, fog: false });
 
         const geo = mountainGeometry(baseR, h, segs, 12, {
           jitter,
           seed,
           profile,
           peakAmp: profile === 'peak' ? 0.14 + rand() * 0.1 : profile === 'dome' ? 0.05 : 0.03,
-          snowT0: 0.5 + rand() * 0.25,
+          snowT0: Math.min(0.85, 0.5 + rand() * 0.25 + (band.snowLift || 0)), // TICK32: bandas distantes com neve até a base liam bloco branco; snowLift sobe a snowline
           snowAmp: 0.1 + rand() * 0.1,
           snowSeed: (seed + 7) >>> 0,
           midT0: 0.34 + rand() * 0.12,
