@@ -1933,3 +1933,22 @@ Vite dedicado `:3486` (LAN .103).
   CHECK: test -f /tmp/tick29/pushed.txt
   EXPECT: exit 0
   EVIDENCE: ver commit atômico (só GATES.md + docs AAA); `qa-gpu-runner/` untracked fora do staging; helpers em /tmp + /opt/pwtest (não commitados); vite `:3486` encerrado pós-tick.
+
+# Tick atual — auditoria visual + sonda renderer + overlap toast/painel (2026-09-05T03:00Z)
+
+Escopo: re-medir baseline, varrer 4 gameplays GPU (Meadow/Neon x d/m) por UM
+gap defensável; investigar o pill "FINAL LAP!" visível sobre o painel
+FINISHED em `meadow-d frame_0005`. Sem editar src sem mecanismo confirmado.
+Vite dedicado `:3488` (LAN .103). Atenção operacional: harness grava no
+`CAPTURE_OUT` (default sobrescreve a cada run) — 4 runs usarem dirs distintos.
+
+- [x] E1: Baseline re-medido (git src limpo, checks, build SK3D_OUT_DIR, AI 20x2 zero) + 4 gameplays GPU ?demo (Meadow/Neon x d/m, RADV PHOENIX, pageErrors[]).
+  EVIDENCE: HEAD `eccafd4` src limpo (só `qa-gpu-runner/` untracked); `node --check` main/Environment/TrackBuilder + `git diff --check` OK; build `/tmp/sk3d-dist-tick30` 44 modules `2.12s`; AI Track 1/2 x20 zero lost/backwards/crash. Capturas `?demo` `tmp-capture-gameplay.cjs` no LXC105 (vite :3488): Meadow d/m + Neon d/m em `/tmp/tick30/{meadow,neon}-{d,m}`, GPU `ANGLE ... RADV PHOENIX`, `pageErrors=[]` 4/4, 12 frames cada, lastPhase finished 4/4.
+- [x] E2: Varredura vision mesmo prompt em 6 frames mid-race distribuídos (d + portrait m, Meadow + Neon); 1 suspeito eleito com localização no frame.
+  EVIDENCE: 6 críticas vision mesmo protocolo (`/tmp/tick30-local/*-0002.jpg` + `*-0005.jpg` d): karts/HUD/touch/speedo/minimap fortes nos 4 mid-race; Neon night legível (item box, TURBO/NEO KART, parked cars com vidro/teto tick28 intactos). Suspeito único: pill `FINAL LAP!` sobre o painel FINISHED em `meadow-d frame_0005` (posição do toast `right:16px bottom:150px` casa com o CSS).
+- [x] E3: Suspeito investigado até o mecanismo com pixels + código; sem chute.
+  EVIDENCE: (1) crop pill (1000,450–1280,620) confirma texto literal `FINAL LAP!`; (2) frames `0008`/`0011` mesma região: pill sumiu (mean-diff 30.87/26.56, vision confirma só pista) → overlap TRANSIENTE ~2.4s (janela `TOAST_MS=2400`), não stuck; (3) código: `showFinish` (HUD.js 1055-1056) esconde o toast de forma síncrona (`display:none !important`), e o bloco FINAL LAP (main.js 1334) roda SÓ no branch `STATES.RACE` (1247–1379; FINISHED cai no `else` 1380-1386) → nenhuma fonte conhecida explica o co-frame; mecanismo NÃO confirmado. Decisão: sem fix especulativo; registrado como observação pixel-evidenciada p/ sonda dedicada no próximo tick (repro: showFinish + showMessage tardio via pickupRevealTimer/hit pós-finish).
+- [x] E4: Sonda quantitativa renderer.info no GPU (calls/tris/geos/tex, fase, pageErrors) nas 4 combinações, sem regressão vs histórico.
+  EVIDENCE: `tmp-tick27-render-probe.cjs` (?demo, RADV PHOENIX, pageErrors[] 4/4, tudo `phase=race`): Meadow-d `679 calls/871865 tris/1520 geos/103 tex`, Meadow-m `590/764937/1517/102`, Neon-d `711/153556/1205/99`, Neon-m `866/187810/1203/97`. Sem erro, sem anomalia; calls menores que tick27 porque a fase medida agora é `race` (antes `finished`).
+- [x] E5: NO PRODUCT CHANGE; docs repo/vault/wiki/memória + commit atômico + push origin main; qa-gpu-runner/ fora do staging; vite :3488 encerrado.
+  EVIDENCE: `git diff -- src` vazio; ver commit atômico (só GATES.md + docs AAA); `qa-gpu-runner/` untracked fora do staging; helpers em /tmp + /opt/pwtest (não commitados); gate-check.mjs INDISPONÍVEL neste ambiente (find vazio) → gates EVIDENCE-only verificados à mão.
