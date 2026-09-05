@@ -879,3 +879,15 @@ Latest vision findings: remaining gaps are flat Meadow mountains/vegetation, rep
 - Sonda renderer (`tmp-tick27-render-probe.cjs`, `phase=race`, `pageErrors=[]` 4/4): Meadow-d `679/871865/1520/103`, Meadow-m `590/764937/1517/102`, Neon-d `711/153556/1205/99`, Neon-m `866/187810/1203/97` (calls/tris/geos/tex). Sem anomalia (calls < tick27 porque a fase medida é `race`, antes `finished`).
 - Infra: HOME do cron = `/home/jarvis/.hermes/profiles/coder/home` (pw em `/home/jarvis/.hermes/.proxmox_root_pw` absoluto); 1ª bateria de 4 runs sobrescreveu o default `qa-gpu-runner/gameplay-audit` do runner — SEMPRE setar `CAPTURE_OUT` distinto; numpy do venv quebrou (X86_V2) → diff via PIL ImageChops+ImageStat; gate-check.mjs ausente neste ambiente → gates EVIDENCE-only.
 - Decisão: **NO PRODUCT CHANGE ACCEPTED**. Próximo gap: sonda repro do overlap toast/painel (?test: showFinish + showMessage tardio, assert + screenshot) / variedade Meadow / torres Neon — a definir por medição; score AAA não declarado completo.
+
+## Tick 31 — toast sobre painel FINISHED: guard central ACEITO (2026-09-05)
+
+- Baseline: HEAD `d057135`, `git diff -- src` = 0 bytes, `node --check` HUD/main OK; gap eleito = overlap transiente do tick 30 (pill `FINAL LAP!` sobre painel FINISHED).
+- Mecanismo confirmado em código (sem especulacao): `pickupRevealTimer` (main.js, `ITEM_ROULETTE_MS=450`) agenda `hud.showMessage(label)` no RACE e dispara ate 450ms depois — se o jogador cruza a linha no intervalo, `onPlayerFinish→showFinish` esconde o toast e o timer o reexibe sobre o painel. `showMessage` (HUD.js) reexibia incondicionalmente.
+- Repro PRE com codigo real no GPU (`tmp-tick31-toast-probe.cjs`, dynamic `import('/src/ui/HUD.js')`, `RADV PHOENIX`, `pageErrors=[]`): `toastHiddenAfterFinish=true`, `toastVisibleAfterLate=true` (bug), `finishVisible=true`.
+- Fix (so `src/ui/HUD.js` + 1 linha `src/main.js`): `showMessage` retorna cedo com finish visivel; `hud` exposto no `__sk3d` como hook de QA. RACE/COUNTDOWN intactos (finish oculto); `reset()` reabilita toasts.
+- Prova POST mesmo probe/mesmo prompt: `toastVisibleAfterLate=false`, `toastVisibleDuringRace=true` (sem regressao do sistema de toast), `finishVisible=true`, `pageErrors=[]`, `RADV PHOENIX`.
+- Checks: `node --check` + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-tick31` → `2.32s`; AI Track 1/2 x20 → `0/0/0` ambas.
+- Gameplay POST `?demo` 24s LXC105 4/4 (`RADV PHOENIX`, `pageErrors=[]`, 6 frames cada, finished/race/race/race); vision no frame Meadow-d FINISHED: painel `FINISHED 2nd!` + standings + Race Again/Menu, zero pill sobreposto.
+- Infra: vite dedicado `:3491` (LAN .103; `:3457` e de sessao paralela — nao tocado); probe via stdin base64; frames em /tmp do runner (nao commitados).
+- Decisao: **PRODUCT CHANGE ACCEPTED**. Proximo gap: variedade Meadow (cordilheira/copas) / torres Neon / itens VFX temporais — a definir por medicao; score AAA nao declarado completo.

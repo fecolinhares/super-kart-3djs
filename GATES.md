@@ -1952,3 +1952,22 @@ Vite dedicado `:3488` (LAN .103). Atenção operacional: harness grava no
   EVIDENCE: `tmp-tick27-render-probe.cjs` (?demo, RADV PHOENIX, pageErrors[] 4/4, tudo `phase=race`): Meadow-d `679 calls/871865 tris/1520 geos/103 tex`, Meadow-m `590/764937/1517/102`, Neon-d `711/153556/1205/99`, Neon-m `866/187810/1203/97`. Sem erro, sem anomalia; calls menores que tick27 porque a fase medida agora é `race` (antes `finished`).
 - [x] E5: NO PRODUCT CHANGE; docs repo/vault/wiki/memória + commit atômico + push origin main; qa-gpu-runner/ fora do staging; vite :3488 encerrado.
   EVIDENCE: `git diff -- src` vazio; ver commit atômico (só GATES.md + docs AAA); `qa-gpu-runner/` untracked fora do staging; helpers em /tmp + /opt/pwtest (não commitados); gate-check.mjs INDISPONÍVEL neste ambiente (find vazio) → gates EVIDENCE-only verificados à mão.
+
+# Tick 31 — toast sobre painel FINISHED: guard no showMessage (2026-09-05)
+
+Escopo: eliminar o overlap transiente toast×painel FINISHED (tick 30) com fix central mínimo, sem alterar corrida, input, áudio ou layout.
+
+- [x] F1: Baseline re-medido e mecanismo do bug confirmado em código antes do fix.
+  CHECK: git diff -- src | wc -c
+  EXPECT: ^0$
+  EVIDENCE: HEAD d057135, git diff -- src = 0 bytes pre-fix; node --check HUD.js/main.js + git diff --check OK; mecanismo: pickupRevealTimer (ITEM_ROULETTE_MS=450) dispara showMessage ate 450ms apos showFinish, e showMessage reexibia incondicionalmente.
+- [x] F2: Probe GPU PRE reproduz o overlap via código real (showFinish + showMessage tardio).
+  EVIDENCE: probe tmp-tick31-toast-probe.cjs (import real de /src/ui/HUD.js, RADV PHOENIX, pageErrors=[]) PRE: toastHiddenAfterFinish=true, toastVisibleAfterLate=true (bug), finishVisible=true.
+- [x] F3: Fix central em HUD.showMessage (ignora toast com finish visível) + hook hud no __sk3d.
+  EVIDENCE: HUD.showMessage retorna cedo com finish visivel + hud exposto em __sk3d (src/ui/HUD.js +5, src/main.js +1); RACE/COUNTDOWN intactos, reset() reabilita.
+- [x] F4: Checks estáticos, build fora do worktree e regressão AI passam.
+  EVIDENCE: node --check + git diff --check OK; build SK3D_OUT_DIR=/tmp/sk3d-dist-tick31 2.32s; AI Track1/2 x20 0/0/0 ambas.
+- [x] F5: Probe GPU POST prova toast suprimido + gameplay Meadow/Neon d/m sem regressão.
+  EVIDENCE: POST mesmo probe: toastVisibleAfterLate=false, toastVisibleDuringRace=true, finishVisible=true, pageErrors=[], RADV PHOENIX; gameplays ?demo 24s 4/4 (6 frames, finished/race/race/race, pageErrors=[]); vision frame Meadow-d: FINISHED 2nd + standings, zero pill.
+- [x] F6: Docs/vault/wiki/memória + commit atômico + push; qa-gpu-runner fora do staging.
+  EVIDENCE: ver commit atomico abaixo; qa-gpu-runner/ untracked fora do staging.

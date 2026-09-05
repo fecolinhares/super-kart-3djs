@@ -1527,6 +1527,7 @@ window.__sk3d = {
   raceManager,
   playerKart: () => playerKart,
   track,
+  hud, // QA tick31: gameplay probes drive HUD states directly (toast/finish)
   audio,
   particles,
   postfx, // QA: post chain (passes can be toggled to bisect render bugs)

@@ -1098,6 +1098,11 @@ export class HUD {
    *  @param {string} text
    *  @param {number} [duration=TOAST_MS] how long it stays visible (ms) */
   showMessage(text, duration = TOAST_MS) {
+    // Tick31: the FINISHED panel owns the screen — a late reveal (item
+    // roulette timer fired after the player crossed the line) must not pop
+    // a toast over the results card (tick30 overlap). RACE/COUNTDOWN callers
+    // are unaffected (finish hidden there); reset() re-enables toasts.
+    if (this.finishEl && !this.finishEl.classList.contains('sk3d-hidden')) return;
     this.toastEl.textContent = text;
     this.toastEl.classList.remove('sk3d-hidden', 'sk3d-toast-show');
     void this.toastEl.offsetWidth;
