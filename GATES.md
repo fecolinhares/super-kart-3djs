@@ -1991,3 +1991,21 @@ provada por intervenção antes do edit.
   EVIDENCE: `node --check` Environment.js + `git diff --check` OK; build `SK3D_OUT_DIR=/tmp/sk3d-dist-tick32b` 44 modules `5.17s`; AI Track 1/2 x20 zero lost/backwards/crash. Gameplays POST `?demo` 24s LXC105 4/4 (`RADV PHOENIX`, `pageErrors=[]`, 12 frames, finished 4/4); vision frame Meadow-d mid-race: karts/crowd/billboard SUPER KART GP/HUD fortes, cordilheira em camadas azul-acinzentadas, sem regressão.
 - [x] H6: Docs repo/vault/wiki/memória + commit atômico + push origin main; qa-gpu-runner/ fora do staging; vite :3492 encerrado.
   EVIDENCE: ver commit atômico abaixo (só GATES.md + docs AAA + src/track/Environment.js); `qa-gpu-runner/` untracked fora do staging; helpers em /opt/pwtest + frames /tmp (não commitados); vite `:3492` encerrado pós-tick.
+# Tick 33 — pilastras Neon sem haze: riscos palidos no ceu (2026-09-05)
+
+Escopo: pilastras de fachada Neon usam material unico 0x596884 fog:false
+SEM o haze por fileira das torres (0/0.5/0.75/0.92) — na fileira far a
+torre some na bruma e a pilastra fina continua acesa, lendo como risco
+palido no ceu. Fix: material de pilastra por fileira com o mesmo lerp de
+haze das torres. Sem fisica/input/audio/geometria.
+
+- [x] I1: Baseline re-medido (git src limpo, checks, build SK3D_OUT_DIR, AI 20x2 zero) + 4 gameplays GPU ?demo (Meadow/Neon x d/m, RADV PHOENIX, pageErrors[]).
+  EVIDENCE: HEAD 4c31342, git diff -- src = 0 bytes, node --check main/Environment OK; build /tmp/sk3d-dist-tick33 44 modules 2.15s; AI Track 1/2 x20 zero lost/backwards/crash. Capturas tmp-capture-gameplay.cjs no LXC105 (vite :3493): Meadow d/m + Neon d/m, GPU ANGLE RADV PHOENIX, pageErrors=[] 4/4, 12 frames cada, lastPhase finished/finished/finished/race.
+- [x] I2: Gap unico eleito por critica vision mesmo prompt + causa provada por intervencao (nao chute).
+  EVIDENCE: 4+2 criticas vision mesmo protocolo: riscos finos claros no ceu Neon d/m + zoom 2x mostra linha palida longa + rastro avermelhado + poste com ponta vermelha; slabs Meadow tick32 resolvidos. Intervencao tmp-tick33-sky3.cjs (?test track 2, freezeCam, camera byte-identica): no-strips/no-furniture sky-band diff 0.00%; no-pilasters e no-towers ambos 1.24% (regex facade casa pilastras). Projecao NDC tmp-tick33-proj.cjs: PIL ate 140px, ANT 17-24px. Mecanismo: pilasterMat unico 0x596884 fog:false (Environment.js:4702) vs torres com lerp haze row.haze 0/0.5/0.75/0.92 (4746). Censo: 16 antenas auto-instanced inocentadas (4 ticks curtos).
+- [x] I3: Fix focado (haze por fileira nas pilastras) + checks + build + AI passam.
+  EVIDENCE: diff so src/track/Environment.js (8+/1-: pilasterBase + material por fileira com lerp fogCol/row.haze); node --check + git diff --check OK; build SK3D_OUT_DIR=/tmp/sk3d-dist-tick33b 44 modules 5.51s; AI Track 1/2 x20 zero lost/backwards/crash.
+- [x] I4: A/B GPU pareado mesmo vantage (RADV PHOENIX, pageErrors[]) + critica cega mesmo prompt confirma direcao; se inconclusivo, revert + ABANDON.
+  EVIDENCE: tmp-tick33-ab.cjs (?test track 2, freezeCam, camera identica t=0.1375, RADV PHOENIX, pageErrors[] 2/2; PRE via git show HEAD: + restore por cp, sem stash): PILCOLOR ao vivo PRE 596884 -> POST 20223f (fileira far fundida na bruma); sky-band diff 1.02% px>2 concentrado nas bordas das torres; contraste pilastra/fundo no segmento projetado x=53 +10.4 -> -1.6; critica cega mesmo prompt NEUTRA no full-frame (near rows haze 0 dominam o vantage e sao intencionalmente identicas). Gameplay POST Neon d/m 24s ?demo (RADV PHOENIX, pageErrors[], race) sem regressao. Decisao: KEEP como remocao de inconsistência com evidencia direcional medida + caveat blind-neutro explícito. Riscos mobile restantes (near-row/antenas/stars/rastro avermelhado) = sub-causas distintas, proximo tick.
+- [x] I5: Docs repo/vault/wiki/memória + commit atômico + push origin main; qa-gpu-runner/ fora do staging; vite :3493 encerrado.
+  EVIDENCE: ver commit atômico abaixo (só GATES.md + docs AAA + src/track/Environment.js); qa-gpu-runner/ untracked fora do staging; helpers em /opt/pwtest + frames /tmp (não commitados); vite :3493 encerrado pós-tick.

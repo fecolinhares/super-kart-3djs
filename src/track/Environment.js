@@ -4699,7 +4699,7 @@ export class Environment {
     // tower a readable hard-surface frame without covering the emissive window
     // texture. One instanced layer per row keeps the city cost predictable.
     const pilasterGeo = new THREE.BoxGeometry(0.24, 13.2, 0.24);
-    const pilasterMat = new THREE.MeshBasicMaterial({ color: 0x596884, fog: false });
+    const pilasterBase = new THREE.Color(0x596884);
     const antGeo = new THREE.CylinderGeometry(0.06, 0.1, 3.2, 5);
     const antMat = new THREE.MeshBasicMaterial({ color: 0x8892b8 });
     const tankGeo = new THREE.CylinderGeometry(0.5, 0.55, 1.1, 8);
@@ -4750,6 +4750,13 @@ export class Environment {
       const paletteRowCounts = new Array(windowColors.length).fill(0);
       const towers = new THREE.InstancedMesh(geo, rowMat, count);
       const roofTops = new THREE.InstancedMesh(roofGeo, roofMat, count);
+      // FIX tick33 (pilaster-haze): antes material único 0x596884 sem haze —
+      // na fileira far (haze 0.92) a torre sumia na bruma e a pilastra fina
+      // continuava acesa, lendo como risco pálido no céu. Mesmo lerp da torre.
+      const pilasterMat = new THREE.MeshBasicMaterial({
+        color: pilasterBase.clone().lerp(fogCol, row.haze),
+        fog: false,
+      });
       const pilasters = new THREE.InstancedMesh(pilasterGeo, pilasterMat, count * 4);
       pilasters.name = `neon-facade-pilasters-${row.seed}`;
       roofTops.name = `neon-roof-caps-${row.seed}`;
