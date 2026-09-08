@@ -4771,7 +4771,14 @@ export class Environment {
         const x = probe.x + dir.x * off;
         const z = probe.z + dir.z * off;
         if (this._onTrack(x, z, 6)) continue; // never on the road
-        const h = row.low ? 8 + rand() * 8 : 12 + rand() * 18; // midground lower
+        // F3 zone silhouette pass: random height alone makes the skyline read
+        // as one repeated wall. Four path sectors now have deliberate scale
+        // bands while keeping the same instanced geometry and row haze.
+        const zoneIndex = Math.min(3, Math.floor(t * 4));
+        const zoneScale = row.low
+          ? [0.72, 1.12, 0.84, 1.28][zoneIndex]
+          : [0.86, 1.18, 0.78, 1.04][zoneIndex];
+        const h = (row.low ? 8 + rand() * 8 : 12 + rand() * 18) * zoneScale;
         const gy = this._gy(x, z);
         dummy.position.set(x, gy + h / 2, z);
         // AUDIT MED: vary the footprint so towers are blocks, not identical
