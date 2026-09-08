@@ -942,6 +942,15 @@ function startRaceInit() {
     }
     setState(STATES.FINISHED);
   };
+  raceManager.onRaceOver = (standings) => {
+    // The player can cross before the last AI. Refresh the result rows once
+    // every kart has a real totalTime, eliminating stale em-dash entries.
+    hud.updateFinishStandings(standings.map((r) => ({
+      position: r.position,
+      kart: r.kart,
+      totalTime: r.kart?.totalTime,
+    })));
+  };
   playerKart.position = CONFIG.game.numKarts; // starts last on the grid
   menu.hide();
   hud.show();

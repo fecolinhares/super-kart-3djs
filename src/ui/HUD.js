@@ -1030,26 +1030,34 @@ export class HUD {
     }, go ? COUNTDOWN_GO_MS : COUNTDOWN_NUMBER_MS);
   }
 
+  _renderFinishStandings(standings) {
+    const listEl = this.root.querySelector('.sk3d-finish-results');
+    if (!listEl) return;
+    listEl.innerHTML = '';
+    for (const row of standings || []) {
+      const line = document.createElement('div');
+      line.className = 'sk3d-finish-row';
+      const name = row.kart?.character?.name || 'Racer';
+      line.innerHTML = `<span class="sk3d-finish-row-pos">${ordinal(row.position)}</span>` +
+        `<span class="sk3d-finish-row-name">${name}</span>` +
+        `<span class="sk3d-finish-row-time">${Number.isFinite(row.totalTime) ? formatTime(row.totalTime) : '—'}</span>`;
+      listEl.append(line);
+    }
+  }
+
+  /** Refresh rows after every kart has crossed the line. */
+  updateFinishStandings(standings) {
+    this._renderFinishStandings(standings);
+  }
+
   /** @param {number} place race rank (1-6) @param {number} time total time in seconds
    *  @param {Array} [standings] final order [{ position, kart, totalTime }] — AUDIT r21 */
   showFinish(place, time, standings, trackName = '') {
     this.finishPlaceEl.textContent = ordinal(place);
     if (this.finishTrackEl) this.finishTrackEl.textContent = trackName;
     this.finishTimeEl.textContent = formatTime(time);
-    const listEl = this.root.querySelector('.sk3d-finish-results');
-    if (listEl) {
-      listEl.innerHTML = '';
-      const rows = (standings && standings.length ? standings : [{ position: place, kart: null, totalTime: time }]);
-      for (const row of rows) {
-        const line = document.createElement('div');
-        line.className = 'sk3d-finish-row';
-        const name = row.kart?.character?.name || 'Racer';
-        line.innerHTML = `<span class="sk3d-finish-row-pos">${ordinal(row.position)}</span>` +
-          `<span class="sk3d-finish-row-name">${name}</span>` +
-          `<span class="sk3d-finish-row-time">${row.totalTime ? formatTime(row.totalTime) : '—'}</span>`;
-        listEl.append(line);
-      }
-    }
+    const rows = (standings && standings.length ? standings : [{ position: place, kart: null, totalTime: time }]);
+    this._renderFinishStandings(rows);
     this.finishEl.classList.remove('sk3d-hidden');
     this.root.classList.add('sk3d-finish-active');
     clearTimeout(this.toastTimer);

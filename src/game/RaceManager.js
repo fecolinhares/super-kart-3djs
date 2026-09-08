@@ -195,6 +195,8 @@ export class RaceManager {
     this.raceOver = false;
     this.finishOrder = [];
     this.playerFinished = false;
+    this.onRaceOver = null;
+    this._raceOverNotified = false;
 
     // Cached sampled centerline (for AI look-ahead + off-track culling).
     this.centerline = null;
@@ -307,6 +309,7 @@ export class RaceManager {
     this.raceOver = false;
     this.finishOrder = [];
     this.playerFinished = false;
+    this._raceOverNotified = false;
     // AUDIT r8: MK8D rank arrows float above every kart the moment GO hits.
     this._setRankArrowsVisible(true);
     // AUDIT r4: ~2s spawn protection at GO — the grid pack used to shell-train
@@ -411,6 +414,10 @@ export class RaceManager {
       if (this.raceOver) {
         this.phase = 'finished';
         this._setRankArrowsVisible(false); // AUDIT r8: arrows retire at the flag
+        if (!this._raceOverNotified) {
+          this._raceOverNotified = true;
+          this.onRaceOver?.(this.getStandings());
+        }
       }
     }
   }
