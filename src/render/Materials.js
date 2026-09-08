@@ -675,10 +675,11 @@ export function finishBannerTexture() {
   g.fillStyle = '#3d4f78';
   g.fillRect(0, bandH, 512, 2);
   g.fillRect(0, 128 - bandH - 2, 512, 2);
-  // Shared start/finish line: explicit wording prevents a static FINISH sign
-  // from reading like race results during GO/LAP 0 while remaining correct on
-  // lap crossings and the final pass.
-  g.font = '900 58px "Baloo 2", "Nunito", Arial, sans-serif';
+  const mobileViewport =
+    (typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches) ||
+    window.innerWidth <= 768;
+  const bannerFontPx = mobileViewport ? 36 : 58;
+  g.font = `900 ${bannerFontPx}px "Baloo 2", "Nunito", Arial, sans-serif`;
   g.textAlign = 'center';
   g.textBaseline = 'middle';
   // soft gold glow behind the glyphs (reads at distance, not just up close)

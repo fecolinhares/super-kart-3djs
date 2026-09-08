@@ -1215,11 +1215,15 @@ function buildGantry(startLine) {
   // (a segmented plane's UVs still span 0..1 across the whole face, so
   // segmentation never distorts the texture).
   // MeshBasicMaterial: the toon gradient was washing the checker out.
+  const mobileViewport =
+    (typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches) ||
+    window.innerWidth <= 768;
+  const bannerWidth = mobileViewport ? roadW - 2.6 : roadW + 0.8;
   const banner = new THREE.Mesh(
     // Keep the landmark readable while reducing the solid visual wall in the
     // chase-camera horizon. The segmented geometry still preserves the fabric
     // wave, but the lower profile leaves more of the racing line visible.
-    new THREE.PlaneGeometry(roadW + 0.8, 0.68, 14, 1),
+    new THREE.PlaneGeometry(bannerWidth, 0.68, 14, 1),
     new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide }) // AUDIT 2026-09-02 mobile: reduzido para não bloquear linha de visão
   );
   banner.material.map = finishBannerTexture();
