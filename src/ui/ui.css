@@ -504,19 +504,19 @@ html, body {
 }
 
 .sk3d-minimap-bg {
-  fill: rgba(12, 18, 30, 0.45); /* AUDIT r20: darker bg so the white route
-  actually reads — the light card bg washed the polyline out */
+  fill: rgba(8, 12, 24, 0.72); /* mobile neon: preserve route separation
+  against dark buildings and blue emissive windows */
 }
 
 .sk3d-minimap-ring {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.35);
+  stroke: rgba(255, 255, 255, 0.65);
   stroke-width: 2;
 }
 
 .sk3d-minimap-track-glow {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.45);
+  stroke: rgba(255, 255, 255, 0.72);
   stroke-width: 8;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -1339,7 +1339,9 @@ html, body {
     border-color: rgba(255, 255, 255, 0.15);
     box-shadow: none;
   }
-  .sk3d-hud-idle .sk3d-minimap { opacity: 0.22; }
+  /* Route awareness is critical on touch: keep the minimap readable while
+     decorative telemetry fades, especially over Meadow sky/clouds. */
+  .sk3d-hud-idle .sk3d-minimap { opacity: 0.88; }
   /* Velocidade é telemetria crítica: nunca apagar no auto-hide. */
   .sk3d-hud-idle .sk3d-speedo { opacity: 0.92; }
   /* placa de posição: esmaece mas o número segue legível (info crítica) */
