@@ -1060,6 +1060,7 @@ export class HUD {
     this._renderFinishStandings(rows);
     this.finishEl.classList.remove('sk3d-hidden');
     this.root.classList.add('sk3d-finish-active');
+    this.finishBtnEl?.focus({ preventScroll: true });
     clearTimeout(this.toastTimer);
     this.toastEl.classList.add('sk3d-hidden');
 
@@ -1162,6 +1163,7 @@ export class HUD {
   showPause(show) {
     const el = this.root.querySelector('.sk3d-pause');
     if (el) el.classList.toggle('sk3d-hidden', !show);
+    if (show) this.root.querySelector('.sk3d-pause-restart')?.focus({ preventScroll: true });
     // AUDIT r3: Sound button must reflect mute state (was always '🔊').
     if (show) {
       const btn = this.root.querySelector('.sk3d-pause-sound');
