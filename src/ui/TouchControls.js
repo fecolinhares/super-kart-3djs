@@ -51,7 +51,28 @@ export class TouchControls {
     this.driftBtn = this.root.querySelector('.sk3d-touch-drift');
     this.itemBtn = this.root.querySelector('.sk3d-touch-item');
     this.pauseBtn = this.root.querySelector('.sk3d-touch-pause');
-    this.pauseBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); this.onPause(); });
+    let pausePointerAt = -Infinity;
+    let pauseTriggeredAt = -Infinity;
+    const triggerPause = () => {
+      const now = performance.now();
+      if (now - pauseTriggeredAt < 400) return;
+      pauseTriggeredAt = now;
+      this.onPause();
+    };
+    this.pauseBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      pausePointerAt = performance.now();
+    });
+    this.pauseBtn.addEventListener('pointerup', (e) => {
+      e.preventDefault();
+      if (performance.now() - pausePointerAt < 800) triggerPause();
+      pausePointerAt = -Infinity;
+    });
+    this.pauseBtn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      triggerPause();
+    }, { passive: false });
+    this.pauseBtn.addEventListener('click', triggerPause);
     // Drift is hold-to-drift: press = drift on, release = drift off.
     const setDrift = (b) => (e) => { e.preventDefault(); if (e.pointerId && e.target?.setPointerCapture) { try { if (b) e.target.setPointerCapture(e.pointerId); else if (e.target.hasPointerCapture?.(e.pointerId)) e.target.releasePointerCapture(e.pointerId); } catch {} } this.onDrift(b); if (b) this.haptic(18); };
     this.driftBtn.addEventListener('pointerdown', setDrift(true));

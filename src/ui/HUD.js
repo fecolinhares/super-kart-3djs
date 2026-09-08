@@ -124,24 +124,24 @@ export class HUD {
       <div class="sk3d-hitflash sk3d-hidden" aria-hidden="true"></div>
       <div class="sk3d-draft sk3d-hidden">DRAFT</div>
       <div class="sk3d-countdown sk3d-hidden">3</div>
-      <div class="sk3d-pause sk3d-hidden">
-        <div class="sk3d-pause-title">⏸ PAUSED</div>
+      <div class="sk3d-pause sk3d-hidden" role="dialog" aria-modal="true" aria-labelledby="sk3d-pause-title">
+        <div id="sk3d-pause-title" class="sk3d-pause-title">⏸ PAUSED</div>
         <div class="sk3d-pause-hint">Press P / tap to resume</div>
         <div class="sk3d-pause-actions">
-          <button type="button" class="sk3d-btn sk3d-pause-restart">↻ Restart</button>
-          <button type="button" class="sk3d-btn sk3d-pause-sound">🔊 Sound</button>
-          <button type="button" class="sk3d-btn sk3d-pause-menu">⌂ Menu</button>
+          <button type="button" class="sk3d-btn sk3d-pause-restart" aria-label="Restart race">↻ Restart</button>
+          <button type="button" class="sk3d-btn sk3d-pause-sound" aria-label="Toggle sound">🔊 Sound</button>
+          <button type="button" class="sk3d-btn sk3d-pause-menu" aria-label="Open main menu">⌂ Menu</button>
         </div>
       </div>
-      <div class="sk3d-finish sk3d-hidden">
+      <div class="sk3d-finish sk3d-hidden" role="dialog" aria-modal="true" aria-labelledby="sk3d-finish-title">
         <div class="sk3d-finish-card">
           <div class="sk3d-finish-trophy" aria-hidden="true">🏆</div>
-          <div class="sk3d-finish-title">FINISHED <span class="sk3d-finish-place">1st</span>!</div>
+          <div id="sk3d-finish-title" class="sk3d-finish-title">FINISHED <span class="sk3d-finish-place">1st</span>!</div>
           <div class="sk3d-finish-track" aria-label="Track"></div>
           <div class="sk3d-finish-time">0:00.0</div>
           <div class="sk3d-finish-results" aria-label="Final standings"></div>
-          <button type="button" class="sk3d-finish-btn">Race Again</button>
-          <button type="button" class="sk3d-menu-btn">Menu</button>
+          <button type="button" class="sk3d-finish-btn" aria-label="Race again">Race Again</button>
+          <button type="button" class="sk3d-menu-btn" aria-label="Open main menu">Menu</button>
           <div class="sk3d-finish-hint">or press R</div>
         </div>
       </div>
