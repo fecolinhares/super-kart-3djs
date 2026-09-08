@@ -1,7 +1,7 @@
 {
   "project": "Super Kart 3D.js",
   "date": "2026-09-09",
-  "status": "provisional_pending_sol_validation",
+  "status": "provisional_sol_xhigh_blocked_after_three_timeouts",
   "evidence": {
     "renderer": "ANGLE (AMD, Vulkan 1.4.318, AMD Radeon 780M Graphics (RADV PHOENIX), radv)",
     "tracks": ["meadow", "neon"],
