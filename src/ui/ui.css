@@ -1129,6 +1129,19 @@ html, body {
   opacity: 0.75;
 }
 
+.sk3d-finish-row-player {
+  color: var(--sk3d-ink);
+  background: rgba(255, 209, 102, 0.42);
+  border: 2px solid var(--sk3d-yellow);
+  box-shadow: inset 4px 0 0 var(--sk3d-orange);
+  font-weight: 800;
+}
+
+.sk3d-finish-row-player .sk3d-finish-row-time {
+  opacity: 1;
+  color: var(--sk3d-ink);
+}
+
 .sk3d-finish-btn {
   margin-top: 18px;
   font-family: var(--sk3d-font);
@@ -1553,10 +1566,37 @@ html, body {
 /* ---------- responsive ---------- */
 
 @media (max-width: 768px) {
-  .sk3d-menu-card {
-    padding: 28px 20px 18px;
-    gap: 14px;
+  /* F4 Sol: preserve a visible safe-area buffer around touch controls and
+     keep the bottom HUD above the control row. */
+  .sk3d-touch-btn {
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   }
+  .sk3d-touch-left { left: calc(20px + env(safe-area-inset-left, 0px)); }
+  .sk3d-touch-right { left: calc(92px + env(safe-area-inset-left, 0px)); }
+  .sk3d-touch-item {
+    right: calc(20px + env(safe-area-inset-right, 0px));
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+  .sk3d-touch-drift {
+    right: calc(96px + env(safe-area-inset-right, 0px));
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .sk3d-finish-card {
+    padding: 24px 20px 20px;
+    width: calc(100% - 24px);
+  }
+  .sk3d-finish-row {
+    min-height: 32px;
+    padding: 5px 8px;
+    font-size: 0.95rem;
+  }
+  .sk3d-finish-btn,
+  .sk3d-menu-btn {
+    min-width: 132px;
+    min-height: 48px;
+  }
+
 
   .sk3d-primary-btn {
     padding: 12px 30px;
@@ -1712,7 +1752,7 @@ html, body {
   .sk3d-touch-btn {
     width: 64px;
     height: 64px;
-    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   }
 
   .sk3d-touch-arrow {
@@ -1724,23 +1764,23 @@ html, body {
   }
 
   .sk3d-touch-left {
-    left: calc(16px + env(safe-area-inset-left, 0px));
+    left: calc(20px + env(safe-area-inset-left, 0px));
   }
 
   .sk3d-touch-right {
-    left: calc(88px + env(safe-area-inset-left, 0px));
+    left: calc(92px + env(safe-area-inset-left, 0px));
   }
 
   .sk3d-touch-item {
-    right: calc(16px + env(safe-area-inset-right, 0px));
-    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    right: calc(20px + env(safe-area-inset-right, 0px));
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
     width: 64px;
     height: 64px;
   }
 
   .sk3d-touch-drift {
-    right: calc(92px + env(safe-area-inset-right, 0px));
-    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    right: calc(96px + env(safe-area-inset-right, 0px));
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
     width: 64px;
     height: 64px;
   }

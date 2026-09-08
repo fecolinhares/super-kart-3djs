@@ -1036,10 +1036,12 @@ export class HUD {
     listEl.innerHTML = '';
     for (const row of standings || []) {
       const line = document.createElement('div');
-      line.className = 'sk3d-finish-row';
       const name = row.kart?.character?.name || 'Racer';
+      const isPlayer = !!row.kart?.isPlayer;
+      line.className = `sk3d-finish-row${isPlayer ? ' sk3d-finish-row-player' : ''}`;
+      if (isPlayer) line.setAttribute('aria-current', 'true');
       line.innerHTML = `<span class="sk3d-finish-row-pos">${ordinal(row.position)}</span>` +
-        `<span class="sk3d-finish-row-name">${name}</span>` +
+        `<span class="sk3d-finish-row-name">${name}${isPlayer ? ' (You)' : ''}</span>` +
         `<span class="sk3d-finish-row-time">${Number.isFinite(row.totalTime) ? formatTime(row.totalTime) : '—'}</span>`;
       listEl.append(line);
     }
