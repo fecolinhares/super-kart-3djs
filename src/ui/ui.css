@@ -1362,9 +1362,9 @@ html, body {
 .sk3d-touch-btn {
   pointer-events: auto;
   position: absolute;
-  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-  width: 86px; /* >= 56px touch target */
-  height: 86px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  width: 64px; /* compact portrait target; remains above the 56px minimum */
+  height: 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1407,27 +1407,27 @@ html, body {
 }
 
 .sk3d-touch-left {
-  left: 20px;
+  left: calc(16px + env(safe-area-inset-left, 0px));
 }
 
 .sk3d-touch-right {
-  left: 116px;
+  left: calc(88px + env(safe-area-inset-left, 0px));
 }
 
 .sk3d-touch-item {
-  right: 20px;
-  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-  width: 88px;
-  height: 88px;
+  right: calc(16px + env(safe-area-inset-right, 0px));
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: rgba(255, 209, 102, 0.45); /* TICK 2026-09-03: inactive action controls reveal the road */
 }
 
 .sk3d-touch-drift {
-  right: 128px;
-  bottom: calc(28px + env(safe-area-inset-bottom, 0px));
-  width: 80px;
-  height: 80px;
+  right: calc(92px + env(safe-area-inset-right, 0px));
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: rgba(67, 214, 75, 0.45); /* TICK 2026-09-03: inactive action controls reveal the road */
 }
@@ -1708,9 +1708,9 @@ html, body {
   }
 
   .sk3d-touch-btn {
-    width: 78px;
-    height: 78px;
-    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    width: 64px;
+    height: 64px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   }
 
   .sk3d-touch-arrow {
@@ -1722,25 +1722,25 @@ html, body {
   }
 
   .sk3d-touch-left {
-    left: 14px;
+    left: calc(16px + env(safe-area-inset-left, 0px));
   }
 
   .sk3d-touch-right {
-    left: 98px;
+    left: calc(88px + env(safe-area-inset-left, 0px));
   }
 
   .sk3d-touch-item {
-    right: 14px;
+    right: calc(16px + env(safe-area-inset-right, 0px));
     bottom: calc(14px + env(safe-area-inset-bottom, 0px));
-    width: 80px;
-    height: 80px;
+    width: 64px;
+    height: 64px;
   }
 
   .sk3d-touch-drift {
-    right: 108px;
-    bottom: calc(22px + env(safe-area-inset-bottom, 0px));
-    width: 74px;
-    height: 74px;
+    right: calc(92px + env(safe-area-inset-right, 0px));
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    width: 64px;
+    height: 64px;
   }
 
   .sk3d-speedo-value {
