@@ -1,0 +1,32 @@
+{
+  "project": "Super Kart 3D.js",
+  "date": "2026-09-09",
+  "status": "provisional_pending_sol_validation",
+  "evidence": {
+    "renderer": "ANGLE (AMD, Vulkan 1.4.318, AMD Radeon 780M Graphics (RADV PHOENIX), radv)",
+    "tracks": ["meadow", "neon"],
+    "platforms": ["desktop", "mobile"],
+    "finished_runs": 4,
+    "page_errors": 0,
+    "ai_seeds_per_track": 20,
+    "ai_lost": 0,
+    "ai_backwards": 0,
+    "ai_crashes": 0,
+    "video_root": "/tmp/sk3d-current-audit"
+  },
+  "scores": {
+    "meadow_desktop": {"track_readability": 8.0, "kart_camera": 7.5, "environment": 7.5, "materials_lighting": 7.5, "vfx": 7.5, "hud_touch": 7.5, "finish": 7.5, "stability": 8.5},
+    "meadow_mobile": {"track_readability": 7.5, "kart_camera": 7.0, "environment": 7.0, "materials_lighting": 7.0, "vfx": 7.0, "hud_touch": 7.0, "finish": 7.0, "stability": 8.5},
+    "neon_desktop": {"track_readability": 8.0, "kart_camera": 7.0, "environment": 7.0, "materials_lighting": 6.5, "vfx": 7.0, "hud_touch": 7.5, "finish": 7.5, "stability": 8.5},
+    "neon_mobile": {"track_readability": 7.5, "kart_camera": 6.5, "environment": 6.5, "materials_lighting": 6.0, "vfx": 6.5, "hud_touch": 7.0, "finish": 7.0, "stability": 8.5}
+  },
+  "priority_gaps": [
+    {"priority": "P1", "owner": "camera/HUD", "gap": "kart protagonism and portrait competition"},
+    {"priority": "P1", "owner": "Environment/MaterialLibrary", "gap": "Neon grounding and flat/repetitive skyline"},
+    {"priority": "P1", "owner": "HUD", "gap": "small secondary text and weak player-row emphasis"},
+    {"priority": "P2", "owner": "Environment props", "gap": "Meadow straight-line rhythm and zone landmarks"},
+    {"priority": "P2", "owner": "PostFX/particles", "gap": "emissive/VFX competition with kart silhouette"}
+  ],
+  "sol_validation": "pending",
+  "fps_claim": false
+}
