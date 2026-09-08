@@ -108,7 +108,9 @@ export class TouchControls {
 
     button.addEventListener('pointerdown', (e) => {
       e.preventDefault();
-      if (button.setPointerCapture) button.setPointerCapture(e.pointerId);
+      if (button.setPointerCapture) {
+        try { button.setPointerCapture(e.pointerId); } catch { /* pointer already ended */ }
+      }
       this._steerPressed[side] = true;
       button.classList.add('is-active');
       this.haptic(10); // steer edge tap
