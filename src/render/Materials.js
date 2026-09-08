@@ -675,21 +675,20 @@ export function finishBannerTexture() {
   g.fillStyle = '#3d4f78';
   g.fillRect(0, bandH, 512, 2);
   g.fillRect(0, 128 - bandH - 2, 512, 2);
-  // Big white FINISH centered on the navy field, dark offset copy behind
-  // for contrast so it stays crisp from the chase camera.
-  // AUDIT R2 (critic 7/10: 'FINISH podia ser mais nítido'): 76→88px + glow
-  // dourado — legível à distância da chase cam sem sacrificar o estilo MK8.
-  g.font = '900 88px "Baloo 2", "Nunito", Arial, sans-serif';
+  // Shared start/finish line: explicit wording prevents a static FINISH sign
+  // from reading like race results during GO/LAP 0 while remaining correct on
+  // lap crossings and the final pass.
+  g.font = '900 58px "Baloo 2", "Nunito", Arial, sans-serif';
   g.textAlign = 'center';
   g.textBaseline = 'middle';
   // soft gold glow behind the glyphs (reads at distance, not just up close)
   g.shadowColor = 'rgba(255,209,102,0.55)';
   g.shadowBlur = 14;
   g.fillStyle = '#0a1120';
-  g.fillText('FINISH', 258, 68);
+  g.fillText('START / FINISH', 258, 68);
   g.shadowBlur = 0;
   g.fillStyle = '#ffffff';
-  g.fillText('FINISH', 256, 66);
+  g.fillText('START / FINISH', 256, 66);
   const tex = new THREE.CanvasTexture(c);
   tex.anisotropy = 8;
   tex.colorSpace = THREE.SRGBColorSpace;
