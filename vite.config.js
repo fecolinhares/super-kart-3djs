@@ -17,5 +17,15 @@ export default defineConfig({
     // bloqueiam copyfile (copyfile-restricted filesystems/9p).
     outDir: process.env.SK3D_OUT_DIR || 'dist',
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('/node_modules/three/examples/')) return 'three-examples';
+          if (id.includes('/node_modules/three/src/renderers/')) return 'three-renderer';
+          if (id.includes('/node_modules/three/')) return 'three-core';
+          return undefined;
+        },
+      },
+    },
   },
 });
