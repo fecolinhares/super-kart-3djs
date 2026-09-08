@@ -530,13 +530,13 @@ html, body {
 }
 
 .sk3d-minimap-dot-player {
-  fill: #ffffff;
+  fill: #ff4d6d;
   stroke: var(--sk3d-ink);
   stroke-width: 3;
 }
 
 .sk3d-minimap-cone {
-  fill: #ffffff;
+  fill: #ff4d6d;
   stroke: var(--sk3d-ink);
   stroke-width: 1.5;
   pointer-events: none;
