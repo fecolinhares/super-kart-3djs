@@ -1087,12 +1087,17 @@ function updateCamera(dt, t) {
       const group = playerKart.group;
       _fwd.set(0, 0, 1).applyQuaternion(group.quaternion);
       _side.set(_fwd.z, 0, -_fwd.x);
-      const sway = Math.sin(t * 0.13) * 3.4;
-      const demoBackDistance = CONFIG.camera.followDistance + (TRACK_ID === 2 && !isTouchMode() ? 3.6 : 4.2);
+      // DEMO must remain a player-facing chase camera. The previous cinematic
+      // offsets (3.6–4.2m back and 3.4m lateral sway) made the kart leave the
+      // visual subject region and let roadside props occlude the racing line.
+      // Keep only a restrained sway and the same track-specific distance used
+      // by normal gameplay so video QA exercises a truthful player view.
+      const sway = Math.sin(t * 0.13) * 0.55;
+      const demoBackDistance = CONFIG.camera.followDistance + (TRACK_ID === 2 ? (CONFIG.camera.neonFollowExtra || 0) : 0);
       _camDesired.copy(st.position)
         .addScaledVector(_fwd, -demoBackDistance)
         .addScaledVector(_side, sway);
-      _camDesired.y += CONFIG.camera.followHeight + 1.2 + Math.sin(t * 0.4) * 0.5;
+      _camDesired.y += CONFIG.camera.followHeight + 0.2 + Math.sin(t * 0.4) * 0.15;
       const lerp = 1 - Math.exp(-2.4 * dt);
       camPos.lerp(_camDesired, lerp);
       camera.position.copy(camPos);
