@@ -658,6 +658,10 @@ export class HUD {
 
   _updateRouteCue(player) {
     if (!this.routeCueEl || !this._trackPath || !player || typeof player.progress01 !== 'number') return;
+    if (this.finishEl && !this.finishEl.classList.contains('sk3d-hidden')) {
+      this.routeCueEl.classList.add('sk3d-hidden');
+      return;
+    }
     const t = ((player.progress01 % 1) + 1) % 1;
     const lookAhead = 0.035;
     const a = this._trackPath.getTangentAt(t);
