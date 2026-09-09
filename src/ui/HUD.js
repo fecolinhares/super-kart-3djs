@@ -711,7 +711,8 @@ export class HUD {
     }
 
     // Lap counter + per-lap progress bar (progress01 from player.state).
-    const lap = player && typeof player.lap === 'number' ? Math.min(player.lap, CONFIG.game.totalLaps) : 1;
+    const completedLaps = player && typeof player.lap === 'number' ? player.lap : 0;
+    const lap = Math.min(CONFIG.game.totalLaps, Math.max(1, completedLaps + 1));
     const lapText = `LAP ${lap}/${CONFIG.game.totalLaps}`;
     if (lapText !== this._lapText) {
       this._lapText = lapText;
