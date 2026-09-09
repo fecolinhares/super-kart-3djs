@@ -25,7 +25,7 @@
     "model": "gpt-5.6-sol",
     "reasoning": "xhigh",
     "verdict": "patch e9cb17f aprovado",
-    "risks": ["microtexto não auditado", "DPR3 canvas 780x1688 por cap", "FPS/frame pacing sem medição"]
+    "risks": ["DPR3 canvas 780x1688 por cap", "FPS/frame pacing sem medição"]
   },
   "evidence": {
     "renderer": "ANGLE (AMD, Vulkan 1.4.318, AMD Radeon 780M Graphics (RADV PHOENIX), radv)",
