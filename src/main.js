@@ -1089,6 +1089,7 @@ function updateCamera(dt, t) {
     );
     env.shadowSun.target.position.copy(sp);
   }
+  if (getState() === STATES.FINISHED) return;
   if (window.__freezeCam) return; // QA hook: freeze the chase camera
   if (DEMO) {
     // Cinematic autopilot: chase the player kart with a swaying side offset
@@ -1194,16 +1195,22 @@ window.__prof = {};
 loop.start((dt, t) => {
   qaFrameN++;
   window.__qaFrameN = qaFrameN;
+  const state = getState();
+  const terminalPresentation = state === STATES.FINISHED;
+  // Finished is a deterministic presentation: keep rendering the final frame,
+  // but do not animate the race world underneath the results card.
+  if (!terminalPresentation) {
+    env.update(dt, t);
+    updateWind(t);
+  }
+
   // Mobile Neon boost: reduce only the turbo-pad glow envelope so the
   // emissive strip does not wash out lane markings/kart silhouettes at DPR2/3.
   const turboGlowScale = TRACK_ID === 2 && isTouchMode() ? 0.58 : 1;
-  if (turboGlowMat) turboGlowMat.opacity = (0.06 + 0.08 * (0.5 + 0.5 * Math.sin(t * 2.6))) * turboGlowScale; // F7 mobile readability
-  // Environment animation (clouds, water, flags).
-  env.update(dt, t);
-  // PREMIUM PASS: avança o vento nos materiais com sway (grama/palmeiras).
-  updateWind(t);
-
-  const state = getState();
+  if (!terminalPresentation && turboGlowMat) {
+    turboGlowMat.opacity = (0.06 + 0.08 * (0.5 + 0.5 * Math.sin(t * 2.6))) * turboGlowScale;
+  }
+  // Environment animation is paused during FINISHED; race states animate.
 
   if (state === STATES.MENU) {
     // Slow showcase orbit around the track.
@@ -1516,8 +1523,10 @@ loop.start((dt, t) => {
     updateCamera(dt, t);
   }
 
-  particles.update(dt);
-  skids.update(dt);
+  if (!terminalPresentation) {
+    particles.update(dt);
+    skids.update(dt);
+  }
   postfx.render(dt);
 
   if (window.__profEnabled) {
