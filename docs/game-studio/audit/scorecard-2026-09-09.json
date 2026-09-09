@@ -135,6 +135,18 @@
     "risk": "skyline repetition without sector ownership; adding props may clutter/occlude",
     "next_phase": "F16 drift feedback ownership"
   },
+  "f16_drift_ownership": {
+    "status": "no_change",
+    "videos": {"meadow_mobile": 599, "neon_mobile": 599, "meadow_desktop": 599, "neon_desktop": 599},
+    "all_finished": true,
+    "page_errors": 0,
+    "vision": "drift state inconclusive under demo/autopilot",
+    "runtime": "drift meter hidden; no reproducible physical drift",
+    "sol_session": "20260909_113529_c9f70a",
+    "sol_model": "gpt-5.6-sol",
+    "sol_reasoning": "xhigh",
+    "next_phase": "F17 manual deterministic drift harness"
+  },
   "evidence": {
     "renderer": "ANGLE (AMD, Vulkan 1.4.318, AMD Radeon 780M Graphics (RADV PHOENIX), radv)",
     "tracks": ["meadow", "neon"],

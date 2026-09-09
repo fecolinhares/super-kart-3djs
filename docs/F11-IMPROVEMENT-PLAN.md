@@ -3,7 +3,7 @@
 Data: 2026-09-09  
 Base: auditoria F11 com vídeo GPU + vision + Sol/xhigh  
 Sessão Sol: `20260909_060136_d785de`  
-Status release atual: **GO funcional; F12/F13/F14/F15 aprovados; F16 é o próximo gate**
+Status release atual: **GO funcional; F12/F13/F14/F15/F16 aprovados; F17 é o próximo gate**
 
 ## Evidência F11
 
@@ -145,20 +145,40 @@ Os quatro vídeos demonstraram landmarks legíveis sem clipping/regressão. FPS 
 
 ### Próximo passo
 
-F16: capturar drift meter ativo e validar ownership temporal de feedback; reabrir landmarks apenas se auditoria por setor encontrar trecho sem referência dominante.
+F17: criar harness manual determinístico de drift; reabrir landmarks apenas se uma auditoria por setor encontrar trecho sem referência dominante.
 
+
+## F16 — Ownership temporal de drift, boost e item — P2 — CONCLUÍDA / NO-CHANGE
+
+### Resultado
+
+- Quatro vídeos controlados Meadow/Neon desktop/mobile chegaram a `finished`, `599` frames cada, errors zero.
+- Vision não observou drift meter, sparks ou ready/release; runtime mostrou meter hidden sob `?demo` porque autopilot impede reprodução física determinística.
+- O código já possui `HUD.setDriftCharge()` e ready cue; não há falha reproduzida para corrigir.
+- Sol F16 `20260909_113529_c9f70a` (`gpt-5.6-sol`, `xhigh`): **NO-CHANGE**, risco médio.
+- Nenhum patch de produto nesta fase; FPS não foi medido nem inferido.
+
+### Risco residual
+
+O comportamento real do drift permanece sem evidência visual; patch agora seria especulativo e poderia fabricar estado apenas para QA.
+
+## F17 — Harness manual determinístico de drift — P1/P2
+
+### Objetivo
+
+Reproduzir sem `?demo`/autopilot: aceleração válida, direção + drift, carga do meter, estado ready e release em Meadow/Neon desktop/mobile.
 
 ### Critérios de aceitação
 
-- vídeo identifica quem ativou o evento;
-- evento tem começo e término discerníveis;
-- item held, item usado, impacto e efeito recebido não se confundem;
-- efeitos não escondem pista, HUD ou kart;
-- lifecycle de áudio permanece válido.
+- harness registra input, estado físico, HUD, partículas e `pageErrors`;
+- vídeo mostra `charging → ready → release` e eventual mini-boost;
+- áudio lifecycle segue verde;
+- só aplicar patch se uma falha real for reproduzida; caso contrário, NO-CHANGE.
 
-## F16 — Results, foco e microtexto — P2
+## F18 — Results, foco e microtexto — P2
 
 ### Objetivo
+
 Melhorar ação primária, foco de teclado/controller e legibilidade real do results.
 
 ### Critérios de aceitação
@@ -169,9 +189,10 @@ Melhorar ação primária, foco de teclado/controller e legibilidade real do res
 - modal respeita safe-area e não depende de crop de contact sheet;
 - fluxo de keyboard/controller não depende somente da tecla `R`.
 
-## F17 — Grounding e composição — P2
+## F19 — Grounding e composição — P2
 
 ### Objetivo
+
 Aumentar separação pista/cenário e grounding somente se A/B confirmar ganho real.
 
 ### Critérios de aceitação
@@ -184,7 +205,7 @@ Aumentar separação pista/cenário e grounding somente se A/B confirmar ganho r
 
 ## Regras comuns de execução
 
-1. Uma fase por vez; não misturar F12–F17 no mesmo patch.
+1. Uma fase por vez; não misturar fases no mesmo patch.
 2. Antes de editar: probe que pode refutar o achado.
 3. Correção aceita somente com vídeo GPU desktop/mobile e vision temporal.
 4. Fases de diagnóstico podem terminar sem patch quando a hipótese for refutada.
