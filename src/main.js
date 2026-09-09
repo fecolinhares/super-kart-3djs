@@ -662,15 +662,16 @@ window.addEventListener('keydown', (e) => {
   hudIdleT = 0; // AUDIT imersão R11: input restaura o HUD
   if (typeof hud !== 'undefined' && hud && hud.setIdle && hud._idle) hud.setIdle(false);
   keys.add(e.code);
-  if (e.code === 'Space') {
+  const gameplayState = getState() === STATES.RACE || getState() === STATES.COUNTDOWN;
+  if (e.code === 'Space' && gameplayState) {
     e.preventDefault();
     pressItem();
   }
   if (e.code === 'KeyP' || e.code === 'Escape') {
     // Pause toggles handled by state machine below.
   }
-  if (e.code === 'Tab') {
-    e.preventDefault(); // keep Tab from stealing focus
+  if (e.code === 'Tab' && getState() === STATES.RACE) {
+    e.preventDefault(); // keep Tab from stealing focus during gameplay
     swapQueued = true;
   }
   if (e.code === 'KeyR') {
