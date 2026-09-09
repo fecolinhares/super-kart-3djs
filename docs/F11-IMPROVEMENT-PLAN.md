@@ -3,7 +3,7 @@
 Data: 2026-09-09  
 Base: auditoria F11 com vídeo GPU + vision + Sol/xhigh  
 Sessão Sol: `20260909_060136_d785de`  
-Status release atual: **GO funcional; F12/F13/F14 aprovados; F15 é o próximo gate**
+Status release atual: **GO funcional; F12/F13/F14/F15 aprovados; F16 é o próximo gate**
 
 ## Evidência F11
 
@@ -129,11 +129,24 @@ Comunicar curvas, splits, rampas e landmarks antes da entrada, sem esconder game
 - A/B GPU pareado comprova melhoria direcional em desktop/mobile;
 - nenhum aumento especulativo de glow global.
 
-## F15 — Landmarks por setor + ownership temporal de feedback — P2
+## F15 — Landmarks por setor + ownership temporal de feedback — P2 — CONCLUÍDA / NO-CHANGE
 
-### Objetivo
+### Resultado
 
-Distinguir origem, alvo, início e término de boost, item ganho/usado/recebido e VFX; criar silhuetas distintas e reconhecíveis por setor antes das decisões de rota.
+- Auditoria confirmou landmarks funcionais: `START/FINISH`, placas direcionais, turbo pad, item box e Mushroom equipado.
+- Drift meter já existe, mas não foi capturado ativo nesta rodada; F16 terá prova temporal dedicada.
+- Skyline Neon é repetitivo, porém billboard/estrutura sem ownership de setor aumentaria risco de clutter e oclusão.
+- Sol F15 `20260909_112349_f5e3b4` (`gpt-5.6-sol`, `xhigh`): **NO-CHANGE**, risco baixo.
+- Nenhum patch de produto nesta fase; build/AI/áudio e ausência de regressão mantidos.
+
+### Critério de aceite
+
+Os quatro vídeos demonstraram landmarks legíveis sem clipping/regressão. FPS não foi medido nem inferido.
+
+### Próximo passo
+
+F16: capturar drift meter ativo e validar ownership temporal de feedback; reabrir landmarks apenas se auditoria por setor encontrar trecho sem referência dominante.
+
 
 ### Critérios de aceitação
 

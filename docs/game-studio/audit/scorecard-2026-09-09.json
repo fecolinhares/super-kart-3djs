@@ -124,6 +124,17 @@
     "sol_reasoning": "xhigh",
     "next_phase": "F15 sector landmarks and feedback ownership"
   },
+  "f15_landmarks_feedback": {
+    "status": "no_change",
+    "tracks": ["meadow", "neon"],
+    "landmarks": ["START/FINISH", "directional signs", "turbo pad", "item box", "Mushroom HUD"],
+    "vision": "functional landmarks pass; drift active inconclusive",
+    "sol_session": "20260909_112349_f5e3b4",
+    "sol_model": "gpt-5.6-sol",
+    "sol_reasoning": "xhigh",
+    "risk": "skyline repetition without sector ownership; adding props may clutter/occlude",
+    "next_phase": "F16 drift feedback ownership"
+  },
   "evidence": {
     "renderer": "ANGLE (AMD, Vulkan 1.4.318, AMD Radeon 780M Graphics (RADV PHOENIX), radv)",
     "tracks": ["meadow", "neon"],
