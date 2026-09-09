@@ -227,6 +227,14 @@ O comportamento real do drift permanece sem evidência visual; patch agora seria
 - Build44, AI zero, áudio9/9, pageErrors0; frame-time p95/max Md14.0/30.2 Mm11.0/14.1 Nd11.7/15.1 Nm9.6/14.0ms.
 - Sol `20260909_224635_6b636f` (`gpt-5.6-sol`, `xhigh`): **PASS**, sem issue de alta confiança. Próximo F23: assertion barata de hidden/inert/aria-hidden.
 
+## F23 — assertion de acessibilidade e lifecycle — PASS
+
+- `8faa5f8`: `gotoMenu()` agora define `raceManager.phase=idle` e limpa `raceOver`; evita estado lógico `menu + finished`.
+- Assertion 4/4 desktop/mobile: results → Race Again chega a countdown/race; results → Menu chega a `state=menu`, `phase=idle`; HUD root oculto, route hidden, erros0.
+- Vídeos humanos GPU pós-fix Meadow/Neon d/m `927/1002/1119/1506`, 4/4 finished/errors0; vision 4/4 sem overlay stale, freeze/lap/grounding/touch regressivo.
+- Build44, AI zero, áudio9/9, pageErrors0; frame p95/max Md14.0/30.2 Mm11.0/14.1 Nd11.7/15.1 Nm9.6/14.0ms.
+- Sol `20260909_232003_cc0c89` (`gpt-5.6-sol`, `xhigh`): **PASS**; tipografia mobile e identity observability ficam no backlog.
+
 1. Uma fase por vez; não misturar fases no mesmo patch.
 2. Antes de editar: probe que pode refutar o achado.
 3. Correção aceita somente com vídeo GPU desktop/mobile e vision temporal.

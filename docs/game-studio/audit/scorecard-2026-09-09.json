@@ -247,5 +247,17 @@
     "audio_failed": 0,
     "sol_session": "20260909_224635_6b636f"
   },
+  "f23_lifecycle_audit": {
+    "status": "pass",
+    "commit": "8faa5f8",
+    "assertion": "4/4 Race Again and Menu transitions; menu phase idle; HUD root hidden",
+    "videos_finished": {"meadow_mobile": 1002, "neon_mobile": 1506, "meadow_desktop": 927, "neon_desktop": 1119},
+    "page_errors": 0,
+    "ai_lost": 0,
+    "ai_backwards": 0,
+    "ai_crashes": 0,
+    "audio_failed": 0,
+    "sol_session": "20260909_232003_cc0c89"
+  },
   "fps_claim": false
 }
