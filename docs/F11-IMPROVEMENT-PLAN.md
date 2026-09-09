@@ -3,7 +3,7 @@
 Data: 2026-09-09  
 Base: auditoria F11 com vídeo GPU + vision + Sol/xhigh  
 Sessão Sol: `20260909_060136_d785de`  
-Status release atual: **GO funcional; F12 aprovado; F13 é o próximo gate**
+Status release atual: **GO funcional; F12/F13/F14 aprovados; F15 é o próximo gate**
 
 ## Evidência F11
 
@@ -93,9 +93,24 @@ Validar interação real sob multitouch, cancelamento, blur, bordas e safe-area 
 - vídeo demonstra input e resultado, não somente screenshot;
 - nenhum ajuste reduz a prioridade visual de pista/kart.
 
-## F14 — Antecipação de rota e landmarks — P1/P2
+## F14 — Antecipação de rota e landmarks — P1/P2 — CONCLUÍDA
+
+### Resultado
+
+- Cue dinâmico `TURN LEFT/RIGHT` baseado em tangentes da curva, limiar de `12°`, distância aproximada e `pointer-events:none`.
+- Commit: `70dccb8`.
+- Runtime: Meadow `TURN LEFT` em `14 m`; Neon `TURN RIGHT` em `21 m`; sem errors.
+- GPU final: Meadow d/m `896/919`; Neon d/m `1117/846`; todos `finished`, `pageErrors=0`, RADV PHOENIX.
+- Vision temporal 4/4: cue/road arrows legíveis, não obstruem HUD/touch/rota; sem regressão de kart/câmera/results.
+- Build/AI/áudio verdes; Sol F14 `20260909_111817_fd3883` (`gpt-5.6-sol`, `xhigh`): **PASS**.
+
+### Risco residual
+
+Heurística de tangente pode oscilar em curvas compostas/S ou avisar tarde perto do limiar; `top:116px` deve ser revalidado se o HUD crescer. Frames não são FPS.
+
 
 ### Objetivo
+
 Comunicar curvas, splits, rampas e landmarks antes da entrada, sem esconder gameplay.
 
 ### Escopo candidato
@@ -114,10 +129,11 @@ Comunicar curvas, splits, rampas e landmarks antes da entrada, sem esconder game
 - A/B GPU pareado comprova melhoria direcional em desktop/mobile;
 - nenhum aumento especulativo de glow global.
 
-## F15 — Ownership temporal de feedback — P2
+## F15 — Landmarks por setor + ownership temporal de feedback — P2
 
 ### Objetivo
-Distinguir origem, alvo, início e término de boost, item ganho/usado/recebido e VFX.
+
+Distinguir origem, alvo, início e término de boost, item ganho/usado/recebido e VFX; criar silhuetas distintas e reconhecíveis por setor antes das decisões de rota.
 
 ### Critérios de aceitação
 
