@@ -9,6 +9,7 @@ const baseUrl = (process.argv[2] || 'http://127.0.0.1:3457').replace(/\/$/, '');
 const outDir = process.argv[3] || path.resolve('qa-gpu-runner/tick-temporal');
 const durationMs = Number(process.argv[4] || 8000);
 const mode = process.argv[5] || 'baseline';
+const dpr = Number(process.env.SK3D_DPR || 1);
 const scenarios = [
   { track: 1, name: 'meadow-desktop', width: 1280, height: 720, hasTouch: false },
   { track: 1, name: 'meadow-mobile', width: 390, height: 844, hasTouch: true },
@@ -29,7 +30,7 @@ function percentile(values, p) {
   const results = [];
   try {
     for (const scenario of scenarios) {
-      const context = await browser.newContext({ viewport: { width: scenario.width, height: scenario.height }, hasTouch: scenario.hasTouch, isMobile: false });
+      const context = await browser.newContext({ viewport: { width: scenario.width, height: scenario.height }, deviceScaleFactor: dpr, hasTouch: scenario.hasTouch, isMobile: false });
       await context.addInitScript(() => {
         try { localStorage.clear(); } catch {}
       });
@@ -106,7 +107,7 @@ function percentile(values, p) {
           wrapped,
         };
       }, { duration: durationMs, mode });
-      const result = { mode, scenario, ...data, pageErrors };
+      const result = { mode, dpr, scenario, ...data, pageErrors };
       results.push(result);
       fs.writeFileSync(path.join(outDir, `${scenario.name}.json`), `${JSON.stringify(result, null, 2)}\n`);
       console.log(JSON.stringify(result));
