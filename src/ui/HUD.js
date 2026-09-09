@@ -117,7 +117,7 @@ export class HUD {
       <div class="sk3d-hud-bottom">
         <div class="sk3d-hud-bottom-left">
           <div class="sk3d-item-zone"></div>
-          <div class="sk3d-chip sk3d-position">--</div>
+          <div class="sk3d-chip sk3d-position"><span class="sk3d-position-player">YOU</span><span class="sk3d-position-value">--</span></div>
         </div>
         <div class="sk3d-hud-bottom-right"></div>
       </div>
@@ -186,6 +186,7 @@ export class HUD {
     this.driftFillEl = drift.querySelector('.sk3d-drift-fill');
 
     this.positionEl = this.root.querySelector('.sk3d-position');
+    this.positionValueEl = this.root.querySelector('.sk3d-position-value');
     this.draftEl = this.root.querySelector('.sk3d-draft');
     this.hitFlashEl = this.root.querySelector('.sk3d-hitflash');
     this.lapEl = this.root.querySelector('.sk3d-lap');
@@ -669,7 +670,8 @@ export class HUD {
       const text = medal + ordinal(pos);
       const cls = pos === 1 ? ' sk3d-position-1' : pos === 2 ? ' sk3d-position-2' : pos === 3 ? ' sk3d-position-3' : '';
       this.positionEl.className = `sk3d-chip sk3d-position${cls}`;
-      this.positionEl.textContent = text;
+      this.positionValueEl.textContent = text;
+      this.positionEl.setAttribute('aria-label', `Your position: ${text}`);
       // Position change feedback (audit UX-v3 F2): pop the chip + SFX.
       this.positionEl.classList.remove('sk3d-position-pop');
       void this.positionEl.offsetWidth;
@@ -1188,7 +1190,8 @@ export class HUD {
     this._timeText = null;
 
     this.positionEl.className = 'sk3d-chip sk3d-position';
-    this.positionEl.textContent = '--';
+    this.positionValueEl.textContent = '--';
+    this.positionEl.setAttribute('aria-label', 'Your position: unavailable');
     this.lapTextEl.textContent = `LAP 1/${CONFIG.game.totalLaps}`;
     this.lapBarFillEl.style.width = '0%';
     this.timeEl.textContent = '0:00.0';
