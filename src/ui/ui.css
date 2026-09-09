@@ -1608,7 +1608,9 @@ html, body {
 
 .sk3d-btn:focus-visible,
 .sk3d-color-swatch:focus-visible,
-.sk3d-touch-btn:focus-visible {
+.sk3d-touch-btn:focus-visible,
+.sk3d-finish-btn:focus-visible,
+.sk3d-menu-btn:focus-visible {
   outline: 3px dashed var(--sk3d-blue);
   outline-offset: 3px;
 }
