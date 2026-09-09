@@ -218,7 +218,14 @@ O comportamento real do drift permanece sem evidência visual; patch agora seria
 - Build 44, AI zero lost/backwards/crashes, áudio `9/9`, pageErrors0.
 - Frame-time p95/max: Meadow d/m `13.9/29.6ms`, `12.1/16.3ms`; Neon d/m `12.9/26.5ms`, `11.1/15.1ms`; não reportar FPS.
 - Sol F21 `20260909_212400_db0cae` (`gpt-5.6-sol`, `xhigh`): **PASS**, sem apontamento adicional reproduzível.
+## F22 — auditoria de identidade, feedback e restart — PASS
 
+- Vídeos humanos GPU Meadow/Neon desktop/mobile: `1001/1510/916/1108` frames, 4/4 `finished`, errors0; vision sem regressão concreta.
+- Results `Race Again` → countdown/race e `Menu` → menu passaram em 4/4; foco e botões válidos.
+- Vision observou identidade/HUD/grounding como gaps de observabilidade, não bugs reproduzíveis; results estático esperado.
+- DOM pós-restart mantém elementos históricos ocultos, sem foco/atividade; Sol decidiu não patchar limpeza arquitetural.
+- Build44, AI zero, áudio9/9, pageErrors0; frame-time p95/max Md14.0/30.2 Mm11.0/14.1 Nd11.7/15.1 Nm9.6/14.0ms.
+- Sol `20260909_224635_6b636f` (`gpt-5.6-sol`, `xhigh`): **PASS**, sem issue de alta confiança. Próximo F23: assertion barata de hidden/inert/aria-hidden.
 
 1. Uma fase por vez; não misturar fases no mesmo patch.
 2. Antes de editar: probe que pode refutar o achado.

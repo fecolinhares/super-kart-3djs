@@ -236,5 +236,16 @@
     "audio_failed": 0,
     "sol_session": "20260909_212400_db0cae"
   },
+  "f22_adversarial_audit": {
+    "status": "pass",
+    "videos_finished": {"meadow_mobile": 1001, "neon_mobile": 1510, "meadow_desktop": 916, "neon_desktop": 1108},
+    "restart_harness": "4/4 race-again and menu transitions pass",
+    "page_errors": 0,
+    "ai_lost": 0,
+    "ai_backwards": 0,
+    "ai_crashes": 0,
+    "audio_failed": 0,
+    "sol_session": "20260909_224635_6b636f"
+  },
   "fps_claim": false
 }
