@@ -3,7 +3,7 @@
 Data: 2026-09-09  
 Base: auditoria F11 com vídeo GPU + vision + Sol/xhigh  
 Sessão Sol: `20260909_060136_d785de`  
-Status release atual: **GO funcional no ambiente testado; UX premium ainda aberta**
+Status release atual: **GO funcional; F12 aprovado; F13 é o próximo gate**
 
 ## Evidência F11
 
@@ -18,9 +18,26 @@ Status release atual: **GO funcional no ambiente testado; UX premium ainda abert
 - Áudio lifecycle GPU: `9/9 PASS`.
 - Frame pacing: Meadow20 p95 `12.9 ms`, máximo isolado `30.2 ms`; sem cauda persistente. Nenhum FPS foi inferido.
 
-## F12 — Identidade do player + semântica HUD — P1
+## F12 — Identidade do player + semântica HUD — P1 — CONCLUÍDA
+
+### Resultado
+
+- Chip de posição passou a exibir `YOU` separado do ordinal.
+- Pílula amarela de alto contraste aplicada globalmente; texto mobile reforçado para `0.78rem`.
+- `aria-label` passou a anunciar `Your position: ...`.
+- Commits: `d63afa3`, `b74ec38`, `fcc7c1d`.
+- Vídeos finais GPU: Meadow desktop/mobile `884/931`; Neon desktop/mobile `661/880`; todos `finished`, `pageErrors=0`.
+- Vision nativa 4/4: `YOU` + ordinal legíveis e separados; sem overlap, clipping ou regressão.
+- Áudio `9/9 PASS`; AI 20 seeds por pista sem lost/backwards/crashes; build verde.
+- Sol F12 `20260909_104105_66c01e` (`gpt-5.6-sol`, `xhigh`): **PASS**.
+
+### Risco residual
+
+Cobertura limitada a quatro execuções GPU; não representa todos os dispositivos reais.
+
 
 ### Objetivo
+
 Tornar inequívoco qual kart é do jogador e o que significam gauge, counters e estados de item.
 
 ### Escopo candidato
