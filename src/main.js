@@ -1192,8 +1192,10 @@ window.__prof = {};
 loop.start((dt, t) => {
   qaFrameN++;
   window.__qaFrameN = qaFrameN;
-  // Turbo pad glow pulse (MK8 boost strips breathe).
-  if (turboGlowMat) turboGlowMat.opacity = 0.06 + 0.08 * (0.5 + 0.5 * Math.sin(t * 2.6)); // AUDIT R67: 0.08-0.18 → 0.06-0.14 (crítico: 'branco estourado')
+  // Mobile Neon boost: reduce only the turbo-pad glow envelope so the
+  // emissive strip does not wash out lane markings/kart silhouettes at DPR2/3.
+  const turboGlowScale = TRACK_ID === 2 && isTouchMode() ? 0.58 : 1;
+  if (turboGlowMat) turboGlowMat.opacity = (0.06 + 0.08 * (0.5 + 0.5 * Math.sin(t * 2.6))) * turboGlowScale; // F7 mobile readability
   // Environment animation (clouds, water, flags).
   env.update(dt, t);
   // PREMIUM PASS: avança o vento nos materiais com sway (grama/palmeiras).
