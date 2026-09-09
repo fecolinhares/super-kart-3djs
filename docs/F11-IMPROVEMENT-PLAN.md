@@ -3,7 +3,7 @@
 Data: 2026-09-09  
 Base: auditoria F11 com vídeo GPU + vision + Sol/xhigh  
 Sessão Sol: `20260909_060136_d785de`  
-Status release atual: **GO final no ambiente testado; F12–F19 concluídos; auditoria final aprovada**
+Status release atual: **GO final; F12–F20 concluídos; regressão de route cue pós-finish corrigida e revalidada**
 
 ## Evidência F11
 
@@ -195,6 +195,18 @@ O comportamento real do drift permanece sem evidência visual; patch agora seria
 - Sol F19 `20260909_122740_ffd5c9` (`gpt-5.6-sol`, `xhigh`): **NO-CHANGE**, risco médio-baixo.
 - Auditoria final obrigatória: saltos/banking/respawn, finished/pageErrors, frame pacing/DPR/buffer, build/AI/áudio, Sol final e HEAD remoto.
 
+## F20 — Regressão pós-release — CONCLUÍDA / PASS
+
+### Resultado
+
+- F20 descobriu route cue `TURN LEFT/RIGHT` que reaparecia em frames tardios de results.
+- Causa: `showFinish()` escondia o cue, mas `_updateRouteCue()` o reexibia no loop seguinte.
+- Correções atômicas: `58678dc` (hide no finish) e `29edca8` (guard enquanto finish ativo).
+- Regressão revalidada em quatro vídeos GPU: Meadow d/m `1002/1002`, Neon d/m `899/1169`; todos `finished`, `pageErrors=[]`.
+- Vision final 4/4 confirmou zero cue residual em results, identidade `YOU/Turbo (You)`, grounding, touch e safe-area sem regressão.
+- Pacing final (frame-time p95/max): Meadow d/m `13.3/16.5ms`, `11.6/16.1ms`; Neon d/m `12.1/23.3ms`, `11.3/15.0ms`.
+- Build 44, AI zero lost/backwards/crashes, áudio `9/9`, DPR efetivo `1`, buffers desktop `1280×720` e mobile `390×844`.
+- Sol F20 `20260909_185139_3646fb` (`gpt-5.6-sol`, `xhigh`): **PASS**.
 ## Regras comuns de execução
 
 1. Uma fase por vez; não misturar fases no mesmo patch.

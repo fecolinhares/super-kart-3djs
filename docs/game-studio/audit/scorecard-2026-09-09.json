@@ -214,5 +214,13 @@
     "frame_pacing_ms": {"meadow_desktop": {"p95": 14.1, "max": 31.4}, "meadow_mobile": {"p95": 11.4, "max": 14.9}, "neon_desktop": {"p95": 12.5, "max": 42.1}, "neon_mobile": {"p95": 10.0, "max": 27.3}},
     "risks": ["isolated Neon desktop 42.1ms spike", "F19 hairpin/progress probe false-positive hypothesis", "RADV PHOENIX coverage concentration"]
   },
+  "f20_route_cue_regression": {
+    "status": "pass",
+    "commits": ["58678dc", "29edca8"],
+    "videos_finished": {"meadow_desktop": 899, "meadow_mobile": 1002, "neon_desktop": 1169, "neon_mobile": 1508},
+    "page_errors": 0,
+    "vision": "zero stale route cue in all results samples",
+    "sol_session": "20260909_185139_3646fb"
+  },
   "fps_claim": false
 }
