@@ -3,7 +3,7 @@
 Data: 2026-09-09  
 Base: auditoria F11 com vídeo GPU + vision + Sol/xhigh  
 Sessão Sol: `20260909_060136_d785de`  
-Status release atual: **GO funcional; F12/F13/F14/F15/F16/F17/F18 aprovados; F19 é o próximo gate**
+Status release atual: **GO funcional; F12–F19 concluídos; auditoria final em execução**
 
 ## Evidência F11
 
@@ -185,19 +185,15 @@ O comportamento real do drift permanece sem evidência visual; patch agora seria
 - Sol F18 `20260909_121338_625cdf` (`gpt-5.6-sol`, `xhigh`): **PASS**, risco baixo.
 - Commits atômicos: `93bf042` input focus, `501b7fe` focus ring, `a80245a` harness.
 
-## F19 — Grounding e composição — P2
+## F19 — Grounding e composição — P2 — CONCLUÍDA / NO-CHANGE
 
-### Objetivo
+### Resultado
 
-Aumentar separação pista/cenário e grounding somente se A/B confirmar ganho real.
-
-### Critérios de aceitação
-
-- A/B isolado de sombra, skyline ou separação material;
-- ganho direcional nas quatro combinações;
-- sem círculo preto, haze, bloom excessivo ou custo injustificado;
-- vídeo e vision confirmam pista/kart como prioridade;
-- nenhuma alteração global sem owner e métrica.
+- Probe relativo progress/path: Meadow max `0.303m`, p95 `0.233m`; Neon max `1.79–1.84m`, p95 `0.55–0.61m`, padrão localizado compatível com falso positivo de hairpin/progress stale.
+- Vision GPU 4/4 não encontrou kart flutuando/embutido, sombra desconectada ou clipping de câmera; saltos/banking/respawn não foram visualmente exercitados.
+- `KartPhysics` já usa groundY relativo, clamp e ramp lift; nenhum patch de produto seguro foi identificado.
+- Sol F19 `20260909_122740_ffd5c9` (`gpt-5.6-sol`, `xhigh`): **NO-CHANGE**, risco médio-baixo.
+- Auditoria final obrigatória: saltos/banking/respawn, finished/pageErrors, frame pacing/DPR/buffer, build/AI/áudio, Sol final e HEAD remoto.
 
 ## Regras comuns de execução
 

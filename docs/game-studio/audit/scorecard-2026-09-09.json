@@ -192,6 +192,13 @@
     "sol_session": "20260909_121338_625cdf",
     "next_phase": "F19 grounding"
   },
-  "sol_validation": "pending",
+  "f19_grounding": {
+    "status": "no_change",
+    "probe": {"meadow_max_m": 0.303, "meadow_p95_m": 0.233, "neon_max_m": 1.84, "neon_p95_m": 0.61},
+    "vision": "4/4 no floating/embedded/shadow detached/camera clipping",
+    "sol_session": "20260909_122740_ffd5c9",
+    "next": "final audit"
+  },
+
   "fps_claim": false
 }
