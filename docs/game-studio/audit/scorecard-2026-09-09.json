@@ -52,6 +52,23 @@
     "residual_risk": "Meadow desktop frame-time p95 30.4 ms; hardware/browser coverage limited",
     "product_change": "none recommended"
   },
+  "f10_breakdown": {
+    "status": "diagnosed_no_product_change",
+    "meadow_ai_meshes": 1285,
+    "meadow_ai_geometry_triangles": 199650,
+    "meadow_render_triangles_median": 1009097,
+    "meadow_20s_p95_ms": 12.9,
+    "meadow_20s_max_ms": 30.2,
+    "neon_desktop_20s_p95_ms": 10.7,
+    "decision": "no LOD/instancing patch without paired visual/gameplay evidence"
+  },
+  "f10_sol_review": {
+    "status": "passed",
+    "session_id": "20260909_044944_2c5794",
+    "model": "gpt-5.6-sol",
+    "reasoning": "xhigh",
+    "verdict": "release GO; no safe LOD/instancing patch"
+  },
   "evidence": {
     "renderer": "ANGLE (AMD, Vulkan 1.4.318, AMD Radeon 780M Graphics (RADV PHOENIX), radv)",
     "tracks": ["meadow", "neon"],
