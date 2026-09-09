@@ -40,7 +40,7 @@ function percentile(values, p) {
       await page.goto(`${baseUrl}/?demo&track=${scenario.track}`, { waitUntil: 'domcontentloaded', timeout: 180000 });
       await page.waitForFunction(() => window.__sk3d?.renderer && window.__sk3d?.raceManager, null, { timeout: 180000 });
       await page.waitForTimeout(2500);
-      const data = await page.evaluate(async ({ duration, mode }) => {
+      const data = await page.evaluate(async ({ duration, mode, deviceDpr }) => {
         const game = window.__sk3d;
         if (mode === 'no-vignette') {
           const vignette = game.postfx?.composer?.passes?.find((pass) => pass.material?.uniforms?.offset && pass.material?.uniforms?.darkness);
@@ -109,7 +109,7 @@ function percentile(values, p) {
           triangles: { median: percentile(triangles, 0.50), max: triangles.length ? Math.max(...triangles) : null },
           wrapped,
         };
-      }, { duration: durationMs, mode });
+      }, { duration: durationMs, mode, deviceDpr: dpr });
       const result = { mode, dpr, scenario, ...data, pageErrors };
       results.push(result);
       fs.writeFileSync(path.join(outDir, `${scenario.name}.json`), `${JSON.stringify(result, null, 2)}\n`);
