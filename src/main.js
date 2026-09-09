@@ -1017,6 +1017,8 @@ function restartRace() {
 }
 
 function gotoMenu() {
+  raceManager.phase = 'idle';
+  raceManager.raceOver = false;
   setState(STATES.MENU);
   hud.hide();
   menu.show();
