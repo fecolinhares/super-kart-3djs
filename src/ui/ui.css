@@ -407,11 +407,17 @@ html, body {
 }
 
 .sk3d-position-player {
+  display: inline-block;
+  padding: 2px 6px 1px;
   font-size: 0.62rem;
   line-height: 1;
   font-weight: 900;
   letter-spacing: 0.16em;
-  color: rgba(20, 28, 40, 0.78);
+  color: #172033;
+  background: var(--sk3d-yellow);
+  border: 1px solid rgba(23, 32, 51, 0.34);
+  border-radius: 999px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
 }
 
 .sk3d-position-value {
