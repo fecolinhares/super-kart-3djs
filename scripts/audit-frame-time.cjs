@@ -94,7 +94,7 @@ function percentile(values, p) {
         const triangles = samples.map((s) => s.triangles).filter((n) => Number.isFinite(n));
         return {
           gpu,
-          deviceDpr: dpr,
+          deviceDpr,
           effectivePixelRatio: game.renderer.getPixelRatio(),
           drawingBuffer: { width: gl.drawingBufferWidth, height: gl.drawingBufferHeight },
           webgl: gl instanceof WebGL2RenderingContext ? 'webgl2' : 'webgl',
