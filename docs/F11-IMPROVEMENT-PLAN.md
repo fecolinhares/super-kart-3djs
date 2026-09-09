@@ -1,0 +1,131 @@
+# Super Kart 3D.js — Plano de melhorias F12–F17
+
+Data: 2026-09-09  
+Base: auditoria F11 com vídeo GPU + vision + Sol/xhigh  
+Sessão Sol: `20260909_060136_d785de`  
+Status release atual: **GO funcional no ambiente testado; UX premium ainda aberta**
+
+## Evidência F11
+
+- Meadow desktop: 887 frames, `finished`.
+- Meadow mobile: 937 frames, `finished`.
+- Neon desktop: 675 frames, `finished`.
+- Neon mobile: 850 frames, `finished`.
+- Renderer: RADV PHOENIX; `pageErrors=[]` em 4/4.
+- Vision: fluxo grid → race → results íntegro; `Turbo (You)` correto nos resultados; sem clipping maior confirmado.
+- Build: 44 módulos, passou.
+- AI: 20 seeds por pista, zero lost/backwards/crashes.
+- Áudio lifecycle GPU: `9/9 PASS`.
+- Frame pacing: Meadow20 p95 `12.9 ms`, máximo isolado `30.2 ms`; sem cauda persistente. Nenhum FPS foi inferido.
+
+## F12 — Identidade do player + semântica HUD — P1
+
+### Objetivo
+Tornar inequívoco qual kart é do jogador e o que significam gauge, counters e estados de item.
+
+### Escopo candidato
+
+- marcador discreto `YOU`/chevron acima do kart;
+- outline/underglow acessível e não dependente apenas de cor;
+- labels ou estados explícitos para velocidade, boost, item e contador;
+- consistência entre kart, HUD e results.
+
+### Critérios de aceitação
+
+- revisão cega reconhece o player em Meadow/Neon desktop/mobile sem explicação;
+- gauge e counters são compreendidos pelo estado visual, sem legenda externa;
+- player marker não cobre pista, kart, rivais ou HUD;
+- vídeo temporal inclui grid, pack racing, boost/item e results;
+- build, AI, pageErrors e áudio permanecem verdes.
+
+## F13 — Stress mobile de input/safe-area — P1/P2
+
+### Objetivo
+Validar interação real sob multitouch, cancelamento, blur, bordas e safe-area extrema.
+
+### Escopo candidato
+
+- steer + drift simultâneo;
+- steer + item/boost simultâneo;
+- pointer cancel/up fora do botão;
+- troca de foco/aba durante botão pressionado;
+- DPR2/DPR3 com canvas efetivo registrado;
+- aspect ratios portrait curtos e safe-area simulada.
+
+### Critérios de aceitação
+
+- zero controles presos após `pointerup`, cancel, blur ou mudança de fase;
+- zero overlap crítico e targets primários ≥44 px;
+- corrida completa nas duas pistas em mobile;
+- vídeo demonstra input e resultado, não somente screenshot;
+- nenhum ajuste reduz a prioridade visual de pista/kart.
+
+## F14 — Antecipação de rota e landmarks — P1/P2
+
+### Objetivo
+Comunicar curvas, splits, rampas e landmarks antes da entrada, sem esconder gameplay.
+
+### Escopo candidato
+
+- minimap/track ribbon, se necessário;
+- chevrons/placas de curva;
+- sector/checkpoint landmarks;
+- distinção visual entre pista, shoulder, item box e cenário;
+- sinais específicos para boost, hazard e shortcut.
+
+### Critérios de aceitação
+
+- curva complexa é legível antes da entrada em ambas as pistas;
+- direção não depende apenas de skyline/decoração;
+- guidance não encobre kart, pista, HUD ou rivais;
+- A/B GPU pareado comprova melhoria direcional em desktop/mobile;
+- nenhum aumento especulativo de glow global.
+
+## F15 — Ownership temporal de feedback — P2
+
+### Objetivo
+Distinguir origem, alvo, início e término de boost, item ganho/usado/recebido e VFX.
+
+### Critérios de aceitação
+
+- vídeo identifica quem ativou o evento;
+- evento tem começo e término discerníveis;
+- item held, item usado, impacto e efeito recebido não se confundem;
+- efeitos não escondem pista, HUD ou kart;
+- lifecycle de áudio permanece válido.
+
+## F16 — Results, foco e microtexto — P2
+
+### Objetivo
+Melhorar ação primária, foco de teclado/controller e legibilidade real do results.
+
+### Critérios de aceitação
+
+- focus inicial, foco visível e retorno de foco demonstrados por DOM/teclado;
+- `Race Again`/`Menu` têm hierarquia explícita;
+- leaderboard, `Turbo (You)`, time e botões legíveis em native mobile/desktop;
+- modal respeita safe-area e não depende de crop de contact sheet;
+- fluxo de keyboard/controller não depende somente da tecla `R`.
+
+## F17 — Grounding e composição — P2
+
+### Objetivo
+Aumentar separação pista/cenário e grounding somente se A/B confirmar ganho real.
+
+### Critérios de aceitação
+
+- A/B isolado de sombra, skyline ou separação material;
+- ganho direcional nas quatro combinações;
+- sem círculo preto, haze, bloom excessivo ou custo injustificado;
+- vídeo e vision confirmam pista/kart como prioridade;
+- nenhuma alteração global sem owner e métrica.
+
+## Regras comuns de execução
+
+1. Uma fase por vez; não misturar F12–F17 no mesmo patch.
+2. Antes de editar: probe que pode refutar o achado.
+3. Correção aceita somente com vídeo GPU desktop/mobile e vision temporal.
+4. Fases de diagnóstico podem terminar sem patch quando a hipótese for refutada.
+5. Cada correção aceita recebe commit atômico e push imediato.
+6. Após cada fase: build, AI, pageErrors, áudio quando aplicável, documentação, vault, wiki e memória.
+7. Rivais cortados, curb/grid occlusion, contact shadows genéricas e foco não são bugs até reprodução isolada.
