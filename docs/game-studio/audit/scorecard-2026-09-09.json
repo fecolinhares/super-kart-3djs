@@ -182,6 +182,16 @@
     {"priority": "P2", "owner": "Environment props", "gap": "Meadow straight-line rhythm and zone landmarks"},
     {"priority": "P2", "owner": "PostFX/particles", "gap": "emissive/VFX competition with kart silhouette"}
   ],
+  "f18_results_focus": {
+    "status": "pass",
+    "commits": ["93bf042", "501b7fe", "a80245a"],
+    "matrix": ["meadow_mobile", "neon_mobile", "meadow_desktop", "neon_desktop"],
+    "focus": "Race Again -> Tab Menu -> Shift+Tab Race Again -> Enter countdown",
+    "menu_state": "menu",
+    "page_errors": 0,
+    "sol_session": "20260909_121338_625cdf",
+    "next_phase": "F19 grounding"
+  },
   "sol_validation": "pending",
   "fps_claim": false
 }

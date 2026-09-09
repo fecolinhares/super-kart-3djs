@@ -3,7 +3,7 @@
 Data: 2026-09-09  
 Base: auditoria F11 com vídeo GPU + vision + Sol/xhigh  
 Sessão Sol: `20260909_060136_d785de`  
-Status release atual: **GO funcional; F12/F13/F14/F15/F16/F17 aprovados; F18 é o próximo gate**
+Status release atual: **GO funcional; F12/F13/F14/F15/F16/F17/F18 aprovados; F19 é o próximo gate**
 
 ## Evidência F11
 
@@ -174,19 +174,16 @@ O comportamento real do drift permanece sem evidência visual; patch agora seria
 - Sol F17 `20260909_115333_9d09d0` (`gpt-5.6-sol`, `xhigh`): **PASS**, risco baixo.
 - Nenhum patch de produto; o harness agora permite reproduzir o estado sem autopilot.
 
-## F18 — Results, foco e microtexto — P2
+## F18 — Results, foco e microtexto — P2 — CONCLUÍDA / PASS
 
-### Objetivo
+### Resultado
 
-Melhorar ação primária, foco de teclado/controller e legibilidade real do results.
-
-### Critérios de aceitação
-
-- focus inicial, foco visível e retorno de foco demonstrados por DOM/teclado;
-- `Race Again`/`Menu` têm hierarquia explícita;
-- leaderboard, `Turbo (You)`, time e botões legíveis em native mobile/desktop;
-- modal respeita safe-area e não depende de crop de contact sheet;
-- fluxo de keyboard/controller não depende somente da tecla `R`.
+- Corrigido consumo global de `Tab` e `Space`: agora só ocorre em `RACE/COUNTDOWN`; results recupera navegação nativa.
+- Corrigida regra visual `:focus-visible` para `.sk3d-finish-btn` e `.sk3d-menu-btn`.
+- Harness `scripts/results-focus-harness.cjs` versionado em `a80245a`; DOM passou Meadow/Neon desktop/mobile: foco inicial `Race Again`, Tab→`Menu`, Shift+Tab→`Race Again`, Enter→`countdown`, `gotoMenu()`→`state=menu`, errors zero.
+- Vision nativa Meadow mobile POST confirmou ring ciano distinto, `Turbo (You)`, safe-area e clipping PASS; demais combinações passaram DOM e captures results.
+- Sol F18 `20260909_121338_625cdf` (`gpt-5.6-sol`, `xhigh`): **PASS**, risco baixo.
+- Commits atômicos: `93bf042` input focus, `501b7fe` focus ring, `a80245a` harness.
 
 ## F19 — Grounding e composição — P2
 
