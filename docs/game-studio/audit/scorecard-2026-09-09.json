@@ -259,5 +259,17 @@
     "audio_failed": 0,
     "sol_session": "20260909_232003_cc0c89"
   },
+  "f24_mobile_identity_audit": {
+    "status": "no_change",
+    "metrics": {"lap_font_mobile_px": 15.2, "lap_font_desktop_px": 16.8, "touch_target_px": "64x64", "player_aria_label": true},
+    "videos_finished": {"meadow_mobile": 996, "neon_mobile": 1510, "meadow_desktop": 932, "neon_desktop": 1099},
+    "page_errors": 0,
+    "vision": "4/4 no functional regression; typography/identity observability backlog",
+    "ai_lost": 0,
+    "ai_backwards": 0,
+    "ai_crashes": 0,
+    "audio_failed": 0,
+    "sol_session": "20260909_234955_9c3d53"
+  },
   "fps_claim": false
 }

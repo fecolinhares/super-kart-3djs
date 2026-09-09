@@ -235,6 +235,14 @@ O comportamento real do drift permanece sem evidência visual; patch agora seria
 - Build44, AI zero, áudio9/9, pageErrors0; frame p95/max Md14.0/30.2 Mm11.0/14.1 Nd11.7/15.1 Nm9.6/14.0ms.
 - Sol `20260909_232003_cc0c89` (`gpt-5.6-sol`, `xhigh`): **PASS**; tipografia mobile e identity observability ficam no backlog.
 
+## F24 — legibilidade mobile e identidade — NO-CHANGE / PASS
+
+- Probe nativo 4/4: lap `15.2px` mobile/`16.8px` desktop; touch targets `64×64px`; `aria-label` de posição presente e autoritativo.
+- Vídeos humanos GPU Meadow/Neon d/m `996/1510/932/1099` frames, todos `finished`, errors0; vision4/4 não confirmou bug funcional.
+- Identity observability e tipografia mobile foram observações de UX, sem threshold ou regressão reproduzível; grounding, touch, lap e results passaram.
+- Build44, AI zero lost/backwards/crashes, áudio9/9, pageErrors0; frame p95/max Md14.0/30.2 Mm11.0/14.1 Nd11.7/15.1 Nm9.6/14.0ms.
+- Sol `20260909_234955_9c3d53` (`gpt-5.6-sol`, `xhigh`): **PASS**; NO-CHANGE, backlog preservado.
+
 1. Uma fase por vez; não misturar fases no mesmo patch.
 2. Antes de editar: probe que pode refutar o achado.
 3. Correção aceita somente com vídeo GPU desktop/mobile e vision temporal.
