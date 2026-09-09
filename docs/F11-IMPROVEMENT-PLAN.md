@@ -207,7 +207,18 @@ O comportamento real do drift permanece sem evidência visual; patch agora seria
 - Pacing final (frame-time p95/max): Meadow d/m `13.3/16.5ms`, `11.6/16.1ms`; Neon d/m `12.1/23.3ms`, `11.3/15.0ms`.
 - Build 44, AI zero lost/backwards/crashes, áudio `9/9`, DPR efetivo `1`, buffers desktop `1280×720` e mobile `390×844`.
 - Sol F20 `20260909_185139_3646fb` (`gpt-5.6-sol`, `xhigh`): **PASS**.
-## Regras comuns de execução
+## F21 — auditoria adversarial pós-F20 — PASS
+
+- Vision F21 inicial encontrou dois apontamentos úteis: results continuava animando e o display inicial podia mostrar `LAP 0/3`.
+- Probe confirmou results não-terminal: em 2s Meadow desktop player mudou `~60m`, câmera `~56m`, elapsed `~2s`.
+- Correção `f2ed57c`: `RaceManager` terminal, câmera/ambiente/vento/particles/skids congelados em `FINISHED`.
+- Probe pós-fix Meadow/Neon desktop/mobile: `elapsed`, posição e câmera delta `0` em 2s.
+- Probe DOM confirmou e correção `b9dda75`: `LAP 1/3` estável desde boot/countdown/GO; sem alterar contagem interna.
+- Vídeos humanos GPU pós-fix Meadow d/m `916/1007`, Neon d/m `1171/1508`; 4/4 `finished`, errors0; vision 4/4 sem stale overlay, results frozen, identity/grounding/touch/safe-area PASS.
+- Build 44, AI zero lost/backwards/crashes, áudio `9/9`, pageErrors0.
+- Frame-time p95/max: Meadow d/m `13.9/29.6ms`, `12.1/16.3ms`; Neon d/m `12.9/26.5ms`, `11.1/15.1ms`; não reportar FPS.
+- Sol F21 `20260909_212400_db0cae` (`gpt-5.6-sol`, `xhigh`): **PASS**, sem apontamento adicional reproduzível.
+
 
 1. Uma fase por vez; não misturar fases no mesmo patch.
 2. Antes de editar: probe que pode refutar o achado.

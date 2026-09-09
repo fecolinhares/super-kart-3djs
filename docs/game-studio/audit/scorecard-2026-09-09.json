@@ -222,5 +222,19 @@
     "vision": "zero stale route cue in all results samples",
     "sol_session": "20260909_185139_3646fb"
   },
+  "f21_adversarial_audit": {
+    "status": "pass",
+    "commits": ["f2ed57c", "b9dda75"],
+    "freeze_probe": "4/4 delta elapsed/player/camera = 0 over 2s",
+    "lap_probe": "LAP 1/3 stable boot/countdown/GO",
+    "videos_finished": {"meadow_desktop": 916, "meadow_mobile": 1007, "neon_desktop": 1171, "neon_mobile": 1508},
+    "page_errors": 0,
+    "vision": "4/4 pass",
+    "ai_lost": 0,
+    "ai_backwards": 0,
+    "ai_crashes": 0,
+    "audio_failed": 0,
+    "sol_session": "20260909_212400_db0cae"
+  },
   "fps_claim": false
 }
