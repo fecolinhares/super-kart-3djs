@@ -55,9 +55,25 @@ Tornar inequívoco qual kart é do jogador e o que significam gauge, counters e 
 - vídeo temporal inclui grid, pack racing, boost/item e results;
 - build, AI, pageErrors e áudio permanecem verdes.
 
-## F13 — Stress mobile de input/safe-area — P1/P2
+## F13 — Stress mobile de input/safe-area — P1/P2 — CONCLUÍDA
+
+### Resultado
+
+- `TouchControls.resetInput()` agora limpa steer esquerdo/direito, drift, item e classes visuais após blur/visibility loss.
+- Pause agora cancela corretamente `pointercancel`/`lostpointercapture` sem disparar pausa.
+- Commit: `c8a126b`.
+- Probes Meadow/Neon mobile DPR2: blur libera controles; pointercancel libera steer; pause não dispara; targets `64×64px`; margens laterais `20px` e inferiores `18–24px`; pageErrors zero.
+- Vídeos humanos Meadow/Neon mobile: `599` frames cada, ambos `finished`, errors zero; vision temporal confirmou countdown → race → results, touch/HUD/safe-area sem overlap/clipping.
+- Build 44 módulos, AI zero lost/backwards/crashes, áudio `9/9 PASS`.
+- Sol F13 `20260909_105618_8f080c` (`gpt-5.6-sol`, `xhigh`): **PASS**.
+
+### Risco residual
+
+O probe sintético não demonstrou dois ponteiros simultâneos mantidos ao mesmo tempo; o fluxo de ponteiro único, cancelamento, blur e vídeos de interação passaram.
+
 
 ### Objetivo
+
 Validar interação real sob multitouch, cancelamento, blur, bordas e safe-area extrema.
 
 ### Escopo candidato

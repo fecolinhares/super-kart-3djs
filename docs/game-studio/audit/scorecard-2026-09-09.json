@@ -95,6 +95,21 @@
     "sol_reasoning": "xhigh",
     "next_phase": "F13 mobile input and safe-area stress"
   },
+  "f13_mobile_input": {
+    "status": "pass",
+    "commit": "c8a126b",
+    "tracks": ["meadow", "neon"],
+    "videos": {"meadow_mobile": 599, "neon_mobile": 599},
+    "all_finished": true,
+    "page_errors": 0,
+    "probe": "blur/cancel reset; pause cancel safe; targets 64px; safe margins measured",
+    "vision": "temporal mobile pass",
+    "audio": "9/9 PASS",
+    "sol_session": "20260909_105618_8f080c",
+    "sol_model": "gpt-5.6-sol",
+    "sol_reasoning": "xhigh",
+    "next_phase": "F14 route anticipation and landmarks"
+  },
   "evidence": {
     "renderer": "ANGLE (AMD, Vulkan 1.4.318, AMD Radeon 780M Graphics (RADV PHOENIX), radv)",
     "tracks": ["meadow", "neon"],
