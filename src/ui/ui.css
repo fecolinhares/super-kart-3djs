@@ -365,6 +365,35 @@ html, body {
   visibility: hidden;
 }
 
+.sk3d-route-cue {
+  position: absolute;
+  z-index: 8;
+  top: calc(116px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 2px solid rgba(255, 209, 102, 0.9);
+  border-radius: 999px;
+  color: #fff8dc;
+  background: rgba(20, 28, 40, 0.84);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 0 18px rgba(255, 209, 102, 0.25);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.sk3d-route-cue-arrow {
+  color: var(--sk3d-yellow);
+  font-size: 1.35rem;
+  line-height: 0.8;
+}
+
 .sk3d-hud-top {
   position: absolute;
   top: calc(12px + env(safe-area-inset-top, 0px));

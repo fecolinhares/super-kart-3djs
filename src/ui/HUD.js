@@ -145,7 +145,8 @@ export class HUD {
           <div class="sk3d-finish-hint">or press R</div>
         </div>
       </div>
-      <div class="sk3d-toast sk3d-hidden" role="status"></div>`;
+      <div class="sk3d-toast sk3d-hidden" role="status"></div>
+      <div class="sk3d-route-cue sk3d-hidden" role="status" aria-live="polite"><span class="sk3d-route-cue-arrow">↶</span><span class="sk3d-route-cue-label">TURN LEFT</span></div>`;
 
     // MK8D bottom HUD: speedo + drift meter bottom-RIGHT; item slots + rank
     // plate bottom-LEFT (items stacked ABOVE the rank chip).
@@ -240,6 +241,9 @@ export class HUD {
     this.finishTimeEl = this.root.querySelector('.sk3d-finish-time');
     this.finishTrackEl = this.root.querySelector('.sk3d-finish-track');
     this.toastEl = this.root.querySelector('.sk3d-toast');
+    this.routeCueEl = this.root.querySelector('.sk3d-route-cue');
+    this.routeCueArrowEl = this.root.querySelector('.sk3d-route-cue-arrow');
+    this.routeCueLabelEl = this.root.querySelector('.sk3d-route-cue-label');
     this.toastEl.setAttribute('aria-live', 'polite'); // toast only (root was too chatty)
 
     this.countdownTimer = 0;
@@ -259,6 +263,8 @@ export class HUD {
 
     // Circular minimap — sits between the left chips and the race clock.
     this._mm = this.buildMinimap(track);
+    this._trackPath = track && track.path;
+    this._trackLength = Number(track && track.length) || 0;
     if (this._mm) {
       // Minimap sits in the TOP-RIGHT corner group (left of the coin counter),
       // so it never covers the finish gantry / action in screen center.
@@ -650,6 +656,25 @@ export class HUD {
     this.root.classList.add('sk3d-hidden');
   }
 
+  _updateRouteCue(player) {
+    if (!this.routeCueEl || !this._trackPath || !player || typeof player.progress01 !== 'number') return;
+    const t = ((player.progress01 % 1) + 1) % 1;
+    const lookAhead = 0.035;
+    const a = this._trackPath.getTangentAt(t);
+    const b = this._trackPath.getTangentAt((t + lookAhead) % 1);
+    const cross = a.z * b.x - a.x * b.z;
+    const dot = Math.max(-1, Math.min(1, a.x * b.x + a.z * b.z));
+    const turnDeg = Math.atan2(cross, dot) * 180 / Math.PI;
+    const visible = Math.abs(turnDeg) >= 12;
+    this.routeCueEl.classList.toggle('sk3d-hidden', !visible);
+    if (!visible) return;
+    const left = turnDeg < 0;
+    this.routeCueArrowEl.textContent = left ? '↶' : '↷';
+    this.routeCueLabelEl.textContent = left ? 'TURN LEFT' : 'TURN RIGHT';
+    const distance = this._trackLength > 0 ? Math.max(0, Math.round(this._trackLength * lookAhead)) : 0;
+    this.routeCueEl.setAttribute('aria-label', `${left ? 'Turn left' : 'Turn right'} ahead${distance ? ` in ${distance} meters` : ''}`);
+  }
+
   /**
    * Per-frame update. Reads rank/lap/time/speed/item from the race state.
    * @param {object} raceManager RaceManager instance (elapsed, player, ...)
@@ -746,6 +771,8 @@ export class HUD {
     if (coins < this._coins) this.flashCoinLoss(this._coins - coins);
     this.setCoins(coins);
 
+    // Route anticipation cue: only appears for a meaningful bend ahead.
+    this._updateRouteCue(player);
     // Minimap dots (karts + active items).
     this._updateMinimap(raceManager, karts);
   }
