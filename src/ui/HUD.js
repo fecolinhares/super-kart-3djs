@@ -1090,6 +1090,7 @@ export class HUD {
     const rows = (standings && standings.length ? standings : [{ position: place, kart: null, totalTime: time }]);
     this._renderFinishStandings(rows);
     this.finishEl.classList.remove('sk3d-hidden');
+    this.routeCueEl?.classList.add('sk3d-hidden');
     this.root.classList.add('sk3d-finish-active');
     this.finishBtnEl?.focus({ preventScroll: true });
     clearTimeout(this.toastTimer);
