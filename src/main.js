@@ -638,6 +638,7 @@ function disarmRear() {
 
 function clearTransientInput() {
   keys.clear();
+  touch?.resetInput?.();
   touchSteer = 0;
   touchDrift = false;
   swapQueued = false;

@@ -68,6 +68,8 @@ export class TouchControls {
       if (performance.now() - pausePointerAt < 800) triggerPause();
       pausePointerAt = -Infinity;
     });
+    this.pauseBtn.addEventListener('pointercancel', () => { pausePointerAt = -Infinity; });
+    this.pauseBtn.addEventListener('lostpointercapture', () => { pausePointerAt = -Infinity; });
     this.pauseBtn.addEventListener('touchend', (e) => {
       e.preventDefault();
       triggerPause();
@@ -146,6 +148,18 @@ export class TouchControls {
     button.addEventListener('pointercancel', release);
     button.addEventListener('pointerleave', release);
     button.addEventListener('contextmenu', (e) => e.preventDefault());
+  }
+
+  resetInput() {
+    this._steerPressed.left = false;
+    this._steerPressed.right = false;
+    this.steerValue = 0;
+    this.leftBtn.classList.remove('is-active');
+    this.rightBtn.classList.remove('is-active');
+    this.driftBtn.classList.remove('is-active');
+    this.itemBtn.classList.remove('is-active');
+    this.onSteer(0);
+    this.onDrift(false);
   }
 
   bindItem(button) {
