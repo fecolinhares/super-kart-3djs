@@ -147,6 +147,16 @@
     "sol_reasoning": "xhigh",
     "next_phase": "F17 manual deterministic drift harness"
   },
+  "f17_manual_drift_harness": {
+    "status": "pass",
+    "commit": "0a3aeba",
+    "player_ai": false,
+    "videos": {"meadow_mobile": 902, "neon_mobile": 901, "meadow_desktop": 901, "neon_desktop": 901},
+    "page_errors": 0,
+    "ready_max_percent": {"meadow_mobile": 41, "meadow_desktop": 44, "neon_mobile": 88, "neon_desktop": 86},
+    "sol_session": "20260909_115333_9d09d0",
+    "next_phase": "F18 results/focus/restart"
+  },
   "evidence": {
     "renderer": "ANGLE (AMD, Vulkan 1.4.318, AMD Radeon 780M Graphics (RADV PHOENIX), radv)",
     "tracks": ["meadow", "neon"],

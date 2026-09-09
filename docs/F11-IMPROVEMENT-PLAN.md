@@ -3,7 +3,7 @@
 Data: 2026-09-09  
 Base: auditoria F11 com vídeo GPU + vision + Sol/xhigh  
 Sessão Sol: `20260909_060136_d785de`  
-Status release atual: **GO funcional; F12/F13/F14/F15/F16 aprovados; F17 é o próximo gate**
+Status release atual: **GO funcional; F12/F13/F14/F15/F16/F17 aprovados; F18 é o próximo gate**
 
 ## Evidência F11
 
@@ -162,18 +162,17 @@ F17: criar harness manual determinístico de drift; reabrir landmarks apenas se 
 
 O comportamento real do drift permanece sem evidência visual; patch agora seria especulativo e poderia fabricar estado apenas para QA.
 
-## F17 — Harness manual determinístico de drift — P1/P2
+## F17 — Harness manual determinístico de drift — P1/P2 — CONCLUÍDA / PASS
 
-### Objetivo
+### Resultado
 
-Reproduzir sem `?demo`/autopilot: aceleração válida, direção + drift, carga do meter, estado ready e release em Meadow/Neon desktop/mobile.
-
-### Critérios de aceitação
-
-- harness registra input, estado físico, HUD, partículas e `pageErrors`;
-- vídeo mostra `charging → ready → release` e eventual mini-boost;
-- áudio lifecycle segue verde;
-- só aplicar patch se uma falha real for reproduzida; caso contrário, NO-CHANGE.
+- Harness versionado em `scripts/manual-drift-harness.cjs`, sem `?demo`/autopilot.
+- Meadow/Neon desktop/mobile: `playerAI=false`, 23 ciclos, cerca de 900 frames por vídeo, `pageErrors=[]`.
+- Meter visível temporalmente: Meadow mobile/desktop `70/74` amostras, máximo `41/44%`; Neon mobile/desktop `147/144`, máximo `88/86%`, classe ready em 4 amostras por cenário.
+- DOM nativo Neon mobile: meter `104×15px`, `display:block`, `visibility:visible`, `opacity:1`; carga `7→16→25→34→43%` e ready `79%`.
+- Vision não leu o meter nas pranchas por escala, mas o frame nativo/DOM/timeline refutaram falha funcional.
+- Sol F17 `20260909_115333_9d09d0` (`gpt-5.6-sol`, `xhigh`): **PASS**, risco baixo.
+- Nenhum patch de produto; o harness agora permite reproduzir o estado sem autopilot.
 
 ## F18 — Results, foco e microtexto — P2
 
