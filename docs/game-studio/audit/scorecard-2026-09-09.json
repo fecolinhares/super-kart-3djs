@@ -10,6 +10,23 @@
     "verdict": "release candidate aprovado no ambiente testado",
     "qualifiers": ["mobile HUD denso durante boost", "elementos próximos às bordas", "DPR alto e frame pacing não cobertos"]
   },
+  "f7_stress": {
+    "status": "passed_with_targeted_fix",
+    "commit": "e9cb17f",
+    "fix": "Neon mobile turbo pad glow scale 0.58; desktop/Meadow unchanged",
+    "captures": ["Meadow mobile DPR2 finished 936 frames", "Meadow mobile DPR3 finished 942 frames", "Neon mobile DPR2 finished 884 frames", "Neon mobile DPR3 finished 838 frames", "Meadow desktop finished 408 frames", "Neon desktop finished 688 frames"],
+    "renderer": "RADV PHOENIX",
+    "page_errors": 0,
+    "audio": "9/9 PASS"
+  },
+  "f7_sol_review": {
+    "status": "passed",
+    "session_id": "20260909_005524_89196b",
+    "model": "gpt-5.6-sol",
+    "reasoning": "xhigh",
+    "verdict": "patch e9cb17f aprovado",
+    "risks": ["microtexto não auditado", "DPR3 canvas 780x1688 por cap", "FPS/frame pacing sem medição"]
+  },
   "evidence": {
     "renderer": "ANGLE (AMD, Vulkan 1.4.318, AMD Radeon 780M Graphics (RADV PHOENIX), radv)",
     "tracks": ["meadow", "neon"],
