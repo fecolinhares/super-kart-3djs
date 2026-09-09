@@ -1678,6 +1678,10 @@ html, body {
     min-width: 64px;
     min-height: 46px;
   }
+  .sk3d-position-player {
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+  }
 
   .sk3d-hud-bottom {
     left: 8px;
