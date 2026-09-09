@@ -27,6 +27,18 @@
     "verdict": "patch e9cb17f aprovado",
     "risks": ["DPR3 canvas 780x1688 por cap", "FPS/frame pacing sem medição"]
   },
+  "f8_frame_pacing": {
+    "status": "measured_no_product_change",
+    "commit": "b787d7e",
+    "renderer": "RADV PHOENIX",
+    "dpr1_p95_frame_ms": {"meadow_desktop": 13.1, "meadow_mobile": 11.2, "neon_desktop": 11.0, "neon_mobile": 9.6},
+    "dpr3_p95_frame_ms": {"meadow_desktop": 30.4, "meadow_mobile": 12.0, "neon_desktop": 15.3, "neon_mobile": 11.3},
+    "dpr3_p50_frame_ms": {"meadow_desktop": 14.2, "meadow_mobile": 10.3, "neon_desktop": 12.1, "neon_mobile": 8.7},
+    "effective_pixel_ratio": 2,
+    "drawing_buffer": {"desktop": "2560x1440", "mobile": "780x1688"},
+    "page_errors": 0,
+    "decision": "keep pixelRatio cap 2; device DPR3 is explicitly measured as effective DPR2; do not raise to 3 without stronger evidence"
+  },
   "evidence": {
     "renderer": "ANGLE (AMD, Vulkan 1.4.318, AMD Radeon 780M Graphics (RADV PHOENIX), radv)",
     "tracks": ["meadow", "neon"],
