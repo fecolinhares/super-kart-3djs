@@ -3,7 +3,7 @@
 Data: 2026-09-09  
 Base: auditoria F11 com vídeo GPU + vision + Sol/xhigh  
 Sessão Sol: `20260909_060136_d785de`  
-Status release atual: **GO funcional; F12–F19 concluídos; auditoria final em execução**
+Status release atual: **GO final no ambiente testado; F12–F19 concluídos; auditoria final aprovada**
 
 ## Evidência F11
 

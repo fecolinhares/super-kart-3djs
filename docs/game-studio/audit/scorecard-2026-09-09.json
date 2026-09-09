@@ -200,5 +200,19 @@
     "next": "final audit"
   },
 
+  "final_audit": {
+    "verdict": "GO",
+    "sol_session": "20260909_123402_26ce84",
+    "model": "gpt-5.6-sol",
+    "reasoning": "xhigh",
+    "videos_finished": 4,
+    "page_errors": 0,
+    "ai_lost": 0,
+    "ai_backwards": 0,
+    "ai_crashes": 0,
+    "audio_failed": 0,
+    "frame_pacing_ms": {"meadow_desktop": {"p95": 14.1, "max": 31.4}, "meadow_mobile": {"p95": 11.4, "max": 14.9}, "neon_desktop": {"p95": 12.5, "max": 42.1}, "neon_mobile": {"p95": 10.0, "max": 27.3}},
+    "risks": ["isolated Neon desktop 42.1ms spike", "F19 hairpin/progress probe false-positive hypothesis", "RADV PHOENIX coverage concentration"]
+  },
   "fps_claim": false
 }
