@@ -39,6 +39,19 @@
     "page_errors": 0,
     "decision": "keep pixelRatio cap 2; device DPR3 is explicitly measured as effective DPR2; do not raise to 3 without stronger evidence"
   },
+  "f9_final_audit": {
+    "status": "go_for_release",
+    "session_id": "20260909_042024_5de8b2",
+    "model": "gpt-5.6-sol",
+    "reasoning": "xhigh",
+    "captures": {"meadow_desktop": 888, "meadow_mobile": 931, "neon_desktop": 694, "neon_mobile": 819},
+    "all_finished": true,
+    "page_errors": 0,
+    "vision": "4/4 pass",
+    "audio": "9/9 PASS",
+    "residual_risk": "Meadow desktop frame-time p95 30.4 ms; hardware/browser coverage limited",
+    "product_change": "none recommended"
+  },
   "evidence": {
     "renderer": "ANGLE (AMD, Vulkan 1.4.318, AMD Radeon 780M Graphics (RADV PHOENIX), radv)",
     "tracks": ["meadow", "neon"],
