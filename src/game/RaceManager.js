@@ -364,7 +364,9 @@ export class RaceManager {
   // -------------------------------------------------------------------------
 
   update(dt) {
-    if (this.phase === 'idle') return;
+    // FINISHED is a terminal presentation state. Keep the final kart/camera
+    // pose and race clock stable; only the UI loop may continue rendering.
+    if (this.phase === 'idle' || this.phase === 'finished') return;
 
     this.elapsed += dt;
 
