@@ -1,7 +1,15 @@
 {
   "project": "Super Kart 3D.js",
   "date": "2026-09-09",
-  "status": "provisional_sol_xhigh_blocked_after_three_timeouts",
+  "status": "release_candidate_sol_validated_with_mobile_qualifiers",
+  "sol_validation": {
+    "status": "passed",
+    "session_id": "20260909_002200_cbc249",
+    "model": "gpt-5.6-sol",
+    "reasoning": "xhigh",
+    "verdict": "release candidate aprovado no ambiente testado",
+    "qualifiers": ["mobile HUD denso durante boost", "elementos próximos às bordas", "DPR alto e frame pacing não cobertos"]
+  },
   "evidence": {
     "renderer": "ANGLE (AMD, Vulkan 1.4.318, AMD Radeon 780M Graphics (RADV PHOENIX), radv)",
     "tracks": ["meadow", "neon"],
