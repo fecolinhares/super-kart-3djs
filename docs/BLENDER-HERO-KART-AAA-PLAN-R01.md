@@ -28,6 +28,12 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R17 — vision próprio rejeita personagem — 2026-09-10
+- Aplicados P0 derivados do Sol: cadeia anatômica, câmera de clearance recuada, pescoço, face interna, casco menor, mãos/volante e para-brisa frontal.
+- Vision próprio continua **REJEITANDO**: piloto lê como manequim procedural, braços/mãos e torso não têm anatomia AAA, capacete ainda desproporcional/sem vestibilidade convincente em contexto e clearance não comprova uma pose natural sem oclusão.
+- Após múltiplas correções incrementais, hipótese rejeitada: adicionar esferas/tubos ao blockout não resolve. Próxima etapa precisa reconstruir o personagem como asset coerente (pelvis/torso/ombros/braços/mãos/cabeça/casco) e separar o cockpit em uma composição de revisão dedicada.
+- Não pedir nova validação Sol enquanto o meu vision não passar; não integrar nem enviar como aprovado.
+
 ## Diagnóstico Sol acionável — cockpit — 2026-09-10
 - Sessão `20260910_091420_95e211`, `gpt-5.6-sol`, `xhigh`, vision; nenhum arquivo editado pelo Sol.
 - Ordem espacial exigida: carenagem frontal → base/painel do para-brisa → aro/cubo → mãos envolvendo o aro → antebraços → queixeira/viseira → face dentro da abertura → crânio/casco → encosto.
