@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R27 — para-brisa rejeitado pelo Sol — 2026-09-10
+- R27 adicionou superfície de 9×3 seções com arco quadrático forte em planta e perfil, `Solidify`, `Bevel` e render dedicado `windshield-profile.png`.
+- Vision próprio: **APROVAR** o para-brisa; o perfil mostra arco e espessura suficientes para leitura de defletor.
+- Sol `gpt-5.6-sol`, `xhigh`, sessão `20260910_102322_44b604`: **REJEITAR**; o painel ainda aparenta placa escura/plana/angular, sem curvatura 3D, transparência ou ancoragem convincente.
+- A análise tripla anterior (`20260910_102210_63fa19`) falhou por `Broken pipe`; somente a análise mínima retornou veredito.
+- Estado: WIP salvo, sem aprovação dupla. Próxima hipótese: abandonar a lâmina como painel e usar uma geometria de arco/visor com perfil lateral explicitamente curvo e enquadramento dedicado.
+
 ## R25 — para-brisa rejeitado novamente pelo Sol — 2026-09-10
 - Implementada superfície de nove seções com arco quadrático forte em planta/topo, centro avançado e laterais retornadas; Blender executou e renderizou beauty/top.
 - Vision próprio: ainda não comprova o arco com segurança no beauty; top mostra o volume, mas o cockpit fica comprimido.
