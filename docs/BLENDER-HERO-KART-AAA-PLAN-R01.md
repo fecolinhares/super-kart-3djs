@@ -31,6 +31,11 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 ## Evidência Sol
 Sessão de planejamento: `20260910_040509_cc8ad5`, `gpt-5.6-sol`, `xhigh`.
 
+## Execução Sol direta — 2026-09-10 — bloqueada
+- Tentativa corrigida via CLI direta com `gpt-5.6-sol`, `xhigh`, `--safe-mode` e `terminal,file,vision`.
+- Houve escrita transitória de `assets/hero-kart-v2/renders/`, mas após ~13m40s não havia Blender ativo nem `.blend`, script, render final, métricas ou commit; o processo foi encerrado para evitar processo zumbi.
+- O runner Blender/SSH permanece saudável; o bloqueio está na execução do agente Sol, que não conclui a primeira cadeia de ferramentas.
+
 ## Execução Default → Sol — 2026-09-10 — bloqueio confirmado
 - O `default` verificou runner Blender/SSH saudável; o bloqueio não é GPU, RAM ou Blender.
 - Mesmo com `--safe-mode`, `--yolo`, `terminal/file/vision`, `gpt-5.6-sol` e `xhigh`, o Sol não executou a primeira ferramenta dentro do orçamento.
