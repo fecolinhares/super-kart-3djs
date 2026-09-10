@@ -13,7 +13,8 @@
 - [x] G5 — Artefatos, métricas e documentação coerentes com R72; runtime não integrado.
   CHECK: python3 -c "import json; d=json.load(open('assets/hero-kart-v2/R72/p0-metrics.json')); assert d['revision']=='R72' and d['all_pass'] and d['windshield_mount_count']==4"
   EXPECT: métricas R72 all_pass e 4 mounts
+  EVIDENCE: comando Python passou: revision=R72, all_pass=True, windshield_mount_count=4; runtime não integrado.
 - [x] G6 — Commits atômicos, push após cada commit e origin/main verificado.
-  EVIDENCE: commit 80d2cdf publicado em origin/main; commit de fechamento dos gates será verificado abaixo; working tree esperado limpo após push.
+  EVIDENCE: commits 80d2cdf e 01297d1 publicados; git ls-remote confirmou 01297d1 em refs/heads/main.
 - [x] G7 — Memória, vault e wiki atualizados sem secrets.
   EVIDENCE: memória atualizada com R72 e sessão Sol; vault `default/Hero-Kart-V2.md` e wiki default/coding (entidade, índices e logs) atualizados; nenhuma credencial registrada.
