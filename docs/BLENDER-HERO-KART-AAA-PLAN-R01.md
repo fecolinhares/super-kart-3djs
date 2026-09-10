@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R41 — monocoque fechada rejeitada pelo vision — 2026-09-10
+- Implementada a terceira via do Sol como casca fechada fina, 18 vértices/8 quads, Alpha=1/Transmission=0, dois apoios e sem face inferior.
+- Blender executou e renderizou beauty/profile, mas vision próprio **REJEITOU**: a peça continua lendo como painel horizontal/plano e o perfil não mostra um para-brisa funcional; personagem segue com anatomia/capacete de manequim procedural.
+- Sol não foi chamado nesta rodada porque meu gate falhou.
+- Hipótese confirmada: o bloco procedural atual não consegue atingir a leitura AAA solicitada por ajustes locais. Próxima etapa requer reconstrução dedicada do cockpit e piloto, com geometria de vidro/visor independente e views de revisão específicas.
+- Estado: WIP preservado; sem aprovação dupla e sem envio ao Feco.
+
 ## R40 — solução Sol monocoque curta rejeitada — 2026-09-10
 - A viseira foi reduzida para 18 vértices/8 quads, dois apoios e material fumê opaco conforme o plano do Sol.
 - Vision próprio: **REJEITAR**. O resultado virou uma placa horizontal diante do peito, não um para-brisa; piloto/volante/capacete ficaram mais comprometidos na composição.
