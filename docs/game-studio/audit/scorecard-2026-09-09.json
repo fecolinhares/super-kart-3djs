@@ -271,5 +271,19 @@
     "audio_failed": 0,
     "sol_session": "20260909_234955_9c3d53"
   },
+  "blender_asset_backlog": {
+    "status": "documented",
+    "source": "gpt-5.6-sol",
+    "sol_session": "20260910_000044_71e2ac",
+    "priorities": {
+      "P0": ["hero_kart", "ramps_boost_pads", "neon_skyline"],
+      "P1": ["signs_chevrons", "meadow_landmarks_foliage"],
+      "P2": ["start_finish_gantry", "item_boxes"],
+      "P3": ["guardrails_roadside_props"]
+    },
+    "document": "docs/BLENDER-ASSET-BACKLOG.md",
+    "hud_physics_postfx_excluded": true,
+    "first_asset": "hero_kart"
+  },
   "fps_claim": false
 }

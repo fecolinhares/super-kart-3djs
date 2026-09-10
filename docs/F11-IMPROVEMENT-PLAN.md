@@ -243,6 +243,8 @@ O comportamento real do drift permanece sem evidência visual; patch agora seria
 - Build44, AI zero lost/backwards/crashes, áudio9/9, pageErrors0; frame p95/max Md14.0/30.2 Mm11.0/14.1 Nd11.7/15.1 Nm9.6/14.0ms.
 - Sol `20260909_234955_9c3d53` (`gpt-5.6-sol`, `xhigh`): **PASS**; NO-CHANGE, backlog preservado.
 
+- Sol `20260910_000044_71e2ac` (`gpt-5.6-sol`, `xhigh`): backlog ordenado em `docs/BLENDER-ASSET-BACKLOG.md`; P0 kart herói, rampas/boost e skyline Neon; P1 sinais/chevrons e landmarks Meadow; P2 gantry/item box; P3 guardrails/props. HUD/física/pós-processamento ficam fora do Blender.
+
 1. Uma fase por vez; não misturar fases no mesmo patch.
 2. Antes de editar: probe que pode refutar o achado.
 3. Correção aceita somente com vídeo GPU desktop/mobile e vision temporal.
