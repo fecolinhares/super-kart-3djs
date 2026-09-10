@@ -1,20 +1,46 @@
-# Hero Kart V2 — R72 aprovação dupla
+# Hero Kart V2 — R73 reconstrução radical e aprovação dupla
+Escopo: substituir integralmente o conjunto visual R72 rejeitado; sem integração de runtime.
 
-- [x] G1 — R72 build e render executados no runner Blender 4.0.2.
-  CHECK: test -s assets/hero-kart-v2/R72/hero-kart-v2-R72.blend && test -s assets/hero-kart-v2/R72/renders/beauty.png && test -s assets/hero-kart-v2/R72/renders/windshield-profile.png && test -s assets/hero-kart-v2/R72/renders/windshield-top.png && test -s assets/hero-kart-v2/R72/renders/driver-clearance.png
-  EXPECT: artefatos R72 presentes e não vazios
-  EVIDENCE: build/render rc 0; HERO_KART_V2_BUILD_OK; HERO_KART_V2_RENDER_SET_OK R72; 1135 objetos
-- [x] G2 — Vision próprio aprova as quatro vistas R72.
-  EVIDENCE: PASS em beauty, windshield-profile, windshield-top e driver-clearance; clearance corrigido após erro de caminho e aprovado.
-- [x] G3 — Sol gpt-5.6-sol + xhigh aprova a mesma R72.
-  EVIDENCE: APROVAR; sessão 20260910_193958_abf7e5 / Sol reportou sessão 20260910_194209_18c560; modelo gpt-5.6-sol, provider openai-codex, reasoning xhigh, rc 0; 4/4 renders e 6/6 gates visuais.
-- [x] G4 — Falhas R69/R70/R71 tratadas com avanço para R72.
-  EVIDENCE: R69 rejeitada por legibilidade; R70 rejeitada por clamps/caminho/clearance; R71 própria rejeitada por obstrução no clearance; R72 corrigiu e recebeu aprovação dupla.
-- [x] G5 — Artefatos, métricas e documentação coerentes com R72; runtime não integrado.
-  CHECK: python3 -c "import json; d=json.load(open('assets/hero-kart-v2/R72/p0-metrics.json')); assert d['revision']=='R72' and d['all_pass'] and d['windshield_mount_count']==4"
-  EXPECT: métricas R72 all_pass e 4 mounts
-  EVIDENCE: comando Python passou: revision=R72, all_pass=True, windshield_mount_count=4; runtime não integrado.
-- [x] G6 — Commits atômicos, push após cada commit e origin/main verificado.
-  EVIDENCE: commits 80d2cdf e 01297d1 publicados; git ls-remote confirmou 01297d1 em refs/heads/main.
-- [x] G7 — Memória, vault e wiki atualizados sem secrets.
-  EVIDENCE: memória atualizada com R72 e sessão Sol; vault `default/Hero-Kart-V2.md` e wiki default/coding (entidade, índices e logs) atualizados; nenhuma credencial registrada.
+- [ ] G1 — R73 elimina a geometria R72 proibida e cria windshield pequeno integrado ao cowl
+  CHECK: python3 - <<'PY'
+from pathlib import Path
+s=Path('scripts/blender/hero_kart_v2_build.py').read_text()
+forbidden=['WindshieldLowerCrossbar','WindshieldLowerHeader','WindshieldUpperHeader','WindshieldNosePlinth','WindshieldClampBlock','WindshieldUpperClampBlock','WindshieldBaseLink','SteeringLowerGrip','SteeringDashBracket','SteeringDashFlange']
+required=['R73','KartWindshieldLens','KartWindshieldFrame','FlushWindshieldFastener','DSteeringRing','SteeringHub','SteeringColumn']
+print('R73_SOURCE_OK' if all(x in s for x in required) and not any(x in s for x in forbidden) else 'R73_SOURCE_FAIL')
+PY
+  EXPECT: R73_SOURCE_OK
+  EVIDENCE: pending
+
+- [ ] G2 — Blender 4.0.2 executa R73 sem traceback e salva blend/report
+  CHECK: test -s assets/hero-kart-v2/R73/hero-kart-v2-R73.blend && test -s assets/hero-kart-v2/R73/build-report.json
+  EXPECT: artefatos R73 presentes e não vazios
+  EVIDENCE: pending
+
+- [ ] G3 — Beauty/profile/top/clearance da mesma R73 existem
+  CHECK: test -s assets/hero-kart-v2/R73/renders/beauty.png && test -s assets/hero-kart-v2/R73/renders/windshield-profile.png && test -s assets/hero-kart-v2/R73/renders/windshield-top.png && test -s assets/hero-kart-v2/R73/renders/driver-clearance.png
+  EXPECT: quatro PNGs R73 não vazios
+  EVIDENCE: pending
+
+- [ ] G4 — Auditoria geométrica R73 passa sem blocos/canopy alto/pedestal e com clearance mensurável
+  CHECK: python3 - <<'PY'
+import json
+p=json.load(open('assets/hero-kart-v2/R73/p0-metrics.json'))
+print('R73_METRICS_PASS' if p.get('all_pass') and p.get('revision')=='R73' and p.get('windshield_mount_count')==2 and p.get('steering_d_shape') else 'R73_METRICS_FAIL')
+PY
+  EXPECT: R73_METRICS_PASS
+  EVIDENCE: pending
+
+- [ ] G5 — Vision próprio inspeciona os quatro arquivos R73 e aprova sem auto-relato
+  EVIDENCE: pending
+
+- [ ] G6 — Sol gpt-5.6-sol + xhigh inspeciona os mesmos quatro arquivos após vision próprio e aprova
+  EVIDENCE: pending
+
+- [ ] G7 — Repo, vault, wiki/entity/index/log e memória atualizados sem secrets
+  EVIDENCE: pending
+
+- [ ] G8 — Cada commit atômico foi pushado e remote main coincide com HEAD
+  CHECK: test "$(git rev-parse HEAD)" = "$(git ls-remote origin refs/heads/main | cut -f1)"
+  EXPECT: HEAD publicado em origin/main
+  EVIDENCE: pending

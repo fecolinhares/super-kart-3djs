@@ -215,3 +215,9 @@ Sessão de planejamento: `20260910_040509_cc8ad5`, `gpt-5.6-sol`, `xhigh`.
 - A segunda sessão começou e criou somente `assets/hero-kart-v2/GATES.md`; após aproximadamente 750 s não havia `.blend`, script ou render e o processo foi encerrado por timeout operacional.
 - Nenhuma aprovação visual foi emitida. Nenhum asset foi exportado ou integrado ao runtime.
 - Estado de retomada: executar a modelagem customizada no runner Blender com sessão Sol funcional; somente depois validar com vision, salvar o `.blend` no repo e fazer commits/push.
+
+## R80 — reconstrução de capacete/volante rejeitada — 2026-09-10
+- R80 removeu duplicações de capacete, trocou shell por casco compacto, fechou aro D e reduziu hub/coluna; para-brisa permaneceu baixo no cowl.
+- Vision próprio: **REJEITAR**. Para-brisa ainda lê como placa suspensa; capacete como esfera/goggles sem full-face natural; volante/mãos continuam artificiais.
+- Sol não foi chamado porque o gate próprio falhou.
+- Hipótese confirmada: reconstrução dedicada de cockpit/personagem é necessária; não mais ajustes locais.
