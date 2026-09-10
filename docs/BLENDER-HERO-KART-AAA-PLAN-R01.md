@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R42 — viseira fumê clara rejeitada — 2026-09-10
+- Aplicada a terceira via solicitada ao Sol: casca fechada curta, material Principled opaco claro, sem alpha/transmission, dois apoios e highlight.
+- Blender executou e renderizou; vision próprio **REJEITOU**: a peça lê como lâmina/console horizontal diante dos braços, não para-brisa funcional; piloto/capacete ficaram legíveis, mas o cockpit perdeu proporção.
+- Sol não foi chamado nesta R42 porque o gate próprio falhou.
+- Hipótese confirmada: o bloco procedural atual mistura a viseira com o plano do volante; próxima etapa precisa de um asset dedicado de cockpit/para-brisa com ângulo de montagem e câmera próprios, não novas variações de material.
+- WIP preservado; sem aprovação dupla.
+
 ## R41 — monocoque fechada rejeitada pelo vision — 2026-09-10
 - Implementada a terceira via do Sol como casca fechada fina, 18 vértices/8 quads, Alpha=1/Transmission=0, dois apoios e sem face inferior.
 - Blender executou e renderizou beauty/profile, mas vision próprio **REJEITOU**: a peça continua lendo como painel horizontal/plano e o perfil não mostra um para-brisa funcional; personagem segue com anatomia/capacete de manequim procedural.
