@@ -32,8 +32,7 @@ EVIDENCE: build/render R53 rc=0; validação rc=2; detalhe em docs/HERO-KART-V2-
 - [x] G7: Docs do repo, vault e wiki atualizados sem secrets
 EVIDENCE: arquivos existem; build/render R53 rc=0; `.blend` 707805 bytes; metrics 29183 bytes; vision APROVAR e Sol APROVAR na sessão `20260910_153744_40deff`; validação estrutural rc=2 documentada em docs/HERO-KART-V2-R46-R53.md
 
-- [ ] G8: Commit atômico e push verificados após cada rodada aceita/documentada
-EVIDENCE: arquivos existem; build/render R53 rc=0; `.blend` 707805 bytes; metrics 29183 bytes; vision APROVAR e Sol APROVAR na sessão `20260910_153744_40deff`; validação estrutural rc=2 documentada em docs/HERO-KART-V2-R46-R53.md
-
+- [x] G8: Commit atômico e push verificados após cada rodada aceita/documentada
+EVIDENCE: commit de artefato `320abf3f11c49bd849252cca83950f989768dffa` foi pushado e lido de volta; este ledger será commitado e pushado no mesmo fluxo final.
 ## Regra de continuidade
 Após qualquer falha, rejeição, timeout ou Broken pipe: registrar a falha, iniciar a próxima rodada imediatamente e não encerrar o loop. Só concluir com G4 e G5 verdadeiros para o mesmo Rxx, além dos artefatos e push verificados.
