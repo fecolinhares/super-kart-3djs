@@ -28,6 +28,11 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## Consulta estratégica Sol — 2026-09-10 — bloqueada
+- Foi solicitado ao Sol (`gpt-5.6-sol`, `xhigh`) um plano acionável baseado em vision para reconstruir o personagem/cockpit, sem editar arquivos.
+- Sessão `20260910_093911_1bae15` permaneceu sem resposta por ~567 s e foi encerrada.
+- Nenhuma estratégia nova foi recebida; não atribuir ao Sol recomendações que ele não entregou. O diagnóstico acionável anterior continua vigente: reconstrução estrutural do piloto, não incrementos de primitivas.
+
 ## R17 — vision próprio rejeita personagem — 2026-09-10
 - Aplicados P0 derivados do Sol: cadeia anatômica, câmera de clearance recuada, pescoço, face interna, casco menor, mãos/volante e para-brisa frontal.
 - Vision próprio continua **REJEITANDO**: piloto lê como manequim procedural, braços/mãos e torso não têm anatomia AAA, capacete ainda desproporcional/sem vestibilidade convincente em contexto e clearance não comprova uma pose natural sem oclusão.
