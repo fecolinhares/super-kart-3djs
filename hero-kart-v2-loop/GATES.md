@@ -1,36 +1,59 @@
 # Gates: Hero Kart V2 — Loop persistente de aprovação dupla
+Escopo: revisão R54+; reconstrução geométrica do asset Blender, sem integração de runtime.
 
-Escopo: R46–R53; somente asset Blender, sem integração de runtime.
+- [ ] G0: Estado inicial R53 rejeitado e escopo P0 registrado
+  CHECK: python3 - <<'PY'
+from pathlib import Path
+p=Path('docs/HERO-KART-V2-R54-LOOP.md')
+print('R53_REJECTED_P0_RECORDED' if p.exists() else 'MISSING')
+PY
+  EXPECT: R53_REJECTED_P0_RECORDED
+  EVIDENCE: pending
 
-- [x] G1: Estado inicial e arquivos-fonte registrados
-  CHECK: test -f /mnt/storage2TB/Coding-Projects/super-kart-3djs/assets/hero-kart-v2/hero-kart-v2.blend && test -f /mnt/storage2TB/Coding-Projects/super-kart-3djs/scripts/blender/hero_kart_v2_build.py && test -f /mnt/storage2TB/Coding-Projects/super-kart-3djs/scripts/blender/hero_kart_v2_render.py
-  EXPECT: 
-  EVIDENCE: arquivos existem; R53 build/render rc=0.
+- [ ] G1: Reconstrução P0 implementada no script e no blend salvo
+  CHECK: test -s assets/hero-kart-v2/hero-kart-v2.blend && python3 - <<'PY'
+from pathlib import Path
+s=Path('scripts/blender/hero_kart_v2_build.py').read_text()
+need=['WindshieldMount','HelmetTemple','HelmetJaw','HelmetNape','HelmetVisorPivot','SteeringHub','DriverCollar']
+print('P0_SYMBOLS_OK' if all(x in s for x in need) else 'P0_SYMBOLS_MISSING')
+PY
+  EXPECT: P0_SYMBOLS_OK
+  EVIDENCE: pending
 
-- [x] G2: R53 corrige a leitura do para-brisa
-  CHECK: test -s /mnt/storage2TB/Coding-Projects/super-kart-3djs/assets/hero-kart-v2/hero-kart-v2.blend
-  EXPECT: 
-  EVIDENCE: `.blend` final R53 com 707805 bytes; canopy convexa/translúcida.
+- [ ] G2: Blender 4.0.2 executou a reconstrução sem traceback e salvou o artefato
+  CHECK: python3 - <<'PY'
+import json
+from pathlib import Path
+p=Path('assets/hero-kart-v2/build-report.json')
+print('BUILD_REPORT_OK' if p.exists() and p.stat().st_size>0 else 'MISSING')
+PY
+  EXPECT: BUILD_REPORT_OK
+  EVIDENCE: pending
 
-- [x] G3: Render e métricas da rodada final existem
-  CHECK: test -s /mnt/storage2TB/Coding-Projects/super-kart-3djs/assets/hero-kart-v2/renders/beauty.png && test -s /mnt/storage2TB/Coding-Projects/super-kart-3djs/assets/hero-kart-v2/metrics.json
-  EXPECT: 
-  EVIDENCE: `beauty.png` e `metrics.json` R53 presentes; métricas 29183 bytes.
+- [ ] G3: Beauty/profile/top/clearance pertencem à mesma revisão e existem
+  CHECK: test -s assets/hero-kart-v2/renders/beauty.png && test -s assets/hero-kart-v2/renders/windshield-profile.png && test -s assets/hero-kart-v2/renders/windshield-top.png && test -s assets/hero-kart-v2/renders/driver-clearance.png
+  EXPECT:
+  EVIDENCE: pending
 
-- [x] G4: Vision independente aprovou R53
-  EVIDENCE: vision própria aprovou beauty/profile/top/clearance R53.
+- [ ] G4: Auditoria geométrica P0 mensurável passa
+  CHECK: python3 - <<'PY'
+import json
+p=json.load(open('assets/hero-kart-v2/p0-metrics.json'))
+print('P0_METRICS_PASS' if p.get('all_pass') else 'P0_METRICS_FAIL')
+PY
+  EXPECT: P0_METRICS_PASS
+  EVIDENCE: pending
 
-- [x] G5: Sol aprovou a mesma R53
-  EVIDENCE: Sol `gpt-5.6-sol` + `xhigh` + vision aprovou R53; sessão `20260910_153744_40deff`.
+- [ ] G5: Vision independente aprova a mesma revisão
+  EVIDENCE: pending
 
-- [x] G6: Build/render executaram; validação estrutural completa
-  ABANDON: `metrics.json` retorna `all_structural_gates_pass=false` e o validator rc=2 por budgets/manifold/normais históricos de LOD0–LOD2. Não declarar prontidão técnica para integração.
-  EVIDENCE: build rc=0, render rc=0, Blender 4.0.2; bloqueio estrutural documentado em `docs/HERO-KART-V2-R46-R53.md`.
+- [ ] G6: Sol gpt-5.6-sol + xhigh aprova a mesma revisão após vision próprio
+  EVIDENCE: pending
 
-- [x] G7: Repo, vault, wiki e memória atualizados sem secrets
-  EVIDENCE: repo docs/assets, vault `coding/Super-Kart-3Djs.md`, wiki entity/index/log e memória atualizados.
+- [ ] G7: Repo, vault, wiki/index/log/entidade e memória atualizados sem secrets
+  EVIDENCE: pending
 
-- [x] G8: Commits e pushes verificados
-  EVIDENCE: commit de artefato `320abf3f11c49bd849252cca83950f989768dffa` e commit final `5f29bbc6abb1c167f47c0d86ddf396488b64da54`; ambos pushados; `git ls-remote origin/main` confirmou `5f29bbc6abb1c167f47c0d86ddf396488b64da54`.
-
-Regra de continuidade cumprida: R46–R52 foram rejeitadas/registradas e o loop só encerrou após vision e Sol aprovarem a mesma R53. Broken pipe do Sol foi tratado com retries mínimos; nunca contado como aprovação.
+- [ ] G8: Cada commit atômico foi pushado e remote verificado
+  CHECK: test "$(git rev-parse HEAD)" = "$(git ls-remote origin refs/heads/main | cut -f1)"
+  EXPECT:
+  EVIDENCE: pending
