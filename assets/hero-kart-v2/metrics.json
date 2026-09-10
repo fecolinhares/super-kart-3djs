@@ -8,10 +8,10 @@
   "authored_from_scratch": true,
   "collections": {
     "LOD0": {
-      "mesh_objects": 485,
-      "vertices": 20814,
-      "faces": 23872,
-      "triangles": 39730,
+      "mesh_objects": 493,
+      "vertices": 21700,
+      "faces": 24850,
+      "triangles": 41474,
       "materials": [
         "accent_emissive",
         "cockpit_glass",
@@ -356,17 +356,21 @@
         "LOD0_SeatShellMirror",
         "LOD0_DriverThigh",
         "LOD0_DriverThigh.001",
+        "LOD0_HelmetShell",
         "LOD0_HelmetVisorFrame",
+        "LOD0_HelmetVisorHighlight",
         "LOD0_HelmetAccent",
+        "LOD0_HelmetNeckSeal",
         "LOD0_DSteeringGrip",
         "LOD0_SteeringBoss_TMP",
         "LOD0_SteeringColumn",
         "LOD0_SteeringColumnMount",
-        "LOD0_SteeringColumnYoke",
+        "LOD0_SteeringDashFlange",
         "LOD0_MiniWindshieldLeftFrame",
         "LOD0_MiniWindshieldRightFrame",
         "LOD0_MiniWindshieldTop",
         "LOD0_MiniWindshieldBase",
+        "LOD0_MiniWindshieldReflection",
         "LOD0_SteeringSpoke",
         "LOD0_SteeringSpoke.001",
         "LOD0_SteeringSpoke.002",
@@ -410,29 +414,28 @@
         "max": [
           0.81,
           1.2205,
-          1.405
+          1.4176
         ],
         "dimensions_xyz_m": [
           1.62,
           2.4455,
-          1.4251
+          1.4377
         ]
       }
     },
     "LOD1": {
-      "mesh_objects": 339,
-      "vertices": 11738,
-      "faces": 13649,
-      "triangles": 22160,
+      "mesh_objects": 346,
+      "vertices": 12220,
+      "faces": 14189,
+      "triangles": 23100,
       "materials": [
         "accent_emissive",
-        "cockpit_glass",
         "metal_warm",
         "paint_primary",
         "paint_secondary",
         "rubber_dark"
       ],
-      "material_count": 6,
+      "material_count": 5,
       "ngons": 0,
       "non_manifold_edges": 1098,
       "negative_volume_objects": [
@@ -648,13 +651,16 @@
         "LOD1_SeatShellMirror",
         "LOD1_DriverThigh",
         "LOD1_DriverThigh.001",
+        "LOD1_HelmetShell",
         "LOD1_HelmetVisorFrame",
+        "LOD1_HelmetVisorHighlight",
         "LOD1_HelmetAccent",
+        "LOD1_HelmetNeckSeal",
         "LOD1_DSteeringGrip",
         "LOD1_SteeringBoss_TMP",
         "LOD1_SteeringColumn",
         "LOD1_SteeringColumnMount",
-        "LOD1_SteeringColumnYoke",
+        "LOD1_SteeringDashFlange",
         "LOD1_SteeringSpoke",
         "LOD1_SteeringSpoke.001",
         "LOD1_SteeringSpoke.002",
@@ -686,29 +692,28 @@
         "max": [
           0.65,
           1.2206,
-          1.405
+          1.42
         ],
         "dimensions_xyz_m": [
           1.3,
           2.4456,
-          1.733
+          1.748
         ]
       }
     },
     "LOD2": {
-      "mesh_objects": 191,
-      "vertices": 5622,
-      "faces": 6563,
-      "triangles": 10520,
+      "mesh_objects": 198,
+      "vertices": 5948,
+      "faces": 6933,
+      "triangles": 11148,
       "materials": [
         "accent_emissive",
-        "cockpit_glass",
         "metal_warm",
         "paint_primary",
         "paint_secondary",
         "rubber_dark"
       ],
-      "material_count": 6,
+      "material_count": 5,
       "ngons": 0,
       "non_manifold_edges": 666,
       "negative_volume_objects": [
@@ -818,13 +823,16 @@
         "LOD2_SeatShellMirror",
         "LOD2_DriverThigh",
         "LOD2_DriverThigh.001",
+        "LOD2_HelmetShell",
         "LOD2_HelmetVisorFrame",
+        "LOD2_HelmetVisorHighlight",
         "LOD2_HelmetAccent",
+        "LOD2_HelmetNeckSeal",
         "LOD2_DSteeringGrip",
         "LOD2_SteeringBoss_TMP",
         "LOD2_SteeringColumn",
         "LOD2_SteeringColumnMount",
-        "LOD2_SteeringColumnYoke",
+        "LOD2_SteeringDashFlange",
         "LOD2_SteeringSpoke",
         "LOD2_SteeringSpoke.001",
         "LOD2_SteeringSpoke.002",
@@ -855,12 +863,12 @@
         "max": [
           0.65,
           1.2205,
-          1.405
+          1.4141
         ],
         "dimensions_xyz_m": [
           1.3,
           2.4455,
-          1.733
+          1.7421
         ]
       }
     },
@@ -1035,6 +1043,6 @@
       "axle_axis": "X"
     }
   },
-  "file_size_bytes": 652130,
+  "file_size_bytes": 678925,
   "all_structural_gates_pass": false
 }
