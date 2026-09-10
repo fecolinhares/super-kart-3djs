@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## Diagnóstico Sol — R18 — 2026-09-10
+- Sessão `20260910_095223_36678c`, `gpt-5.6-sol`, `xhigh`, vision; nenhum arquivo editado.
+- Para-brisa: painel frontal transparente integralmente à frente do volante, maior que o aro em largura aparente, topo acima das mãos/aro, base contínua na carenagem; reflexo de borda e transmissão ampla visíveis.
+- Personagem: substituir montagem de primitivas por cadeia pelve→torso→ombros→cotovelos→punhos→mãos; mãos envolvem o aro 9h/3h, dedos cobrem >50% da seção, desvio de punho <15°, cintos atrás do cubo.
+- Capacete: casco único envolvendo cabeça interna com 8–14 px de folga, abertura facial, visor curvo com espessura/pivôs, queixeira rígida ligada às laterais e colar separado; face dentro da abertura.
+- Clearance: recuar 20–30%, mostrar capacete/para-brisa completos e validar thumbnail de 320 px; não aceitar peças tangentes/flutuantes.
+
 ## Consulta estratégica Sol — 2026-09-10 — bloqueada
 - Foi solicitado ao Sol (`gpt-5.6-sol`, `xhigh`) um plano acionável baseado em vision para reconstruir o personagem/cockpit, sem editar arquivos.
 - Sessão `20260910_093911_1bae15` permaneceu sem resposta por ~567 s e foi encerrada.
