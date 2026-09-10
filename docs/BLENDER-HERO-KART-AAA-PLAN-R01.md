@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R39 — terceira via do Sol rejeitada pelo vision — 2026-09-10
+- Implementada a recomendação Sol: viseira monocoque fumê com 18 vértices/8 quads, Alpha=1/Transmission=0, sem face inferior, sem pedestal central e dois apoios.
+- Blender executou, mas vision próprio **REJEITOU**: o resultado ainda lê como painel vertical escuro, com moldura/apoios pouco funcionais e cockpit bloqueado.
+- Sol não foi chamado nesta rodada porque meu gate próprio falhou.
+- Após múltiplas abordagens, a hipótese duvidosa está confirmada: este harness procedural não está produzindo uma viseira AAA confiável; a próxima etapa deve reconstruir o cockpit/para-brisa em um asset dedicado e validar perfil/topo antes do beauty.
+- WIP preservado; não integrar nem enviar para aprovação.
+
 ## R37 — aeroscreen aberto rejeitado — 2026-09-10
 - Aplicada a mudança de abordagem indicada pelo Sol: remover a face ampla e usar aro curvo, suportes e reflexos opacos, sem depender de alpha/transmissão.
 - Blender executou e o render saiu sem crash, mas vision próprio **REJEITOU**: o conjunto lê como grade/barras dianteiras, não para-brisa/defletor funcional; a moldura compete com volante e personagem.
