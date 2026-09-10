@@ -28,6 +28,14 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## Diagnóstico Sol acionável — cockpit — 2026-09-10
+- Sessão `20260910_091420_95e211`, `gpt-5.6-sol`, `xhigh`, vision; nenhum arquivo editado pelo Sol.
+- Ordem espacial exigida: carenagem frontal → base/painel do para-brisa → aro/cubo → mãos envolvendo o aro → antebraços → queixeira/viseira → face dentro da abertura → crânio/casco → encosto.
+- Para-brisa: geometria integralmente à frente do volante; maior que o volante em largura aparente; topo acima do aro; reflexo contínuo em uma borda e área ampla de transmissão; câmera deve mostrar a peça inteira.
+- Personagem: casco como silhueta única contínua envolvendo a face; viseira presa aos dois lados; face dentro da abertura; queixeira integrada; encosto atrás sem interseção; câmera de clearance recuada 20–30%.
+- Mãos devem envolver o tubo do aro; antebraços não podem atravessar cubo/raios; cintos partem dos ombros e não passam à frente do cubo.
+- Critério P0: confirmar tudo em beauty e clearance, inclusive thumbnail de 320 px, antes de nova aprovação dupla.
+
 ## Solicitação de diagnóstico Sol — 2026-09-10 — bloqueada
 - Foi solicitado ao Sol (`gpt-5.6-sol`, `xhigh`) que usasse vision para indicar exatamente as correções do para-brisa, personagem e capacete, sem editar arquivos.
 - Sessão `20260910_084641_5b1bce` permaneceu ativa por ~559 s sem produzir resposta ou recomendação; foi encerrada para evitar processo zumbi.
