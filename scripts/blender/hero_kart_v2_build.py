@@ -572,12 +572,12 @@ def create_cockpit_driver(cfg):
     triangulated_box("SteeringDashBracket",(0,-.49,.565),(.22,.12,.09),"paint_secondary")
     tube_path("SteeringDashFlange",[(-.10,-.555,.60),(0,-.57,.615),(.10,-.555,.60)],.016,"metal_warm",cfg["tube_sides"],.012)
     if cfg["level"] == 0:
-        # Closed thin smoked visor shell: curved in plant/profile, no alpha/transmission.
-        xs=[-.30,-.225,-.15,-.075,0,.075,.15,.225,.30]
+        # R43 aeroscreen: 0.72m wide x 0.34m high x 0.16m deep, curved shell.
+        xs=[-.36,-.27,-.18,-.09,0,.09,.18,.27,.36]
         visor_verts=[]
-        rows=((.80,-.46),(.86,-.53),(.92,-.43))
+        rows=((.70,-.46),(.86,-.54),(1.04,-.38))
         for x in xs:
-            u=abs(x)/.30; bend=1.0-u*u
+            u=abs(x)/.36; bend=1.0-u*u
             for z,y in rows: visor_verts.append((x,y-.08*bend,z))
         back_start=len(visor_verts)
         visor_verts.extend([(x,y+.020,z) for x,y,z in visor_verts])
@@ -591,10 +591,11 @@ def create_cockpit_driver(cfg):
             a=i*3; b=(i+1)*3
             visor_faces.extend([(a,b,b+back_start,a+back_start),(a+2,a+2+back_start,b+2+back_start,b+2)])
         visor=mesh_object("MiniWindshieldLens",visor_verts,visor_faces,"cockpit_glass",True)
-        bevel=visor.modifiers.new("Rounded visor edge","BEVEL"); bevel.width=.008; bevel.segments=2
-        tube_path("MiniWindshieldSupport.L",[(-.30,-.46,.76),(-.30,-.46,.80)],.009,"metal_warm",cfg["tube_sides"],.007)
-        tube_path("MiniWindshieldSupport.R",[(.30,-.46,.76),(.30,-.46,.80)],.009,"metal_warm",cfg["tube_sides"],.007)
-        tube_path("MiniWindshieldHighlight",[(-.28,-.55,.91),(-.14,-.62,.94),(0,-.66,.96),(.14,-.62,.94),(.28,-.55,.91)],.006,"paint_primary",cfg["tube_sides"],.004)
+        bevel=visor.modifiers.new("Rounded visor edge","BEVEL"); bevel.width=.006; bevel.segments=3
+        for side in (-1,1):
+            tube_path("MiniWindshieldSupport",[(side*.30,-.46,.66),(side*.30,-.46,.70)],.009,"metal_warm",cfg["tube_sides"],.007)
+            tube_path("MiniWindshieldFoot",[(side*.30,-.46,.66),(side*.34,-.43,.66)],.010,"paint_secondary",cfg["tube_sides"],.007)
+        tube_path("MiniWindshieldHighlight",[(-.32,-.39,1.02),(-.16,-.47,1.04),(0,-.54,1.06),(.16,-.47,1.04),(.32,-.39,1.02)],.005,"paint_primary",cfg["tube_sides"],.004)
     for end in [(-.14,-.46,.88),(.14,-.46,.88),(0,-.46,.725)]:
         tube_path("SteeringSpoke",[(0,-.465,.82),end],.014,"metal_warm",cfg["tube_sides"],.009)
     # Arms with clear elbows and hands at exact 9-and-3 grip positions.
