@@ -77,7 +77,7 @@ def setup_scene():
     glass_bsdf = glass.node_tree.nodes.get("Principled BSDF")
     if "Transmission Weight" in glass_bsdf.inputs:
         glass_bsdf.inputs["Transmission Weight"].default_value = 0.72
-    glass_bsdf.inputs["Alpha"].default_value = 0.42
+    glass_bsdf.inputs["Alpha"].default_value = 0.48
     glass_nt = glass.node_tree
     glass_out = glass_nt.nodes.get("Material Output")
     glass_trans = glass_nt.nodes.new("ShaderNodeBsdfTransparent")
@@ -85,9 +85,9 @@ def setup_scene():
     glass_mix.inputs[0].default_value = 0.0
     glass_nt.links.new(glass_trans.outputs[0], glass_mix.inputs[1])
     glass_nt.links.new(glass_bsdf.outputs[0], glass_mix.inputs[2])
-    glass_nt.links.new(glass_mix.outputs[0], glass_out.inputs[0])
+    glass_nt.links.new(glass_bsdf.outputs[0], glass_out.inputs[0])
     try:
-        glass.surface_render_method = "BLENDED"
+        glass.surface_render_method = "DITHERED"
     except Exception:
         pass
     MATS["cockpit_glass"] = glass
@@ -524,9 +524,9 @@ def create_cockpit_driver(cfg):
     for side in (-1,1):
         triangulated_box("Pedal",(side*.095,-.555,.34),(.075,.018,.12),"metal_warm")
     # Driver hips embedded below cockpit rim.
-    ellipsoid("DriverHips",(0,.18,.54),(.22,.17,.16),"paint_secondary",cfg["sphere_seg"],cfg["sphere_ring"])
-    ellipsoid("DriverTorso",(0,.19,.77),(.235,.15,.28),"paint_secondary",cfg["sphere_seg"],cfg["sphere_ring"])
-    ellipsoid("DriverNeck",(0,.10,1.025),(.085,.085,.12),"paint_primary",cfg["sphere_seg"],cfg["sphere_ring"])
+    ellipsoid("DriverHips",(0,.18,.54),(.18,.14,.13),"paint_secondary",cfg["sphere_seg"],cfg["sphere_ring"])
+    ellipsoid("DriverTorso",(0,.16,.76),(.20,.13,.25),"paint_secondary",cfg["sphere_seg"],cfg["sphere_ring"])
+    ellipsoid("DriverNeck",(0,.08,1.015),(.070,.070,.10),"paint_primary",cfg["sphere_seg"],cfg["sphere_ring"])
 
     # Suit center panel supplies readable torso articulation.
     ellipsoid("DriverChestPanel",(0,.045,.80),(.12,.025,.18),"paint_primary",cfg["sphere_seg"],cfg["sphere_ring"])
@@ -538,12 +538,12 @@ def create_cockpit_driver(cfg):
                   "paint_primary",cfg["tube_sides"],.040)
         ellipsoid("DriverBoot",(side*.095,-.555,.35),(.06,.09,.05),"rubber_dark",cfg["sphere_seg"],cfg["sphere_ring"])
     # Helmet height envelope tops at 1.40 m.
-    loft("HelmetShell",[(.42,0,1.17,.095,.11),(.29,0,1.205,.15,.15),(.10,0,1.18,.145,.145),(-.015,0,1.145,.11,.10)],max(14,cfg["body_sides"]-2),"paint_primary",1.7)
-    ellipsoid("DriverFace",(0,-.04,1.19),(.085,.045,.095),"paint_secondary",cfg["sphere_seg"],cfg["sphere_ring"])
-    ellipsoid("HelmetVisor",(0,-.09,1.19),(.115,.032,.060),"rubber_dark",cfg["sphere_seg"],cfg["sphere_ring"])
+    loft("HelmetShell",[(.40,0,1.16,.085,.10),(.28,0,1.195,.135,.14),(.10,0,1.175,.13,.135),(-.015,0,1.145,.10,.09)],max(14,cfg["body_sides"]-2),"paint_primary",1.7)
+    ellipsoid("DriverFace",(0,-.045,1.185),(.072,.040,.082),"paint_secondary",cfg["sphere_seg"],cfg["sphere_ring"])
+    ellipsoid("HelmetVisor",(0,-.10,1.185),(.105,.030,.055),"rubber_dark",cfg["sphere_seg"],cfg["sphere_ring"])
     tube_path("HelmetVisorFrame",[(-.12,-.095,1.17),(-.09,-.115,1.235),(0,-.12,1.25),(.09,-.115,1.235),(.12,-.095,1.17)],.014,
               "paint_secondary",cfg["tube_sides"],.014)
-    ellipsoid("HelmetChinShell",(0,-.035,1.105),(.12,.075,.060),"paint_secondary",cfg["sphere_seg"],cfg["sphere_ring"])
+    ellipsoid("HelmetChinShell",(0,-.045,1.105),(.115,.070,.055),"paint_secondary",cfg["sphere_seg"],cfg["sphere_ring"])
 
     tube_path("HelmetChinGuard",[(-.11,-.075,1.13),(0,-.115,1.10),(.11,-.075,1.13)],.020,
               "paint_secondary",cfg["tube_sides"],.018)
@@ -571,13 +571,21 @@ def create_cockpit_driver(cfg):
     triangulated_box("SteeringDashBracket",(0,-.49,.565),(.22,.12,.09),"paint_secondary")
     tube_path("SteeringDashFlange",[(-.10,-.555,.60),(0,-.57,.615),(.10,-.555,.60)],.016,"metal_warm",cfg["tube_sides"],.012)
     if cfg["level"] == 0:
-        screen=mesh_object("MiniWindshieldLens",[(-.22,-.70,.76),(.22,-.70,.76),(.19,-.70,1.10),(-.19,-.70,1.10)],[(0,1,2,3)],"cockpit_glass",True)
+        xs=[-.22,-.165,-.11,-.055,0,.055,.11,.165,.22]
+        screen_verts=[]
+        for x in xs:
+            u=abs(x)/.22; bend=1.0-u*u
+            screen_verts.extend([(x,-.48-.34*bend,.76+.01*bend),(x,-.42-.28*bend,.90+.06*bend)])
+        screen_faces=[]
+        for i in range(len(xs)-1):
+            a=i*2; b=(i+1)*2; screen_faces.append((a,b,b+1,a+1))
+        screen=mesh_object("MiniWindshieldLens",screen_verts,screen_faces,"cockpit_glass",True)
         solid=screen.modifiers.new("Safety glass thickness","SOLIDIFY"); solid.thickness=.006
-        tube_path("MiniWindshieldLeftFrame",[(-.22,-.705,.76),(-.19,-.705,1.10)],.012,"metal_warm",cfg["tube_sides"],.010)
-        tube_path("MiniWindshieldRightFrame",[(.22,-.705,.76),(.19,-.705,1.10)],.012,"metal_warm",cfg["tube_sides"],.010)
-        tube_path("MiniWindshieldTop",[(-.19,-.705,1.10),(0,-.715,1.125),(.19,-.705,1.10)],.012,"metal_warm",cfg["tube_sides"],.010)
-        tube_path("MiniWindshieldBase",[(-.22,-.705,.76),(0,-.715,.74),(.22,-.705,.76)],.010,"paint_secondary",cfg["tube_sides"],.008)
-        tube_path("MiniWindshieldReflection",[(-.14,-.717,.80),(-.03,-.72,1.02),(.10,-.717,1.09)],.004,"paint_primary",cfg["tube_sides"],.003)
+        tube_path("MiniWindshieldLeftFrame",[(-.22,-.485,.76),(-.14,-.425,.90)],.012,"metal_warm",cfg["tube_sides"],.010)
+        tube_path("MiniWindshieldRightFrame",[(.22,-.485,.76),(.14,-.425,.90)],.012,"metal_warm",cfg["tube_sides"],.010)
+        tube_path("MiniWindshieldTop",[(-.14,-.425,.90),(-.07,-.565,.94),(0,-.705,.96),(.07,-.565,.94),(.14,-.425,.90)],.012,"metal_warm",cfg["tube_sides"],.010)
+        tube_path("MiniWindshieldBase",[(-.22,-.485,.76),(0,-.825,.74),(.22,-.485,.76)],.010,"paint_secondary",cfg["tube_sides"],.008)
+        tube_path("MiniWindshieldReflection",[(-.14,-.50,.80),(-.03,-.65,.88),(.08,-.70,.94)],.004,"paint_primary",cfg["tube_sides"],.003)
     for end in [(-.14,-.46,.88),(.14,-.46,.88),(0,-.46,.725)]:
         tube_path("SteeringSpoke",[(0,-.465,.82),end],.014,"metal_warm",cfg["tube_sides"],.009)
     # Arms with clear elbows and hands at exact 9-and-3 grip positions.
@@ -588,6 +596,9 @@ def create_cockpit_driver(cfg):
                   "paint_secondary",cfg["tube_sides"],.036)
         ellipsoid("DriverHand",(side*.172,-.455,.82),(.035,.028,.052),"metal_warm",
               cfg["sphere_seg"],cfg["sphere_ring"])
+        for finger in (-.025,0,.025):
+            tube_path("DriverFinger",[(side*.172,-.48,.82+finger),(side*.145,-.475,.82+finger)],.009,
+                      "metal_warm",cfg["tube_sides"],.007)
     # Broad 3D harness straps over chest.
     for side in (-1,1):
         tube_path("Harness",[(side*.13,.035,.92),(side*.09,.015,.78),(side*.15,.05,.61)],.022,
