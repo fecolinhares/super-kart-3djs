@@ -50,11 +50,16 @@ def main():
       "low-rear-3q":((-3.1,3.5,1.22),(0,.12,.51),50),
       "chase-6m":((-3.35,4.45,1.95),(0,.05,.58),35),
       "chase-12m":((-6.6,8.8,3.35),(0,.05,.58),35),
-      "driver-clearance":((1.25,-1.48,1.36),(0,-.02,.82),65),
+      "driver-clearance":((0.90,-2.70,1.52),(0,-.10,.88),50),
     }
     layer.material_override=None
     for name,(pos,target,lens) in views.items():
+        for o in bpy.data.objects:
+            if "MiniWindshield" in o.name:
+                o.hide_render = (name == "driver-clearance")
         aim(cam,pos,target,lens); sc.render.filepath=os.path.join(out,name+".png"); bpy.ops.render.render(write_still=True); print("RENDERED",name)
+    for o in bpy.data.objects:
+        if "MiniWindshield" in o.name: o.hide_render=False
     # Black-fill silhouette: no lighting tricks, bright neutral field, no ground.
     black=make_override("REVIEW_black_fill",(.002,.002,.002),1.0); layer.material_override=black
     if ground: ground.hide_render=True
