@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## Estado atual do asset — WIP verificável — 2026-09-10
+- O Sol criou o script autoral `scripts/blender/hero_kart_v2_build.py`; o runner Blender 4.0.2 executou esse script após um fix mínimo de compatibilidade para inicializar `scene.world`.
+- Artefatos copiados para `assets/hero-kart-v2/`: `.blend`, `metrics.json`, `renders/` com beauty, black-fill, clay, wireframe, vistas ortográficas/3⁄4, driver-clearance, underside e comparação LOD.
+- Vision próprio: beauty lê como kart arcade AAA estilizado e está muito acima do cubo anterior; falhas: black-fill não está realmente preto, encaixe do piloto ainda precisa refinamento, asa domina a traseira e a identidade traseira é genérica sem aero.
+- Validação estrutural real: LOD0 `39.268` triângulos/5 materiais, mas `1.692` arestas não-manifold e normais negativas; LOD1 `21.952` triângulos/5 materiais (limite 4), não-manifold; LOD2 `10.364` triângulos/5 materiais (limite 7.500/3), não-manifold; COLLISION `36` triângulos/manifold.
+- Veredito: **WIP REJEITADO PARA INTEGRAÇÃO FINAL**. O arquivo está salvo para continuação, mas exige limpeza de topologia/normais, redução real de LOD1/LOD2, black-fill correto e nova validação visual independente.
+
 ## Evidência Sol
 Sessão de planejamento: `20260910_040509_cc8ad5`, `gpt-5.6-sol`, `xhigh`.
 
