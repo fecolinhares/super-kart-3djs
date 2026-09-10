@@ -28,6 +28,11 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## Solicitação de diagnóstico Sol — 2026-09-10 — bloqueada
+- Foi solicitado ao Sol (`gpt-5.6-sol`, `xhigh`) que usasse vision para indicar exatamente as correções do para-brisa, personagem e capacete, sem editar arquivos.
+- Sessão `20260910_084641_5b1bce` permaneceu ativa por ~559 s sem produzir resposta ou recomendação; foi encerrada para evitar processo zumbi.
+- Nenhuma orientação adicional do Sol foi recebida. Não alterar o asset com base em uma resposta inexistente; próxima tentativa deve usar uma sessão Sol curta e focada somente no render/arquivo.
+
 ## R14 — aprovação visual dupla dos ajustes — 2026-09-10
 - Ajustes finais: aro D ciano ampliado e separado das mãos, hub metálico central, coluna coral contínua até bracket/dash; para-brisa menor e deslocado para frente, com lente translúcida/moldura/reflexos; helmet shell/visor/queixeira/colar separados.
 - Vision próprio: **APROVAR** os três itens.
