@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R40 — solução Sol monocoque curta rejeitada — 2026-09-10
+- A viseira foi reduzida para 18 vértices/8 quads, dois apoios e material fumê opaco conforme o plano do Sol.
+- Vision próprio: **REJEITAR**. O resultado virou uma placa horizontal diante do peito, não um para-brisa; piloto/volante/capacete ficaram mais comprometidos na composição.
+- Sol não foi chamado nesta R40 porque o gate próprio falhou.
+- Hipótese confirmada após várias abordagens: o script procedural atual não consegue representar cockpit/para-brisa AAA com substituições locais. Próximo passo exige reconstrução dedicada do cockpit/driver e uma câmera de revisão própria, não mais ajuste de superfície/material.
+- Estado: WIP preservado; não enviar para aprovação nem integrar.
+
 ## R39 — terceira via do Sol rejeitada pelo vision — 2026-09-10
 - Implementada a recomendação Sol: viseira monocoque fumê com 18 vértices/8 quads, Alpha=1/Transmission=0, sem face inferior, sem pedestal central e dois apoios.
 - Blender executou, mas vision próprio **REJEITOU**: o resultado ainda lê como painel vertical escuro, com moldura/apoios pouco funcionais e cockpit bloqueado.
