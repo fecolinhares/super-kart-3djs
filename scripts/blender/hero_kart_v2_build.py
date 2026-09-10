@@ -73,6 +73,24 @@ def setup_scene():
         "metal_warm": material("metal_warm", (0.54, 0.25, 0.075), 0.78, 0.30),
         "accent_emissive": material("accent_emissive", (1.0, 0.16, 0.018), 0.0, 0.38, (1.0, 0.045, 0.004)),
     }
+    glass = material("cockpit_glass", (0.025, 0.16, 0.22), 0.15, 0.12)
+    glass_bsdf = glass.node_tree.nodes.get("Principled BSDF")
+    if "Transmission Weight" in glass_bsdf.inputs:
+        glass_bsdf.inputs["Transmission Weight"].default_value = 0.72
+    glass_bsdf.inputs["Alpha"].default_value = 0.42
+    glass_nt = glass.node_tree
+    glass_out = glass_nt.nodes.get("Material Output")
+    glass_trans = glass_nt.nodes.new("ShaderNodeBsdfTransparent")
+    glass_mix = glass_nt.nodes.new("ShaderNodeMixShader")
+    glass_mix.inputs[0].default_value = 0.02
+    glass_nt.links.new(glass_trans.outputs[0], glass_mix.inputs[1])
+    glass_nt.links.new(glass_bsdf.outputs[0], glass_mix.inputs[2])
+    glass_nt.links.new(glass_mix.outputs[0], glass_out.inputs[0])
+    try:
+        glass.surface_render_method = "BLENDED"
+    except Exception:
+        pass
+    MATS["cockpit_glass"] = glass
     scene["asset_name"] = "Super Kart — Hero Kart V2"
     scene["authored_from_scratch"] = True
     scene["coordinate_forward"] = "-Y"
@@ -519,7 +537,11 @@ def create_cockpit_driver(cfg):
         ellipsoid("DriverBoot",(side*.095,-.555,.35),(.06,.09,.05),"rubber_dark",cfg["sphere_seg"],cfg["sphere_ring"])
     # Helmet height envelope tops at 1.40 m.
     ellipsoid("Helmet",(0,.25,1.19),(.205,.19,.215),"paint_primary",cfg["sphere_seg"],cfg["sphere_ring"])
-    ellipsoid("HelmetVisor",(0,.075,1.205),(.155,.032,.085),"rubber_dark",cfg["sphere_seg"],cfg["sphere_ring"])
+    ellipsoid("HelmetVisor",(0,.055,1.205),(.17,.045,.095),"cockpit_glass",cfg["sphere_seg"],cfg["sphere_ring"])
+    tube_path("HelmetVisorFrame",[(-.17,.03,1.18),(-.13,.005,1.27),(0,-.005,1.30),(.13,.005,1.27),(.17,.03,1.18)],.018,
+              "paint_secondary",cfg["tube_sides"],.014)
+    tube_path("HelmetChinGuard",[(-.16,.08,1.13),(0,-.005,1.08),(.16,.08,1.13)],.028,
+              "paint_secondary",cfg["tube_sides"],.022)
     tube_path("HelmetAccent",[(-.16,.12,1.285),(0,.07,1.34),(.16,.12,1.285)],.014,
               "accent_emissive",cfg["tube_sides"])
     # D-shaped wheel, three sculpted spokes and steering column.
@@ -530,7 +552,16 @@ def create_cockpit_driver(cfg):
     tube_path("DSteeringGrip",wheel_pts,.019,"rubber_dark",cfg["tube_sides"],closed=True)
     cylinder_x("SteeringBoss_TMP",(0,-.27,.82),.04,.04,"metal_warm",cfg["rim_seg"]) # decorative axis differs, boss still clear
     # Proper column along Y plus three flattened spoke paths.
-    tube_path("SteeringColumn",[(0,-.255,.82),(0,-.42,.68)],.022,"metal_warm",cfg["tube_sides"])
+    tube_path("SteeringColumn",[(0,-.255,.82),(0,-.47,.66)],.026,"metal_warm",cfg["tube_sides"],.020)
+    tube_path("SteeringColumnMount",[(0,-.47,.66),(0,-.47,.585)],.032,"paint_secondary",cfg["tube_sides"],.024)
+    tube_path("SteeringColumnYoke",[(-.13,-.47,.585),(0,-.48,.60),(.13,-.47,.585)],.024,"metal_warm",cfg["tube_sides"],.018)
+    if cfg["level"] == 0:
+        screen=mesh_object("MiniWindshield",[(-.19,-.445,.785),(.19,-.445,.785),(.17,-.445,.985),(-.17,-.445,.985)],[(0,1,2,3)],"cockpit_glass",True)
+        solid=screen.modifiers.new("Safety glass thickness","SOLIDIFY"); solid.thickness=.008
+        tube_path("MiniWindshieldLeftFrame",[(-.19,-.45,.78),(-.19,-.45,.985)],.014,"metal_warm",cfg["tube_sides"],.011)
+        tube_path("MiniWindshieldRightFrame",[(.19,-.45,.78),(.17,-.45,.985)],.014,"metal_warm",cfg["tube_sides"],.011)
+        tube_path("MiniWindshieldTop",[(-.19,-.45,.985),(0,-.46,1.005),(.17,-.45,.985)],.014,"metal_warm",cfg["tube_sides"],.011)
+        tube_path("MiniWindshieldBase",[(-.19,-.45,.78),(0,-.46,.77),(.19,-.45,.78)],.012,"paint_secondary",cfg["tube_sides"],.009)
     for end in [(-.105,-.27,.86),(.105,-.27,.86),(0,-.27,.745)]:
         tube_path("SteeringSpoke",[(0,-.275,.82),end],.014,"metal_warm",cfg["tube_sides"],.009)
     # Arms with clear elbows and hands at exact 9-and-3 grip positions.

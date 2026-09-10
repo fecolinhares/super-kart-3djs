@@ -8,20 +8,21 @@
   "authored_from_scratch": true,
   "collections": {
     "LOD0": {
-      "mesh_objects": 476,
-      "vertices": 20564,
-      "faces": 23561,
-      "triangles": 39268,
+      "mesh_objects": 485,
+      "vertices": 20814,
+      "faces": 23872,
+      "triangles": 39730,
       "materials": [
         "accent_emissive",
+        "cockpit_glass",
         "metal_warm",
         "paint_primary",
         "paint_secondary",
         "rubber_dark"
       ],
-      "material_count": 5,
+      "material_count": 6,
       "ngons": 0,
-      "non_manifold_edges": 1692,
+      "non_manifold_edges": 1696,
       "negative_volume_objects": [
         "LOD0_CockpitRolledRim",
         "LOD0_CockpitShoulder",
@@ -355,10 +356,17 @@
         "LOD0_SeatShellMirror",
         "LOD0_DriverThigh",
         "LOD0_DriverThigh.001",
+        "LOD0_HelmetVisorFrame",
         "LOD0_HelmetAccent",
         "LOD0_DSteeringGrip",
         "LOD0_SteeringBoss_TMP",
         "LOD0_SteeringColumn",
+        "LOD0_SteeringColumnMount",
+        "LOD0_SteeringColumnYoke",
+        "LOD0_MiniWindshieldLeftFrame",
+        "LOD0_MiniWindshieldRightFrame",
+        "LOD0_MiniWindshieldTop",
+        "LOD0_MiniWindshieldBase",
         "LOD0_SteeringSpoke",
         "LOD0_SteeringSpoke.001",
         "LOD0_SteeringSpoke.002",
@@ -412,18 +420,19 @@
       }
     },
     "LOD1": {
-      "mesh_objects": 335,
-      "vertices": 11626,
-      "faces": 13513,
-      "triangles": 21952,
+      "mesh_objects": 339,
+      "vertices": 11738,
+      "faces": 13649,
+      "triangles": 22160,
       "materials": [
         "accent_emissive",
+        "cockpit_glass",
         "metal_warm",
         "paint_primary",
         "paint_secondary",
         "rubber_dark"
       ],
-      "material_count": 5,
+      "material_count": 6,
       "ngons": 0,
       "non_manifold_edges": 1098,
       "negative_volume_objects": [
@@ -639,10 +648,13 @@
         "LOD1_SeatShellMirror",
         "LOD1_DriverThigh",
         "LOD1_DriverThigh.001",
+        "LOD1_HelmetVisorFrame",
         "LOD1_HelmetAccent",
         "LOD1_DSteeringGrip",
         "LOD1_SteeringBoss_TMP",
         "LOD1_SteeringColumn",
+        "LOD1_SteeringColumnMount",
+        "LOD1_SteeringColumnYoke",
         "LOD1_SteeringSpoke",
         "LOD1_SteeringSpoke.001",
         "LOD1_SteeringSpoke.002",
@@ -684,18 +696,19 @@
       }
     },
     "LOD2": {
-      "mesh_objects": 187,
-      "vertices": 5536,
-      "faces": 6461,
-      "triangles": 10364,
+      "mesh_objects": 191,
+      "vertices": 5622,
+      "faces": 6563,
+      "triangles": 10520,
       "materials": [
         "accent_emissive",
+        "cockpit_glass",
         "metal_warm",
         "paint_primary",
         "paint_secondary",
         "rubber_dark"
       ],
-      "material_count": 5,
+      "material_count": 6,
       "ngons": 0,
       "non_manifold_edges": 666,
       "negative_volume_objects": [
@@ -805,10 +818,13 @@
         "LOD2_SeatShellMirror",
         "LOD2_DriverThigh",
         "LOD2_DriverThigh.001",
+        "LOD2_HelmetVisorFrame",
         "LOD2_HelmetAccent",
         "LOD2_DSteeringGrip",
         "LOD2_SteeringBoss_TMP",
         "LOD2_SteeringColumn",
+        "LOD2_SteeringColumnMount",
+        "LOD2_SteeringColumnYoke",
         "LOD2_SteeringSpoke",
         "LOD2_SteeringSpoke.001",
         "LOD2_SteeringSpoke.002",
@@ -881,14 +897,14 @@
   "gates": {
     "LOD0": {
       "triangle_budget": true,
-      "material_budget": true,
+      "material_budget": false,
       "no_ngons": true,
       "manifold": false,
       "outward_normals": false,
       "clean_scale": true
     },
     "LOD1": {
-      "triangle_budget": true,
+      "triangle_budget": false,
       "material_budget": false,
       "no_ngons": true,
       "manifold": false,
@@ -1019,6 +1035,6 @@
       "axle_axis": "X"
     }
   },
-  "file_size_bytes": 642902,
+  "file_size_bytes": 652130,
   "all_structural_gates_pass": false
 }
