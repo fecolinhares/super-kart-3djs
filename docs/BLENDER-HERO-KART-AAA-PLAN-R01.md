@@ -34,6 +34,14 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - Build/render Blender 4.0.2 passaram; validação estrutural continua rc 2 por gates históricos de LOD/topologia e está explicitamente separada da aprovação visual.
 - Detalhamento reproduzível: `docs/HERO-KART-V2-R46-R53.md`.
 
+## Auditoria Sol R53 — bloqueadores reportados — 2026-09-10
+- Sessão `20260910_174347_1384c0`, `gpt-5.6-sol`, `xhigh`, vision; nenhum arquivo editado.
+- **Para-brisa: REJEITAR.** P0: ancorar em quatro pontos simétricos; eliminar extensão sobre volante/piloto; manter borda traseira ≥ `0,08D` à frente do aro; folga lateral ≥ `0,05D` por antebraço; largura entre `0,72–0,78Wc`; nenhuma travessa terminando suspensa; fixadores espelhados até 2 px; centro alinhado ao kart até `0,01Ws`.
+- **Personagem/clearance: REJEITAR.** Centro do pescoço/cabeça/casco com diferença ≤ `0,03Wh`; pescoço visível de `0,12–0,18Hh`; casco envolvendo têmporas, mandíbula e nuca; visor único preso por dois pivôs; queixeira fundida às laterais; folga queixeira–topo do aro ≥ `0,18Hh`.
+- **Volante: REJEITAR.** Remover placa rosa; reconstruir coluna coaxial ao hub; hub entre `0,19–0,23D`; aro/raios definitivos antes das mãos; mãos em `150°/30°`, penetração de pegada visível, punhos alinhados aos antebraços em ≤10°; sem colisão com painel/raios.
+- P1 posterior: refazer câmeras, HANS/colar, bevels, normais e re-renderizar beauty/profile/top/clearance sem ocultar defeitos.
+- Veredito Sol: **R53 REJEITAR**; nenhum bloqueador deve ser tratado como aprovado.
+
 ## R45 — micro-canopy elevado rejeitado — 2026-09-10
 - Loop reiniciado após R44; viseira elevada acima do volante, com dois apoios e casca curta.
 - Vision próprio rejeitou: para-brisa lê como prateleira/placa horizontal; perfil mostra lâmina plana; piloto continua procedural e cockpit perde proporção.
