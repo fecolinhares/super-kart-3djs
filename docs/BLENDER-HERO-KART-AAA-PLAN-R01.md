@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## Auditoria Sol — para-brisa e capacete — 2026-09-10
+- Sessão `20260910_071201_45d493`, `gpt-5.6-sol`, `xhigh`; auditoria sem edição nas capturas `beauty.png` e `driver-clearance.png`.
+- **Para-brisa: REJEITAR.** O Sol confirmou leitura de placa/tela escura, sem transparência, espessura ou ancoragem construtiva convincentes; moldura e suporte competem com o volante e bloqueiam a leitura do cockpit.
+- **Capacete: REJEITAR.** Silhueta esférica genérica; visor como placa escura rasa; queixeira tubular desconectada; faixa superior parece colada; falta pescoço/colar e recorte inferior integrados.
+- Correções P0: refazer casco com testa/coroa/laterais/nuca/colar, trocar tubo por queixeira volumétrica integrada, criar lente curva com espessura/vedação/pivôs e revisar folgas com ombros/encosto. Para-brisa deve ser lente curva realmente transparente, menor e claramente presa ao dash.
+- Estado: WIP rejeitado; não integrar nem declarar aprovação antes de nova modelagem e dupla validação visual.
+
 ## Iteração cockpit — 2026-09-10 — WIP rejeitado por vision próprio e Sol
 - Pedido aplicado: coluna/yoke do volante estendidos até o dash, mini para-brisa à frente do volante e capacete com visor/moldura/queixeira redesenhados.
 - Vision próprio: capacete melhorou e está integrado; coluna ficou mais legível, mas o para-brisa continua parecendo painel escuro e a conexão volante–dash ainda não é inequívoca.
