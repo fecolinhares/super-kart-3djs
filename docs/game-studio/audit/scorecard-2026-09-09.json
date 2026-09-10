@@ -285,5 +285,13 @@
     "hud_physics_postfx_excluded": true,
     "first_asset": "hero_kart"
   },
+  "blender_asset_backlog_review": {
+    "status": "reviewed",
+    "sol_session": "20260910_002508_48b7e3",
+    "order": ["hero_kart", "ramps_grounding", "neon_skyline", "signs_landmarks", "gantry_item_box", "guardrails"],
+    "vertical_slice": ["hero_kart", "one_ramp_family", "three_neon_tower_silhouettes"],
+    "revised_budgets": {"ramps": "3000/1200/300", "towers": "4000/1200/300", "landmarks": "5000/1500/400", "item_box": "1500/400/100"},
+    "collider_from_visual_mesh": false
+  },
   "fps_claim": false
 }

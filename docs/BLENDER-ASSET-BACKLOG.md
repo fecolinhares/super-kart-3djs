@@ -143,3 +143,37 @@ Prioridade = impacto na leitura do jogador × repetição em tela × ganho de au
 ## Próximo asset recomendado
 
 Começar pelo **kart herói P0**, porque resolve simultaneamente identidade, silhueta, grounding e leitura de player. O primeiro protótipo deve ser um único kart completo com preview turntable, LODs, colisão e A/B no player; não modelar oito assets em paralelo.
+
+## Revisão do plano pelo Sol — 2026-09-10
+
+Sessão: `20260910_002508_48b7e3` (`gpt-5.6-sol`, `xhigh`)
+
+### Ordem revisada
+
+1. P0.1 kart herói
+2. P0.2 rampas + grounding
+3. P0.3 skyline modular
+4. P1 sinais e landmarks Meadow
+5. P2 gantry e item box
+6. P3 guardrails
+
+### Primeiro vertical slice
+
+Um kart herói + uma família de rampas + três silhuetas de torre Neon, todos com LODs, colisão simples separada, GLB e A/B GPU desktop/mobile com câmera, iluminação e seed fixas.
+
+### Budgets revisados
+
+- Rampas: `3k/1.2k/300 tris` por módulo (LOD0/1/2).
+- Torres: `4k/1.2k/300 tris`.
+- Landmarks: `5k/1.5k/400 tris`.
+- Item box: `1.5k/400/100 tris`.
+- Os demais budgets originais permanecem válidos como alvo inicial.
+
+### Riscos e decisões
+
+- O budget deve limitar também materiais e draw calls, não apenas triângulos.
+- Detalhe não substitui silhueta: o kart precisa continuar reconhecível.
+- Grounding depende de sombra, pivô, escala e contato das rodas.
+- A/B só é válido com enquadramento, iluminação e estado equivalentes.
+- Gantry, item box e guardrails não entram no primeiro slice.
+- Collider deve ser uma malha simples separada, nunca a malha visual diretamente.

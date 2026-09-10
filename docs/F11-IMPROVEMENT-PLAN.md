@@ -245,6 +245,14 @@ O comportamento real do drift permanece sem evidência visual; patch agora seria
 
 - Sol `20260910_000044_71e2ac` (`gpt-5.6-sol`, `xhigh`): backlog ordenado em `docs/BLENDER-ASSET-BACKLOG.md`; P0 kart herói, rampas/boost e skyline Neon; P1 sinais/chevrons e landmarks Meadow; P2 gantry/item box; P3 guardrails/props. HUD/física/pós-processamento ficam fora do Blender.
 
+## Revisão Sol do backlog Blender — 2026-09-10
+
+- Sessão `20260910_002508_48b7e3` (`gpt-5.6-sol`, `xhigh`) manteve a ordem geral e definiu o vertical slice: 1 kart herói + 1 família de rampas + 3 silhuetas de torre Neon.
+- Slice exige LODs, collider separado, GLB e A/B GPU desktop/mobile com câmera, iluminação e seed fixas.
+- Budgets revisados: rampas `3k/1.2k/300`, torres `4k/1.2k/300`, landmarks `5k/1.5k/400`, item box `1.5k/400/100` tris.
+- Gantry, item box e guardrails ficam fora do primeiro slice; collider nunca é derivado diretamente da malha visual.
+- Budget deve controlar também materiais e draw calls; identidade depende de silhueta, grounding depende de sombra/pivô/escala/rodas.
+
 1. Uma fase por vez; não misturar fases no mesmo patch.
 2. Antes de editar: probe que pode refutar o achado.
 3. Correção aceita somente com vídeo GPU desktop/mobile e vision temporal.
