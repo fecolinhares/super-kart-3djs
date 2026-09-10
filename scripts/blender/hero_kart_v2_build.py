@@ -73,7 +73,7 @@ def setup_scene():
         "metal_warm": material("metal_warm", (0.54, 0.25, 0.075), 0.78, 0.30),
         "accent_emissive": material("accent_emissive", (1.0, 0.16, 0.018), 0.0, 0.38, (1.0, 0.045, 0.004)),
     }
-    glass = material("cockpit_glass", (0.018, 0.075, 0.11), 0.05, 0.18)
+    glass = material("cockpit_glass", (0.10, 0.32, 0.42), 0.05, 0.24)
     glass_bsdf = glass.node_tree.nodes.get("Principled BSDF")
     if "Transmission Weight" in glass_bsdf.inputs:
         glass_bsdf.inputs["Transmission Weight"].default_value = 0.0
