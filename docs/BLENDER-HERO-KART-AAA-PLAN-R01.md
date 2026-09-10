@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R29 — para-brisa rejeitado — 2026-09-10
+- Tentativa final aumentou a curvatura vertical e em planta para nove seções, mas o resultado visual virou um volume em cunha opaco no perfil.
+- Vision próprio: **REJEITAR**. A peça não lê como vidro/defletor AAA; o piloto/cockpit ficam parcialmente ocultos.
+- Sol ainda não foi chamado nesta R29 porque meu gate próprio falhou.
+- Hipótese confirmada: variações incrementais da mesma lâmina não resolvem. Próxima etapa precisa substituir a superfície por geometria de arco/curva dedicada, provavelmente um defletor em seção cilíndrica com perfil lateral separado e materiais/review camera próprios.
+- Estado: WIP preservado; sem aprovação visual dupla e sem integração.
+
 ## R27 — para-brisa rejeitado pelo Sol — 2026-09-10
 - R27 adicionou superfície de 9×3 seções com arco quadrático forte em planta e perfil, `Solidify`, `Bevel` e render dedicado `windshield-profile.png`.
 - Vision próprio: **APROVAR** o para-brisa; o perfil mostra arco e espessura suficientes para leitura de defletor.
