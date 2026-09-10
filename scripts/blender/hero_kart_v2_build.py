@@ -73,10 +73,10 @@ def setup_scene():
         "metal_warm": material("metal_warm", (0.54, 0.25, 0.075), 0.78, 0.30),
         "accent_emissive": material("accent_emissive", (1.0, 0.16, 0.018), 0.0, 0.38, (1.0, 0.045, 0.004)),
     }
-    glass = material("cockpit_glass", (0.08, 0.38, 0.55), 0.15, 0.12)
+    glass = material("cockpit_glass", (0.018, 0.075, 0.11), 0.05, 0.18)
     glass_bsdf = glass.node_tree.nodes.get("Principled BSDF")
     if "Transmission Weight" in glass_bsdf.inputs:
-        glass_bsdf.inputs["Transmission Weight"].default_value = 0.72
+        glass_bsdf.inputs["Transmission Weight"].default_value = 0.0
     glass_bsdf.inputs["Alpha"].default_value = 0.05
     glass_nt = glass.node_tree
     glass_out = glass_nt.nodes.get("Material Output")
@@ -85,7 +85,7 @@ def setup_scene():
     glass_mix.inputs[0].default_value = 0.0
     glass_nt.links.new(glass_trans.outputs[0], glass_mix.inputs[1])
     glass_nt.links.new(glass_bsdf.outputs[0], glass_mix.inputs[2])
-    glass_nt.links.new(glass_trans.outputs[0], glass_out.inputs[0])
+    glass_nt.links.new(glass_bsdf.outputs[0], glass_out.inputs[0])
     try:
         glass.surface_render_method = "DITHERED"
     except Exception:
@@ -572,13 +572,19 @@ def create_cockpit_driver(cfg):
     triangulated_box("SteeringDashBracket",(0,-.49,.565),(.22,.12,.09),"paint_secondary")
     tube_path("SteeringDashFlange",[(-.10,-.555,.60),(0,-.57,.615),(.10,-.555,.60)],.016,"metal_warm",cfg["tube_sides"],.012)
     if cfg["level"] == 0:
-        # Open aeroscreen: no broad face, so Eevee cannot turn the cockpit into a black panel.
-        tube_path("MiniWindshieldLeftFrame",[(-.36,-.485,.74),(-.32,-.395,.93)],.012,"metal_warm",cfg["tube_sides"],.010)
-        tube_path("MiniWindshieldRightFrame",[(.36,-.485,.74),(.32,-.395,.93)],.012,"metal_warm",cfg["tube_sides"],.010)
-        tube_path("MiniWindshieldTop",[(-.32,-.48,.93),(-.16,-.56,.95),(0,-.62,.97),(.16,-.56,.95),(.32,-.48,.93)],.012,"metal_warm",cfg["tube_sides"],.010)
-        tube_path("MiniWindshieldBase",[(-.36,-.485,.74),(0,-.585,.73),(.36,-.485,.74)],.010,"paint_secondary",cfg["tube_sides"],.008)
-        tube_path("MiniWindshieldReflection",[(-.26,-.50,.78),(-.05,-.61,.87),(.16,-.50,.94)],.004,"paint_primary",cfg["tube_sides"],.003)
-        tube_path("MiniWindshieldReflection",[(-.12,-.52,.80),(-.02,-.62,.86),(.08,-.54,.91)],.003,"paint_primary",cfg["tube_sides"],.003)
+        # Low smoked visor ribbon: one curved 18-vertex surface, two lower supports only.
+        xs=[-.30,-.225,-.15,-.075,0,.075,.15,.225,.30]
+        visor_verts=[]
+        for x in xs:
+            u=abs(x)/.30; bend=1.0-u*u
+            visor_verts.extend([(x,-.48-.10*bend,.74),(x,-.42-.10*bend,.92+.02*bend)])
+        visor_faces=[]
+        for i in range(len(xs)-1):
+            a=i*2; b=(i+1)*2; visor_faces.append((a,b,b+1,a+1))
+        visor=mesh_object("MiniWindshieldLens",visor_verts,visor_faces,"cockpit_glass",True)
+        bevel=visor.modifiers.new("Rounded visor edge","BEVEL"); bevel.width=.008; bevel.segments=2
+        tube_path("MiniWindshieldSupport.L",[(-.30,-.48,.70),(-.30,-.48,.74)],.009,"metal_warm",cfg["tube_sides"],.007)
+        tube_path("MiniWindshieldSupport.R",[(.30,-.48,.70),(.30,-.48,.74)],.009,"metal_warm",cfg["tube_sides"],.007)
     for end in [(-.14,-.46,.88),(.14,-.46,.88),(0,-.46,.725)]:
         tube_path("SteeringSpoke",[(0,-.465,.82),end],.014,"metal_warm",cfg["tube_sides"],.009)
     # Arms with clear elbows and hands at exact 9-and-3 grip positions.
