@@ -577,14 +577,14 @@ def create_cockpit_driver(cfg):
         visor_verts=[]
         for x in xs:
             u=abs(x)/.30; bend=1.0-u*u
-            visor_verts.extend([(x,-.48-.10*bend,.74),(x,-.42-.10*bend,.92+.02*bend)])
+            visor_verts.extend([(x,-.48-.04*bend,.80),(x,-.42-.06*bend,.90+.01*bend)])
         visor_faces=[]
         for i in range(len(xs)-1):
             a=i*2; b=(i+1)*2; visor_faces.append((a,b,b+1,a+1))
         visor=mesh_object("MiniWindshieldLens",visor_verts,visor_faces,"cockpit_glass",True)
-        bevel=visor.modifiers.new("Rounded visor edge","BEVEL"); bevel.width=.008; bevel.segments=2
-        tube_path("MiniWindshieldSupport.L",[(-.30,-.48,.70),(-.30,-.48,.74)],.009,"metal_warm",cfg["tube_sides"],.007)
-        tube_path("MiniWindshieldSupport.R",[(.30,-.48,.70),(.30,-.48,.74)],.009,"metal_warm",cfg["tube_sides"],.007)
+        bevel=visor.modifiers.new("Rounded visor edge","BEVEL"); bevel.width=.006; bevel.segments=2
+        tube_path("MiniWindshieldSupport.L",[(-.30,-.48,.76),(-.30,-.46,.80)],.009,"metal_warm",cfg["tube_sides"],.007)
+        tube_path("MiniWindshieldSupport.R",[(.30,-.48,.76),(.30,-.46,.80)],.009,"metal_warm",cfg["tube_sides"],.007)
     for end in [(-.14,-.46,.88),(.14,-.46,.88),(0,-.46,.725)]:
         tube_path("SteeringSpoke",[(0,-.465,.82),end],.014,"metal_warm",cfg["tube_sides"],.009)
     # Arms with clear elbows and hands at exact 9-and-3 grip positions.
