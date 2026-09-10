@@ -572,25 +572,13 @@ def create_cockpit_driver(cfg):
     triangulated_box("SteeringDashBracket",(0,-.49,.565),(.22,.12,.09),"paint_secondary")
     tube_path("SteeringDashFlange",[(-.10,-.555,.60),(0,-.57,.615),(.10,-.555,.60)],.016,"metal_warm",cfg["tube_sides"],.012)
     if cfg["level"] == 0:
-        xs=[-.36,-.27,-.18,-.09,0,.09,.18,.27,.36]
-        screen_verts=[]
-        rows=((.74,-.50,0.0),(.81,-.60,0.0),(.89,-.58,0.0),(.94,-.48,0.0))
-        for x in xs:
-            u=abs(x)/.36; bend=1.0-u*u
-            for z,y,bulge in rows:
-                screen_verts.append((x,y-.06*bend+bulge*bend,z))
-        screen_faces=[]
-        for i in range(len(xs)-1):
-            a=i*4; b=(i+1)*4
-            for r in range(3): screen_faces.append((a+r,b+r,b+r+1,a+r+1))
-        screen=mesh_object("MiniWindshieldLens",screen_verts,screen_faces,"cockpit_glass",True)
-        solid=screen.modifiers.new("Safety glass thickness","SOLIDIFY"); solid.thickness=.006
-        bevel=screen.modifiers.new("Rounded glass edge","BEVEL"); bevel.width=.018; bevel.segments=3
+        # Open aeroscreen: no broad face, so Eevee cannot turn the cockpit into a black panel.
         tube_path("MiniWindshieldLeftFrame",[(-.36,-.485,.74),(-.32,-.395,.93)],.012,"metal_warm",cfg["tube_sides"],.010)
         tube_path("MiniWindshieldRightFrame",[(.36,-.485,.74),(.32,-.395,.93)],.012,"metal_warm",cfg["tube_sides"],.010)
         tube_path("MiniWindshieldTop",[(-.32,-.48,.93),(-.16,-.56,.95),(0,-.62,.97),(.16,-.56,.95),(.32,-.48,.93)],.012,"metal_warm",cfg["tube_sides"],.010)
         tube_path("MiniWindshieldBase",[(-.36,-.485,.74),(0,-.585,.73),(.36,-.485,.74)],.010,"paint_secondary",cfg["tube_sides"],.008)
         tube_path("MiniWindshieldReflection",[(-.26,-.50,.78),(-.05,-.61,.87),(.16,-.50,.94)],.004,"paint_primary",cfg["tube_sides"],.003)
+        tube_path("MiniWindshieldReflection",[(-.12,-.52,.80),(-.02,-.62,.86),(.08,-.54,.91)],.003,"paint_primary",cfg["tube_sides"],.003)
     for end in [(-.14,-.46,.88),(.14,-.46,.88),(0,-.46,.725)]:
         tube_path("SteeringSpoke",[(0,-.465,.82),end],.014,"metal_warm",cfg["tube_sides"],.009)
     # Arms with clear elbows and hands at exact 9-and-3 grip positions.
