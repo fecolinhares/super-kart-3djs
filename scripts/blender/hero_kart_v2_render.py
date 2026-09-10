@@ -51,6 +51,7 @@ def main():
       "chase-6m":((-3.35,4.45,1.95),(0,.05,.58),35),
       "chase-12m":((-6.6,8.8,3.35),(0,.05,.58),35),
       "driver-clearance":((0.90,-2.70,1.52),(0,-.10,.88),50),
+      "windshield-profile":((2.75,-.85,1.15),(0,-.55,.84),70),
     }
     layer.material_override=None
     for name,(pos,target,lens) in views.items():
