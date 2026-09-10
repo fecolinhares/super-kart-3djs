@@ -28,6 +28,12 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R36 — teste de transparência e renderer bloqueado — 2026-09-10
+- Superfície transparente direta foi testada; o render Eevee mostra fundo/objeto preto através dela e não comprova a lente de forma útil.
+- Tentativa alternativa em Cycles CPU falhou com `RuntimeError: Build without OpenImageDenoiser` antes do primeiro frame; harness retornado para Eevee.
+- Vision próprio: **REJEITAR** o para-brisa R36; Sol não foi chamado porque o gate próprio falhou.
+- Estado: WIP preservado. Próxima solução deve usar material/geometry compatível com Eevee 4.0.2 ou trocar o pipeline de render sem depender de OIDN.
+
 ## R35 — transparência Eevee bloqueada — 2026-09-10
 - Tentativa: Principled translúcido com `Alpha=0.05`, transmissão e `DITHERED`; Blender executou sem erro.
 - Vision próprio: **REJEITAR** — o para-brisa continua como painel ciano uniforme; braços/torso/volante não ficam visíveis através da lente.
