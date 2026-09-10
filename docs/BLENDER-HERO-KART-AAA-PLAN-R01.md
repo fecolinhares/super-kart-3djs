@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## Iteração cockpit — 2026-09-10 — WIP rejeitado por vision próprio e Sol
+- Pedido aplicado: coluna/yoke do volante estendidos até o dash, mini para-brisa à frente do volante e capacete com visor/moldura/queixeira redesenhados.
+- Vision próprio: capacete melhorou e está integrado; coluna ficou mais legível, mas o para-brisa continua parecendo painel escuro e a conexão volante–dash ainda não é inequívoca.
+- Sol (`gpt-5.6-sol`, `xhigh`) confirmou: **REJEITAR** para volante/coluna e para-brisa; **APROVAR** para capacete/visor/queixeira.
+- Correções posteriores reduziram a opacidade do shader e trocaram a lâmina por um painel fino, porém a captura Eevee ainda não demonstra transparência. Após três tentativas, a hipótese duvidosa é a configuração de transparência do material no Eevee 4.0.2 do runner.
+- O `.blend`, renders, métricas e script permanecem salvos como WIP; não integrar até nova solução de vidro/coluna e aprovação dupla.
+
 ## Estado atual do asset — WIP verificável — 2026-09-10
 - O Sol criou o script autoral `scripts/blender/hero_kart_v2_build.py`; o runner Blender 4.0.2 executou esse script após um fix mínimo de compatibilidade para inicializar `scene.world`.
 - Artefatos copiados para `assets/hero-kart-v2/`: `.blend`, `metrics.json`, `renders/` com beauty, black-fill, clay, wireframe, vistas ortográficas/3⁄4, driver-clearance, underside e comparação LOD.
