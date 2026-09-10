@@ -28,6 +28,11 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## Auditoria R9 — vision próprio + Sol — 2026-09-10
+- Vision próprio: para-brisa lê como defletor translúcido pequeno; capacete melhorou com visor compacto; volante ainda parece controle estreito e a estrutura compete com a moldura.
+- Sol (`gpt-5.6-sol`, `xhigh`, sessão `20260910_073812_8af2ee`): **0/3 aprovados**. Para-brisa: rejeitado por não comprovar lente/ancoragem AAA; capacete: rejeitado por visor/queixeira/colar sugeridos, sem integração construtiva suficiente; volante: rejeitado por aro D e cadeia volante→hub→coluna→dash não distinguíveis.
+- Próxima reconstrução deve separar visualmente as funções com cores/planos distintos, remover sobreposição entre moldura e direção, usar aro D completo visível e refazer casco/visor/queixeira/colar como volumes contínuos.
+
 ## Auditoria Sol — para-brisa e capacete — 2026-09-10
 - Sessão `20260910_071201_45d493`, `gpt-5.6-sol`, `xhigh`; auditoria sem edição nas capturas `beauty.png` e `driver-clearance.png`.
 - **Para-brisa: REJEITAR.** O Sol confirmou leitura de placa/tela escura, sem transparência, espessura ou ancoragem construtiva convincentes; moldura e suporte competem com o volante e bloqueiam a leitura do cockpit.
