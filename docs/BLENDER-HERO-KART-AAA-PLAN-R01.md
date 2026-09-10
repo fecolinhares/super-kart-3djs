@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R43 — monocoque Sol dimensional rejeitada — 2026-09-10
+- Implementada a solução dimensional do Sol: casca fechada fumê, largura 0,72m, dois apoios inferiores, sem pedestal central e render dedicado `windshield-top.png`.
+- Vision próprio rejeitou todas as vistas: beauty lê painel alto/largo; profile lê placa plana; top lê retângulo/asa; clearance mostra cockpit/personagem ainda sobrepostos.
+- Sol não foi chamado nesta R43 porque o gate próprio falhou.
+- Após múltiplas tentativas, o bloco procedural atual está esgotado. Próximo passo: reconstrução dedicada do cockpit/driver/para-brisa com asset separado e câmera própria; não continuar variando o mesmo painel.
+- Estado: WIP preservado; não integrar nem enviar para aprovação.
+
 ## R42 — viseira fumê clara rejeitada — 2026-09-10
 - Aplicada a terceira via solicitada ao Sol: casca fechada curta, material Principled opaco claro, sem alpha/transmission, dois apoios e highlight.
 - Blender executou e renderizou; vision próprio **REJEITOU**: a peça lê como lâmina/console horizontal diante dos braços, não para-brisa funcional; piloto/capacete ficaram legíveis, mas o cockpit perdeu proporção.
