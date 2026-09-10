@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R37 — aeroscreen aberto rejeitado — 2026-09-10
+- Aplicada a mudança de abordagem indicada pelo Sol: remover a face ampla e usar aro curvo, suportes e reflexos opacos, sem depender de alpha/transmissão.
+- Blender executou e o render saiu sem crash, mas vision próprio **REJEITOU**: o conjunto lê como grade/barras dianteiras, não para-brisa/defletor funcional; a moldura compete com volante e personagem.
+- Sol não foi chamado nesta rodada porque o gate próprio falhou.
+- Após múltiplas linhas de ataque (painel opaco, shader transparente, Glass BSDF, ciclos bloqueado e aeroscreen aberto), hipótese duvidosa: o runner Eevee 4.0.2 não está produzindo uma representação de vidro confiável nesse asset; continuar variando o mesmo conceito não é correção.
+- Estado: WIP preservado; integração e aprovação final bloqueadas. Próximo passo requer pipeline de material/render diferente ou modelagem dedicada fora deste harness.
+
 ## R36 — teste de transparência e renderer bloqueado — 2026-09-10
 - Superfície transparente direta foi testada; o render Eevee mostra fundo/objeto preto através dela e não comprova a lente de forma útil.
 - Tentativa alternativa em Cycles CPU falhou com `RuntimeError: Build without OpenImageDenoiser` antes do primeiro frame; harness retornado para Eevee.
