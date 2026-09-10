@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R25 — para-brisa rejeitado novamente pelo Sol — 2026-09-10
+- Implementada superfície de nove seções com arco quadrático forte em planta/topo, centro avançado e laterais retornadas; Blender executou e renderizou beauty/top.
+- Vision próprio: ainda não comprova o arco com segurança no beauty; top mostra o volume, mas o cockpit fica comprimido.
+- Sol `gpt-5.6-sol`, `xhigh`, sessão `20260910_101452_474d84`: **REJEITAR** — a peça continua parecendo placa plana/opaca, sem curvatura 3D claramente perceptível.
+- Outra sessão (`20260910_101347_842b9d`) não executou vision e respondeu apenas “How can I help?”.
+- Próximo: abandonar a placa como superfície principal e construir uma lente curva contínua com perfil lateral/topo dedicado; incluir render de perfil/topo em escala de revisão. WIP não aprovado.
+
 ## Diagnóstico Sol — R18 — 2026-09-10
 - Sessão `20260910_095223_36678c`, `gpt-5.6-sol`, `xhigh`, vision; nenhum arquivo editado.
 - Para-brisa: painel frontal transparente integralmente à frente do volante, maior que o aro em largura aparente, topo acima das mãos/aro, base contínua na carenagem; reflexo de borda e transmissão ampla visíveis.
