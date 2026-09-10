@@ -572,13 +572,13 @@ def create_cockpit_driver(cfg):
     triangulated_box("SteeringDashBracket",(0,-.49,.565),(.22,.12,.09),"paint_secondary")
     tube_path("SteeringDashFlange",[(-.10,-.555,.60),(0,-.57,.615),(.10,-.555,.60)],.016,"metal_warm",cfg["tube_sides"],.012)
     if cfg["level"] == 0:
-        # R44 micro-canopy: compact curved smoked shell, 0.44m wide, 0.18m tall, 0.18m deep.
+        # R45 compact curved visor: raised above the wheel, short depth, no console-like slab.
         xs=[-.22,-.147,-.073,0,.073,.147,.22]
-        rows=((.76,-.43),(.85,-.53),(.94,-.39))
+        rows=((.84,-.48),(.92,-.55),(1.00,-.42))
         visor_verts=[]
         for x in xs:
             u=abs(x)/.22; bend=1.0-u*u
-            for z,y in rows: visor_verts.append((x,y-.06*bend,z))
+            for z,y in rows: visor_verts.append((x,y-.08*bend,z))
         back_start=len(visor_verts); visor_verts.extend([(x,y+.006,z) for x,y,z in visor_verts])
         visor_faces=[]
         for i in range(len(xs)-1):
@@ -589,8 +589,8 @@ def create_cockpit_driver(cfg):
         visor=mesh_object("MiniWindshieldLens",visor_verts,visor_faces,"cockpit_glass",True)
         bevel=visor.modifiers.new("Rounded visor edge","BEVEL"); bevel.width=.006; bevel.segments=3
         for side in (-1,1):
-            tube_path("MiniWindshieldSupport",[(side*.22,-.43,.71),(side*.22,-.43,.76)],.009,"metal_warm",cfg["tube_sides"],.007)
-        tube_path("MiniWindshieldHighlight",[(-.20,-.40,.935),(-.10,-.52,.955),(0,-.59,.965),(.10,-.52,.955),(.20,-.40,.935)],.005,"paint_primary",cfg["tube_sides"],.004)
+            tube_path("MiniWindshieldSupport",[(side*.22,-.48,.78),(side*.22,-.48,.84)],.009,"metal_warm",cfg["tube_sides"],.007)
+        tube_path("MiniWindshieldHighlight",[(-.20,-.45,.995),(-.10,-.56,1.015),(0,-.63,1.025),(.10,-.56,1.015),(.20,-.45,.995)],.005,"paint_primary",cfg["tube_sides"],.004)
     for end in [(-.14,-.46,.88),(.14,-.46,.88),(0,-.46,.725)]:
         tube_path("SteeringSpoke",[(0,-.465,.82),end],.014,"metal_warm",cfg["tube_sides"],.009)
     # Arms with clear elbows and hands at exact 9-and-3 grip positions.
