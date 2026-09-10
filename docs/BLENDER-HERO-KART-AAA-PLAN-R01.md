@@ -28,6 +28,12 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R45 — micro-canopy elevado rejeitado — 2026-09-10
+- Loop reiniciado após R44; viseira elevada acima do volante, com dois apoios e casca curta.
+- Vision próprio rejeitou: para-brisa lê como prateleira/placa horizontal; perfil mostra lâmina plana; piloto continua procedural e cockpit perde proporção.
+- Sol não foi chamado porque o gate próprio falhou.
+- Próximo passo exige abandonar o bloco procedural inteiro e reconstruir cockpit/driver/para-brisa como asset dedicado; não continuar ajustes locais.
+
 ## R44 — micro-canopy do Sol rejeitado — 2026-09-10
 - Loop reiniciado imediatamente após R43, com micro-canopy curto conforme orientação do Sol: casca fechada fumê, 0,44m de largura, 0,18m de altura/profundidade, dois apoios e sem pedestal.
 - Vision próprio: **APROVAR** inicialmente, considerando beauty/profile/top; porém a leitura no beauty ainda é ambígua.
