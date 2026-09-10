@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R14 — aprovação visual dupla dos ajustes — 2026-09-10
+- Ajustes finais: aro D ciano ampliado e separado das mãos, hub metálico central, coluna coral contínua até bracket/dash; para-brisa menor e deslocado para frente, com lente translúcida/moldura/reflexos; helmet shell/visor/queixeira/colar separados.
+- Vision próprio: **APROVAR** os três itens.
+- Sol `gpt-5.6-sol`, `xhigh`, sessão `20260910_082702_0748c5`: **APROVAR** direção, para-brisa e capacete; veredito geral **APROVAR**.
+- Validação estrutural R14: `RC=2`, `all_structural_gates_pass=false`; LOD0 `41.474 tri/6 mats/1.696 não-manifold`, LOD1 `23.100/5/1.098`, LOD2 `11.148/5/666`, COLLISION `36 tri/manifold`, `.blend` `678.925 bytes`.
+- Escopo aprovado: somente os três ajustes visuais solicitados. Integração final continua bloqueada pelos gates estruturais já conhecidos; não mascarar como asset de produção.
+
 ## Auditoria R9 — vision próprio + Sol — 2026-09-10
 - Vision próprio: para-brisa lê como defletor translúcido pequeno; capacete melhorou com visor compacto; volante ainda parece controle estreito e a estrutura compete com a moldura.
 - Sol (`gpt-5.6-sol`, `xhigh`, sessão `20260910_073812_8af2ee`): **0/3 aprovados**. Para-brisa: rejeitado por não comprovar lente/ancoragem AAA; capacete: rejeitado por visor/queixeira/colar sugeridos, sem integração construtiva suficiente; volante: rejeitado por aro D e cadeia volante→hub→coluna→dash não distinguíveis.
