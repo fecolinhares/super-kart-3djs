@@ -28,6 +28,12 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R46–R53 — loop persistente concluído com aprovação dupla — 2026-09-10
+- R46–R52 foram reiniciadas após cada rejeição/falha, sem integração de runtime.
+- R53: vision próprio e Sol `gpt-5.6-sol`/`xhigh` aprovaram a mesma versão; sessão Sol `20260910_153744_40deff`.
+- Build/render Blender 4.0.2 passaram; validação estrutural continua rc 2 por gates históricos de LOD/topologia e está explicitamente separada da aprovação visual.
+- Detalhamento reproduzível: `docs/HERO-KART-V2-R46-R53.md`.
+
 ## R45 — micro-canopy elevado rejeitado — 2026-09-10
 - Loop reiniciado após R44; viseira elevada acima do volante, com dois apoios e casca curta.
 - Vision próprio rejeitou: para-brisa lê como prateleira/placa horizontal; perfil mostra lâmina plana; piloto continua procedural e cockpit perde proporção.

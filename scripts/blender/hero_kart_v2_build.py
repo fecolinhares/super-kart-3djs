@@ -73,23 +73,24 @@ def setup_scene():
         "metal_warm": material("metal_warm", (0.54, 0.25, 0.075), 0.78, 0.30),
         "accent_emissive": material("accent_emissive", (1.0, 0.16, 0.018), 0.0, 0.38, (1.0, 0.045, 0.004)),
     }
-    glass = material("cockpit_glass", (0.10, 0.32, 0.42), 0.05, 0.24)
+    glass = material("cockpit_glass", (0.08, 0.32, 0.40), 0.0, 0.12)
     glass_bsdf = glass.node_tree.nodes.get("Principled BSDF")
+    glass_bsdf.inputs["Base Color"].default_value = (0.08, 0.32, 0.40, 1.0)
+    glass_bsdf.inputs["Metallic"].default_value = 0.0
+    glass_bsdf.inputs["Roughness"].default_value = 0.12
+    glass_bsdf.inputs["Alpha"].default_value = 0.34
     if "Transmission Weight" in glass_bsdf.inputs:
         glass_bsdf.inputs["Transmission Weight"].default_value = 0.0
-    glass_bsdf.inputs["Alpha"].default_value = 0.05
-    glass_nt = glass.node_tree
-    glass_out = glass_nt.nodes.get("Material Output")
-    glass_trans = glass_nt.nodes.new("ShaderNodeBsdfTransparent")
-    glass_mix = glass_nt.nodes.new("ShaderNodeMixShader")
-    glass_mix.inputs[0].default_value = 0.0
-    glass_nt.links.new(glass_trans.outputs[0], glass_mix.inputs[1])
-    glass_nt.links.new(glass_bsdf.outputs[0], glass_mix.inputs[2])
-    glass_nt.links.new(glass_bsdf.outputs[0], glass_out.inputs[0])
+    elif "Transmission" in glass_bsdf.inputs:
+        glass_bsdf.inputs["Transmission"].default_value = 0.0
+    # Blender 4.0 Eevee alpha path: hashed transparency, no refraction or black Mix Shader.
     try:
-        glass.surface_render_method = "DITHERED"
+        glass.blend_method = "BLEND"
+        glass.shadow_method = "NONE"
+        glass.show_transparent_back = False
     except Exception:
         pass
+    glass.diffuse_color = (0.08, 0.32, 0.40, 0.22)
 
     MATS["cockpit_glass"] = glass
     scene["asset_name"] = "Super Kart — Hero Kart V2"
@@ -572,25 +573,34 @@ def create_cockpit_driver(cfg):
     triangulated_box("SteeringDashBracket",(0,-.49,.565),(.22,.12,.09),"paint_secondary")
     tube_path("SteeringDashFlange",[(-.10,-.555,.60),(0,-.57,.615),(.10,-.555,.60)],.016,"metal_warm",cfg["tube_sides"],.012)
     if cfg["level"] == 0:
-        # R45 compact curved visor: raised above the wheel, short depth, no console-like slab.
-        xs=[-.22,-.147,-.073,0,.073,.147,.22]
-        rows=((.84,-.48),(.92,-.55),(1.00,-.42))
-        visor_verts=[]
-        for x in xs:
-            u=abs(x)/.22; bend=1.0-u*u
-            for z,y in rows: visor_verts.append((x,y-.08*bend,z))
-        back_start=len(visor_verts); visor_verts.extend([(x,y+.006,z) for x,y,z in visor_verts])
-        visor_faces=[]
-        for i in range(len(xs)-1):
-            a=i*3; b=(i+1)*3; ab=a+back_start; bb=b+back_start
-            for r in range(2): visor_faces.append((a+r,b+r,b+r+1,a+r+1))
-            for r in range(2): visor_faces.append((ab+r,ab+r+1,bb+r+1,bb+r))
-            visor_faces.extend([(a,b,bb,ab),(a+2,ab+2,bb+2,b+2)])
-        visor=mesh_object("MiniWindshieldLens",visor_verts,visor_faces,"cockpit_glass",True)
-        bevel=visor.modifiers.new("Rounded visor edge","BEVEL"); bevel.width=.006; bevel.segments=3
-        for side in (-1,1):
-            tube_path("MiniWindshieldSupport",[(side*.22,-.48,.78),(side*.22,-.48,.84)],.009,"metal_warm",cfg["tube_sides"],.007)
-        tube_path("MiniWindshieldHighlight",[(-.20,-.45,.995),(-.10,-.56,1.015),(0,-.63,1.025),(.10,-.56,1.015),(.20,-.45,.995)],.005,"paint_primary",cfg["tube_sides"],.004)
+        # R47 continuous wrap-around canopy: strong backward rake plus a visible U-arch in plan.
+        # The center leads the side edges while every upper row moves toward +Y, so the
+        # windshield reads as a curved shell and never as a horizontal/vertical shelf.
+        xs=[-.28,-.21,-.14,-.07,0,.07,.14,.21,.28]
+        # Convex side profile: the center bows toward the nose, then returns toward the
+        # driver at the crown. This avoids the ruled-sheet appearance of R49.
+        row_data=((.72,-.48,1.00),(.82,-.59,1.04),(.92,-.65,1.00),(1.02,-.55,.92),(1.10,-.35,.78))
+        canopy_verts=[]
+        for z,center_y,width_scale in row_data:
+            for x in xs:
+                sx=x*width_scale
+                u=abs(x)/.28
+                y=center_y + .160*(u*u)
+                canopy_verts.append((sx,y,z))
+        canopy_faces=[]
+        cols=len(xs); rows=len(row_data)
+        for r in range(rows-1):
+            for c in range(cols-1):
+                a=r*cols+c; b=a+1; d=(r+1)*cols+c; e=d+1
+                canopy_faces.append((a,d,e,b))
+        visor=mesh_object("MiniWindshieldLens",canopy_verts,canopy_faces,"cockpit_glass",True)
+        solid=visor.modifiers.new("Canopy thickness 5mm","SOLIDIFY"); solid.thickness=.005; solid.offset=0.0
+        bevel=visor.modifiers.new("Rounded canopy edge","BEVEL"); bevel.width=.006; bevel.segments=3
+        # The curved shell is self-supporting in the review asset; no floating side struts.
+        # The lower rail is the only visible mounting member and follows the exact base arc.
+        tube_path("MiniWindshieldLowerRail",[(x,-.48+.160*(abs(x)/.28)**2,.71)
+                                              for x in (-.28,-.21,-.14,-.07,0,.07,.14,.21,.28)],
+                  .014,"metal_warm",cfg["tube_sides"],.010)
     for end in [(-.14,-.46,.88),(.14,-.46,.88),(0,-.46,.725)]:
         tube_path("SteeringSpoke",[(0,-.465,.82),end],.014,"metal_warm",cfg["tube_sides"],.009)
     # Arms with clear elbows and hands at exact 9-and-3 grip positions.

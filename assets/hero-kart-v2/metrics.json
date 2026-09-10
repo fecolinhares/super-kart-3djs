@@ -8,10 +8,10 @@
   "authored_from_scratch": true,
   "collections": {
     "LOD0": {
-      "mesh_objects": 493,
-      "vertices": 21700,
-      "faces": 24850,
-      "triangles": 41474,
+      "mesh_objects": 497,
+      "vertices": 22357,
+      "faces": 25557,
+      "triangles": 42752,
       "materials": [
         "accent_emissive",
         "cockpit_glass",
@@ -22,7 +22,7 @@
       ],
       "material_count": 6,
       "ngons": 0,
-      "non_manifold_edges": 1696,
+      "non_manifold_edges": 1716,
       "negative_volume_objects": [
         "LOD0_CockpitRolledRim",
         "LOD0_CockpitShoulder",
@@ -366,18 +366,21 @@
         "LOD0_SteeringColumn",
         "LOD0_SteeringColumnMount",
         "LOD0_SteeringDashFlange",
-        "LOD0_MiniWindshieldLeftFrame",
-        "LOD0_MiniWindshieldRightFrame",
-        "LOD0_MiniWindshieldTop",
-        "LOD0_MiniWindshieldBase",
-        "LOD0_MiniWindshieldReflection",
+        "LOD0_MiniWindshieldLens",
+        "LOD0_MiniWindshieldLowerRail",
         "LOD0_SteeringSpoke",
         "LOD0_SteeringSpoke.001",
         "LOD0_SteeringSpoke.002",
         "LOD0_DriverUpperArm",
         "LOD0_DriverForearm",
+        "LOD0_DriverFinger",
+        "LOD0_DriverFinger.001",
+        "LOD0_DriverFinger.002",
         "LOD0_DriverUpperArm.001",
         "LOD0_DriverForearm.001",
+        "LOD0_DriverFinger.003",
+        "LOD0_DriverFinger.004",
+        "LOD0_DriverFinger.005",
         "LOD0_Harness",
         "LOD0_Harness.001",
         "LOD0_ExhaustOuter",
@@ -414,20 +417,20 @@
         "max": [
           0.81,
           1.2205,
-          1.4176
+          1.3333
         ],
         "dimensions_xyz_m": [
           1.62,
           2.4455,
-          1.4377
+          1.3534
         ]
       }
     },
     "LOD1": {
-      "mesh_objects": 346,
-      "vertices": 12220,
-      "faces": 14189,
-      "triangles": 23100,
+      "mesh_objects": 354,
+      "vertices": 12556,
+      "faces": 14589,
+      "triangles": 23740,
       "materials": [
         "accent_emissive",
         "metal_warm",
@@ -666,8 +669,14 @@
         "LOD1_SteeringSpoke.002",
         "LOD1_DriverUpperArm",
         "LOD1_DriverForearm",
+        "LOD1_DriverFinger",
+        "LOD1_DriverFinger.001",
+        "LOD1_DriverFinger.002",
         "LOD1_DriverUpperArm.001",
         "LOD1_DriverForearm.001",
+        "LOD1_DriverFinger.003",
+        "LOD1_DriverFinger.004",
+        "LOD1_DriverFinger.005",
         "LOD1_Harness",
         "LOD1_Harness.001",
         "LOD1_ExhaustOuter",
@@ -692,20 +701,20 @@
         "max": [
           0.65,
           1.2206,
-          1.42
+          1.335
         ],
         "dimensions_xyz_m": [
           1.3,
           2.4456,
-          1.748
+          1.663
         ]
       }
     },
     "LOD2": {
-      "mesh_objects": 198,
-      "vertices": 5948,
-      "faces": 6933,
-      "triangles": 11148,
+      "mesh_objects": 206,
+      "vertices": 6156,
+      "faces": 7185,
+      "triangles": 11532,
       "materials": [
         "accent_emissive",
         "metal_warm",
@@ -838,8 +847,14 @@
         "LOD2_SteeringSpoke.002",
         "LOD2_DriverUpperArm",
         "LOD2_DriverForearm",
+        "LOD2_DriverFinger",
+        "LOD2_DriverFinger.001",
+        "LOD2_DriverFinger.002",
         "LOD2_DriverUpperArm.001",
         "LOD2_DriverForearm.001",
+        "LOD2_DriverFinger.003",
+        "LOD2_DriverFinger.004",
+        "LOD2_DriverFinger.005",
         "LOD2_Harness",
         "LOD2_Harness.001",
         "LOD2_ExhaustOuter",
@@ -863,12 +878,12 @@
         "max": [
           0.65,
           1.2205,
-          1.4141
+          1.3309
         ],
         "dimensions_xyz_m": [
           1.3,
           2.4455,
-          1.7421
+          1.6589
         ]
       }
     },
@@ -1043,6 +1058,6 @@
       "axle_axis": "X"
     }
   },
-  "file_size_bytes": 678925,
+  "file_size_bytes": 707805,
   "all_structural_gates_pass": false
 }
