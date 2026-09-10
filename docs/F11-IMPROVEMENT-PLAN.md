@@ -253,6 +253,13 @@ O comportamento real do drift permanece sem evidência visual; patch agora seria
 - Gantry, item box e guardrails ficam fora do primeiro slice; collider nunca é derivado diretamente da malha visual.
 - Budget deve controlar também materiais e draw calls; identidade depende de silhueta, grounding depende de sombra/pivô/escala/rodas.
 
+## Primeiro asset Blender — Hero Kart v7
+
+- Sol arte `20260910_004948_020606`: especificação de proporções, pivôs, 3 materiais, sockets FX, collider separado e LODs.
+- Modelo criado em Blender 4.0.2: `SK3D_HeroKart_v7.blend`; GLB candidato `583,668 bytes`; `mesh_validate PASS`, zero n-gons/non-manifold.
+- Vision interna revisou preview Eevee e vistas ortográficas; Sol `20260910_012628_acf31a` aprovou o blockout para integração.
+- Estado: candidato Blender validado, ainda não promovido ao runtime. Próximo: feature flag, integração Three.js e A/B GPU Meadow/Neon desktop/mobile.
+
 1. Uma fase por vez; não misturar fases no mesmo patch.
 2. Antes de editar: probe que pode refutar o achado.
 3. Correção aceita somente com vídeo GPU desktop/mobile e vision temporal.

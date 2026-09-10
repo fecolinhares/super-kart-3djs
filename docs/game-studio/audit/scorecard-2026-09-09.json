@@ -293,5 +293,15 @@
     "revised_budgets": {"ramps": "3000/1200/300", "towers": "4000/1200/300", "landmarks": "5000/1500/400", "item_box": "1500/400/100"},
     "collider_from_visual_mesh": false
   },
+  "hero_kart_v7": {
+    "status": "approved_for_integration",
+    "sol_art_session": "20260910_004948_020606",
+    "sol_validation_session": "20260910_012628_acf31a",
+    "blender_version": "4.0.2",
+    "mesh_validate": {"pass": true, "nonmanifold": 0, "ngons": 0},
+    "glb_bytes": 583668,
+    "runtime_integrated": false,
+    "document": "docs/BLENDER-HERO-KART-V1.md"
+  },
   "fps_claim": false
 }

@@ -177,3 +177,11 @@ Um kart herói + uma família de rampas + três silhuetas de torre Neon, todos c
 - A/B só é válido com enquadramento, iluminação e estado equivalentes.
 - Gantry, item box e guardrails não entram no primeiro slice.
 - Collider deve ser uma malha simples separada, nunca a malha visual diretamente.
+
+## Execução do primeiro asset — v7
+
+- `SK3D_HeroKart_v7.blend` criado no Blender 4.0.2 com chassi, cockpit, piloto, volante, rodas/pivôs, asa, escapes, sockets FX e colliders separados.
+- `mesh_validate`: PASS, zero non-manifold e zero n-gons após triangulação de export.
+- GLB candidato exportado: `583,668 bytes`; SHA-256 documentado em `docs/BLENDER-HERO-KART-V1.md`.
+- Vision interna e Sol aprovaram o blockout para integração, não como arte final.
+- Runtime integration ainda pendente: validar grounding, drift, salto, colisão e A/B GPU antes de promover.
