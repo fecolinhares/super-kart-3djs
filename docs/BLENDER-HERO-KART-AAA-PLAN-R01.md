@@ -31,6 +31,12 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 ## Evidência Sol
 Sessão de planejamento: `20260910_040509_cc8ad5`, `gpt-5.6-sol`, `xhigh`.
 
+## Execução Default → Sol — 2026-09-10 — bloqueio confirmado
+- O `default` verificou runner Blender/SSH saudável; o bloqueio não é GPU, RAM ou Blender.
+- Mesmo com `--safe-mode`, `--yolo`, `terminal/file/vision`, `gpt-5.6-sol` e `xhigh`, o Sol não executou a primeira ferramenta dentro do orçamento.
+- Nenhum `.blend`, script ou render foi criado; gate-check `assets/hero-kart-v2/GATES.md`: `UNMET: 8 (met: 0)`.
+- `origin/main` verificado em `2290ff8`; nenhum commit/push de asset existe.
+
 ## Execução 2026-09-10 — bloqueada
 - O modelo procedural anterior foi visualmente rejeitado: não atingia a distância AAA das referências.
 - Foi solicitado ao Sol (`gpt-5.6-sol`, `xhigh`) que executasse a modelagem real no runner Blender, salvasse `assets/hero-kart-v2/hero-kart-v2.blend`, renders, LODs e collider, e fizesse commits/push atômicos.
