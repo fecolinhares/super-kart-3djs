@@ -573,14 +573,18 @@ def create_cockpit_driver(cfg):
     if cfg["level"] == 0:
         xs=[-.22,-.165,-.11,-.055,0,.055,.11,.165,.22]
         screen_verts=[]
+        rows=((.76,-.48,.0),(.84,-.76,.02),(.93,-.72,.05))
         for x in xs:
             u=abs(x)/.22; bend=1.0-u*u
-            screen_verts.extend([(x,-.48-.34*bend,.76+.01*bend),(x,-.42-.28*bend,.90+.06*bend)])
+            for z,y,bulge in rows:
+                screen_verts.append((x,y-.34*bend+bulge*bend,z))
         screen_faces=[]
         for i in range(len(xs)-1):
-            a=i*2; b=(i+1)*2; screen_faces.append((a,b,b+1,a+1))
+            a=i*3; b=(i+1)*3
+            for r in range(2): screen_faces.append((a+r,b+r,b+r+1,a+r+1))
         screen=mesh_object("MiniWindshieldLens",screen_verts,screen_faces,"cockpit_glass",True)
         solid=screen.modifiers.new("Safety glass thickness","SOLIDIFY"); solid.thickness=.006
+        bevel=screen.modifiers.new("Rounded glass edge","BEVEL"); bevel.width=.018; bevel.segments=3
         tube_path("MiniWindshieldLeftFrame",[(-.22,-.485,.76),(-.14,-.425,.90)],.012,"metal_warm",cfg["tube_sides"],.010)
         tube_path("MiniWindshieldRightFrame",[(.22,-.485,.76),(.14,-.425,.90)],.012,"metal_warm",cfg["tube_sides"],.010)
         tube_path("MiniWindshieldTop",[(-.14,-.425,.90),(-.07,-.565,.94),(0,-.705,.96),(.07,-.565,.94),(.14,-.425,.90)],.012,"metal_warm",cfg["tube_sides"],.010)
