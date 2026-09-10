@@ -85,7 +85,7 @@ def setup_scene():
     glass_mix.inputs[0].default_value = 0.0
     glass_nt.links.new(glass_trans.outputs[0], glass_mix.inputs[1])
     glass_nt.links.new(glass_bsdf.outputs[0], glass_mix.inputs[2])
-    glass_nt.links.new(glass_bsdf.outputs[0], glass_out.inputs[0])
+    glass_nt.links.new(glass_trans.outputs[0], glass_out.inputs[0])
     try:
         glass.surface_render_method = "DITHERED"
     except Exception:
