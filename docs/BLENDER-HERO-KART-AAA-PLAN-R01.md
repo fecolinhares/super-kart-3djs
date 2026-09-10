@@ -28,6 +28,13 @@ LOD0 38–52k tris; LOD1 16–22k; LOD2 5–7.5k; até 5 materiais; até 8 draw 
 - piloto mannequin/LEGO ou sem contatos;
 - falha em ortográficas, budget ou reimportação.
 
+## R44 — micro-canopy do Sol rejeitado — 2026-09-10
+- Loop reiniciado imediatamente após R43, com micro-canopy curto conforme orientação do Sol: casca fechada fumê, 0,44m de largura, 0,18m de altura/profundidade, dois apoios e sem pedestal.
+- Vision próprio: **APROVAR** inicialmente, considerando beauty/profile/top; porém a leitura no beauty ainda é ambígua.
+- Sol `gpt-5.6-sol`, `xhigh`, sessão `20260910_130255_a937e4`: **REJEITAR** — peça opaca/facetada em forma de cunha/tablet, sem curvatura fumê contínua nem dois apoios claramente legíveis; piloto/capacete visíveis.
+- A validação tripla (`20260910_130138_54c1a3`) falhou por `Broken pipe`; a validação mínima retornou o veredito.
+- Hipótese encerrada: ajustes incrementais dessa geometria não estão resolvendo a leitura. Próxima etapa requer reconstrução dedicada do cockpit/para-brisa fora do bloco procedural.
+
 ## R43 — monocoque Sol dimensional rejeitada — 2026-09-10
 - Implementada a solução dimensional do Sol: casca fechada fumê, largura 0,72m, dois apoios inferiores, sem pedestal central e render dedicado `windshield-top.png`.
 - Vision próprio rejeitou todas as vistas: beauty lê painel alto/largo; profile lê placa plana; top lê retângulo/asa; clearance mostra cockpit/personagem ainda sobrepostos.
