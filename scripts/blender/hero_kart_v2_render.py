@@ -8,8 +8,8 @@ import bpy
 
 def parse():
     av=__import__("sys").argv; av=av[av.index("--")+1:] if "--" in av else []
-    p=argparse.ArgumentParser(); p.add_argument("--blend",required=True); p.add_argument("--output-dir",required=True)
-    p.add_argument("--resolution",type=int,default=960); return p.parse_args(av)
+    p=argparse.ArgumentParser(); p.add_argument("--blend",default="/mnt/storage2TB/Coding-Projects/super-kart-3djs/assets/hero-kart-v2/R70/hero-kart-v2-R70.blend"); p.add_argument("--output-dir",default="/mnt/storage2TB/Coding-Projects/super-kart-3djs/assets/hero-kart-v2/R70/renders")
+    p.add_argument("--resolution",type=int,default=960); p.add_argument("--revision",default="R70"); p.add_argument("job_dir",nargs="?"); return p.parse_args(av)
 
 
 def aim(cam, pos, target, lens=50):
@@ -50,14 +50,14 @@ def main():
       "low-rear-3q":((-3.1,3.5,1.22),(0,.12,.51),50),
       "chase-6m":((-3.35,4.45,1.95),(0,.05,.58),35),
       "chase-12m":((-6.6,8.8,3.35),(0,.05,.58),35),
-      "driver-clearance":((0.90,-2.70,1.52),(0,-.10,.88),50),
-      "windshield-profile":((2.75,-.85,1.15),(0,-.55,.84),70),
-      "windshield-top":((0,-.55,3.6),(0,-.48,.78),75),
+      "driver-clearance":((2.65,-2.90,1.62),(0,-.05,.90),52),
+      "windshield-profile":((2.35,-1.65,1.18),(0,-.78,.68),58),
+      "windshield-top":((0,-1.45,4.35),(0,-.78,.62),62),
     }
     layer.material_override=None
     for name,(pos,target,lens) in views.items():
         for o in bpy.data.objects:
-            if "MiniWindshield" in o.name:
+            if "MiniWindshieldLens" in o.name:
                 o.hide_render = (name == "driver-clearance")
         aim(cam,pos,target,lens); sc.render.filepath=os.path.join(out,name+".png"); bpy.ops.render.render(write_still=True); print("RENDERED",name)
     for o in bpy.data.objects:
@@ -85,6 +85,6 @@ def main():
     sc.render.resolution_x=1280; sc.render.resolution_y=640
     aim(cam,(0,-7.4,3.0),(0,0,.58),54); sc.render.filepath=os.path.join(out,"lod-comparison.png"); bpy.ops.render.render(write_still=True)
     for o,loc in originals.items(): o.location=loc
-    print("HERO_KART_V2_RENDER_SET_OK",out)
+    print("HERO_KART_V2_RENDER_SET_OK",a.revision,out)
 
 if __name__=="__main__": main()

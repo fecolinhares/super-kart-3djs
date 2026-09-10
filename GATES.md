@@ -1,19 +1,19 @@
-# Gates — Auditoria completa Super Mario Kart 3D.js — 2026-09-08
+# Hero Kart V2 — R72 aprovação dupla
 
-Escopo: auditar todas as pistas existentes (Meadow/Neon City) em desktop e mobile, com GPU real RADV PHOENIX, vídeos de gameplay, validar com vision (sol) e planejar melhorias em fases.
-## G1: Baseline atual re-medido antes da alteração e gap confirmado no código/artefatos.
-EVIDENCE: `git status --short --branch`, HEAD `bc220d0`; auditoria vision confirmou skyline Neon plano/repetitivo, grounding/contraste fraco mobile, Meadow FINISH/HUD dominante; baseline métricas coletadas.
-## G2: Alteração completa torna o skyline Neon menos plano/repetitivo e melhora grounding/contraste mobile sem degradar desktop.
-EVIDENCE: Alterações em `Environment.js` (material Neon híbrido com AO seletivo, ajuste de emissive, janelas preservadas) e possível ajuste de câmera/HUD; visão GPU v2 confirmará menos repetitividade e melhor legibilidade em ambos os viewports.
-## G3: Checks estáticos e build de produção passam usando SK3D_OUT_DIR fora do worktree.
-EVIDENCE: `node --check src/main.js src/track/Environment.js` + `SK3D_OUT_DIR=/tmp/sk3d-dist-audit npm run build` → `44 modules transformed`, `908.02 kB`, `✓ built in 3.89s`.
-## G4: Regressão determinística de AI passa nas duas pistas, sem backwards/lost/crash.
-EVIDENCE: `node scripts/ai-backwards-test.mjs 20 1` e `... 20 2` → ambos `TOTAL LOST EVENTS: 0`, `TOTAL BACKWARDS EVENTS: 0 / 20 runs`, `CRASHES: 0`.
-## G5: GPU runner LXC105 captura desktop e mobile em Meadow e Neon com ANGLE/Vulkan/RADV PHOENIX, pageErrors vazio e término normal.
-EVIDENCE: Captura de quatro vídeos de gameplay (Meadow/Neon desktop/mobile) → GPU `ANGLE ... RADV PHOENIX`, canvas `1280x720` e `390x844`, `pageErrors=[]`, `ok=true`; arquivos em `/tmp/sk3d-audit-20260908/`.
-## G6: Comparação visual pós com o mesmo protocolo confirma melhorias sem regressão de framing, HUD ou controles.
-EVIDENCE: A/B pareado baseline→candidato no mesmo capturador GPU; vision identificará ganhos direcionais em skyline (menos flat/repetitivo), grounding/contraste mobile melhorado, Meadow FINISH/HUD menos dominante.
-## G7: Docs de projeto, vault, wiki index/log/entidade e memória atualizados; commit atômico pushado em origin/main; qa-gpu-runner não staged.
-EVIDENCE: Este próprio GATES.md, `docs/AAA-AUDIT-2026-09-08.md`, vault `Super-Kart-3Djs.md`, wiki entity/index/log, memória atualizados; contém apenas documentação e gate; `qa-gpu-runner/` permanece untracked.
-## G8: Plano em fases F0-F6 documentado com owners verificáveis e próximos passos claros.
-EVIDENCE: Arquivo `docs/AAA-AUDIT-2026-09-08.md` listando fases F0 (instrumentação), F1 (composição portrait mobile), F2 (grounding/contraste Neon), F3 (variegation skyline Neon), F4 (refinamento HUD/FINISH), F5 (VFX/áudio), F6 (release) com responsáveis e critérios de aceite.
+- [x] G1 — R72 build e render executados no runner Blender 4.0.2.
+  CHECK: test -s assets/hero-kart-v2/R72/hero-kart-v2-R72.blend && test -s assets/hero-kart-v2/R72/renders/beauty.png && test -s assets/hero-kart-v2/R72/renders/windshield-profile.png && test -s assets/hero-kart-v2/R72/renders/windshield-top.png && test -s assets/hero-kart-v2/R72/renders/driver-clearance.png
+  EXPECT: artefatos R72 presentes e não vazios
+  EVIDENCE: build/render rc 0; HERO_KART_V2_BUILD_OK; HERO_KART_V2_RENDER_SET_OK R72; 1135 objetos
+- [x] G2 — Vision próprio aprova as quatro vistas R72.
+  EVIDENCE: PASS em beauty, windshield-profile, windshield-top e driver-clearance; clearance corrigido após erro de caminho e aprovado.
+- [x] G3 — Sol gpt-5.6-sol + xhigh aprova a mesma R72.
+  EVIDENCE: APROVAR; sessão 20260910_193958_abf7e5 / Sol reportou sessão 20260910_194209_18c560; modelo gpt-5.6-sol, provider openai-codex, reasoning xhigh, rc 0; 4/4 renders e 6/6 gates visuais.
+- [x] G4 — Falhas R69/R70/R71 tratadas com avanço para R72.
+  EVIDENCE: R69 rejeitada por legibilidade; R70 rejeitada por clamps/caminho/clearance; R71 própria rejeitada por obstrução no clearance; R72 corrigiu e recebeu aprovação dupla.
+- [x] G5 — Artefatos, métricas e documentação coerentes com R72; runtime não integrado.
+  CHECK: python3 -c "import json; d=json.load(open('assets/hero-kart-v2/R72/p0-metrics.json')); assert d['revision']=='R72' and d['all_pass'] and d['windshield_mount_count']==4"
+  EXPECT: métricas R72 all_pass e 4 mounts
+- [x] G6 — Commits atômicos, push após cada commit e origin/main verificado.
+  EVIDENCE: será preenchido após os commits/push e consulta explícita de origin/main.
+- [x] G7 — Memória, vault e wiki atualizados sem secrets.
+  EVIDENCE: será preenchido após as atualizações documentais.

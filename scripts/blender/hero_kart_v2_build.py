@@ -24,7 +24,9 @@ def parse_args():
     if "--" in __import__("sys").argv:
         argv = __import__("sys").argv[__import__("sys").argv.index("--") + 1:]
     p = argparse.ArgumentParser()
-    p.add_argument("--output", required=True)
+    p.add_argument("--output", default="/mnt/storage2TB/Coding-Projects/super-kart-3djs/assets/hero-kart-v2/R70/hero-kart-v2-R70.blend")
+    p.add_argument("--revision", default="R70")
+    p.add_argument("job_dir", nargs="?")
     return p.parse_args(argv)
 
 
@@ -75,10 +77,10 @@ def setup_scene():
     }
     glass = material("cockpit_glass", (0.08, 0.32, 0.40), 0.0, 0.12)
     glass_bsdf = glass.node_tree.nodes.get("Principled BSDF")
-    glass_bsdf.inputs["Base Color"].default_value = (0.08, 0.32, 0.40, 1.0)
+    glass_bsdf.inputs["Base Color"].default_value = (0.012, 0.055, 0.085, 1.0)
     glass_bsdf.inputs["Metallic"].default_value = 0.0
     glass_bsdf.inputs["Roughness"].default_value = 0.12
-    glass_bsdf.inputs["Alpha"].default_value = 0.34
+    glass_bsdf.inputs["Alpha"].default_value = 1.0
     if "Transmission Weight" in glass_bsdf.inputs:
         glass_bsdf.inputs["Transmission Weight"].default_value = 0.0
     elif "Transmission" in glass_bsdf.inputs:
@@ -90,7 +92,7 @@ def setup_scene():
         glass.show_transparent_back = False
     except Exception:
         pass
-    glass.diffuse_color = (0.08, 0.32, 0.40, 0.22)
+    glass.diffuse_color = (0.012, 0.055, 0.085, 1.0)
 
     MATS["cockpit_glass"] = glass
     scene["asset_name"] = "Super Kart — Hero Kart V2"
@@ -579,12 +581,14 @@ def create_cockpit_driver(cfg):
     # Separate collar ring remains below the helmet and above the torso.
     tube_path("DriverCollar",[(-.14,.02,1.015),(0,.075,.99),(.14,.02,1.015)],
               .026,"metal_warm",cfg["tube_sides"],.020)
-    # D-shaped wheel, three sculpted spokes and steering column.
-    wheel_pts=[(-.14,-.46,.725),(.14,-.46,.725)]
-    for i in range(9):
-        a=-.18+math.pi*1.36*i/8
+    # R55: one continuous circular steering rim. No plate, yoke, or long spokes.
+    wheel_pts=[]
+    for i in range(32):
+        a=TAU*i/32
         wheel_pts.append((.17*math.cos(a),-.46,.82+.17*math.sin(a)))
-    tube_path("DSteeringGrip",wheel_pts,.022,"paint_primary",cfg["tube_sides"],closed=True)
+    tube_path("ContinuousSteeringRing",wheel_pts,.022,"paint_primary",cfg["tube_sides"],closed=True)
+    tube_path("SteeringLowerGrip",[(-.075,-.46,.667),(0,-.46,.650),(.075,-.46,.667)],.024,
+              "paint_primary",cfg["tube_sides"],.020)
     # Coaxial steering stack: hub, boss, and column share the same centerline.
     cylinder_x("SteeringHub",(0,-.46,.82),.056,.075,"metal_warm",cfg["rim_seg"])
     cylinder_x("SteeringHubCap",(0,-.46,.82),.022,.082,"paint_secondary",cfg["rim_seg"])
@@ -593,21 +597,16 @@ def create_cockpit_driver(cfg):
     triangulated_box("SteeringDashBracket",(0,-.49,.565),(.22,.12,.09),"paint_secondary")
     tube_path("SteeringDashFlange",[(-.10,-.555,.60),(0,-.57,.615),(.10,-.555,.60)],.016,"metal_warm",cfg["tube_sides"],.012)
     if cfg["level"] == 0:
-        # R47 continuous wrap-around canopy: strong backward rake plus a visible U-arch in plan.
-        # The center leads the side edges while every upper row moves toward +Y, so the
-        # windshield reads as a curved shell and never as a horizontal/vertical shelf.
-        # R54 P0: windshield spans 0.76 Wc, with four explicit symmetric hardpoints.
-        # The rear edge stays well forward of the cockpit rim and wheel arc.
+        # R55: compact nose-integrated screen. Every point stays forward of the
+        # wheel/pilot envelope (y <= -.58); no canopy surface reaches the steering rim.
         xs=[-.235,-.176,-.118,-.059,0,.059,.118,.176,.235]
-        # Convex side profile: the center bows toward the nose, then returns toward
-        # the driver at the crown. This avoids the ruled-sheet appearance of R49.
-        row_data=((.72,-.48,1.00),(.82,-.59,1.04),(.92,-.65,1.00),(1.02,-.55,.92),(1.10,-.35,.78))
+        row_data=((.49,-.88,1.00),(.61,-.84,1.04),(.73,-.78,1.00),(.87,-.70,.92),(1.02,-.62,.78))
         canopy_verts=[]
         for z,center_y,width_scale in row_data:
             for x in xs:
                 sx=x*width_scale
                 u=abs(x)/.28
-                y=center_y + .160*(u*u)
+                y=center_y + .060*(u*u)
                 canopy_verts.append((sx,y,z))
         canopy_faces=[]
         cols=len(xs); rows=len(row_data)
@@ -618,27 +617,39 @@ def create_cockpit_driver(cfg):
         visor=mesh_object("MiniWindshieldLens",canopy_verts,canopy_faces,"cockpit_glass",True)
         solid=visor.modifiers.new("Canopy thickness 5mm","SOLIDIFY"); solid.thickness=.005; solid.offset=0.0
         bevel=visor.modifiers.new("Rounded canopy edge","BEVEL"); bevel.width=.006; bevel.segments=3
-        # The curved shell is self-supporting in the review asset; no floating side struts.
-        # The lower rail is the only visible mounting member and follows the exact base arc.
-        tube_path("MiniWindshieldLowerRail",[(x,-.48+.160*(abs(x)/.235)**2,.71)
+        # Lower rail follows the lens base and is welded into the nose hardpoints.
+        tube_path("MiniWindshieldLowerRail",[(x,-.88+.060*(abs(x)/.235)**2,.50)
                                               for x in (-.235,-.176,-.118,-.059,0,.059,.118,.176,.235)],
-                  .014,"metal_warm",cfg["tube_sides"],.010)
-        # Mount pickups follow the actual canopy side edge, so no rod ends in free space.
+                  .026,"metal_warm",cfg["tube_sides"],.020)
+        tube_path("WindshieldLowerCrossbar",[(-.235,-.90,.515),(0,-.90,.515),(.235,-.90,.515)],.028,
+                  "metal_warm",cfg["tube_sides"],.022)
+        triangulated_box("WindshieldLowerHeader",(0,-.91,.565),(.56,.09,.065),"metal_warm")
+        triangulated_box("WindshieldUpperHeader",(0,-.62,1.025),(.40,.065,.060),"metal_warm")
+        triangulated_box("WindshieldNosePlinth",(0,-.88,.455),(.58,.20,.08),"paint_secondary")
+        # R63: visible side frames make the lens-to-nose load path unambiguous.
+        # The lower rail is welded into the nose; each side frame reaches the
+        # actual lens corner and carries two flush clamp heads.
         for side in (-1,1):
-            tube_path("WindshieldMountLower",[(side*.25,-.36,.675),
-                                                (side*.235,-.367,.72)],.022,
-                      "metal_warm",cfg["tube_sides"],.017)
-            tube_path("WindshieldMountUpper",[(side*.235,-.367,.72),
-                                                (side*.22,-.42,.86),
-                                                (side*.176,-.487,1.04)],.019,
+            lower=(side*.235,-.90,.515)
+            upper=(side*.176,-.62+.060*(.176/.28)**2,1.02)
+            tube_path("WindshieldSideFrame",[lower,(side*.215,-.75,.70),upper],.020,
                       "metal_warm",cfg["tube_sides"],.015)
-            ellipsoid("WindshieldMountFoot",(side*.25,-.36,.675),(.032,.026,.022),
-                      "metal_warm",cfg["sphere_seg"],cfg["sphere_ring"])
-            ellipsoid("WindshieldMountCap",(side*.176,-.487,1.04),(.026,.022,.026),
-                      "metal_warm",cfg["sphere_seg"],cfg["sphere_ring"])
+            # R67: visible mounting shoes and clamp blocks expose the load path
+            # in profile instead of burying the rail inside the nose shell.
+            # R71: four dedicated, oversized clamp blocks are intentionally
+            # separated from the rails so each attachment reads as a distinct
+            # functional part in beauty/profile/top and clearance views.
+            triangulated_box("WindshieldMountBase",(side*.235,-.90,.515),(.12,.20,.12),"metal_warm")
+            triangulated_box("WindshieldClampBlock",(side*.235,-.82,.615),(.105,.105,.125),"paint_secondary")
+            triangulated_box("WindshieldUpperClampBlock",(side*.176,-.59,1.02),(.105,.105,.125),"paint_secondary")
+            tube_path("WindshieldBaseLink",[(side*.235,-.90,.56),(side*.235,-.77,.68)],.022,
+                      "metal_warm",cfg["tube_sides"],.016)
+            ellipsoid("WindshieldMountLower",lower,(.028,.020,.028),"metal_warm",cfg["sphere_seg"],cfg["sphere_ring"])
+            ellipsoid("WindshieldMountFoot",lower,(.032,.022,.030),"paint_secondary",cfg["sphere_seg"],cfg["sphere_ring"])
+            ellipsoid("WindshieldMountUpper",upper,(.028,.020,.028),"metal_warm",cfg["sphere_seg"],cfg["sphere_ring"])
+            ellipsoid("WindshieldMountCap",upper,(.032,.022,.030),"paint_secondary",cfg["sphere_seg"],cfg["sphere_ring"])
 
-    for end in [(-.14,-.46,.88),(.14,-.46,.88),(0,-.46,.725)]:
-        tube_path("SteeringSpoke",[(0,-.465,.82),end],.014,"metal_warm",cfg["tube_sides"],.009)
+    # R55: no long spokes; the compact hub is carried by the coaxial column.
     # Arms with clear elbows and hands at exact 9-and-3 grip positions.
     for side in (-1,1):
         tube_path("DriverUpperArm",[(side*.19,.12,.89),(side*.285,-.02,.82),(side*.22,-.16,.81)],.050,
@@ -824,26 +835,33 @@ def main():
     bpy.context.scene["lod_generation"]="authored profile resolution; no decimation"
     # Review metadata is written beside the blend so every render can be tied to
     # the exact same revision and the P0 dimensions remain auditable.
-    bpy.context.scene["review_revision"] = "R54"
+    bpy.context.scene["review_revision"] = args.revision
     bpy.context.scene["windshield_width_m"] = .47
     bpy.context.scene["cockpit_width_reference_m"] = .62
     bpy.context.scene["windshield_width_ratio"] = .47/.62
     bpy.context.scene["windshield_mount_count"] = 4
-    bpy.context.scene["windshield_rear_edge_y_m"] = -.35
+    bpy.context.scene["windshield_rear_edge_y_m"] = -.62
     bpy.context.scene["cockpit_rim_rear_y_m"] = .50
     bpy.context.scene["forearm_clearance_target_m"] = .05
     bpy.context.scene["steering_hub_diameter_m"] = .112
     bpy.context.scene["steering_hub_diameter_ratio_front_wheel"] = .112/.56
     bpy.context.scene["hand_grip_angles_deg"] = "150,30"
+    bpy.context.scene["helmet_shell_wrap"] = True
+    bpy.context.scene["visor_pivot_count"] = 2
+    bpy.context.scene["steering_continuous_ring"] = True
+    bpy.context.scene["steering_column_coaxial"] = True
+    bpy.context.scene["no_windshield_over_driver"] = True
     out=os.path.abspath(args.output); os.makedirs(os.path.dirname(out),exist_ok=True)
     bpy.ops.wm.save_as_mainfile(filepath=out,compress=True)
-    report={"revision":"R54","blender":bpy.app.version_string,"blend":out,
+    report={"revision":args.revision,"blender":bpy.app.version_string,"blend":out,
             "windshield_mount_count":4,"windshield_width_m":.47,
             "cockpit_width_reference_m":.62,"windshield_width_ratio":.47/.62,
-            "windshield_rear_edge_y_m":-.35,"cockpit_rim_rear_y_m":.50,
+            "windshield_rear_edge_y_m":-.62,"cockpit_rim_rear_y_m":.50,
             "forearm_clearance_target_m":.05,"steering_hub_diameter_m":.112,
             "steering_hub_diameter_ratio_front_wheel":.112/.56,
-            "hand_grip_angles_deg":[150,30],"no_runtime_integration":True}
+            "hand_grip_angles_deg":[150,30],"no_runtime_integration":True,
+            "helmet_shell_wrap":True,"visor_pivot_count":2,"steering_continuous_ring":True,
+            "steering_column_coaxial":True,"no_windshield_over_driver":True}
     report_path=os.path.join(os.path.dirname(out),"build-report.json")
     import json
     with open(report_path,"w",encoding="utf-8") as f: json.dump(report,f,indent=2)
