@@ -1,4 +1,14 @@
-# Hero Kart V2 — R117/R118 convergence record
+# Hero Kart V2 — R117–R121 convergence record
+
+## R119/R120/R121 — class-level cockpit experiments, primary visual gate still failed
+
+R119 rebuilt the cockpit/driver/aeroscreen as an authored module and passed technical audit: LOD0 38,692 tri/5 mats/0 non-manifold; LOD1 21,098/4/0; LOD2 6,028/3/0; collision 36/0. Primary vision rejected profile/top: the seat read as a detached panel/capsule and the driver remained procedural.
+
+R120 removed the rectangular side plate and replaced it with a rounded seat core. Technical audit passed: LOD0 39,180 tri/5 mats/0 non-manifold; LOD1 21,098/4/0; LOD2 6,028/3/0; collision 36/0. Primary vision still rejected the rounded capsule and mannequin-like driver.
+
+R121 removed the detached seat capsule entirely and added a functional harness to the integrated torso. Five real renders and technical audit were produced: LOD0 38,772 tri/5 mats/0 non-manifold; LOD1 21,098/4/0; LOD2 6,028/3/0; collision 36/0. Primary vision still rejects beauty/profile because the driver/cockpit does not yet read as AAA-authored. Sol was not invoked. Export/runtime remain blocked.
+
+Exact artifacts: `assets/hero-kart-v2/R119/`, `R120/`, `R121/`. Next experiment: change the driver representation class (helmet/torso/arms as a connected stylized racing shell with stronger seat/cowl integration), not another local primitive adjustment.
 
 ## R117 — technical gate passed
 
