@@ -1,7 +1,7 @@
 {
-  "revision": "R125",
+  "revision": "R126",
   "blender": "4.0.2",
-  "blend": "/tmp/sk3d-r125/assets/hero-kart-v2/R125/hero-kart-v2-R125.blend",
+  "blend": "/tmp/sk3d-r126/assets/hero-kart-v2/R126/hero-kart-v2-R126.blend",
   "windshield_mount_count": 4,
   "windshield_width_m": 0.36,
   "cockpit_width_reference_m": 0.62,

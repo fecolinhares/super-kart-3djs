@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Super Kart Hero V2 R125 from a class-level authored cockpit revision.
+"""Build Super Kart Hero V2 R128 from a class-level authored cockpit revision.
 
 Blender 4.0+: blender -b --factory-startup --python hero_kart_v2_build.py -- \
   --output /path/to/assets/hero-kart-v2/hero-kart-v2.blend
@@ -34,7 +34,7 @@ def parse_args():
         argv = __import__("sys").argv[__import__("sys").argv.index("--") + 1:]
     p = argparse.ArgumentParser()
     p.add_argument("--output", default=None)
-    p.add_argument("--revision", default="R125")
+    p.add_argument("--revision", default="R128")
     p.add_argument("job_dir", nargs="?")
     return p.parse_args(argv)
 
@@ -533,61 +533,62 @@ def create_body(cfg):
             seven_segment_digit("Number7","7",side,.292,.515,.055)
 
 
-def create_cockpit_driver_r125(cfg):
-    """R125: connected stylized pilot shell with explicit control-chain attachments."""
+def create_cockpit_driver_r128(cfg):
+    """R128: connected stylized pilot shell with explicit control-chain attachments."""
     # Class change: a single armored racing shell spans pelvis, ribcage and shoulders.
     # It is broad at the hips, pinched at the waist, and shoulder-heavy like a seated
     # arcade racer silhouette; no detached seat capsule or mannequin torso stack.
-    loft("R125_CockpitWell",[(.48,0,.42,.30,.16),(.22,0,.405,.32,.18),(-.10,0,.40,.28,.16),(-.36,0,.41,.21,.11)],max(10,cfg["body_sides"]-4),"rubber_dark",2.4)
-    loft("R125_PilotShell",[(.19,0,.54,.235,.14),(.10,0,.67,.255,.19),(.04,0,.82,.31,.235),(.10,0,.94,.255,.15)],max(16,cfg["body_sides"]//1),"paint_secondary",2.0)
+    loft("R128_CockpitWell",[(.48,0,.42,.30,.16),(.22,0,.405,.32,.18),(-.10,0,.40,.28,.16),(-.36,0,.41,.21,.11)],max(10,cfg["body_sides"]-4),"rubber_dark",2.4)
+    loft("R128_PilotShell",[(.19,0,.54,.235,.14),(.10,0,.67,.255,.19),(.04,0,.82,.31,.235),(.10,0,.94,.255,.15)],max(16,cfg["body_sides"]//1),"paint_secondary",2.0)
     # Sculpted armor collar/shoulders connect directly into the shell's upper section.
     for side in (-1,1):
-        ellipsoid("R125_ShoulderArmor",(side*.205,.075,.915),(.115,.135,.105),"paint_primary",cfg["sphere_seg"],cfg["sphere_ring"])
-        tube_path("R125_Harness",[(side*.16,-.005,.98),(side*.055,-.045,.79),(side*.13,.015,.58)],.020,"metal_warm",cfg["tube_sides"],.012)
-        tube_path("R125_SideArmor",[(side*.22,.10,.88),(side*.27,.02,.73),(side*.20,-.08,.61)],.032,"paint_primary",cfg["tube_sides"],.020)
+        ellipsoid("R128_ShoulderArmor",(side*.205,.075,.915),(.115,.135,.105),"paint_primary",cfg["sphere_seg"],cfg["sphere_ring"])
+        tube_path("R128_Harness",[(side*.16,-.005,.98),(side*.055,-.045,.79),(side*.13,.015,.58)],.020,"metal_warm",cfg["tube_sides"],.012)
+        tube_path("R128_SideArmor",[(side*.22,.10,.88),(side*.27,.02,.73),(side*.20,-.08,.61)],.032,"paint_primary",cfg["tube_sides"],.020)
     # Neck and helmet are a tapered wearable shell, not a floating sphere.
-    loft("R125_NeckShell",[(-.01,0,1.00,.095,.08),(.04,0,1.08,.11,.105)],max(12,cfg["body_sides"]//2),"paint_primary",2.0)
-    loft("R125_HelmetShell",[(-.12,0,1.10,.12,.105),(-.04,0,1.20,.18,.17),(.07,0,1.29,.14,.10)],max(16,cfg["body_sides"]//1),"paint_primary",2.0)
-    loft("R125_HelmetVisor",[(-.145,0,1.145,.085,.04),(-.125,0,1.205,.13,.055),(-.08,0,1.255,.095,.03)],max(12,cfg["body_sides"]//2),"rubber_dark",2.0)
+    loft("R128_NeckShell",[(-.01,0,.96,.10,.09),(.04,0,1.10,.115,.11)],max(12,cfg["body_sides"]//2),"paint_primary",2.0)
+    loft("R128_HelmetShell",[(-.12,0,1.07,.12,.105),(-.04,0,1.17,.18,.17),(.07,0,1.26,.14,.10)],max(16,cfg["body_sides"]//1),"paint_primary",2.0)
+    loft("R128_HelmetVisor",[(-.145,0,1.145,.085,.04),(-.125,0,1.205,.13,.055),(-.08,0,1.255,.095,.03)],max(12,cfg["body_sides"]//2),"rubber_dark",2.0)
     for side in (-1,1):
-        cylinder_x("R125_VisorPivot",(side*.135,-.13,1.19),.017,.025,"metal_warm",cfg["rim_seg"])
-    tube_path("R125_HelmetFrame",[(-.135,-.13,1.14),(-.11,-.16,1.22),(0,-.17,1.27),(.11,-.16,1.22),(.135,-.13,1.14)],.014,"metal_warm",cfg["tube_sides"],.010)
-    tube_path("R125_ChinGuard",[(-.12,-.12,1.10),(0,-.17,1.065),(.12,-.12,1.10)],.030,"paint_primary",cfg["tube_sides"],.020)
-    tube_path("R125_Collar",[(-.17,.01,1.03),(0,.07,1.00),(.17,.01,1.03)],.030,"metal_warm",cfg["tube_sides"],.020)
+        cylinder_x("R128_VisorPivot",(side*.135,-.13,1.19),.017,.025,"metal_warm",cfg["rim_seg"])
+    tube_path("R128_HelmetFrame",[(-.135,-.13,1.14),(-.11,-.16,1.22),(0,-.17,1.27),(.11,-.16,1.22),(.135,-.13,1.14)],.014,"metal_warm",cfg["tube_sides"],.010)
+    tube_path("R128_ChinGuard",[(-.12,-.12,1.10),(0,-.17,1.065),(.12,-.12,1.10)],.030,"paint_primary",cfg["tube_sides"],.020)
+    tube_path("R128_Collar",[(-.17,.01,1.03),(0,.07,1.00),(.17,.01,1.03)],.030,"metal_warm",cfg["tube_sides"],.020)
     # Legs and boots visibly terminate in the pedal shelf.
-    triangulated_box("R125_PedalShelf",(0,-.46,.29),(.44,.29,.035),"metal_warm")
+    triangulated_box("R128_PedalShelf",(0,-.46,.29),(.44,.29,.035),"metal_warm")
     for side in (-1,1):
-        tube_path("R125_Thigh",[(side*.14,.10,.58),(side*.17,-.15,.46),(side*.13,-.36,.35)],.078,"paint_secondary",cfg["tube_sides"],.060)
-        tube_path("R125_Shin",[(side*.13,-.34,.36),(side*.11,-.49,.33),(side*.095,-.56,.335)],.054,"paint_primary",cfg["tube_sides"],.040)
-        ellipsoid("R125_Boot",(side*.095,-.565,.35),(.068,.10,.052),"rubber_dark",cfg["sphere_seg"],cfg["sphere_ring"])
+        tube_path("R128_Thigh",[(side*.14,.10,.58),(side*.17,-.15,.46),(side*.13,-.36,.35)],.078,"paint_secondary",cfg["tube_sides"],.060)
+        tube_path("R128_Shin",[(side*.13,-.34,.36),(side*.11,-.49,.33),(side*.095,-.56,.335)],.054,"paint_primary",cfg["tube_sides"],.040)
+        ellipsoid("R128_Boot",(side*.095,-.565,.35),(.068,.10,.052),"rubber_dark",cfg["sphere_seg"],cfg["sphere_ring"])
     # Steering wheel, arms and hands remain a single readable functional chain.
     wheel_pts=[(.17*math.cos(TAU*i/32),-.46,.82+max(-.13,.17*math.sin(TAU*i/32))) for i in range(32)]
-    tube_path("R125_SteeringRing",wheel_pts,.022,"paint_primary",cfg["tube_sides"],closed=True)
-    cylinder_x("R125_SteeringHub",(0,-.46,.82),.040,.060,"metal_warm",cfg["rim_seg"])
-    cylinder_x("R125_SteeringCap",(0,-.46,.82),.016,.066,"paint_secondary",cfg["rim_seg"])
-    tube_path("R125_SteeringColumn",[(0,-.46,.82),(0,-.42,.66),(0,-.42,.61)],.020,"accent_emissive",cfg["tube_sides"],.015)
+    tube_path("R128_SteeringRing",wheel_pts,.022,"paint_primary",cfg["tube_sides"],closed=True)
+    cylinder_x("R128_SteeringHub",(0,-.46,.82),.040,.060,"metal_warm",cfg["rim_seg"])
+    cylinder_x("R128_SteeringCap",(0,-.46,.82),.016,.066,"paint_secondary",cfg["rim_seg"])
+    tube_path("R128_SteeringColumn",[(0,-.46,.82),(0,-.42,.66),(0,-.42,.61)],.020,"accent_emissive",cfg["tube_sides"],.015)
     for side in (-1,1):
-        tube_path("R125_UpperArm",[(side*.21,.10,.91),(side*.31,-.03,.84),(side*.23,-.17,.82)],.056,"paint_primary",cfg["tube_sides"],.044)
-        tube_path("R125_Forearm",[(side*.23,-.17,.82),(side*.18,-.445,.82)],.047,"paint_secondary",cfg["tube_sides"],.038)
+        tube_path("R128_UpperArm",[(side*.21,.10,.91),(side*.31,-.03,.84),(side*.23,-.17,.82)],.056,"paint_primary",cfg["tube_sides"],.044)
+        tube_path("R128_Forearm",[(side*.23,-.17,.82),(side*.18,-.445,.82)],.047,"paint_secondary",cfg["tube_sides"],.038)
         a=math.radians(30 if side>0 else 150); gx=.17*math.cos(a); gz=.82+.17*math.sin(a)
-        hand=ellipsoid("R125_Hand",(gx,-.455,gz),(.039,.030,.047),"metal_warm",cfg["sphere_seg"],cfg["sphere_ring"]); hand["grip_angle_deg"]=30 if side>0 else 150
-    # R125 class change: replace the isolated arc/rollbar reading with a shallow,
+        hand=ellipsoid("R128_Hand",(gx,-.455,gz),(.039,.030,.047),"metal_warm",cfg["sphere_seg"],cfg["sphere_ring"]); hand["grip_angle_deg"]=30 if side>0 else 150
+    # R128 class change: replace the isolated arc/rollbar reading with a shallow,
     # closed cowl-integrated cockpit shell. It is one authored volume with a low
     # front lip, swept shoulders and a rear opening that leaves the pilot visible.
-    # R125: remove the dominant opaque cowl slab; retain only the compact authored lens below.
+    # R128: remove the dominant opaque cowl slab; retain only the compact authored lens below.
     # The windshield must frame the driver, not become a second nose.
     # No replacement block is added here.
     # Two short structural saddles are embedded into the shell/cowl transition,
     # not freestanding screen supports.
+    # R128: the review windshield is now a single flush lens with no exposed rail rods.
+    # Cowl connection is represented by the lens edge and the two flush mount points only.
     for side in (-1,1):
-        tube_path("R125_CowlShoulderRail",[(side*.33,-.79,.655),(side*.35,-.70,.70),(side*.27,-.53,.79)],.018,"paint_secondary",cfg["tube_sides"],.012)
-        fast=ellipsoid("R125_CowlMount",(side*.335,-.76,.66),(.018,.014,.012),"metal_warm",cfg["sphere_seg"],cfg["sphere_ring"])
+        fast=ellipsoid("R128_CowlMount",(side*.17,-.59,.64),(.018,.010,.010),"metal_warm",cfg["sphere_seg"],cfg["sphere_ring"])
         fast["mount_type"]="integrated_cowl_shell_mount"
 
 
 def create_cockpit_driver(cfg):
     if cfg["level"] == 0:
-        create_cockpit_driver_r125(cfg)
+        create_cockpit_driver_r128(cfg)
         return
     loft("CockpitWell",[(.46,0,.42,.29,.15),(.30,0,.405,.30,.16),(.05,0,.39,.27,.15),(-.28,0,.40,.20,.10)],
          max(10,cfg["body_sides"]-4),"rubber_dark",2.4)
@@ -656,11 +657,9 @@ def create_cockpit_driver(cfg):
         # The visor loft is authored front-to-back; explicitly orient its closed shell outward.
         bm=bmesh.new(); bm.from_mesh(visor.data); bmesh.ops.reverse_faces(bm, faces=list(bm.faces)); bm.to_mesh(visor.data); bm.free()
         bevel=visor.modifiers.new("Rounded windshield edge","BEVEL"); bevel.width=.006; bevel.segments=3
+        # R128: lens is flush-mounted directly to the cowl; no exposed rail.
         for side in (-1,1):
-            tube_path("KartWindshieldAPillar",[(side*.18,-.58,.62),(side*.18,-.54,.80)],.010,"metal_warm",cfg["tube_sides"],.008)
-        tube_path("KartWindshieldCowlRail",[(-.18,-.58,.62),(-.09,-.61,.615),(0,-.64,.61),(.09,-.61,.615),(.18,-.58,.62)],.010,"paint_secondary",cfg["tube_sides"],.008)
-        for side in (-1,1):
-            fast=ellipsoid("FlushWindshieldFastener",(side*.18,-.58,.62),(.012,.008,.008),"metal_warm",cfg["sphere_seg"],cfg["sphere_ring"])
+            fast=ellipsoid("FlushWindshieldFastener",(side*.17,-.59,.64),(.018,.010,.010),"metal_warm",cfg["sphere_seg"],cfg["sphere_ring"])
             fast["mount_type"]="flush_cowl_fastener"
 
     # R55: no long spokes; the compact hub is carried by the coaxial column.
@@ -869,7 +868,7 @@ def main():
     if visor:
         bm=bmesh.new(); bm.from_mesh(visor.data); bmesh.ops.reverse_faces(bm, faces=list(bm.faces)); bm.to_mesh(visor.data); bm.free()
     # The class-level pilot loft has a non-monotonic seating profile; enforce outward winding.
-    pilot=bpy.data.objects.get('LOD0_R125_PilotShell')
+    pilot=bpy.data.objects.get('LOD0_R128_PilotShell')
     if pilot:
         bm=bmesh.new(); bm.from_mesh(pilot.data); bmesh.ops.reverse_faces(bm, faces=list(bm.faces)); bm.to_mesh(pilot.data); bm.free()
     # Stable deterministic object ordering and explicit metadata.
@@ -898,7 +897,7 @@ def main():
     bpy.context.scene["no_windshield_over_driver"] = True
     bpy.context.scene["windshield_frame_continuous"] = True
     bpy.context.scene["windshield_integrated_cowl"] = True
-    out=os.path.abspath(args.output or os.path.join(os.path.dirname(__file__), "hero-kart-v2-R125.blend")); os.makedirs(os.path.dirname(out),exist_ok=True)
+    out=os.path.abspath(args.output or os.path.join(os.path.dirname(__file__), "hero-kart-v2-R128.blend")); os.makedirs(os.path.dirname(out),exist_ok=True)
     bpy.ops.wm.save_as_mainfile(filepath=out,compress=True)
     report={"revision":args.revision,"blender":bpy.app.version_string,"blend":out,
             "windshield_mount_count":4,"windshield_width_m":.36,
