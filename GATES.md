@@ -20,3 +20,8 @@
 - [ ] R142-3: Cinco renders R142 e technical-audit.json existem localmente; todos os gates técnicos passam.
 - [ ] R142-4: Vision primário analisa as cinco vistas; Sol só é chamado se as cinco passarem.
 - [ ] R142-5: Se aprovação dupla ocorrer, commit/push atômico e cinco imagens anexadas ao usuário; caso contrário, rejeição documentada e próxima revisão criada.
+
+- [ ] R154-1: Reconstrução do piloto executada em R154 com blend, cinco renders e auditoria técnica válida.
+  EVIDENCE: R154 build/render reais no Blender 4.0.2/LXC105; cinco PNGs e `technical-audit.json` localizados; `all_structural_gates_pass: true`.
+- [ ] R154-2: Vision primário aprova as cinco vistas e Sol aprova a mesma revisão.
+  EVIDENCE: R154 rejeitada visualmente nas cinco vistas; Sol não chamado para aprovação final.
