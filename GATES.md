@@ -11,4 +11,4 @@
 - [x] R125-6: Sol gpt-5.6-sol xhigh somente se primary vision passar; caso contrário status explicitamente não chamado.
   EVIDENCE: primary vision REJECT; Sol NÃO INVOCADO por protocolo; export/runtime bloqueados.
 - [x] R125-7: Documentação, vault, wiki e memória atualizados; commit atômico e push apenas dos arquivos escopados.
-  EVIDENCE: docs/vault/wiki atualizados; commit/push serão registrados após verificação final.
+  EVIDENCE: docs/vault/wiki atualizados; commit `dc67628` publicado em `origin/main` com somente GATES, gerador canônico, documentação e artefatos R125 escopados.
