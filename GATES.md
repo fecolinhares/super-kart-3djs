@@ -1,34 +1,25 @@
-# Hero Kart V2 — R115 structural rebuild gates
+# Hero Kart V2 — autonomous convergence gates
 
-- [ ] R115-1 — Reconstrução estrutural executada sobre R114, sem sobrescrever checkpoints anteriores
-  CHECK: test -s assets/hero-kart-v2/R115/hero-kart-v2-R115.blend && test -s assets/hero-kart-v2/R115/rebuild_r115.py
-  EXPECT: artefato R115 não vazio e script reprodutível
-  EVIDENCE: pending
+- [x] R117-1 — Authored generator and machine-readable contract corrected before build; R116 preserved
+  EVIDENCE: `assets/hero-kart-v2/R117/build_r117.py` and `agentic-contract.json`; R116 untouched.
 
-- [ ] R115-2 — Prova visual multi-view da mesma revisão
-  CHECK: test $(find assets/hero-kart-v2/R115/renders -maxdepth 1 -type f -name '*.png' | wc -l) -ge 5
-  EXPECT: pelo menos 5 renders R115
-  EVIDENCE: pending
+- [x] R117-2 — R117 built reproducibly in Blender 4.0.2 on GPU runner without overwriting prior checkpoints
+  EVIDENCE: `/mnt/storage2TB/Coding-Projects/super-kart-3djs/assets/hero-kart-v2/R117/hero-kart-v2-R117.blend` non-empty; runner output `HERO_KART_V2_BUILD_OK`.
 
-- [ ] R115-3 — Critério técnico: budgets, manifold, UV, n-gons e colisão
-  CHECK: python3 - <<'PY'
-import json
-p=json.load(open('assets/hero-kart-v2/R115/technical-audit.json'))
-print('R115_TECH_PASS' if p.get('technical_pass') else 'R115_TECH_FAIL')
-PY
-  EXPECT: R115_TECH_PASS
-  EVIDENCE: pending
+- [x] R117-3 — Five canonical renders exist for R118
+  EVIDENCE: `assets/hero-kart-v2/R118/renders/` contains beauty.png, profile.png, top.png, rear.png, clearance.png.
 
-- [ ] R115-4 — Meu vision aprova beauty/profile/top/rear/clearance da R115
-  EVIDENCE: pending
+- [x] R117-4 — R117 technical contract passes budgets, manifold, normals, UVs, n-gons, scale, materials and collision
+  EVIDENCE: `assets/hero-kart-v2/R117/technical-audit.json`: `technical_pass=true`; LOD0 40588/5/0/0, LOD1 21098/4/0/0, LOD2 6028/3/0/0, collision 36.
 
-- [ ] R115-5 — Sol gpt-5.6-sol + xhigh aprova exatamente os mesmos renders R115
-  EVIDENCE: pending
+- [ ] R118-5 — Primary vision approves all five R118 proof views on actual pixels
+  EVIDENCE: REJECTED. Beauty, profile, top, rear and clearance all failed the cockpit/driver/windshield P0 gate; see `docs/HERO-KART-V2-R117-R118.md`.
 
-- [ ] R115-6 — Documentação do repo, vault, wiki/index/log e memória sincronizadas sem secrets
-  EVIDENCE: pending
+- [ ] R118-6 — Sol gpt-5.6-sol with xhigh approves the exact same five R118 renders after primary pass
+  EVIDENCE: not invoked because primary gate failed; no approval inferred.
 
-- [ ] R115-7 — Commit(s) atômicos publicados e origin/main coincide com HEAD
-  CHECK: test "$(git rev-parse HEAD)" = "$(git ls-remote origin refs/heads/main | cut -f1)"
-  EXPECT: HEAD publicado em origin/main
-  EVIDENCE: pending
+- [ ] R118-7 — Final artifacts and documentation are read back; no runtime/export integration before dual approval
+  EVIDENCE: checkpoints and docs read back; final delivery remains blocked by visual gate.
+
+- [ ] R118-8 — Atomic accepted changes are committed and pushed; unrelated pre-existing worktree files are not staged
+  EVIDENCE: pending because revision is rejected and no accepted production change is being published.
