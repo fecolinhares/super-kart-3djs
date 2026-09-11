@@ -12,3 +12,11 @@
   EVIDENCE: primary vision REJECT; Sol NÃO INVOCADO por protocolo; export/runtime bloqueados.
 - [x] R125-7: Documentação, vault, wiki e memória atualizados; commit atômico e push apenas dos arquivos escopados.
   EVIDENCE: docs/vault/wiki atualizados; commits `dc67628` e `f2982ef` publicados em `origin/main`; segundo commit removeu bytecode gerado e deixou somente GATES, gerador canônico, documentação e artefatos R125 escopados.
+
+- [ ] R142-1: Gerador estrutural completo baseado no pipeline R139, com carroceria, cockpit, piloto integrado, rodas, traseira, LODs e COLLISION.
+  CHECK: python3 -m py_compile R142_build.py R142_render.py
+  EXPECT: exit code 0
+- [ ] R142-2: Build remoto real no Blender 4.0.2 salva o blend R142 e não contém traceback.
+- [ ] R142-3: Cinco renders R142 e technical-audit.json existem localmente; todos os gates técnicos passam.
+- [ ] R142-4: Vision primário analisa as cinco vistas; Sol só é chamado se as cinco passarem.
+- [ ] R142-5: Se aprovação dupla ocorrer, commit/push atômico e cinco imagens anexadas ao usuário; caso contrário, rejeição documentada e próxima revisão criada.
