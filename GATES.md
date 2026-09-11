@@ -1,46 +1,34 @@
-# Hero Kart V2 — R73 reconstrução radical e aprovação dupla
-Escopo: substituir integralmente o conjunto visual R72 rejeitado; sem integração de runtime.
+# Hero Kart V2 — R115 structural rebuild gates
 
-- [ ] G1 — R73 elimina a geometria R72 proibida e cria windshield pequeno integrado ao cowl
-  CHECK: python3 - <<'PY'
-from pathlib import Path
-s=Path('scripts/blender/hero_kart_v2_build.py').read_text()
-forbidden=['WindshieldLowerCrossbar','WindshieldLowerHeader','WindshieldUpperHeader','WindshieldNosePlinth','WindshieldClampBlock','WindshieldUpperClampBlock','WindshieldBaseLink','SteeringLowerGrip','SteeringDashBracket','SteeringDashFlange']
-required=['R73','KartWindshieldLens','KartWindshieldFrame','FlushWindshieldFastener','DSteeringRing','SteeringHub','SteeringColumn']
-print('R73_SOURCE_OK' if all(x in s for x in required) and not any(x in s for x in forbidden) else 'R73_SOURCE_FAIL')
-PY
-  EXPECT: R73_SOURCE_OK
+- [ ] R115-1 — Reconstrução estrutural executada sobre R114, sem sobrescrever checkpoints anteriores
+  CHECK: test -s assets/hero-kart-v2/R115/hero-kart-v2-R115.blend && test -s assets/hero-kart-v2/R115/rebuild_r115.py
+  EXPECT: artefato R115 não vazio e script reprodutível
   EVIDENCE: pending
 
-- [ ] G2 — Blender 4.0.2 executa R73 sem traceback e salva blend/report
-  CHECK: test -s assets/hero-kart-v2/R73/hero-kart-v2-R73.blend && test -s assets/hero-kart-v2/R73/build-report.json
-  EXPECT: artefatos R73 presentes e não vazios
+- [ ] R115-2 — Prova visual multi-view da mesma revisão
+  CHECK: test $(find assets/hero-kart-v2/R115/renders -maxdepth 1 -type f -name '*.png' | wc -l) -ge 5
+  EXPECT: pelo menos 5 renders R115
   EVIDENCE: pending
 
-- [ ] G3 — Beauty/profile/top/clearance da mesma R73 existem
-  CHECK: test -s assets/hero-kart-v2/R73/renders/beauty.png && test -s assets/hero-kart-v2/R73/renders/windshield-profile.png && test -s assets/hero-kart-v2/R73/renders/windshield-top.png && test -s assets/hero-kart-v2/R73/renders/driver-clearance.png
-  EXPECT: quatro PNGs R73 não vazios
-  EVIDENCE: pending
-
-- [ ] G4 — Auditoria geométrica R73 passa sem blocos/canopy alto/pedestal e com clearance mensurável
+- [ ] R115-3 — Critério técnico: budgets, manifold, UV, n-gons e colisão
   CHECK: python3 - <<'PY'
 import json
-p=json.load(open('assets/hero-kart-v2/R73/p0-metrics.json'))
-print('R73_METRICS_PASS' if p.get('all_pass') and p.get('revision')=='R73' and p.get('windshield_mount_count')==2 and p.get('steering_d_shape') else 'R73_METRICS_FAIL')
+p=json.load(open('assets/hero-kart-v2/R115/technical-audit.json'))
+print('R115_TECH_PASS' if p.get('technical_pass') else 'R115_TECH_FAIL')
 PY
-  EXPECT: R73_METRICS_PASS
+  EXPECT: R115_TECH_PASS
   EVIDENCE: pending
 
-- [ ] G5 — Vision próprio inspeciona os quatro arquivos R73 e aprova sem auto-relato
+- [ ] R115-4 — Meu vision aprova beauty/profile/top/rear/clearance da R115
   EVIDENCE: pending
 
-- [ ] G6 — Sol gpt-5.6-sol + xhigh inspeciona os mesmos quatro arquivos após vision próprio e aprova
+- [ ] R115-5 — Sol gpt-5.6-sol + xhigh aprova exatamente os mesmos renders R115
   EVIDENCE: pending
 
-- [ ] G7 — Repo, vault, wiki/entity/index/log e memória atualizados sem secrets
+- [ ] R115-6 — Documentação do repo, vault, wiki/index/log e memória sincronizadas sem secrets
   EVIDENCE: pending
 
-- [ ] G8 — Cada commit atômico foi pushado e remote main coincide com HEAD
+- [ ] R115-7 — Commit(s) atômicos publicados e origin/main coincide com HEAD
   CHECK: test "$(git rev-parse HEAD)" = "$(git ls-remote origin refs/heads/main | cut -f1)"
   EXPECT: HEAD publicado em origin/main
   EVIDENCE: pending

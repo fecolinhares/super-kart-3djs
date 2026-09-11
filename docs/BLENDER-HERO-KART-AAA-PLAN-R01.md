@@ -3,6 +3,13 @@
 ## Direção
 Reconstruir de fora para dentro. A carroceria contínua define o kart; rodas, suspensão, aero e piloto complementam a forma.
 
+## R115/R116 — loop retomado em 2026-09-11
+- R115 foi uma tentativa de camada estrutural sobre R114 e foi rejeitada pelo vision próprio em todas as cinco views: caixas/cilindros fizeram cockpit, piloto e windshield parecerem montagem artificial.
+- R116 voltou ao gerador autoral limpo `scripts/blender/hero_kart_v2_build.py`, executou no Blender 4.0.2/LXC105 e gerou cinco renders reais; vision próprio ainda rejeitou por leitura de mannequin, windshield/volante ambíguos e inconsistência estrutural nas vistas.
+- Auditoria técnica R116: `all_structural_gates_pass=false`; LOD0 `42892` tri/6 mats/2268 non-manifold, LOD1 `23376`/5/1464, LOD2 `11288`/5/888, COLLISION `36`/manifold. Export/runtime continuam bloqueados.
+- Sol foi consultado com `gpt-5.6-sol` + `xhigh` para estratégia visual sobre R114, mas excedeu aproximadamente 10 minutos sem resposta; timeout não é aprovação.
+- Próximo experimento obrigatório: corrigir o gerador autoral e o contrato técnico antes de qualquer nova alteração visual; não adicionar primitivas sobre R114/R115.
+
 ## Referências de linguagem
 - Mario Kart 8 Deluxe: relação carroceria/cockpit/piloto e rodas expostas.
 - Sonic & All-Stars Racing: fluxo longitudinal, nariz agressivo e aero funcional.
