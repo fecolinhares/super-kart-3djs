@@ -15,4 +15,4 @@
 - [x] R124-7 — No export/runtime promotion occurs unless R124 has both visual approvals and technical pass
   EVIDENCE: export and runtime integration remain blocked in `docs/HERO-KART-V2-R124.md`.
 - [x] R124-8 — Scoped atomic commit and push are verified
-  EVIDENCE: pending until documentation and artifact files are committed and pushed.
+  EVIDENCE: commit `95d711d` pushed to `origin/main`; only `GATES.md`, `docs/HERO-KART-V2-R124.md`, and `assets/hero-kart-v2/R124/` were staged for the revision.
