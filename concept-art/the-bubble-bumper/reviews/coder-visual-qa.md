@@ -1,14 +1,12 @@
-# Coder visual QA — Blockout v017
+# Coder visual QA — Blockout v019
 
-**Status:** `CODER_BLOCKOUT_PASS`; Sol gate in progress; user gate pending.
+**Status:** `CODER_FIDELITY_PASS`; Sol fidelity gate passed; user gate pending.
 
-## Single-prancha evidence
+## Fidelity evidence
 
-- Artifact: `modeling/v017-contact-sheet.png` (CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC).
-- Top: continuous U with visible side returns/hardpoints, open cockpit, seated pilot, integrated pods, compact rear.
-- Profile: head/neck/torso/pelvis/seat chain reads continuously; arms reach steering; cockpit is recessed; bumper return is connected.
-- Front: U reads as one continuous bumper with side returns; nose and cockpit center; no detached splitter.
-- Rear: compact central housing/grille, exactly two separate side exhausts, low bar, chassis/upright suspension mounts.
-- Isometric: shell/pods/cockpit are coherent; long floating yellow pod rails removed; rear hierarchy is compact.
+- Artifact: `modeling/v019-contact-sheet.png` with CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC.
+- v018 was rejected internally for oversized pods and a low/horizontal bumper read.
+- v019 corrected those structural issues: proportionally reduced yellow pods and a short frontal U in the frontal plane.
+- The comparison now reads as the same long/narrow kart family: yellow side pods, large central pilot, corner wheels, blue/yellow frontal bumper, compact rear engine and two exhausts.
 
-`CODER_BLOCKOUT_PASS`: v017 is approved for Sol review. This is a blockout approval, not final asset approval.
+`CODER_FIDELITY_PASS`: v019 is approved for Sol review and user approval.

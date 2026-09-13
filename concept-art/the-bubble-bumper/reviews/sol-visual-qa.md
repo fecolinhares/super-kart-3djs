@@ -1,11 +1,11 @@
-# Sol visual QA — Blockout v017
+# Sol visual QA — Blockout v019
 
-**Veredito:** `SOL_BLOCKOUT_PASS`
+**Veredito:** `SOL_FIDELITY_PASS`
 
-**Input:** `modeling/v017-contact-sheet.png`, uma prancha com CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC.
+**Input:** `modeling/v019-contact-sheet.png`, com CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC.
 
-**Job:** `d887d2a5def2bb790932093b44d5cc79`
+**Job:** `30b8c25c659e24979abee7575fb4e03b`
 
 **Routing:** `gpt-5.6-sol-900k`, provider `openai-codex`, reasoning `xhigh`.
 
-Sol aprovou o blockout v017 nos P0 solicitados: bumper U, cockpit/piloto/volante, side pods, rear housing, dois escapes e suspensão. O gate do usuário permanece pendente; não promover para detalhes/export final antes da aprovação explícita do usuário.
+O gate avaliou fidelidade de silhueta, proporção e composição: kart longo/estreito, pods amarelos, piloto central, cockpit/volante, U frontal, rodas nos corners, motor/barra, dois escapes e paleta azul-amarelo. Sol aprovou v019 para o gate do usuário. v017 não é mais candidato; a rejeição do usuário foi incorporada na reconstrução v018/v019.
