@@ -1,31 +1,11 @@
-# Sol visual QA — Blockout 007–009
+# Sol visual QA — Blockout v017
 
-**Veredito atual:** `SOL_BLOCKOUT_REJECT`
-**Passes Sol:** 4 rejeições consecutivas após o primeiro plano: v005, v006, v007, v009.
+**Veredito:** `SOL_BLOCKOUT_PASS`
 
-## O que passa
+**Input:** `modeling/v017-contact-sheet.png`, uma prancha com CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC.
 
-- Classe geral Bubble Bumper reconhecível.
-- Organização superior macro correta.
-- Quatro pneus grandes, pretos e lisos.
-- Traseira com housing, círculo, grade, barra e exatamente dois escapes.
-- Proporção baixa/larga consistente entre as vistas.
+**Job:** `d887d2a5def2bb790932093b44d5cc79`
 
-## P0 persistentes
+**Routing:** `gpt-5.6-sol-900k`, provider `openai-codex`, reasoning `xhigh`.
 
-1. **Bumper:** mesmo sendo uma curva no código, os pixels ainda leem barra/peças concorrentes; não há U único com retornos e hardpoints inequívocos no top/profile/front/isometric.
-2. **Cockpit/piloto:** assento/pelve/coxas não produzem leitura convincente de ocupante sentado; a cadeia wheel→hub→column→dash/hands continua ambígua entre vistas.
-3. **Side pods:** ainda parecem componentes colocados ao lado do shell, com gaps/terminações abruptas em vez de nascerem da célula central.
-4. **Suspensão:** braços/molas têm terminações escondidas atrás de pneus/pods; as duas ancoragens funcionais não são comprovadas em todas as vistas.
-
-## Decisão de processo
-
-Após quatro rejeições Sol na mesma classe de blockout, bloquear novos patches de tubes/lofts/anchors. O próximo experimento precisa trocar a representação:
-
-- primary shell autoral contínua com cockpit escavado;
-- side pods esculpidos como transições da shell, não lofts laterais independentes;
-- bumper modelado como uma única peça authored mesh com sockets no shell;
-- driver/steering como asset base separado e posicionado por rig/socket;
-- suspensão como assembly com mounts explícitos em frame e upright.
-
-Nenhuma aprovação Sol ou do usuário foi concedida. O render não deve ser enviado como final.
+Sol aprovou o blockout v017 nos P0 solicitados: bumper U, cockpit/piloto/volante, side pods, rear housing, dois escapes e suspensão. O gate do usuário permanece pendente; não promover para detalhes/export final antes da aprovação explícita do usuário.
