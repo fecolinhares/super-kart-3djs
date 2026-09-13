@@ -10,3 +10,5 @@ Catálogo das concept arts oficiais recebidas para o Super Kart 3D.js. Cada conc
 - [[retro-rocket/retro-rocket|Retro Rocket]] — kart foguete inspirado nos F1 dos anos 60, com rodas expostas e suspensão exagerada.
 - [[hydro-blaster/hydro-blaster|Hydro-Blaster]] — kart-lancha offshore com casco pontudo, cockpit bolha fechado e turbinas traseiras elevadas.
 - [[hyper-angular/hyper-angular|Hyper-Angular]] — kart agressivo e facetado, com nariz pontudo, chassi baixo/longo e motor traseiro maciço.
+- [[space-sweeper/space-sweeper|Space Sweeper]] — módulo cartunesco de coleta espacial, com cockpit bolha grande, antenas e tanques de sucata.
+- [[hover-drifter/hover-drifter|Hover Drifter]] — kart anti-gravidade com emissores magnéticos redondos, brilho ciano e cabine bolha.
