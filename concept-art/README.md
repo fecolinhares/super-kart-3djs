@@ -12,3 +12,4 @@ Catálogo das concept arts oficiais recebidas para o Super Kart 3D.js. Cada conc
 - [[hyper-angular/hyper-angular|Hyper-Angular]] — kart agressivo e facetado, com nariz pontudo, chassi baixo/longo e motor traseiro maciço.
 - [[space-sweeper/space-sweeper|Space Sweeper]] — módulo cartunesco de coleta espacial, com cockpit bolha grande, antenas e tanques de sucata.
 - [[hover-drifter/hover-drifter|Hover Drifter]] — kart anti-gravidade com emissores magnéticos redondos, brilho ciano e cabine bolha.
+- [[nitro-scrapper/nitro-scrapper|Nitro Scrapper]] — kart de sucata montada com tubos expostos, placas rebitadas, motor gigante e pneus de trator.
