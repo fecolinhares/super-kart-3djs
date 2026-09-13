@@ -1,24 +1,13 @@
-# Coder visual QA — Authored shell v010/v011
+# Coder visual QA — Blockout v015
 
 **Status:** `CODER_BLOCKOUT_PASS`; Sol gate pending; user gate pending.
 
-## Representation change
+## P0 evidence
 
-- v010 introduced an authored deck ring around the cockpit, but an accidental inner bridge face closed the opening.
-- v011 removed that face; the deck now has a real open cockpit cavity around the seat/pilot.
-- Lower tub, deck shell, cockpit shoulders and side pods form a new representation class; v009 remains preserved.
+- Top: full vehicle present, U continuous and returns visible, side pods integrated, wheels exposed, rear assembly readable.
+- Profile: pilot seated clearly inside cavity, pelvis/torso aligned, wheel/column/dash in front, bumper and side pod flow into body.
+- Front: U single continuous, nose centered, tires exposed, pilot/steering centered, no splitter.
+- Rear: housing compact, circle/grille clear, low bar present, two exits visible, springs/arms/mounts readable, no floating modules.
+- Isometric: authored shell with open cockpit, U single path, side pods flowing from shell, rear housing with mechanical groups integrated.
 
-## P0 evidence v011
-
-- Top: full vehicle, continuous U and hardpoints, side pods, open cockpit and rear assembly.
-- Profile: pilot/seat/pelvis are inside the cavity; wheel/column are in front; low shell and smooth tires remain.
-- Front: U, nose, exposed tires and centered cockpit read consistently.
-- Rear: housing, ring, grille/slots, low bar, two exhausts, springs/mounts read.
-- Isometric: authored shell/deck, true opening, integrated pods and mechanical rear are coherent.
-
-## P1 remaining
-
-- Smooth deck/pod transitions and reduce long yellow rails after Sol P0.
-- Refine pilot face/helmet, materials and secondary forms only after approval.
-
-`CODER_BLOCKOUT_PASS`: send v011 to Sol.
+No blocking P0 found; minor P1 (surface polish) noted but does not block gate.
