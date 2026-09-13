@@ -1,20 +1,18 @@
-# Coder visual QA — AAA v042
+# Coder visual QA — AAA v045
 
 **Status:** `CODER_AAA_PASS`; Sol AAA gate passed; user gate pending.
 
-## v042 corrections
+## v045 correction
 
-- Continuous nose/cowl bridge replaced the stacked front read.
-- Driver gained readable shoulder mass and two-segment arms while remaining seated in the cockpit.
-- Front fender caps now connect pod/wheel silhouette.
-- Rear exhausts gained compact connector pipes and retained lips/bar/housing.
-- Previous authored pods, physical inset, U, wheel/hub/spring and AAA secondary detail remain intact.
+- Added a lateral-facing helmet face/visor/eye panel so the profile matches the concept character identity.
+- Strengthened seated side anatomy: chest, hip, upper arm, forearm, glove, thigh, shin and boot.
+- Preserved the reference tile-by-tile geometry: pods, U, wheel placement, compact rear and twin exhausts.
 
 ## Evidence
 
-- `modeling/v042-contact-sheet.png`: CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC.
-- Build output: `BUBBLE_BUMPER_BLOCKOUT_OK`, 196 objects.
+- `modeling/v045-contact-sheet.png`: reference board + TOP/PROFILE/FRONT/REAR/ISOMETRIC.
+- Build output: `BUBBLE_BUMPER_BLOCKOUT_OK`, 211 objects.
 - Internal vision: `PASS`.
-- Sol: `SOL_AAA_PASS`, job `a32f82c963dbf95643c28044f892906d`.
+- Sol: `SOL_AAA_PASS`, job `93721ab5dc595625639ddeaad50789b8`.
 
-v042 is ready for explicit user approval. Final export/runtime remains blocked.
+v045 is ready for explicit user approval. Final export/runtime remains blocked.
