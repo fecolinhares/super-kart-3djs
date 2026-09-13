@@ -110,27 +110,31 @@ def create_scene():
     # visible returns/mounts tie the bumper U into the nose/body; no floating ring
     tube('BUMPER_MOUNT_L',[(-.66,.70,.40),(-.55,.65,.41),(-.42,.62,.43)],.032,MATS['metal_dark'])
     tube('BUMPER_MOUNT_R',[(.66,.70,.40),(.55,.65,.41),(.42,.62,.43)],.032,MATS['metal_dark'])
+    tube('BUMPER_FRAME_RETURN_L',[(-.42,.62,.43),(-.37,.42,.44),(-.30,.30,.44)],.028,MATS['metal_dark'])
+    tube('BUMPER_FRAME_RETURN_R',[(.42,.62,.43),(.37,.42,.44),(.30,.30,.44)],.028,MATS['metal_dark'])
     tube('BUMPER_NOSE_BRIDGE',[(-.20,1.18,.36),(0,1.21,.40),(.20,1.18,.36)],.035,MATS['metal_dark'])
     # short rounded nose above bumper
     nose=loft_y('NOSE',[(.75,0,.49,.16,.10),(.98,0,.50,.22,.12),(1.18,0,.48,.14,.08)],MATS['body_blue'],18)
     box('NOSE_PANEL',(0,1.17,.49),(.10,.018,.055),MATS['accent_yellow'],.012)
     # open cockpit / seat: compact oval well and rounded coaming, not a flat plate
-    ellipsoid('COCKPIT_WELL',(0,.10,.505),(.19,.27,.015),MATS['dark'],24,10)
+    ellipsoid('COCKPIT_WELL',(0,.10,.475),(.19,.27,.015),MATS['dark'],24,10)
     # Single recessed oval well; the seat is the only internal raised mass.
-    box('COCKPIT_FLOOR',(0,.12,.49),(.17,.24,.012),MATS['dark'],.012)
-    seat=ellipsoid('SEAT',(0,.05,.545),(.16,.24,.060),MATS['dark'],18,10)
+    box('COCKPIT_FLOOR',(0,.12,.465),(.17,.24,.012),MATS['dark'],.012)
+    seat=ellipsoid('SEAT',(0,.05,.515),(.16,.24,.052),MATS['dark'],18,10)
     # steering wheel and column
-    torus('STEERING_WHEEL',(0,.47,.70),.145,.032,MATS['dark'],rot=(math.pi/2,0,0))
-    tube('STEERING_COLUMN',[(0,.47,.70),(0,.22,.56)],.018,MATS['metal_dark'])
+    torus('STEERING_WHEEL',(0,.45,.66),.125,.032,MATS['dark'],rot=(math.pi/2,0,0))
+    tube('STEERING_COLUMN',[(0,.45,.66),(0,.22,.54)],.018,MATS['metal_dark'])
     # stylized small pilot, kept subordinate to kart
-    torso=ellipsoid('PILOT_TORSO',(0,.03,.63),(.10,.11,.14),MATS['pilot'],16,10)
-    helmet=ellipsoid('PILOT_HELMET',(0,.16,.82),(.095,.10,.10),MATS['pilot'],18,10)
-    visor=ellipsoid('PILOT_VISOR',(0,.055,.83),(.068,.014,.032),MATS['glass'],16,8)
+    torso=ellipsoid('PILOT_TORSO',(0,.03,.59),(.10,.11,.13),MATS['pilot'],16,10)
+    helmet=ellipsoid('PILOT_HELMET',(0,.16,.77),(.095,.10,.10),MATS['pilot'],18,10)
+    visor=ellipsoid('PILOT_VISOR',(0,.055,.78),(.068,.014,.032),MATS['glass'],16,8)
     for s in (-1,1):
-        tube('PILOT_ARM_L' if s<0 else 'PILOT_ARM_R',[(s*.085,.05,.71),(s*.14,.28,.68),(s*.10,.43,.66)],.020,MATS['pilot_yellow'])
+        tube('PILOT_ARM_L' if s<0 else 'PILOT_ARM_R',[(s*.085,.05,.67),(s*.14,.27,.64),(s*.10,.42,.63)],.020,MATS['pilot_yellow'])
     # rear mechanical module
     housing=loft_y('REAR_HOUSING',[(-.44,0,.59,.20,.12),(-.66,0,.62,.23,.15),(-.84,0,.59,.19,.13)],MATS['metal'],18)
     box('REAR_GRILLE',(0,-.91,.49),(.16,.018,.055),MATS['metal_dark'],.012)
+    for gx in (-.12,-.04,.04,.12): box('GRILLE_SLOT_'+str(gx),(gx,-.935,.49),(.012,.012,.045),MATS['metal'],.004)
+    tube('REAR_LOWER_BAR',[(-.30,-.94,.41),(0,-.96,.41),(.30,-.94,.41)],.025,MATS['metal_dark'])
     torus('REAR_CENTRAL_RING',(0,-.92,.62),.075,.018,MATS['metal_dark'],rot=(math.pi/2,0,0))
     tube('REAR_BAR',[(-.66,-.82,.70),(0,-.88,.71),(.66,-.82,.70)],.035,MATS['body_blue'])
     for s in (-1,1):
@@ -138,6 +142,7 @@ def create_scene():
         tube('EXHAUST_L' if s<0 else 'EXHAUST_R',[(s*.13,-.78,.67),(s*.27,-.94,.84),(s*.34,-1.02,.94)],.035,MATS['metal_dark'])
         # long mechanical suspension arms + spring coils represented as continuous curves
         tube('SUSP_ARM_L' if s<0 else 'SUSP_ARM_R',[(s*.40,-.58,.37),(s*.58,-.62,.36),(s*.63,-.60,.30)],.025,MATS['metal_dark'])
+        tube('REAR_MOUNT_L' if s<0 else 'REAR_MOUNT_R',[(s*.28,-.66,.55),(s*.48,-.66,.48),(s*.59,-.61,.34)],.022,MATS['metal'])
         for k in range(4):
             y=-.70-k*.035; z=.52+k*.012
             tube('SPRING_L_%d'%k if s<0 else 'SPRING_R_%d'%k,[(s*.53,y,z),(s*.58,y-.012,z+.04)],.012,MATS['accent_yellow'])
@@ -159,9 +164,9 @@ def lights_and_camera():
     cams={
       'top':((0,0,5.0),(0,.1,.40),1.96),
       'profile':((-4.0,.05,1.0),(0,.1,.48),1.96),
-      'front':((0,4.0,1.0),(0,.35,.45),1.28),
-      'rear':((0,-4.0,1.0),(0,-.35,.55),1.28),
-      'isometric':((-3.6,3.8,2.7),(0,.05,.52),1.90),
+      'front':((0,4.0,1.0),(0,.35,.45),1.80),
+      'rear':((0,-4.0,1.0),(0,-.35,.55),1.80),
+      'isometric':((-3.6,3.8,2.7),(0,.05,.52),2.20),
     }
     for name,(loc,t,ortho) in cams.items():
         d=bpy.data.cameras.new('CAM_'+name.upper()); d.type='ORTHO'; d.ortho_scale=ortho
