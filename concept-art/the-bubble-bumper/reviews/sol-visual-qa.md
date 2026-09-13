@@ -1,11 +1,11 @@
-# Sol visual QA — AAA v041
+# Sol visual QA — AAA v042
 
 **Veredito:** `SOL_AAA_PASS`
 
-**Input:** `modeling/v041-contact-sheet.png`, com CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC.
+**Input:** `modeling/v042-contact-sheet.png`, com CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC.
 
-**Job:** `d1c94cd03ac105d206914960a2075683`
+**Job:** `a32f82c963dbf95643c28044f892906d`
 
 **Routing:** `gpt-5.6-sol-900k`, provider `openai-codex`, reasoning `xhigh`.
 
-Sol aprovou v041 após o P0 do personagem: capacete azul/amarelo, face, visor, olhos e faixa agora têm identidade visual coerente com o concept; shell, pods autorais, U, wheels, rear e acabamento não regrediram.
+Sol aprovou v042 após as correções de nariz/cowl contínuo, piloto reclinado com ombros/braços, fender caps e conectores dos escapes; não identificou P0 de fidelidade ou acabamento AAA.
