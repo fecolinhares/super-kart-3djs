@@ -7,3 +7,4 @@ Catálogo das concept arts oficiais recebidas para o Super Kart 3D.js. Cada conc
 - [[the-bubble-bumper/the-bubble-bumper|The Bubble Bumper]] — kart arredondado, amigável e inflado, com bumper frontal tubular e cockpit aberto.
 - [[aero-dyno/aero-dyno|Aero-Dyno]] — protótipo cartunesco de endurance/LMP1, extremamente baixo e aerodinâmico, com cabine bolha e asa traseira de tubarão.
 - [[the-muscle-muncher/the-muscle-muncher|The Muscle Muncher]] — muscle kart com V8 superdimensionado, cockpit pequeno e pneus traseiros dragster.
+- [[retro-rocket/retro-rocket|Retro Rocket]] — kart foguete inspirado nos F1 dos anos 60, com rodas expostas e suspensão exagerada.
