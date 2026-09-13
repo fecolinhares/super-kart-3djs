@@ -1,13 +1,14 @@
-# Coder visual QA — Blockout v015
+# Coder visual QA — Blockout v017
 
-**Status:** `CODER_BLOCKOUT_PASS`; Sol gate pending; user gate pending.
+**Status:** `CODER_BLOCKOUT_PASS`; Sol gate in progress; user gate pending.
 
-## P0 evidence
+## Single-prancha evidence
 
-- Top: full vehicle present, U continuous and returns visible, side pods integrated, wheels exposed, rear assembly readable.
-- Profile: pilot seated clearly inside cavity, pelvis/torso aligned, wheel/column/dash in front, bumper and side pod flow into body.
-- Front: U single continuous, nose centered, tires exposed, pilot/steering centered, no splitter.
-- Rear: housing compact, circle/grille clear, low bar present, two exits visible, springs/arms/mounts readable, no floating modules.
-- Isometric: authored shell with open cockpit, U single path, side pods flowing from shell, rear housing with mechanical groups integrated.
+- Artifact: `modeling/v017-contact-sheet.png` (CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC).
+- Top: continuous U with visible side returns/hardpoints, open cockpit, seated pilot, integrated pods, compact rear.
+- Profile: head/neck/torso/pelvis/seat chain reads continuously; arms reach steering; cockpit is recessed; bumper return is connected.
+- Front: U reads as one continuous bumper with side returns; nose and cockpit center; no detached splitter.
+- Rear: compact central housing/grille, exactly two separate side exhausts, low bar, chassis/upright suspension mounts.
+- Isometric: shell/pods/cockpit are coherent; long floating yellow pod rails removed; rear hierarchy is compact.
 
-No blocking P0 found; minor P1 (surface polish) noted but does not block gate.
+`CODER_BLOCKOUT_PASS`: v017 is approved for Sol review. This is a blockout approval, not final asset approval.
