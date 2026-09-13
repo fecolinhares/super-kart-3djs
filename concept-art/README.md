@@ -1,0 +1,7 @@
+# Concept Arts
+
+Catálogo das concept arts oficiais recebidas para o Super Kart 3D.js. Cada concept permanece em sua própria pasta, com imagem original e ficha de referência.
+
+## Concepts catalogados
+
+- [[the-bubble-bumper/the-bubble-bumper|The Bubble Bumper]] — kart arredondado, amigável e inflado, com bumper frontal tubular e cockpit aberto.
