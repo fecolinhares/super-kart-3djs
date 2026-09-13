@@ -1,29 +1,27 @@
-# Sol visual QA — Blockout 005
+# Sol visual QA — Blockout 005–006
 
-**Veredito:** `SOL_BLOCKOUT_REJECT`
-**Modelo:** gpt-5.6-sol-900k / xhigh
-**Fonte:** concept original + top/profile/front/rear/isometric do mesmo blend.
+## Blockout 005
 
-## Vista por vista
+`SOL_BLOCKOUT_REJECT`: bumper returns, cockpit depth and rear grade/bar/mount hierarchy failed.
 
-- `top`: sequência pneu → side pod → cockpit/piloto → side pod → pneu presente e simétrica; travessa frontal/retornos não comprovam fixação.
-- `profile`: proporção baixa, pneus lisos e pods passam; assento lê placa rasa, pelve/torso não parecem afundados; fixação do bumper não provada.
-- `front`: largura/altura do bumper passam; conexão lateral não visível, nariz sobrepõe tubo sem junção clara e volante oculta o piloto.
-- `rear`: housing, círculo e exatamente dois escapes passam; peça inferior lê bloco, não grade; barra baixa e ancoragem de molas/braços falham.
-- `isometric`: classe Bubble Bumper passa; retornos do U terminam no vazio/ficam ambíguos; traseira congestionada e sem camadas distintas.
+## Blockout 006
 
-## P0 bloqueantes
+`SOL_BLOCKOUT_REJECT`.
 
-1. Prolongar os dois retornos do U até conexão estrutural simétrica com nariz/frame/chassi.
-2. Cavar o cockpit, baixar assento/pelve e deixar side pod acima do quadril; reduzir volante somente o necessário para revelar piloto/mãos/cavidade.
-3. Transformar bloco inferior traseiro em grade/rebaixo, adicionar travessa tubular baixa separada da superior e conectar cada mola/braço entre frame/housing e cubo.
-4. Reenquadrar as cinco ortográficas para conter pneus e bumper inteiros após as correções.
+### Vista verdicts
 
-## P1 posterior
+- Top: REJECT — transverse organization passes, but frame cuts the complete U/returns/mount proof.
+- Profile: REJECT — low proportion/pods pass, but pelvis/seat remain unclear and steering column visibly penetrates torso.
+- Front: PASS — low/wide/symmetric, smooth tires, bumper reads tubular and not splitter.
+- Rear: PASS — housing, circle, grade/bar, two exhausts, arms/springs are legible enough for P0.
+- Isometric: REJECT — Bubble Bumper class passes, but yellow rails/rear tubing appear to terminate without structural mounts; pilot/direction integration remains unresolved.
 
-- Suavizar transições dos side pods.
-- Clarificar volante → cubo → coluna e mãos.
-- Separar visualmente travessa, escapes, suspensão e barra inferior.
-- Adicionar ranhuras/terminais somente após P0.
+### P0 corrections required
 
-Nenhum arquivo foi alterado pelo Sol e nenhuma aprovação foi concedida.
+1. Move column forward/down, keep it in front of torso, lower/define pelvis inside seat and preserve wheel ahead of pilot.
+2. Add short unequivocal mounts from longitudinal rails to side pods/chassis and from rear bar/tubing to housing/frame; remove any tube without two explainable endpoints.
+3. Reframe top so the entire U, returns and mounts are visible with the complete vehicle envelope.
+
+P1 after P0: soften side pod transitions, reduce facet changes, organize rear layers, refine hands/helmet/cubes/grade.
+
+No approval granted; no files were altered by Sol.

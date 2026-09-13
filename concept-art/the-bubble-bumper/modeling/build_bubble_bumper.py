@@ -97,6 +97,8 @@ def create_scene():
         sections=[(.58,s*.41,.43,.10,.10),(.30,s*.44,.44,.16,.13),(-.18,s*.44,.45,.16,.14),(-.42,s*.39,.45,.10,.11)]
         pod=loft_y('SIDEPOD_L' if s<0 else 'SIDEPOD_R',sections,MATS['body_blue'],18)
         tube('POD_ACCENT_L' if s<0 else 'POD_ACCENT_R',[(s*.58,.65,.50),(s*.66,.25,.56),(s*.60,-.40,.56)],.018,MATS['accent_yellow'])
+        tube('POD_RAIL_MOUNT_FRONT_L' if s<0 else 'POD_RAIL_MOUNT_FRONT_R',[(s*.57,.55,.50),(s*.45,.55,.48)],.018,MATS['metal_dark'])
+        tube('POD_RAIL_MOUNT_REAR_L' if s<0 else 'POD_RAIL_MOUNT_REAR_R',[(s*.61,-.27,.56),(s*.45,-.27,.50)],.018,MATS['metal_dark'])
     # wheels: smooth, exposed, almost equal diameter
     for side in (-1,1):
         create_wheel('WHEEL_FL' if side<0 else 'WHEEL_FR',side*.61,.62,.29,.25,.25,MATS['rubber'])
@@ -121,15 +123,16 @@ def create_scene():
     # Single recessed oval well; the seat is the only internal raised mass.
     box('COCKPIT_FLOOR',(0,.12,.465),(.17,.24,.012),MATS['dark'],.012)
     seat=ellipsoid('SEAT',(0,.05,.515),(.16,.24,.052),MATS['dark'],18,10)
-    # steering wheel and column
-    torus('STEERING_WHEEL',(0,.45,.66),.125,.032,MATS['dark'],rot=(math.pi/2,0,0))
-    tube('STEERING_COLUMN',[(0,.45,.66),(0,.22,.54)],.018,MATS['metal_dark'])
-    # stylized small pilot, kept subordinate to kart
+    # steering wheel/column stay in front of the pilot, never through the torso
+    torus('STEERING_WHEEL',(0,.63,.64),.125,.032,MATS['dark'],rot=(math.pi/2,0,0))
+    tube('STEERING_COLUMN',[(0,.63,.64),(0,.39,.50)],.018,MATS['metal_dark'])
+    # explicit pelvis anchors the pilot inside the recessed seat
+    ellipsoid('PILOT_PELVIS',(0,.04,.525),(.13,.16,.065),MATS['pilot'],16,10)
     torso=ellipsoid('PILOT_TORSO',(0,.03,.59),(.10,.11,.13),MATS['pilot'],16,10)
     helmet=ellipsoid('PILOT_HELMET',(0,.16,.77),(.095,.10,.10),MATS['pilot'],18,10)
     visor=ellipsoid('PILOT_VISOR',(0,.055,.78),(.068,.014,.032),MATS['glass'],16,8)
     for s in (-1,1):
-        tube('PILOT_ARM_L' if s<0 else 'PILOT_ARM_R',[(s*.085,.05,.67),(s*.14,.27,.64),(s*.10,.42,.63)],.020,MATS['pilot_yellow'])
+        tube('PILOT_ARM_L' if s<0 else 'PILOT_ARM_R',[(s*.085,.06,.66),(s*.16,.36,.63),(s*.10,.60,.62)],.020,MATS['pilot_yellow'])
     # rear mechanical module
     housing=loft_y('REAR_HOUSING',[(-.44,0,.59,.20,.12),(-.66,0,.62,.23,.15),(-.84,0,.59,.19,.13)],MATS['metal'],18)
     box('REAR_GRILLE',(0,-.91,.49),(.16,.018,.055),MATS['metal_dark'],.012)
@@ -139,6 +142,7 @@ def create_scene():
     tube('REAR_BAR',[(-.66,-.82,.70),(0,-.88,.71),(.66,-.82,.70)],.035,MATS['body_blue'])
     for s in (-1,1):
         tube('REAR_BAR_ACCENT_L' if s<0 else 'REAR_BAR_ACCENT_R',[(s*.54,-.83,.70),(s*.67,-.81,.70)],.040,MATS['accent_yellow'])
+        tube('REAR_BAR_MOUNT_L' if s<0 else 'REAR_BAR_MOUNT_R',[(s*.54,-.82,.70),(s*.30,-.70,.60)],.024,MATS['metal_dark'])
         tube('EXHAUST_L' if s<0 else 'EXHAUST_R',[(s*.13,-.78,.67),(s*.27,-.94,.84),(s*.34,-1.02,.94)],.035,MATS['metal_dark'])
         # long mechanical suspension arms + spring coils represented as continuous curves
         tube('SUSP_ARM_L' if s<0 else 'SUSP_ARM_R',[(s*.40,-.58,.37),(s*.58,-.62,.36),(s*.63,-.60,.30)],.025,MATS['metal_dark'])
@@ -162,7 +166,7 @@ def lights_and_camera():
         o=bpy.data.objects.new(name,d); COL.objects.link(o); o.location=loc; o.rotation_euler=(target-Vector(loc)).to_track_quat('-Z','Y').to_euler()
     light('KEY',(-3,3,4),1000,4,(1.0,.95,.90)); light('FILL',(3,1,2.5),800,3,(.45,.65,1.0)); light('RIM',(0,-4,2.5),1100,3,(1.0,.32,.20))
     cams={
-      'top':((0,0,5.0),(0,.1,.40),1.96),
+      'top':((0,0,5.0),(0,.1,.40),2.80),
       'profile':((-4.0,.05,1.0),(0,.1,.48),1.96),
       'front':((0,4.0,1.0),(0,.35,.45),1.80),
       'rear':((0,-4.0,1.0),(0,-.35,.55),1.80),
