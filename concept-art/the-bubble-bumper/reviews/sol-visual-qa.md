@@ -1,11 +1,11 @@
-# Sol visual QA — AAA v038
+# Sol visual QA — AAA v041
 
 **Veredito:** `SOL_AAA_PASS`
 
-**Input:** `modeling/v038-aaa-board.png` with full proof views and AAA close-up proof.
+**Input:** `modeling/v041-contact-sheet.png`, com CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC.
 
-**Job:** `0e2699cfc825f104ae3fa6d7c1c178a5`
+**Job:** `d1c94cd03ac105d206914960a2075683`
 
 **Routing:** `gpt-5.6-sol-900k`, provider `openai-codex`, reasoning `xhigh`.
 
-Sol aprovou v038 no gate AAA: fidelity total contra o concept e acabamento comprovado por close-ups de shell, pods/inset, cockpit/driver, U/sockets, wheels/hubs/arms/springs, rear engine/outlets/lips/clamps/grade/bar, seams/fasteners e materiais distintos.
+Sol aprovou v041 após o P0 do personagem: capacete azul/amarelo, face, visor, olhos e faixa agora têm identidade visual coerente com o concept; shell, pods autorais, U, wheels, rear e acabamento não regrediram.
