@@ -1,14 +1,14 @@
 # Bubble Bumper — Gates
 
-- [x] G1 — v034 Blender artifact builds successfully.
-  EVIDENCE: `BUBBLE_BUMPER_BLOCKOUT_OK /tmp/bubble-bumper-v034/modeling/bubble-bumper-v034.blend OBJECTS 143`
-- [x] G2 — v034 single proof sheet exists and is non-empty.
-  EVIDENCE: `modeling/v034-contact-sheet.png`, 1,464,088 bytes, 1920x1032; contains CONCEPT + five proof views.
-- [x] G3 — Internal critical coder fidelity gate passes v034.
-  EVIDENCE: `reviews/coder-visual-qa.md` records PASS against the Sol P0 diagnostic.
-- [x] G4 — Sol fidelity gate passes v034.
-  EVIDENCE: `reviews/sol-visual-qa.md`; job `0e04db3ea1a70bae0fa6e75d198ba1fb`; output `SOL_FIDELITY_PASS`.
-- [ ] G5 — User receives v034 for explicit approval.
+- [x] G1 — v038 Blender artifact builds successfully.
+  EVIDENCE: `BUBBLE_BUMPER_BLOCKOUT_OK /tmp/bubble-bumper-v038/modeling/bubble-bumper-v038.blend OBJECTS 185`
+- [x] G2 — v038 full proof and close-up evidence exists.
+  EVIDENCE: `modeling/v038-aaa-board.png`, 2,880,861 bytes, 1920x2628; full five-view sheet plus four close-ups.
+- [x] G3 — Internal AAA vision gate passes v038.
+  EVIDENCE: `reviews/coder-visual-qa.md` records `CODER_AAA_PASS` with close-up evidence.
+- [x] G4 — Sol AAA fidelity gate passes v038.
+  EVIDENCE: `reviews/sol-visual-qa.md`; job `0e2699cfc825f104ae3fa6d7c1c178a5`; output `SOL_AAA_PASS`.
+- [ ] G5 — User receives v038 for explicit approval.
   EVIDENCE: pending user response.
 - [ ] G6 — Final technical inspection/export after user approval.
   EVIDENCE: intentionally pending user approval.

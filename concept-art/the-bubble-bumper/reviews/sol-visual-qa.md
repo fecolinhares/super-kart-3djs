@@ -1,11 +1,11 @@
-# Sol visual QA — Blockout v034
+# Sol visual QA — AAA v038
 
-**Veredito:** `SOL_FIDELITY_PASS`
+**Veredito:** `SOL_AAA_PASS`
 
-**Input:** `modeling/v034-contact-sheet.png`, com CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC.
+**Input:** `modeling/v038-aaa-board.png` with full proof views and AAA close-up proof.
 
-**Job:** `0e04db3ea1a70bae0fa6e75d198ba1fb`
+**Job:** `0e2699cfc825f104ae3fa6d7c1c178a5`
 
 **Routing:** `gpt-5.6-sol-900k`, provider `openai-codex`, reasoning `xhigh`.
 
-Sol aprovou v034 após os P0 do diagnóstico anterior: shell compacto, pods espessos com ombro/inset, piloto encaixado, bumper U em planta com retornos, rodas traseiras maiores com hubs/arms, rear curto com dois escapes, materiais e apresentação ortográfica.
+Sol aprovou v038 no gate AAA: fidelity total contra o concept e acabamento comprovado por close-ups de shell, pods/inset, cockpit/driver, U/sockets, wheels/hubs/arms/springs, rear engine/outlets/lips/clamps/grade/bar, seams/fasteners e materiais distintos.

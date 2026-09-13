@@ -1,20 +1,13 @@
-# Coder visual QA — Blockout v034
+# Coder visual QA — AAA v038
 
-**Status:** `CODER_FIDELITY_PASS`; Sol fidelity gate passed; user gate pending.
+**Status:** `CODER_AAA_PASS`; Sol AAA gate passed; user gate pending.
 
-## v034 P0 corrections
+## AAA evidence
 
-- Shortened nose and rear overhang around fixed wheel anchors.
-- Rear wheels are now clearly larger/wider than front wheels, with hubs aligned to the new centers.
-- Rebuilt bumper as a true U in plan with rearward returns instead of a flat front bar.
-- Compact rear housing and shortened engine/exhaust/bar positions.
-- Orthographic presentation retained with consistent margins and concept-like neutral background.
+- `modeling/v038-aaa-board.png`: full five-view proof plus cockpit, pod, bumper and rear-engine close-ups.
+- Internal critical vision: `PASS`.
+- Build output: `BUBBLE_BUMPER_BLOCKOUT_OK`, 185 objects.
+- Added visible secondary construction: panel seams, pod sockets/fasteners, cockpit dashboard/pedals/harness, wheel rims/spokes/springs, engine clamps/fins, exhaust lips and grille hardware.
+- Sol: `SOL_AAA_PASS`, job `0e2699cfc825f104ae3fa6d7c1c178a5`.
 
-## Evidence
-
-- `modeling/v034-contact-sheet.png`: CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC.
-- Build output: `BUBBLE_BUMPER_BLOCKOUT_OK`, 143 objects.
-- My critical vision: `PASS` against the Sol P0 diagnostic.
-- Sol: `SOL_FIDELITY_PASS`, job `0e04db3ea1a70bae0fa6e75d198ba1fb`.
-
-v034 is ready for explicit user approval. Final technical/export work remains blocked until approval.
+The asset is ready for explicit user approval. Final export/runtime promotion remains blocked.
