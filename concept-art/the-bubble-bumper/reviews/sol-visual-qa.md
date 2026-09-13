@@ -1,11 +1,11 @@
-# Sol visual QA — Blockout v027
+# Sol visual QA — Blockout v030
 
 **Veredito:** `SOL_FIDELITY_PASS`
 
-**Input:** `modeling/v027-contact-sheet.png`, com CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC.
+**Input:** `modeling/v030-contact-sheet.png`, com CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC.
 
-**Job:** `c8587c42d1c29f5c0523cb8515ce1119`
+**Job:** `dcff4dbe87ccbee79377cbd2c92cd9b0`
 
 **Routing:** `gpt-5.6-sol-900k`, provider `openai-codex`, reasoning `xhigh`.
 
-Sol aprovou v027 após a correção dos side skirts: carroceria/shell, cockpit/personagem, bumper U, rear housing/bar/twin exhausts, materiais, detalhe e ausência de low-poly/massinha passaram sem P0.
+Sol aprovou v030 após a correção do pod amarelo com inset azul retangular: forma principal, pods/painéis, chassis/cockpit/personagem, bumper U, wheels e rear modular passaram sem P0 de fidelidade ou low-poly/massinha.
