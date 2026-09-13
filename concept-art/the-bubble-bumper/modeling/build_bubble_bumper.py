@@ -1,0 +1,176 @@
+import bpy, math, os, argparse, json
+from mathutils import Vector
+
+ROOT=os.path.dirname(os.path.abspath(__file__))
+OUT=os.path.join(ROOT,'bubble-bumper-blockout.blend')
+COL=None
+MATS={}
+
+def mat(name, color, metallic=0.0, rough=0.5, emission=None):
+    m=bpy.data.materials.new(name); m.diffuse_color=(*color,1)
+    m.use_nodes=True; bs=m.node_tree.nodes.get('Principled BSDF')
+    bs.inputs['Base Color'].default_value=(*color,1)
+    bs.inputs['Metallic'].default_value=metallic; bs.inputs['Roughness'].default_value=rough
+    if emission:
+        key='Emission Color' if 'Emission Color' in bs.inputs else 'Emission'
+        bs.inputs[key].default_value=(*emission,1)
+        bs.inputs['Emission Strength'].default_value=1.4 if 'Emission Strength' in bs.inputs else 1.0
+    return m
+
+def obj_mesh(name, verts, faces, material, smooth=True):
+    me=bpy.data.meshes.new(name+'_MESH'); me.from_pydata(verts,[],faces); me.update()
+    me.uv_layers.new(name='UVMap')
+    ob=bpy.data.objects.new(name,me); COL.objects.link(ob)
+    if material: me.materials.append(material)
+    for p in me.polygons: p.use_smooth=smooth
+    return ob
+
+def loft_y(name, sections, material, sides=20):
+    # section=(y, center_x, center_z, radius_x, radius_z)
+    verts=[]; faces=[]
+    for y,cx,cz,rx,rz in sections:
+        for i in range(sides):
+            a=2*math.pi*i/sides
+            verts.append((cx+rx*math.cos(a),y,cz+rz*math.sin(a)))
+    for j in range(len(sections)-1):
+        for i in range(sides):
+            ni=(i+1)%sides
+            faces.append((j*sides+i,j*sides+ni,(j+1)*sides+ni,(j+1)*sides+i))
+    b=len(verts); y,cx,cz,rx,rz=sections[0]; verts.append((cx,y,cz))
+    t=len(verts); y,cx,cz,rx,rz=sections[-1]; verts.append((cx,y,cz))
+    for i in range(sides):
+        ni=(i+1)%sides; faces.append((b,i,ni))
+        a=(len(sections)-1)*sides; faces.append((t,a+ni,a+i))
+    return obj_mesh(name,verts,faces,material,True)
+
+def tube(name, points, radius, material, resolution=8):
+    cu=bpy.data.curves.new(name+'_CURVE','CURVE'); cu.dimensions='3D'; cu.resolution_u=2
+    cu.bevel_depth=radius; cu.bevel_resolution=3; cu.resolution_u=3
+    sp=cu.splines.new('BEZIER'); sp.bezier_points.add(len(points)-1)
+    for bp,p in zip(sp.bezier_points,points): bp.co=p; bp.handle_left_type='AUTO'; bp.handle_right_type='AUTO'
+    ob=bpy.data.objects.new(name,cu); COL.objects.link(ob); ob.data.materials.append(material); return ob
+
+def ellipsoid(name, loc, scale, material, seg=20, rings=12):
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=seg, ring_count=rings, location=loc)
+    ob=bpy.context.object; ob.name=name; ob.scale=scale; bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
+    ob.data.materials.append(material)
+    for p in ob.data.polygons: p.use_smooth=True
+    return ob
+
+def torus(name, loc, major, minor, material, rot=(0,0,0)):
+    bpy.ops.mesh.primitive_torus_add(major_radius=major, minor_radius=minor, major_segments=36, minor_segments=12, location=loc, rotation=rot)
+    ob=bpy.context.object; ob.name=name; ob.data.materials.append(material)
+    for p in ob.data.polygons: p.use_smooth=True
+    return ob
+
+def box(name, loc, scale, material, bevel=.02):
+    bpy.ops.mesh.primitive_cube_add(location=loc); ob=bpy.context.object; ob.name=name; ob.scale=scale; bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
+    ob.data.materials.append(material)
+    if bevel:
+        mod=ob.modifiers.new('Soft authored edges','BEVEL'); mod.width=bevel; mod.segments=3
+        bpy.context.view_layer.objects.active=ob; bpy.ops.object.modifier_apply(modifier=mod.name)
+    return ob
+
+def create_wheel(name, x,y,z, radius, width, material):
+    return torus(name,(x,y,z),radius-width*.28,width*.38,material,rot=(0,math.pi/2,0))
+
+def create_scene():
+    global COL
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    COL=bpy.data.collections.new('BUBBLE_BUMPER_MASTER'); bpy.context.scene.collection.children.link(COL)
+    MATS['body_blue']=mat('Body Blue',(0.025,0.22,0.72),0.15,.26)
+    MATS['accent_yellow']=mat('Custom Yellow',(0.95,0.55,0.02),0.05,.3)
+    MATS['rubber']=mat('Smooth Rubber',(0.008,0.010,0.014),0.0,.72)
+    MATS['dark']=mat('Cockpit Dark',(0.018,0.025,0.035),0.05,.5)
+    MATS['metal']=mat('Technical Silver',(0.16,0.19,0.24),0.8,.30)
+    MATS['metal_dark']=mat('Technical Dark',(0.025,0.035,0.05),0.75,.34)
+    MATS['glass']=mat('Cockpit Glass',(0.035,0.13,0.20),0.1,.12,emission=(0.01,0.03,0.05))
+    MATS['pilot']=mat('Pilot Suit',(0.08,0.18,0.52),0.0,.42)
+    MATS['pilot_yellow']=mat('Pilot Accent',(0.9,0.42,0.02),0.0,.42)
+    MATS['light']=mat('Warm Lights',(1.0,.75,.28),0.0,.22,emission=(1.0,.25,.03))
+
+    # Primary low rounded body, D=.5, total envelope ~2.37m.
+    body=loft_y('BODY_PRIMARY',[(.98,0,.35,.18,.10),(.72,0,.36,.33,.13),(.28,0,.37,.37,.14),(-.25,0,.39,.36,.16),(-.70,0,.43,.30,.17)],MATS['body_blue'],24)
+    body['role']='authored_primary_shell'; body['D']=.5
+    # rounded pods between axles; widest beside cockpit/hips
+    for s in (-1,1):
+        sections=[(.58,s*.41,.43,.10,.10),(.30,s*.44,.44,.16,.13),(-.18,s*.44,.45,.16,.14),(-.42,s*.39,.45,.10,.11)]
+        pod=loft_y('SIDEPOD_L' if s<0 else 'SIDEPOD_R',sections,MATS['body_blue'],18)
+        tube('POD_ACCENT_L' if s<0 else 'POD_ACCENT_R',[(s*.58,.65,.50),(s*.66,.25,.56),(s*.60,-.40,.56)],.018,MATS['accent_yellow'])
+    # wheels: smooth, exposed, almost equal diameter
+    for side in (-1,1):
+        create_wheel('WHEEL_FL' if side<0 else 'WHEEL_FR',side*.61,.62,.29,.25,.25,MATS['rubber'])
+        create_wheel('WHEEL_RL' if side<0 else 'WHEEL_RR',side*.625,-.60,.30,.2625,.30,MATS['rubber'])
+    # U bumper: continuous tubular path outside nose.
+    bumper_pts=[(-.66,.70,.34),(-.72,.98,.33),(-.53,1.16,.34),(0,1.25,.35),(.53,1.16,.34),(.72,.98,.33),(.66,.70,.34)]
+    tube('BUMPER_U',[(x,y,.40) for x,y,z in bumper_pts],.05,MATS['body_blue'])
+    for s in (-1,1):
+        tube('BUMPER_YELLOW_L' if s<0 else 'BUMPER_YELLOW_R',[(s*.70,.96,.39),(s*.57,1.13,.40)],.055,MATS['accent_yellow'])
+    tube('BUMPER_YELLOW_CENTER',[(-.12,1.24,.40),(0,1.25,.40),(.12,1.24,.40)],.055,MATS['accent_yellow'])
+    # visible returns/mounts tie the bumper U into the nose/body; no floating ring
+    tube('BUMPER_MOUNT_L',[(-.66,.70,.40),(-.55,.65,.41),(-.42,.62,.43)],.032,MATS['metal_dark'])
+    tube('BUMPER_MOUNT_R',[(.66,.70,.40),(.55,.65,.41),(.42,.62,.43)],.032,MATS['metal_dark'])
+    tube('BUMPER_NOSE_BRIDGE',[(-.20,1.18,.36),(0,1.21,.40),(.20,1.18,.36)],.035,MATS['metal_dark'])
+    # short rounded nose above bumper
+    nose=loft_y('NOSE',[(.75,0,.49,.16,.10),(.98,0,.50,.22,.12),(1.18,0,.48,.14,.08)],MATS['body_blue'],18)
+    box('NOSE_PANEL',(0,1.17,.49),(.10,.018,.055),MATS['accent_yellow'],.012)
+    # open cockpit / seat: compact oval well and rounded coaming, not a flat plate
+    ellipsoid('COCKPIT_WELL',(0,.10,.505),(.19,.27,.015),MATS['dark'],24,10)
+    # Single recessed oval well; the seat is the only internal raised mass.
+    box('COCKPIT_FLOOR',(0,.12,.49),(.17,.24,.012),MATS['dark'],.012)
+    seat=ellipsoid('SEAT',(0,.05,.545),(.16,.24,.060),MATS['dark'],18,10)
+    # steering wheel and column
+    torus('STEERING_WHEEL',(0,.47,.70),.145,.032,MATS['dark'],rot=(math.pi/2,0,0))
+    tube('STEERING_COLUMN',[(0,.47,.70),(0,.22,.56)],.018,MATS['metal_dark'])
+    # stylized small pilot, kept subordinate to kart
+    torso=ellipsoid('PILOT_TORSO',(0,.03,.63),(.10,.11,.14),MATS['pilot'],16,10)
+    helmet=ellipsoid('PILOT_HELMET',(0,.16,.82),(.095,.10,.10),MATS['pilot'],18,10)
+    visor=ellipsoid('PILOT_VISOR',(0,.055,.83),(.068,.014,.032),MATS['glass'],16,8)
+    for s in (-1,1):
+        tube('PILOT_ARM_L' if s<0 else 'PILOT_ARM_R',[(s*.085,.05,.71),(s*.14,.28,.68),(s*.10,.43,.66)],.020,MATS['pilot_yellow'])
+    # rear mechanical module
+    housing=loft_y('REAR_HOUSING',[(-.44,0,.59,.20,.12),(-.66,0,.62,.23,.15),(-.84,0,.59,.19,.13)],MATS['metal'],18)
+    box('REAR_GRILLE',(0,-.91,.49),(.16,.018,.055),MATS['metal_dark'],.012)
+    torus('REAR_CENTRAL_RING',(0,-.92,.62),.075,.018,MATS['metal_dark'],rot=(math.pi/2,0,0))
+    tube('REAR_BAR',[(-.66,-.82,.70),(0,-.88,.71),(.66,-.82,.70)],.035,MATS['body_blue'])
+    for s in (-1,1):
+        tube('REAR_BAR_ACCENT_L' if s<0 else 'REAR_BAR_ACCENT_R',[(s*.54,-.83,.70),(s*.67,-.81,.70)],.040,MATS['accent_yellow'])
+        tube('EXHAUST_L' if s<0 else 'EXHAUST_R',[(s*.13,-.78,.67),(s*.27,-.94,.84),(s*.34,-1.02,.94)],.035,MATS['metal_dark'])
+        # long mechanical suspension arms + spring coils represented as continuous curves
+        tube('SUSP_ARM_L' if s<0 else 'SUSP_ARM_R',[(s*.40,-.58,.37),(s*.58,-.62,.36),(s*.63,-.60,.30)],.025,MATS['metal_dark'])
+        for k in range(4):
+            y=-.70-k*.035; z=.52+k*.012
+            tube('SPRING_L_%d'%k if s<0 else 'SPRING_R_%d'%k,[(s*.53,y,z),(s*.58,y-.012,z+.04)],.012,MATS['accent_yellow'])
+    # presentation floor
+    box('GROUND',(0,0,-.035),(2,2,.02),MATS['dark'],.0)
+    # metadata
+    sc=bpy.context.scene; sc['asset']='The Bubble Bumper'; sc['revision']='BLOCKOUT_001'; sc['D_tire_m']=.5; sc['source_concept']='concept-art/the-bubble-bumper/assets/the-bubble-bumper.jpg'; sc['custom_channels']='yellow,blue'; sc['visual_gate']='coder_pending'; sc['sol_gate']='pending'; sc['user_gate']='pending'
+    return sc
+
+def lights_and_camera():
+    sc=bpy.context.scene; sc.world=bpy.data.worlds.new('BUBBLE_WORLD'); sc.render.engine='BLENDER_EEVEE'; sc.render.resolution_x=960; sc.render.resolution_y=720; sc.render.resolution_percentage=100
+    sc.render.image_settings.file_format='PNG'; sc.render.film_transparent=False
+    sc.world.color=(.018,.022,.030)
+    target=Vector((0,.10,.48))
+    def light(name,loc,energy,size,color):
+        d=bpy.data.lights.new(name,'AREA'); d.energy=energy; d.shape='DISK'; d.size=size; d.color=color
+        o=bpy.data.objects.new(name,d); COL.objects.link(o); o.location=loc; o.rotation_euler=(target-Vector(loc)).to_track_quat('-Z','Y').to_euler()
+    light('KEY',(-3,3,4),1000,4,(1.0,.95,.90)); light('FILL',(3,1,2.5),800,3,(.45,.65,1.0)); light('RIM',(0,-4,2.5),1100,3,(1.0,.32,.20))
+    cams={
+      'top':((0,0,5.0),(0,.1,.40),1.96),
+      'profile':((-4.0,.05,1.0),(0,.1,.48),1.96),
+      'front':((0,4.0,1.0),(0,.35,.45),1.28),
+      'rear':((0,-4.0,1.0),(0,-.35,.55),1.28),
+      'isometric':((-3.6,3.8,2.7),(0,.05,.52),1.90),
+    }
+    for name,(loc,t,ortho) in cams.items():
+        d=bpy.data.cameras.new('CAM_'+name.upper()); d.type='ORTHO'; d.ortho_scale=ortho
+        c=bpy.data.objects.new('CAM_'+name.upper(),d); COL.objects.link(c); c.location=loc; c.rotation_euler=(Vector(t)-Vector(loc)).to_track_quat('-Z','Y').to_euler(); sc['camera_'+name+'_ortho']=ortho
+    sc.camera=bpy.data.objects['CAM_ISOMETRIC']
+    return sc
+
+def main():
+    sc=create_scene(); lights_and_camera()
+    os.makedirs(os.path.dirname(OUT),exist_ok=True); bpy.ops.wm.save_as_mainfile(filepath=OUT,compress=True)
+    print('BUBBLE_BUMPER_BLOCKOUT_OK',OUT,'OBJECTS',len(bpy.data.objects))
+if __name__=='__main__': main()
