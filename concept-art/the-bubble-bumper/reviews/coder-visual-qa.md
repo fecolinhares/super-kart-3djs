@@ -1,19 +1,19 @@
-# Coder visual QA — Blockout v021
+# Coder visual QA — Blockout v025
 
 **Status:** `CODER_FIDELITY_PASS`; Sol fidelity gate passed; user gate pending.
 
-## v021 changes
+## v025 final visual pass
 
-- Removed the low-poly ring-chain appearance by densifying loft sections, increasing radial samples and smoothing tube bevels.
-- Rebuilt side pods as continuous blue structural/fender masses with smaller yellow inset panels.
-- Added rounded blue fender lips around the wheel corners.
-- Preserved concept proportions, central pilot, frontal U, compact rear engine, bar and two exhausts.
+- Smooth high-resolution lofts/tubes, no low-poly ring-chain read.
+- Secondary forms added: face/eyes/visor, rectangular headrests, cockpit seat/backrest, mirrors/stalks, panel seams, fender lips, bumper collars, hubs/caps, engine cylinders, grille bars, fasteners and suspension hardware.
+- Materials corrected: black headrests/tires, silver technical engine, blue/yellow customization regions.
+- Fixed v023 floating mirror/headrest reads in v024/v025.
 
 ## Evidence
 
-- `modeling/v021-contact-sheet.png`: CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC.
-- Build output: `BUBBLE_BUMPER_BLOCKOUT_OK`, 68 objects.
-- My vision: `PASS` for concept fidelity and non-low-poly appearance.
-- Sol: `SOL_FIDELITY_PASS`, job `0153460a1e2c3479e6efa1906feec362`.
+- `modeling/v025-contact-sheet.png`: CONCEPT + TOP + PROFILE + FRONT + REAR + ISOMETRIC.
+- Build output: `BUBBLE_BUMPER_BLOCKOUT_OK`, 114 objects.
+- My critical vision: `PASS`.
+- Sol: `SOL_FIDELITY_PASS`, job `74d865d7635f1fd47b0928c662f529c2`.
 
-v021 is ready for explicit user approval. No final export/runtime promotion before that approval.
+v025 is ready for explicit user approval. Final technical/export work remains blocked until approval.
