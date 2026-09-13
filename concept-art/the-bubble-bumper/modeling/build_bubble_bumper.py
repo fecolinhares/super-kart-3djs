@@ -103,18 +103,15 @@ def create_scene():
     for side in (-1,1):
         create_wheel('WHEEL_FL' if side<0 else 'WHEEL_FR',side*.61,.62,.29,.25,.25,MATS['rubber'])
         create_wheel('WHEEL_RL' if side<0 else 'WHEEL_RR',side*.625,-.60,.30,.2625,.30,MATS['rubber'])
-    # U bumper: continuous tubular path outside nose.
-    bumper_pts=[(-.66,.70,.34),(-.72,.98,.33),(-.53,1.16,.34),(0,1.25,.35),(.53,1.16,.34),(.72,.98,.33),(.66,.70,.34)]
-    tube('BUMPER_U',[(x,y,.40) for x,y,z in bumper_pts],.05,MATS['body_blue'])
+    # One continuous horseshoe path: both returns travel into side-frame hardpoints.
+    bumper_pts=[(-.60,.45,.42),(-.72,.75,.42),(-.75,1.05,.42),(-.55,1.22,.42),(0,1.28,.42),(.55,1.22,.42),(.75,1.05,.42),(.72,.75,.42),(.60,.45,.42)]
+    tube('BUMPER_U',bumper_pts,.05,MATS['body_blue'])
     for s in (-1,1):
-        tube('BUMPER_YELLOW_L' if s<0 else 'BUMPER_YELLOW_R',[(s*.70,.96,.39),(s*.57,1.13,.40)],.055,MATS['accent_yellow'])
-    tube('BUMPER_YELLOW_CENTER',[(-.12,1.24,.40),(0,1.25,.40),(.12,1.24,.40)],.055,MATS['accent_yellow'])
-    # visible returns/mounts tie the bumper U into the nose/body; no floating ring
-    tube('BUMPER_MOUNT_L',[(-.66,.70,.40),(-.55,.65,.41),(-.42,.62,.43)],.032,MATS['metal_dark'])
-    tube('BUMPER_MOUNT_R',[(.66,.70,.40),(.55,.65,.41),(.42,.62,.43)],.032,MATS['metal_dark'])
-    tube('BUMPER_FRAME_RETURN_L',[(-.42,.62,.43),(-.37,.42,.44),(-.30,.30,.44)],.028,MATS['metal_dark'])
-    tube('BUMPER_FRAME_RETURN_R',[(.42,.62,.43),(.37,.42,.44),(.30,.30,.44)],.028,MATS['metal_dark'])
-    tube('BUMPER_NOSE_BRIDGE',[(-.20,1.18,.36),(0,1.21,.40),(.20,1.18,.36)],.035,MATS['metal_dark'])
+        tube('BUMPER_YELLOW_L' if s<0 else 'BUMPER_YELLOW_R',[(s*.70,.92,.41),(s*.57,1.16,.42)],.050,MATS['accent_yellow'])
+    tube('BUMPER_YELLOW_CENTER',[(-.12,1.27,.42),(0,1.28,.42),(.12,1.27,.42)],.050,MATS['accent_yellow'])
+    tube('BUMPER_HARDPOINT_L',[(-.60,.45,.42),(-.51,.34,.43),(-.43,.28,.44)],.040,MATS['metal_dark'])
+    tube('BUMPER_HARDPOINT_R',[(.60,.45,.42),(.51,.34,.43),(.43,.28,.44)],.040,MATS['metal_dark'])
+    tube('BUMPER_NOSE_BRIDGE',[(-.20,1.20,.43),(0,1.25,.45),(.20,1.20,.43)],.035,MATS['metal_dark'])
     # short rounded nose above bumper
     nose=loft_y('NOSE',[(.75,0,.49,.16,.10),(.98,0,.50,.22,.12),(1.18,0,.48,.14,.08)],MATS['body_blue'],18)
     box('NOSE_PANEL',(0,1.17,.49),(.10,.018,.055),MATS['accent_yellow'],.012)
@@ -123,16 +120,18 @@ def create_scene():
     # Single recessed oval well; the seat is the only internal raised mass.
     box('COCKPIT_FLOOR',(0,.12,.465),(.17,.24,.012),MATS['dark'],.012)
     seat=ellipsoid('SEAT',(0,.05,.515),(.16,.24,.052),MATS['dark'],18,10)
-    # steering wheel/column stay in front of the pilot, never through the torso
-    torus('STEERING_WHEEL',(0,.63,.64),.125,.032,MATS['dark'],rot=(math.pi/2,0,0))
-    tube('STEERING_COLUMN',[(0,.63,.64),(0,.39,.50)],.018,MATS['metal_dark'])
+    # steering chain is longitudinal and visually explicit: wheel -> hub/column -> dash/chassis
+    torus('STEERING_WHEEL',(0,.72,.64),.115,.032,MATS['dark'],rot=(math.pi/2,0,0))
+    tube('STEERING_COLUMN',[(0,.72,.64),(0,.48,.53),(0,.28,.48)],.018,MATS['metal_dark'])
+    tube('STEERING_DASH_MOUNT',[(0,.28,.48),(0,.20,.46)],.026,MATS['metal_dark'])
     # explicit pelvis anchors the pilot inside the recessed seat
     ellipsoid('PILOT_PELVIS',(0,.04,.525),(.13,.16,.065),MATS['pilot'],16,10)
     torso=ellipsoid('PILOT_TORSO',(0,.03,.59),(.10,.11,.13),MATS['pilot'],16,10)
     helmet=ellipsoid('PILOT_HELMET',(0,.16,.77),(.095,.10,.10),MATS['pilot'],18,10)
     visor=ellipsoid('PILOT_VISOR',(0,.055,.78),(.068,.014,.032),MATS['glass'],16,8)
     for s in (-1,1):
-        tube('PILOT_ARM_L' if s<0 else 'PILOT_ARM_R',[(s*.085,.06,.66),(s*.16,.36,.63),(s*.10,.60,.62)],.020,MATS['pilot_yellow'])
+        tube('PILOT_ARM_L' if s<0 else 'PILOT_ARM_R',[(s*.085,.06,.66),(s*.16,.42,.63),(s*.10,.70,.62)],.020,MATS['pilot_yellow'])
+        tube('PILOT_THIGH_L' if s<0 else 'PILOT_THIGH_R',[(s*.08,.02,.53),(s*.10,.26,.48),(s*.09,.42,.43)],.032,MATS['pilot'])
     # rear mechanical module
     housing=loft_y('REAR_HOUSING',[(-.44,0,.59,.20,.12),(-.66,0,.62,.23,.15),(-.84,0,.59,.19,.13)],MATS['metal'],18)
     box('REAR_GRILLE',(0,-.91,.49),(.16,.018,.055),MATS['metal_dark'],.012)
@@ -166,8 +165,8 @@ def lights_and_camera():
         o=bpy.data.objects.new(name,d); COL.objects.link(o); o.location=loc; o.rotation_euler=(target-Vector(loc)).to_track_quat('-Z','Y').to_euler()
     light('KEY',(-3,3,4),1000,4,(1.0,.95,.90)); light('FILL',(3,1,2.5),800,3,(.45,.65,1.0)); light('RIM',(0,-4,2.5),1100,3,(1.0,.32,.20))
     cams={
-      'top':((0,0,5.0),(0,.1,.40),2.80),
-      'profile':((-4.0,.05,1.0),(0,.1,.48),1.96),
+      'top':((0,0,5.0),(0,.0,.40),3.40),
+      'profile':((-4.0,.05,1.0),(0,.05,.48),2.40),
       'front':((0,4.0,1.0),(0,.35,.45),1.80),
       'rear':((0,-4.0,1.0),(0,-.35,.55),1.80),
       'isometric':((-3.6,3.8,2.7),(0,.05,.52),2.20),

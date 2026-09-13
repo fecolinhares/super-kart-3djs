@@ -1,27 +1,23 @@
-# Sol visual QA — Blockout 005–006
+# Sol visual QA — Blockout 007
 
-## Blockout 005
+**Veredito:** `SOL_BLOCKOUT_REJECT`
 
-`SOL_BLOCKOUT_REJECT`: bumper returns, cockpit depth and rear grade/bar/mount hierarchy failed.
+## Vista por vista
 
-## Blockout 006
+- Top: organização transversal correta, mas bumper lê barra afastada; retornos/joins não provam U.
+- Profile: baixa/compacta; piloto/assento/coxas ainda não provam postura sentada e direção fica ambígua.
+- Front: pneus/pods/cockpit passam, mas bumper ainda pode ser lido como barra horizontal independente.
+- Rear: PASS — housing, círculo, grade, barra baixa, dois escapes, braços/molas visíveis.
+- Isometric: classe Bubble Bumper passa, mas U/tubos ainda parecem montagem descontínua e volante fica lateralizado em relação ao piloto.
 
-`SOL_BLOCKOUT_REJECT`.
+## P0
 
-### Vista verdicts
+1. Reconstruir bumper como trajetória tubular única e visualmente inequívoca: retorno esquerdo → arco frontal → retorno direito; aproximar do nariz e ligar tangencialmente a hardpoints claros do chassi. Não depender de tirantes finos.
+2. Corrigir posto de condução: volante no eixo longitudinal e à frente do piloto; cadeia visível `wheel → hub → column → dash/chassis`; baixar quadril/assento e provar pernas/coxas dentro do cockpit.
+3. Preservar consistência em top/profile/isometric; nenhuma vista pode exigir inferência de uma conexão P0.
 
-- Top: REJECT — transverse organization passes, but frame cuts the complete U/returns/mount proof.
-- Profile: REJECT — low proportion/pods pass, but pelvis/seat remain unclear and steering column visibly penetrates torso.
-- Front: PASS — low/wide/symmetric, smooth tires, bumper reads tubular and not splitter.
-- Rear: PASS — housing, circle, grade/bar, two exhausts, arms/springs are legible enough for P0.
-- Isometric: REJECT — Bubble Bumper class passes, but yellow rails/rear tubing appear to terminate without structural mounts; pilot/direction integration remains unresolved.
+## P1
 
-### P0 corrections required
+Suavizar side pods, reduzir collars/congestionamento traseiro, limpar penetrações, refinar mãos/capacete/grade.
 
-1. Move column forward/down, keep it in front of torso, lower/define pelvis inside seat and preserve wheel ahead of pilot.
-2. Add short unequivocal mounts from longitudinal rails to side pods/chassis and from rear bar/tubing to housing/frame; remove any tube without two explainable endpoints.
-3. Reframe top so the entire U, returns and mounts are visible with the complete vehicle envelope.
-
-P1 after P0: soften side pod transitions, reduce facet changes, organize rear layers, refine hands/helmet/cubes/grade.
-
-No approval granted; no files were altered by Sol.
+Nenhuma aprovação foi concedida; nenhum arquivo foi alterado pelo Sol.
