@@ -1,20 +1,16 @@
 # Coder visual QA — Blockout 009
 
-**Status:** `CODER_BLOCKOUT_PASS`; Sol gate pending; user gate pending.
+**Coder:** `CODER_BLOCKOUT_PASS`
+**Sol:** `SOL_BLOCKOUT_REJECT` after four consecutive Sol rejections of the same blockout class.
+**User:** not requested; candidate is not final.
 
-## P0 evidence
+## Sol persistent P0
 
-- Top frame contains full Bubble Bumper, complete U path, returns/hardpoints, cockpit, pods, four wheels and rear.
-- Steering chain is longitudinal: wheel → column → dash/chassis; profile no longer shows torso penetration.
-- Explicit pelvis and thigh masses sit inside the recessed cockpit; pilot remains subordinate.
-- Rear grille/slots, lower bar, central ring, exactly two exhausts, springs and mounts are visible.
-- Front reads broad tubular bumper, not splitter/wing; nose and cockpit remain centered.
-- Isometric reads as one integrated low/wide rounded kart with anchored rails and exposed mechanics.
+- Bumper still reads as competing bar/tubes rather than one U with visible shell hardpoints.
+- Pilot/seat/column/hands remain ambiguous across top/profile/isometric; pilot does not convincingly occupy the cockpit.
+- Side pods read as adjacent components instead of shell transitions.
+- Suspension arms/springs terminate behind tires/pods without two visible functional anchors.
 
-## P1 remaining
+## Process stop
 
-- Smooth authored transitions and secondary surface refinement.
-- Pilot face/helmet and material polish.
-- Technical validation, UV/LOD/export.
-
-`CODER_BLOCKOUT_PASS`. Send v009 to Sol.
+Do not add more procedural tubes, lofts, collars or mounts to this representation. The next pass must change class: authored continuous shell with excavated cockpit, authored bumper mesh with sockets, side pods sculpted into shell, separate driver/steering base, and suspension assemblies with explicit frame/upright mounts.

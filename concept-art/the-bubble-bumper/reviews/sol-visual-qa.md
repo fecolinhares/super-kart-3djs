@@ -1,23 +1,31 @@
-# Sol visual QA — Blockout 007
+# Sol visual QA — Blockout 007–009
 
-**Veredito:** `SOL_BLOCKOUT_REJECT`
+**Veredito atual:** `SOL_BLOCKOUT_REJECT`
+**Passes Sol:** 4 rejeições consecutivas após o primeiro plano: v005, v006, v007, v009.
 
-## Vista por vista
+## O que passa
 
-- Top: organização transversal correta, mas bumper lê barra afastada; retornos/joins não provam U.
-- Profile: baixa/compacta; piloto/assento/coxas ainda não provam postura sentada e direção fica ambígua.
-- Front: pneus/pods/cockpit passam, mas bumper ainda pode ser lido como barra horizontal independente.
-- Rear: PASS — housing, círculo, grade, barra baixa, dois escapes, braços/molas visíveis.
-- Isometric: classe Bubble Bumper passa, mas U/tubos ainda parecem montagem descontínua e volante fica lateralizado em relação ao piloto.
+- Classe geral Bubble Bumper reconhecível.
+- Organização superior macro correta.
+- Quatro pneus grandes, pretos e lisos.
+- Traseira com housing, círculo, grade, barra e exatamente dois escapes.
+- Proporção baixa/larga consistente entre as vistas.
 
-## P0
+## P0 persistentes
 
-1. Reconstruir bumper como trajetória tubular única e visualmente inequívoca: retorno esquerdo → arco frontal → retorno direito; aproximar do nariz e ligar tangencialmente a hardpoints claros do chassi. Não depender de tirantes finos.
-2. Corrigir posto de condução: volante no eixo longitudinal e à frente do piloto; cadeia visível `wheel → hub → column → dash/chassis`; baixar quadril/assento e provar pernas/coxas dentro do cockpit.
-3. Preservar consistência em top/profile/isometric; nenhuma vista pode exigir inferência de uma conexão P0.
+1. **Bumper:** mesmo sendo uma curva no código, os pixels ainda leem barra/peças concorrentes; não há U único com retornos e hardpoints inequívocos no top/profile/front/isometric.
+2. **Cockpit/piloto:** assento/pelve/coxas não produzem leitura convincente de ocupante sentado; a cadeia wheel→hub→column→dash/hands continua ambígua entre vistas.
+3. **Side pods:** ainda parecem componentes colocados ao lado do shell, com gaps/terminações abruptas em vez de nascerem da célula central.
+4. **Suspensão:** braços/molas têm terminações escondidas atrás de pneus/pods; as duas ancoragens funcionais não são comprovadas em todas as vistas.
 
-## P1
+## Decisão de processo
 
-Suavizar side pods, reduzir collars/congestionamento traseiro, limpar penetrações, refinar mãos/capacete/grade.
+Após quatro rejeições Sol na mesma classe de blockout, bloquear novos patches de tubes/lofts/anchors. O próximo experimento precisa trocar a representação:
 
-Nenhuma aprovação foi concedida; nenhum arquivo foi alterado pelo Sol.
+- primary shell autoral contínua com cockpit escavado;
+- side pods esculpidos como transições da shell, não lofts laterais independentes;
+- bumper modelado como uma única peça authored mesh com sockets no shell;
+- driver/steering como asset base separado e posicionado por rig/socket;
+- suspensão como assembly com mounts explícitos em frame e upright.
+
+Nenhuma aprovação Sol ou do usuário foi concedida. O render não deve ser enviado como final.

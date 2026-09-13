@@ -50,4 +50,4 @@ concept-art/the-bubble-bumper/
 
 ## Current state
 
-Sol direction recorded in `reviews/sol-plan.md`: hybrid controlled procedural setup + authored primary shell. Initial scale uses `D=0.500m` tire diameter, five orthographic cameras and the proportion table in the Sol review. No asset has visual approval yet.
+Blockout v009 has a coder visual PASS but four consecutive Sol visual rejections. Modeling is **blocked by representation**, not by missing decoration. Do not add more procedural tubes/lofts/mounts. Next experiment must change class to an authored shell with excavated cockpit, authored bumper mesh with sockets, side pods sculpted into shell, separate driver/steering base and suspension assemblies with explicit frame/upright mounts. No Sol or user approval exists; no final render is deliverable.
