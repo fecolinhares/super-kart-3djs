@@ -16,12 +16,14 @@ Kart compacto de estética **bolha**, amigável e inflada, com aparência de bri
 
 ## Vistas disponíveis
 
-1. **Topo:** mostra o bumper frontal em U, o nariz central, o cockpit aberto, o piloto visto de cima, o volante, os side pods arredondados, os quatro pneus, molas/suspensão e o conjunto traseiro com motor/escapes e barra transversal.
-2. **Lateral:** mostra a postura sentada do piloto, cockpit aberto, volante, side pod volumoso, bumper frontal baixo, suspensão dianteira, pneus lisos, motor traseiro exposto, molas e dois escapes inclinados.
-3. **Frente:** mostra o bumper largo azul com segmentos amarelos, nariz central com painel amarelo, barra/volante dianteiro, piloto centralizado e pneus dianteiros grandes.
-4. **Trás:** mostra a barra transversal azul com tampas amarelas, o módulo traseiro cinza, saída circular central, dois escapes prateados, grade inferior, molas e pneus traseiros.
-5. **Isométrico:** confirma a relação entre bumper, nariz, cockpit, piloto, side pods, pneus, suspensão e conjunto mecânico traseiro.
+A prancha composta original continua em `assets/the-bubble-bumper.jpg`. As quatro vistas ortográficas enviadas pelo usuário estão versionadas sem alteração em `assets/reference-orthographic/` e devem ser usadas para proporções e modelagem:
 
+1. `assets/reference-orthographic/top.jpg`
+2. `assets/reference-orthographic/front.jpg`
+3. `assets/reference-orthographic/rear.jpg`
+4. `assets/reference-orthographic/side.jpg`
+
+A prancha composta também contém a vista isométrica e serve para validar a continuidade visual geral. Não usar crops derivados da composição como substitutos das ortográficas originais.
 ## Forma e proporção a preservar
 
 - Silhueta baixa, larga, arredondada e amigável.
