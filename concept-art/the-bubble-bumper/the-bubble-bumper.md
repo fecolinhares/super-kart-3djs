@@ -56,8 +56,8 @@ As regiões **amarela** e **azul** são canais potenciais de customização de c
 
 ## Notas de modelagem
 
-- Esta ficha é referência visual; não é autorização para iniciar modelagem.
-- Não inferir dimensões exatas a partir do grid sem um briefing de escala.
+- Esta ficha é referência visual; o contrato atual está em `RECONSTRUCTION-CONTRACT-V068.md`.
+- Não inferir dimensões exatas a partir do grid sem recalibração por landmarks nas ortográficas.
 - Amarelo e azul representam regiões de materialização/customização, não materiais obrigatórios finais.
 - As cinco vistas devem ser consultadas simultaneamente antes de definir geometria, principalmente no encaixe do bumper, side pods, cockpit e motor traseiro.
 - A vista isométrica não deve substituir as vistas ortográficas para proporções e contatos.

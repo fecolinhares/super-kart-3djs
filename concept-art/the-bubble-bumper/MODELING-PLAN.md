@@ -50,4 +50,6 @@ concept-art/the-bubble-bumper/
 
 ## Current state
 
-Blockout v009 has a coder visual PASS but four consecutive Sol visual rejections. Modeling is **blocked by representation**, not by missing decoration. Do not add more procedural tubes/lofts/mounts. Next experiment must change class to an authored shell with excavated cockpit, authored bumper mesh with sockets, side pods sculpted into shell, separate driver/steering base and suspension assemblies with explicit frame/upright mounts. No Sol or user approval exists; no final render is deliverable.
+V067 foi rejeitada pelo vision por visual-hull/voxelização e inconsistência multivista. V068 foi um reset autoral experimental, mas permaneceu rejeitada por shell/nose genérico, bumper visualmente separado, pods volumosos e piloto sem fidelidade extrema. V069 recuperou a construção manual de v045 e é a melhor base visual disponível: `modeling/bubble-bumper-v069.blend`, `modeling/v069-contact-sheet.png` e `modeling/renders-v069/`.
+
+V069 ainda está **CODER_REJECT**; não foi enviada ao Sol para aprovação de asset. O job `gpt-5.6-sol/xhigh` disponível analisou a representação e confirmou SubD/manual + curvas com sockets + base humana rigada, mas não aprovou nenhum asset. Próximo experimento obrigatório: substituir as transições genéricas de shell/cowl e a base do piloto por malhas autorais SubD/rigadas, recalibrar câmeras por landmarks e repetir coder gate. Integração/export permanecem bloqueados.
