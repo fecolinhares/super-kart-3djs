@@ -588,8 +588,8 @@ def rear():
     df=box('Diffuser',(XRE+P.get('dfx',0.200),0,P.get('dfz',0.152)),(P.get('dfc',0.060),0.170,P.get('dfh',0.130)),bevel=0.012,segs=3); assign(df,'M_Blue'); out.append(df)
     if P.get('ramp',1):
         _rs=[]
-        _RX0=P.get('rx0',0.320); _RX1=P.get('rx1',0.020)
-        _RZ0=P.get('rzb',0.180); _RZ1=P.get('rzt',0.510); _RT=P.get('rth',0.150)
+        _RX0=P.get('rx0',0.380); _RX1=P.get('rx1',0.020)
+        _RZ0=P.get('rzb',0.100); _RZ1=P.get('rzt',0.480); _RT=P.get('rth',0.150)
         _RY=P.get('ryw',0.330)
         for _k in range(7):
             _t=_k/6.0
@@ -618,14 +618,21 @@ def rear():
     # ---- asa traseira: barra GROSSA azul-escura + endplates amarelos ----
     wz=P.get('wing_z',0.570)*H
     wx1=P.get('wing_x1',XRE-0.015); wx2=P.get('wing_x2',XRE+0.235)
-    wsec=[]
-    for i in range(13):
-        u=i/12.0; x=wx1+(wx2-wx1)*u
-        zc=wz+0.010*math.sin(math.pi*u)
-        hh=P.get('wing_hh',0.075)+0.010*math.sin(math.pi*u)
-        _WS=P.get('wing_span',0.505)
-        wsec.append([(x,_WS,zc+hh),(x,-_WS,zc+hh),(x,-_WS,zc-hh),(x,_WS,zc-hh)])
-    wg=loft('Wing_Main',wsec); assign(wg,'M_Blue'); add_mod(wg,'BEVEL',width=0.016,segments=2); apply_mods(wg); out.append(reg('wing',wg))
+    _WS=P.get('wing_span',0.505)
+    if P.get('wing_tube',1):
+        # TUBO cilindrico fino ao longo de Y (o concept e um tubo, nao uma laje)
+        _wc=(wx1+wx2)/2.0
+        _wr=P.get('wing_r',0.050)
+        _wpts=[(_wc,-_WS,wz),(_wc,-_WS*0.5,wz+0.004),(_wc,0.0,wz+0.006),(_wc,_WS*0.5,wz+0.004),(_wc,_WS,wz)]
+        wg=sweep('Wing_Main',_wpts,_wr,P.get('wing_seg',22)); assign(wg,'M_Blue'); out.append(reg('wing',wg))
+    else:
+        wsec=[]
+        for i in range(13):
+            u=i/12.0; x=wx1+(wx2-wx1)*u
+            zc=wz+0.010*math.sin(math.pi*u)
+            hh=P.get('wing_hh',0.075)+0.010*math.sin(math.pi*u)
+            wsec.append([(x,_WS,zc+hh),(x,-_WS,zc+hh),(x,-_WS,zc-hh),(x,_WS,zc-hh)])
+        wg=loft('Wing_Main',wsec); assign(wg,'M_Blue'); add_mod(wg,'BEVEL',width=0.016,segments=2); apply_mods(wg); out.append(reg('wing',wg))
     for sy in (1,-1):
         bpy.ops.object.select_all(action='DESELECT')
         bpy.ops.mesh.primitive_uv_sphere_add(segments=28,ring_count=16,radius=1.0)
@@ -633,7 +640,9 @@ def rear():
         ep.scale=(0.090,0.040,0.036)
         bpy.ops.object.select_all(action='DESELECT'); ep.select_set(True)
         bpy.context.view_layer.objects.active=ep; bpy.ops.object.transform_apply(scale=True)
-        ep.location=((wx1+wx2)/2.0, sy*0.492, wz)
+        _epx=((wx1+wx2)/2.0) if not P.get('wing_tube',1) else ((wx1+wx2)/2.0)
+        _epy=(sy*0.492) if not P.get('wing_tube',1) else (sy*P.get('wing_span',0.505))
+        ep.location=(_epx, _epy, wz)
         bpy.ops.object.select_all(action='DESELECT'); ep.select_set(True)
         bpy.context.view_layer.objects.active=ep; bpy.ops.object.transform_apply(location=True)
         assign(ep,'M_Yellow'); out.append(reg('wep_'+('L' if sy>0 else 'R'),ep))

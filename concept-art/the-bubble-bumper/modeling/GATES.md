@@ -42,7 +42,7 @@ foram encontrados e corrigidos nesta sessao (ver STATE.md §INSTRUMENTO).
   EXPECT: /AUD_ABAIXO_090=[0-3]/
   EVIDENCE: AUD_ABAIXO_090=21
 
-- [ ] G6: EXCESSO medio de volume <= 5%
+- [ ] G6: EXCESSO medio de volume <= 5%  [W357 13.8 -> W366 11.3; alvo 5]
   CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_EXCESSO
   EXPECT: /AUD_EXCESSO=[0-4]\.[0-9]/
   EVIDENCE: pending

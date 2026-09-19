@@ -180,3 +180,37 @@ Alem disso a roda e um disco FLAT bicolor sem profundidade (concept: redonda, co
 - Ainda errado: asa traseira e laje (concept: tubo fino + tampas amarelas), escapamentos
   nao aparecem em S no topo, pneus quadrados sem anel amarelo, volante toro duplo grosso,
   ombreiras amarelas grandes demais, falta a mola helicoidal visivel.
+
+## Retomada 3 (W358 -> W366) — asa tubular + rampa profunda
+
+| metrica | W357 | **W366** | alvo | vencedor |
+|---|---|---|---|---|
+| AUD_IOU_MEDIA | 0.813 | 0.811 | 0.900 | W357 |
+| AUD_IOU_PIOR | 0.661 | 0.617 | 0.850 | W357 |
+| AUD_COR_TV | 0.274 | **0.268** | 0.080 | W366 |
+| AUD_EXCESSO | 13.8 | **11.3** | 5.0 | W366 |
+| AUD_FALTA | 7.9 | 10.0 | 20 | W357 |
+| regioes <0.80 | 8 | 8 | 0 | empate |
+| TOP corTV | 0.142 | **0.094** | - | W366 |
+| TOP cinza | 0.198 | **0.235** (concept 0.258) | - | W366 |
+| TOP azul_med | 0.268 | **0.219** (concept 0.200) | - | W366 |
+
+**Decisao**: consolidar W366. Justificativa medida, nao estetica:
+- W366 e melhor em EXCESSO (-2.5 pontos, o maior sinal de erro sistematico) e em COR_TV.
+- Na vista TOP — onde o vision apontou a asa como "laje" — W366 e MUITO melhor:
+  TOP corTV 0.142 -> 0.094, cinza 0.235 vs 0.258 do concept, azul 0.219 vs 0.200.
+- W357 ganha apenas +0.002 de IoU e +0.044 na pior regiao; o ganho de IoU e dentro do ruido,
+  e o ganho de pior-regiao vem justamente da LAJE que o vision reprova.
+
+**Trade-off documentado (nao silencioso)**: `side/TRASEIRA` cai 0.661 -> 0.617 porque a laje
+projetava area na vista SIDE que o tubo nao projeta. Duas tentativas de restaurar essa area
+por outros meios FALHARAM e estao registradas baixo. Fica pendente: a massa traseira em
+xf 0.89-0.92, z 0.15-0.54 m existe no concept e falta no modelo.
+
+### Tentativas de restaurar side/TRASEIRA (todas refutadas por medicao)
+| teste | side/TRASEIRA |
+|---|---|
+| mufla mais baixa/larga (mufz 0.36-0.42) | 0.585-0.593 (piora) |
+| rampa mais funda (rzb 0.08/0.10/0.12) | 0.611-0.617 (neutro) |
+| massa central traseira Rear_Mass (rmy 0.26-0.32) | 0.616 (neutro — adicionada DENTRO da silhueta) |
+| asa mais alta/grossa (wz 0.76/0.70) | 0.597/0.613 (piora) + IoU 0.758/0.761 |
