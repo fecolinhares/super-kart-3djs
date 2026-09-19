@@ -118,7 +118,7 @@ def wheel_mesh(name,xc,yc,zc,R,hw,seg=48,flip=1):
     """roda de kart: pneu SLICK liso + disco solido (lip prata, prato cinza, anel amarelo,
     3 pinos quadrados amarelos a 120 graus, cubo central)"""
     # carcaca do pneu a 0.955R: a BANDA DE RODAGEM (blocos) passa a ser a superficie externa
-    _R=R*0.970
+    _R=R*1.0
     prof=[(R*0.62,-hw*1.00),(_R*0.84,-hw*1.00),(_R*0.97,-hw*0.94),(_R*1.00,-hw*0.78),
           (_R*1.00,-hw*0.56),(_R*0.99,-hw*0.34),(_R*1.00,-hw*0.12),(_R*0.99,0.0),
           (_R*1.00,hw*0.12),(_R*0.99,hw*0.34),(_R*1.00,hw*0.56),(_R*1.00,hw*0.78),
@@ -133,12 +133,11 @@ def wheel_mesh(name,xc,yc,zc,R,hw,seg=48,flip=1):
     rim=revolve(name+'_lip',rp,0,0,seg=max(24,seg//2)); assign(rim,'M_Plate')
     rim.data.transform(Matrix.Rotation(math.radians(90),4,'X')); rim.data.transform(Matrix.Translation((xc,yc,zc)))
     parts.append(rim)
-    pl=[(R*0.09,-hw*0.70),(R*0.42,-hw*0.70),(R*0.50,-hw*0.66),(R*0.50,hw*0.66),(R*0.42,hw*0.70),(R*0.09,hw*0.70),
-        (R*0.09,hw*0.44),(R*0.09,0.0),(R*0.09,-hw*0.44)]
+    pl=[(R*0.035,-hw*0.70),(R*0.42,-hw*0.70),(R*0.50,-hw*0.66),(R*0.50,hw*0.66),(R*0.42,hw*0.70),(R*0.035,hw*0.70),(R*0.035,hw*0.30),(R*0.035,0.0),(R*0.035,-hw*0.30)]
     plate=revolve(name+'_plate',pl,0,0,seg=max(24,seg//2)); assign(plate,'M_Plate')
     plate.data.transform(Matrix.Rotation(math.radians(90),4,'X')); plate.data.transform(Matrix.Translation((xc,yc,zc)))
     parts.append(plate)
-    ar=revolve(name+'_ring',[(R*0.335,-hw*0.97),(R*0.470,-hw*0.97),(R*0.470,hw*0.97),(R*0.335,hw*0.97)],0,0,seg=max(24,seg//2))
+    ar=revolve(name+'_ring',[(R*0.862,-hw*0.97),(R*0.958,-hw*0.97),(R*0.958,hw*0.97),(R*0.862,hw*0.97)],0,0,seg=max(24,seg//2))
     assign(ar,'M_Yellow')
     ar.data.transform(Matrix.Rotation(math.radians(90),4,'X')); ar.data.transform(Matrix.Translation((xc,yc,zc)))
     parts.append(ar)
@@ -300,8 +299,15 @@ def front_bumper():
     o=tube_round('Bumper_Ring',spine,rb*1.07,20); assign(o,'M_Blue')
     assign(o,'M_Yellow', lambda q: abs(q.center.y)>0.360)
     for _sy in (1,-1):
-        _pd=revolve('Pad_'+('L' if _sy>0 else 'R'),[(0.036,-0.112),(0.072,-0.112),(0.072,0.098),(0.036,0.098)],XFO-0.086,0.252,y0=_sy*0.452,seg=24)
+        # COLAR AMARELO COAXIAL ao tubo do para-choque (aneis envolvendo o tubo, nao placas verticais)
+        _cl=[]
+        for _k in range(20):
+            _a=2*math.pi*_k/20.0
+            _cl.append((XFO-0.1342+0.098*math.cos(_a), _sy*0.420, 0.2582+0.098*math.sin(_a)))
+        _pd=tube_round('Pad_'+('L' if _sy>0 else 'R'),_cl,0.026,14)
         assign(_pd,'M_Yellow'); out.append(reg('pad_'+('l' if _sy>0 else 'r'),_pd))
+        _cl2=[(XFO-0.0580+0.098*math.cos(2*math.pi*_k/20.0), _sy*0.505, 0.2410+0.098*math.sin(2*math.pi*_k/20.0)) for _k in range(20)]
+        _pd2=tube_round('Pad2_'+('L' if _sy>0 else 'R'),_cl2,0.026,14); assign(_pd2,'M_Yellow'); out.append(reg('pad2_'+('l' if _sy>0 else 'r'),_pd2))
     out.append(reg('bumper',o))
     # painel central trapezoidal amarelo (rebaixado)
     # longarinas EXPOSTAS: amarela (baixa) + prata (alta), por fora da roda ate a coluna
@@ -332,6 +338,8 @@ def headlight():
 
 FB=safe('front_bumper',front_bumper)
 if FB: made.append(FB)
+HL=safe('headlight',headlight)
+if HL: made.append(HL)
 
 # ============ 3. GRADE INFERIOR com 5 aletas ============
 def grille():
@@ -650,6 +658,12 @@ def pilot():
         bt=tubevar('Boot_'+st,[(0.420,sy*0.184,0.404),(0.540,sy*0.182,0.330),(0.628,sy*0.180,0.284)],
                    [0.062,0.054,0.045],seg=20); assign(bt,'M_Dark'); out.append(bt)
     nk=tubevar('Neck',[(-0.105,0,0.632),(-0.250,0,0.800)],[0.140,0.126],seg=26); assign(nk,'M_Pilot'); out.append(nk)
+    # HEADREST acolchoado em U atras do capacete (concept tem; auditor apontou ausencia)
+    _hz2=hz-HR*0.34
+    hrst=tube_round('Headrest_U',[(hx+HR*0.16, HR*0.92, _hz2),(hx-HR*0.62, HR*0.86, _hz2),
+                                  (hx-HR*0.98, 0.0, _hz2),(hx-HR*0.62,-HR*0.86, _hz2),
+                                  (hx+HR*0.16,-HR*0.92, _hz2)],0.042,18)
+    assign(hrst,'M_Dark'); out.append(reg('headrest',hrst))
     # ---- capacete: mais LARGO que alto ----
     helm=dome('Helmet',hx,0.0,hz,HR,sz=SZ,sy=1.0,seg=64,rings=38); assign(helm,'M_Blue')
     def _h_ang(q):
@@ -725,13 +739,13 @@ def pilot():
     for sy in (1,-1):
         st='L' if sy>0 else 'R'
         c,n = _FD(112.0, sy*31.0)
-        eye = dome_dir('Eye_'+st, (c[0]+n.x*HR*0.012, c[1]+n.y*HR*0.012, c[2]+n.z*HR*0.012), 0.050, tuple(n), seg=26, rings=16, flat=0.30)
+        eye = dome_dir('Eye_'+st, (c[0]-n.x*HR*0.006, c[1]-n.y*HR*0.006, c[2]-n.z*HR*0.006), 0.056, tuple(n), seg=28, rings=18, flat=0.13)
         assign(eye,'M_White'); out.append(reg('eye_'+st,eye))
         c2,n2 = _FD(112.0, sy*31.0)
-        pup = dome_dir('Pupil_'+st, (c2[0]+n2.x*HR*0.030, c2[1]+n2.y*HR*0.030, c2[2]+n2.z*HR*0.030), 0.017, tuple(n2), seg=22, rings=12, flat=0.22)
+        pup = dome_dir('Pupil_'+st, (c2[0]+n2.x*HR*0.004, c2[1]+n2.y*HR*0.004, c2[2]+n2.z*HR*0.004), 0.025, tuple(n2), seg=24, rings=14, flat=0.11)
         assign(pup,'M_Eye'); out.append(reg('pupil_'+st,pup))
         c3,n3 = _FD(108.6, sy*35.0)
-        gl = dome_dir('Glint_'+st, (c3[0]+n3.x*HR*0.042, c3[1]+n3.y*HR*0.042, c3[2]+n3.z*HR*0.042), 0.0075, tuple(n3), seg=16, rings=10, flat=0.30)
+        gl = dome_dir('Glint_'+st, (c3[0]+n3.x*HR*0.012, c3[1]+n3.y*HR*0.012, c3[2]+n3.z*HR*0.012), 0.009, tuple(n3), seg=16, rings=10, flat=0.10)
         assign(gl,'M_White'); out.append(gl)
         # sobrancelha: capsula FINA e ARQUEADA acima do olho
         br=[]
