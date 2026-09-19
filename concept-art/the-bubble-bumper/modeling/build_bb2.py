@@ -11,6 +11,7 @@
 #   centros: dianteira x=+0.519 ; traseira x=-0.653  (entre-eixos 1.172)
 # USO: OVR={'v':'W100'}; exec(open('/opt/blender-runner/build_bb2.py').read())
 import traceback, time, math
+import numpy as _np
 try: Matrix
 except NameError:
     from mathutils import Matrix
@@ -133,7 +134,7 @@ def wheel_mesh(name,xc,yc,zc,R,hw,seg=48,flip=1):
     rim=revolve(name+'_lip',rp,0,0,seg=max(24,seg//2)); assign(rim,'M_Plate')
     rim.data.transform(Matrix.Rotation(math.radians(90),4,'X')); rim.data.transform(Matrix.Translation((xc,yc,zc)))
     parts.append(rim)
-    pl=[(R*0.035,-hw*0.70),(R*0.42,-hw*0.70),(R*0.50,-hw*0.66),(R*0.50,hw*0.66),(R*0.42,hw*0.70),(R*0.035,hw*0.70),(R*0.035,hw*0.30),(R*0.035,0.0),(R*0.035,-hw*0.30)]
+    pl=[(R*0.035,-hw*0.70),(R*0.42,-hw*0.70),(R*0.50,-hw*0.66),(R*0.50,hw*0.66),(R*0.42,hw*0.70),(R*0.035,hw*0.70)]
     plate=revolve(name+'_plate',pl,0,0,seg=max(24,seg//2)); assign(plate,'M_Plate')
     plate.data.transform(Matrix.Rotation(math.radians(90),4,'X')); plate.data.transform(Matrix.Translation((xc,yc,zc)))
     parts.append(plate)
@@ -675,9 +676,24 @@ def pilot():
         a=_h_ang(q)
         if a is None: return False
         th,ph=a
-        return (((th-62.0)/11.0)**2 + ((abs(ph)-76.0)/16.0)**2 < 1.0) or (((th-28.0)/5.0)**2 + (ph/10.0)**2 < 1.0)
+        return (((th-28.0)/5.0)**2 + (ph/10.0)**2 < 1.0)
     assign(helm,'M_Dark',_intake)
     out.append(reg('helmet',helm))
+    # RESPIROS LATERAIS como geometria oval (o per-face num mesh de 3.4 graus vira bloco pixelado)
+    for _sy in (1,-1):
+        _st='L' if _sy>0 else 'R'
+        _t=math.radians(62.0); _f=math.radians(_sy*76.0)
+        _px=hx+HR*math.sin(_t)*math.cos(_f); _py=HR*math.sin(_t)*math.sin(_f); _pz=hz+HR*math.cos(_t)*SZ
+        _d=V3((_px-hx,_py,(_pz-hz)/SZ)); _d.normalize()
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=24,ring_count=14,radius=1.0)
+        _ob=bpy.context.object; _ob.name='Vent_'+_st
+        _ob.scale=(0.032,0.052,0.013)
+        bpy.ops.object.transform_apply(scale=True)
+        _ob.rotation_euler=_d.to_track_quat('Z','Y').to_euler()
+        bpy.ops.object.transform_apply(rotation=True)
+        _ob.location=(_px-_d.x*0.011,_py-_d.y*0.011,_pz-_d.z*0.011*SZ)
+        bpy.ops.object.transform_apply(location=True)
+        assign(_ob,'M_Dark'); out.append(reg('vent_'+_st,_ob))
     # ---- listra amarela central (frente-topo-nuca) ----
     Q=lambda RR,u,yy:(hx+RR*math.cos(u), yy, hz+RR*math.sin(u)*SZ)
     trim=[]
@@ -700,66 +716,62 @@ def pilot():
     gk=band('Visor_Gasket',HR*1.008,HR*0.994,84,89,-89,89,10,91); assign(gk,'M_Gasket'); out.append(reg('gasket',gk))
     gk2=band('Visor_Gasket2',HR*1.008,HR*0.994,143,148,-89,89,10,91); assign(gk2,'M_Gasket'); out.append(reg('gasket',gk2))
     visb=band('Visor_Band',HR*1.010,HR*0.996,86,150,-89,89,40,109); assign(visb,'M_Visor'); out.append(reg('visor_band',visb))
-    # ---- ROSTO: casca frontal com materiais POR-FACE (olhos, sobrancelhas, sorriso em U) ----
-    _T0,_T1,_P0,_P1=95.0,137.0,-78.0,78.0
-    def _hang(q):
-        dx=q.center.x-hx; dy=q.center.y; dz=(q.center.z-hz)/SZ
-        r=math.sqrt(dx*dx+dy*dy+dz*dz)
-        if r<1e-9: return None
-        return (math.degrees(math.acos(max(-1.0,min(1.0,dz/r)))), math.degrees(math.atan2(dy,dx)))
-    fb=band('Visor_Face',HR*P.get('face_ro',1.022),HR*P.get('face_ri',1.016),_T0,_T1,_P0,_P1,72,200)
-    assign(fb,'M_Visor')
-    
-    epc=P.get('eye_ph',30.0); epr=P.get('eye_pr',26.0); etc=P.get('eye_th',112.0)
-    def _dec(kind):
-        def f(pp):
-            a2=_hang(pp)
-            if a2 is None: return False
-            th,ph=a2
-            if kind=='s':
-                return abs(th-(166.0-0.0260*ph*ph))<2.3 and abs(ph)<24.0
-            for sgn in (1,-1):
-                dth=th-etc; dph=ph-sgn*epc
-                d=math.sqrt(dth*dth+dph*dph)
-                if kind=='w' and d<=epr: return True
-                if kind=='p' and d<=epr*0.26: return True
-                if kind=='b' and abs(dth+epr*0.52-0.0135*dph*dph)<3.4 and dph*dph < (epr*1.02)**2: return True
-                if kind=='l' and (dth+epr*0.12)**2+dph*dph < (epr*0.16)**2: return True
-            return False
-        return f
-    assign(fb,'M_Eye',_dec('s'))   # so o sorriso fica por-face; olhos/sobrancelhas viram GEOMETRIA
-    out.append(reg('face',fb))
-    # ---- FACE por GEOMETRIA (decal angular era fragil): olhos, pupilas, brilho, sobrancelhas, boca ----
-    def _FD(th,ph):
-        t=math.radians(th); f=math.radians(ph)
-        n=V3((math.sin(t)*math.cos(f), math.sin(t)*math.sin(f), math.cos(t)/max(SZ,0.1)))
-        n.normalize()
-        return (hx+HR*n.x, HR*n.y, hz+HR*SZ*n.z), n
-    for sy in (1,-1):
-        st='L' if sy>0 else 'R'
-        c,n = _FD(112.0, sy*26.0)
-        eye = dome_dir('Eye_'+st, (c[0]-n.x*HR*0.008, c[1]-n.y*HR*0.008, c[2]-n.z*HR*0.008), 0.058, tuple(n), seg=28, rings=18, flat=0.07)
-        assign(eye,'M_White'); out.append(reg('eye_'+st,eye))
-        c2,n2 = _FD(112.0, sy*26.0)
-        pup = dome_dir('Pupil_'+st, (c2[0]+n2.x*HR*0.016, c2[1]+n2.y*HR*0.016, c2[2]+n2.z*HR*0.016), 0.0195, tuple(n2), seg=24, rings=14, flat=0.10)
-        assign(pup,'M_Eye'); out.append(reg('pupil_'+st,pup))
-        c3,n3 = _FD(108.6, sy*35.0)
-        gl = dome_dir('Glint_'+st, (c3[0]+n3.x*HR*0.012, c3[1]+n3.y*HR*0.012, c3[2]+n3.z*HR*0.012), 0.009, tuple(n3), seg=16, rings=10, flat=0.10)
-        assign(gl,'M_White'); out.append(gl)
-        # sobrancelha: capsula FINA e ARQUEADA acima do olho
-        br=[]
-        for j in range(9):
-            t=j/8.0
-            ph=sy*(22.0+17.0*t)
-            th=87.0+5.0*(1.0-abs(2.0*t-1.0))
-            p,_=_FD(th,ph); br.append(p)
-        bw=tube_round('Brow_'+st,br,0.012,14); assign(bw,'M_Eye'); out.append(reg('brow_'+st,bw))
-    mth=[]
-    for j in range(11):
-        t=j/10.0; ph=-19.0+38.0*t
-        th=163.5-1.1*abs(ph)
-        p,_=_FD(th,ph); mth.append((p[0],p[1],p[2]))
-    mo=tube_round('MouthGeo',mth,0.012,12); assign(mo,'M_Eye'); out.append(reg('mouth_geo',mo))
+    # ---- ROSTO: TEXTURA desenhada + UV (per-face em mesh de faces grandes nunca vira oval limpo) ----
+    _T0,_T1,_P0,_P1=88.0,142.0,-78.0,78.0
+    def _face_tex():
+        TW,TH=640,256
+        a=_np.zeros((TH,TW,4),dtype=_np.float32)
+        for r in range(TH):
+            k=1.0-0.30*(r/(TH-1.0))
+            a[r,:,0]=0.46*k+0.09; a[r,:,1]=0.52*k+0.09; a[r,:,2]=0.60*k+0.08; a[r,:,3]=1.0
+        yy,xx=_np.mgrid[0:TH,0:TW]
+        def ell(cx,cy,rx,ry): return ((xx-cx)/rx)**2+((yy-cy)/ry)**2 < 1.0
+        DU=(_P1-_P0)/TW; DV=(_T1-_T0)/TH
+        def px(ph,th): return ((ph-_P0)/DU,(th-_T0)/DV)
+        er=15.6
+        for sgn in (-1.0,1.0):
+            cx,cy=px(sgn*26.0,112.0); rx,ry=er/DU,er/DV
+            a[ell(cx,cy,rx,ry)]=[0.975,0.975,0.975,1.0]
+            a[ell(cx,cy+0.18*ry,rx*0.34,ry*0.34)]=[0.03,0.03,0.035,1.0]
+            a[ell(cx-rx*0.30,cy-ry*0.30,rx*0.15,ry*0.15)]=[1.0,1.0,1.0,1.0]
+            bx,by=px(sgn*25.0,96.0)
+            b1=ell(bx,by,rx*1.02,ry*0.55); b2=ell(bx,by+ry*0.55,rx*1.02,ry*0.46)
+            a[b1 & ~b2]=[0.03,0.03,0.035,1.0]
+        return a,TW,TH
+    _ft,_TW,_TH=_face_tex()
+    _img=bpy.data.images.new('FaceTex',_TW,_TH,alpha=True)
+    _img.pixels=_ft[::-1].ravel().tolist()
+    _fmat=bpy.data.materials.get('M_Face')
+    if not _fmat:
+        _fmat=bpy.data.materials.new('M_Face'); _fmat.use_nodes=True
+        _nt=_fmat.node_tree; _nt.nodes.clear()
+        _o=_nt.nodes.new('ShaderNodeOutputMaterial'); _e=_nt.nodes.new('ShaderNodeEmission')
+        _t=_nt.nodes.new('ShaderNodeTexImage'); _t.image=_img; _t.interpolation='Linear'
+        _nt.links.new(_t.outputs['Color'],_e.inputs['Color']); _nt.links.new(_e.outputs['Emission'],_o.inputs['Surface'])
+    _fv=[]; _NT2,_NP2=56,150
+    for _j in range(_NP2):
+        _ph=math.radians(_P0+(_P1-_P0)*_j/(_NP2-1.0))
+        for _i in range(_NT2):
+            _th=math.radians(_T0+(_T1-_T0)*_i/(_NT2-1.0))
+            _fv.append(PV(HR*1.014,_th,_ph))
+    _ff=[]
+    for _j in range(_NP2-1):
+        for _i in range(_NT2-1):
+            _a=_j*_NT2+_i; _ff.append((_a,_a+1,_a+_NT2+1,_a+_NT2))
+    _fme=bpy.data.meshes.new('Visor_Face_me'); _fme.from_pydata(_fv,[],_ff); _fme.update()
+    _fob=bpy.data.objects.new('Visor_Face',_fme); bpy.context.scene.collection.objects.link(_fob)
+    _fme.materials.append(_fmat)
+    _uvl=_fme.uv_layers.new(name='UVMap')
+    for _pi,_poly in enumerate(_fme.polygons):
+        _jj=_pi//(_NT2-1); _ii=_pi%(_NT2-1)
+        _uv=[(_jj/(_NP2-1.0),1.0-_ii/(_NT2-1.0)),(_jj/(_NP2-1.0),1.0-(_ii+1)/(_NT2-1.0)),
+             ((_jj+1)/(_NP2-1.0),1.0-(_ii+1)/(_NT2-1.0)),((_jj+1)/(_NP2-1.0),1.0-_ii/(_NT2-1.0))]
+        for _k,_li in enumerate(_poly.loop_indices): _uvl.data[_li].uv=_uv[_k]
+    try:
+        _sm=_fob.modifiers.new('sol','SOLIDIFY'); _sm.thickness=0.005; _sm.offset=0.0
+        bpy.context.view_layer.objects.active=_fob; _fob.select_set(True); apply_mods(_fob)
+    except Exception: pass
+    out.append(_fob)
     # ---- queixeira/barbicheta: projeta para frente e para baixo, base achatada ----
     chinp=revolve('Chin_Guard',[(0.030,-0.052),(0.108,-0.052),(0.152,-0.026),(0.166,0.010),(0.152,0.044),(0.108,0.062),(0.030,0.062)],
                   hx+0.052, 0.842, seg=34)
@@ -769,6 +781,11 @@ def pilot():
     bpy.ops.object.transform_apply(scale=True)
     out.append(reg('chin_guard',chinp))
     chy=band('Chin_Patch',HR*1.018,HR*0.990,138,172,-50,50,20,57); assign(chy,'M_Yellow')
+    def _hang(q):
+        dx=q.center.x-hx; dy=q.center.y; dz=(q.center.z-hz)/SZ
+        r=math.sqrt(dx*dx+dy*dy+dz*dz)
+        if r<1e-9: return None
+        return (math.degrees(math.acos(max(-1.0,min(1.0,dz/r)))), math.degrees(math.atan2(dy,dx)))
     def _mouth(pp):
         a3=_hang(pp)
         if a3 is None: return False
@@ -778,32 +795,6 @@ def pilot():
     # base achatada (anel escuro na parte de baixo do casco)
     bse=revolve('Helm_Base',[(HR*0.62,-0.016),(HR*1.006,-0.016),(HR*1.006,0.016),(HR*0.62,0.016)],hx,hz-HR*SZ*0.90,seg=40)
     assign(bse,'M_Gasket'); out.append(reg('helm_base',bse))
-    # ---- FACES SOLIDAS: testa amarela, sobrancelhas, queixeira, boca ----
-    def SP(th,ph,rr):
-        t=math.radians(th); f=math.radians(ph)
-        return (hx+rr*math.sin(t)*math.cos(f), rr*math.sin(t)*math.sin(f), hz+rr*SZ*math.cos(t))
-    # faixa amarela da testa: 3 blocos do topo ate a viseira
-    for i,(t0) in enumerate(()):
-        c=SP(t0,0.0,HR*1.026)
-        b1=box('Fore_Y%d'%i,c,(0.072,0.034,0.030),bevel=0.016,segs=3)
-        assign(b1,'M_Yellow'); out.append(reg('fore%d'%i,b1))
-    # sobrancelhas: 2 blocos finos arqueados acima dos olhos
-    for sgn in (-1,1):
-        c=SP(97.0,sgn*(epc-1.0),HR*1.024)
-        b2=box('Brow_%s'%('L' if sgn>0 else 'R'),c,(0.044,0.014,0.009),bevel=0.006,segs=3)
-        assign(b2,'M_Eye')
-        bpy.ops.object.select_all(action='DESELECT'); bpy.context.view_layer.objects.active=b2; b2.select_set(True)
-        bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
-        b2.rotation_euler=(0,0,math.radians(-14.0*sgn))
-        bpy.ops.object.transform_apply(rotation=True)
-        out.append(reg('brow'+('L' if sgn>0 else 'R'),b2))
-    # queixeira amarela + boca
-    c=SP(146.0,0.0,HR*1.012)
-    b3=box('Chin_Y',c,(0.072,0.062,0.030),bevel=0.022,segs=4); assign(b3,'M_Yellow')
-    out.append(reg('chin_y',b3))
-    c=SP(143.0,0.0,HR*1.030)
-    b4=box('Mouth',c,(0.040,0.011,0.007),bevel=0.003,segs=2); assign(b4,'M_Eye')
-    out.append(reg('mouth',b4))
     # ---- parafusos de pivo da viseira (laterais, altura da tempora) ----
     for sy in (1,-1):
         st='L' if sy>0 else 'R'
