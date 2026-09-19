@@ -100,7 +100,7 @@ def revolve(name,prof,x0,z0,y0=0.0,seg=28,capopen=False):
 def dome(name,cx,cy,cz,R,sz=1.0,sy=1.0,seg=40,rings=24):
     prof=[(max(0.0015,R*math.sin(math.pi*i/rings)*sy), -R*math.cos(math.pi*i/rings)*sz) for i in range(rings+1)]
     return revolve(name,prof,cx,cz,y0=cy,seg=seg,capopen=True)
-def sq(cx,ry,rz,n=24,p=2.8,z0=0.0,zsq=0.90,cy=0.0):
+def sq(cx,ry,rz,n=24,p=2.0,z0=0.0,zsq=0.90,cy=0.0):
     pts=[]
     for k in range(n):
         a=2*math.pi*k/n; ca=math.cos(a); sa=math.sin(a)
@@ -110,6 +110,29 @@ def sq(cx,ry,rz,n=24,p=2.8,z0=0.0,zsq=0.90,cy=0.0):
     return pts
 def sqz(cx,cy,ry,rz,n=24,p=2.8,z0=0.0,zsq=0.90):
     return sq(cx,ry,rz,n,p,z0,zsq,cy)
+def tire_tread(t, name, xc, yc, zc, R, hw):
+    """sulcos circunferenciais + chevrons: modelados como aneis finos recuados"""
+    outs=[]
+    for k,zz in enumerate((-0.42,-0.10,0.22)):
+        rr=R*0.985
+        tr=revolve(name+'_rib%d'%k,[(rr*0.965,-hw*0.86),(rr,-hw*0.80),(rr,hw*0.80),(rr*0.965,hw*0.86)],0,0,seg=52)
+        assign(tr,'M_Dark')
+        tr.data.transform(Matrix.Rotation(math.radians(90),4,'X'))
+        tr.data.transform(Matrix.Translation((xc+zz*R*0.6, yc, zc)))
+        outs.append(tr)
+    # chevrons: blocos inclinados em 2 fileiras
+    for j,ang in enumerate((0,90,180,270)):
+        for sgn in (-1,1):
+            a=math.radians(ang+18*sgn)
+            bx=xc+R*0.86*math.cos(a); bz=zc+R*0.86*math.sin(a)
+            ch=box(name+'_ch%d_%d'%(j,sgn),(bx,yc+sgn*hw*0.52,bz),(0.030,0.026,0.026),bevel=0.006,segs=1)
+            assign(ch,'M_Dark')
+            bpy.ops.object.select_all(action='DESELECT'); bpy.context.view_layer.objects.active=ch; ch.select_set(True)
+            bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
+            ch.rotation_euler=(math.radians(30*sgn),0,a)
+            bpy.ops.object.transform_apply(rotation=True)
+            outs.append(ch)
+    return outs
 def wheel_mesh(name,xc,yc,zc,R,hw,seg=48,flip=1):
     """roda de kart: pneu SLICK liso + disco solido (lip prata, prato cinza, anel amarelo,
     3 pinos quadrados amarelos a 120 graus, cubo central)"""
@@ -147,6 +170,8 @@ def wheel_mesh(name,xc,yc,zc,R,hw,seg=48,flip=1):
     hub=revolve(name+'_hub',hp,0,0,seg=26); assign(hub,'M_Plate')
     hub.data.transform(Matrix.Rotation(math.radians(90),4,'X')); hub.data.transform(Matrix.Translation((xc,yc,zc)))
     parts.append(hub)
+    # banda de rodagem (concept tem sulcos + chevron; 3 auditorias apontaram "slick liso")
+    parts += tire_tread(None,name,xc,yc,zc,R,hw)
     return join(parts,name+'_W')
 def blade(name,spine,halfw,halfh,zc,bevel=0.0):
     """extrusa um retangulo (halfw em Y-horizontal normal, halfh em Z) ao longo de uma espinha no plano XY"""
@@ -182,7 +207,7 @@ def box(name,center,size,bevel=0.02,segs=2):
     bpy.ops.mesh.primitive_cube_add(size=2,location=center)
     o=bpy.context.active_object; o.name=name; o.scale=size
     bpy.ops.object.transform_apply(scale=True)
-    b=min(bevel,0.40*min(size))
+    b=min(bevel*P.get('inf',1.9),0.47*min(size))
     if b>0.001: add_mod(o,'BEVEL',width=b,segments=segs); apply_mods(o)
     return o
 def dome_dir(name,center,R,dirv,sz=1.0,seg=28,rings=16,flat=1.0):
@@ -209,7 +234,7 @@ H=1.207; L=2.255; W=1.494
 XFO=+1.128; XRE=-1.128
 XF=P.get('x_fw',+0.585); XR=P.get('x_rw',-0.720)
 RF=P.get('r_f',0.216); RR=P.get('r_r',0.262)
-HWF=P.get('hw_f',0.076); HWR=P.get('hw_r',0.158)
+HWF=P.get('hw_f',0.118); HWR=P.get('hw_r',0.158)
 TYF=P.get('ty_f',0.626); TYR=P.get('ty_r',0.5855)
 
 def prof_top(xf):
@@ -239,11 +264,20 @@ def nose():
         x=XFO-xf*L
         zt=prof_top(xf)*H*0.94
         s=math.sin(math.pi*(0.06+0.90*(i/(NS-1.0))))**0.55
-        ry=0.170+0.175*s
+        ry=0.196+0.196*s
         zb=max(0.0,0.0+0.020*(i/(NS-1.0)))
         zc=(zb+zt)/2.0; rz=(zt-zb)/2.0
-        secs.append(sq(x,ry,rz,34,2.4,z0=zc,zsq=1.02))
+        secs.append(sq(x,ry,rz,38,2.0,z0=zc,zsq=1.02))
     o=loft('Nose',secs); assign(o,'M_Blue'); add_mod(o,'SUBSURF',levels=1); apply_mods(o); seal(o)
+    # ABRE a cavidade da grade (o nariz cobria): boolean DIFFERENCE
+    try:
+        _cut=box('NoseGrilleCut',(XFO-0.120,0.0,0.150),(0.120,0.260,0.140),bevel=0.012,segs=2)
+        o=boolean(o,_cut,'DIFFERENCE')
+        # NAO usar seal() aqui: holes_fill fecharia a cavidade
+        assign(o,'M_Blue')
+        R['nose_cut']='ok'
+    except Exception as e:
+        R['nose_cut']=repr(e)[:70]
     out.append(reg('nose',o))
     # faixa amarela central = DECAL nas faces do dorso do nariz (rente e reta)
     assign(o,'M_Yellow', lambda q: q.normal.z>0.52 and abs(q.center.y)<0.040 and q.center.x>-0.02)
@@ -279,15 +313,15 @@ if FB: made.append(FB)
 # ============ 3. GRADE INFERIOR com 5 aletas ============
 def grille():
     out=[]
-    gf=box('Grille_Frame',(XFO-0.175,0.0,0.150),(0.045,0.235,0.115),bevel=0.014,segs=2); assign(gf,'M_BlueDk'); out.append(gf)
+    gf=box('Grille_Frame',(XFO-0.098,0.0,0.150),(0.052,0.246,0.132),bevel=0.018,segs=2); assign(gf,'M_BlueDk'); out.append(gf)
     # 5 fendas verticais RECUADAS (a 'boca' do kart)
     for j,yy in enumerate((-0.160,-0.080,0.0,0.080,0.160)):
-        sl=box('Grille_Slot%d'%j,(XFO-0.205,yy,0.150),(0.032,0.028,0.094),bevel=0.005,segs=1); assign(sl,'M_Dark'); out.append(sl)
+        sl=box('Grille_Slot%d'%j,(XFO-0.072,yy,0.150),(0.046,0.032,0.116),bevel=0.007,segs=1); assign(sl,'M_Dark'); out.append(sl)
     # nervuras entre as fendas (dão a leitura de grade)
     for j,yy in enumerate((-0.120,-0.040,0.040,0.120)):
-        rb=box('Grille_Rib%d'%j,(XFO-0.178,yy,0.150),(0.032,0.015,0.100),bevel=0.004,segs=1); assign(rb,'M_BlueDk'); out.append(rb)
+        rb=box('Grille_Rib%d'%j,(XFO-0.054,yy,0.150),(0.040,0.015,0.110),bevel=0.005,segs=1); assign(rb,'M_BlueDk'); out.append(rb)
     # farol retangular no eixo central
-    lz=box('Headlight',(XFO-0.150,0.0,0.150),(0.030,0.060,0.032),bevel=0.007,segs=2); assign(lz,'M_White'); out.append(reg('light',lz))
+    lz=box('Headlight',(XFO-0.235,0.0,0.330),(0.030,0.074,0.030),bevel=0.014,segs=3); assign(lz,'M_White'); out.append(reg('light',lz))
     return join(out,'GRILLE')
 GR=safe('grille',grille)
 if GR: made.append(GR)
@@ -302,7 +336,7 @@ def cowl():
         s=math.sin(math.pi*(0.10+0.80*(i/(NS-1.0))))**0.5
         ry=0.148*s+0.042
         zb=0.105
-        secs.append(sq(x,ry,(zt-zb)/2.0,32,4.4,z0=(zb+zt)/2.0,zsq=0.96))
+        secs.append(sq(x,ry,(zt-zb)/2.0,36,2.2,z0=(zb+zt)/2.0,zsq=0.98))
     o=loft('Cowl',secs); assign(o,'M_Blue'); add_mod(o,'SUBSURF',levels=1); apply_mods(o); seal(o)
     # ESCAVA A BANHEIRA: subtrai um solido em forma de colher
     cut=box('Cockpit_Cut',(XFO-0.405*L,0,0.647),(0.350,0.200,0.110),bevel=0.060,segs=6)
@@ -311,9 +345,9 @@ def cowl():
     except Exception: pass
     out.append(reg('cowl',o))
     # nassau panel: lamina vertical a frente do volante
-    ns=box('Nassau',(XFO-0.30*L-0.06,0,0.430),(0.026,0.118,0.130),bevel=0.014,segs=3)
+    ns=box('Nassau',(XFO-0.30*L-0.06,0,0.430),(0.026,0.118,0.130),bevel=0.022,segs=3)
     assign(ns,'M_Blue'); out.append(reg('nassau',ns))
-    ns2=box('Nassau_Face',(XFO-0.30*L-0.093,0,0.452),(0.018,0.096,0.084),bevel=0.010,segs=2)
+    ns2=box('Nassau_Face',(XFO-0.30*L-0.093,0,0.452),(0.018,0.096,0.084),bevel=0.016,segs=2)
     assign(ns2,'M_Yellow'); out.append(reg('nassau_face',ns2))
     return join(out,'COWL')
 CW=safe('cowl',cowl)
@@ -326,7 +360,7 @@ def tub():
         xf=0.44+0.36*(i/(NS-1.0)); x=XFO-xf*L
         s=math.sin(math.pi*(0.10+0.80*(i/(NS-1.0))))**0.5
         ry=0.235*s+0.050; zt=0.520-0.150*(i/(NS-1.0)); zb=0.100
-        secs.append(sq(x,ry,(zt-zb)/2.0,32,2.3,z0=(zb+zt)/2.0,zsq=0.95))
+        secs.append(sq(x,ry,(zt-zb)/2.0,36,2.0,z0=(zb+zt)/2.0,zsq=0.98))
     o=loft('Tub',secs); assign(o,'M_Blue'); add_mod(o,'SUBSURF',levels=2); apply_mods(o); seal(o)
     assign(o,'M_Dark',lambda p: p.center.z<0.175 and abs(p.center.y)<0.20)
     return reg('tub',o)
@@ -340,7 +374,7 @@ def pods():
         nm='Pod_'+('L' if sy>0 else 'R'); NS=30; secs=[]
         for i in range(NS):
             t=i/(NS-1.0); xf=0.355+0.310*t; x=XFO-xf*L
-            s=math.sin(math.pi*(0.05+0.90*t))**0.45
+            s=math.sin(math.pi*(0.05+0.90*t))**0.33
             outy=0.300+0.387*s      # borda externa: 0.30 -> 0.687 (alvo medido 0.92W)
             iny=0.175+0.115*s       # borda interna
             zb=0.105
@@ -351,8 +385,8 @@ def pods():
             for k in range(26):
                 a=2*math.pi*k/26.0
                 ca=math.cos(a); sa=math.sin(a)
-                yy=cy+math.copysign(abs(ca)**(2.0/2.8),ca)*ry
-                zz=(zb+zt)/2.0+math.copysign(abs(sa)**(2.0/2.8),sa)*(zt-zb)/2.0
+                yy=cy+math.copysign(abs(ca)**(2.0/2.0),ca)*ry
+                zz=(zb+zt)/2.0+math.copysign(abs(sa)**(2.0/2.0),sa)*(zt-zb)/2.0
                 sec.append((x,yy,zz))
             secs.append(sec)
         o=loft(nm,secs); assign(o,'M_Yellow'); add_mod(o,'SUBSURF',levels=1); apply_mods(o); seal(o)
@@ -396,8 +430,8 @@ def chassis():
     sw=[(0.135,0.0,0.660),(0.135,0.0,0.545)]
     for i in range(29):
         a=2*math.pi*i/28.0; sw.append((0.135-0.016*math.cos(a),0.124*math.cos(a),0.545+0.124*math.sin(a)))
-    w1=sweep('Steer_Wheel',sw,0.018,14); assign(w1,'M_Dark'); out.append(w1)
-    st1=box('Seat_Base',(-0.060,0,0.348),(0.145,0.190,0.045),bevel=0.024,segs=3); assign(st1,'M_Dark'); out.append(st1)
+    w1=sweep('Steer_Wheel',sw,0.026,16); assign(w1,'M_Dark'); out.append(w1)
+    st1=box('Seat_Base',(-0.060,0,0.348),(0.148,0.188,0.052),bevel=0.052,segs=5); assign(st1,'M_Dark'); out.append(st1)
     # ---- MAOS (luvas) e BOTAS: o concept tem luvas e botas pretas visiveis ----
     for sy in (1,-1):
         # luva na manopla do volante
@@ -424,8 +458,8 @@ def chassis():
         assign(sp,'M_Gold'); out.append(reg('spring'+('L' if sy>0 else 'R'),sp))
 
     # concha baixa e RECLINADA: sobe para tras em curva (nao e parede vertical)
-    st2=tubevar('Seat_Shell',[(-0.150,0,0.372),(-0.238,0,0.436),(-0.330,0,0.498),(-0.424,0,0.556)],
-                [0.150,0.152,0.146,0.132],seg=24); assign(st2,'M_Dark'); out.append(reg('seat',st2))
+    st2=tubevar('Seat_Shell',[(-0.150,0,0.368),(-0.234,0,0.428),(-0.322,0,0.490),(-0.412,0,0.548)],
+                [0.152,0.156,0.152,0.140],seg=26); assign(st2,'M_Dark'); out.append(reg('seat',st2))
     for sy in (1,-1):
         spk=revolve('Sprocket_'+('L' if sy>0 else 'R'),[(0.014,-0.012),(0.160,-0.012),(0.160,0.012),(0.014,0.012)],XR-0.02,RR,y0=sy*0.215,seg=40)
         assign(spk,'M_Silver'); out.append(spk)
@@ -443,9 +477,9 @@ def rear():
     exb=P.get('exh_x',XRE+0.041)
     EXC=P.get('eng_x',-0.430)          # motor colado atras do banco
     # ---- motor: caixa chanfrada, topo prata / base escura / tampa azul ----
-    en=box('Engine',(EXC,0,0.372),(0.122,0.250,0.096),bevel=0.024,segs=3); assign(en,'M_Silver'); out.append(en)
-    en2=box('Engine_Bot',(EXC,0,0.300),(0.114,0.238,0.034),bevel=0.010,segs=2); assign(en2,'M_Dark'); out.append(en2)
-    ec=box('Engine_Top',(EXC+0.006,0,0.452),(0.108,0.226,0.028),bevel=0.012,segs=3); assign(ec,'M_Blue'); out.append(ec)
+    en=box('Engine',(EXC,0,0.372),(0.122,0.240,0.104),bevel=0.062,segs=5); assign(en,'M_Silver'); out.append(en)
+    en2=box('Engine_Bot',(EXC,0,0.300),(0.112,0.232,0.040),bevel=0.022,segs=3); assign(en2,'M_Dark'); out.append(en2)
+    ec=box('Engine_Top',(EXC+0.006,0,0.456),(0.106,0.220,0.034),bevel=0.030,segs=4); assign(ec,'M_Blue'); out.append(ec)
     # detalhe: tampa de vela (cilindro branco com furo escuro)
     pl=revolve('Plug',[(0.012,-0.032),(0.030,-0.032),(0.030,0.032),(0.012,0.032)],EXC,0.386,y0=0.235,seg=18)
     assign(pl,'M_White'); out.append(pl)
@@ -460,21 +494,21 @@ def rear():
     abt=sweep('Airbox_Duct',[(-0.470,0,0.610),(-0.580,0,0.556),(-0.672,0,0.512)],0.052,18)
     assign(abt,'M_BlueDk'); out.append(reg('airbox_duct',abt))
     # ---- 3 escapamentos calibres iguais: 1 central reto (mais baixo/frente) + 2 laterais p/ fora ----
-    e0=sweep('Exh_C',[(EXC-0.16,0.0,0.340),(XR-0.20,0.0,0.382),(exb,0.0,0.412)],0.082,26)
+    e0=sweep('Exh_C',[(EXC-0.16,0.0,0.340),(XR-0.20,0.0,0.382),(exb,0.0,0.412)],0.106,28)
     assign(e0,'M_Silver'); out.append(e0)
-    b0=revolve('Exh_C_bore',[(0.0,-0.010),(0.070,-0.010),(0.070,0.010),(0.0,0.010)],0,0,seg=24); assign(b0,'M_Dark')
+    b0=revolve('Exh_C_bore',[(0.0,-0.011),(0.092,-0.011),(0.092,0.011),(0.0,0.011)],0,0,seg=26); assign(b0,'M_Dark')
     b0.data.transform(Matrix.Rotation(math.radians(90),4,'Y'))
     b0.data.transform(Matrix.Translation((exb+0.014,0.0,0.412))); out.append(b0)
     for sy in (1,-1):
         st='L' if sy>0 else 'R'
         pt=((exb,sy*0.240,0.472),(XR-0.20,sy*0.185,0.420),(EXC-0.16,sy*0.110,0.392))
-        ex=sweep('Exh_'+st,list(pt)[::-1],0.080,26); assign(ex,'M_Silver'); out.append(ex)
+        ex=sweep('Exh_'+st,list(pt)[::-1],0.104,28); assign(ex,'M_Silver'); out.append(ex)
         _d=V3((exb-(XR-0.20), sy*0.240-sy*0.185, 0.472-0.420)).normalized()
         bb=revolve('Exh_%s_bore'%st,[(0.0,-0.009),(0.068,-0.009),(0.068,0.009),(0.0,0.009)],0,0,seg=24); assign(bb,'M_Dark')
         bb.data.transform(_d.to_track_quat('Z','Y').to_matrix().to_4x4())
         bb.data.transform(Matrix.Translation((exb-0.004,sy*0.242,0.474))); out.append(bb)
     # caixa coletora com rebites atras dos 3 tubos
-    cxs=box('Collector',(exb+0.200,0,0.432),(0.042,0.212,0.072),bevel=0.010,segs=2); assign(cxs,'M_Silver'); out.append(cxs)
+    cxs=box('Collector',(exb+0.200,0,0.432),(0.042,0.212,0.072),bevel=0.020,segs=2); assign(cxs,'M_Silver'); out.append(cxs)
     for j in range(4):
         rv=dome_dir('Rivet%d'%j,(exb+0.242,-0.150+j*0.100,0.432),0.020,(-1.0,0.0,0.0),seg=14,rings=8,flat=0.42)
         assign(rv,'M_Dark'); out.append(rv)
@@ -496,9 +530,9 @@ def rear():
         sp=sweep('Airbox_Strut_'+('L' if sy>0 else 'R'),[(XRE+0.345,sy*0.078,0.596),(XRE+0.330,sy*0.090,0.430)],0.028,14)
         assign(sp,'M_Dark'); out.append(sp)
     # ---- difusor azul com 5 fendas verticais ----
-    df=box('Diffuser',(XRE+0.205,0,0.150),(0.075,0.162,0.115),bevel=0.012,segs=3); assign(df,'M_Blue'); out.append(df)
+    df=box('Diffuser',(XRE+0.200,0,0.148),(0.080,0.180,0.132),bevel=0.014,segs=3); assign(df,'M_Blue'); out.append(df)
     for j,yy in enumerate((-0.096,-0.048,0.0,0.048,0.096)):
-        fn=box('Dslot%d'%j,(XRE+0.245,yy,0.150),(0.030,0.022,0.098),bevel=0.002,segs=1); assign(fn,'M_Dark'); out.append(fn)
+        fn=box('Dslot%d'%j,(XRE+0.252,yy,0.148),(0.034,0.024,0.126),bevel=0.003,segs=1); assign(fn,'M_Dark'); out.append(fn)
     # ---- para-choque tubular prata em U ----
     _bl=[]
     for sy in (1,-1):
@@ -511,19 +545,19 @@ def rear():
          (XRE+0.170,-0.322,0.148),(XRE+0.245,-0.262,0.150)]
     rb=sweep('Rear_Bumper_Loop',pts,0.034,16); assign(rb,'M_Silver'); out.append(reg('rbump',rb))
     # ---- asa traseira: barra GROSSA azul-escura + endplates amarelos ----
-    wz=P.get('wing_z',0.660)*H
+    wz=P.get('wing_z',0.605)*H
     wx1=XRE+0.055; wx2=XRE+0.245
     wsec=[]
     for i in range(13):
         u=i/12.0; x=wx1+(wx2-wx1)*u
         zc=wz+0.010*math.sin(math.pi*u)
-        hh=0.017+0.005*math.sin(math.pi*u)
+        hh=P.get('wing_hh',0.017)+0.005*math.sin(math.pi*u)
         wsec.append([(x,0.522,zc+hh),(x,-0.522,zc+hh),(x,-0.522,zc-hh),(x,0.522,zc-hh)])
     wg=loft('Wing_Main',wsec); assign(wg,'M_BlueDk'); add_mod(wg,'BEVEL',width=0.011,segments=2); apply_mods(wg); out.append(reg('wing',wg))
     for sy in (1,-1):
         ep=revolve('Wing_Endplate_'+('L' if sy>0 else 'R'),
-                   [(0.006,-0.030),(0.028,-0.030),(0.034,-0.012),(0.034,0.012),(0.028,0.030),(0.006,0.030)],
-                   (wx1+wx2)/2.0, wz, y0=sy*0.522, seg=22)
+                   [(0.007,-0.046),(0.031,-0.046),(0.037,-0.014),(0.037,0.014),(0.031,0.046),(0.007,0.046)],
+                   (wx1+wx2)/2.0, wz, y0=sy*0.552, seg=22)
         assign(ep,'M_Yellow'); ep.scale=(1.0,1.0,1.05)
         bpy.ops.object.select_all(action='DESELECT'); bpy.context.view_layer.objects.active=ep; ep.select_set(True)
         bpy.ops.object.transform_apply(scale=True)
@@ -583,8 +617,8 @@ def pilot():
     Q=lambda RR,u,yy:(hx+RR*math.cos(u), yy, hz+RR*math.sin(u)*SZ)
     trim=[]
     for i in range(41):
-        u=math.radians(44.0+196.0*i/40.0); tt=i/40.0
-        w=0.048*min(1.0, math.sin(math.pi*min(1.0,max(0.0,(tt-0.01)/0.13)))**0.6 if tt<0.15 else 1.0)*min(1.0, math.sin(math.pi*min(1.0,max(0.0,(0.99-tt)/0.13)))**0.6 if tt>0.85 else 1.0)
+        u=math.radians(26.0+214.0*i/40.0); tt=i/40.0
+        w=0.098*min(1.0, math.sin(math.pi*min(1.0,max(0.0,(tt-0.01)/0.13)))**0.6 if tt<0.15 else 1.0)*min(1.0, math.sin(math.pi*min(1.0,max(0.0,(0.99-tt)/0.13)))**0.6 if tt>0.85 else 1.0)
         w=max(w,0.013)
         trim.append([Q(HR*1.024,u,w*0.62),Q(HR*1.024,u,-w*0.62),Q(HR*1.006,u,-w*0.62),Q(HR*1.006,u,w*0.62)])
     tr=loft('Helm_Trim',trim,cap=True); assign(tr,'M_Yellow'); out.append(reg('helm_trim',tr))
@@ -601,7 +635,7 @@ def pilot():
         return loft(name,secs,cap=True)
     gk=band('Visor_Gasket',HR*1.008,HR*0.994,84,89,-89,89,10,91); assign(gk,'M_Gasket'); out.append(reg('gasket',gk))
     gk2=band('Visor_Gasket2',HR*1.008,HR*0.994,143,148,-89,89,10,91); assign(gk2,'M_Gasket'); out.append(reg('gasket',gk2))
-    visb=band('Visor_Band',HR*1.010,HR*0.996,88,144,-89,89,34,109); assign(visb,'M_Visor'); out.append(reg('visor_band',visb))
+    visb=band('Visor_Band',HR*1.010,HR*0.996,86,150,-89,89,40,109); assign(visb,'M_Visor'); out.append(reg('visor_band',visb))
     # ---- ROSTO: casca frontal com materiais POR-FACE (olhos, sobrancelhas, sorriso em U) ----
     _T0,_T1,_P0,_P1=95.0,137.0,-78.0,78.0
     def _hang(q):
@@ -612,7 +646,7 @@ def pilot():
     fb=band('Visor_Face',HR*P.get('face_ro',1.022),HR*P.get('face_ri',1.016),_T0,_T1,_P0,_P1,72,200)
     assign(fb,'M_Visor')
     
-    epc=P.get('eye_ph',38.0); epr=P.get('eye_pr',42.0); etc=P.get('eye_th',106.0)
+    epc=P.get('eye_ph',34.0); epr=P.get('eye_pr',40.0); etc=P.get('eye_th',112.0)
     def _dec(kind):
         def f(pp):
             a2=_hang(pp)
