@@ -507,7 +507,7 @@ def rear():
     # ---- motor: caixa chanfrada, topo prata / base escura / tampa azul ----
     en=box('Engine',(EXC,0,0.585),(0.128,0.300,0.058),bevel=0.045,segs=5); assign(en,'M_Silver'); out.append(en)
     en2=box('Engine_Bot',(EXC,0,0.500),(0.120,0.292,0.036),bevel=0.026,segs=3); assign(en2,'M_Dark'); out.append(en2)
-    ec=box('Engine_Top',(EXC+0.006,0,0.655),(0.112,0.272,0.030),bevel=0.024,segs=4); assign(ec,'M_Blue'); out.append(ec)
+    ec=box('Engine_Top',(EXC+0.006,0,0.655),(0.112,0.272,0.030),bevel=0.024,segs=4); assign(ec,P.get('ecmat','M_Silver')); out.append(ec)
     # detalhe: tampa de vela (cilindro branco com furo escuro)
     pl=revolve('Plug',[(0.012,-0.032),(0.030,-0.032),(0.030,0.032),(0.012,0.032)],EXC,0.600,y0=0.302,seg=18)
     assign(pl,'M_White'); out.append(pl)
@@ -518,7 +518,7 @@ def rear():
         assign(fin,'M_Silver'); out.append(fin)
     # ---- AIRBOX/scoop atras do capacete (xf 0.72-0.80 no concept = 0.62H/0.53H) ----
     for j,(xx,zz,ry_,rz_) in enumerate([(-0.470,0.652,0.098,0.068),(-0.575,0.596,0.090,0.060),(-0.665,0.540,0.080,0.052)]):
-        ab=box('Airbox%d'%j,(xx,0,zz),(0.058,ry_,rz_),bevel=0.020,segs=3); assign(ab,'M_Blue'); out.append(reg('airbox%d'%j,ab))
+        ab=box('Airbox%d'%j,(xx,0,zz),(0.058,ry_,rz_),bevel=0.020,segs=3); assign(ab,P.get('abmat','M_Silver')); out.append(reg('airbox%d'%j,ab))
     abt=sweep('Airbox_Duct',[(-0.462,0,0.774),(-0.575,0,0.704),(-0.668,0,0.628)],0.054,18)
     assign(abt,'M_BlueDk'); out.append(reg('airbox_duct',abt))
     # ---- 3 escapamentos calibres iguais: 1 central reto (mais baixo/frente) + 2 laterais p/ fora ----
@@ -579,8 +579,8 @@ def rear():
                         XR-0.010,0.300+kk*0.024,y0=sy*0.238,seg=24)
             assign(spr,'M_Gold'); out.append(spr)
     # ---- airbox/carenagem traseira alta: preenche 0.50-0.65 m em xf 0.80-0.87 ----
-    ab=box('Airbox',(XRE+0.360,0,0.585),(0.100,0.118,0.078),bevel=0.032,segs=4); assign(ab,'M_Yellow'); out.append(ab)
-    ab2=box('Airbox_Top',(XRE+0.360,0,0.655),(0.082,0.094,0.030),bevel=0.016,segs=3); assign(ab2,'M_Blue'); out.append(ab2)
+    ab=box('Airbox',(XRE+0.360,0,0.585),(0.100,0.118,0.078),bevel=0.032,segs=4); assign(ab,P.get('mufmat','M_Silver')); out.append(ab)
+    ab2=box('Airbox_Top',(XRE+0.360,0,0.655),(0.082,0.094,0.030),bevel=0.016,segs=3); assign(ab2,P.get('muftmat','M_Silver')); out.append(ab2)
     for sy in (1,-1):
         sp=sweep('Airbox_Strut_'+('L' if sy>0 else 'R'),[(XRE+0.345,sy*0.078,0.596),(XRE+0.330,sy*0.090,0.430)],0.028,14)
         assign(sp,'M_Dark'); out.append(sp)
