@@ -41,7 +41,7 @@ mat_rich('M_Blue',(0.0157,0.0380,0.151),0.74,0.0,190,0.0014,0.14,0.0)
 mat_rich('M_BlueDk',(0.0105,0.0243,0.1010),0.78,0.0,210,0.0016,0.12,0.0)
 mat_rich('M_Dark',(0.016,0.016,0.019),0.82,0.0,340,0.0026,0.14,0.0)
 mat_rich('M_Silver',(0.30,0.31,0.33),0.55,0.85,420,0.0014,0.30,0.0)
-mat_rich('M_Visor',(0.060,0.092,0.150),0.66,0.05,600,0.0008,0.16,0.0)
+mat_rich('M_Visor',(0.46,0.52,0.60),0.22,0.05,600,0.0004,0.75,0.35)
 mat_rich('M_Gasket',(0.020,0.020,0.024),0.78,0.0,340,0.0030,0.20,0.0)
 mat_rich('M_Cushion',(0.055,0.21,0.60),0.48,0.0,240,0.0032,0.42,0.0)
 mat_rich('M_Pilot',(0.0168,0.0400,0.200),0.76,0.0,200,0.0018,0.14,0.0)
@@ -675,7 +675,7 @@ def pilot():
         a=_h_ang(q)
         if a is None: return False
         th,ph=a
-        return ((abs(th-62.0)<9.0) and (abs(abs(ph)-76.0)<14.0)) or ((abs(th-28.0)<4.0) and (abs(ph)<12.0))
+        return (((th-62.0)/11.0)**2 + ((abs(ph)-76.0)/16.0)**2 < 1.0) or (((th-28.0)/5.0)**2 + (ph/10.0)**2 < 1.0)
     assign(helm,'M_Dark',_intake)
     out.append(reg('helmet',helm))
     # ---- listra amarela central (frente-topo-nuca) ----
@@ -683,9 +683,9 @@ def pilot():
     trim=[]
     for i in range(41):
         u=math.radians(19.0+221.0*i/40.0); tt=i/40.0
-        w=0.098*min(1.0, math.sin(math.pi*min(1.0,max(0.0,(tt-0.01)/0.13)))**0.6 if tt<0.15 else 1.0)*min(1.0, math.sin(math.pi*min(1.0,max(0.0,(0.99-tt)/0.13)))**0.6 if tt>0.85 else 1.0)
-        w=max(w,0.013)
-        trim.append([Q(HR*1.024,u,w*0.62),Q(HR*1.024,u,-w*0.62),Q(HR*1.006,u,-w*0.62),Q(HR*1.006,u,w*0.62)])
+        w=0.106*min(1.0, min(1.0,max(0.0,tt/0.05)))*min(1.0,max(0.0,(1.0-tt)/0.05))
+        w=max(w,0.030)
+        trim.append([Q(HR*1.006,u,w*0.52),Q(HR*1.006,u,-w*0.52),Q(HR*1.001,u,-w*0.52),Q(HR*1.001,u,w*0.52)])
     tr=loft('Helm_Trim',trim,cap=True); assign(tr,'M_Yellow'); out.append(reg('helm_trim',tr))
     PV=lambda RR,th,ph:(hx+RR*math.sin(th)*math.cos(ph), RR*math.sin(th)*math.sin(ph), hz+RR*math.cos(th)*SZ)
     def band(name,R1,R0,t0,t1,p0,p1,NT=14,NP=41):
@@ -739,10 +739,10 @@ def pilot():
     for sy in (1,-1):
         st='L' if sy>0 else 'R'
         c,n = _FD(112.0, sy*31.0)
-        eye = dome_dir('Eye_'+st, (c[0]-n.x*HR*0.006, c[1]-n.y*HR*0.006, c[2]-n.z*HR*0.006), 0.056, tuple(n), seg=28, rings=18, flat=0.13)
+        eye = dome_dir('Eye_'+st, (c[0]-n.x*HR*0.008, c[1]-n.y*HR*0.008, c[2]-n.z*HR*0.008), 0.058, tuple(n), seg=28, rings=18, flat=0.07)
         assign(eye,'M_White'); out.append(reg('eye_'+st,eye))
         c2,n2 = _FD(112.0, sy*31.0)
-        pup = dome_dir('Pupil_'+st, (c2[0]+n2.x*HR*0.004, c2[1]+n2.y*HR*0.004, c2[2]+n2.z*HR*0.004), 0.025, tuple(n2), seg=24, rings=14, flat=0.11)
+        pup = dome_dir('Pupil_'+st, (c2[0]+n2.x*HR*0.016, c2[1]+n2.y*HR*0.016, c2[2]+n2.z*HR*0.016), 0.028, tuple(n2), seg=24, rings=14, flat=0.10)
         assign(pup,'M_Eye'); out.append(reg('pupil_'+st,pup))
         c3,n3 = _FD(108.6, sy*35.0)
         gl = dome_dir('Glint_'+st, (c3[0]+n3.x*HR*0.012, c3[1]+n3.y*HR*0.012, c3[2]+n3.z*HR*0.012), 0.009, tuple(n3), seg=16, rings=10, flat=0.10)
@@ -752,15 +752,15 @@ def pilot():
         for j in range(9):
             t=j/8.0
             ph=sy*(22.0+17.0*t)
-            th=99.5+4.5*(1.0-abs(2.0*t-1.0))
+            th=87.0+5.0*(1.0-abs(2.0*t-1.0))
             p,_=_FD(th,ph); br.append(p)
-        bw=sweep('Brow_'+st,br,0.0105,12); assign(bw,'M_Eye'); out.append(reg('brow_'+st,bw))
+        bw=tube_round('Brow_'+st,br,0.012,14); assign(bw,'M_Eye'); out.append(reg('brow_'+st,bw))
     mth=[]
     for j in range(11):
         t=j/10.0; ph=-19.0+38.0*t
         th=163.5-1.1*abs(ph)
         p,_=_FD(th,ph); mth.append((p[0],p[1],p[2]))
-    mo=tube_round('MouthGeo',mth,0.0075,10); assign(mo,'M_Eye'); out.append(reg('mouth_geo',mo))
+    mo=tube_round('MouthGeo',mth,0.012,12); assign(mo,'M_Eye'); out.append(reg('mouth_geo',mo))
     # ---- queixeira/barbicheta: projeta para frente e para baixo, base achatada ----
     chinp=revolve('Chin_Guard',[(0.030,-0.052),(0.108,-0.052),(0.152,-0.026),(0.166,0.010),(0.152,0.044),(0.108,0.062),(0.030,0.062)],
                   hx+0.052, 0.842, seg=34)
