@@ -55,9 +55,11 @@ def cell(view, ver, f0, f1, hh, pad=0.07):
     a = a.resize((max(1, int(a.width * hh / a.height)), hh), LANCZOS)
 
     mm = np.array(Image.open(P + "%sm-%s.png" % (ver, view)).convert("RGBA"))[:, :, 3] > 128
-    src = P + "%sf-%s.png" % (ver, view)
+    # BEAUTY (com luz). O "f-" e o passe FLAT (sem luzes) usado p/ medir cor:
+    # usa-lo aqui faz o revisor ler "chapado/sem volume" — artefato de render.
+    src = P + "%s-%s.png" % (ver, view)
     if not os.path.exists(src):
-        src = P + "%s-%s.png" % (ver, view)
+        src = P + "%sf-%s.png" % (ver, view)
     im2 = Image.open(src).convert("RGB")
     yy0, yy1, xx0, xx1 = crop_mask(mm)
     W2 = xx1 - xx0 + 1
