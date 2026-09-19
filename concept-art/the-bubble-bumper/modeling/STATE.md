@@ -506,3 +506,33 @@ MAIOR DIFERENCA RESTANTE (palavras do vision): **"o sistema de escapamento + est
 Zero tubos visiveis. Um monobloco cinza retangular com 2 pilares e so um orificio escuro central.
 No concept: 3 ponteiras cilindricas metalicas, inclinadas, bem espacadas, vazadas, sobre quadro
 tubular fino em U."** -> PROXIMO ALVO DEFINIDO: reconstruir os 3 escapes como tubos visiveis.
+
+
+## W404 = NOVA BASE (escapamentos visiveis) — 2026-09-19
+
+### DIAGNOSTICO DOS ESCAPES (com zoom 4x + vision, nao por suposicao)
+Os 3 tubos EXISTIAM no builder (tube_round + boolean DIFFERENCE + lip + floor, `exh_open_*=ok`)
+mas liam como ANEIS/ARCOS chapados. Causa medida: **estavam RECUADOS 7 cm atras da carroceria**
+(bocas em x=-1.087, carroceria ate -1.160) -> em vista REAR nao havia cilindro nenhum protraindo.
+FIX: `exh_x=-1.190` (bocas 6 cm ALEM da carroceria anterior) -> REAR passa a x=-1.218.
+
+VISION (zoom 4x): "**Da para contar 3, claramente.** ... Leem como CILINDROS curtos vistos de frente,
+com boca escura redonda, nao como decalque pintado." (+ ressalva: aneis superexpostos parecem
+plastico em vez de metal escovado; bocas laterais sao tampoes chapados sem funil interno.)
+
+| metrica | w403 | **W404** |
+|---|---|---|
+| IoU media | 0.816 | 0.816 |
+| COR_TV | 0.261 | 0.265 |
+| excesso | 12.6 | **12.3** |
+| falta | 8.5 | 8.7 |
+| side/TRASEIRA | 0.644 | **0.645** |
+| **top/ASA** | 0.683 | **0.700** |
+| top/MOTOR | 0.796 | 0.778 (regressao) |
+| rear/ESCAPES | 0.897 | 0.897 |
+
+### PROXIMO ALVO (regra da skill blender-autonomous-artist, ainda NAO cumprida)
+"A peca que o auditor ve como monobloco/boneco derretido e o `join()` final num unico mesh.
+Mantenha piloto/chassi/carenagens/rodas como OBJETOS DISTINTOS no .blend."
+O builder faz `FIN=join(made,'<V>_body')` -> entregar as pecas separadas.
+Depois: superexposicao dos aneis dos escapes (M_Silver metalico 0.85 estoura) e funil interno nas bocas laterais.
