@@ -637,7 +637,7 @@ def rear():
         bpy.ops.object.select_all(action='DESELECT')
         bpy.ops.mesh.primitive_uv_sphere_add(segments=28,ring_count=16,radius=1.0)
         ep=bpy.context.object; ep.name='Wing_Endplate_'+('L' if sy>0 else 'R')
-        ep.scale=(0.090,0.040,0.036)
+        _cs=P.get('cap_s',(0.085,0.042,0.085)); ep.scale=_cs
         bpy.ops.object.select_all(action='DESELECT'); ep.select_set(True)
         bpy.context.view_layer.objects.active=ep; bpy.ops.object.transform_apply(scale=True)
         _epx=((wx1+wx2)/2.0) if not P.get('wing_tube',1) else ((wx1+wx2)/2.0)
