@@ -295,7 +295,7 @@ def front_bumper():
     spine=[]; NS=41
     for i in range(NS):
         t=i/(NS-1.0); a_=-math.pi/2+math.pi*t
-        yy=0.556*math.sin(a_)
+        _sn=math.sin(a_); yy=0.556*math.copysign(abs(_sn)**P.get('bump_py',1.0),_sn)
         xx=(XFO-0.048) - P.get('bump_reach',0.720)*(1.0-math.cos(a_))
         spine.append((xx,yy,0.240+0.020*math.cos(a_*0.5)))
     o=tube_round('Bumper_Ring',spine,rb*1.07,20); assign(o,'M_Blue')
@@ -597,7 +597,7 @@ def rear():
     assign(_c,'M_Dark'); out.append(_c)
     # ---- asa traseira: barra GROSSA azul-escura + endplates amarelos ----
     wz=P.get('wing_z',0.605)*H
-    wx1=XRE+0.045; wx2=XRE+0.295
+    wx1=XRE-0.015; wx2=XRE+0.235
     wsec=[]
     for i in range(13):
         u=i/12.0; x=wx1+(wx2-wx1)*u
