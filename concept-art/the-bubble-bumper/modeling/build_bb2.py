@@ -298,7 +298,7 @@ def front_bumper():
         _sn=math.sin(a_); yy=0.556*math.copysign(abs(_sn)**P.get('bump_py',1.0),_sn)
         xx=(XFO-0.048) - P.get('bump_reach',0.720)*(1.0-math.cos(a_))
         spine.append((xx,yy,0.240+0.020*math.cos(a_*0.5)))
-    o=tube_round('Bumper_Ring',spine,rb*1.07,20); assign(o,'M_Blue')
+    o=tube_round('Bumper_Ring',spine,rb*1.07,20); assign(o,P.get('ringmat','M_Plate'))
     # (sem topos amarelos: os colares coaxiais ja dao o amarelo do concept)
     for _sy in (1,-1):
         # BLOCO AMARELO integrado SOBRE a barra (concept: 2 blocos amarelos grandes nas laterais)
@@ -422,7 +422,7 @@ def pods():
             sc=math.sin(math.pi*(0.05+0.90*t))**0.45
             oy=0.300+0.300*sc; iy=0.175+0.115*sc; zt=0.105+0.112+0.098*sc
             csec.append([(x,sy*(iy-0.030),zt+0.008),(x,sy*(oy+0.016),zt-0.008),(x,sy*(oy+0.016),zt-0.074),(x,sy*(iy-0.030),zt-0.060)])
-        cap=loft(nm+'_Cap',csec); assign(cap,P.get('pod_cap_mat','M_Yellow')); add_mod(cap,'SUBSURF',levels=1); apply_mods(cap)
+        cap=loft(nm+'_Cap',csec); assign(cap,P.get('pod_cap_mat','M_Blue')); add_mod(cap,'SUBSURF',levels=1); apply_mods(cap)
         out.append(reg(nm+'_cap',cap))
         out.append(reg(nm,o))
     return join(out,'PODS')
