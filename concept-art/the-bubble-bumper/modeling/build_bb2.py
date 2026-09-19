@@ -132,9 +132,9 @@ def wheel_mesh(name,xc,yc,zc,R,hw,seg=48,flip=1):
     plate=revolve(name+'_plate',pl,0,0,seg=max(24,seg//2)); assign(plate,'M_Plate')
     plate.data.transform(Matrix.Rotation(math.radians(90),4,'X')); plate.data.transform(Matrix.Translation((xc,yc,zc)))
     parts.append(plate)
-    ar=revolve(name+'_ring',[(R*0.335,-hw*0.72),(R*0.385,-hw*0.72),(R*0.385,-hw*0.66),(R*0.335,-hw*0.66),
-                             (R*0.335,-hw*0.30),(R*0.335,0.0),(R*0.335,hw*0.30),
-                             (R*0.335,hw*0.66),(R*0.385,hw*0.66),(R*0.385,hw*0.72),(R*0.335,hw*0.72)],0,0,seg=max(24,seg//2))
+    ar=revolve(name+'_ring',[(R*0.300,-hw*0.86),(R*0.430,-hw*0.86),(R*0.430,-hw*0.80),(R*0.300,-hw*0.80),
+                             (R*0.300,-hw*0.30),(R*0.300,0.0),(R*0.300,hw*0.30),
+                             (R*0.300,hw*0.80),(R*0.430,hw*0.80),(R*0.430,hw*0.86),(R*0.300,hw*0.86)],0,0,seg=max(24,seg//2))
     assign(ar,'M_Yellow')
     ar.data.transform(Matrix.Rotation(math.radians(90),4,'X')); ar.data.transform(Matrix.Translation((xc,yc,zc)))
     parts.append(ar)
@@ -394,10 +394,10 @@ def chassis():
         mg=sweep('Arm_'+st,[(XF,sy*0.30,RF),(XF-0.02,sy*TYF,RF)],0.026,12); assign(mg,'M_BlueDk'); out.append(mg)
         tr=sweep('Tie_'+st,[(0.300,sy*0.115,0.250),(XF,sy*0.520,RF)],0.018,12); assign(tr,'M_Silver'); out.append(tr)
         pd=box('Pedal_'+st,(0.880,sy*0.150,0.150),(0.030,0.050,0.058),bevel=0.010); assign(pd,'M_Pedal'); out.append(pd)
-    sc=sweep('Steer_Col',[(0.120,0,0.240),(0.245,0,0.565)],0.027,14); assign(sc,'M_Silver'); out.append(sc)
-    sw=[(0.245,0.0,0.693),(0.245,0.0,0.565)]
+    sc=sweep('Steer_Col',[(0.070,0,0.240),(0.135,0,0.545)],0.027,14); assign(sc,'M_Silver'); out.append(sc)
+    sw=[(0.135,0.0,0.660),(0.135,0.0,0.545)]
     for i in range(29):
-        a=2*math.pi*i/28.0; sw.append((0.245-0.016*math.cos(a),0.128*math.cos(a),0.565+0.128*math.sin(a)))
+        a=2*math.pi*i/28.0; sw.append((0.135-0.016*math.cos(a),0.124*math.cos(a),0.545+0.124*math.sin(a)))
     w1=sweep('Steer_Wheel',sw,0.018,14); assign(w1,'M_Dark'); out.append(w1)
     st1=box('Seat_Base',(-0.060,0,0.348),(0.145,0.190,0.045),bevel=0.024,segs=3); assign(st1,'M_Dark'); out.append(st1)
     # ---- MAOS (luvas) e BOTAS: o concept tem luvas e botas pretas visiveis ----
@@ -456,6 +456,11 @@ def rear():
     for j in range(6):
         fin=box('Efin%d'%j,(EXC,-0.195+j*0.078,0.428),(0.102,0.016,0.022),bevel=0.004,segs=1)
         assign(fin,'M_Silver'); out.append(fin)
+    # ---- AIRBOX/scoop atras do capacete (xf 0.72-0.80 no concept = 0.62H/0.53H) ----
+    for j,(xx,zz,ry_,rz_) in enumerate([(-0.480,0.560,0.088,0.062),(-0.580,0.516,0.080,0.056),(-0.660,0.478,0.070,0.048)]):
+        ab=box('Airbox%d'%j,(xx,0,zz),(0.058,ry_,rz_),bevel=0.020,segs=3); assign(ab,'M_Blue'); out.append(reg('airbox%d'%j,ab))
+    abt=sweep('Airbox_Duct',[(-0.470,0,0.610),(-0.580,0,0.556),(-0.672,0,0.512)],0.052,18)
+    assign(abt,'M_BlueDk'); out.append(reg('airbox_duct',abt))
     # ---- 3 escapamentos calibres iguais: 1 central reto (mais baixo/frente) + 2 laterais p/ fora ----
     e0=sweep('Exh_C',[(EXC-0.16,0.0,0.340),(XR-0.20,0.0,0.382),(exb,0.0,0.412)],0.082,26)
     assign(e0,'M_Silver'); out.append(e0)
@@ -508,7 +513,7 @@ def rear():
          (XRE+0.170,-0.322,0.148),(XRE+0.245,-0.262,0.150)]
     rb=sweep('Rear_Bumper_Loop',pts,0.034,16); assign(rb,'M_Silver'); out.append(reg('rbump',rb))
     # ---- asa traseira: barra GROSSA azul-escura + endplates amarelos ----
-    wz=P.get('wing_z',0.600)*H
+    wz=P.get('wing_z',0.660)*H
     wx1=XRE+0.055; wx2=XRE+0.245
     wsec=[]
     for i in range(13):
@@ -541,7 +546,7 @@ def pilot():
     assign(col,'M_Gasket'); out.append(col)
     # ---- tronco: barril curto e grosso, encostado no banco ----
     torso=tubevar('Torso',[(0.115,0,0.388),(0.050,0,0.474),(-0.045,0,0.566),(-0.150,0,0.652)],
-                  [0.140,0.161,0.166,0.147],seg=26); assign(torso,'M_Pilot'); out.append(torso)
+                  [0.126,0.145,0.150,0.132],seg=26); assign(torso,'M_Pilot'); out.append(torso)
     belt=revolve('Belt',[(0.166,-0.024),(0.192,-0.024),(0.192,0.024),(0.166,0.024)],0.118,0.396,seg=32)
     assign(belt,'M_Yellow'); out.append(belt)
     # ---- ombros estreitos (capacete e mais largo que eles) ----
@@ -553,14 +558,14 @@ def pilot():
         assign(pd,'M_Yellow'); out.append(pd)
         # braco: ombro -> cotovelo -> mao NA MANOPLA do volante (sobreposto)
         arm=tubevar('Arm_'+st,[(-0.140,sy*0.175,0.652),(0.020,sy*0.196,0.626),(0.140,sy*0.160,0.594),(0.232,sy*0.112,0.566)],
-                    [0.066,0.059,0.050,0.044],seg=20); assign(arm,'M_Pilot'); out.append(arm)
-        gl=tubevar('Glove_'+st,[(0.238,sy*0.126,0.570),(0.246,sy*0.126,0.520)],[0.060,0.056],seg=20)
+                    [0.052,0.047,0.040,0.035],seg=20); assign(arm,'M_Pilot'); out.append(arm)
+        gl=tubevar('Glove_'+st,[(0.238,sy*0.126,0.570),(0.246,sy*0.126,0.520)],[0.049,0.046],seg=20)
         assign(gl,'M_Dark'); out.append(gl)
         # perna: quadril -> joelho -> canela -> bota no pedal
         leg=tubevar('Leg_'+st,[(0.062,sy*0.142,0.392),(0.262,sy*0.180,0.470),(0.420,sy*0.184,0.412)],
-                    [0.104,0.086,0.070],seg=22); assign(leg,'M_Pilot'); out.append(leg)
+                    [0.086,0.072,0.058],seg=22); assign(leg,'M_Pilot'); out.append(leg)
         bt=tubevar('Boot_'+st,[(0.420,sy*0.184,0.404),(0.540,sy*0.182,0.330),(0.628,sy*0.180,0.284)],
-                   [0.076,0.066,0.055],seg=20); assign(bt,'M_Dark'); out.append(bt)
+                   [0.062,0.054,0.045],seg=20); assign(bt,'M_Dark'); out.append(bt)
     nk=tubevar('Neck',[(-0.105,0,0.632),(-0.250,0,0.800)],[0.140,0.126],seg=26); assign(nk,'M_Pilot'); out.append(nk)
     # ---- capacete: mais LARGO que alto ----
     helm=dome('Helmet',hx,0.0,hz,HR,sz=SZ,sy=1.0,seg=64,rings=38); assign(helm,'M_Blue')
@@ -687,6 +692,17 @@ if PI: made.append(PI)
 
 R['QA']=QA; R['t_parts']=round(time.time()-t0,2)
 g=box('Ground',(0,0,-0.040),(2.6,2.6,0.040),bevel=0.0); assign(g,'M_Floor')
+# --- ACABAMENTO 'INFLADO': bevel POR PECA (global criava 355 non-manifold ao soldar)
+_nbev=0
+for _o in made:
+    try:
+        if len(_o.data.vertices) < P.get('bevel_minverts',999999): continue
+        _b=_o.modifiers.new('pb','BEVEL')
+        _b.width=P.get('bevel_w',0.013); _b.segments=P.get('bevel_seg',2)
+        _b.limit_method='ANGLE'; _b.angle_limit=math.radians(32.0)
+        bpy.context.view_layer.objects.active=_o; apply_mods(_o); _nbev+=1
+    except Exception: pass
+R['bevel']='pecas_grandes=%d'%_nbev
 FIN=join(made,V+'_body')
 # --- escala absoluta AUTO-CALIBRADA no comprimento-alvo (Hero Kart = 2.35 m) ---
 _tl=P.get('target_length',0.0)
@@ -698,6 +714,18 @@ if _tl>0:
 bad=[i for i,mm in enumerate(FIN.data.materials) if mm is None]
 for i in bad: FIN.data.materials[i]=MG.get('M_Dark')
 R['none_slots']=len(bad)
+# --- REPARO pos-bevel: dissolve as arestas non-manifold criadas pelo bevel ---
+try:
+    _bm=bm_of(FIN)
+    _bad=[e for e in _bm.edges if not e.is_manifold]
+    if _bad:
+        bmesh.ops.dissolve_edges(_bm, edges=_bad, use_verts=False, use_face_split=False)
+        R['reparadas']=len(_bad)
+    _bm.verts.ensure_lookup_table(); _bm.edges.ensure_lookup_table(); _bm.faces.ensure_lookup_table()
+    bmesh.ops.recalc_face_normals(_bm, faces=list(_bm.faces))
+    bm_done(_bm, FIN, True)
+except Exception as e:
+    R['reparo_err']=repr(e)[:90]
 R['qa']=qa(FIN,exigir_manifold=True,min_pct_quads=60.0)
 R['verts']=len(FIN.data.vertices); R['n_parts']=len(made)
 xl=[v.co.x for v in FIN.data.vertices]; zl=[v.co.z for v in FIN.data.vertices]; yl=[v.co.y for v in FIN.data.vertices]
