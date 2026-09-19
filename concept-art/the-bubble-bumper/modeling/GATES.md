@@ -10,32 +10,32 @@ IOU_MEDIA 0.786 | COR_AZUL (32,48,96) OK | COR_AMARELO (240,240,48) ERRADO
   EVIDENCE: W204: aprovado=true, verts=95295, non_manifold=0, pct_quads=98.9 (log do job blender_factory)
 
 - [x] G2: perfil lateral <= 6.0% de erro medio (41 estacoes do contorno superior)
-  CHECK: python3 /opt/blender-runner/measure_bb.py w204
+  CHECK: python3 /opt/blender-runner/measure_bb.py w206
   EXPECT: /PERFIL_LAT_PCT=(?:[0-5]\.\d|6\.0)/
   EVIDENCE: COR_AMARELO=(240, 208, 32) | COR_AMARELO_MED=(203, 176, 32)
 
 - [x] G3: vista frontal <= 12% de erro medio (21 faixas de altura)
-  CHECK: python3 /opt/blender-runner/measure_bb.py w204
+  CHECK: python3 /opt/blender-runner/measure_bb.py w206
   EXPECT: /FRONTAL_PCT=(?:[0-9]\.\d|1[01]\.\d|12\.0)/
   EVIDENCE: COR_AZUL=(32, 48, 96) | COR_AMARELO=(240, 208, 32)
 
 - [x] G4: vista traseira <= 12% de erro medio (21 faixas de altura)
-  CHECK: python3 /opt/blender-runner/measure_bb.py w204
+  CHECK: python3 /opt/blender-runner/measure_bb.py w206
   EXPECT: /TRASEIRA_PCT=(?:[0-9]\.\d|1[01]\.\d|12\.0)/
   EVIDENCE: COR_AZUL=(32, 48, 96) | COR_AMARELO=(240, 208, 32)
 
 - [x] G5: IoU medio de silhueta >= 0.82 nas 4 vistas
-  CHECK: python3 /opt/blender-runner/measure_bb.py w204
+  CHECK: python3 /opt/blender-runner/measure_bb.py w206
   EXPECT: /IOU_MEDIA=0\.8[2-9]|IOU_MEDIA=0\.9/
   EVIDENCE: COR_AMARELO=(240, 208, 32) | COR_AMARELO_MED=(203, 176, 31)
 
 - [x] G6: cor azul modal == (32, 48, 96) do concept
-  CHECK: python3 /opt/blender-runner/measure_bb.py w204
+  CHECK: python3 /opt/blender-runner/measure_bb.py w206
   EXPECT: COR_AZUL=(32, 48, 96)
   EVIDENCE: COR_AZUL=(32, 48, 96) | COR_AMARELO=(240, 240, 48)
 
 - [x] G7: cores (azul e amarelo) dentro de +-16 por canal da MEDIANA do concept
-  CHECK: python3 /opt/blender-runner/measure_bb.py w204
+  CHECK: python3 /opt/blender-runner/measure_bb.py w206
   EXPECT: /COR_MAXDELTA=(?:[0-9]|1[0-6])(?:\s|$)/
   EVIDENCE: COR_AMARELO=(240, 208, 32) | COR_AMARELO_MED=(201, 175, 32)
 
@@ -43,19 +43,32 @@ IOU_MEDIA 0.786 | COR_AZUL (32,48,96) OK | COR_AMARELO (240,240,48) ERRADO
   EVIDENCE: vision W183/W196: "5 ripas pretas verticais = a grade dianteira" + plaquinha do farol no cowl
 
 - [ ] G9: vision confirma rosto do piloto: olhos com esclera+pupila, sobrancelhas e sorriso
-  EVIDENCE: parcial W204 — esclera branca OK, sobrancelhas OK (finas), pupila ainda grande, sorriso nao confirmado
+  EVIDENCE: W206 (face por geometria) AINDA REPROVA — vision: olhos "globosos saltados, nao achatados",
+  sem pupila pequena legivel, sobrancelhas "blocos pretos retos", sem sorriso, queixeira nao visivel.
+  TENTATIVAS: decal por-face angular (W161-W205) e geometria dome_dir+tube_round (W206). Ambas insuficientes.
+  RESTA (ordem): (a) achatar os olhos na superficie da viseira (dome flat menor, raio maior),
+  (b) pupila preta pequena + glint branco como geometria rasante, (c) sobrancelhas como tira curva fina
+  FLUTUANDO acima do olho (nao bloco sobre o globo), (d) queixeira amarela em U visivel na frontal,
+  (e) sorriso no patch amarelo, (f) faixa amarela descendo ATE a costura da viseira (hoje para antes)
+  NOTA: a render frontal de QA precisa de camera que nao oclua o queixo (hoje o kart cobre parte)
 
 - [ ] G10: vision confirma bico em cunha (nao bulbo) e sidepod em gota afilando para tras
-  EVIDENCE: pending
+  EVIDENCE: parcial W202 — vision: "nariz dianteiro muito mais grosso e arredondado" (concept: fino/cunha);
+  sidepod lado a lado OK, mas no PLANO o topo fica 100% amarelo (concept tem borda azul)
+  RESTA: afinar o bico em cunha + devolver a borda azul do pod na vista de topo
 
 - [ ] G11: vision confirma traseira: 3 escapamentos com boca aberta, asa com endplates, difusor com strakes
-  EVIDENCE: pending
+  EVIDENCE: PARCIAL W201 — escapes com boca oca CONFIRMADO por vision ("aro claro espesso + miolo preto").
+  RESTA: endplates como ovais pequenas (as atuais leem "grandes/pontiagudas"), strakes do difusor visiveis,
+  e o para-choque ainda le como barra facetada em vez de tubo redondo
 
 - [x] G12: vision confirma pneus (slick, uniforme como o concept) e anel amarelo no aro
   EVIDENCE: vision W198 close-up: "voce acertou... Mantenha slick liso" + "anel amarelo SIM" (2 leituras)
 
 - [ ] G13: critico de visao da nota >= 8/10 na vista lateral E >= 7/10 na frontal
-  EVIDENCE: pending
+  EVIDENCE: W202 = SIDE 8.0 / FRONT 6.5 / REAR 7.0 / TOP 6.0 (media 6.9).
+  A lateral PASSA (8.0); a frontal NAO (6.5). Bloqueio: rosto (olhos/sobrancelhas/boca/queixeira).
+  HISTORICO: W162 5.0 -> W169 7.5 -> W202 6.9 (media das 4 vistas)
 
 - [ ] G14: subagent auditor independente da nota >= 8/10
   EVIDENCE: pending

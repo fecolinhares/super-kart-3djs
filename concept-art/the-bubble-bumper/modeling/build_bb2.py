@@ -263,8 +263,10 @@ def nose():
         xf=0.015+0.235*(i/(NS-1.0))
         x=XFO-xf*L
         zt=prof_top(xf)*H*0.94
-        s=math.sin(math.pi*(0.06+0.90*(i/(NS-1.0))))**0.55
-        ry=0.225+0.196*s
+        _t=i/(NS-1.0)
+        # CONCEPT: bico FINO na frente (frente lida: 'cunha fina estreita'), alargando para trás
+        _s2=min(1.0,_t/0.50)**0.75
+        ry=0.112+0.190*_s2
         zb=max(0.0,0.0+0.020*(i/(NS-1.0)))
         zc=(zb+zt)/2.0; rz=(zt-zb)/2.0
         secs.append(sq(x,ry,rz,38,2.0,z0=zc,zsq=1.02))
@@ -296,7 +298,10 @@ def front_bumper():
         xx=(XFO-0.048) - 0.250*(1.0-math.cos(a_))
         spine.append((xx,yy,0.240+0.020*math.cos(a_*0.5)))
     o=sweep('Bumper_Ring',spine,rb*0.44,18,merge=0.0015); assign(o,'M_Blue')
-    assign(o,'M_Yellow', lambda q: abs(q.center.y)>0.290)
+    assign(o,'M_Yellow', lambda q: abs(q.center.y)>0.360)
+    for _sy in (1,-1):
+        _pd=box('Pad_'+('L' if _sy>0 else 'R'),(XFO-0.072,_sy*0.452,0.282),(0.046,0.072,0.146),bevel=0.014,segs=2)
+        assign(_pd,'M_Yellow'); out.append(reg('pad_'+('l' if _sy>0 else 'r'),_pd))
     out.append(reg('bumper',o))
     # painel central trapezoidal amarelo (rebaixado)
     # longarinas EXPOSTAS: amarela (baixa) + prata (alta), por fora da roda ate a coluna
@@ -307,6 +312,24 @@ def front_bumper():
         rp=sweep('RailS_'+_st,[(XFO-0.180,_sy*0.222,0.296),(0.260,_sy*0.348,0.352),(0.540,_sy*0.188,0.392)],0.019,12)
         assign(rp,'M_Silver'); out.append(reg('rails_'+_st,rp))
     return join(out,'FBUMP')
+# ===== F3/F5 =====
+# ===== F3: ANEL AMARELO EM VOLTA DA PONTA DO BICO (o concept tem C grosso amarelo) =====
+def nose_ring():
+    return None
+
+NR=safe('nose_ring',nose_ring)
+if NR: made.append(NR)
+
+# ===== F5: FAROL RETANGULAR ACLESO na face frontal do bico =====
+def headlight():
+    out=[]
+    hx=XFO-0.036
+    lens=box('Lamp_Lens',(hx,0.0,0.168),(0.015,0.072,0.030),bevel=0.005,segs=2)
+    assign(lens,'M_Lamp'); out.append(reg('lamp',lens))
+    bez=box('Lamp_Bezel',(hx-0.013,0.0,0.168),(0.016,0.090,0.044),bevel=0.006,segs=2)
+    assign(bez,'M_Silver'); out.append(reg('lampbez',bez))
+    return join(out,'LAMP')
+
 FB=safe('front_bumper',front_bumper)
 if FB: made.append(FB)
 
@@ -783,6 +806,18 @@ R['QA']=QA; R['t_parts']=round(time.time()-t0,2)
 g=box('Ground',(0,0,-0.040),(2.6,2.6,0.040),bevel=0.0); assign(g,'M_Floor')
 # --- ACABAMENTO 'INFLADO': bevel POR PECA (global criava 355 non-manifold ao soldar)
 _nbev=0
+# DEBUG: bbox de cada parte (para nao chutar posicionamento)
+try:
+    import json as _j
+    _d={}
+    for _o in made:
+        _c=[_o.matrix_world@Vector(v) for v in _o.bound_box]
+        _d[_o.name]={"x":[round(min(q.x for q in _c),4),round(max(q.x for q in _c),4)],
+                     "y":[round(min(q.y for q in _c),4),round(max(q.y for q in _c),4)],
+                     "z":[round(min(q.z for q in _c),4),round(max(q.z for q in _c),4)]}
+    R["part_bbox"]=_d
+except Exception as _e:
+    R["part_bbox_err"]=repr(_e)[:80]
 for _o in made:
     try:
         if len(_o.data.vertices) < P.get('bevel_minverts',999999): continue
