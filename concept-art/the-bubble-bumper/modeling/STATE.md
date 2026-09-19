@@ -239,3 +239,39 @@ disco vertical de diametro MAIOR que o tubo. Verificado por vision antes/depois.
   laje/placa retangular." Era a queixa repetida em 3 ciclos anteriores.
 - Pendente: tampa amarela precisava ser maior que o tubo (feito em W373); pneus ainda sao
   blocos pretos sem banda/curvatura; motor/escapes ainda blocos retos.
+
+
+## W385-W390 — BUG DE INSTRUMENTO + SEMANTICA DE PECA (2026-09-19)
+
+### BUG 1 (critico): validacao no passe FLAT
+O builder gera 3 passes: `<v>-<view>.png` BEAUTY (iluminado) | `<v>f-<view>.png` FLAT (sem luzes, p/ medir cor) | `<v>m-<view>.png` mask.
+TODAS as pranchas EL-* usavam `f-` (FLAT) -> o vision julgava VOLUME num render SEM LUZ -> vereditos "chapado/sem volume/blocky/unlit" em toda rodada eram ARTEFATO.
+Raw beauty do W389: "fundo cinza uniforme, bom contraste, objeto ocupa bem o quadro". elements.py corrigido para o BEAUTY.
+
+### BUG 2: suavizacao perdida no join
+`shade_auto_smooth` cria MODIFIER no objeto; o `join` descarta modifiers -> W383 "nao mudou nada".
+Fix: shade_auto_smooth + apply_mods ANTES do join. W385: smooth em 14/14 pecas.
+Bevel agressivo -> 42 non-manifold. Bevel seguro: minverts>=5000, w 0.014, 2 seg, 28 graus -> QA 0 non-manifold.
+
+### BUG 3: composicao da prancha
+Board empilhado/cortado gerava "render cortado, pequeno, rotacionado" no vision. Board correto: crop pelo bbox do MASK, lado-a-lado, MESMA escala (H=300).
+
+### SEMANTICA: SIDEPOD e BAIXO e AMARELO
+Medicao do mask (SIDE, xf 0.36-0.62) dava run continuo z 0.081-0.525 -> interpretei "pod tem 0.45 m de altura".
+ERRADO: 0.08-0.31 = POD (amarelo, fino, longo); 0.31-0.53 = COBERTURA AZUL acima (outra peca).
+WIN385 pod (0.106-0.284, amarelo) == pod do concept. W387/388/389 subiram o pod para 0.438 com split azul -> pixels certos, PECA ERRADA.
+Prova: top/SIDEPODS cor  W385 0.257 | W389 0.388 (pior) | W390 0.228 (melhor).
+LICAO: metrica agregada melhorou (IoU 0.816->0.822) enquanto a PEÇA piorou. Nunca aceitar ganho agregado com semantica pior.
+
+### W390 = MELHOR ESTADO SEMANTICO
+pod_zt 0.096 / pod_zt2 0.084 (topo 0.284), pod_w 0.405 (half 0.703), pod_split desligado (pod todo amarelo).
+side/SIDEPOD cor 0.187 | top/SIDEPODS cor 0.228 (recorde) | IoU 0.817 | P10 0.753 | COR_TV 0.269 | excesso 11.4 | falta 9.3 | <0.80 = 6 | QA ok.
+
+### VISION W389 (board corrigido): FRONT 6 | SIDE 5 | TOP 3 | REAR 4 = REPROVADO
+1. Para-choque dianteiro: concept = fino, AZUL em C com faixas amarelas; modelo = GROSSO, PRATEADO em U com pontas amarelas quadradas -> material+forma errados.
+2. Sidepod: concept fino/longo/amarelo; modelo bojudo/azul.
+3. Escapamento traseiro: concept = 3 ponteiras cilindricas prateadas; modelo = 1 saida preta + caixa cinza.
+
+### PROXIMA PECA (medida, nao suposta)
+SIDE_COVER azul: xf 0.36-0.62 | z 0.28-0.53 | y 0.17-0.70. Fecha o vazio entre o pod e a cobertura sem inflar a peca errada.
+Depois: FBUMP azul (nao prata) + 3 escapes tubulares + face do piloto.
