@@ -127,3 +127,56 @@ e ele virava o elemento mais frontal, mudando a normalização do comprimento).
 - `object.scale=(1,1,k)` com origem no mundo **empurra** a peça em vez de esticar.
 - Medição por limiar de escuro **não funciona** em concept cartoon (contorno preto em tudo).
   Usar grade numérica + leitura visual, ou bbox por peça via builder.
+
+
+---
+
+# 7. HISTORICO DE MEDICOES (W202 -> W215)
+
+| Versao | perfil | frontal | traseira | IoU | nota vision |
+|---|---|---|---|---|---|
+| W202 | 5.9 | 8.9 | 6.7 | 0.821 | 6.35 (critico A) |
+| W211 | 6.8 | 9.2 | 6.8 | 0.822 | SIDE 6.0 / FRONT 3.5 |
+| W213 | 7.2 | 8.8 | 6.6 | 0.814 | 5.5 (critico B) |
+| W215 | 7.2 | 8.8 | 6.6 | 0.811 | 4.0 (critico B) |
+
+Medicoes objetivas por elemento (concept x modelo):
+
+| Elemento | Concept | W202 | W215 | Razao final |
+|---|---|---|---|---|
+| Bico (largura, front) | 11.3% | 16.9% | 13.7% | 1.21x |
+| Cowl (largura, front) | 11.3% | 16.8% | 13.0% | 1.15x |
+| Asa (espessura, side) | 24.4% H | 17% | 24.0% H | 1.00x |
+| Sidepod (largura, top) | 17.2% | 16.1% | 16.1% | 0.94x |
+| L/H | 1.868 | 1.900 | 1.877 | +0.5% |
+| Cor azul | (32,48,96) | exata | exata | 0 |
+
+**Leitura:** o IoU ficou estavel (0.821 -> 0.811, 1.2%) enquanto a nota do critico de
+visao caiu 37% (6.35 -> 4.0) com o modelo MELHORANDO em todas as medicoes por elemento.
+Isso e evidencia de ruido alto no critico de visao, nao de degradacao real.
+
+**Dois criticos deram ordens opostas**:
+- critico A: "triplicar a espessura da asa" e "engrossar o para-choque 2-3x"
+- critico B: "afinar a asa 70%" e "o para-choque esta grosso demais"
+A medicao resolveu: asa 1.21x espessa (numeros do A estavam errados, o B mais perto);
+para-choque tinha razao 0.031 -> precisava engrossar de fato.
+
+# 8. SUPOSICAO DUVIDOSA (nomeada apos 3 rejeicoes estruturais)
+
+Os criticos convergem, em rodadas diferentes, para a mesma acusacao estrutural:
+"monobloco", "boneco derretido", "tudo fundido", "cockpit fechado", "sem separacao
+de pecas". Isso NAO e ajuste de parametro — e consequencia da tecnica:
+
+**Suposicao duvidosa:** que fidelidade a um concept cartoon organico se atinge com
+`loft()` de secoes + SUBSURF e um `join()` final de tudo num unico mesh.
+
+Por que falha: loft+subsurf gera superficie continua e soldada por construcao — o
+piloto, o cowl e o chassi viram uma massa so. E o `join()` final apaga a identidade
+das pecas (o auditor pede explicitamente "separar meshes: piloto / quadro / carenagens / rodas").
+
+**Proximo experimento (nao ajuste, mudanca de tecnica):**
+1. `skeleton()` + SKIN modifier para o piloto (a skill mede 93,4% valencia-4 nesse
+   caminho — e a tecnica indicada para organico, nao loft).
+2. Manter piloto / chassi / carenagens / rodas como OBJETOS SEPARADOS no .blend
+   (nao `join()`), para o runtime e o QA lerem as pecas.
+3. Viseira e rosto como geometria dedicada de casca fina (nao crista extrudada).
