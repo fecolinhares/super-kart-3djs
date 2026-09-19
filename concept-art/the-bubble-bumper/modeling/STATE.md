@@ -1,56 +1,63 @@
-# Estado do modelo — Bubble Bumper (W233)
+# Estado — Bubble Bumper (melhor versao: W253)
 
-## Numeros (medidos por measure_bb.py)
+## METRICA (medida por qa_bb.py — executavel, nao opiniao)
 
-| Metrica | Baseline (W138) | W202 | **W233 (atual)** |
-|---|---|---|---|
-| Erro perfil lateral | 16.7% | 5.9% | **7.4%** |
-| Erro vista frontal | 38.1% | 8.9% | 11.5% |
-| Erro vista traseira | 37.3% | 6.7% | 10.7% |
-| IoU de silhueta (media) | 0.738 | 0.821 | **0.809** |
-| Delta maximo de cor/canal | - | 10 | **7** |
-| QA tecnico | - | 0 non-manifold, 98.6% quads | **0 non-manifold, 98.4% quads** |
-| Verts | - | 97k | 86k |
+| Metrica | W184 baseline | W202 | W233 | **W253 (atual)** | gate alvo |
+|---|---|---|---|---|---|
+| IoU silhueta media | 0.786 | 0.821 | 0.809 | **0.808** | >=0.830 |
+| Media das 10 piores regioes | - | - | 0.740 | **0.748** | >=0.800 |
+| Pior regiao | - | - | 0.684 | **0.705** | >=0.780 |
+| Erro perfil lateral | 16.7% | 5.9% | 7.4% | **6.9%** | <=6.5% |
+| Erro vista frontal | 38.1% | 8.9% | 11.5% | **11.1%** | <=9.5% |
+| Erro vista traseira | 37.3% | 6.7% | 10.7% | **10.5%** | <=9.5% |
+| Desvio de cor/canal | - | 10 | 7 | **6** | <=5 |
+| QA tecnico | - | - | 0 non-manifold 98.4% quads | **idem** | 0 non-manifold |
 
-## IoU por PARTE (W233) — onde esta bom e onde esta ruim
+## IOU POR PARTE (W253) — o mapa real
 
-BOM (>=0.90): FRONT NARIZ 0.951 · FRONT ASA 0.955 · TOP SIDEPODS 0.920 · REAR ESCAPES 0.929
-MEDIO (0.80-0.90): SIDE COWL 0.888 · TOP MOTOR 0.789 · SIDE PILOTO 0.797 · REAR PILOTO 0.791
-RUIM (<0.80): **FRONT CAPACETE 0.680** · **TOP ASA 0.684** · **TOP BICO 0.693** · **SIDE TRASEIRA 0.708**
-            SIDE BICO 0.743 · TOP RODAS 0.755 · FRONT PARACH 0.789
+PIORES (atacar): TOP/ASA 0.705 · TOP/BICO_U 0.716 · FRONT/PARACH 0.706 · SIDE/TRASEIRA 0.708
+MEDIOS: SIDE/BICO 0.743 · TOP/RODAS_DIANT 0.757 · TOP/MOTOR 0.789 · SIDE/PILOTO 0.797
+BONS (>=0.90): FRONT/CAPACETE 0.984 · FRONT/RODAS_BAIXO 0.927 · TOP/SIDEPODS 0.920
+             REAR/ESCAPES 0.907 · REAR/PILOTO_COSTAS 0.901
 
-## O que foi corrigido com MEDICAO (nao com opiniao)
+## CORRECOES QUE A METRICA APROVOU (mantidas)
 
-1. Bico: largura 0.84m -> 0.34m (era 2.4x o concept)
-2. Cowl: topo em prof_top*1.07 (7% ACIMA do perfil) -> *0.97; largura 1.49x -> 1.0x
-3. Asa traseira: era ASSIMETRICA (um unico ponto em -0.522) -> simetrica
-4. Rosto: trocado de per-face/geometria para TEXTURA + UV com material Emission (funciona)
-5. Farol: `headlight()` existia mas NUNCA era chamado -> ativado
-6. Para-choque: 4 colares/pinos -> 2 blocos amarelos integrados
-7. Sidepod: -30% comprimento, -15% altura, cap azul no topo
-8. Escapes: hierarquia (central dominante 0.128, laterais 0.080)
-9. Anel amarelo do aro: da borda do pneu para dentro (0.795-0.858R)
-10. Molas traseiras: M_Yellow -> M_Gold
+1. W250 — asa recuada 0.06 + para-choque traseiro como elemento mais traseiro:
+   TOP/ASA 0.684->0.705, TOP/BICO_U 0.693->0.716, MENOR 0.684->0.705
+2. W253 — eixo dianteiro 0.115m a frente: perfil 7.3->6.9, P10 0.745->0.748
+3. (anteriores, W184->W233): bico 0.84->0.34m · cowl fator 1.07->0.97 e largura 1.49x->1.0x
+   · asa assimetrica corrigida · rosto por TEXTURA+UV (Emission) · farol (funcao nunca chamada)
+   · bumper com blocos integrados · sidepod -30% comprimento -15% altura · escapes hierarquizados
 
-## Experimentos REVERTIDOS pela metrica (reverter e resultado)
+## TESTES LIMPOS REVERTIDOS PELA METRICA (reverter e resultado)
 
-- pneus -30%: perfil 5.9 -> 9.2 (PIOR)
-- rodas 0.24m a frente: IoU 0.779 -> 0.731 (PIOR)
-- asa span 0.300: FRONTAL 15.3 / TRASEIRA 14.6 (PIOR)
-- asa span 0.572: FRONTAL 12.8 (PIOR)
-- Melhor span medido: 0.505
+| Teste | IoU | P10 | menor | veredito |
+|---|---|---|---|---|
+| rodas +0.235m (ambos eixos) | 0.787 | 0.725 | 0.585 | revertido |
+| bumper traseiro estreitado | 0.810 | 0.743 | 0.700 | revertido |
+| coroa do capacete (pa 0.85/0.72/0.60) | 0.808 | 0.741 | 0.684 | revertido |
+| asa sobe 0.098m | 0.773 | 0.677 | 0.405 | revertido |
+| pneus -30% | 0.812 | - | - | revertido |
+| asa span 0.300 / 0.572 | - | - | 0.585 | revertido (otimo medido 0.505) |
 
-## O que NAO esta resolvido
+## BUG DE INSTRUMENTO CORRIGIDO (crítico)
 
-- CAPACETE (0.680): forma esfera vs gota do concept; viseira ainda sem translucidez real
-- TOP ASA / BICO (0.684 / 0.693): o plano do concept e fino e tubular, o modelo e gordo
-- SIDE TRASEIRA (0.708): difusor e para-choque traseiro
-- Pneus: concept tem desenho de banda (gradiente medido 8.35 vs 3.03); decidi slick por
-  close-up, mas criticos insistem no contrario — pendente de uma medicao nao-contaminada
-- Objetos separados: hoje tudo e `join()` num mesh so (causa a leitura de "monobloco")
+Ate W233 o `qa_bb.py` media as regioes de FRONT/REAR no eixo ERRADO (colunas = largura,
+nao altura). Sintoma: FRONT_CAPACETE marcava 0.680 CONSTANTE em 4 geometrias diferentes.
+**Metrica que nao responde a uma mudanca real de geometria esta quebrada, nao e um achado.**
+Com o eixo correto: FRONT_CAPACETE = 0.984 (o MELHOR, nao o pior) e o pior real e TOP_ASA.
+Toda a priorizacao anterior (optimizar o capacete) estava apontada para a regiao errada.
 
-## Suposicao duvidosa (nomeada)
+## O QUE NAO ESTA RESOLVIDO (caminho)
 
-Que fidelidade a um concept cartoon organico se atinge com `loft()` + SUBSURF + `join()` final.
-Os criticos convergem em "monobloco / boneco derretido". A skill indica `skeleton()` + SKIN
-(93,4% valencia-4 medido) para organico, e manter piloto/chassi/carenagens/rodas separados.
+- TOP/ASA 0.705 e TOP/BICO_U 0.716: o plano do concept e fino/tubular; o modelo e gordo
+- FRONT/PARACH 0.706: para-choque visto de frente
+- SIDE/TRASEIRA 0.708: silhueta traseira de perfil
+- Tudo e `join()` num mesh so -> os criticos leem "monobloco". A skill mede
+  `skeleton()` + SKIN (93,4% valencia-4) como tecnica de organico, com pecas separadas.
+- Capacete: o concept mede L/A 1.195 no perfil; o modelo 1.487 (largo demais em X)
+
+## SUPOSICAO DUVIDOSA (nomeada)
+
+Que fidelidade a um concept cartoon organico se atinge com `loft()` + SUBSURF + `join()`
+final. Os ajustes de parametro saturaram: cada teste limpo ou empata ou piora.

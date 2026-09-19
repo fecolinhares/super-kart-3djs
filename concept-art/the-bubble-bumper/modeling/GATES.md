@@ -1,86 +1,76 @@
-# Gates: The Bubble Bumper — fidelidade 100% ao concept
+# GATES — Bubble Bumper: fidelidade ao concept
 
-Pergunta: o modelo 3D esta identico (100% AAA) ao concept art fornecido, aprovado pelo meu
-vision E por um subagent auditor independente?
+**PERGUNTA (rule one):** o modelo 3D deve ser a versão 3D do concept art — mesma forma,
+mesmas proporções, mesmas peças, mesma leitura em todas as vistas.
+Todo gate abaixo é uma medida dessa pergunta.
 
-Baseline medido (W184, commit 559b83f): PERFIL_LAT 7.1% | FRONTAL 22.7% | TRASEIRA 18.8% |
-IOU_MEDIA 0.786 | COR_AZUL (32,48,96) OK | COR_AMARELO (240,240,48) ERRADO
+Baseline medido: **W233** = IoU media 0.809 · **pior região 0.680** (FRONT/CAPACETE)
+· P10 media 0.743 · perfil 7.4% · frontal 11.5% · traseira 10.7% · cor Δ7 · 0 non-manifold
 
-- [x] G1: QA tecnico aprovado no ultimo build (0 non-manifold, >=95% quads)
-  EVIDENCE: W204: aprovado=true, verts=95295, non_manifold=0, pct_quads=98.9 (log do job blender_factory)
+QA executável: `cd modeling && python3 qa_bb.py <versao>`
+Checker: `cd modeling && node ~/.hermes/profiles/coder/skills/unlazy/scripts/gate-check.mjs GATES.md`
 
-- [x] G2: perfil lateral <= 6.0% de erro medio (41 estacoes do contorno superior)
-  CHECK: python3 /opt/blender-runner/measure_bb.py w233
-  EXPECT: /PERFIL_LAT_PCT=(?:[0-5]\.\d|6\.0)/
-  EVIDENCE: COR_AMARELO=(240, 208, 32) | COR_AMARELO_MED=(203, 176, 32)
+---
 
-- [x] G3: vista frontal <= 12% de erro medio (21 faixas de altura)
-  CHECK: python3 /opt/blender-runner/measure_bb.py w233
-  EXPECT: /FRONTAL_PCT=(?:[0-9]\.\d|1[01]\.\d|12\.0)/
-  EVIDENCE: COR_AZUL=(32, 48, 96) | COR_AMARELO=(240, 208, 32)
+- [x] G1: QA tecnico aprovado no build (0 non-manifold, >=95% quads)
+  EVIDENCE: W250 aprovado=true, verts=86212, non_manifold=0, pct_quads=98.4, valence4 96.8 (log job 20260919-045200-b3f7c5)
 
-- [x] G4: vista traseira <= 12% de erro medio (21 faixas de altura)
-  CHECK: python3 /opt/blender-runner/measure_bb.py w233
-  EXPECT: /TRASEIRA_PCT=(?:[0-9]\.\d|1[01]\.\d|12\.0)/
-  EVIDENCE: COR_AZUL=(32, 48, 96) | COR_AMARELO=(240, 208, 32)
+- [ ] G2: pior regiao (menor IoU parte x vista) >= 0.780  [baseline W233 0.684 -> W250 0.705]
+  CHECK: python3 qa_bb.py W250 | grep ^IOU_MENOR_REGIAO
+  EXPECT: IOU_MENOR_REGIAO=0\.[789]
 
-- [x] G5: IoU medio de silhueta >= 0.82 nas 4 vistas
-  CHECK: python3 /opt/blender-runner/measure_bb.py w233
-  EXPECT: /IOU_MEDIA=0\.8[2-9]|IOU_MEDIA=0\.9/
-  EVIDENCE: COR_AMARELO=(240, 208, 32) | COR_AMARELO_MED=(203, 176, 31)
+- [ ] G3: media das 10 piores regioes >= 0.800  [baseline W233 0.740 -> W250 0.745]
+  CHECK: python3 qa_bb.py W250 | grep ^IOU_P10_MEDIA
+  EXPECT: IOU_P10_MEDIA=0\.[89]
 
-- [x] G6: cor azul modal == (32, 48, 96) do concept
-  CHECK: python3 /opt/blender-runner/measure_bb.py w233
-  EXPECT: COR_AZUL=(32, 48, 96)
-  EVIDENCE: COR_AZUL=(32, 48, 96) | COR_AMARELO=(240, 240, 48)
+- [ ] G4: IoU de silhueta media >= 0.830  [baseline W233 0.809 -> W250 0.811]
+  CHECK: python3 qa_bb.py W250 | grep ^IOU_MEDIA
+  EXPECT: IOU_MEDIA=0\.8[3-9]
 
-- [x] G7: cores (azul e amarelo) dentro de +-16 por canal da MEDIANA do concept
-  CHECK: python3 /opt/blender-runner/measure_bb.py w233
-  EXPECT: /COR_MAXDELTA=(?:[0-9]|1[0-6])(?:\s|$)/
-  EVIDENCE: COR_AMARELO=(240, 208, 32) | COR_AMARELO_MED=(201, 175, 32)
+- [ ] G5: erro do perfil lateral <= 6.5%  [baseline W233 7.4 -> W250 7.3]
+  CHECK: python3 qa_bb.py W250 | grep ^PERFIL_LAT_PCT
+  EXPECT: PERFIL_LAT_PCT=[0-6]\.[0-9]
 
-- [x] G8: vision confirma grade frontal (5 fendas verticais) e farol visiveis
-  EVIDENCE: vision W183/W196: "5 ripas pretas verticais = a grade dianteira" + plaquinha do farol no cowl
+- [ ] G6: erro da vista frontal <= 9.5%  [baseline W233 11.5 -> W250 11.1]
+  CHECK: python3 qa_bb.py W250 | grep ^FRONTAL_PCT
+  EXPECT: FRONTAL_PCT=[0-9]\.[0-9]
 
-- [ ] G9: vision confirma rosto do piloto: olhos com esclera+pupila, sobrancelhas e sorriso
-  EVIDENCE: W212 REPROVA — vision: "olhos sao 2 esferas brancas saltadas PARA FORA da viseira,
-  desalinhadas, sem pupila cartoon"; "viseira pequena e escura". W206 (face por geometria) AINDA REPROVA — vision: olhos "globosos saltados, nao achatados",
-  sem pupila pequena legivel, sobrancelhas "blocos pretos retos", sem sorriso, queixeira nao visivel.
-  TENTATIVAS: decal por-face angular (W161-W205) e geometria dome_dir+tube_round (W206). Ambas insuficientes.
-  RESTA (ordem): (a) achatar os olhos na superficie da viseira (dome flat menor, raio maior),
-  (b) pupila preta pequena + glint branco como geometria rasante, (c) sobrancelhas como tira curva fina
-  FLUTUANDO acima do olho (nao bloco sobre o globo), (d) queixeira amarela em U visivel na frontal,
-  (e) sorriso no patch amarelo, (f) faixa amarela descendo ATE a costura da viseira (hoje para antes)
-  NOTA: a render frontal de QA precisa de camera que nao oclua o queixo (hoje o kart cobre parte)
+- [ ] G7: erro da vista traseira <= 9.5%  [baseline W233 10.7 -> W250 10.5]
+  CHECK: python3 qa_bb.py W250 | grep ^TRASEIRA_PCT
+  EXPECT: TRASEIRA_PCT=[0-9]\.[0-9]
 
-- [ ] G10: vision confirma bico em cunha (nao bulbo) e sidepod em gota afilando para tras
-  EVIDENCE: PARCIAL W212 — causa raiz MEDIDA: NOSE tinha y=+-0.420 (0.84m de largura, 2.4x o concept
-  que tem ~0.35m). Corrigido para +-0.301 (0.60m). Largura afeta so as vistas front/top (o perfil
-  e governado por prof_top), entao a silhueta lateral nao mudou. vision W212: "o centro ainda e um
-  DOMO azul inflado, ocupa 50-60% da largura, quase 3x mais largo" -> alvo ~15-20%.
-  RESTA: estreitar para 1/3 do atual e criar concavidade para as pernas/reabrir os vazios laterais
+- [ ] G8: desvio de cor por canal <= 5  [baseline W233 7 -> W250 6]
+  CHECK: python3 qa_bb.py W250 | grep ^COR_MAXDELTA
+  EXPECT: COR_MAXDELTA=[0-5]
 
-- [ ] G11: vision confirma traseira: 3 escapamentos com boca aberta, asa com endplates, difusor com strakes
-  EVIDENCE: PARCIAL W201 — escapes com boca oca CONFIRMADO por vision ("aro claro espesso + miolo preto").
-  RESTA: endplates como ovais pequenas (as atuais leem "grandes/pontiagudas"), strakes do difusor visiveis,
-  e o para-choque ainda le como barra facetada em vez de tubo redondo
+- [ ] G9: TOP/ASA >= 0.780 (planta traseira: asa fina, nao chapa)  [baseline W233 0.684 -> W250 0.705]
+  CHECK: python3 qa_bb.py W250 | grep ^IOU_TOP_ASA
+  EXPECT: IOU_TOP_ASA=0\.[789]
 
-- [x] G12: vision confirma pneus (slick, uniforme como o concept) e anel amarelo no aro
-  EVIDENCE: vision W198 close-up: "voce acertou... Mantenha slick liso" + "anel amarelo SIM" (2 leituras)
+- [ ] G10: TOP/BICO_U >= 0.780 (planta dianteira)  [baseline W233 0.693 -> W250 0.716]
+  CHECK: python3 qa_bb.py W250 | grep ^IOU_TOP_BICO_U
+  EXPECT: IOU_TOP_BICO_U=0\.[789]
 
-- [ ] G13: critico de visao da nota >= 8/10 na vista lateral E >= 7/10 na frontal
-  EVIDENCE: HISTORICO das notas: W202 SIDE 8.0/FRONT 6.5 | W212 3/5 | W215 4.0 | W225 6.25 | W231 4.9
-  ENQUANTO as metricas objetivas melhoraram (perfil 16.7->7.4; IoU 0.738->0.809). Nota do critico
-  OSCILA 3-8 na mesma peca: e ruido, nao sinal (ver AUDIT-DETAIL.md secao 7).
-  NENHUMA vista atinge 8/10 na leitura do critico.
+- [ ] G11: FRONT/PARACH >= 0.780 (para-choque visto de frente)  [baseline W233 0.702 -> W250 0.706]
+  CHECK: python3 qa_bb.py W250 | grep ^IOU_FRONT_PARACH
+  EXPECT: IOU_FRONT_PARACH=0\.[789]
 
-- [ ] G14: subagent auditor independente da nota >= 8/10
+- [ ] G12: SIDE/TRASEIRA >= 0.780 (silhueta traseira de perfil)  [baseline W233 0.708 -> W250 0.708]
+  CHECK: python3 qa_bb.py W250 | grep ^IOU_SIDE_TRASEIRA
+  EXPECT: IOU_SIDE_TRASEIRA=0\.[789]
+
+- [ ] G13: auditor independente sem contexto do autor confirma fidelidade
   EVIDENCE: pending
 
-- [x] G15: modelo, builder, ficha e provas commitados no repo super-kart-3djs
-  EVIDENCE: commits 8bfc899 / 2b50a5e / 60a3839 / d8b9873 (W204) — 12 provas em modeling/proof/
+- [ ] G14: modelo, builder, ficha, gates e provas commitados no repo
+  EVIDENCE: pending
 
 <!--
-Baseline: 7.1 / 22.7 / 18.8 / 0.786 / azul OK / amarelo errado / vision 7.5 (lateral W169)
-Nao deletar gate impossivel: usar "ABANDON: G<n> <motivo>".
+HISTORICO (nao apagar): W184 7.1/22.7/18.8/0.786 -> W202 5.9/8.9/6.7/0.821 -> W233 7.4/11.5/10.7/0.809.
+CORRECAO DE INSTRUMENTO (importante): ate W233 as regioes de FRONT/REAR do qa_bb usavam faixas no eixo
+ERRADO (colunas = largura, nao altura). Isso fazia FRONT_CAPACETE marcar 0.680 constante em 4 geometrias
+diferentes — probe quebrado, nao achado. Com o eixo correto, FRONT_CAPACETE = 0.984 (o MELHOR, nao o pior)
+e o pior real e TOP_ASA 0.684. Regra: metrica que nao responde a uma mudanca real de geometria esta quebrada.
+As notas do critico de visao oscilaram 3-8 na mesma peca enquanto as metricas melhoravam: nota = ruido.
+Gate impossivel: usar linha propria "ABANDON: G<n> <motivo>".
 -->

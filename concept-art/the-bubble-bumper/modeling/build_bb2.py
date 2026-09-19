@@ -98,8 +98,9 @@ def revolve(name,prof,x0,z0,y0=0.0,seg=28,capopen=False):
     o=mesh_from(name,verts,faces,True)
     if capopen: seal(o)
     return o
-def dome(name,cx,cy,cz,R,sz=1.0,sy=1.0,seg=40,rings=24):
-    prof=[(max(0.0015,R*math.sin(math.pi*i/rings)*sy), -R*math.cos(math.pi*i/rings)*sz) for i in range(rings+1)]
+def dome(name,cx,cy,cz,R,sz=1.0,sy=1.0,seg=40,rings=24,pa=1.0):
+    # pa<1 = COROA MAIS CHEIA (o perfil do concept nao e esfera; medido no FRONT/CAPACETE)
+    prof=[(max(0.0015,R*(math.sin(math.pi*i/rings)**pa)*sy), -R*math.cos(math.pi*i/rings)*sz) for i in range(rings+1)]
     return revolve(name,prof,cx,cz,y0=cy,seg=seg,capopen=True)
 def sq(cx,ry,rz,n=24,p=2.0,z0=0.0,zsq=0.90,cy=0.0):
     pts=[]
@@ -232,7 +233,7 @@ def reg(nm,ob): QA[nm]=qp(ob); return ob
 # ============ GEOMETRIA MEDIDA ============
 H=1.207; L=2.255; W=1.494
 XFO=+1.128; XRE=-1.128
-XF=P.get('x_fw',+0.585); XR=P.get('x_rw',-0.720)
+XF=P.get('x_fw',+0.700); XR=P.get('x_rw',-0.720)
 RF=P.get('r_f',0.200); RR=P.get('r_r',0.225)
 HWF=P.get('hw_f',0.155); HWR=P.get('hw_r',0.158)
 TYF=P.get('ty_f',0.589); TYR=P.get('ty_r',0.5855)
@@ -586,7 +587,7 @@ def rear():
         _bl.append((XRE+0.135, sy*0.505, 0.288)); _bl.append((XRE+0.168, sy*0.492, 0.150)); _bl.append((XRE+0.190, sy*0.430, 0.070))
     _loop=[(XRE+0.262,0.400,0.150)]+[(XRE+0.235,0.470,0.152)]+[(_bl[0][0],_bl[0][1],_bl[0][2])] if False else []
     # U invertido: barra superior alta + 2 pernas verticais + travessa inferior (concept)
-    _bx=XRE+0.088
+    _bx=XRE+0.010
     scr=[(_bx,0.268,0.078),(_bx,0.268,0.598),(_bx,0.130,0.602),(_bx,0.0,0.602),
          (_bx,-0.130,0.602),(_bx,-0.268,0.598),(_bx,-0.268,0.078)]
     rb=tube_round('Rear_Bumper_U',scr,0.042,22); assign(rb,'M_Silver'); out.append(reg('rbump',rb))
@@ -596,7 +597,7 @@ def rear():
     assign(_c,'M_Dark'); out.append(_c)
     # ---- asa traseira: barra GROSSA azul-escura + endplates amarelos ----
     wz=P.get('wing_z',0.605)*H
-    wx1=XRE-0.015; wx2=XRE+0.235
+    wx1=XRE+0.045; wx2=XRE+0.295
     wsec=[]
     for i in range(13):
         u=i/12.0; x=wx1+(wx2-wx1)*u
