@@ -452,3 +452,29 @@ no pixel 'a' = col 0 nas folhas). Metrica voltou: IoU 0.802 / excesso 12.7 / fal
 ### MELHOR HULL = VHN (N=240, erode=1, interseccao, materia por REGIAO filtro x3)
 IoU 0.802 | P10 0.680 | COR_TV **0.199** | excesso 12.7 | falta 10.5 | <0.80 = 9
 Cor por familia: neutro 0.501/0.514 | azul 0.352/0.354 | amarelo 0.147/0.133 | azul_clr 0.010/0.011
+
+
+## DIAGNOSTICO DE PERFIL + ASA COM CORDA (W400-W402) — 2026-09-19
+
+### METRICA NOVA (barata e legivel): PERFIL DO TOPO no SIDE
+Compara a altura z(x) do concept com a do modelo, em fracao do comprimento.
+Baseline w393: erro medio **4.9 cm**, max 27.8 cm.
+Pior ponto: **frac 0.90 -> -28 cm** (a traseira do modelo e muito BAIXA ali).
+
+### CAUSA: a asa era um TUBO com CORDA ZERO
+`wing_tube=1` constroi o tubo em x FIXO (_wc) -> sem corda. O concept tem uma PLACA
+(xf 0.89-1.00, z 0.60-0.80) sobre um pilone. Substituido por placa com corda.
+
+### RESULTADO W402 (wing_tube=0, wing_x1=-0.905, wing_x2=-1.158, wing_z=0.585, wing_hh=0.092)
+- perfil do topo: erro medio **4.0 cm** (melhor da serie) | frac 0.90: -28 -> **+1 cm** | 0.92-0.98 dentro de 1-2 cm
+- **side/TRASEIRA 0.636 -> 0.682** (falta 20.9% -> 14.9%)  <- a pior regiao do projeto melhorou
+- **top/ASA 0.653 -> 0.679** e corTV 0.243 -> **0.150**
+- REGRESSAO: rear/ESCAPES 0.887 -> 0.828 (excesso 11.8% -> 16.7%) — a placa/endplates invadem a faixa z 0.45-0.62 do REAR
+- agregado: IoU 0.820 -> 0.806 | excesso 12.0 -> 16.1 | COR_TV 0.256 -> 0.268
+
+DECISAO: manter W402 (corrige a pior regiao e o pior erro de perfil; a regressao e numa regiao
+que segue acima de 0.80). Proximo alvo: o excesso em rear/ESCAPES (endplates/placa baixa demais).
+
+### METRICA DE PICO (nova): fracao do comprimento onde o perfil e mais alto (o capacete)
+CONCEPT 0.622 | builder (w392/w393/vhs/vhb) **0.622 (delta 0.000 — exato)** | hull VHN 0.749 (+30 cm)
+=> confirma de novo: o builder esta certo onde o hull erra.
