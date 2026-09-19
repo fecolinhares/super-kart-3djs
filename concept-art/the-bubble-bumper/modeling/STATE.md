@@ -373,3 +373,41 @@ validacao POR ELEMENTO com vision (1 imagem por chamada).
 
 ### ESTADO: w393 segue sendo a base consolidada (COR_TV 0.256, aparencia limpa, IoU 0.820).
 Artefatos salvos em modeling/rebuild/ (vh_build.py, vh_color.py, vh_render.py, hull-e1.obj).
+
+
+## DESCOBERTA: AS VISTAS DO CONCEPT NAO ESTAO NA MESMA ESCALA (2026-09-19)
+
+O usuario notou ("essa marcacao de tamanhos, o side e o rear parecem errados"). Verificado com a
+GRADE das folhas (passo medido = 8 px em front/top; quadrado quadrado) e calibrado por 1 quad = 2.5 cm,
+valor que faz a ALTURA DO FRONT bater EXATO com 1.207 m (-0.1%).
+
+Medido (quadradinhos -> metros @2.5cm):
+| vista | quadradinhos | em metros | esperado | erro |
+|---|---|---|---|---|
+| FRONT | 56.5 x 48.2 | 1.41 x 1.21 | 1.494 x 1.207 | -5.5% / **-0.1%** |
+| SIDE  | 93.9 x 50.2 | 2.35 x 1.26 | 2.350 x 1.207 | **-0.1%** / +4.1% |
+| TOP   | 77.8 x 51.5 | 1.94 x 1.29 | 2.350 x 1.494 | **-17.3%** / -13.8% |
+| REAR  | 69.0 x 56.0 | 1.73 x 1.40 | 1.494 x 1.207 | **+15.5%** / **+16.0%** |
+
+ALTURA em quadradinhos deveria ser identica nas 3 vistas frontais: FRONT 48.2 | SIDE 50.2 | REAR 56.0
+-> spread de 16%.
+
+### Consequencias
+- TOP desenhado ~17% MENOR e REAR ~16% MAIOR que a escala das folhas. O SIDE e 4% mais alto que o FRONT.
+- NENHUM objeto 3D pode casar 100% com as 4 vistas ao mesmo tempo: elas se contradizem em ate 16%.
+  Era matematicamente impossivel atingir "100% identico" ajustando o modelo.
+- O auditor normaliza cada vista pelo proprio bbox -> o erro de escala SOME na metrica (por isso as
+  notas pareciam razoaveis enquanto o modelo estava inconsistente). O hull, que mistura vistas, herda
+  a distorcao.
+
+### FATORES DE CORRECAO (para trazer toda vista a mesma escala, 1 quad = 2.5 cm)
+- FRONT: 1.000 (autoridade da ALTURA)
+- SIDE:  0.960 na vertical (o SIDE e 4% alto); horizontal 1.000 (o comprimento ja bate 2.35)
+- TOP:   x1.207 (77.75 -> 93.9 quad)
+- REAR:  x0.861 (56.0 -> 48.2 quad). VERIFICACAO: 69 quad x 0.861 = 59.4 quad = 1.485 m de largura,
+  contra 1.494 esperado -> -0.6%. Confirma que o REAR tem UM erro global de escala (1.16x), nao distorcao.
+- TOP apos correcao: largura 51.5 x 1.207 = 62.2 quad = 1.554 m vs 1.494 -> +4% (aceitavel).
+
+### PROXIMA ACAO
+Aplicar os fatores por vista em vh_build.py (escala por vista antes de montar o hull) e recalibrar as
+referencias do auditor. So depois remodelar as pecas.
