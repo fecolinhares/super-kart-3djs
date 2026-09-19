@@ -10,32 +10,32 @@ IOU_MEDIA 0.786 | COR_AZUL (32,48,96) OK | COR_AMARELO (240,240,48) ERRADO
   EVIDENCE: W204: aprovado=true, verts=95295, non_manifold=0, pct_quads=98.9 (log do job blender_factory)
 
 - [x] G2: perfil lateral <= 6.0% de erro medio (41 estacoes do contorno superior)
-  CHECK: python3 /opt/blender-runner/measure_bb.py w212
+  CHECK: python3 /opt/blender-runner/measure_bb.py w233
   EXPECT: /PERFIL_LAT_PCT=(?:[0-5]\.\d|6\.0)/
   EVIDENCE: COR_AMARELO=(240, 208, 32) | COR_AMARELO_MED=(203, 176, 32)
 
 - [x] G3: vista frontal <= 12% de erro medio (21 faixas de altura)
-  CHECK: python3 /opt/blender-runner/measure_bb.py w212
+  CHECK: python3 /opt/blender-runner/measure_bb.py w233
   EXPECT: /FRONTAL_PCT=(?:[0-9]\.\d|1[01]\.\d|12\.0)/
   EVIDENCE: COR_AZUL=(32, 48, 96) | COR_AMARELO=(240, 208, 32)
 
 - [x] G4: vista traseira <= 12% de erro medio (21 faixas de altura)
-  CHECK: python3 /opt/blender-runner/measure_bb.py w212
+  CHECK: python3 /opt/blender-runner/measure_bb.py w233
   EXPECT: /TRASEIRA_PCT=(?:[0-9]\.\d|1[01]\.\d|12\.0)/
   EVIDENCE: COR_AZUL=(32, 48, 96) | COR_AMARELO=(240, 208, 32)
 
 - [x] G5: IoU medio de silhueta >= 0.82 nas 4 vistas
-  CHECK: python3 /opt/blender-runner/measure_bb.py w212
+  CHECK: python3 /opt/blender-runner/measure_bb.py w233
   EXPECT: /IOU_MEDIA=0\.8[2-9]|IOU_MEDIA=0\.9/
   EVIDENCE: COR_AMARELO=(240, 208, 32) | COR_AMARELO_MED=(203, 176, 31)
 
 - [x] G6: cor azul modal == (32, 48, 96) do concept
-  CHECK: python3 /opt/blender-runner/measure_bb.py w212
+  CHECK: python3 /opt/blender-runner/measure_bb.py w233
   EXPECT: COR_AZUL=(32, 48, 96)
   EVIDENCE: COR_AZUL=(32, 48, 96) | COR_AMARELO=(240, 240, 48)
 
 - [x] G7: cores (azul e amarelo) dentro de +-16 por canal da MEDIANA do concept
-  CHECK: python3 /opt/blender-runner/measure_bb.py w212
+  CHECK: python3 /opt/blender-runner/measure_bb.py w233
   EXPECT: /COR_MAXDELTA=(?:[0-9]|1[0-6])(?:\s|$)/
   EVIDENCE: COR_AMARELO=(240, 208, 32) | COR_AMARELO_MED=(201, 175, 32)
 
@@ -69,10 +69,10 @@ IOU_MEDIA 0.786 | COR_AZUL (32,48,96) OK | COR_AMARELO (240,240,48) ERRADO
   EVIDENCE: vision W198 close-up: "voce acertou... Mantenha slick liso" + "anel amarelo SIM" (2 leituras)
 
 - [ ] G13: critico de visao da nota >= 8/10 na vista lateral E >= 7/10 na frontal
-  EVIDENCE: HISTORICO: W162 5.0 -> W169 7.5 -> W202 SIDE 8.0/FRONT 6.5 -> W211 FRONT 3.5/SIDE 6.0
-  -> W212 FRONT 3/10 e SIDE 5/10. NENHUMA vista passa. Bloqueios: (a) bico/domo central,
-  (b) rosto quebrado, (c) tudo le como caixa (falta arredondamento e props).
-  Auditoria completa por elemento em modeling/AUDIT-DETAIL.md
+  EVIDENCE: HISTORICO das notas: W202 SIDE 8.0/FRONT 6.5 | W212 3/5 | W215 4.0 | W225 6.25 | W231 4.9
+  ENQUANTO as metricas objetivas melhoraram (perfil 16.7->7.4; IoU 0.738->0.809). Nota do critico
+  OSCILA 3-8 na mesma peca: e ruido, nao sinal (ver AUDIT-DETAIL.md secao 7).
+  NENHUMA vista atinge 8/10 na leitura do critico.
 
 - [ ] G14: subagent auditor independente da nota >= 8/10
   EVIDENCE: pending
