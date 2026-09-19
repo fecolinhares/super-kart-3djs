@@ -37,9 +37,9 @@ def mat_rich(name,color,rough,metal,ns=180.0,bump=0.0016,spec=0.6,coat=0.0):
     nt.links.new(bsdf.outputs['BSDF'],out.inputs['Surface']); return m
 
 # cores amostradas do concept
-mat_rich('M_Yellow',(0.584,0.417,0.00073),0.72,0.0,190,0.0016,0.16,0.0)
-mat_rich('M_Blue',(0.0157,0.0380,0.151),0.74,0.0,190,0.0014,0.14,0.0)
-mat_rich('M_BlueDk',(0.0105,0.0243,0.1010),0.78,0.0,210,0.0016,0.12,0.0)
+mat_rich('M_Yellow',(0.680,0.580,0.0280),0.72,0.0,190,0.0016,0.16,0.0)
+mat_rich('M_Blue',(0.0300,0.0680,0.174),0.74,0.0,190,0.0014,0.14,0.0)
+mat_rich('M_BlueDk',(0.0160,0.0360,0.092),0.78,0.0,210,0.0016,0.12,0.0)
 mat_rich('M_Dark',(0.016,0.016,0.019),0.82,0.0,340,0.0026,0.14,0.0)
 mat_rich('M_Silver',(0.30,0.31,0.33),0.55,0.85,420,0.0014,0.30,0.0)
 mat_rich('M_Visor',(0.46,0.52,0.60),0.22,0.05,600,0.0004,0.75,0.35)
@@ -233,8 +233,8 @@ def reg(nm,ob): QA[nm]=qp(ob); return ob
 # ============ GEOMETRIA MEDIDA ============
 H=1.207; L=2.255; W=1.494
 XFO=+1.128; XRE=-1.128
-XF=P.get('x_fw',+0.700); XR=P.get('x_rw',-0.720)
-RF=P.get('r_f',0.200); RR=P.get('r_r',0.225)
+XF=P.get('x_fw',+0.602); XR=P.get('x_rw',-0.664)
+RF=P.get('r_f',0.185); RR=P.get('r_r',0.215)
 HWF=P.get('hw_f',0.155); HWR=P.get('hw_r',0.158)
 TYF=P.get('ty_f',0.589); TYR=P.get('ty_r',0.5855)
 
@@ -404,7 +404,7 @@ def pods():
             outy=0.300+0.387*s      # borda externa: 0.30 -> 0.687 (alvo medido 0.92W)
             iny=0.175+0.115*s       # borda interna
             zb=0.105
-            zt=zb+0.096+0.084*s
+            zt=zb+P.get('pod_zt',0.096)+P.get('pod_zt2',0.084)*s
             cy=sy*(outy+iny)/2.0; ry=abs(outy-iny)/2.0
             # secao retangular-arredondada no plano YZ
             sec=[]
@@ -422,7 +422,7 @@ def pods():
             sc=math.sin(math.pi*(0.05+0.90*t))**0.45
             oy=0.300+0.300*sc; iy=0.175+0.115*sc; zt=0.105+0.112+0.098*sc
             csec.append([(x,sy*(iy-0.030),zt+0.008),(x,sy*(oy+0.016),zt-0.008),(x,sy*(oy+0.016),zt-0.074),(x,sy*(iy-0.030),zt-0.060)])
-        cap=loft(nm+'_Cap',csec); assign(cap,'M_Blue'); add_mod(cap,'SUBSURF',levels=1); apply_mods(cap)
+        cap=loft(nm+'_Cap',csec); assign(cap,P.get('pod_cap_mat','M_Yellow')); add_mod(cap,'SUBSURF',levels=1); apply_mods(cap)
         out.append(reg(nm+'_cap',cap))
         out.append(reg(nm,o))
     return join(out,'PODS')
@@ -452,17 +452,19 @@ def chassis():
         mg=sweep('Arm_'+st,[(XF,sy*0.30,RF),(XF-0.02,sy*TYF,RF)],0.026,12); assign(mg,'M_BlueDk'); out.append(mg)
         tr=sweep('Tie_'+st,[(0.300,sy*0.115,0.250),(XF,sy*0.520,RF)],0.018,12); assign(tr,'M_Silver'); out.append(tr)
         pd=box('Pedal_'+st,(0.880,sy*0.150,0.150),(0.030,0.050,0.058),bevel=0.010); assign(pd,'M_Pedal'); out.append(pd)
-    sc=sweep('Steer_Col',[(0.090,0,0.240),(0.150,0,0.452)],0.027,14); assign(sc,'M_Silver'); out.append(sc)
-    sw=[(0.150,0.0,0.560),(0.150,0.0,0.452)]
+    sc=sweep('Steer_Col',[(P.get('sc_x0',0.340),0,0.410),(0.260,0,0.530),(P.get('sc_x1',0.185),0,0.650)],P.get('sc_r',0.030),16); assign(sc,'M_Silver'); out.append(sc)
+    WX=P.get('sw_x',0.185); WZ=P.get('sw_z',0.655); WR=P.get('sw_r',0.115); WT=P.get('sw_tilt',0.040)
+    sw=[(WX+0.03,0.0,WZ+0.02),(WX,0.0,WZ)]
     for i in range(29):
-        a=2*math.pi*i/28.0; sw.append((0.150-0.016*math.cos(a),0.124*math.cos(a),0.452+0.124*math.sin(a)))
-    w1=sweep('Steer_Wheel',sw,0.026,16); assign(w1,'M_Dark'); out.append(w1)
+        a=2*math.pi*i/28.0
+        sw.append((WX-WT*math.sin(a),WR*math.cos(a),WZ+WR*math.sin(a)))
+    w1=sweep('Steer_Wheel',sw,P.get('sw_t',0.024),16); assign(w1,'M_Dark'); out.append(w1)
     st1=box('Seat_Base',(-0.060,0,0.348),(0.148,0.188,0.052),bevel=0.052,segs=5); assign(st1,'M_Dark'); out.append(st1)
     # ---- MAOS (luvas) e BOTAS: o concept tem luvas e botas pretas visiveis ----
     for sy in (1,-1):
         # luva na manopla do volante
-        gl=revolve('Glove_'+('L' if sy>0 else 'R'),[(0.028,-0.034),(0.070,-0.030),(0.078,0.0),(0.070,0.030),(0.028,0.034)],
-                   0.245, 0.565, y0=sy*0.128, seg=20)
+        gl=revolve('Glove_'+('L' if sy>0 else 'R'),[(0.032,-0.040),(0.082,-0.036),(0.092,0.0),(0.082,0.036),(0.032,0.040)],
+                   P.get('gl_x',0.160), P.get('gl_z',0.680), y0=sy*P.get('gl_y',0.105), seg=20)
         assign(gl,'M_Dark'); out.append(reg('glove'+('L' if sy>0 else 'R'),gl))
         # bota apoiada no pedal, a frente
         bt=box('Boot_'+('L' if sy>0 else 'R'),(0.905,sy*0.152,0.128),(0.105,0.052,0.070),bevel=0.020,segs=3)
@@ -520,7 +522,7 @@ def rear():
     abt=sweep('Airbox_Duct',[(-0.462,0,0.774),(-0.575,0,0.704),(-0.668,0,0.628)],0.054,18)
     assign(abt,'M_BlueDk'); out.append(reg('airbox_duct',abt))
     # ---- 3 escapamentos calibres iguais: 1 central reto (mais baixo/frente) + 2 laterais p/ fora ----
-    e0=tube_round('Exh_C',[(EXC-0.16,0.0,0.340),(XR-0.20,0.0,0.382),(exb,0.0,0.412)],0.128,26)
+    e0=tube_round('Exh_C',[(EXC-0.16,0.0,0.340),(XR-0.20,0.0,0.382),(exb,0.0,0.412)],P.get('exh_c_r',0.128),26)
     assign(e0,'M_Silver')
     try:
         _d=V3((exb,0.0,0.412))-V3((XR-0.20,0.0,0.382)); _d.normalize()
@@ -603,7 +605,7 @@ def rear():
     assign(_c,'M_Dark'); out.append(_c)
     # ---- asa traseira: barra GROSSA azul-escura + endplates amarelos ----
     wz=P.get('wing_z',0.570)*H
-    wx1=XRE-0.015; wx2=XRE+0.235
+    wx1=P.get('wing_x1',XRE-0.015); wx2=P.get('wing_x2',XRE+0.235)
     wsec=[]
     for i in range(13):
         u=i/12.0; x=wx1+(wx2-wx1)*u
@@ -649,8 +651,8 @@ def pilot():
         pd=dome_dir('PAD_'+st,(-0.150,sy*0.162,0.694),0.098,(-0.28,sy*0.44,0.85),seg=26,rings=16,flat=0.44)
         assign(pd,'M_Yellow'); out.append(pd)
         # braco: ombro -> cotovelo -> mao NA MANOPLA do volante (sobreposto)
-        arm=tubevar('Arm_'+st,[(-0.140,sy*0.175,0.652),(0.020,sy*0.196,0.626),(0.140,sy*0.160,0.594),(0.232,sy*0.112,0.566)],
-                    [0.052,0.047,0.040,0.035],seg=20); assign(arm,'M_Pilot'); out.append(arm)
+        arm=tubevar('Arm_'+st,[(-0.140,sy*0.175,0.662),(-0.020,sy*0.192,0.700),(0.100,sy*0.152,0.714),(0.150,sy*0.118,0.700)],
+                    [0.052,0.048,0.043,0.038],seg=20); assign(arm,'M_Pilot'); out.append(arm)
         gl=tubevar('Glove_'+st,[(0.238,sy*0.126,0.570),(0.246,sy*0.126,0.520)],[0.049,0.046],seg=20)
         assign(gl,'M_Dark'); out.append(gl)
         # perna: quadril -> joelho -> canela -> bota no pedal
@@ -916,6 +918,25 @@ try:
         bpy.context.scene.camera=cam('MK_'+nm,loc,rot,ortho=OSC)
         render(os.path.join(OUTDIR,V.lower()+'m-%s.png'%nm), w=860, h=860)
     R['mask_ok']=True
+    # ---- PASSADA PLANA (albedo-ish): comparacao de COR justa com o desenho ----
+    # O concept e um desenho chato; o render beauty tem key/fill/rim + especular e
+    # por construcao clareia a cor. Medir cor no beauty comparava a MINHA luz, nao
+    # o modelo. Aqui: luzes desligadas e ambiente branco uniforme.
+    if P.get('flat',1):
+        for _o in list(bpy.data.objects):
+            if _o.type=='LIGHT': _o.hide_render=True
+        bpy.context.scene.render.film_transparent=False
+        if w and w.use_nodes:
+            _bg=w.node_tree.nodes.get('Background')
+            if _bg:
+                _bg.inputs[0].default_value=(1.0,1.0,1.0,1.0)
+                _bg.inputs[1].default_value=P.get('flat_env',1.00)
+        bpy.context.scene.render.image_settings.color_mode='RGB'
+        for nm,loc,rot in [('front',(5.0,0,zc),(math.radians(90),0,math.radians(90))),('rear',(-5.0,0,zc),(math.radians(90),0,math.radians(-90))),
+                           ('side',(0.0,5.0,zc),(math.radians(90),0,math.radians(180))),('top',(0,0,5.0),(0,0,math.radians(180)))]:
+            bpy.context.scene.camera=cam('FLAT_'+nm,loc,rot,ortho=OSC)
+            render(os.path.join(OUTDIR,V.lower()+'f-%s.png'%nm), w=860, h=860)
+        R['flat_ok']=True
 except Exception as e:
     R['mask_err']=repr(e)[:120]
 save(V.lower()+'.blend')
