@@ -424,3 +424,31 @@ referencia do auditor (masks crus) ficou DESALINHADA da escala do modelo -> IoU 
 excesso subiu para 26.5. **Os numeros nao sao comparaveis aos anteriores**: a referencia precisa ser
 recalibrada para a mesma escala (2.5 cm/quadrado) antes de qualquer comparacao valida.
 Cor por regiao segue otima: neutro 0.502/0.514 | azul 0.348/0.354 | amarelo 0.151/0.133.
+
+
+## ESCALA: DECISAO + BUG CORRIGIDO (2026-09-19)
+
+### O auditor e INVARIANTE A ESCALA (por construcao)
+`scale = sqrt((Wc/Wm)*(Hc/Hm))` e pinta o concept a 1.0 e o modelo a `scale` no mesmo canvas.
+=> erro de escala ABSOLUTA cancela; so sobra diferenca de PROPORCAO (aspecto).
+Foi por isso que o modelo pode estar 5% errado de tamanho e mesmo assim marcar IoU 0.82.
+
+### As vistas do concept discordam entre si
+Aspecto medido vs o box do contrato: FRONT -5.4% | SIDE -4.0% | TOP -4.0% | REAR -0.5%.
+Pela grade (1 quad = 2.5 cm), o TOP foi desenhado 17% MENOR e o REAR 16% MAIOR (spread 16%).
+Solucao consistente por FRONT+SIDE: H=1.207 -> W=1.413, L=2.255. Com ela o TOP erra 5.4% e o REAR 5.2%.
+=> Teto de fidelidade de forma: as vistas concordam entre si em ~95%. **IoU 1.000 e impossivel.**
+
+### Decisao de escala
+O CONTRATO do jogo manda L=2.35 W=1.494 H=1.207 -> o modelo 3D tem essas medidas.
+Do concept se busca a PROPORCAO/forma. `VH_VIEWSCALE=1` usa a escala literal da grade (diagnostico);
+default 0 = box do contrato (o mesmo que o auditor normaliza). Antes o VIEW_M estava sempre ligado.
+
+### BUG MEU CORRIGIDO
+`idx_centered` usava t = 0.5 + vals/span -> invertia o eixo x e TROCAVA FRENTE/TRASEIRA no hull
+(sintoma: IoU caiu para 0.736 e excesso subiu para 26.5). Fix: t = 0.5 - vals/span (a frente esta
+no pixel 'a' = col 0 nas folhas). Metrica voltou: IoU 0.802 / excesso 12.7 / falta 10.5.
+
+### MELHOR HULL = VHN (N=240, erode=1, interseccao, materia por REGIAO filtro x3)
+IoU 0.802 | P10 0.680 | COR_TV **0.199** | excesso 12.7 | falta 10.5 | <0.80 = 9
+Cor por familia: neutro 0.501/0.514 | azul 0.352/0.354 | amarelo 0.147/0.133 | azul_clr 0.010/0.011
