@@ -478,3 +478,31 @@ que segue acima de 0.80). Proximo alvo: o excesso em rear/ESCAPES (endplates/pla
 ### METRICA DE PICO (nova): fracao do comprimento onde o perfil e mais alto (o capacete)
 CONCEPT 0.622 | builder (w392/w393/vhs/vhb) **0.622 (delta 0.000 — exato)** | hull VHN 0.749 (+30 cm)
 => confirma de novo: o builder esta certo onde o hull erra.
+
+
+## W403 = NOVA BASE (asa fina com corda) — 2026-09-19
+
+O vision reprovou o W402 por OVERSHOOT ("tijolo 2-3x mais alto que a lamina do concept").
+W403: wing_hh 0.092 -> 0.040 e endplates (0.055,0.028,0.055).
+
+| metrica | w393 (antiga) | w402 (asa grossa) | **W403 (asa fina)** |
+|---|---|---|---|
+| IoU media | 0.820 | 0.806 | **0.816** |
+| COR_TV | 0.256 | 0.268 | **0.261** |
+| excesso | 12.0 | 16.1 | **12.6** |
+| falta | 8.5 | 7.2 | 8.5 |
+| side/TRASEIRA | 0.636 | 0.682 | **0.644** |
+| top/ASA | 0.653 | 0.679 | **0.683** |
+| rear/ESCAPES | 0.887 | 0.828 | **0.897** |
+| rear/ASA_CAPACETE | 0.912 | 0.912 | 0.912 |
+
+=> As 3 regioes-alvo melhoraram E o agregado ficou praticamente plano (-0.004 IoU): ganho REAL,
+nao ganho agregado mascarando regiao. A regressao em rear/ESCAPES do W402 foi eliminada (0.897).
+QA: 0 non-manifold, 98.2% quads.
+
+### VISION no W402/W403 (REAR/SIDE/TOP): SIDE 6 | REAR 7.5 | TOP 6
+Tipologia da asa CORRIGIDA e validada ("agora e placa/barra com corda, nao mais tubo fino").
+MAIOR DIFERENCA RESTANTE (palavras do vision): **"o sistema de escapamento + estrutura traseira.
+Zero tubos visiveis. Um monobloco cinza retangular com 2 pilares e so um orificio escuro central.
+No concept: 3 ponteiras cilindricas metalicas, inclinadas, bem espacadas, vazadas, sobre quadro
+tubular fino em U."** -> PROXIMO ALVO DEFINIDO: reconstruir os 3 escapes como tubos visiveis.
