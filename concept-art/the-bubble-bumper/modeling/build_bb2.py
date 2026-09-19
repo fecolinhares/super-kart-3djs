@@ -495,12 +495,6 @@ def chassis():
         for zz in (0.262,0.300,0.338):
             rr=revolve('Ring_%s_%.3f'%('L' if sy>0 else 'R',zz),[(0.050,-0.008),(0.058,-0.008),(0.058,0.008),(0.050,0.008)],XR-0.10,zz,y0=sy*0.255,seg=24)
             assign(rr,'M_Gold'); out.append(rr)
-    # longarinas perimetrais do concept: tubos finos, dentro da envelope, deixando vao aberto no TOP
-    for sy in (1,-1):
-        rail=sweep('Frame_Rail_'+('L' if sy>0 else 'R'),[(0.42,sy*0.285,0.135),(0.05,sy*0.315,0.145),(-0.42,sy*0.300,0.155),(-0.82,sy*0.270,0.170)],0.018,12)
-        assign(rail,'M_BlueDk'); out.append(rail)
-        cross=sweep('Frame_Cross_'+('L' if sy>0 else 'R'),[(0.25,sy*0.285,0.14),(0.25,sy*0.05,0.14)],0.014,12)
-        assign(cross,'M_Silver'); out.append(cross)
     return join(out,'CH')
 CH=safe('chassis',chassis)
 if CH: made.append(CH)

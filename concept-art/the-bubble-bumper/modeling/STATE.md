@@ -119,3 +119,10 @@ Alem disso a roda e um disco FLAT bicolor sem profundidade (concept: redonda, co
 | corda da cerca 0.14 m | pior 0.569 |
 | asa baixa 0.464 / asa sobe 0.686 / escapes afinados / pods altos | todos piores |
 | rodas +0.235 / bumper estreitado / coroa capacete | todos piores |
+
+## Retomada autonoma posterior
+- W302: correção de braços alinhados ao concept; side/PILOTO 0.737->0.780; IoU 0.807->0.809.
+- W312: longarinas extras foram REPROVADAS por vision como ruído em 3/4 vistas e revertidas.
+- W313/W314: berço traseiro U baixo/fino foi testado e piorou (side/TRASEIRA 0.631->0.627/0.624); revertido.
+- W316/W317: HANS reduzido/recolorido piorou IoU 0.809->0.808; revertido.
+- W315 é o consolidado atual. Próxima reconstrução de alto impacto: traseira com 3 escapes protagonistas e cage fino, mantendo a envelope que o auditor aprovou.
