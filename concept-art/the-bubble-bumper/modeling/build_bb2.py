@@ -577,7 +577,7 @@ def rear():
     assign(_c,'M_Dark'); out.append(_c)
     # ---- asa traseira: barra GROSSA azul-escura + endplates amarelos ----
     wz=P.get('wing_z',0.605)*H
-    wx1=XRE+0.016; wx2=XRE+0.235
+    wx1=XRE-0.015; wx2=XRE+0.235
     wsec=[]
     for i in range(13):
         u=i/12.0; x=wx1+(wx2-wx1)*u
@@ -599,8 +599,8 @@ if RE: made.append(RE)
 # ============ 10. PILOTO: tronco barril, bracos grossos, pernas, capacete grande ============
 def pilot():
     out=[]
-    hx=P.get('helm_x',-0.316); hz=P.get('helm_z',0.985)
-    HR=P.get('helm_r',0.218); SZ=P.get('helm_sz',0.946)
+    hx=P.get('helm_x',-0.298); hz=P.get('helm_z',0.985)
+    HR=P.get('helm_r',0.226); SZ=P.get('helm_sz',0.934)
     # ---- colarinho (HANS) cobrindo a juncao pescoco/capacete ----
     col=revolve('Collar',[(0.152,-0.030),(0.186,-0.030),(0.186,0.030),(0.152,0.030)],hx+0.010,0.788,seg=34)
     assign(col,'M_Gasket'); out.append(col)
