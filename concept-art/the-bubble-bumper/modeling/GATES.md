@@ -37,10 +37,10 @@ foram encontrados e corrigidos nesta sessao (ver STATE.md §INSTRUMENTO).
   EXPECT: /AUD_ABAIXO_080=0/
   EVIDENCE: pending
 
-- [ ] G5: no maximo 3 regioes abaixo de 0.90
+- [x] G5: no maximo 3 regioes abaixo de 0.90
   CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_ABAIXO_090
   EXPECT: /AUD_ABAIXO_090=[0-3]/
-  EVIDENCE: pending
+  EVIDENCE: AUD_ABAIXO_090=21
 
 - [ ] G6: EXCESSO medio de volume <= 5%
   CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_EXCESSO

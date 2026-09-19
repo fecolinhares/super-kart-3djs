@@ -585,7 +585,19 @@ def rear():
         sp=sweep('Airbox_Strut_'+('L' if sy>0 else 'R'),[(XRE+0.345,sy*0.078,0.596),(XRE+0.330,sy*0.090,0.430)],0.028,14)
         assign(sp,'M_Dark'); out.append(sp)
     # ---- difusor azul com 5 fendas verticais ----
-    df=box('Diffuser',(XRE+0.118,0,0.152),(0.072,0.170,0.130),bevel=0.012,segs=3); assign(df,'M_Blue'); out.append(df)
+    df=box('Diffuser',(XRE+P.get('dfx',0.200),0,P.get('dfz',0.152)),(P.get('dfc',0.060),0.170,P.get('dfh',0.130)),bevel=0.012,segs=3); assign(df,'M_Blue'); out.append(df)
+    if P.get('ramp',1):
+        _rs=[]
+        _RX0=P.get('rx0',0.320); _RX1=P.get('rx1',0.020)
+        _RZ0=P.get('rzb',0.180); _RZ1=P.get('rzt',0.510); _RT=P.get('rth',0.150)
+        _RY=P.get('ryw',0.330)
+        for _k in range(7):
+            _t=_k/6.0
+            _x=XRE+_RX0+(_RX1-_RX0)*_t
+            _zb=_RZ0+(_RZ1-_RZ0)*_t
+            _zt=_zb+_RT
+            _rs.append([(_x,_RY,_zt),(_x,-_RY,_zt),(_x,-_RY,_zb),(_x,_RY,_zb)])
+        rp=loft('Rear_Ramp',_rs); assign(rp,'M_Silver'); out.append(reg('ramp',rp))
     for j,yy in enumerate((-0.104,-0.052,0.0,0.052,0.104)):
         fn=box('Dslot%d'%j,(XRE+0.060,yy,0.152),(0.046,0.024,0.126),bevel=0.004,segs=1); assign(fn,'M_Dark'); out.append(fn)
     # ---- para-choque tubular prata em U ----
@@ -596,12 +608,12 @@ def rear():
     _loop=[(XRE+0.262,0.400,0.150)]+[(XRE+0.235,0.470,0.152)]+[(_bl[0][0],_bl[0][1],_bl[0][2])] if False else []
     # U invertido: barra superior alta + 2 pernas verticais + travessa inferior (concept)
     _bx=XRE+0.010
-    scr=[(_bx,0.268,0.078),(_bx,0.268,0.598),(_bx,0.130,0.602),(_bx,0.0,0.602),
-         (_bx,-0.130,0.602),(_bx,-0.268,0.598),(_bx,-0.268,0.078)]
+    scr=[(_bx,0.268,P.get('rz0',0.078)),(_bx,0.268,P.get('rz1',0.598)),(_bx,0.130,P.get('rz1',0.598)+0.004),(_bx,0.0,P.get('rz1',0.598)+0.004),
+         (_bx,-0.130,P.get('rz1',0.598)+0.004),(_bx,-0.268,P.get('rz1',0.598)),(_bx,-0.268,P.get('rz0',0.078))]
     rb=tube_round('Rear_Bumper_U',scr,0.042,22); assign(rb,'M_Silver'); out.append(reg('rbump',rb))
-    bt=tube_round('Rear_Bumper_Bot',[(_bx,0.268,0.078),(_bx,0.0,0.070),(_bx,-0.268,0.078)],0.038,22)
+    bt=tube_round('Rear_Bumper_Bot',[(_bx,0.268,P.get('rbz',0.300)),(_bx,0.0,P.get('rbz',0.300)-0.008),(_bx,-0.268,P.get('rbz',0.300))],0.038,22)
     assign(bt,'M_Silver'); out.append(bt)
-    _c=box('Rear_Clamps',(_bx,0.0,0.090),(0.030,0.290,0.040),bevel=0.010,segs=2)
+    _c=box('Rear_Clamps',(_bx,0.0,P.get('rbz',0.300)+0.012),(0.030,0.290,0.040),bevel=0.010,segs=2)
     assign(_c,'M_Dark'); out.append(_c)
     # ---- asa traseira: barra GROSSA azul-escura + endplates amarelos ----
     wz=P.get('wing_z',0.570)*H
@@ -611,7 +623,8 @@ def rear():
         u=i/12.0; x=wx1+(wx2-wx1)*u
         zc=wz+0.010*math.sin(math.pi*u)
         hh=P.get('wing_hh',0.075)+0.010*math.sin(math.pi*u)
-        wsec.append([(x,0.505,zc+hh),(x,-0.505,zc+hh),(x,-0.505,zc-hh),(x,0.505,zc-hh)])
+        _WS=P.get('wing_span',0.505)
+        wsec.append([(x,_WS,zc+hh),(x,-_WS,zc+hh),(x,-_WS,zc-hh),(x,_WS,zc-hh)])
     wg=loft('Wing_Main',wsec); assign(wg,'M_Blue'); add_mod(wg,'BEVEL',width=0.016,segments=2); apply_mods(wg); out.append(reg('wing',wg))
     for sy in (1,-1):
         bpy.ops.object.select_all(action='DESELECT')
@@ -634,18 +647,20 @@ if RE: made.append(RE)
 def pilot():
     out=[]
     hx=P.get('helm_x',-0.298); hz=P.get('helm_z',0.985)
-    HR=P.get('helm_r',0.226); SZ=P.get('helm_sz',0.934)
+    HR=P.get('helm_r',0.210); SZ=P.get('helm_sz',0.934)
     # ---- colarinho (HANS) cobrindo a juncao pescoco/capacete ----
     col=revolve('Collar',[(0.152,-0.030),(0.186,-0.030),(0.186,0.030),(0.152,0.030)],hx+0.010,0.788,seg=34)
     assign(col,'M_Gasket'); out.append(col)
     # ---- tronco: barril curto e grosso, encostado no banco ----
+    _TRS=P.get('trs',1.0)
     torso=tubevar('Torso',[(0.115,0,0.388),(0.050,0,0.474),(-0.045,0,0.566),(-0.150,0,0.652)],
-                  [0.126,0.145,0.150,0.132],seg=26); assign(torso,'M_Pilot'); out.append(torso)
+                  [0.126*_TRS,0.145*_TRS,0.150*_TRS,0.132*_TRS],seg=26); assign(torso,'M_Pilot'); out.append(torso)
     belt=revolve('Belt',[(0.166,-0.024),(0.192,-0.024),(0.192,0.024),(0.166,0.024)],0.118,0.396,seg=32)
     assign(belt,'M_Yellow'); out.append(belt)
     # ---- ombros estreitos (capacete e mais largo que eles) ----
+    _SHS=P.get('shs',1.0)
     sh=tubevar('Shoulders',[(-0.140,0.180,0.652),(-0.152,0.0,0.676),(-0.140,-0.180,0.652)],
-               [0.070,0.090,0.070],seg=22); assign(sh,'M_Pilot'); out.append(sh)
+               [0.070*_SHS,0.090*_SHS,0.070*_SHS],seg=22); assign(sh,'M_Pilot'); out.append(sh)
     for sy in (1,-1):
         st='L' if sy>0 else 'R'
         pd=dome_dir('PAD_'+st,(-0.150,sy*0.162,0.694),0.098,(-0.28,sy*0.44,0.85),seg=26,rings=16,flat=0.44)
