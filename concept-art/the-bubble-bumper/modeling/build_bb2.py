@@ -111,35 +111,18 @@ def sq(cx,ry,rz,n=24,p=2.0,z0=0.0,zsq=0.90,cy=0.0):
 def sqz(cx,cy,ry,rz,n=24,p=2.8,z0=0.0,zsq=0.90):
     return sq(cx,ry,rz,n,p,z0,zsq,cy)
 def tire_tread(t, name, xc, yc, zc, R, hw):
-    """sulcos circunferenciais + chevrons: modelados como aneis finos recuados"""
-    outs=[]
-    for k,zz in enumerate((-0.42,-0.10,0.22)):
-        rr=R*0.985
-        tr=revolve(name+'_rib%d'%k,[(rr*0.965,-hw*0.86),(rr,-hw*0.80),(rr,hw*0.80),(rr*0.965,hw*0.86)],0,0,seg=52)
-        assign(tr,'M_Dark')
-        tr.data.transform(Matrix.Rotation(math.radians(90),4,'X'))
-        tr.data.transform(Matrix.Translation((xc+zz*R*0.6, yc, zc)))
-        outs.append(tr)
-    # chevrons: blocos inclinados em 2 fileiras
-    for j,ang in enumerate((0,90,180,270)):
-        for sgn in (-1,1):
-            a=math.radians(ang+18*sgn)
-            bx=xc+R*0.86*math.cos(a); bz=zc+R*0.86*math.sin(a)
-            ch=box(name+'_ch%d_%d'%(j,sgn),(bx,yc+sgn*hw*0.52,bz),(0.030,0.026,0.026),bevel=0.006,segs=1)
-            assign(ch,'M_Dark')
-            bpy.ops.object.select_all(action='DESELECT'); bpy.context.view_layer.objects.active=ch; ch.select_set(True)
-            bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
-            ch.rotation_euler=(math.radians(30*sgn),0,a)
-            bpy.ops.object.transform_apply(rotation=True)
-            outs.append(ch)
-    return outs
+    """pneu SLICK: o concept e uniforme (2 leituras de vision confirmaram).
+    Mantido como no-op para nao mudar a assinatura."""
+    return []
 def wheel_mesh(name,xc,yc,zc,R,hw,seg=48,flip=1):
     """roda de kart: pneu SLICK liso + disco solido (lip prata, prato cinza, anel amarelo,
     3 pinos quadrados amarelos a 120 graus, cubo central)"""
-    prof=[(R*0.62,-hw*1.00),(R*0.80,-hw*1.00),(R*0.93,-hw*0.94),(R*0.995,-hw*0.78),
-          (R*1.00,-hw*0.56),(R*0.985,-hw*0.34),(R*1.00,-hw*0.12),(R*0.985,0.0),
-          (R*1.00,hw*0.12),(R*0.985,hw*0.34),(R*1.00,hw*0.56),(R*0.995,hw*0.78),
-          (R*0.93,hw*0.94),(R*0.80,hw*1.00),(R*0.62,hw*1.00),
+    # carcaca do pneu a 0.955R: a BANDA DE RODAGEM (blocos) passa a ser a superficie externa
+    _R=R*0.970
+    prof=[(R*0.62,-hw*1.00),(_R*0.84,-hw*1.00),(_R*0.97,-hw*0.94),(_R*1.00,-hw*0.78),
+          (_R*1.00,-hw*0.56),(_R*0.99,-hw*0.34),(_R*1.00,-hw*0.12),(_R*0.99,0.0),
+          (_R*1.00,hw*0.12),(_R*0.99,hw*0.34),(_R*1.00,hw*0.56),(_R*1.00,hw*0.78),
+          (_R*0.97,hw*0.94),(_R*0.84,hw*1.00),(R*0.62,hw*1.00),
           (R*0.62,hw*0.80),(R*0.62,hw*0.00),(R*0.62,-hw*0.80)]
     t=revolve(name,prof,0,0,seg=seg); assign(t,'M_Dark')
     t.data.transform(Matrix.Rotation(math.radians(90),4,'X')); t.data.transform(Matrix.Translation((xc,yc,zc)))
@@ -198,6 +181,23 @@ def tubevar(name,pts,radii,seg=12):
             k2=(k+1)%seg; faces.append([i*seg+k,i*seg+k2,(i+1)*seg+k2,(i+1)*seg+k])
     faces.append(list(range(seg))[::-1]); last=(n-1)*seg; faces.append([last+k for k in range(seg)])
     return mesh_from(name,verts,faces,True)
+def tube_round(name,pts,r,seg=20,cap=True):
+    """tubo de secao CIRCULAR real com frames ao longo da polilinha (sweep() nao passa seg ao tube)"""
+    P3=[V3(tuple(p)) for p in pts]
+    n=len(P3); secs=[]; ref=V3((0.0,0.0,1.0))
+    for i,p in enumerate(P3):
+        if i==0: t=(P3[1]-P3[0])
+        elif i==n-1: t=(P3[n-1]-P3[n-2])
+        else: t=(P3[i+1]-P3[i-1])
+        if t.length<1e-9: t=V3((1.0,0.0,0.0))
+        t.normalize()
+        u=ref.cross(t)
+        if u.length<1e-6: u=V3((1.0,0.0,0.0)).cross(t)
+        u.normalize(); v=t.cross(u); v.normalize()
+        sec=[tuple(p+u*(r*math.cos(2*math.pi*k/seg))+v*(r*math.sin(2*math.pi*k/seg))) for k in range(seg)]
+        secs.append(sec)
+    o=loft(name,secs,cap=cap)
+    return o
 def sweep(name,pts,r,seg=10,merge=0.002):
     o=tube(name,[tuple(p) for p in pts],r); c=curve_to_mesh(o)
     if c is not None: o=c
@@ -494,15 +494,42 @@ def rear():
     abt=sweep('Airbox_Duct',[(-0.462,0,0.774),(-0.575,0,0.704),(-0.668,0,0.628)],0.054,18)
     assign(abt,'M_BlueDk'); out.append(reg('airbox_duct',abt))
     # ---- 3 escapamentos calibres iguais: 1 central reto (mais baixo/frente) + 2 laterais p/ fora ----
-    e0=sweep('Exh_C',[(EXC-0.16,0.0,0.340),(XR-0.20,0.0,0.382),(exb,0.0,0.412)],0.106,28)
-    assign(e0,'M_Silver'); out.append(e0)
-    b0=revolve('Exh_C_bore',[(0.0,-0.011),(0.092,-0.011),(0.092,0.011),(0.0,0.011)],0,0,seg=26); assign(b0,'M_Dark')
+    e0=tube_round('Exh_C',[(EXC-0.16,0.0,0.340),(XR-0.20,0.0,0.382),(exb,0.0,0.412)],0.106,26)
+    assign(e0,'M_Silver')
+    try:
+        _d=V3((exb,0.0,0.412))-V3((XR-0.20,0.0,0.382)); _d.normalize()
+        _t=V3((exb,0.0,0.412))
+        _c=tube_round('ExhC_cut',[tuple(_t+_d*0.105),tuple(_t-_d*0.020)],0.074,22)
+        e0=boolean(e0,_c,'DIFFERENCE')
+        _q=V3((0.0,0.0,1.0)).rotation_difference(_d).to_matrix().to_4x4()
+        _lip=revolve('ExhC_lip',[(0.074,0.004),(0.106,0.004),(0.106,0.026),(0.074,0.026)],0,0,seg=28)
+        assign(_lip,'M_Silver'); _lip.data.transform(_q); _lip.data.transform(Matrix.Translation(tuple(_t-_d*0.026)))
+        out.append(_lip)
+        _bo=revolve('ExhC_floor',[(0.0,-0.010),(0.076,-0.010),(0.076,0.010),(0.0,0.010)],0,0,seg=26)
+        assign(_bo,'M_Eye'); _bo.data.transform(_q); _bo.data.transform(Matrix.Translation(tuple(_t-_d*0.098)))
+        out.append(_bo); R['exh_open_C']='ok'
+    except Exception as _e: R['exh_open_C']=repr(_e)[:70]
+    out.append(e0)
+    b0=revolve('Exh_C_bore',[(0.0,-0.012),(0.056,-0.012),(0.056,0.012),(0.0,0.012)],0,0,seg=26); assign(b0,'M_Eye')
     b0.data.transform(Matrix.Rotation(math.radians(90),4,'Y'))
-    b0.data.transform(Matrix.Translation((exb+0.014,0.0,0.412))); out.append(b0)
+    b0.data.transform(Matrix.Translation((exb+0.020,0.0,0.412))); out.append(b0)
     for sy in (1,-1):
         st='L' if sy>0 else 'R'
         pt=((exb,sy*0.240,0.472),(XR-0.20,sy*0.185,0.420),(EXC-0.16,sy*0.110,0.392))
-        ex=sweep('Exh_'+st,list(pt)[::-1],0.104,28); assign(ex,'M_Silver'); out.append(ex)
+        ex=tube_round('Exh_'+st,list(pt)[::-1],0.104,26); assign(ex,'M_Silver')
+        try:
+            _t=V3((exb,sy*0.240,0.472)); _d=_t-V3((XR-0.20,sy*0.185,0.420)); _d.normalize()
+            _c=tube_round('Exh'+st+'_cut',[tuple(_t+_d*0.100),tuple(_t-_d*0.020)],0.072,22)
+            ex=boolean(ex,_c,'DIFFERENCE')
+            _q=V3((0.0,0.0,1.0)).rotation_difference(_d).to_matrix().to_4x4()
+            _lip=revolve('Exh'+st+'_lip',[(0.072,0.004),(0.104,0.004),(0.104,0.026),(0.072,0.026)],0,0,seg=28)
+            assign(_lip,'M_Silver'); _lip.data.transform(_q); _lip.data.transform(Matrix.Translation(tuple(_t-_d*0.026)))
+            out.append(_lip)
+            _bo=revolve('Exh'+st+'_floor',[(0.0,-0.010),(0.074,-0.010),(0.074,0.010),(0.0,0.010)],0,0,seg=26)
+            assign(_bo,'M_Eye'); _bo.data.transform(_q); _bo.data.transform(Matrix.Translation(tuple(_t-_d*0.094)))
+            out.append(_bo); R['exh_open_'+st]='ok'
+        except Exception as _e: R['exh_open_'+st]=repr(_e)[:60]
+        out.append(ex)
         _d=V3((exb-(XR-0.20), sy*0.240-sy*0.185, 0.472-0.420)).normalized()
         bb=revolve('Exh_%s_bore'%st,[(0.0,-0.009),(0.068,-0.009),(0.068,0.009),(0.0,0.009)],0,0,seg=24); assign(bb,'M_Dark')
         bb.data.transform(_d.to_track_quat('Z','Y').to_matrix().to_4x4())
@@ -530,9 +557,9 @@ def rear():
         sp=sweep('Airbox_Strut_'+('L' if sy>0 else 'R'),[(XRE+0.345,sy*0.078,0.596),(XRE+0.330,sy*0.090,0.430)],0.028,14)
         assign(sp,'M_Dark'); out.append(sp)
     # ---- difusor azul com 5 fendas verticais ----
-    df=box('Diffuser',(XRE+0.200,0,0.148),(0.080,0.180,0.132),bevel=0.014,segs=3); assign(df,'M_Blue'); out.append(df)
-    for j,yy in enumerate((-0.096,-0.048,0.0,0.048,0.096)):
-        fn=box('Dslot%d'%j,(XRE+0.252,yy,0.148),(0.034,0.024,0.126),bevel=0.003,segs=1); assign(fn,'M_Dark'); out.append(fn)
+    df=box('Diffuser',(XRE+0.118,0,0.152),(0.072,0.170,0.130),bevel=0.012,segs=3); assign(df,'M_Blue'); out.append(df)
+    for j,yy in enumerate((-0.104,-0.052,0.0,0.052,0.104)):
+        fn=box('Dslot%d'%j,(XRE+0.060,yy,0.152),(0.046,0.024,0.126),bevel=0.004,segs=1); assign(fn,'M_Dark'); out.append(fn)
     # ---- para-choque tubular prata em U ----
     _bl=[]
     for sy in (1,-1):
@@ -543,8 +570,8 @@ def rear():
     _bx=XRE+0.088
     scr=[(_bx,0.268,0.078),(_bx,0.268,0.598),(_bx,0.130,0.602),(_bx,0.0,0.602),
          (_bx,-0.130,0.602),(_bx,-0.268,0.598),(_bx,-0.268,0.078)]
-    rb=sweep('Rear_Bumper_U',scr,0.030,16); assign(rb,'M_Silver'); out.append(reg('rbump',rb))
-    bt=sweep('Rear_Bumper_Bot',[(_bx,0.268,0.078),(_bx,0.0,0.070),(_bx,-0.268,0.078)],0.026,14)
+    rb=tube_round('Rear_Bumper_U',scr,0.030,20); assign(rb,'M_Silver'); out.append(reg('rbump',rb))
+    bt=tube_round('Rear_Bumper_Bot',[(_bx,0.268,0.078),(_bx,0.0,0.070),(_bx,-0.268,0.078)],0.026,20)
     assign(bt,'M_Silver'); out.append(bt)
     _c=box('Rear_Clamps',(_bx,0.0,0.090),(0.030,0.290,0.040),bevel=0.010,segs=2)
     assign(_c,'M_Dark'); out.append(_c)
@@ -560,8 +587,8 @@ def rear():
     wg=loft('Wing_Main',wsec); assign(wg,'M_BlueDk'); add_mod(wg,'BEVEL',width=0.011,segments=2); apply_mods(wg); out.append(reg('wing',wg))
     for sy in (1,-1):
         ep=revolve('Wing_Endplate_'+('L' if sy>0 else 'R'),
-                   [(0.007,-0.138),(0.031,-0.138),(0.037,-0.030),(0.037,0.030),(0.031,0.090),(0.007,0.090)],
-                   (wx1+wx2)/2.0, wz, y0=sy*0.552, seg=22)
+                   [(0.003,-0.102),(0.013,-0.102),(0.023,-0.074),(0.029,-0.034),(0.030,0.020),(0.026,0.060),(0.015,0.088),(0.003,0.088)],
+                   (wx1+wx2)/2.0, wz, y0=sy*0.552, seg=30)
         assign(ep,'M_Yellow'); out.append(reg('wep_'+('L' if sy>0 else 'R'),ep))
         py=sweep('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.060,sy*0.170,wz-0.014),(wx1+0.115,sy*0.170,0.512)],0.024,12)
         assign(py,'M_Dark'); out.append(py)
