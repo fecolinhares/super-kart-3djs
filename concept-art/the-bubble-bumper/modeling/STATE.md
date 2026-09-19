@@ -345,3 +345,31 @@ vazamento de textura da frente para as costas do capacete.
 1. Aplicar a coloracao por projecao ao mesh do builder (usar o que funcionou).
 2. Redesenhar por peca usando o envelope medido: FBUMP azul (concept) em vez de prata; 3 escapes tubulares; cockpit/piloto com volume (o hull prova que precisa ser autoral).
 3. Regenerar o hull com surface nets + Smooth modifier para matar o terracing.
+
+
+## HIBRIDO: COR AMOSTRADA NO MESH DO BUILDER (VHB) — VEREDITO (2026-09-19)
+
+VHB = mesh do builder (113k faces, 0 non-manifold, 98.2% quads) + cor por face amostrada do concept.
+- **COR_TV 0.256 -> 0.190** (recorde com pecas solidas) | IoU 0.814 | excesso 11.9 | falta 9.2
+- familias: neutro 0.407 (c 0.514) | azul 0.425 (c 0.354) | amarelo 0.168 (c 0.133)
+
+### MAS o vision REPROVA (2/6/1/2): "pixelacao em blocos, pecas flutuantes, transparencias fantasmas, z-fighting"
+CAUSA: a cor por face amostra pixel a pixel e faces vizinhas caem em CLASSES diferentes
+(borda do desenho = contorno preto -> M_Dark no meio de uma area azul) -> MOSAICO.
+A superficie e a mesma malha limpa do builder; o defeito e a ATRIBUICAO de material.
+
+### LICAO (terceira armadilha metrica do projeto)
+COR_TV baixo NAO significa cor certa: o histograma casa, a COERENCIA ESPACIAL nao.
+- Hull puro: contorno ok, concavidade/cockpit viram vazio.
+- Cor amostrada: histograma otimo, aparencia mosaico.
+- Builder autoral: aparencia coerente, mas forma chunky e pecas erradas.
+
+### TECNICA CORRETA CONFIRMADA
+Partes AUTORAIS (solidas, com concavidade/vao/oclusao) como base +
+ENVELOPE MEDIDO por peca (do hull/masks) para as dimensoes +
+MATERIAIS ATRIBUIDOS POR REGIAO SEMANTICA (nao por pixel) +
+cor amostrada do concept apenas como REFERENCIA para corrigir material +
+validacao POR ELEMENTO com vision (1 imagem por chamada).
+
+### ESTADO: w393 segue sendo a base consolidada (COR_TV 0.256, aparencia limpa, IoU 0.820).
+Artefatos salvos em modeling/rebuild/ (vh_build.py, vh_color.py, vh_render.py, hull-e1.obj).
