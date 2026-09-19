@@ -126,3 +126,57 @@ Alem disso a roda e um disco FLAT bicolor sem profundidade (concept: redonda, co
 - W313/W314: berço traseiro U baixo/fino foi testado e piorou (side/TRASEIRA 0.631->0.627/0.624); revertido.
 - W316/W317: HANS reduzido/recolorido piorou IoU 0.809->0.808; revertido.
 - W315 é o consolidado atual. Próxima reconstrução de alto impacto: traseira com 3 escapes protagonistas e cage fino, mantendo a envelope que o auditor aprovou.
+
+## Retomada 2 (W330 -> W357) — ganhos medidos
+
+| metrica | W315 | **W357** | alvo |
+|---|---|---|---|
+| AUD_IOU_MEDIA | 0.809 | **0.813** | 0.900 |
+| AUD_IOU_PIOR | 0.630 | **0.661** | 0.850 |
+| AUD_COR_TV | 0.285 | **0.274** | 0.080 |
+| AUD_EXCESSO | 14.1 | **13.8** | 5.0 |
+| AUD_FALTA | 8.1 | **7.9** | 20 |
+| regioes <0.80 | 10 | **8** | 0 |
+| REGIOES_FALTA_ALTA | 1 | **0** | 0 |
+| GATES met | 3 | **4** | 12 |
+
+### Mudancas aceitas (todas com medicao antes/depois)
+1. **CAPACETE 0.226 -> 0.210** (`helm_r`): front/CAPACETE 0.796 -> 0.831;
+   IoU 0.809->0.811; excesso 14.1->13.7; <0.80 de 10->8. Varredura 0.200/0.192 piora depois.
+2. **RAMPA DO ASSOALHO TRASEIRO** (`Rear_Ramp`, rx0/rx1/rzb/rzt/rth/ryw):
+   descoberta por medicao coluna-a-coluna — em xf 0.90 o concept tem o fundo a 0.15 m e em
+   xf 0.99 a 0.54 m (rampa); o modelo tinha fundo PLANO em ~0.19 m ate o fim.
+   Efeito: side/TRASEIRA 0.626 -> 0.661, IoU 0.811 -> 0.813, falta 21.0% -> 17.4%.
+   Ate entao essa era a pior regiao ha varias rodadas.
+3. **MECANICA EXPOSTA EM CINZA**: `Airbox`(mufla) era M_Yellow, `Airbox_Top`/`airbox0-2`/
+   `Engine_Top` eram M_Blue. O concept classifica isso como CINZA (top cinza 0.258 vs
+   modelo 0.090). Apos: top cinza 0.198, TOP corTV 0.220 -> 0.142.
+4. **TAMPA DO SIDEPOD VOLTOU A AZUL** (era amarela): medicao por faixa mostrou que em
+   xf 0.40-0.62 o concept e 0.34 azul_esq + 0.34 azul_med + 0.21 amarelo; o modelo estava
+   0.59-0.69 AMARELO. Apos: top amarelo 0.272 -> 0.096 (concept 0.127).
+5. **PARA-CHOQUE TUBULAR PRATEADO** (`Bumper_Ring` azul -> M_Plate): o concept tem
+   0.21-0.22 de cinza em xf 0.00-0.10; o modelo tinha 0.000.
+6. **`Rear_Bumper_Bot`/`Rear_Clamps` e difusor recuados** (rbz 0.078 -> 0.300; dfx 0.118 -> 0.200).
+
+### Consolidado
+- AUD_COR_TV 0.285 -> 0.274 (FRONT corTV 0.247->0.186; TOP 0.220->0.142)
+- FAM_NEUTRO 0.474 -> **0.518** vs concept 0.516 (praticamente exato)
+- FAM_AMARELO 0.156 -> 0.102 vs concept 0.132
+
+### Rejeitados por medicao nesta rodada
+| teste | efeito |
+|---|---|
+| helm_r 0.200 / 0.192 | IoU 0.810/0.808; CAPACETE 0.826/0.817 (piora) |
+| wing cord exata (x -1.078..-0.937) | top/ASA excesso 28.1->23.9 mas FALTA 8.5->13.6; IoU 0.811->0.807 |
+| wing span 0.474 | neutro em IoU, piora front/PILOTO 0.705->0.678 |
+| pernas do U traseiro curtas (rz0 0.24) | side/TRASEIRA 0.626->0.622 |
+| pneu mais claro (M_Dark 0.11) | COR_TV 0.285->0.377 (o cinza do concept no topo e a MECANICA, nao o pneu) |
+| pods mais curtos/altos | IoU 0.804-0.806 |
+
+### Veredicto de VISION (W357, prancha V3-A/V3-B)
+- Cor do sidepod **corrigida** (azul com borda amarela, nao amarelo puro) — confirmado.
+- Rampa traseira: medida como ganho (+0.035 em side/TRASEIRA) mas **ainda nao legivel** como
+  rampa no render — le como massa horizontal.
+- Ainda errado: asa traseira e laje (concept: tubo fino + tampas amarelas), escapamentos
+  nao aparecem em S no topo, pneus quadrados sem anel amarelo, volante toro duplo grosso,
+  ombreiras amarelas grandes demais, falta a mola helicoidal visivel.

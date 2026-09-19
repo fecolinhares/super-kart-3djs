@@ -68,8 +68,8 @@ foram encontrados e corrigidos nesta sessao (ver STATE.md §INSTRUMENTO).
   EXPECT: /REGIOES_EXCESSO_ALTO=0/
   EVIDENCE: pending
 
-- [ ] G12: nenhuma regiao com FALTA > 20%
+- [x] G12: nenhuma regiao com FALTA > 20%
   CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep REGIOES_FALTA_ALTA
   EXPECT: /REGIOES_FALTA_ALTA=0/
-  EVIDENCE: pending  (REFUTADO no check adversarial: medido REGIOES_FALTA_ALTA=1 - side/TRASEIRA com falta 20.9%)
+  EVIDENCE: REGIOES_FALTA_ALTA=0
 
