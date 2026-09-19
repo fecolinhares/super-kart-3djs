@@ -132,9 +132,7 @@ def wheel_mesh(name,xc,yc,zc,R,hw,seg=48,flip=1):
     plate=revolve(name+'_plate',pl,0,0,seg=max(24,seg//2)); assign(plate,'M_Plate')
     plate.data.transform(Matrix.Rotation(math.radians(90),4,'X')); plate.data.transform(Matrix.Translation((xc,yc,zc)))
     parts.append(plate)
-    ar=revolve(name+'_ring',[(R*0.300,-hw*0.86),(R*0.430,-hw*0.86),(R*0.430,-hw*0.80),(R*0.300,-hw*0.80),
-                             (R*0.300,-hw*0.30),(R*0.300,0.0),(R*0.300,hw*0.30),
-                             (R*0.300,hw*0.80),(R*0.430,hw*0.80),(R*0.430,hw*0.86),(R*0.300,hw*0.86)],0,0,seg=max(24,seg//2))
+    ar=revolve(name+'_ring',[(R*0.335,-hw*0.97),(R*0.470,-hw*0.97),(R*0.470,hw*0.97),(R*0.335,hw*0.97)],0,0,seg=max(24,seg//2))
     assign(ar,'M_Yellow')
     ar.data.transform(Matrix.Rotation(math.radians(90),4,'X')); ar.data.transform(Matrix.Translation((xc,yc,zc)))
     parts.append(ar)
@@ -601,9 +599,9 @@ def pilot():
                 th=math.radians(t0+(t1-t0)*i/(NT-1.0)); sec.append(PV(R0,th,ph))
             secs.append(sec)
         return loft(name,secs,cap=True)
-    gk=band('Visor_Gasket',HR*1.008,HR*0.994,86,91,-86,86,10,71); assign(gk,'M_Gasket'); out.append(reg('gasket',gk))
-    gk2=band('Visor_Gasket2',HR*1.008,HR*0.994,141,146,-86,86,10,71); assign(gk2,'M_Gasket'); out.append(reg('gasket',gk2))
-    visb=band('Visor_Band',HR*1.010,HR*0.996,91,141,-82,82,32,89); assign(visb,'M_Visor'); out.append(reg('visor_band',visb))
+    gk=band('Visor_Gasket',HR*1.008,HR*0.994,84,89,-89,89,10,91); assign(gk,'M_Gasket'); out.append(reg('gasket',gk))
+    gk2=band('Visor_Gasket2',HR*1.008,HR*0.994,143,148,-89,89,10,91); assign(gk2,'M_Gasket'); out.append(reg('gasket',gk2))
+    visb=band('Visor_Band',HR*1.010,HR*0.996,88,144,-89,89,34,109); assign(visb,'M_Visor'); out.append(reg('visor_band',visb))
     # ---- ROSTO: casca frontal com materiais POR-FACE (olhos, sobrancelhas, sorriso em U) ----
     _T0,_T1,_P0,_P1=95.0,137.0,-78.0,78.0
     def _hang(q):
@@ -614,7 +612,7 @@ def pilot():
     fb=band('Visor_Face',HR*P.get('face_ro',1.022),HR*P.get('face_ri',1.016),_T0,_T1,_P0,_P1,72,200)
     assign(fb,'M_Visor')
     
-    epc=P.get('eye_ph',30.0); epr=P.get('eye_pr',36.0); etc=P.get('eye_th',107.0)
+    epc=P.get('eye_ph',38.0); epr=P.get('eye_pr',42.0); etc=P.get('eye_th',106.0)
     def _dec(kind):
         def f(pp):
             a2=_hang(pp)
