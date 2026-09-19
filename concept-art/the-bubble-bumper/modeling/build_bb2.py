@@ -395,7 +395,7 @@ def pods():
             t=i/(NS-1.0); xf=0.325+0.395*t; x=XFO-xf*L
             sc=math.sin(math.pi*(0.05+0.90*t))**0.45
             oy=0.300+0.300*sc; iy=0.175+0.115*sc; zt=0.105+0.150+0.130*sc
-            csec.append([(x,sy*iy,zt+0.003),(x,sy*oy,zt-0.010),(x,sy*oy,zt-0.052),(x,sy*iy,zt-0.045)])
+            csec.append([(x,sy*(iy-0.012),zt+0.006),(x,sy*(oy+0.006),zt-0.006),(x,sy*(oy+0.006),zt-0.062),(x,sy*(iy-0.012),zt-0.052)])
         cap=loft(nm+'_Cap',csec); assign(cap,'M_Blue'); add_mod(cap,'SUBSURF',levels=1); apply_mods(cap)
         out.append(reg(nm+'_cap',cap))
         out.append(reg(nm,o))
@@ -674,7 +674,7 @@ def pilot():
     fb=band('Visor_Face',HR*P.get('face_ro',1.022),HR*P.get('face_ri',1.016),_T0,_T1,_P0,_P1,72,200)
     assign(fb,'M_Visor')
     
-    epc=P.get('eye_ph',34.0); epr=P.get('eye_pr',40.0); etc=P.get('eye_th',112.0)
+    epc=P.get('eye_ph',33.0); epr=P.get('eye_pr',30.0); etc=P.get('eye_th',114.0)
     def _dec(kind):
         def f(pp):
             a2=_hang(pp)
@@ -686,13 +686,15 @@ def pilot():
                 dth=th-etc; dph=ph-sgn*epc
                 d=math.sqrt(dth*dth+dph*dph)
                 if kind=='w' and d<=epr: return True
-                if kind=='p' and d<=epr*0.56: return True
-                if False: return True
+                if kind=='p' and d<=epr*0.26: return True
+                if kind=='b' and abs(dth+epr*0.58-0.0055*dph*dph)<3.6 and dph*dph < (epr*1.02)**2: return True
+                if kind=='l' and (dth+epr*0.16)**2+(dph-epr*0.18)**2 < (epr*0.15)**2: return True
             return False
         return f
     assign(fb,'M_White',_dec('w'))
     assign(fb,'M_Eye',_dec('p'))
     assign(fb,'M_Eye',_dec('b'))
+    assign(fb,'M_White',_dec('l'))
     assign(fb,'M_Eye',_dec('s'))
     out.append(reg('face',fb))
     # ---- queixeira/barbicheta: projeta para frente e para baixo, base achatada ----
@@ -703,12 +705,12 @@ def pilot():
     bpy.ops.object.select_all(action='DESELECT'); bpy.context.view_layer.objects.active=chinp; chinp.select_set(True)
     bpy.ops.object.transform_apply(scale=True)
     out.append(reg('chin_guard',chinp))
-    chy=band('Chin_Patch',HR*1.018,HR*0.990,142,168,-46,46,18,53); assign(chy,'M_Yellow')
+    chy=band('Chin_Patch',HR*1.018,HR*0.990,138,172,-50,50,20,57); assign(chy,'M_Yellow')
     def _mouth(pp):
         a3=_hang(pp)
         if a3 is None: return False
         th,ph=a3
-        return abs(th-(166.0-0.0180*ph*ph))<2.0 and abs(ph)<20.0
+        return abs(th-(158.0-0.0150*ph*ph))<2.2 and abs(ph)<22.0
     assign(chy,'M_Eye',_mouth); out.append(reg('chin_patch',chy))
     # base achatada (anel escuro na parte de baixo do casco)
     bse=revolve('Helm_Base',[(HR*0.62,-0.016),(HR*1.006,-0.016),(HR*1.006,0.016),(HR*0.62,0.016)],hx,hz-HR*SZ*0.90,seg=40)
