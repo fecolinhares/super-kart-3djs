@@ -691,12 +691,39 @@ def pilot():
                 if kind=='l' and (dth+epr*0.12)**2+dph*dph < (epr*0.16)**2: return True
             return False
         return f
-    assign(fb,'M_White',_dec('w'))
-    assign(fb,'M_Eye',_dec('p'))
-    assign(fb,'M_Eye',_dec('b'))
-    assign(fb,'M_White',_dec('l'))
-    assign(fb,'M_Eye',_dec('s'))
+    assign(fb,'M_Eye',_dec('s'))   # so o sorriso fica por-face; olhos/sobrancelhas viram GEOMETRIA
     out.append(reg('face',fb))
+    # ---- FACE por GEOMETRIA (decal angular era fragil): olhos, pupilas, brilho, sobrancelhas, boca ----
+    def _FD(th,ph):
+        t=math.radians(th); f=math.radians(ph)
+        n=V3((math.sin(t)*math.cos(f), math.sin(t)*math.sin(f), math.cos(t)/max(SZ,0.1)))
+        n.normalize()
+        return (hx+HR*n.x, HR*n.y, hz+HR*SZ*n.z), n
+    for sy in (1,-1):
+        st='L' if sy>0 else 'R'
+        c,n = _FD(112.0, sy*31.0)
+        eye = dome_dir('Eye_'+st, (c[0]+n.x*HR*0.012, c[1]+n.y*HR*0.012, c[2]+n.z*HR*0.012), 0.050, tuple(n), seg=26, rings=16, flat=0.30)
+        assign(eye,'M_White'); out.append(reg('eye_'+st,eye))
+        c2,n2 = _FD(112.0, sy*31.0)
+        pup = dome_dir('Pupil_'+st, (c2[0]+n2.x*HR*0.030, c2[1]+n2.y*HR*0.030, c2[2]+n2.z*HR*0.030), 0.017, tuple(n2), seg=22, rings=12, flat=0.22)
+        assign(pup,'M_Eye'); out.append(reg('pupil_'+st,pup))
+        c3,n3 = _FD(108.6, sy*35.0)
+        gl = dome_dir('Glint_'+st, (c3[0]+n3.x*HR*0.042, c3[1]+n3.y*HR*0.042, c3[2]+n3.z*HR*0.042), 0.0075, tuple(n3), seg=16, rings=10, flat=0.30)
+        assign(gl,'M_White'); out.append(gl)
+        # sobrancelha: capsula FINA e ARQUEADA acima do olho
+        br=[]
+        for j in range(9):
+            t=j/8.0
+            ph=sy*(22.0+17.0*t)
+            th=99.5+4.5*(1.0-abs(2.0*t-1.0))
+            p,_=_FD(th,ph); br.append(p)
+        bw=sweep('Brow_'+st,br,0.0105,12); assign(bw,'M_Eye'); out.append(reg('brow_'+st,bw))
+    mth=[]
+    for j in range(11):
+        t=j/10.0; ph=-19.0+38.0*t
+        th=163.5-1.1*abs(ph)
+        p,_=_FD(th,ph); mth.append((p[0],p[1],p[2]))
+    mo=tube_round('MouthGeo',mth,0.0075,10); assign(mo,'M_Eye'); out.append(reg('mouth_geo',mo))
     # ---- queixeira/barbicheta: projeta para frente e para baixo, base achatada ----
     chinp=revolve('Chin_Guard',[(0.030,-0.052),(0.108,-0.052),(0.152,-0.026),(0.166,0.010),(0.152,0.044),(0.108,0.062),(0.030,0.062)],
                   hx+0.052, 0.842, seg=34)
