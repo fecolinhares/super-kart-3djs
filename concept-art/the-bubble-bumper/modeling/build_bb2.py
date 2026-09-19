@@ -300,24 +300,11 @@ def front_bumper():
     o=tube_round('Bumper_Ring',spine,rb*1.07,20); assign(o,'M_Blue')
     # (sem topos amarelos: os colares coaxiais ja dao o amarelo do concept)
     for _sy in (1,-1):
-        # COLAR AMARELO COAXIAL ao tubo do para-choque (aneis envolvendo o tubo, nao placas verticais)
-        _cl=[]
-        for _k in range(20):
-            _a=2*math.pi*_k/20.0
-            _cl.append((XFO-0.1342+0.098*math.cos(_a), _sy*0.420, 0.2582+0.098*math.sin(_a)))
-        _pd=tube_round('Pad_'+('L' if _sy>0 else 'R'),_cl,0.026,14)
-        assign(_pd,'M_Yellow'); out.append(reg('pad_'+('l' if _sy>0 else 'r'),_pd))
-        _cl2=[(XFO-0.0580+0.098*math.cos(2*math.pi*_k/20.0), _sy*0.505, 0.2410+0.098*math.sin(2*math.pi*_k/20.0)) for _k in range(20)]
-        _pd2=tube_round('Pad2_'+('L' if _sy>0 else 'R'),_cl2,0.026,14); assign(_pd2,'M_Yellow'); out.append(reg('pad2_'+('l' if _sy>0 else 'r'),_pd2))
-    out.append(reg('bumper',o))
-    # painel central trapezoidal amarelo (rebaixado)
-    # longarinas EXPOSTAS: amarela (baixa) + prata (alta), por fora da roda ate a coluna
-    for _sy in (1,-1):
-        _st='L' if _sy>0 else 'R'
-        ra=sweep('RailY_'+_st,[(XFO-0.150,_sy*0.268,0.212),(0.250,_sy*0.398,0.276),(0.520,_sy*0.240,0.318)],0.021,12)
-        assign(ra,'M_Yellow'); out.append(reg('raily_'+_st,ra))
-        rp=sweep('RailS_'+_st,[(XFO-0.180,_sy*0.222,0.296),(0.260,_sy*0.348,0.352),(0.540,_sy*0.188,0.392)],0.019,12)
-        assign(rp,'M_Silver'); out.append(reg('rails_'+_st,rp))
+        # BLOCO AMARELO integrado SOBRE a barra (concept: 2 blocos amarelos grandes nas laterais)
+        _bl=tube_round('Pad_'+('L' if _sy>0 else 'R'),
+                       [(XFO-0.028,_sy*0.330,0.2622),(XFO-0.086,_sy*0.400,0.2610),(XFO-0.150,_sy*0.470,0.2596)],
+                       0.086,18)
+        assign(_bl,'M_Yellow'); out.append(reg('pad_'+('l' if _sy>0 else 'r'),_bl))
     return join(out,'FBUMP')
 # ===== F3/F5 =====
 # ===== F3: ANEL AMARELO EM VOLTA DA PONTA DO BICO (o concept tem C grosso amarelo) =====
@@ -410,7 +397,7 @@ def pods():
             outy=0.300+0.387*s      # borda externa: 0.30 -> 0.687 (alvo medido 0.92W)
             iny=0.175+0.115*s       # borda interna
             zb=0.105
-            zt=zb+0.112+0.098*s     # -25% altura
+            zt=zb+0.096+0.084*s
             cy=sy*(outy+iny)/2.0; ry=abs(outy-iny)/2.0
             # secao retangular-arredondada no plano YZ
             sec=[]
@@ -427,7 +414,7 @@ def pods():
             t=i/(NS-1.0); xf=0.330+0.405*t; x=XFO-xf*L
             sc=math.sin(math.pi*(0.05+0.90*t))**0.45
             oy=0.300+0.300*sc; iy=0.175+0.115*sc; zt=0.105+0.112+0.098*sc
-            csec.append([(x,sy*(iy-0.012),zt+0.006),(x,sy*(oy+0.006),zt-0.006),(x,sy*(oy+0.006),zt-0.062),(x,sy*(iy-0.012),zt-0.052)])
+            csec.append([(x,sy*(iy-0.030),zt+0.008),(x,sy*(oy+0.016),zt-0.008),(x,sy*(oy+0.016),zt-0.074),(x,sy*(iy-0.030),zt-0.060)])
         cap=loft(nm+'_Cap',csec); assign(cap,'M_Blue'); add_mod(cap,'SUBSURF',levels=1); apply_mods(cap)
         out.append(reg(nm+'_cap',cap))
         out.append(reg(nm,o))
@@ -526,7 +513,7 @@ def rear():
     abt=sweep('Airbox_Duct',[(-0.462,0,0.774),(-0.575,0,0.704),(-0.668,0,0.628)],0.054,18)
     assign(abt,'M_BlueDk'); out.append(reg('airbox_duct',abt))
     # ---- 3 escapamentos calibres iguais: 1 central reto (mais baixo/frente) + 2 laterais p/ fora ----
-    e0=tube_round('Exh_C',[(EXC-0.16,0.0,0.340),(XR-0.20,0.0,0.382),(exb,0.0,0.412)],0.106,26)
+    e0=tube_round('Exh_C',[(EXC-0.16,0.0,0.340),(XR-0.20,0.0,0.382),(exb,0.0,0.412)],0.128,26)
     assign(e0,'M_Silver')
     try:
         _d=V3((exb,0.0,0.412))-V3((XR-0.20,0.0,0.382)); _d.normalize()
@@ -548,7 +535,7 @@ def rear():
     for sy in (1,-1):
         st='L' if sy>0 else 'R'
         pt=((exb,sy*0.240,0.472),(XR-0.20,sy*0.185,0.420),(EXC-0.16,sy*0.110,0.392))
-        ex=tube_round('Exh_'+st,list(pt)[::-1],0.104,26); assign(ex,'M_Silver')
+        ex=tube_round('Exh_'+st,list(pt)[::-1],0.080,26); assign(ex,'M_Silver')
         try:
             _t=V3((exb,sy*0.240,0.472)); _d=_t-V3((XR-0.20,sy*0.185,0.420)); _d.normalize()
             _c=tube_round('Exh'+st+'_cut',[tuple(_t+_d*0.100),tuple(_t-_d*0.020)],0.072,22)
