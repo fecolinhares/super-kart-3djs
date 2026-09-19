@@ -296,7 +296,7 @@ def front_bumper():
     for i in range(NS):
         t=i/(NS-1.0); a_=-math.pi/2+math.pi*t
         yy=0.556*math.sin(a_)
-        xx=(XFO-0.048) - 0.250*(1.0-math.cos(a_))
+        xx=(XFO-0.048) - P.get('bump_reach',0.720)*(1.0-math.cos(a_))
         spine.append((xx,yy,0.240+0.020*math.cos(a_*0.5)))
     o=tube_round('Bumper_Ring',spine,rb*1.07,20); assign(o,'M_Blue')
     # (sem topos amarelos: os colares coaxiais ja dao o amarelo do concept)
