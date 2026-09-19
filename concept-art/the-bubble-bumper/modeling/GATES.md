@@ -6,7 +6,7 @@ Medido por: `python3 qa_bb.py W282`
 |---|---|---|---|
 | IOU_MEDIA | 0.823 | >=0.830 | NAO |
 | IOU_P10_MEDIA | 0.768 | >=0.800 | NAO |
-| IOU_MENOR_REGIAO | 0.714 (FRONT/PARACH) | >=0.780 | NAO |
+| IOU_MENOR_REGIAO | 0.714 | >=0.780 | NAO |
 | PERFIL_LAT_PCT | 6.0 | <=6.5 | SIM |
 | FRONTAL_PCT | 7.1 | <=9.5 | SIM |
 | TRASEIRA_PCT | 8.1 | <=9.5 | SIM |
