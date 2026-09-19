@@ -426,10 +426,10 @@ def chassis():
         mg=sweep('Arm_'+st,[(XF,sy*0.30,RF),(XF-0.02,sy*TYF,RF)],0.026,12); assign(mg,'M_BlueDk'); out.append(mg)
         tr=sweep('Tie_'+st,[(0.300,sy*0.115,0.250),(XF,sy*0.520,RF)],0.018,12); assign(tr,'M_Silver'); out.append(tr)
         pd=box('Pedal_'+st,(0.880,sy*0.150,0.150),(0.030,0.050,0.058),bevel=0.010); assign(pd,'M_Pedal'); out.append(pd)
-    sc=sweep('Steer_Col',[(0.070,0,0.240),(0.135,0,0.545)],0.027,14); assign(sc,'M_Silver'); out.append(sc)
-    sw=[(0.135,0.0,0.660),(0.135,0.0,0.545)]
+    sc=sweep('Steer_Col',[(0.090,0,0.240),(0.150,0,0.452)],0.027,14); assign(sc,'M_Silver'); out.append(sc)
+    sw=[(0.150,0.0,0.560),(0.150,0.0,0.452)]
     for i in range(29):
-        a=2*math.pi*i/28.0; sw.append((0.135-0.016*math.cos(a),0.124*math.cos(a),0.545+0.124*math.sin(a)))
+        a=2*math.pi*i/28.0; sw.append((0.150-0.016*math.cos(a),0.124*math.cos(a),0.452+0.124*math.sin(a)))
     w1=sweep('Steer_Wheel',sw,0.026,16); assign(w1,'M_Dark'); out.append(w1)
     st1=box('Seat_Base',(-0.060,0,0.348),(0.148,0.188,0.052),bevel=0.052,segs=5); assign(st1,'M_Dark'); out.append(st1)
     # ---- MAOS (luvas) e BOTAS: o concept tem luvas e botas pretas visiveis ----
@@ -645,7 +645,7 @@ def pilot():
     Q=lambda RR,u,yy:(hx+RR*math.cos(u), yy, hz+RR*math.sin(u)*SZ)
     trim=[]
     for i in range(41):
-        u=math.radians(26.0+214.0*i/40.0); tt=i/40.0
+        u=math.radians(19.0+221.0*i/40.0); tt=i/40.0
         w=0.098*min(1.0, math.sin(math.pi*min(1.0,max(0.0,(tt-0.01)/0.13)))**0.6 if tt<0.15 else 1.0)*min(1.0, math.sin(math.pi*min(1.0,max(0.0,(0.99-tt)/0.13)))**0.6 if tt>0.85 else 1.0)
         w=max(w,0.013)
         trim.append([Q(HR*1.024,u,w*0.62),Q(HR*1.024,u,-w*0.62),Q(HR*1.006,u,-w*0.62),Q(HR*1.006,u,w*0.62)])
@@ -674,7 +674,7 @@ def pilot():
     fb=band('Visor_Face',HR*P.get('face_ro',1.022),HR*P.get('face_ri',1.016),_T0,_T1,_P0,_P1,72,200)
     assign(fb,'M_Visor')
     
-    epc=P.get('eye_ph',33.0); epr=P.get('eye_pr',30.0); etc=P.get('eye_th',114.0)
+    epc=P.get('eye_ph',30.0); epr=P.get('eye_pr',26.0); etc=P.get('eye_th',112.0)
     def _dec(kind):
         def f(pp):
             a2=_hang(pp)
@@ -687,8 +687,8 @@ def pilot():
                 d=math.sqrt(dth*dth+dph*dph)
                 if kind=='w' and d<=epr: return True
                 if kind=='p' and d<=epr*0.26: return True
-                if kind=='b' and abs(dth+epr*0.58-0.0055*dph*dph)<3.6 and dph*dph < (epr*1.02)**2: return True
-                if kind=='l' and (dth+epr*0.16)**2+(dph-epr*0.18)**2 < (epr*0.15)**2: return True
+                if kind=='b' and abs(dth+epr*0.52-0.0135*dph*dph)<3.4 and dph*dph < (epr*1.02)**2: return True
+                if kind=='l' and (dth+epr*0.12)**2+dph*dph < (epr*0.16)**2: return True
             return False
         return f
     assign(fb,'M_White',_dec('w'))
@@ -700,7 +700,7 @@ def pilot():
     # ---- queixeira/barbicheta: projeta para frente e para baixo, base achatada ----
     chinp=revolve('Chin_Guard',[(0.030,-0.052),(0.108,-0.052),(0.152,-0.026),(0.166,0.010),(0.152,0.044),(0.108,0.062),(0.030,0.062)],
                   hx+0.052, 0.842, seg=34)
-    assign(chinp,'M_Blue')
+    assign(chinp,'M_Yellow')
     chinp.scale=(1.0,1.0,0.80)
     bpy.ops.object.select_all(action='DESELECT'); bpy.context.view_layer.objects.active=chinp; chinp.select_set(True)
     bpy.ops.object.transform_apply(scale=True)
