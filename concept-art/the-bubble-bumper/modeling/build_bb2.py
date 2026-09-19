@@ -665,7 +665,7 @@ def pilot():
                                   (hx+HR*0.16,-HR*0.92, _hz2)],0.042,18)
     assign(hrst,'M_Dark'); out.append(reg('headrest',hrst))
     # ---- capacete: mais LARGO que alto ----
-    helm=dome('Helmet',hx,0.0,hz,HR,sz=SZ,sy=1.0,seg=64,rings=38); assign(helm,'M_Blue')
+    helm=dome('Helmet',hx,0.0,hz,HR,sz=SZ,sy=1.0,seg=104,rings=62); assign(helm,'M_Blue')
     def _h_ang(q):
         dx=q.center.x-hx; dy=q.center.y; dz=(q.center.z-hz)/SZ
         r=math.sqrt(dx*dx+dy*dy+dz*dz)
@@ -683,8 +683,7 @@ def pilot():
     trim=[]
     for i in range(41):
         u=math.radians(19.0+221.0*i/40.0); tt=i/40.0
-        w=0.106*min(1.0, min(1.0,max(0.0,tt/0.05)))*min(1.0,max(0.0,(1.0-tt)/0.05))
-        w=max(w,0.030)
+        w=0.106
         trim.append([Q(HR*1.006,u,w*0.52),Q(HR*1.006,u,-w*0.52),Q(HR*1.001,u,-w*0.52),Q(HR*1.001,u,w*0.52)])
     tr=loft('Helm_Trim',trim,cap=True); assign(tr,'M_Yellow'); out.append(reg('helm_trim',tr))
     PV=lambda RR,th,ph:(hx+RR*math.sin(th)*math.cos(ph), RR*math.sin(th)*math.sin(ph), hz+RR*math.cos(th)*SZ)
@@ -738,11 +737,11 @@ def pilot():
         return (hx+HR*n.x, HR*n.y, hz+HR*SZ*n.z), n
     for sy in (1,-1):
         st='L' if sy>0 else 'R'
-        c,n = _FD(112.0, sy*31.0)
+        c,n = _FD(112.0, sy*26.0)
         eye = dome_dir('Eye_'+st, (c[0]-n.x*HR*0.008, c[1]-n.y*HR*0.008, c[2]-n.z*HR*0.008), 0.058, tuple(n), seg=28, rings=18, flat=0.07)
         assign(eye,'M_White'); out.append(reg('eye_'+st,eye))
-        c2,n2 = _FD(112.0, sy*31.0)
-        pup = dome_dir('Pupil_'+st, (c2[0]+n2.x*HR*0.016, c2[1]+n2.y*HR*0.016, c2[2]+n2.z*HR*0.016), 0.028, tuple(n2), seg=24, rings=14, flat=0.10)
+        c2,n2 = _FD(112.0, sy*26.0)
+        pup = dome_dir('Pupil_'+st, (c2[0]+n2.x*HR*0.016, c2[1]+n2.y*HR*0.016, c2[2]+n2.z*HR*0.016), 0.0195, tuple(n2), seg=24, rings=14, flat=0.10)
         assign(pup,'M_Eye'); out.append(reg('pupil_'+st,pup))
         c3,n3 = _FD(108.6, sy*35.0)
         gl = dome_dir('Glint_'+st, (c3[0]+n3.x*HR*0.012, c3[1]+n3.y*HR*0.012, c3[2]+n3.z*HR*0.012), 0.009, tuple(n3), seg=16, rings=10, flat=0.10)
