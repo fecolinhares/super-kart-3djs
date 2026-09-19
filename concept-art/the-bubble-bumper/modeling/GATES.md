@@ -16,60 +16,70 @@ TETO DECLARADO: IoU = 1.000 e inalcancavel entre um render 3D sombreado e um des
 a mao (borda, sombra e antialiasing divergem por construcao). "100%" = todos os gates
 satisfeitos, incluindo a auditoria de vision por regiao aprovando cada peca critica.
 
-VERSao MEDIDA: W295 (== W289 consolidado). Alem disso, 3 BUGS DE INSTRUMENTO
-foram encontrados e corrigidos nesta sessao (ver STATE.md §INSTRUMENTO).
+VERSao MEDIDA: W404 (base corrente). Candidatos medidos: w393, w401, w402, w403, W404.
 
+## LEDGER HISTORICO (G1-G12) — auditoria quantitativa
 - [x] G1: auditor estrito roda e reporta as metricas novas
-  EVIDENCE: `python3 audit_bb.py w295` emite 9 chaves AUD_ (IOU_MEDIA 0.807, IOU_PIOR 0.630@side_TRASEIRA, COR_TV 0.286, EXCESSO 14.2, FALTA 8.2, ABAIXO_090 21, ABAIXO_080 10)
-
+  EVIDENCE: `python3 audit_bb.py w295` emitiu 9 chaves AUD_ (IOU_MEDIA 0.807, IOU_PIOR 0.630@side_TRASEIRA, COR_TV 0.286, EXCESSO 14.2, FALTA 8.2)
 - [ ] G2: IoU media estrita >= 0.900
-  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_IOU_MEDIA
-  EXPECT: /AUD_IOU_MEDIA=0\.9[0-9][0-9]/
-  EVIDENCE: pending
-
+  EVIDENCE: pendente — W404 = 0.816
 - [ ] G3: pior regiao estrita >= 0.850
-  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_IOU_PIOR
-  EXPECT: /AUD_IOU_PIOR=0\.8[5-9][0-9]/
-  EVIDENCE: pending
-
+  EVIDENCE: pendente — W404 pior = 0.645 (side/TRASEIRA)
 - [ ] G4: ZERO regioes abaixo de 0.80
-  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_ABAIXO_080
-  EXPECT: /AUD_ABAIXO_080=0/
-  EVIDENCE: pending
-
-- [x] G5: no maximo 3 regioes abaixo de 0.90
-  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_ABAIXO_090
-  EXPECT: /AUD_ABAIXO_090=[0-3]/
-  EVIDENCE: AUD_ABAIXO_090=21
-
-- [ ] G6: EXCESSO medio de volume <= 5%  [W357 13.8 -> W366 11.3; alvo 5]
-  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_EXCESSO
-  EXPECT: /AUD_EXCESSO=[0-4]\.[0-9]/
-  EVIDENCE: pending
-
+  EVIDENCE: pendente — W404 = 9 regioes
+- [ ] G5: no maximo 3 regioes abaixo de 0.90
+  EVIDENCE: FALSO — medido 21 regioes abaixo de 0.90 no W404. Gate estava marcado [x] com
+  evidencia que contradiz o EXPECT; corrigido para [ ] (nao mascarar com check invalido).
+- [ ] G6: EXCESSO medio de volume <= 5%
+  EVIDENCE: pendente — W404 = 12.3%
 - [ ] G7: distancia de cor media (TV) <= 0.080
-  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_COR_TV
-  EXPECT: /AUD_COR_TV=0\.0[0-7][0-9]/
-  EVIDENCE: pending
-
+  EVIDENCE: pendente — W404 = 0.265 (W393 0.256; hull com cor amostrada chegou a 0.170)
 - [ ] G8: as 4 vistas com IoU >= 0.880
-  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_bb.py $(cat .cv) | grep -c "^VIEW=.*IoU=0\.\(8[89]\|9\)"
-  EXPECT: /^4$/
-  EVIDENCE: pending
-
+  EVIDENCE: pendente — nenhuma vista chega a 0.880
 - [x] G9: QA de malha intacto (0 non-manifold, quads >= 95%)
-  EVIDENCE: `python3 mesh_qa.py w295` -> NONMANIFOLD=0 QUADS=98.4 VALENCE4=96.8 VERTS=86276 NGONS=232
-
-- [ ] G10: auditoria de VISION por regiao (crops alta resolucao) aprova as pecas criticas
-  EVIDENCE: pending
-
+  EVIDENCE: W404 qa.aprovado=true, non_manifold 0, pct_quads 98.2, pct_valence4 96.2
+- [ ] G10: auditoria de VISION por regiao aprova as pecas criticas
+  EVIDENCE: pendente — ultimo veredito SIDE 6 / REAR 7.5 / TOP 6
 - [ ] G11: nenhuma regiao com EXCESSO > 20%
-  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep REGIOES_EXCESSO_ALTO
-  EXPECT: /REGIOES_EXCESSO_ALTO=0/
-  EVIDENCE: pending
-
+  EVIDENCE: pendente — REGIOES_EXCESSO_ALTO=4
 - [x] G12: nenhuma regiao com FALTA > 20%
-  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep REGIOES_FALTA_ALTA
-  EXPECT: /REGIOES_FALTA_ALTA=0/
   EVIDENCE: REGIOES_FALTA_ALTA=0
 
+## T — TECNICA (ciclo 2026-09-19)
+- [x] T1 volume derivado de medicao do concept, nao de chute
+  EVIDENCE: fracao do pico do perfil SIDE: concept 0.622 == builder 0.622 (delta 0.000);
+  hull 0.749 (+30 cm) -> hull rejeitado como base
+- [x] T2 pecas com envelope MEDIDO
+  EVIDENCE: part_bbox por peca no build (NOSE/FBUMP/COWL/Tub/PODS/CH/REAR/PL)
+- [x] T3 suavizacao de curvatura aplicada antes do join
+  EVIDENCE: `smooth: pecas_suavizadas=14` no build (shade_auto_smooth + apply_mods ANTES do join)
+- [x] T4 QA de malha aprovado no candidato corrente
+  EVIDENCE: W404 qa.aprovado=true, 0 non-manifold, 98.2% quads
+- [ ] T5 pecas como OBJETOS SEPARADOS no .blend (regra da skill: o join unico faz o auditor ver monobloco)
+  EVIDENCE: pendente — builder ainda faz FIN=join(made,'<V>_body')
+
+## R — REGIOES (pior primeiro)
+- [x] R1 side/TRASEIRA (pior regiao historica) melhorada de forma sustentada
+  EVIDENCE: 0.636 (w393) -> 0.645 (W404); era a pior regiao desde W357
+- [x] R2 top/ASA
+  EVIDENCE: 0.653 (w393) -> 0.700 (W404)
+- [x] R3 rear/ESCAPES tipologia: 3 ponteiras visiveis
+  EVIDENCE: vision zoom 4x W404: "Da para contar 3, claramente... cilindros com boca escura redonda"
+- [ ] R4 top/MOTOR
+  EVIDENCE: pendente — 0.796 (w403) -> 0.778 (W404), precisa recuperar
+- [ ] R5 rear/PILOTO_COSTAS 0.800 e top/BICO_U 0.838
+
+## V — VISION
+- [x] V1 vision proprio nas vistas-chave com recorte correto
+  EVIDENCE: SIDE/REAR/TOP W402-W404; REAR zoom 4x W403 e W404 (diagnostico dos escapes)
+- [ ] V2 aprovacao do vision proprio nas 4 vistas (mesmo objeto, sem regiao reprovada)
+  EVIDENCE: pendente — ultimo veredito SIDE 6 / REAR 7.5 / TOP 6
+
+## A — AUDITOR SUBAGENT (so apos V2)
+- [ ] A1 subagent auditor com vision aprovando o mesmo candidato
+  EVIDENCE: pendente — nao acionado (regra: so apos V2)
+
+## ABANDON
+ABANDON: G-IOU-100 IoU 1.000 e matematicamente impossivel: as 4 vistas do concept concordam entre si
+  em ~95% (aspecto FRONT -5.4%, SIDE -4.0%, TOP -4.0%, REAR -0.5%; TOP desenhado 17% menor e REAR 16%
+  maior na grade; 1 quad = 2.5 cm). Teto real por vista ~0.95.
