@@ -298,7 +298,7 @@ def front_bumper():
         xx=(XFO-0.048) - 0.250*(1.0-math.cos(a_))
         spine.append((xx,yy,0.240+0.020*math.cos(a_*0.5)))
     o=tube_round('Bumper_Ring',spine,rb*1.07,20); assign(o,'M_Blue')
-    assign(o,'M_Yellow', lambda q: abs(q.center.y)>0.360)
+    # (sem topos amarelos: os colares coaxiais ja dao o amarelo do concept)
     for _sy in (1,-1):
         # COLAR AMARELO COAXIAL ao tubo do para-choque (aneis envolvendo o tubo, nao placas verticais)
         _cl=[]
@@ -728,7 +728,7 @@ def pilot():
         def ell(cx,cy,rx,ry): return ((xx-cx)/rx)**2+((yy-cy)/ry)**2 < 1.0
         DU=(_P1-_P0)/TW; DV=(_T1-_T0)/TH
         def px(ph,th): return ((ph-_P0)/DU,(th-_T0)/DV)
-        er=15.6
+        er=15.0
         for sgn in (-1.0,1.0):
             cx,cy=px(sgn*26.0,112.0); rx,ry=er/DU,er/DV
             a[ell(cx,cy,rx,ry)]=[0.975,0.975,0.975,1.0]
