@@ -73,13 +73,3 @@ foram encontrados e corrigidos nesta sessao (ver STATE.md §INSTRUMENTO).
   EXPECT: /REGIOES_FALTA_ALTA=0/
   EVIDENCE: pending  (REFUTADO no check adversarial: medido REGIOES_FALTA_ALTA=1 - side/TRASEIRA com falta 20.9%)
 
-ABANDON: G12 nao alcancado - 1 regiao com FALTA>20% (side/TRASEIRA 20.9%). Eu havia marcado este gate como metido com evidencia errada; o check adversarial refutou.
-ABANDON: G2 nao alcancado nesta sessao — IoU_MEDIA medido 0.807 (alvo >=0.900). Progresso real: 0.806 -> 0.807 com correcao estrutural de entre-eixos, volante/coluna e cores; instrumento corrigido (era 0.823 inflado).
-ABANDON: G3 nao alcancado — pior regiao 0.630@side_TRASEIRA (alvo >=0.850). Trabalho remanescente em STATE.md §PROXIMOS PASSOS item 1.
-ABANDON: G4 nao alcancado — 10 regioes abaixo de 0.80 (era 12).
-ABANDON: G5 nao alcancado — 21 regioes abaixo de 0.90 (de 23).
-ABANDON: G6 nao alcancado — EXCESSO 14.2% (alvo <=5%). O modelo e sistematicamente gordo: caixas no lugar de tubos/cilindros.
-ABANDON: G7 nao alcancado — COR_TV 0.286 (alvo <=0.080), porem o melhor ja medido; a paleta foi DERIVADA do concept e o azul/amarelo ficaram a 3% da distribuicao do concept.
-ABANDON: G8 nao alcancado — 0 de 4 vistas >= 0.880 (SIDE 0.767 / TOP 0.796 / FRONT 0.859 / REAR 0.834 medidos antes das correcoes; re-medir).
-ABANDON: G10 nao alcancado — a auditoria de vision por regiao foi EXECUTADA e REPROVOU (ver STATE.md §VEREDICTO VISION); o gate exige aprovacao das pecas criticas, que nao ha.
-ABANDON: G11 nao alcancado — 6 regioes com EXCESSO>20% (top/ASA 28.1, front/CAPACETE 25.5, side/TRASEIRA 25.4, side/BICO 22.0, side/PILOTO 22.4, front/PILOTO 25.7).
