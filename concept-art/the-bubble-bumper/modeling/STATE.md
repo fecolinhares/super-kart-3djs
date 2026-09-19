@@ -214,3 +214,28 @@ xf 0.89-0.92, z 0.15-0.54 m existe no concept e falta no modelo.
 | rampa mais funda (rzb 0.08/0.10/0.12) | 0.611-0.617 (neutro) |
 | massa central traseira Rear_Mass (rmy 0.26-0.32) | 0.616 (neutro — adicionada DENTRO da silhueta) |
 | asa mais alta/grossa (wz 0.76/0.70) | 0.597/0.613 (piora) + IoU 0.758/0.761 |
+
+## Retomada 4 (W366 -> W373) — tampas da asa no diametro do concept
+
+**W373 e o melhor medido de toda a serie.** Comparacao com o baseline W357 desta sessao:
+
+| metrica | W357 | **W373** | melhor |
+|---|---|---|---|
+| AUD_IOU_MEDIA | 0.813 | **0.820** | W373 |
+| AUD_COR_TV | 0.274 | **0.262** | W373 |
+| AUD_EXCESSO | 13.8 | **11.5** | W373 |
+| AUD_ABAIXO_080 | 8 | **7** | W373 |
+| AUD_ABAIXO_090 | 20 | **19** | W373 |
+| REGIOES_EXCESSO_ALTO | 5 | **3** | W373 |
+| AUD_IOU_PIOR | 0.661 | 0.636 | W357 |
+| AUD_FALTA | 7.9 | 8.9 | W357 |
+| REGIOES_FALTA_ALTA | 0 | 2 | W357 |
+
+Mudanca: tampas amarelas da asa de (0.090,0.040,0.036) para (0.085,0.042,0.085) — o concept tem
+disco vertical de diametro MAIOR que o tubo. Verificado por vision antes/depois.
+
+### Veredicto de VISION (W366, prancha V4)
+- **CONFIRMADO**: "a asa traseira do MODELO e TUBO fino com tampas nas pontas. NAO e mais
+  laje/placa retangular." Era a queixa repetida em 3 ciclos anteriores.
+- Pendente: tampa amarela precisava ser maior que o tubo (feito em W373); pneus ainda sao
+  blocos pretos sem banda/curvatura; motor/escapes ainda blocos retos.
