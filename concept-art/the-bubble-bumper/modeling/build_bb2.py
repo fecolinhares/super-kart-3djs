@@ -36,20 +36,20 @@ def mat_rich(name,color,rough,metal,ns=180.0,bump=0.0016,spec=0.6,coat=0.0):
     nt.links.new(bsdf.outputs['BSDF'],out.inputs['Surface']); return m
 
 # cores amostradas do concept
-mat_rich('M_Yellow',(0.880,0.760,0.030),0.30,0.0,190,0.0022,0.55,0.25)
-mat_rich('M_Blue',(0.045,0.120,0.330),0.32,0.0,190,0.0020,0.55,0.25)
-mat_rich('M_BlueDk',(0.022,0.055,0.180),0.36,0.0,210,0.0022,0.50,0.15)
-mat_rich('M_Dark',(0.030,0.030,0.034),0.70,0.0,340,0.0032,0.30,0.0)
-mat_rich('M_Silver',(0.72,0.73,0.76),0.20,1.0,420,0.0012,0.60,0.0)
-mat_rich('M_Visor',(0.36,0.45,0.58),0.30,0.18,600,0.0006,0.55,0.35)
+mat_rich('M_Yellow',(0.730,0.568,0.0022),0.72,0.0,190,0.0016,0.16,0.0)
+mat_rich('M_Blue',(0.0157,0.0380,0.151),0.74,0.0,190,0.0014,0.14,0.0)
+mat_rich('M_BlueDk',(0.0105,0.0243,0.1010),0.78,0.0,210,0.0016,0.12,0.0)
+mat_rich('M_Dark',(0.016,0.016,0.019),0.82,0.0,340,0.0026,0.14,0.0)
+mat_rich('M_Silver',(0.30,0.31,0.33),0.55,0.85,420,0.0014,0.30,0.0)
+mat_rich('M_Visor',(0.060,0.092,0.150),0.66,0.05,600,0.0008,0.16,0.0)
 mat_rich('M_Gasket',(0.020,0.020,0.024),0.78,0.0,340,0.0030,0.20,0.0)
 mat_rich('M_Cushion',(0.055,0.21,0.60),0.48,0.0,240,0.0032,0.42,0.0)
-mat_rich('M_Pilot',(0.050,0.125,0.440),0.44,0.0,200,0.0026,0.48,0.0)
+mat_rich('M_Pilot',(0.0168,0.0400,0.200),0.76,0.0,200,0.0018,0.14,0.0)
 mat_rich('M_Pedal',(0.22,0.22,0.24),0.54,1.0,300,0.0020,0.55,0.0)
 mat_rich('M_Eye',(0.010,0.010,0.012),0.14,0.0,500,0.0006,0.90,0.4)
 mat_rich('M_White',(0.96,0.96,0.96),0.20,0.0,400,0.0008,0.62,0.2)
-mat_rich('M_Plate',(0.47,0.50,0.48),0.34,0.85,400,0.0014,0.62,0.0)
-mat_rich('M_Gold',(0.72,0.55,0.13),0.28,1.0,380,0.0014,0.70,0.0)
+mat_rich('M_Plate',(0.30,0.32,0.31),0.50,0.80,400,0.0014,0.34,0.0)
+mat_rich('M_Gold',(0.44,0.30,0.045),0.45,0.90,380,0.0014,0.42,0.0)
 mat_rich('M_Floor',(0.075,0.078,0.088),0.55,0.0,900,0.0006,0.35,0.0)
 MG=bpy.data.materials
 
@@ -209,8 +209,8 @@ def reg(nm,ob): QA[nm]=qp(ob); return ob
 # ============ GEOMETRIA MEDIDA ============
 H=1.207; L=2.255; W=1.494
 XFO=+1.128; XRE=-1.128
-XF=P.get('x_fw',+0.519); XR=P.get('x_rw',-0.653)
-RF=P.get('r_f',0.186); RR=P.get('r_r',0.265)
+XF=P.get('x_fw',+0.585); XR=P.get('x_rw',-0.720)
+RF=P.get('r_f',0.216); RR=P.get('r_r',0.262)
 HWF=P.get('hw_f',0.076); HWR=P.get('hw_r',0.158)
 TYF=P.get('ty_f',0.626); TYR=P.get('ty_r',0.5855)
 
@@ -237,14 +237,14 @@ def nose():
     out=[]; NS=26
     secs=[]
     for i in range(NS):
-        xf=0.02+0.30*(i/(NS-1.0))
+        xf=0.015+0.19*(i/(NS-1.0))
         x=XFO-xf*L
-        zt=prof_top(xf)*H
+        zt=prof_top(xf)*H*0.94
         s=math.sin(math.pi*(0.06+0.90*(i/(NS-1.0))))**0.55
-        ry=0.115+0.175*s
-        zb=max(0.062,0.060*(1.0-i/(NS-1.0))+0.082)
+        ry=0.170+0.175*s
+        zb=max(0.0,0.0+0.020*(i/(NS-1.0)))
         zc=(zb+zt)/2.0; rz=(zt-zb)/2.0
-        secs.append(sq(x,ry,rz,34,2.4,z0=zc,zsq=0.84))
+        secs.append(sq(x,ry,rz,34,2.4,z0=zc,zsq=1.02))
     o=loft('Nose',secs); assign(o,'M_Blue'); add_mod(o,'SUBSURF',levels=1); apply_mods(o); seal(o)
     out.append(reg('nose',o))
     # faixa amarela central = DECAL nas faces do dorso do nariz (rente e reta)
@@ -281,9 +281,15 @@ if FB: made.append(FB)
 # ============ 3. GRADE INFERIOR com 5 aletas ============
 def grille():
     out=[]
-    gf=box('Grille_Frame',(XFO-0.44,0.0,0.148),(0.036,0.215,0.062),bevel=0.010,segs=2); assign(gf,'M_BlueDk'); out.append(gf)
-    for j,yy in enumerate((-0.150,-0.075,0.0,0.075,0.150)):
-        sl=box('Grille_Slat%d'%j,(XFO-0.468,yy,0.148),(0.022,0.016,0.048),bevel=0.003,segs=1); assign(sl,'M_Dark'); out.append(sl)
+    gf=box('Grille_Frame',(XFO-0.175,0.0,0.150),(0.045,0.235,0.115),bevel=0.014,segs=2); assign(gf,'M_BlueDk'); out.append(gf)
+    # 5 fendas verticais RECUADAS (a 'boca' do kart)
+    for j,yy in enumerate((-0.160,-0.080,0.0,0.080,0.160)):
+        sl=box('Grille_Slot%d'%j,(XFO-0.205,yy,0.150),(0.032,0.028,0.094),bevel=0.005,segs=1); assign(sl,'M_Dark'); out.append(sl)
+    # nervuras entre as fendas (dão a leitura de grade)
+    for j,yy in enumerate((-0.120,-0.040,0.040,0.120)):
+        rb=box('Grille_Rib%d'%j,(XFO-0.178,yy,0.150),(0.032,0.015,0.100),bevel=0.004,segs=1); assign(rb,'M_BlueDk'); out.append(rb)
+    # farol retangular no eixo central
+    lz=box('Headlight',(XFO-0.150,0.0,0.150),(0.030,0.060,0.032),bevel=0.007,segs=2); assign(lz,'M_White'); out.append(reg('light',lz))
     return join(out,'GRILLE')
 GR=safe('grille',grille)
 if GR: made.append(GR)
@@ -394,6 +400,31 @@ def chassis():
         a=2*math.pi*i/28.0; sw.append((0.245-0.016*math.cos(a),0.128*math.cos(a),0.565+0.128*math.sin(a)))
     w1=sweep('Steer_Wheel',sw,0.018,14); assign(w1,'M_Dark'); out.append(w1)
     st1=box('Seat_Base',(-0.060,0,0.348),(0.145,0.190,0.045),bevel=0.024,segs=3); assign(st1,'M_Dark'); out.append(st1)
+    # ---- MAOS (luvas) e BOTAS: o concept tem luvas e botas pretas visiveis ----
+    for sy in (1,-1):
+        # luva na manopla do volante
+        gl=revolve('Glove_'+('L' if sy>0 else 'R'),[(0.028,-0.034),(0.070,-0.030),(0.078,0.0),(0.070,0.030),(0.028,0.034)],
+                   0.245, 0.565, y0=sy*0.128, seg=20)
+        assign(gl,'M_Dark'); out.append(reg('glove'+('L' if sy>0 else 'R'),gl))
+        # bota apoiada no pedal, a frente
+        bt=box('Boot_'+('L' if sy>0 else 'R'),(0.905,sy*0.152,0.128),(0.105,0.052,0.070),bevel=0.020,segs=3)
+        assign(bt,'M_Dark'); out.append(reg('boot'+('L' if sy>0 else 'R'),bt))
+        # canela ligando joelho a bota
+        cn=tubevar('Shin_'+('L' if sy>0 else 'R'),[(0.560,sy*0.150,0.300),(0.720,sy*0.150,0.215),(0.870,sy*0.151,0.165)],
+                   [0.056,0.048,0.044],seg=16); assign(cn,'M_Blue'); out.append(cn)
+    # ---- COIL-OVER: mola helicoidal dourada visivel a frente da roda traseira ----
+    for sy in (1,-1):
+        cxx, cyy, z0, z1 = XR+0.215, sy*0.168, 0.300, 0.610
+        cd=sweep('Shock_Body_'+('L' if sy>0 else 'R'),[(cxx,cyy,z0),(cxx,cyy,z1)],0.026,14)
+        assign(cd,'M_Silver'); out.append(cd)
+        coil=[]; NT=44
+        for k in range(NT+1):
+            f=k/float(NT); ang=2*math.pi*5.0*f
+            zz=z0+0.055+(z1-z0-0.115)*f
+            coil.append((cxx+0.058*math.cos(ang), cyy+0.058*math.sin(ang), zz))
+        sp=sweep('Shock_Spring_'+('L' if sy>0 else 'R'),coil,0.014,10)
+        assign(sp,'M_Gold'); out.append(reg('spring'+('L' if sy>0 else 'R'),sp))
+
     # concha baixa e RECLINADA: sobe para tras em curva (nao e parede vertical)
     st2=tubevar('Seat_Shell',[(-0.150,0,0.372),(-0.238,0,0.436),(-0.330,0,0.498),(-0.424,0,0.556)],
                 [0.150,0.152,0.146,0.132],seg=24); assign(st2,'M_Dark'); out.append(reg('seat',st2))
@@ -503,34 +534,34 @@ if RE: made.append(RE)
 # ============ 10. PILOTO: tronco barril, bracos grossos, pernas, capacete grande ============
 def pilot():
     out=[]
-    hx=P.get('helm_x',-0.290); hz=P.get('helm_z',0.996)
-    HR=P.get('helm_r',0.240); SZ=P.get('helm_sz',0.879)
+    hx=P.get('helm_x',-0.316); hz=P.get('helm_z',0.985)
+    HR=P.get('helm_r',0.202); SZ=P.get('helm_sz',0.985)
     # ---- colarinho (HANS) cobrindo a juncao pescoco/capacete ----
     col=revolve('Collar',[(0.152,-0.030),(0.186,-0.030),(0.186,0.030),(0.152,0.030)],hx+0.010,0.788,seg=34)
     assign(col,'M_Gasket'); out.append(col)
     # ---- tronco: barril curto e grosso, encostado no banco ----
     torso=tubevar('Torso',[(0.115,0,0.388),(0.050,0,0.474),(-0.045,0,0.566),(-0.150,0,0.652)],
-                  [0.156,0.180,0.186,0.164],seg=26); assign(torso,'M_Pilot'); out.append(torso)
+                  [0.140,0.161,0.166,0.147],seg=26); assign(torso,'M_Pilot'); out.append(torso)
     belt=revolve('Belt',[(0.166,-0.024),(0.192,-0.024),(0.192,0.024),(0.166,0.024)],0.118,0.396,seg=32)
     assign(belt,'M_Yellow'); out.append(belt)
     # ---- ombros estreitos (capacete e mais largo que eles) ----
     sh=tubevar('Shoulders',[(-0.140,0.180,0.652),(-0.152,0.0,0.676),(-0.140,-0.180,0.652)],
-               [0.082,0.102,0.082],seg=22); assign(sh,'M_Pilot'); out.append(sh)
+               [0.070,0.090,0.070],seg=22); assign(sh,'M_Pilot'); out.append(sh)
     for sy in (1,-1):
         st='L' if sy>0 else 'R'
         pd=dome_dir('PAD_'+st,(-0.150,sy*0.162,0.694),0.098,(-0.28,sy*0.44,0.85),seg=26,rings=16,flat=0.44)
         assign(pd,'M_Yellow'); out.append(pd)
         # braco: ombro -> cotovelo -> mao NA MANOPLA do volante (sobreposto)
         arm=tubevar('Arm_'+st,[(-0.140,sy*0.175,0.652),(0.020,sy*0.196,0.626),(0.140,sy*0.160,0.594),(0.232,sy*0.112,0.566)],
-                    [0.092,0.082,0.070,0.061],seg=20); assign(arm,'M_Pilot'); out.append(arm)
-        gl=tubevar('Glove_'+st,[(0.238,sy*0.126,0.570),(0.246,sy*0.126,0.520)],[0.076,0.068],seg=20)
+                    [0.066,0.059,0.050,0.044],seg=20); assign(arm,'M_Pilot'); out.append(arm)
+        gl=tubevar('Glove_'+st,[(0.238,sy*0.126,0.570),(0.246,sy*0.126,0.520)],[0.060,0.056],seg=20)
         assign(gl,'M_Dark'); out.append(gl)
         # perna: quadril -> joelho -> canela -> bota no pedal
         leg=tubevar('Leg_'+st,[(0.062,sy*0.142,0.392),(0.262,sy*0.180,0.470),(0.420,sy*0.184,0.412)],
-                    [0.134,0.116,0.098],seg=22); assign(leg,'M_Pilot'); out.append(leg)
+                    [0.104,0.086,0.070],seg=22); assign(leg,'M_Pilot'); out.append(leg)
         bt=tubevar('Boot_'+st,[(0.420,sy*0.184,0.404),(0.540,sy*0.182,0.330),(0.628,sy*0.180,0.284)],
-                   [0.104,0.092,0.076],seg=20); assign(bt,'M_Dark'); out.append(bt)
-    nk=tubevar('Neck',[(-0.105,0,0.632),(-0.250,0,0.800)],[0.168,0.150],seg=26); assign(nk,'M_Pilot'); out.append(nk)
+                   [0.076,0.066,0.055],seg=20); assign(bt,'M_Dark'); out.append(bt)
+    nk=tubevar('Neck',[(-0.105,0,0.632),(-0.250,0,0.800)],[0.140,0.126],seg=26); assign(nk,'M_Pilot'); out.append(nk)
     # ---- capacete: mais LARGO que alto ----
     helm=dome('Helmet',hx,0.0,hz,HR,sz=SZ,sy=1.0,seg=64,rings=38); assign(helm,'M_Blue')
     def _h_ang(q):
@@ -550,9 +581,9 @@ def pilot():
     trim=[]
     for i in range(41):
         u=math.radians(44.0+196.0*i/40.0); tt=i/40.0
-        w=0.116*min(1.0, math.sin(math.pi*min(1.0,max(0.0,(tt-0.01)/0.13)))**0.6 if tt<0.15 else 1.0)*min(1.0, math.sin(math.pi*min(1.0,max(0.0,(0.99-tt)/0.13)))**0.6 if tt>0.85 else 1.0)
+        w=0.048*min(1.0, math.sin(math.pi*min(1.0,max(0.0,(tt-0.01)/0.13)))**0.6 if tt<0.15 else 1.0)*min(1.0, math.sin(math.pi*min(1.0,max(0.0,(0.99-tt)/0.13)))**0.6 if tt>0.85 else 1.0)
         w=max(w,0.013)
-        trim.append([Q(HR*1.012,u,w*0.62),Q(HR*1.012,u,-w*0.62),Q(HR*0.995,u,-w*0.62),Q(HR*0.995,u,w*0.62)])
+        trim.append([Q(HR*1.024,u,w*0.62),Q(HR*1.024,u,-w*0.62),Q(HR*1.006,u,-w*0.62),Q(HR*1.006,u,w*0.62)])
     tr=loft('Helm_Trim',trim,cap=True); assign(tr,'M_Yellow'); out.append(reg('helm_trim',tr))
     PV=lambda RR,th,ph:(hx+RR*math.sin(th)*math.cos(ph), RR*math.sin(th)*math.sin(ph), hz+RR*math.cos(th)*SZ)
     def band(name,R1,R0,t0,t1,p0,p1,NT=14,NP=41):
@@ -567,7 +598,7 @@ def pilot():
         return loft(name,secs,cap=True)
     gk=band('Visor_Gasket',HR*1.008,HR*0.994,86,91,-86,86,10,71); assign(gk,'M_Gasket'); out.append(reg('gasket',gk))
     gk2=band('Visor_Gasket2',HR*1.008,HR*0.994,141,146,-86,86,10,71); assign(gk2,'M_Gasket'); out.append(reg('gasket',gk2))
-    visb=band('Visor_Band',HR*1.012,HR*0.998,91,141,-82,82,32,89); assign(visb,'M_Visor'); out.append(reg('visor_band',visb))
+    visb=band('Visor_Band',HR*1.010,HR*0.996,91,141,-82,82,32,89); assign(visb,'M_Visor'); out.append(reg('visor_band',visb))
     # ---- ROSTO: casca frontal com materiais POR-FACE (olhos, sobrancelhas, sorriso em U) ----
     _T0,_T1,_P0,_P1=95.0,137.0,-78.0,78.0
     def _hang(q):
@@ -578,7 +609,7 @@ def pilot():
     fb=band('Visor_Face',HR*P.get('face_ro',1.022),HR*P.get('face_ri',1.016),_T0,_T1,_P0,_P1,72,200)
     assign(fb,'M_Visor')
     
-    epc=P.get('eye_ph',19.0); epr=P.get('eye_pr',13.0); etc=P.get('eye_th',112.0)
+    epc=P.get('eye_ph',30.0); epr=P.get('eye_pr',36.0); etc=P.get('eye_th',107.0)
     def _dec(kind):
         def f(pp):
             a2=_hang(pp)
@@ -622,14 +653,14 @@ def pilot():
         t=math.radians(th); f=math.radians(ph)
         return (hx+rr*math.sin(t)*math.cos(f), rr*math.sin(t)*math.sin(f), hz+rr*SZ*math.cos(t))
     # faixa amarela da testa: 3 blocos do topo ate a viseira
-    for i,(t0) in enumerate((52.0,58.0,64.0,70.0,76.0,82.0,87.0)):
+    for i,(t0) in enumerate(()):
         c=SP(t0,0.0,HR*1.026)
         b1=box('Fore_Y%d'%i,c,(0.072,0.034,0.030),bevel=0.016,segs=3)
         assign(b1,'M_Yellow'); out.append(reg('fore%d'%i,b1))
     # sobrancelhas: 2 blocos finos arqueados acima dos olhos
     for sgn in (-1,1):
-        c=SP(99.0,sgn*(epc+1.0),HR*1.040)
-        b2=box('Brow_%s'%('L' if sgn>0 else 'R'),c,(0.052,0.030,0.018),bevel=0.012,segs=3)
+        c=SP(97.0,sgn*(epc-1.0),HR*1.024)
+        b2=box('Brow_%s'%('L' if sgn>0 else 'R'),c,(0.044,0.014,0.009),bevel=0.006,segs=3)
         assign(b2,'M_Eye')
         bpy.ops.object.select_all(action='DESELECT'); bpy.context.view_layer.objects.active=b2; b2.select_set(True)
         bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
@@ -637,11 +668,11 @@ def pilot():
         bpy.ops.object.transform_apply(rotation=True)
         out.append(reg('brow'+('L' if sgn>0 else 'R'),b2))
     # queixeira amarela + boca
-    c=SP(146.0,0.0,HR*1.055)
-    b3=box('Chin_Y',c,(0.115,0.105,0.062),bevel=0.024,segs=4); assign(b3,'M_Yellow')
+    c=SP(146.0,0.0,HR*1.012)
+    b3=box('Chin_Y',c,(0.072,0.062,0.030),bevel=0.022,segs=4); assign(b3,'M_Yellow')
     out.append(reg('chin_y',b3))
-    c=SP(152.0,0.0,HR*1.115)
-    b4=box('Mouth',c,(0.058,0.014,0.009),bevel=0.004,segs=2); assign(b4,'M_Eye')
+    c=SP(143.0,0.0,HR*1.030)
+    b4=box('Mouth',c,(0.040,0.011,0.007),bevel=0.003,segs=2); assign(b4,'M_Eye')
     out.append(reg('mouth',b4))
     # ---- parafusos de pivo da viseira (laterais, altura da tempora) ----
     for sy in (1,-1):
@@ -676,6 +707,7 @@ R['z_range']=(round(min(zl),3),round(max(zl),3))
 R['L_over_H']=round((max(xl)-min(xl))/(max(zl)-min(zl)),3)
 R['W_over_H']=round(2*max(abs(min(yl)),abs(max(yl)))/(max(zl)-min(zl)),3)
 R['alvo_L_H']=round(L/H,3); R['alvo_W_H']=round(W/H,3)
+# outline desativado: backface culling do EEVEE Next nao respeitou -> casca cobria o modelo
 try:
     ee=bpy.context.scene.eevee
     for a,v in (('use_raytracing',True),('use_gtao',True),('use_shadows',True),('taa_render_samples',96)):
