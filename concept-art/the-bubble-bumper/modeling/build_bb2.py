@@ -306,6 +306,12 @@ def front_bumper():
                        [(XFO-0.028,_sy*0.330,0.2622),(XFO-0.086,_sy*0.400,0.2610),(XFO-0.150,_sy*0.470,0.2596)],
                        0.086,18)
         assign(_bl,'M_Yellow'); out.append(reg('pad_'+('l' if _sy>0 else 'r'),_bl))
+    # BARRA TRANSVERSAL FRONTAL: o concept tem run CONTIGUO de 1.31 m em xf 0.175
+    # (atravessa os dois lados); so o U com cantos separados deixa 3 runs -> IoU 0.55 ali.
+    if P.get('fbar',1):
+        fbar=box('FBump_Bar',(P.get('fbar_x',0.755),0.0,P.get('fbar_z',0.085)),
+                 (P.get('fbar_c',0.190),0.585,0.048),bevel=0.020,segs=2)
+        assign(fbar,'M_Blue'); out.append(reg('fbar',fbar))
     return join(out,'FBUMP')
 # ===== F3/F5 =====
 # ===== F3: ANEL AMARELO EM VOLTA DA PONTA DO BICO (o concept tem C grosso amarelo) =====
