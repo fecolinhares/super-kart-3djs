@@ -596,13 +596,13 @@ def rear():
     _c=box('Rear_Clamps',(_bx,0.0,0.090),(0.030,0.290,0.040),bevel=0.010,segs=2)
     assign(_c,'M_Dark'); out.append(_c)
     # ---- asa traseira: barra GROSSA azul-escura + endplates amarelos ----
-    wz=P.get('wing_z',0.605)*H
+    wz=P.get('wing_z',0.570)*H
     wx1=XRE-0.015; wx2=XRE+0.235
     wsec=[]
     for i in range(13):
         u=i/12.0; x=wx1+(wx2-wx1)*u
         zc=wz+0.010*math.sin(math.pi*u)
-        hh=P.get('wing_hh',0.041)+0.010*math.sin(math.pi*u)
+        hh=P.get('wing_hh',0.075)+0.010*math.sin(math.pi*u)
         wsec.append([(x,0.505,zc+hh),(x,-0.505,zc+hh),(x,-0.505,zc-hh),(x,0.505,zc-hh)])
     wg=loft('Wing_Main',wsec); assign(wg,'M_Blue'); add_mod(wg,'BEVEL',width=0.016,segments=2); apply_mods(wg); out.append(reg('wing',wg))
     for sy in (1,-1):
