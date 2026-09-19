@@ -411,3 +411,16 @@ ALTURA em quadradinhos deveria ser identica nas 3 vistas frontais: FRONT 48.2 | 
 ### PROXIMA ACAO
 Aplicar os fatores por vista em vh_build.py (escala por vista antes de montar o hull) e recalibrar as
 referencias do auditor. So depois remodelar as pecas.
+
+
+## HULL RECALIBRADO POR VISTA (VHK) — 2026-09-19
+
+vh_build.py agora usa uma TABELA DE ESCALA POR VISTA (VIEW_M) derivada da grade (2.5 cm/quadrado):
+front (1.410 x 1.200) | side (2.330 x 1.255) | top (2.330 x 1.550) | rear (1.485 x 1.205).
+Resultado: bbox do hull x +-1.170 | y +-0.745 | z 0.002..1.205 — bate com o esperado.
+
+NOTA METRICA: a auditoria normaliza CADA vista pelo proprio bbox. Com a escala corrigida, a
+referencia do auditor (masks crus) ficou DESALINHADA da escala do modelo -> IoU caiu para 0.724 e o
+excesso subiu para 26.5. **Os numeros nao sao comparaveis aos anteriores**: a referencia precisa ser
+recalibrada para a mesma escala (2.5 cm/quadrado) antes de qualquer comparacao valida.
+Cor por regiao segue otima: neutro 0.502/0.514 | azul 0.348/0.354 | amarelo 0.151/0.133.
