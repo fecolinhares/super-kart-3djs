@@ -262,11 +262,11 @@ def nose():
     for i in range(NS):
         xf=0.015+0.235*(i/(NS-1.0))
         x=XFO-xf*L
-        zt=prof_top(xf)*H*0.94
+        zt=prof_top(xf)*H*0.88
         _t=i/(NS-1.0)
         # CONCEPT: bico FINO na frente (frente lida: 'cunha fina estreita'), alargando para trás
         _s2=min(1.0,_t/0.50)**0.75
-        ry=0.112+0.190*_s2
+        ry=0.095+0.155*_s2
         zb=max(0.0,0.0+0.020*(i/(NS-1.0)))
         zc=(zb+zt)/2.0; rz=(zt-zb)/2.0
         secs.append(sq(x,ry,rz,38,2.0,z0=zc,zsq=1.02))
@@ -297,10 +297,10 @@ def front_bumper():
         yy=0.556*math.sin(a_)
         xx=(XFO-0.048) - 0.250*(1.0-math.cos(a_))
         spine.append((xx,yy,0.240+0.020*math.cos(a_*0.5)))
-    o=sweep('Bumper_Ring',spine,rb*0.44,18,merge=0.0015); assign(o,'M_Blue')
+    o=tube_round('Bumper_Ring',spine,rb*1.07,20); assign(o,'M_Blue')
     assign(o,'M_Yellow', lambda q: abs(q.center.y)>0.360)
     for _sy in (1,-1):
-        _pd=box('Pad_'+('L' if _sy>0 else 'R'),(XFO-0.072,_sy*0.452,0.282),(0.046,0.072,0.146),bevel=0.014,segs=2)
+        _pd=revolve('Pad_'+('L' if _sy>0 else 'R'),[(0.036,-0.112),(0.072,-0.112),(0.072,0.098),(0.036,0.098)],XFO-0.086,0.252,y0=_sy*0.452,seg=24)
         assign(_pd,'M_Yellow'); out.append(reg('pad_'+('l' if _sy>0 else 'r'),_pd))
     out.append(reg('bumper',o))
     # painel central trapezoidal amarelo (rebaixado)
@@ -396,12 +396,12 @@ def pods():
     for sy in (1,-1):
         nm='Pod_'+('L' if sy>0 else 'R'); NS=30; secs=[]
         for i in range(NS):
-            t=i/(NS-1.0); xf=0.325+0.395*t; x=XFO-xf*L
-            s=math.sin(math.pi*(0.05+0.90*t))**0.33
+            t=i/(NS-1.0); xf=0.360+0.276*t; x=XFO-xf*L
+            s=math.sin(math.pi*(0.06+0.88*t))**0.62
             outy=0.300+0.387*s      # borda externa: 0.30 -> 0.687 (alvo medido 0.92W)
             iny=0.175+0.115*s       # borda interna
             zb=0.105
-            zt=zb+0.150+0.130*s     # pod baixo: altura 0.15 -> 0.28
+            zt=zb+0.112+0.098*s     # -25% altura
             cy=sy*(outy+iny)/2.0; ry=abs(outy-iny)/2.0
             # secao retangular-arredondada no plano YZ
             sec=[]
@@ -417,7 +417,7 @@ def pods():
         for i in range(NS):
             t=i/(NS-1.0); xf=0.325+0.395*t; x=XFO-xf*L
             sc=math.sin(math.pi*(0.05+0.90*t))**0.45
-            oy=0.300+0.300*sc; iy=0.175+0.115*sc; zt=0.105+0.150+0.130*sc
+            oy=0.300+0.300*sc; iy=0.175+0.115*sc; zt=0.105+0.112+0.098*sc
             csec.append([(x,sy*(iy-0.012),zt+0.006),(x,sy*(oy+0.006),zt-0.006),(x,sy*(oy+0.006),zt-0.062),(x,sy*(iy-0.012),zt-0.052)])
         cap=loft(nm+'_Cap',csec); assign(cap,'M_Blue'); add_mod(cap,'SUBSURF',levels=1); apply_mods(cap)
         out.append(reg(nm+'_cap',cap))
@@ -593,8 +593,8 @@ def rear():
     _bx=XRE+0.088
     scr=[(_bx,0.268,0.078),(_bx,0.268,0.598),(_bx,0.130,0.602),(_bx,0.0,0.602),
          (_bx,-0.130,0.602),(_bx,-0.268,0.598),(_bx,-0.268,0.078)]
-    rb=tube_round('Rear_Bumper_U',scr,0.030,20); assign(rb,'M_Silver'); out.append(reg('rbump',rb))
-    bt=tube_round('Rear_Bumper_Bot',[(_bx,0.268,0.078),(_bx,0.0,0.070),(_bx,-0.268,0.078)],0.026,20)
+    rb=tube_round('Rear_Bumper_U',scr,0.042,22); assign(rb,'M_Silver'); out.append(reg('rbump',rb))
+    bt=tube_round('Rear_Bumper_Bot',[(_bx,0.268,0.078),(_bx,0.0,0.070),(_bx,-0.268,0.078)],0.038,22)
     assign(bt,'M_Silver'); out.append(bt)
     _c=box('Rear_Clamps',(_bx,0.0,0.090),(0.030,0.290,0.040),bevel=0.010,segs=2)
     assign(_c,'M_Dark'); out.append(_c)
@@ -605,15 +605,15 @@ def rear():
     for i in range(13):
         u=i/12.0; x=wx1+(wx2-wx1)*u
         zc=wz+0.010*math.sin(math.pi*u)
-        hh=P.get('wing_hh',0.017)+0.005*math.sin(math.pi*u)
+        hh=P.get('wing_hh',0.050)+0.012*math.sin(math.pi*u)
         wsec.append([(x,0.522,zc+hh),(x,-0.522,zc+hh),(x,-0.522,zc-hh),(x,0.522,zc-hh)])
-    wg=loft('Wing_Main',wsec); assign(wg,'M_BlueDk'); add_mod(wg,'BEVEL',width=0.011,segments=2); apply_mods(wg); out.append(reg('wing',wg))
+    wg=loft('Wing_Main',wsec); assign(wg,'M_Blue'); add_mod(wg,'BEVEL',width=0.016,segments=2); apply_mods(wg); out.append(reg('wing',wg))
     for sy in (1,-1):
         ep=revolve('Wing_Endplate_'+('L' if sy>0 else 'R'),
                    [(0.003,-0.102),(0.013,-0.102),(0.023,-0.074),(0.029,-0.034),(0.030,0.020),(0.026,0.060),(0.015,0.088),(0.003,0.088)],
                    (wx1+wx2)/2.0, wz, y0=sy*0.552, seg=30)
         assign(ep,'M_Yellow'); out.append(reg('wep_'+('L' if sy>0 else 'R'),ep))
-        py=sweep('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.060,sy*0.170,wz-0.014),(wx1+0.115,sy*0.170,0.512)],0.024,12)
+        py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)
         assign(py,'M_Dark'); out.append(py)
     return join(out,'REAR')
 RE=safe('rear',rear)
