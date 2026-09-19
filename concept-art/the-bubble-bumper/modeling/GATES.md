@@ -15,48 +15,48 @@ Checker: `cd modeling && node ~/.hermes/profiles/coder/skills/unlazy/scripts/gat
 - [x] G1: QA tecnico aprovado no build (0 non-manifold, >=95% quads)
   EVIDENCE: W250 aprovado=true, verts=86212, non_manifold=0, pct_quads=98.4, valence4 96.8 (log job 20260919-045200-b3f7c5)
 
-- [ ] G2: pior regiao (menor IoU parte x vista) >= 0.780  [baseline W233 0.684 -> W250 0.705]
-  CHECK: python3 qa_bb.py W250 | grep ^IOU_MENOR_REGIAO
+- [ ] G2: pior regiao (menor IoU parte x vista) >= 0.780  [baseline W233 0.684 -> W253 0.705]
+  CHECK: python3 qa_bb.py W253 | grep ^IOU_MENOR_REGIAO
   EXPECT: IOU_MENOR_REGIAO=0\.[789]
 
-- [ ] G3: media das 10 piores regioes >= 0.800  [baseline W233 0.740 -> W250 0.745]
-  CHECK: python3 qa_bb.py W250 | grep ^IOU_P10_MEDIA
+- [ ] G3: media das 10 piores regioes >= 0.800  [baseline W233 0.740 -> W253 0.748]
+  CHECK: python3 qa_bb.py W253 | grep ^IOU_P10_MEDIA
   EXPECT: IOU_P10_MEDIA=0\.[89]
 
-- [ ] G4: IoU de silhueta media >= 0.830  [baseline W233 0.809 -> W250 0.811]
-  CHECK: python3 qa_bb.py W250 | grep ^IOU_MEDIA
+- [ ] G4: IoU de silhueta media >= 0.830  [baseline W233 0.809 -> W253 0.808]
+  CHECK: python3 qa_bb.py W253 | grep ^IOU_MEDIA
   EXPECT: IOU_MEDIA=0\.8[3-9]
 
-- [ ] G5: erro do perfil lateral <= 6.5%  [baseline W233 7.4 -> W250 7.3]
-  CHECK: python3 qa_bb.py W250 | grep ^PERFIL_LAT_PCT
+- [ ] G5: erro do perfil lateral <= 6.5%  [baseline W233 7.4 -> W253 6.9]
+  CHECK: python3 qa_bb.py W253 | grep ^PERFIL_LAT_PCT
   EXPECT: PERFIL_LAT_PCT=[0-6]\.[0-9]
 
-- [ ] G6: erro da vista frontal <= 9.5%  [baseline W233 11.5 -> W250 11.1]
-  CHECK: python3 qa_bb.py W250 | grep ^FRONTAL_PCT
+- [ ] G6: erro da vista frontal <= 9.5%  [baseline W233 11.5 -> W253 11.1]
+  CHECK: python3 qa_bb.py W253 | grep ^FRONTAL_PCT
   EXPECT: FRONTAL_PCT=[0-9]\.[0-9]
 
-- [ ] G7: erro da vista traseira <= 9.5%  [baseline W233 10.7 -> W250 10.5]
-  CHECK: python3 qa_bb.py W250 | grep ^TRASEIRA_PCT
+- [ ] G7: erro da vista traseira <= 9.5%  [baseline W233 10.7 -> W253 10.5]
+  CHECK: python3 qa_bb.py W253 | grep ^TRASEIRA_PCT
   EXPECT: TRASEIRA_PCT=[0-9]\.[0-9]
 
-- [ ] G8: desvio de cor por canal <= 5  [baseline W233 7 -> W250 6]
-  CHECK: python3 qa_bb.py W250 | grep ^COR_MAXDELTA
+- [ ] G8: desvio de cor por canal <= 5  [baseline W233 7 -> W253 6]
+  CHECK: python3 qa_bb.py W253 | grep ^COR_MAXDELTA
   EXPECT: COR_MAXDELTA=[0-5]
 
-- [ ] G9: TOP/ASA >= 0.780 (planta traseira: asa fina, nao chapa)  [baseline W233 0.684 -> W250 0.705]
-  CHECK: python3 qa_bb.py W250 | grep ^IOU_TOP_ASA
+- [ ] G9: TOP/ASA >= 0.780 (planta traseira: asa fina, nao chapa)  [baseline W233 0.684 -> W253 0.705]
+  CHECK: python3 qa_bb.py W253 | grep ^IOU_TOP_ASA
   EXPECT: IOU_TOP_ASA=0\.[789]
 
-- [ ] G10: TOP/BICO_U >= 0.780 (planta dianteira)  [baseline W233 0.693 -> W250 0.716]
-  CHECK: python3 qa_bb.py W250 | grep ^IOU_TOP_BICO_U
+- [ ] G10: TOP/BICO_U >= 0.780 (planta dianteira)  [baseline W233 0.693 -> W253 0.716]
+  CHECK: python3 qa_bb.py W253 | grep ^IOU_TOP_BICO_U
   EXPECT: IOU_TOP_BICO_U=0\.[789]
 
-- [ ] G11: FRONT/PARACH >= 0.780 (para-choque visto de frente)  [baseline W233 0.702 -> W250 0.706]
-  CHECK: python3 qa_bb.py W250 | grep ^IOU_FRONT_PARACH
+- [ ] G11: FRONT/PARACH >= 0.780 (para-choque visto de frente)  [baseline W233 0.702 -> W253 0.706]
+  CHECK: python3 qa_bb.py W253 | grep ^IOU_FRONT_PARACH
   EXPECT: IOU_FRONT_PARACH=0\.[789]
 
-- [ ] G12: SIDE/TRASEIRA >= 0.780 (silhueta traseira de perfil)  [baseline W233 0.708 -> W250 0.708]
-  CHECK: python3 qa_bb.py W250 | grep ^IOU_SIDE_TRASEIRA
+- [ ] G12: SIDE/TRASEIRA >= 0.780 (silhueta traseira de perfil)  [baseline W233 0.708 -> W253 0.708]
+  CHECK: python3 qa_bb.py W253 | grep ^IOU_SIDE_TRASEIRA
   EXPECT: IOU_SIDE_TRASEIRA=0\.[789]
 
 - [ ] G13: auditor independente sem contexto do autor confirma fidelidade
