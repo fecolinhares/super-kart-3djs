@@ -495,6 +495,12 @@ def chassis():
         for zz in (0.262,0.300,0.338):
             rr=revolve('Ring_%s_%.3f'%('L' if sy>0 else 'R',zz),[(0.050,-0.008),(0.058,-0.008),(0.058,0.008),(0.050,0.008)],XR-0.10,zz,y0=sy*0.255,seg=24)
             assign(rr,'M_Gold'); out.append(rr)
+    # longarinas perimetrais do concept: tubos finos, dentro da envelope, deixando vao aberto no TOP
+    for sy in (1,-1):
+        rail=sweep('Frame_Rail_'+('L' if sy>0 else 'R'),[(0.42,sy*0.285,0.135),(0.05,sy*0.315,0.145),(-0.42,sy*0.300,0.155),(-0.82,sy*0.270,0.170)],0.018,12)
+        assign(rail,'M_BlueDk'); out.append(rail)
+        cross=sweep('Frame_Cross_'+('L' if sy>0 else 'R'),[(0.25,sy*0.285,0.14),(0.25,sy*0.05,0.14)],0.014,12)
+        assign(cross,'M_Silver'); out.append(cross)
     return join(out,'CH')
 CH=safe('chassis',chassis)
 if CH: made.append(CH)
@@ -651,8 +657,8 @@ def pilot():
         pd=dome_dir('PAD_'+st,(-0.150,sy*0.162,0.694),0.098,(-0.28,sy*0.44,0.85),seg=26,rings=16,flat=0.44)
         assign(pd,'M_Yellow'); out.append(pd)
         # braco: ombro -> cotovelo -> mao NA MANOPLA do volante (sobreposto)
-        arm=tubevar('Arm_'+st,[(-0.140,sy*0.175,0.662),(-0.020,sy*0.192,0.700),(0.100,sy*0.152,0.714),(0.150,sy*0.118,0.700)],
-                    [0.052,0.048,0.043,0.038],seg=20); assign(arm,'M_Pilot'); out.append(arm)
+        arm=tubevar('Arm_'+st,[(-0.140,sy*0.175,0.652),(0.020,sy*0.196,0.626),(0.140,sy*0.160,0.594),(0.232,sy*0.112,0.566)],
+                    [0.052,0.047,0.040,0.035],seg=20); assign(arm,'M_Pilot'); out.append(arm)
         gl=tubevar('Glove_'+st,[(0.238,sy*0.126,0.570),(0.246,sy*0.126,0.520)],[0.049,0.046],seg=20)
         assign(gl,'M_Dark'); out.append(gl)
         # perna: quadril -> joelho -> canela -> bota no pedal
