@@ -266,7 +266,7 @@ def nose():
         _t=i/(NS-1.0)
         # CONCEPT: bico FINO na frente (frente lida: 'cunha fina estreita'), alargando para trás
         _s2=min(1.0,_t/0.50)**0.75
-        ry=0.095+0.155*_s2
+        ry=0.066+0.104*_s2
         zb=max(0.0,0.0+0.020*(i/(NS-1.0)))
         zc=(zb+zt)/2.0; rz=(zt-zb)/2.0
         secs.append(sq(x,ry,rz,38,2.0,z0=zc,zsq=1.02))
@@ -354,15 +354,15 @@ def cowl():
     out=[]; NS=22; secs=[]
     for i in range(NS):
         xf=0.225+0.235*(i/(NS-1.0)); x=XFO-xf*L
-        zt=prof_top(xf)*H*1.07
+        zt=prof_top(xf)*H*0.97
         # perfil medido manda: dip em xf~0.375 (0.445H) ja vem do prof_top
         s=math.sin(math.pi*(0.10+0.80*(i/(NS-1.0))))**0.5
-        ry=0.148*s+0.042
+        ry=0.098*s+0.030
         zb=0.105
         secs.append(sq(x,ry,(zt-zb)/2.0,36,2.2,z0=(zb+zt)/2.0,zsq=0.98))
     o=loft('Cowl',secs); assign(o,'M_Blue'); add_mod(o,'SUBSURF',levels=1); apply_mods(o); seal(o)
     # ESCAVA A BANHEIRA: subtrai um solido em forma de colher
-    cut=box('Cockpit_Cut',(XFO-0.452*L,0,0.700),(0.232,0.196,0.124),bevel=0.055,segs=6)
+    cut=box('Cockpit_Cut',(XFO-0.452*L,0,0.640),(0.232,0.150,0.116),bevel=0.055,segs=6)
     boolean(o,cut,'DIFFERENCE'); seal(o)
     try: bpy.data.objects.remove(cut,do_unlink=True)
     except Exception: pass
@@ -605,7 +605,7 @@ def rear():
     for i in range(13):
         u=i/12.0; x=wx1+(wx2-wx1)*u
         zc=wz+0.010*math.sin(math.pi*u)
-        hh=P.get('wing_hh',0.050)+0.012*math.sin(math.pi*u)
+        hh=P.get('wing_hh',0.041)+0.010*math.sin(math.pi*u)
         wsec.append([(x,0.522,zc+hh),(x,-0.522,zc+hh),(x,-0.522,zc-hh),(x,0.522,zc-hh)])
     wg=loft('Wing_Main',wsec); assign(wg,'M_Blue'); add_mod(wg,'BEVEL',width=0.016,segments=2); apply_mods(wg); out.append(reg('wing',wg))
     for sy in (1,-1):
