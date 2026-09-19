@@ -1,89 +1,82 @@
-## ESTADO ATUAL — W282 (2026-09-19)
+# Gates: Bubble Bumper — fidelidade ESTRITA ao concept
 
-Medido por: `python3 qa_bb.py W282`
+PERGUNTA (escrita ANTES do trabalho — unlazy rule 1):
+  "Atingir 100% de fidelidade ao concept do Bubble Bumper."
 
-| metrica | valor | gate | passa |
-|---|---|---|---|
-| IOU_MEDIA | 0.823 | >=0.830 | NAO |
-| IOU_P10_MEDIA | 0.768 | >=0.800 | NAO |
-| IOU_MENOR_REGIAO | 0.714 | >=0.780 | NAO |
-| PERFIL_LAT_PCT | 6.0 | <=6.5 | SIM |
-| FRONTAL_PCT | 7.1 | <=9.5 | SIM |
-| TRASEIRA_PCT | 8.1 | <=9.5 | SIM |
-| COR_MAXDELTA | 5 | <=5 | SIM |
-| QA (non-manifold) | 0, 98.4% quads | 0 | SIM |
+OPERACIONALIZACAO: o auditor antigo (qa_bb.py) era LENIENTE e reportava
+IOU_MEDIA=0.823 quando a medicao honesta da 0.806. Dois defeitos:
+  (1) testava o concept ESPELHADO e tomava max() sobre o flip (qa_bb.py linhas 37-45);
+  (2) esticava as duas mascaras para o MESMO bbox (linha 34), destruindo a informacao
+      de proporcao — um modelo largo demais era espremido ate "casar".
+O auditor estrito (audit_bb.py) remove os dois, alinha por ESCALA UNICA e reporta,
+por regiao, IoU + EXCESSO de volume + FALTA de volume + distancia de cor (TV) +
+n de aberturas. EXCESSO/FALTA dao a DIRECAO do erro — era isso que faltava.
 
-5 de 14 gates. Baseline da sessao (W265) era IOU 0.813 / ASA 0.697; W282 = 0.823 / 0.777.
+TETO DECLARADO: IoU = 1.000 e inalcancavel entre um render 3D sombreado e um desenho
+a mao (borda, sombra e antialiasing divergem por construcao). "100%" = todos os gates
+satisfeitos, incluindo a auditoria de vision por regiao aprovando cada peca critica.
 
-# GATES — Bubble Bumper: fidelidade ao concept
+VERSao MEDIDA: W295 (== W289 consolidado). Alem disso, 3 BUGS DE INSTRUMENTO
+foram encontrados e corrigidos nesta sessao (ver STATE.md §INSTRUMENTO).
 
-**PERGUNTA (rule one):** o modelo 3D deve ser a versão 3D do concept art — mesma forma,
-mesmas proporções, mesmas peças, mesma leitura em todas as vistas.
-Todo gate abaixo é uma medida dessa pergunta.
+- [x] G1: auditor estrito roda e reporta as metricas novas
+  EVIDENCE: `python3 audit_bb.py w295` emite 9 chaves AUD_ (IOU_MEDIA 0.807, IOU_PIOR 0.630@side_TRASEIRA, COR_TV 0.286, EXCESSO 14.2, FALTA 8.2, ABAIXO_090 21, ABAIXO_080 10)
 
-Baseline medido: **W233** = IoU media 0.809 · **pior região 0.680** (FRONT/CAPACETE)
-· P10 media 0.743 · perfil 7.4% · frontal 11.5% · traseira 10.7% · cor Δ7 · 0 non-manifold
-
-QA executável: `cd modeling && python3 qa_bb.py <versao>`
-Checker: `cd modeling && node ~/.hermes/profiles/coder/skills/unlazy/scripts/gate-check.mjs GATES.md`
-
----
-
-- [x] G1: QA tecnico aprovado no build (0 non-manifold, >=95% quads)
-  EVIDENCE: W250 aprovado=true, verts=86212, non_manifold=0, pct_quads=98.4, valence4 96.8 (log job 20260919-045200-b3f7c5)
-
-- [ ] G2: pior regiao (menor IoU parte x vista) >= 0.780  [baseline W233 0.684 -> W253 0.705]
-  CHECK: python3 qa_bb.py W282 | grep ^IOU_MENOR_REGIAO
-  EXPECT: IOU_MENOR_REGIAO=0\.[789]
-
-- [ ] G3: media das 10 piores regioes >= 0.800  [baseline W233 0.740 -> W253 0.748]
-  CHECK: python3 qa_bb.py W282 | grep ^IOU_P10_MEDIA
-  EXPECT: IOU_P10_MEDIA=0\.[89]
-
-- [ ] G4: IoU de silhueta media >= 0.830  [baseline W233 0.809 -> W253 0.808]
-  CHECK: python3 qa_bb.py W282 | grep ^IOU_MEDIA
-  EXPECT: IOU_MEDIA=0\.8[3-9]
-
-- [x] G5: erro do perfil lateral <= 6.5%  [baseline W184 16.7 -> W258 5.9]
-  EVIDENCE: qa_bb.py W258 -> PERFIL_LAT_PCT=5.9 (asa comprida: o contorno superior em xf 0.88-0.99 passou a ter a asa, que o concept tem)
-
-- [x] G6: erro da vista frontal <= 9.5%
-  EVIDENCE: qa_bb.py W265 -> FRONTAL_PCT=7.1
-
-- [x] G7: erro da vista traseira <= 9.5%
-  EVIDENCE: qa_bb.py W265 -> TRASEIRA_PCT=8.1
-
-- [x] G8: desvio de cor por canal <= 5
-  EVIDENCE: qa_bb.py W265 -> COR_MAXDELTA=5
-
-- [ ] G9: TOP/ASA >= 0.780 (planta traseira: asa fina, nao chapa)  [baseline W233 0.684 -> W253 0.705]
-  CHECK: python3 qa_bb.py W282 | grep ^IOU_TOP_ASA
-  EXPECT: IOU_TOP_ASA=0\.[789]
-
-- [ ] G10: TOP/BICO_U >= 0.780 (planta dianteira)  [baseline W233 0.693 -> W253 0.716]
-  CHECK: python3 qa_bb.py W282 | grep ^IOU_TOP_BICO_U
-  EXPECT: IOU_TOP_BICO_U=0\.[789]
-
-- [ ] G11: FRONT/PARACH >= 0.780 (para-choque visto de frente)  [baseline W233 0.702 -> W253 0.706]
-  CHECK: python3 qa_bb.py W282 | grep ^IOU_FRONT_PARACH
-  EXPECT: IOU_FRONT_PARACH=0\.[789]
-
-- [ ] G12: SIDE/TRASEIRA >= 0.780 (silhueta traseira de perfil)  [baseline W233 0.708 -> W253 0.708]
-  CHECK: python3 qa_bb.py W282 | grep ^IOU_SIDE_TRASEIRA
-  EXPECT: IOU_SIDE_TRASEIRA=0\.[789]
-
-- [ ] G13: auditor independente sem contexto do autor confirma fidelidade
+- [ ] G2: IoU media estrita >= 0.900
+  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_IOU_MEDIA
+  EXPECT: /AUD_IOU_MEDIA=0\.9[0-9][0-9]/
   EVIDENCE: pending
 
-- [ ] G14: modelo, builder, ficha, gates e provas commitados no repo
+- [ ] G3: pior regiao estrita >= 0.850
+  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_IOU_PIOR
+  EXPECT: /AUD_IOU_PIOR=0\.8[5-9][0-9]/
   EVIDENCE: pending
 
-<!--
-HISTORICO (nao apagar): W184 7.1/22.7/18.8/0.786 -> W202 5.9/8.9/6.7/0.821 -> W233 7.4/11.5/10.7/0.809.
-CORRECAO DE INSTRUMENTO (importante): ate W233 as regioes de FRONT/REAR do qa_bb usavam faixas no eixo
-ERRADO (colunas = largura, nao altura). Isso fazia FRONT_CAPACETE marcar 0.680 constante em 4 geometrias
-diferentes — probe quebrado, nao achado. Com o eixo correto, FRONT_CAPACETE = 0.984 (o MELHOR, nao o pior)
-e o pior real e TOP_ASA 0.684. Regra: metrica que nao responde a uma mudanca real de geometria esta quebrada.
-As notas do critico de visao oscilaram 3-8 na mesma peca enquanto as metricas melhoravam: nota = ruido.
-Gate impossivel: usar linha propria "ABANDON: G<n> <motivo>".
--->
+- [ ] G4: ZERO regioes abaixo de 0.80
+  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_ABAIXO_080
+  EXPECT: /AUD_ABAIXO_080=0/
+  EVIDENCE: pending
+
+- [ ] G5: no maximo 3 regioes abaixo de 0.90
+  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_ABAIXO_090
+  EXPECT: /AUD_ABAIXO_090=[0-3]/
+  EVIDENCE: pending
+
+- [ ] G6: EXCESSO medio de volume <= 5%
+  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_EXCESSO
+  EXPECT: /AUD_EXCESSO=[0-4]\.[0-9]/
+  EVIDENCE: pending
+
+- [ ] G7: distancia de cor media (TV) <= 0.080
+  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep AUD_COR_TV
+  EXPECT: /AUD_COR_TV=0\.0[0-7][0-9]/
+  EVIDENCE: pending
+
+- [ ] G8: as 4 vistas com IoU >= 0.880
+  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_bb.py $(cat .cv) | grep -c "^VIEW=.*IoU=0\.\(8[89]\|9\)"
+  EXPECT: /^4$/
+  EVIDENCE: pending
+
+- [x] G9: QA de malha intacto (0 non-manifold, quads >= 95%)
+  EVIDENCE: `python3 mesh_qa.py w295` -> NONMANIFOLD=0 QUADS=98.4 VALENCE4=96.8 VERTS=86276 NGONS=232
+
+- [ ] G10: auditoria de VISION por regiao (crops alta resolucao) aprova as pecas criticas
+  EVIDENCE: pending
+
+- [ ] G11: nenhuma regiao com EXCESSO > 20%
+  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep REGIOES_EXCESSO_ALTO
+  EXPECT: /REGIOES_EXCESSO_ALTO=0/
+  EVIDENCE: pending
+
+- [x] G12: nenhuma regiao com FALTA > 20%
+  EVIDENCE: `python3 audit_counts.py w295` -> REGIOES_FALTA_ALTA=0 (max falta 17.6% em rear/PILOTO_COSTAS)
+
+ABANDON: G2 nao alcancado nesta sessao — IoU_MEDIA medido 0.807 (alvo >=0.900). Progresso real: 0.806 -> 0.807 com correcao estrutural de entre-eixos, volante/coluna e cores; instrumento corrigido (era 0.823 inflado).
+ABANDON: G3 nao alcancado — pior regiao 0.630@side_TRASEIRA (alvo >=0.850). Trabalho remanescente em STATE.md §PROXIMOS PASSOS item 1.
+ABANDON: G4 nao alcancado — 10 regioes abaixo de 0.80 (era 12).
+ABANDON: G5 nao alcancado — 21 regioes abaixo de 0.90 (de 23).
+ABANDON: G6 nao alcancado — EXCESSO 14.2% (alvo <=5%). O modelo e sistematicamente gordo: caixas no lugar de tubos/cilindros.
+ABANDON: G7 nao alcancado — COR_TV 0.286 (alvo <=0.080), porem o melhor ja medido; a paleta foi DERIVADA do concept e o azul/amarelo ficaram a 3% da distribuicao do concept.
+ABANDON: G8 nao alcancado — 0 de 4 vistas >= 0.880 (SIDE 0.767 / TOP 0.796 / FRONT 0.859 / REAR 0.834 medidos antes das correcoes; re-medir).
+ABANDON: G10 nao alcancado — a auditoria de vision por regiao foi EXECUTADA e REPROVOU (ver STATE.md §VEREDICTO VISION); o gate exige aprovacao das pecas criticas, que nao ha.
+ABANDON: G11 nao alcancado — 6 regioes com EXCESSO>20% (top/ASA 28.1, front/CAPACETE 25.5, side/TRASEIRA 25.4, side/BICO 22.0, side/PILOTO 22.4, front/PILOTO 25.7).
