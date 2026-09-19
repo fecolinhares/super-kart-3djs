@@ -275,3 +275,27 @@ side/SIDEPOD cor 0.187 | top/SIDEPODS cor 0.228 (recorde) | IoU 0.817 | P10 0.75
 ### PROXIMA PECA (medida, nao suposta)
 SIDE_COVER azul: xf 0.36-0.62 | z 0.28-0.53 | y 0.17-0.70. Fecha o vazio entre o pod e a cobertura sem inflar a peca errada.
 Depois: FBUMP azul (nao prata) + 3 escapes tubulares + face do piloto.
+
+
+## W391-W393 — SIDEPOD REMODELADO EM DUAS PECAS (2026-09-19)
+
+Correcao semantica: em vez de INFLAR o pod (peca errada, tentativa W387-389), o vazio
+acima dele foi preenchido com a PECA CERTA: SIDE_COVER azul.
+
+- W391: cover full-width (y 0.17-0.70) -> side/SIDEPOD cor 0.148 (recorde) MAS excesso subiu 11.4->13.2.
+- W392: cover INNER-ONLY (y 0.175-0.44) -> top/SIDEPODS IoU 0.944 (era 0.918), falta 1.9% (era 4.6),
+        side/SIDEPOD cor 0.156, COR_TV 0.261. MELHOR BALANCEADO.
+- W393: cap tambem inner-only -> COR_TV 0.256 (recorde) mas top/SIDEPODS cor 0.238->0.312 e <0.80 volta a 7 -> REVERTER.
+
+Licao: o azul do concept e INTERNO e o amarelo e o balao EXTERNO (TOP). Cap full-width pintava
+o pod todo de azul visto de cima. Mas cap estreito demais deixa amarelo demais. W392 e o meio correto.
+
+VISION W392 (board SIDE+TOP, mesma escala): "acertou o ONDE, errou o QUANTO" —
+amarelo embaixo/azul em cima esta na ordem certa, mas no modelo o amarelo virou lamina fina
+e o azul virou a barriga gorda; no concept e o INVERSO (amarelo = travessao gordo, azul fino).
+Proximo: engordar o pod amarelo para ~0.35-0.40 de topo (medir a transicao amarelo->azul no concept
+em xf 0.36-0.62) e afinar o cover.
+
+### ESTADO CONSOLIDADO = W392
+IoU 0.818 | P10 0.753 | COR_TV 0.261 | excesso 11.9 | falta 8.7 | <0.80 = 6 | QA 0 non-manifold 98.3% quads
+pior regiao: side/TRASEIRA 0.636 (inalterada desde W357 — proximo alvo estrutural)
