@@ -36,7 +36,7 @@ def mat_rich(name,color,rough,metal,ns=180.0,bump=0.0016,spec=0.6,coat=0.0):
     nt.links.new(bsdf.outputs['BSDF'],out.inputs['Surface']); return m
 
 # cores amostradas do concept
-mat_rich('M_Yellow',(0.730,0.568,0.0022),0.72,0.0,190,0.0016,0.16,0.0)
+mat_rich('M_Yellow',(0.584,0.417,0.00073),0.72,0.0,190,0.0016,0.16,0.0)
 mat_rich('M_Blue',(0.0157,0.0380,0.151),0.74,0.0,190,0.0014,0.14,0.0)
 mat_rich('M_BlueDk',(0.0105,0.0243,0.1010),0.78,0.0,210,0.0016,0.12,0.0)
 mat_rich('M_Dark',(0.016,0.016,0.019),0.82,0.0,340,0.0026,0.14,0.0)
@@ -233,7 +233,7 @@ def reg(nm,ob): QA[nm]=qp(ob); return ob
 H=1.207; L=2.255; W=1.494
 XFO=+1.128; XRE=-1.128
 XF=P.get('x_fw',+0.585); XR=P.get('x_rw',-0.720)
-RF=P.get('r_f',0.216); RR=P.get('r_r',0.262)
+RF=P.get('r_f',0.200); RR=P.get('r_r',0.225)
 HWF=P.get('hw_f',0.118); HWR=P.get('hw_r',0.158)
 TYF=P.get('ty_f',0.626); TYR=P.get('ty_r',0.5855)
 
@@ -260,11 +260,11 @@ def nose():
     out=[]; NS=26
     secs=[]
     for i in range(NS):
-        xf=0.015+0.19*(i/(NS-1.0))
+        xf=0.015+0.235*(i/(NS-1.0))
         x=XFO-xf*L
         zt=prof_top(xf)*H*0.94
         s=math.sin(math.pi*(0.06+0.90*(i/(NS-1.0))))**0.55
-        ry=0.196+0.196*s
+        ry=0.225+0.196*s
         zb=max(0.0,0.0+0.020*(i/(NS-1.0)))
         zc=(zb+zt)/2.0; rz=(zt-zb)/2.0
         secs.append(sq(x,ry,rz,38,2.0,z0=zc,zsq=1.02))
@@ -330,8 +330,8 @@ if GR: made.append(GR)
 def cowl():
     out=[]; NS=22; secs=[]
     for i in range(NS):
-        xf=0.245+0.215*(i/(NS-1.0)); x=XFO-xf*L
-        zt=prof_top(xf)*H
+        xf=0.225+0.235*(i/(NS-1.0)); x=XFO-xf*L
+        zt=prof_top(xf)*H*1.07
         # perfil medido manda: dip em xf~0.375 (0.445H) ja vem do prof_top
         s=math.sin(math.pi*(0.10+0.80*(i/(NS-1.0))))**0.5
         ry=0.148*s+0.042
@@ -339,7 +339,7 @@ def cowl():
         secs.append(sq(x,ry,(zt-zb)/2.0,36,2.2,z0=(zb+zt)/2.0,zsq=0.98))
     o=loft('Cowl',secs); assign(o,'M_Blue'); add_mod(o,'SUBSURF',levels=1); apply_mods(o); seal(o)
     # ESCAVA A BANHEIRA: subtrai um solido em forma de colher
-    cut=box('Cockpit_Cut',(XFO-0.405*L,0,0.647),(0.350,0.200,0.110),bevel=0.060,segs=6)
+    cut=box('Cockpit_Cut',(XFO-0.452*L,0,0.700),(0.232,0.196,0.124),bevel=0.055,segs=6)
     boolean(o,cut,'DIFFERENCE'); seal(o)
     try: bpy.data.objects.remove(cut,do_unlink=True)
     except Exception: pass
@@ -373,7 +373,7 @@ def pods():
     for sy in (1,-1):
         nm='Pod_'+('L' if sy>0 else 'R'); NS=30; secs=[]
         for i in range(NS):
-            t=i/(NS-1.0); xf=0.355+0.310*t; x=XFO-xf*L
+            t=i/(NS-1.0); xf=0.325+0.395*t; x=XFO-xf*L
             s=math.sin(math.pi*(0.05+0.90*t))**0.33
             outy=0.300+0.387*s      # borda externa: 0.30 -> 0.687 (alvo medido 0.92W)
             iny=0.175+0.115*s       # borda interna
@@ -392,7 +392,7 @@ def pods():
         o=loft(nm,secs); assign(o,'M_Yellow'); add_mod(o,'SUBSURF',levels=1); apply_mods(o); seal(o)
         csec=[]
         for i in range(NS):
-            t=i/(NS-1.0); xf=0.355+0.310*t; x=XFO-xf*L
+            t=i/(NS-1.0); xf=0.325+0.395*t; x=XFO-xf*L
             sc=math.sin(math.pi*(0.05+0.90*t))**0.45
             oy=0.300+0.300*sc; iy=0.175+0.115*sc; zt=0.105+0.150+0.130*sc
             csec.append([(x,sy*iy,zt+0.003),(x,sy*oy,zt-0.010),(x,sy*oy,zt-0.052),(x,sy*iy,zt-0.045)])
@@ -458,8 +458,8 @@ def chassis():
         assign(sp,'M_Gold'); out.append(reg('spring'+('L' if sy>0 else 'R'),sp))
 
     # concha baixa e RECLINADA: sobe para tras em curva (nao e parede vertical)
-    st2=tubevar('Seat_Shell',[(-0.150,0,0.368),(-0.234,0,0.428),(-0.322,0,0.490),(-0.412,0,0.548)],
-                [0.152,0.156,0.152,0.140],seg=26); assign(st2,'M_Dark'); out.append(reg('seat',st2))
+    st2=tubevar('Seat_Shell',[(-0.150,0,0.368),(-0.234,0,0.432),(-0.322,0,0.500),(-0.412,0,0.560)],
+                [0.170,0.196,0.208,0.196],seg=26); assign(st2,'M_Dark'); out.append(reg('seat',st2))
     for sy in (1,-1):
         spk=revolve('Sprocket_'+('L' if sy>0 else 'R'),[(0.014,-0.012),(0.160,-0.012),(0.160,0.012),(0.014,0.012)],XR-0.02,RR,y0=sy*0.215,seg=40)
         assign(spk,'M_Silver'); out.append(spk)
@@ -477,21 +477,21 @@ def rear():
     exb=P.get('exh_x',XRE+0.041)
     EXC=P.get('eng_x',-0.430)          # motor colado atras do banco
     # ---- motor: caixa chanfrada, topo prata / base escura / tampa azul ----
-    en=box('Engine',(EXC,0,0.372),(0.122,0.240,0.104),bevel=0.062,segs=5); assign(en,'M_Silver'); out.append(en)
-    en2=box('Engine_Bot',(EXC,0,0.300),(0.112,0.232,0.040),bevel=0.022,segs=3); assign(en2,'M_Dark'); out.append(en2)
-    ec=box('Engine_Top',(EXC+0.006,0,0.456),(0.106,0.220,0.034),bevel=0.030,segs=4); assign(ec,'M_Blue'); out.append(ec)
+    en=box('Engine',(EXC,0,0.585),(0.128,0.300,0.058),bevel=0.045,segs=5); assign(en,'M_Silver'); out.append(en)
+    en2=box('Engine_Bot',(EXC,0,0.500),(0.120,0.292,0.036),bevel=0.026,segs=3); assign(en2,'M_Dark'); out.append(en2)
+    ec=box('Engine_Top',(EXC+0.006,0,0.655),(0.112,0.272,0.030),bevel=0.024,segs=4); assign(ec,'M_Blue'); out.append(ec)
     # detalhe: tampa de vela (cilindro branco com furo escuro)
-    pl=revolve('Plug',[(0.012,-0.032),(0.030,-0.032),(0.030,0.032),(0.012,0.032)],EXC,0.386,y0=0.235,seg=18)
+    pl=revolve('Plug',[(0.012,-0.032),(0.030,-0.032),(0.030,0.032),(0.012,0.032)],EXC,0.600,y0=0.302,seg=18)
     assign(pl,'M_White'); out.append(pl)
-    ph=revolve('Plug_Hole',[(0.004,-0.022),(0.017,-0.022),(0.017,0.022),(0.004,0.022)],EXC,0.386,y0=0.262,seg=14)
+    ph=revolve('Plug_Hole',[(0.004,-0.022),(0.017,-0.022),(0.017,0.022),(0.004,0.022)],EXC,0.600,y0=0.330,seg=14)
     assign(ph,'M_Dark'); out.append(ph)
     for j in range(6):
-        fin=box('Efin%d'%j,(EXC,-0.195+j*0.078,0.428),(0.102,0.016,0.022),bevel=0.004,segs=1)
+        fin=box('Efin%d'%j,(EXC,-0.240+j*0.096,0.590),(0.108,0.018,0.026),bevel=0.004,segs=1)
         assign(fin,'M_Silver'); out.append(fin)
     # ---- AIRBOX/scoop atras do capacete (xf 0.72-0.80 no concept = 0.62H/0.53H) ----
-    for j,(xx,zz,ry_,rz_) in enumerate([(-0.480,0.560,0.088,0.062),(-0.580,0.516,0.080,0.056),(-0.660,0.478,0.070,0.048)]):
+    for j,(xx,zz,ry_,rz_) in enumerate([(-0.470,0.652,0.098,0.068),(-0.575,0.596,0.090,0.060),(-0.665,0.540,0.080,0.052)]):
         ab=box('Airbox%d'%j,(xx,0,zz),(0.058,ry_,rz_),bevel=0.020,segs=3); assign(ab,'M_Blue'); out.append(reg('airbox%d'%j,ab))
-    abt=sweep('Airbox_Duct',[(-0.470,0,0.610),(-0.580,0,0.556),(-0.672,0,0.512)],0.052,18)
+    abt=sweep('Airbox_Duct',[(-0.462,0,0.774),(-0.575,0,0.704),(-0.668,0,0.628)],0.054,18)
     assign(abt,'M_BlueDk'); out.append(reg('airbox_duct',abt))
     # ---- 3 escapamentos calibres iguais: 1 central reto (mais baixo/frente) + 2 laterais p/ fora ----
     e0=sweep('Exh_C',[(EXC-0.16,0.0,0.340),(XR-0.20,0.0,0.382),(exb,0.0,0.412)],0.106,28)
@@ -539,14 +539,18 @@ def rear():
         # perna vertical descendo da barra ate o difusor
         _bl.append((XRE+0.135, sy*0.505, 0.288)); _bl.append((XRE+0.168, sy*0.492, 0.150)); _bl.append((XRE+0.190, sy*0.430, 0.070))
     _loop=[(XRE+0.262,0.400,0.150)]+[(XRE+0.235,0.470,0.152)]+[(_bl[0][0],_bl[0][1],_bl[0][2])] if False else []
-    pts=[(XRE+0.245,0.262,0.150),(XRE+0.170,0.322,0.148),(XRE+0.180,0.312,0.120),
-         (XRE+0.192,0.286,0.074),(XRE+0.196,0.170,0.058),(XRE+0.196,0.0,0.054),
-         (XRE+0.196,-0.170,0.058),(XRE+0.192,-0.286,0.074),(XRE+0.180,-0.312,0.120),
-         (XRE+0.170,-0.322,0.148),(XRE+0.245,-0.262,0.150)]
-    rb=sweep('Rear_Bumper_Loop',pts,0.034,16); assign(rb,'M_Silver'); out.append(reg('rbump',rb))
+    # U invertido: barra superior alta + 2 pernas verticais + travessa inferior (concept)
+    _bx=XRE+0.088
+    scr=[(_bx,0.268,0.078),(_bx,0.268,0.598),(_bx,0.130,0.602),(_bx,0.0,0.602),
+         (_bx,-0.130,0.602),(_bx,-0.268,0.598),(_bx,-0.268,0.078)]
+    rb=sweep('Rear_Bumper_U',scr,0.030,16); assign(rb,'M_Silver'); out.append(reg('rbump',rb))
+    bt=sweep('Rear_Bumper_Bot',[(_bx,0.268,0.078),(_bx,0.0,0.070),(_bx,-0.268,0.078)],0.026,14)
+    assign(bt,'M_Silver'); out.append(bt)
+    _c=box('Rear_Clamps',(_bx,0.0,0.090),(0.030,0.290,0.040),bevel=0.010,segs=2)
+    assign(_c,'M_Dark'); out.append(_c)
     # ---- asa traseira: barra GROSSA azul-escura + endplates amarelos ----
     wz=P.get('wing_z',0.605)*H
-    wx1=XRE+0.055; wx2=XRE+0.245
+    wx1=XRE+0.016; wx2=XRE+0.235
     wsec=[]
     for i in range(13):
         u=i/12.0; x=wx1+(wx2-wx1)*u
@@ -556,12 +560,9 @@ def rear():
     wg=loft('Wing_Main',wsec); assign(wg,'M_BlueDk'); add_mod(wg,'BEVEL',width=0.011,segments=2); apply_mods(wg); out.append(reg('wing',wg))
     for sy in (1,-1):
         ep=revolve('Wing_Endplate_'+('L' if sy>0 else 'R'),
-                   [(0.007,-0.046),(0.031,-0.046),(0.037,-0.014),(0.037,0.014),(0.031,0.046),(0.007,0.046)],
+                   [(0.007,-0.138),(0.031,-0.138),(0.037,-0.030),(0.037,0.030),(0.031,0.090),(0.007,0.090)],
                    (wx1+wx2)/2.0, wz, y0=sy*0.552, seg=22)
-        assign(ep,'M_Yellow'); ep.scale=(1.0,1.0,1.05)
-        bpy.ops.object.select_all(action='DESELECT'); bpy.context.view_layer.objects.active=ep; ep.select_set(True)
-        bpy.ops.object.transform_apply(scale=True)
-        out.append(reg('wep_'+('L' if sy>0 else 'R'),ep))
+        assign(ep,'M_Yellow'); out.append(reg('wep_'+('L' if sy>0 else 'R'),ep))
         py=sweep('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.060,sy*0.170,wz-0.014),(wx1+0.115,sy*0.170,0.512)],0.024,12)
         assign(py,'M_Dark'); out.append(py)
     return join(out,'REAR')
@@ -572,7 +573,7 @@ if RE: made.append(RE)
 def pilot():
     out=[]
     hx=P.get('helm_x',-0.316); hz=P.get('helm_z',0.985)
-    HR=P.get('helm_r',0.202); SZ=P.get('helm_sz',0.985)
+    HR=P.get('helm_r',0.218); SZ=P.get('helm_sz',0.946)
     # ---- colarinho (HANS) cobrindo a juncao pescoco/capacete ----
     col=revolve('Collar',[(0.152,-0.030),(0.186,-0.030),(0.186,0.030),(0.152,0.030)],hx+0.010,0.788,seg=34)
     assign(col,'M_Gasket'); out.append(col)
