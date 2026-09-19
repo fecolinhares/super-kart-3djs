@@ -64,11 +64,13 @@ def bbox(m):
 
 
 def load_c(view):
-    m = np.load("/tmp/g2_%s.npy" % view)
-    im = Image.open(D + view + ".jpg").convert("RGB")
-    if im.size != (m.shape[1], m.shape[0]):
-        im = im.resize((m.shape[1], m.shape[0]), LANCZOS)
-    return np.array(im), m.astype(bool)
+    """Referencia LIMPA. As masks g2_* cruas tinham uma linha de chao de 2 px ao longo
+    de todo o comprimento (~0.6 cm) e runs finos de cota: medir contra elas penalizava o
+    modelo com FALTA sistematica no fundo. c_*/cc_* sao as mesmas views com runs finos
+    removidos, apenas a maior componente mantida e recortadas no bbox do conteudo."""
+    m = np.load("/tmp/c_%s.npy" % view).astype(bool)
+    im = np.load("/tmp/cc_%s.npy" % view)
+    return np.array(im), m
 
 
 def load_m(ver, view, mode=None):

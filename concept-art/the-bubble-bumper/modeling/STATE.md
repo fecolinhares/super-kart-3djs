@@ -299,3 +299,49 @@ em xf 0.36-0.62) e afinar o cover.
 ### ESTADO CONSOLIDADO = W392
 IoU 0.818 | P10 0.753 | COR_TV 0.261 | excesso 11.9 | falta 8.7 | <0.80 = 6 | QA 0 non-manifold 98.3% quads
 pior regiao: side/TRASEIRA 0.636 (inalterada desde W357 — proximo alvo estrutural)
+
+
+## REBUILD VISUAL-HULL — DIAGNOSTICO DA TECNICA (2026-09-19)
+
+### O que foi construido
+- `/opt/blender-runner/vh_build.py` — visual hull dos 3 ortograficos + surface nets (numpy puro, sem skimage/scipy).
+- `/opt/blender-runner/vh_color.py` — COR AMOSTRADA DO PROPRIO CONCEPT: para cada face, escolhe a vista que a olha de frente
+  (|nx|->FRONT, |ny|->SIDE, |nz|->TOP), amostra o pixel e classifica nas MESMAS faixas do classifier do auditor.
+- `/opt/blender-runner/vh_render.py` — render standalone (4 vistas + iso + mascara + passe FLAT).
+
+### BUGS DE INSTRUMENTO CORRIGIDOS (afetavam TODAS as metricas anteriores)
+1. `audit_bb.py` comparava contra as masks CRUAS `/tmp/g2_*.npy`, que tinham uma LINHA DE CHAO de 2 px
+   ao longo de todo o comprimento. -> referencia agora e `c_*`/`cc_*` (runs finos removidos, maior componente, recorte no conteudo).
+2. Importador OBJ do Blender ROTACIONA o modelo (Y-up->Z-up) -> usar forward_axis/up_axis explicitos.
+3. `remove_doubles` reordena faces -> desalinhava o material_index por face. Removido.
+4. Paleta com M_Blue claro demais caia na faixa "azul_clr" do auditor -> paleta recalibrada em linear.
+
+### RESULTADOS MEDIDOS
+| metrica | builder manual (w392/393) | visual hull (VH3/VHH) |
+|---|---|---|
+| IoU media | **0.820** | 0.802 |
+| P10 | **0.756** | 0.681 |
+| COR_TV | 0.256 | **0.170** |
+| excesso | 12.0 | 12.8 |
+| falta | 8.4 | **10.5** |
+| regioes <0.80 | **6** | 9 |
+- Votacao 2-de-3 (hull "soft") = DESASTRE: IoU 0.43, excesso 117% -> REJEITADA.
+- erode 1 + interseccao = melhor config do hull.
+
+### VISION (board mesma escala): FRONT 6 | SIDE 2 | TOP 3.5 | REAR 6
+"O Visual Hull acertou volume grosso e distribuicao de cor grosso em frente/atras, mas falhou em
+concavidade, oclusao e detalhe." SIDE: "buraco gigante no meio: torso, braco, coxa, volante e banco
+sumiram"; capacete oco; rodas fantasma; listras horizontais (terracing do surface nets);
+vazamento de textura da frente para as costas do capacete.
+
+### CONCLUSAO TECNICA (a resposta a pergunta do usuario)
+- Hull PURO nao serve: concavidades/cockpit/oclusoes viram VAZIO (limitacao matematica da tecnica).
+- Builder autoral PURO nao serve: forma "chunky" e pecas erradas.
+- **TECNICA CORRETA = HIBRIDA**: partes autorais (solidas, com concavidade, vao e oclusao) tendo o
+  hull como REFERENCIA de envelope e CONTORNO, + cor por face amostrada do concept (o truque que
+  derrubou COR_TV de 0.256 para 0.170), + validacao por elemento com vision.
+
+### PROXIMA FASE
+1. Aplicar a coloracao por projecao ao mesh do builder (usar o que funcionou).
+2. Redesenhar por peca usando o envelope medido: FBUMP azul (concept) em vez de prata; 3 escapes tubulares; cockpit/piloto com volume (o hull prova que precisa ser autoral).
+3. Regenerar o hull com surface nets + Smooth modifier para matar o terracing.
