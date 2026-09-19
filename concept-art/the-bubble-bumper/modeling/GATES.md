@@ -68,9 +68,12 @@ foram encontrados e corrigidos nesta sessao (ver STATE.md §INSTRUMENTO).
   EXPECT: /REGIOES_EXCESSO_ALTO=0/
   EVIDENCE: pending
 
-- [x] G12: nenhuma regiao com FALTA > 20%
-  EVIDENCE: `python3 audit_counts.py w295` -> REGIOES_FALTA_ALTA=0 (max falta 17.6% em rear/PILOTO_COSTAS)
+- [ ] G12: nenhuma regiao com FALTA > 20%
+  CHECK: cd /mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/modeling/ && python3 audit_counts.py $(cat .cv) | grep REGIOES_FALTA_ALTA
+  EXPECT: /REGIOES_FALTA_ALTA=0/
+  EVIDENCE: pending  (REFUTADO no check adversarial: medido REGIOES_FALTA_ALTA=1 - side/TRASEIRA com falta 20.9%)
 
+ABANDON: G12 nao alcancado - 1 regiao com FALTA>20% (side/TRASEIRA 20.9%). Eu havia marcado este gate como metido com evidencia errada; o check adversarial refutou.
 ABANDON: G2 nao alcancado nesta sessao — IoU_MEDIA medido 0.807 (alvo >=0.900). Progresso real: 0.806 -> 0.807 com correcao estrutural de entre-eixos, volante/coluna e cores; instrumento corrigido (era 0.823 inflado).
 ABANDON: G3 nao alcancado — pior regiao 0.630@side_TRASEIRA (alvo >=0.850). Trabalho remanescente em STATE.md §PROXIMOS PASSOS item 1.
 ABANDON: G4 nao alcancado — 10 regioes abaixo de 0.80 (era 12).
