@@ -161,6 +161,11 @@ old20="zt=prof_top(xf)*H*0.97"
 new20="zt=prof_top(xf)*H*P.get('cowl_k',0.97)"
 if old20 in SRC:
     SRC=SRC.replace(old20,new20,1)
+# patch 21: z do Cockpit_Cut (o aro do recorte forma o pico de t0.40)
+old21="cut=box('Cockpit_Cut',(XFO-0.452*L,0,0.640),(0.232,0.150,0.116)"
+new21="cut=box('Cockpit_Cut',(XFO-0.452*L,0,0.640+P.get('ch_top_dz',0.0)),(0.232,0.150,0.116)"
+if old21 in SRC:
+    SRC=SRC.replace(old21,new21,1)
 
 old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"

@@ -3072,3 +3072,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
 
 **ALVO FISICO DO TRECHO A**: descer a estrutura escura do dash/volante ~0.11 m (0.566 -> 0.473 no perfil = -0.093).
   Fix planejado: parametro `ch_top_dz` no CH, baixando so o topo do conjunto escuro em x 0.15..0.30.
+
+
+## Z2-A fixes testados — DOIS REFUTADOS
+  Nassau: REFUTADO lendo o codigo (assign M_Blue; Nassau_Face M_Yellow; bbox z 0.30..0.56 em x=0.363) — 3 builds poupados.
+  Cockpit_Cut (patch 21 ch_top_dz=-0.110, W500): **ZERO mudanca no perfil** (EMA 0.0381 identico, todos os diffs iguais).
+  => o aro do recorte NAO e o topo de t0.40. O `box()` do cutter sem assign nao e o M_Dark medido no W498.
+
+**PROVA ATIVA**: W498 provou que 394 faces M_Dark em x0.15..0.27/z0.55..0.95 BAIXAM t0.40 em -0.047.
+  Pecas ja excluidas nesse espaco: COWL (M_Blue, k nao afeta t0.40), Nassau (M_Blue/z baixo), Cockpit_Cut (W500 zero).
+  CANDIDATO RESTANTE: partes M_Dark do PILOTO (PL: x -0.57..0.65, z 0.2441..1.2708) — botas/pernas/braco escuros
+  avancando ate x~0.21 acima de z0.55. Proximo: del_mat M_Dark com del_x [0.15,0.27] e del_z [0.55,0.95] MAS
+  excluindo as pecas do CH/COWL — ou ler o piloto() buscando M_Dark com x>0.15.
