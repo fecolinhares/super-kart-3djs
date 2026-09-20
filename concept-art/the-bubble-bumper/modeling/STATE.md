@@ -6379,3 +6379,13 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     laterais' -> medicao por faixa localizou 156%% em z 0.725-0.760 -> P74 corrigiu -> v714 mede 96,8-104,1%%.
   LICAO CONSOLIDADA: alvo dado pela VISao em numero (90-95%%) e verificavel por MEDICAO (razao por faixa). Quando a visao
     da um numero, use-o como criterio; quando da adjetivo, meça primeiro.
+
+
+## *** P76: VISEIRA RENTE — TODAS AS FAIXAS DENTRO DO CASCO (91,7-98,6%%) ***
+  O gate v20 deu o alvo ('viseira ~90-95%% do casco, rente'); o v21 ainda via abas com 104,1%% (aprox. 5 mm fora).
+  A granularidade da banda (2 cm) 'come' uns 5%%: com clamp 0.95 as faixas mediam 103-104%%. Apertei para 0.90.
+  [P74] com 0.90: critério por faixa = 97,6%% | 98,6%% | 94,0%% | 91,7%% — TODAS DENTRO do casco. ###QA### True, sep 14.
+  HISTORICO COMPLETO DAS 'ORELHAS' (fechado): gate P60 'cantos estourando como orelhas' -> gate v19 'abas laterais' ->
+    medicao por faixa localizou 156,4%% em z 0.725-0.760 -> P74 com 1.05 deu 113,9%% -> 0.95 deu 104,1%% -> 0.90 deu 97,6%%.
+  LICAO DE CALIBRACAO: quando o clamp e aplicado por BANDA, o resultado medido fica ~5%% ACIMA do parametro (o vert no topo da
+    banda carrega o maximo dela). Para entregar 95%% medidos, configurar ~90%%. Parametro e criterio nao sao a mesma escala.
