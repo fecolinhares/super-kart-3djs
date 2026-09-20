@@ -1853,3 +1853,29 @@ escala/offset x da viseira. Medir depois: runs em t 0.80/0.78/0.76.
 
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## ALVO A — SOLUCAO IDENTIFICADA: o capacete do concept tem a FRENTE rebaixada
+
+Parametros do capacete JA expostos: helm_x=-0.298 | helm_z=0.985 | helm_r=0.210 | helm_sz=0.934.
+Geometria: dome em (hx,0,hz) com raio HR e escala z SZ -> extensao z = hz +/- HR*SZ = 0.789..1.181.
+
+Em t 0.80 (z 0.93): (0.93-0.985)/0.934 = -0.059 -> raio normalizado sqrt(1-0.059^2)=0.998 -> secao
+QUASE COMPLETA: x -0.508..-0.088 => imagem 0.53..0.72 = **exatamente o bloco solido do modelo** ✓ (confirmado).
+
+CONCEPT na mesma altura: material so em imagem 0.61..0.72. Convertendo:
+  imagem 0.61 -> x = 1.15 - 0.61*2.35 = -0.284
+  imagem 0.72 -> x = 1.15 - 0.72*2.35 = -0.542
+=> x -0.284..-0.542 = **a METADE TRASEIRA do capacete** (helm_x -0.298, raio 0.21 -> -0.088..-0.508).
+=> O CAPACETE DO CONCEPT, em z 0.93, TEM MATERIAL APENAS NA PARTE DE TRAS: a FRENTE esta REBAIXADA
+   (formato real de capacete: a regiao da viseira/queixa e mais baixa que a calota).
+
+**ACAO (proximo build)**: rebaixar a FRENTE do capacete. Opcoes a testar (uma por build):
+  (a) helm_x -0.298 -> -0.360 (desloca o domo para tras; a frente sai de z 0.93)
+  (b) helm_r 0.210 -> menor, mantendo hz (reduz a secao em z 0.93 por igual nos dois lados)
+  (c) helm_sz maior (achata em z, baixando o topo)
+Medir depois: runs em t 0.80/0.78/0.76 e o agregado (IoU/P10/<0.80). Nada disso foi testado LIMPO antes
+(o W416, que tentou mexer no capacete, foi medido ANTES da correcao do OVR -> invalido).
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
