@@ -33,6 +33,14 @@ old5="    exb=P.get('exh_x',XRE+0.041)"
 new5="    exb=P.get('exh_x',XRE+0.041)+P.get('exh_short',0.0)"
 if old5 in SRC:
     SRC=SRC.replace(old5,new5,1)
+
+# patch 6: escapamentos L/R encurtados em X (o CENTRAL mantem o extremo exb -> x_range preservado).
+# Os L/R diferem do central so em Y, entao na vista lateral projetam no MESMO x e fundem num run continuo;
+# o concept deixa x -0.66..-0.92 vazio em z~0.62.
+old6="        pt=((exb,sy*0.240,0.472+_edz),(XR-0.20,sy*0.185,0.420+_edz),(EXC-0.16,sy*0.110,0.392+_edz))"
+new6="        _lr=P.get('exh_lr_short',0.0); pt=((exb+_lr,sy*0.240,0.472+_edz),(XR-0.20+_lr*0.5,sy*0.185,0.420+_edz),(EXC-0.16,sy*0.110,0.392+_edz))"
+if old6 in SRC:
+    SRC=SRC.replace(old6,new6,1)
 ovr=dict(BASE); ovr.update(EP_OVERRIDES); ovr['v']=VER
 g=dict(globals()); g['OVR']=ovr
 exec(compile(SRC,'bb_'+VER,'exec'),g)

@@ -1974,3 +1974,34 @@ Alternativas que PRESERVAM o comprimento:
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
 x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568  <- **invariantes a preservar**
+
+
+## W466 (exh_lr_short=0.35) — INVARIANTES OK, MAS NEUTRO: identificacao estava ERRADA
+
+**INVARIANTES PRESERVADOS** (a regra funcionou): x_range [-1.2,1.15] | z_range [-0.01,1.165] |
+scale_factor 0.98568 — identicos a W463. Comparacao VALIDA.
+RESULTADO: t 0.54 continua `0.39..0.42 | 0.43..0.99` SOLIDO — **nenhum vao abriu**.
+Agregado: IoU 0.826 (=) | P10 0.790 (=) | pior 0.680 (=) | COR_TV 0.252->0.251 | exc 12.9 (=) | falta 7.0 (=) |
+<0.80 4 (=) | side/TRASEIRA 0.680 (=) | rear/ESCAPES 0.890 (=).
+=> **os escapamentos L/R NAO sao o que fecha a linha t 0.54.** Hipotese refutada.
+
+## RE-IDENTIFICACAO DA LINHA t 0.54 (conversao das coordenadas)
+t 0.54 -> z ~0.62. O run do modelo `0.43..0.99` cobre x **+0.14 .. -1.18** (a traseira INTEIRA).
+O concept: `0.41..0.77 | 0.80..0.81 | 0.88..0.94` => vaos em imagem 0.77-0.80 e 0.81-0.88
+  => x = -0.66..-0.73 e -0.75..-0.92.
+Ocupantes RE-IDENTIFICADOS (probe por material no REAR, z 0.55-0.70, x -1.00..-0.55):
+  M_Silver  656  x -0.999..-0.550  -> sobrou mesmo apos encurtar os L/R => e OUTRA peca M_Silver
+  M_Dark    188  x -0.851..-0.746  -> ocupa o vao 0.75-0.85 ✗
+  M_Yellow  156  x -1.000..-0.935  -> a ASA/endplate (concept tem 0.88-0.94 = x -0.92..-1.06)
+  M_Blue     86  x -0.986..-0.892  -> a asa: o modelo tem em 0.85-0.99; o concept so em 0.88-0.94
+  M_BlueDk   81  x -0.690..-0.582  -> o DUCT, ocupa o vao 0.66-0.73 ✗
+=> **dois ocupantes reais dos vaos**: (1) o `M_Dark` em x -0.746..-0.851 (dentro do vao -0.75..-0.92) e
+   (2) o DUCT em x -0.582..-0.690 (dentro do vao -0.66..-0.73). A asa tambem esta 0.05 mais larga.
+   Nenhum deles e escapamento.
+
+**PROXIMA ACAO**: (i) identificar qual peca e o `M_Dark` em x -0.746..-0.851 no codigo (procurar por M_Dark
+no bloco rear()), (ii) estreitar a asa (wing_x1/x2) para o concept (0.88-0.94), (iii) o duct ja foi mexido
+em z (abt_dz) mas nao em x — testar encurtar o duct em x preservando x_range.
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
