@@ -4738,3 +4738,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     NAO continuar mexendo em escala: 3 builds provaram que a escala nao alcanca o alvo.
   ESTADO W622D (melhor ate aqui): largura +1%% OK | centro_y 29.2%% vs 28.7%% OK | do topo 17.3%% vs 14.7%% |
     alt_z -44%% | faixa 31.2%% vs 30%% | h/w 1.231 vs 1.240 | simetria 0.1 mm | globais preservadas.
+
+
+## *** G26/VENTS FECHADO: 9.5/10 E DENTRO DE 5%% NA MEDICAO (rasgo, nao elipsoide) ***
+  A MUDANCA QUE RESOLVEU: elipsoide -> RASGO por LOFT de secoes deslocadas (shear) ao longo da TANGENTE VERTICAL.
+    Diagnostico que fundamentou: extraidas as componentes dos eixos locais dos builds W622D/W623D ->
+      local X ~ (x .73, y .38, z .57) | local Y ~ (x .19, y .81, z .56)
+    os DOIS eixos carregam z ~0.56 => nenhuma rotacao no plano (tilt) separa largura de altura. O DESLOCAMENTO
+    (shear) da independencia real, que a escala nao da. Confirmacao: alt_z foi de -44%% (elipsoide) para +0.4%%.
+  W626D (final): largura 0.0370 vs 0.0389 (-5%%) | altura 0.0551 vs 0.0549 (+0.4%%) | centro_y 29.2%% vs 28.7%% |
+    do topo 17.3%% vs 14.7%% | aspecto 1.49 vs 1.41 | simetricos | globais preservadas (x_range, W/H 1.169, 14 pecas)
+  VISION W626D (8.5/10, Vents 9.5/10): 'SIM, sao rasgos alongados, nada de bolinha. Simetricos, flanqueando a
+    faixa, acima da linha da viseira, mesma altura relativa e mesma inclinacao. Proporcao muito parecida.
+    ESTA APROVADO PARA SEGUIR.'
+  *** CONVERGENCIA DOS DOIS INSTRUMENTOS *** o vision pediu 'estreitar a faixa ~10%%'; a METROLOGIA mediu 31.2%%
+    contra 30%% mediana do concept (faixa do concept afunila 38.8%% no topo -> 27.1%% na viseira). Os dois
+    apontam na MESMA direcao e magnitude -> estreitar para ~0.099 (28.9%% do capacete). Quando a base e medida,
+    vision e metrologia convergem; quando a base e chute, divergem.
+  RESTA NO CASCO: (a) o tracinho horizontal da testa no meio da faixa (respiro, feature nova); (b) TAPER da faixa
+    (largura variavel em u — o concept afunila); (c) viseira/olhos/sobrancelhas (o vision diz que a viseira e
+    'mais chapada/larga' e os olhos/sobrancelhas 'mais grossos' que o concept).
