@@ -296,6 +296,19 @@ if o30a in SRC: SRC=SRC.replace(o30a,n30a,1); _c+=1
 if o30b in SRC: SRC=SRC.replace(o30b,n30b,1); _c+=1
 print('P30 seat_dx patches aplicados:',_c,'de 2')
 
+
+# patch 31 (v2): SPAN do cowl — alvo CORRIGIDO (o fallback anterior atingiu o NOSE).
+# O cowl termina em x~0.209 e o capacete comeca em x~-0.063 (vao de 27cm = o degrau antes do pico).
+o31="P.get('cowl_xf0',0.225)+0.235*(i/(NS-1.0))"
+n31="P.get('cowl_xf0',0.225)+P.get('cowl_xspan',0.235)*(i/(NS-1.0))"
+_c31=s=0
+if o31 in SRC:
+    SRC=SRC.replace(o31,n31,1); print('P31v2 cowl_xspan OK')
+else:
+    print('P31v2 alvo nao encontrado (cowl_xf0 patch ausente?)')
+    for _l in SRC.split(chr(10)):
+        if 'cowl_xf0' in _l: print('   linha cowl_xf0:', _l.strip()[:120])
+
 exec(compile(SRC,'bb_'+VER,'exec'),g)
 R=g.get('R',{})
 print(VER,'| QA=',R.get('qa',{}).get('aprovado'),'| z_range=',R.get('z_range'),'| ERRO=',R.get('ERRO'))

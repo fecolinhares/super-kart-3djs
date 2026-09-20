@@ -3456,3 +3456,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
 **METODO CONSOLIDADO (usar sempre)**: teste de alavanca = mover o parametro da peca SUSPEITA em amplitude
   GRANDE (>=10x o passo da grade de medicao) e ver se a metrica se move. Refuta em 1 build sem sondas de
   delecao. Custo: 1 build por candidato. Ordem: geometria mais proxima do x do landmark primeiro.
+
+
+## W526/W527 — EXTENSAO DO COWL: hipotese REFUTADA (mas com 2 achados)
+  W526 INVALIDO: o patch 31 caiu no fallback e atingiu o NOSE (0.3055..1.0814, z 0.6383) com o COWL intacto.
+    LICAO: replace de substring curta ('0.235*(i/(NS-1.0))') casa a PRIMEIRA ocorrencia = peca errada.
+    SEMPRE ancorar o patch no parametro ja parametrizado da peca alvo e VERIFICAR pelo bbox da peca no resultado.
+  W527 CORRIGIDO: COWL foi de x 0.206 -> -0.0517 e z 0.70 -> 0.9386 (encontra o capacete em -0.063).
+    RESULTADO: **TODOS os landmarks com movimento 0.0000** — a massa nova do cowl fica DENTRO do contorno
+    (o pico do capacete em z 1.27 domina o perfil superior). "Estender o cowl" NAO cria o degrau da nuca.
+    VALOR: (a) refuta a hipotese em 1 build; (b) prova que o medidor e DETERMINISTICO (malha mudou, numeros iguais).
+
+### ACHADO ESTRUTURAL CONSOLIDADO (o mais importante da sessao para o degrau):
+    topo_global_x (pico do capacete): concept 0.6198 | modelo 0.6124  => erro 0.0074  ** JA ESTA CERTO **
+    degrau_x (maior gradiente do topo): concept 0.7202 | modelo 0.5132  => erro 0.2071  ** ERRADO **
+  Como o pico esta no lugar certo e o maior gradiente esta 0.2071 (0.49m) adiante, o unico caminho e o FORMATO
+  do capacete: no concept o pico fica a 0.10 do bordo TRASEIRO (nuca longa, frente recolhida); no modelo o maior
+  gradiente e a SUBIDA da FRENTE do capacete. Ou seja: frente do capacete precisa recuar ~0.49m SEM mover o pico.
+  => helm_x sozinho NAO serve (move o pico junto). Precisa de um parametro de FORMA: achatar/recuar a frente do
+     capacete (helm_front_scale / helm_x_front) mantendo o centro do pico. E o proximo alvo.
