@@ -3371,3 +3371,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
       A. Erro de LANDMARKS: pontos (ponta do bico, centros de roda, extremos dos pods, abertura do cockpit, centro/topo
          do capacete, volante, centros dos 3 escapes), normalizado pela extensao da propria vista;
          E_landmark = mediana(dist/extensao). GATE: mediana <= 2.5%% e nenhum P0 > 5%%. Reportar tambem o pior landmark.
+
+
+## LANDMARKS v2 — SEMANTICA VALIDADA + O MAIOR ERRO DA SESSAO ENCONTRADO
+  Pitfall de semantica: os indices 'bico'/'rabeira' do landmarks.py mediam coisas diferentes; corrigido
+  medindo TOPO e BASE nas DUAS extremidades (banda de 5% das colunas) e verificando a ORIENTACAO:
+    concept side.jpg = kart virado p/ ESQUERDA (frente=coluna 0, traseira=coluna W-1) — confirmado por
+    L_base_z 0.0859 (roda dianteira toca o chao) vs R_base_z 0.5833 (traseira NAO desce).
+  RESULTADO (contracts/zone-extremes.json):
+    L_topo_z   0.2247 -> 0.2762  dif 0.0514  P0  (frente do modelo um pouco alta)
+    R_topo_z   0.6970 -> 0.5434  dif 0.1535  P0  (topo da traseira mais baixo)
+    **R_base_z 0.5833 -> 0.0690  dif 0.5143  P0 — O MAIOR ERRO DE TODA A SESSAO**
+    degrau_x   0.7202 -> 0.5132  dif 0.2071  P0  (degrau/cockpit ~20%% do comprimento ADIANTADO)
+    degrau_amp 0.3131 -> 0.2428  dif 0.0704  P0  (degrau 22%% mais suave)
+    topo_global_x 0.0122 OK | topo_global_z 0.0003 OK | L_base_z 0.0435 OK
+  DIAGNOSTICO: no concept o elemento MAIS RECUADO e a ASA ALTA FLUTUANDO (base 0.58 do H);
+    no modelo o mais recuado e um elemento BAIXO quase no chao (base 0.069).
+  => HIERARQUIA TRASEIRA INVERTIDA. E exatamente a 'traseira sem arquitetura coerente' que o vision
+     apontou e o item 5 da lista do Sol. Vale MAIS que o bico_z (0.2581) que eu ia atacar;
+     o R_base_z (0.5143) e o dobro do erro e reordena a fila.
+  FILA REORDENADA POR TAMANHO DE ERRO: 1) R_base_z 0.5143 (traseira) 2) bico_z/frente 0.2581
+    3) degrau_x 0.2071 4) R_topo_z 0.1535 5) pod_area_frac 0.0993 6) degrau_amp 0.0704
