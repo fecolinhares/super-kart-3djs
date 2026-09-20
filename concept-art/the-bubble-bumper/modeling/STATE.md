@@ -5492,3 +5492,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     exata (superior e inferior); (b) testar pilot_push_z1 maior (0.82) e/ou alargar a abertura do casco; (c) se o limitante
     for a propria mentoneira (pouca altura projetada), aumentar chin_sz (hoje 1.60).
   W666D verde: QA ok, 14 pecas, globais preservadas.
+
+
+## *** MENTONEIRA: AMARELO +177%% E ALTURA +55%% (2540 -> 7026 px; 60 -> 93 px) ***
+  DIAGNOSTICO GEOMETRICO (a chave): mapeando o render para o mesh (camera face orto 0.70 @ z=0.933, 860 px -> 1 px =
+    0.000814 m), o amarelo visivel ia de y741 (z=0.680) a y817 (z=0.618). Medindo x_max por material por faixa:
+      z 0.62-0.70 (VISIVEL):    M_Yellow x_max=-0.151 -> o amarelo E o mais a frente, nada o cobre
+      z 0.68-0.79 (ESCONDIDO):  M_Yellow x_max=-0.188 -> o amarelo fica ATRAS do gasket/piloto (-0.175)
+    Ou seja o TOPO DA MENTONEIRA ESTA RECUADO ~3,7 cm e por isso os vizinhos passam na frente. Nao era oclusao por
+    outros objetos no sentido classico: era a propria peca atras do plano dos vizinhos.
+  P50 COM x<=-0.200 (era -0.175): 203 verts recuados (era 156).
+    AMARELO do queixo: 5.390 -> 7.026 px (+30%%) | ALTURA 77 -> 93 px (+21%%)  <-- agora a altura RESPONDE
+  SERIE COMPLETA (amarelo do queixo em px / altura em px):
+    W664D 2540 / 60  ->  W665D 4724 / 77 (P50 so M_Pilot)  ->  W666D 5390 / 77 (todos menos amarelo)
+    ->  W667D 7026 / 93 (push_x -0.200)  =  +177%% em area, +55%% em altura
+  PROXIMO: continuar o recuo (-0.23) e/ou aumentar chin_sz (1.60) para fechar os ~180 px; depois re-render + gate visual.
+  W667D verde: QA ok, 14 pecas, globais preservadas.
