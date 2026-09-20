@@ -6603,3 +6603,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     sem backface culling, o Eevee ordena/soma todas -> padrao xadrez (screen-door) -> come o catchlight e 'corta' os olhos.
   [P83] aplicado: show_transparent_back=False, use_backface_culling=True. ###QA### True, sep 14, 0 erros.
   (A amostragem NAO era o problema: taa 96 e denoise ativos.)
+
+
+## *** GATE v30: DITHER MORTO — O BRANCO DO OLHO APARECE ATRAVES DA VISEIRA ***
+  Vision (W723D): (1) 'Sim — o xadrez/dither SUMIU, a viseira esta lisa e o branco/pupila do olho agora aparece ATRAVES dela'.
+    Restam: serrilhado de GEOMETRIA na borda inferior e o olho direito 'lavado'. (2) 6/10. (3) MAIOR erro: 'geometria/encaixe
+    da viseira — borda inferior RETA, serrilhada e CLIPANDO NO QUEIXO, em vez da curva arredondada que envolve o rosto'.
+  A CAUSA RAIZ perseguida por 4 gates era o MATERIAL somando camadas transparentes em xadrez (show_transparent_back +
+    backface_culling). Resolvida com 2 flags. Registro: 'trocar material/engine' era o proximo passo certo, e eu havia
+    chegado nele pela regra '3 correcoes geometricas sem efeito = pipeline de render'.
+  PROXIMOS (agora geometricos de novo, e mensuraveis):
+    1. BORDA INFERIOR DA VISEIRA: fazer curva (U mais fundo) e ELIMINAR o clipping no queixo — medir a INTERSECAO entre os
+       volumes de M_Visor e M_ChinPanel/M_Yellow na regiao z 0.68-0.75 (a 'clipando no queixo' do vision e medivel);
+    2. 'OLHO DIREITO LAVADO': conferir o catchlight por lado (o P80 usa _sg4*_cl*0.8 -> os dois deslocam para fora; assimetrico
+       em relacao ao concept, que inverte o brilho). Medir os dois catchlights separadamente.
