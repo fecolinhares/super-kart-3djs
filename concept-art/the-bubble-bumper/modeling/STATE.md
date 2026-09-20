@@ -1828,3 +1828,28 @@ Verificar o parametro correspondente no builder (piloto/assento) e expor via pat
 
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## ALVO A — CAUSA-RAIZ NO CODIGO: o capacete e um domo LISO
+
+Codigo do builder:
+  helm=dome('Helmet',hx,0.0,hz,HR,sz=SZ,sy=1.0,seg=104,rings=62)   -> assign 'M_Blue'
+  hrst=tube_round('Headrest_U',[(hx+HR*0.16, HR*0.92,_hz2),(hx-HR*0.62,...),(hx-HR*0.98,0,_hz2),...],0.042,18)
+  st2=tubevar('Seat_Shell',[(-0.150,0,0.368),(-0.234,0,0.432),(-0.322,0,0.500),(-0.412,0,0.560)],[0.170,0.196,0.208,0.196])
+
+Medido: M_Blue ocupa x -0.500..-0.087 => o raio efetivo do capacete e ~0.21 m (domo de 0.42 m de extensao),
+centrado em hx~-0.29. O concept, na MESMA faixa (imagem 0.53-0.72), mostra 4 runs:
+  0.53 | 0.56..0.57 | 0.58..0.59 | 0.61..0.72
+=> o capacete do CONCEPT tem CORTES VISIVEIS na silhueta (borda da viseira + queixeira) que a quebram em
+   4 massas. O do modelo e um domo CONTINUO de superficie lisa -> silhueta solida de ponta a ponta.
+
+Causa-raiz: nao e posicao nem escala do capacete — e **falta de quebra de silhueta** (viseira/queixa
+salientes o bastante para separar a silhueta). O `M_Visor` medido (x -0.291..-0.085) fica DENTRO do
+intervalo do domo, entao nao quebra nada.
+
+**ACAO (proximo build)**: fazer a viseira (e/ou queixeira) PROTRUIR alem do domo do capacete o suficiente
+para criar os vaos em imagem ~0.53-0.56 e ~0.59-0.61 em z 0.90-0.95. Parametro a expor via patch:
+escala/offset x da viseira. Medir depois: runs em t 0.80/0.78/0.76.
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
