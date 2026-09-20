@@ -6268,3 +6268,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     que ocupa o retangulo dos olhos e M_Eye (nao M_Face).
   CRITERIO MENSURAVEL NOVO: listar QUAL material ocupa o retangulo dos olhos (|y|<=0.04, z 0.741-0.760) e a frente deles.
     Se M_Face aparecer ali, o 'olho' que o render mostra e o antigo.
+
+
+## FALSO NEGATIVO DE JANELA: O TESTE NAO ENXERGOU A GEOMETRIA ANTIGA ***
+  Tentei confirmar a hipotese (as faces antigas agora M_Face ainda renderizadas como 'olhos enormes') com o criterio de
+    cobertura, mas usei |y|<=0.04 — e os olhos ANTIGOS iam de -0.064 a +0.064. Resultado: M_Face nao apareceu. FALSO
+    NEGATIVO por janela estreita, nao por ausencia do objeto.
+  O teste alargado (|y|<=0.07) saiu VAZIO — o script tem um erro (nao imprimiu nem a linha de x_max) e precisa ser
+    reescrito. Estado exato para retomar: conferir se M_Face ocupa a faixa z 0.735-0.770 em |y| 0.05..0.07 — se ocupar, o
+    render esta mostrando os OLHOS ANTIGOS; o fix e recuar essas faces em x (para tras das lentes novas).
+  ESTADO DO MODELO (indiscutivel, medido): olhos = 2 lentes de 0.025 x 0.040 (aspecto 1.60), centroides a 0.0380, vao
+    0.0216 POSITIVO, pupilas M_Dark centradas em +-0.019, QA True, falhas = [], 0 erros, sep_parts=14.
+  PADRAO REGISTRADO: tres gates seguidos (v16->v17->v18) em que a visao descreveu o OPOSTO do que a medicao confirma no
+    MESMO render. Antes de aceitar a autoavaliacao da visao, verificar se a geometria medida e a geometria VISIVEL.
