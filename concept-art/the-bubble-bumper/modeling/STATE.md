@@ -4553,3 +4553,27 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Isso torna a folga CONSTANTE por construcao e acaba com o z-fighting. Alternativa se raycast for caro:
     envolver a faixa numa casca de offset do proprio capacete (solidify/selecao de faces).
     NAO continuar ajustando helm_trim_up: ja provado que o range util nao existe.
+
+
+## *** G26/CAPACETE: P34 (RAYCAST) MEDIDO, GUARDADO E COM O PROXIMO ERRO ISOLADO ***
+  P34 implementado (faixa projetada por raycast, opt-in via helm_raycast) e 3 builds medidos:
+    W605D helm_raycast=1 (sem conversao de espaco): helm_trim span 0.0119  -> SLIVER (base: 0.4802)
+    W606D helm_raycast=0 (GUARD)                  : helm_trim span 0.4802  -> estado base PRESERVADO, zero regressao
+    W607D helm_raycast=1 (+ matrix_world.inverted()): span 0.0119         -> SLIVER de novo
+  FOLGAS DA FAIXA BASE MEDIDAS PELA PRIMEIRA VEZ (helm_trim_up=1.006, W606D):
+    TOPO     +0.0015  (1.5 mm fora — praticamente colada)
+    FRENTE   +0.0050  (5 mm fora)
+    TRASEIRA -0.0241  (24 mm DENTRO do capacete)   <-- DEFEITO QUANTIFICADO
+    (confirma o mecanismo: circulo escalado vs dome com perfil diferente; afundamento de 24 mm,
+     contra espessura de faixa de 2.1 mm = 11x)
+  ERRO ISOLADO NO RAYCAST: com o guard=0 a faixa esta perfeita (span 0.4802), logo o defeito e SO do caminho
+  de raycast. O blob colapsa exatamente em (hx, hz) com z 1.00-1.09 => a distancia retornada e ~0 (so a FOLGA),
+  isto e, o raio ACERTA GEOMETRIA NA PROPRIA ORIGEM. A conversao de espaco (matrix_world.inverted()) NAO mudou
+  nada, entao a hipotese 'mundo vs local' estava ERRADA.
+  CAUSA MAIS PROVAVEL (e fix desenhado): partir do CENTRO e ir PARA FORA encontra primeiro casca interna/faces
+  invertidas ou geometria interna (o Dome nao e uma casca simples; ha helm_base/intake no mesmo objeto).
+  FIX CLASSICO ROBUSTO: lancar o raio DE FORA PARA DENTRO — origem = (hx,0,hz) + d*2HR, direcao = -d; o
+  primeiro hit e necessariamente a superficie EXTERNA. Alternativa: closest_point_on_mesh a partir de um ponto
+  externo. NAO insistir em ray_cast de dentro para fora.
+  SEGURANCA: P34 tem guard `helm_raycast` (default 0) — o pipeline continua saudavel e a base W598D intacta.
+    Regra que evitou o estrago: feature nova entra OPT-IN, nunca substituindo o caminho validado.

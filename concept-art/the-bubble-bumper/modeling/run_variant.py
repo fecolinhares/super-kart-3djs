@@ -433,6 +433,11 @@ if _oldp32 in SRC:
     print('P32 aplicado (helm_trim)')
 else:
     print('P32 NAO aplicado (ancora nao encontrada)')
+if open('/tmp/p32_new.txt').read() in SRC:
+    SRC = SRC.replace(open('/tmp/p32_new.txt').read(), open('/tmp/p34_new.txt').read(), 1)
+    print('P34 aplicado (faixa projetada na superficie real)')
+else:
+    print('P34 NAO aplicado')
 
 _oldp26 = "zt=prof_top(xf)*H*P.get('cowl_k',0.97)"
 _newp26 = ("zt=prof_top(xf)*H*P.get('cowl_k',0.97)\n"
