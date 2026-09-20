@@ -2988,3 +2988,10 @@ Vision proprio pareado (concordou, reprovou): "a silhueta nao e a mesma ... pare
 
 **NOTA**: isso muda `z_range` de proposito — a spec do concept (L/H 1.868) e a AUTORIDADE depois da
   rejeicao do usuario. O gate antigo de z_range [-0.01,1.165] fica INVALIDADO.
+
+
+## Z1 CONCLUIDO — W490 (helm_r 0.235, helm_z 1.050): L/H 1.999 -> 1.861 (concept 1.868)
+  z_range [-0.01, 1.253] (alvo 1.258) | x_range [-1.2,1.15] EXATO | scale 0.98563 intacto | QA aprovado
+  DIF do perfil superior: t0.55 +0.028 | t0.60 +0.005 | t0.65 -0.006 (PICO = CAPACETE, era a falha principal)
+ALVOS RESIDUAIS Z2/Z3: (1) COWL t0.35 -0.099 / t0.40 +0.093 => pico do modelo 12cm ATRAS (concept pica em x=0.328m, modelo em x=0.210m; COWL hoje x 0.0911..0.6202) -> deslocar frente +0.12m em x; (2) ESCAPAMENTO t0.90 -0.062 / t0.95 -0.093 => subir ~11cm SO o trecho traseiro (cuidado: subir o tubo inteiro re-fecha a banda t0.54 calibrada em W474/W489); (3) TRASEIRA t0.75-0.85 ~-0.05 (baixa, dentro da tolerancia); (4) BICO t0.10 -0.051.
+METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
