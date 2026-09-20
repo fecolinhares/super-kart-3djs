@@ -146,6 +146,16 @@ old17="[(wx1+0.075,sy*0.150,wz-0.030),"
 new17="[(wx1+0.075,sy*0.150,wz-0.030+P.get('pyl_dz2',0.0)),"
 if old17 in SRC:
     SRC=SRC.replace(old17,new17,1)
+# patch 18: frente do cowl em x (perfil: concept pica em x=0.328, modelo em x=0.210)
+old18="xf=0.225+0.235*(i/(NS-1.0)); x=XFO-xf*L"
+new18="xf=P.get('cowl_xf0',0.225)+0.235*(i/(NS-1.0)); x=XFO-xf*L"
+if old18 in SRC:
+    SRC=SRC.replace(old18,new18,1)
+# patch 19: ponta TRASEIRA do escapamento central em z (so o ultimo ponto; o medio em x=-0.864 fica)
+old19="(exb,0.0,0.412+_edz)]"
+new19="(exb,0.0,0.412+_edz+P.get('exh_tip_dz',0.0))]"
+if old19 in SRC:
+    SRC=SRC.replace(old19,new19,1)
 
 old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"

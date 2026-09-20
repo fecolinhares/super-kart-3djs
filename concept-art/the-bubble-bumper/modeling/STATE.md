@@ -2995,3 +2995,16 @@ Vision proprio pareado (concordou, reprovou): "a silhueta nao e a mesma ... pare
   DIF do perfil superior: t0.55 +0.028 | t0.60 +0.005 | t0.65 -0.006 (PICO = CAPACETE, era a falha principal)
 ALVOS RESIDUAIS Z2/Z3: (1) COWL t0.35 -0.099 / t0.40 +0.093 => pico do modelo 12cm ATRAS (concept pica em x=0.328m, modelo em x=0.210m; COWL hoje x 0.0911..0.6202) -> deslocar frente +0.12m em x; (2) ESCAPAMENTO t0.90 -0.062 / t0.95 -0.093 => subir ~11cm SO o trecho traseiro (cuidado: subir o tubo inteiro re-fecha a banda t0.54 calibrada em W474/W489); (3) TRASEIRA t0.75-0.85 ~-0.05 (baixa, dentro da tolerancia); (4) BICO t0.10 -0.051.
 METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
+
+
+## Z2 TENTATIVA 1 (W491) — cowl_xf0 0.174 + exh_tip_dz 0.090 => **ZERO MUDANCA no perfil**
+  EMA do perfil: w490 0.0393 -> w491 0.0393 (IDENTICO). Todos os diffs de t byte-identicos.
+  O patch APLICOU (bbox do COWL mudou de x 0.0911..0.6202 para 0.2061..0.7352) mas a SILHUETA nao mudou.
+  => **COWL e PONTA DO ESCAPAMENTO nao governam o perfil em t 0.35-0.40 nem t 0.90-1.00.**
+  Banda t0.54 preservada (410 px, identica) — o alvo de 11cm no escapamento tambem nao se moveu por essa via.
+
+**METODO PARA ACHAR O OCUPANTE DO PERFIL (o mesmo que funcionou na banda)**: usar `del_mat`+`del_z`+`del_x`
+  no pipeline canonico para deletar por material a faixa de z/x de cada trecho do perfil:
+   - trecho A (t 0.35-0.40): x 0.210..0.328 m, z acima de ~0.55 m; testar M_Blue, M_Yellow, M_Dark, M_Silver.
+   - trecho B (t 0.90-1.00): x -1.19..-0.84 m, z acima de ~0.55 m; testar M_Silver (escapamentos), M_Dark, M_Gold.
+  Um build por material; o material cuja remocao muda o perfil E o ocupante daquele trecho.
