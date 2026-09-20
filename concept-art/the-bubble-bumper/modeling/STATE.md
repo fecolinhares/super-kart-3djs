@@ -6808,3 +6808,12 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Verificacao: M_Dark fora do casco (|y|>1.05*y_casco) = 24 faces (antes: pares em |y| 0.225 = 60 mm fora).
     PIOR: z=0.996 |y|=0.1639 contra casco 0.1561 -> apenas 0,8 mm alem do limite. As pecas soltas sumiram.
   ###QA### True, sep 14, 0 erros.
+
+
+## P93: CUNHAS LATERAIS REATRIBUIDAS AO CASCO (O CONCEPT E LISO) ***
+  Gate v35 (sobre o P92): 'ainda aparecem como 2 espinhos pretos espetados nas laterais superiores, so que agora colados;
+    NO CONCEPT ELAS NAO EXISTEM - o capacete e liso'. O clamp tratou o sintoma (posicao), nao a existencia.
+  [P93] REATRIBUI as faces de M_Dark em z 0.90-1.02 e |y|>=0.13 para M_Blue: 696 faces. O capacete volta a ser LISO, sem
+    elementos que o concept nao tem. ###QA### True, sep 14, 0 erros.
+  DISTINCAO QUE FICA: clamp por faixa = corrige POSICAO de geometria que DEVE existir; reassign de material = corrige
+    GEOMETRIA INDEVIDA (o concept nao a tem). Usar a ferramenta certa para o defeito certo.

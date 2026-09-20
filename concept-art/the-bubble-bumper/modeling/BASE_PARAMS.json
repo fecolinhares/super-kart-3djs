@@ -310,5 +310,6 @@
   "visor_lift_ymin": 0.06,
   "_nota_g26_aresta": "GATE v31: clipping resolvido ('nao clippa mais o queixo') mas a aresta serrilha em DEGRAUS — o vision explica que a metrica de intersecao NAO mede a QUALIDADE da aresta. Os degraus sao AUTO-INFLIGIDOS: os clamps movem vertices por z-limite, criando escada. PROXIMO: suavizar a fronteira da M_Visor (media dos vizinhos ou bmesh.ops.smooth_vert so na borda). CRITERIO DE QUALIDADE: max|dz| entre verts adjacentes da fronteira pequeno. LICAO: medir INTERSECAO nao garante qualidade de aresta — sao duas metricas diferentes.",
   "visor_smooth": 6,
-  "_nota_g26_p92": "P92: face_mats estendido a M_Dark — 674 verts limitados (total 7720). M_Dark fora do casco agora: 24 faces, pior 0.8 mm alem do limite (antes |y| 0.225 = 60 mm fora). As pecas flutuantes que o vision apontou em ~4 gates estao recolhidas. QA True, sep 14."
+  "wedge_reassign": 1,
+  "_nota_g26_p93": "P93: as cunhas laterais (M_Dark, z 0.90-1.02, |y|>=0.13) NAO EXISTEM no concept (o capacete e liso) — o clamp do P92 so corrigiu a posicao. 696 faces REATRIBUIDAS para M_Blue, deixando o casco liso. QA True, sep 14. DISTINCAO: clamp por faixa corrige POSICAO de geometria que deve existir; reassign de material corrige GEOMETRIA INDEVIDA."
 }
