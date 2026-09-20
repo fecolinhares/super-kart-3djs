@@ -4627,3 +4627,30 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PROXIMOS (do vision): (a) aumentar os vents 20-30%% e alongar; (b) render FRONTAL ORTOGRAFICO para confirmar
   as DUAS entradas simetricas (pedido 2x — o board 3/4 nao permite julgar simetria); (c) depois: respiro central
   na faixa; olhos/sobrancelhas (grossos e 'bravos' vs finos e amigaveis no concept).
+
+
+## *** G26/VENTS: SIMETRIA CONFIRMADA, MAS O TAMANHO NAO PODE VIR DO VISION ***
+  P36 (novo instrumento): adiciona render 'headortho' ORTOGRAFICO. Descoberta: as vistas front/side/rear/top
+    JA eram ortograficas (cam(loc,rot,ortho=OSC)) mas a 'head' era PERSPECTIVA — e era a unica que eu mostrava
+    ao vision. Dai a reclamacao repetida 'nao e frontal pura'. Com o headortho:
+      VISION: '(1) SIM. As duas entradas aparecem no render ortografico, a mesma altura Y e a mesma distancia X
+      do eixo central. Posicao em espelho e inclinacao em espelho. Em vista ortografica nao ha distorcao de
+      perspectiva, entao a SIMETRIA e confiavel.'   <- SIMETRIA BILATERAL CONFIRMADA
+  *** LICAO CENTRAL DO CICLO: eu estava decidindo TAMANHO na vista 3/4 (perspectiva), que subestima por escorco.
+      mesmo vent, 3/4 : 8.5/10 'um pouco MENOR, aumente 20-30%%'
+      mesmo vent, ORTO: 7.0/10 '2x a 3x mais LONGOS e grossos'   (com o MESMO sy=0.043)
+      Ajustei para sy=0.018 -> ORTO 6.0/10 '20-30%% do tamanho necessario, aumentar ~2.5x a 3x'.
+      sy=0.043 = 2.4x sy=0.018, mas um foi '2-3x grande demais' e o outro '2.5-3x pequeno demais':
+      AS ESTIMATIVAS NUMERICAS DO VISION SE CONTRADIZEM ENTRE CHAMADAS, mesmo em ortografico. ***
+  REGRA (reforca a que ja existia): vision NAO fornece alvo numerico. Usar vision para SIM/NAO e direcao
+    ('existe? e simetrico? esta alto ou baixo?') e MEDICAO para grandeza. O unico sinal consistente entre as
+    duas chamadas ortograficas foi a POSICAO: os dois disseram que os vents devem estar MAIS BAIXOS
+    ('no concept sao baixas, logo acima da viseira'). Isso e acionavel: t 48 -> ~62-68.
+  TENTATIVA DE METROLOGIA DO VENT NO CONCEPT (front.jpg) e por que FALHOU: limiar de luminancia sobre o azul
+    pegou 25%% da area azul com bbox 127x137 px — a VISEIRA (cinza) e mais escura que o azul e entra no limiar.
+    Precisa da MESMA disciplina dos perfis: segmentar por componente conexa e separar vento (acima da viseira,
+    cinza-azulado) de viseira (cinza, mais escura e continua de borda a borda).
+  PROXIMO LEAF (metrologia, nao vision): medir no concept a posicao e o tamanho dos vents por componente conexa
+    na faixa do casco ACIMA da viseira, convertidos em fracao da LARGURA DO CAPACETE (nao do quadro). Depois
+    aplicar t/sx/sy para bater esses numeros, e validar com headortho. NAO continuar ajustando por nota de vision.
+  GLOBAIS PRESERVADAS em W610D..W613D: x_range [-1.196,1.154], W/H 1.169, 14 pecas, QA ok.
