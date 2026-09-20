@@ -5082,3 +5082,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
       (era 110%%, 29%%, 1 px). Melhorou de fato; o 'grudada' vem da oclusao da viseira por cima.
   PRIORIDADES (do vision, em ordem): (1) liberar a vista do queixo (subir/baixar o volante); (2) viseira como bolha
     curva alta e translucida; (3) sobrancelha como arco fino com folga; (4) faixa ate a viseira + ouro + tracinho.
+
+
+## OCLUSOR DO QUEIXO IDENTIFICADO - o volante/bracos na altura do queixo ***
+  METODO: abri o .blend salvo (w647d.blend) e listei TODOS os objetos com bbox e flags — nao confiar no SUBCAP,
+    que so cobre as pecas registradas por reg() (10) e escondia as outras.
+  FATO: PL = corpo mergeado (join(out,'PL')), 49.550 verts, mats M_Gasket/M_Pilot/M_Yellow/M_Dark, hide_render=False.
+    Os 'parts' do SUBCAP (helmet, chin_guard, visor_band, helm_trim, vents...) sao pecas DENTRO de PL.
+  OCLUSOR: PL tem bbox x[-0.603,+0.526] enquanto o capacete e x[-0.533,-0.063]. Ou seja ha geometria de PL
+    ~0.59 m A FRENTE do capacete. A camera frontal (x=+5 olhando -x) ve essa geometria antes -> tapa a mentoneira
+    (z 0.632-0.723). E o volante/anterior do piloto — que no concept fica BEM MAIS BAIXO que o queixo.
+  CONSEQUENCIA: nao e problema de enquadramento (as 3 primeiras pranchas) nem de material. E POSICAO de peca.
+  PROXIMO: localizar o sub-elemento de PL que avanca (volante/braços) e BAIXA-LO para abaixo do queixo, como no
+    concept; para validar o rosto isoladamente, usar hide_render no volante no render do rosto.
+  FERRAMENTA NOVA (vale para todo o resto): /tmp/ls_blend.py e /tmp/chk_pl.py abrem o .blend e imprimem bbox+flags
+    de TODOS os objetos — usar quando o SUBCAP nao explicar uma oclusao.
