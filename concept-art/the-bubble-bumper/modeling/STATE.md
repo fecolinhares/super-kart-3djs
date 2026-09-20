@@ -3552,3 +3552,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     pod_area_frac 0.0993 > L_topo_z 0.0514 > L_base_z 0.0435 > R_base_z 0.0243 > topo_global_x 0.0074
     PASSAM: R_topo_z 0.0001, topo_global_z 0.0003
   PROXIMO: revalidar a extracao da mascara do concept (remover moldura/borda de verdade) e re-medir a fila.
+
+
+## *** degrau_x CORRIGIDO: O ERRO ERA 99% MEDICAO. O MODELO ESTAVA CERTO. ***
+  Extracao limpa do concept (a anterior estava contaminada):
+    1) flood fill no mask RAW a partir do centro (mantem as RODAS conectadas) -> 108819 px, W/H=1.978
+    2) por coluna, pegar o pixel mais alto cujo RUN vertical >= 8 px (mata linhas de cota/reua sem perder rodas)
+    3) mediana movel de 5 colunas antes de tirar o gradiente
+  RESULTADO: concept 0.5107 | modelo 0.5132 | **erro 0.0024** (a mascara antiga dava 0.7202 -> erro 0.2071)
+  => 98.8% do erro era ARTEFATO. O degrau do modelo esta NA POSICAO CERTA. Os 8 builds e as 7 refutacoes
+     perseguiam ruido de mascara (contaminacao por linha de cota + salto de 1 coluna).
+  ARMADILHA (registrar): erodir ANTES do flood remove as RODAS (baixa saturacao escura) -> bbox cai para W/H 2.87
+    e todas as normalizacoes z/H saem erradas. ORDEM CORRETA: flood no RAW, run vertical como filtro.
+  REFINAMENTO DA REGRA: o teto de 25% da altura por coluna e ESTRITO DEMAIS — o concept tem gradiente real de
+    32.4% numa coluna (borda quase vertical do cockpit). Usar 40% como teto e marcar artefato so quando houver
+    1-2 colunas isoladas sem feicao correspondente no concept.
+  IMPACTO: degrau_x SAI da fila (erro real 0.0024). Nova fila:
+    pod_area_frac 0.0993 > L_topo_z 0.0514 > L_base_z 0.0435 > R_base_z 0.0243 > topo_global_x 0.0074
+    PASSAM: degrau_x 0.0024, R_topo_z 0.0001, topo_global_z 0.0003
+  PROXIMO: re-medir pod_area_frac (0.0993) com a mascara limpa — pode herdar a mesma contaminacao.
