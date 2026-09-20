@@ -1589,3 +1589,29 @@ STATUS dos 5 achados do vision comparativo:
 
 BASE LIMPA (AUDIT_SKIP=top): W446 — IoU 0.821 | P10 0.781 | pior 0.668 | COR_TV 0.261 | exc 12.6 | falta 7.8 |
 N=18 | <0.90 17 | <0.80 4.
+
+
+## MEDICAO CIRURGICA DO ACHADO "VAZADO vs MACICO" (vision #4/#5) — coordenadas exatas
+
+SIDE, banda TRASEIRA (x normalizado 0.55-1.00), runs por linha:
+
+  t=0.78  c: 0.56..0.57 | 0.58..0.59 | 0.61..0.72      m: 0.55..0.72          -> modelo funde vaos de ~1px
+  t=0.72  c: 0.55..0.70 | 0.98                         m: 0.55..0.68          -> modelo sem o 0.98
+  t=0.66  c: 0.55..0.69 | 0.73 | 0.89..0.99            m: 0.55..0.72          -> **modelo SEM material em 0.73 e 0.89-0.99**
+  t=0.60  c: 0.59..0.77 | 0.88..0.98                   m: 0.55..0.66|0.66..0.76|0.87..0.97   -> aqui bate bem
+  t=0.54  c: 0.55..0.77 | 0.80..0.81 | 0.88..0.94      m: **0.55..0.99 SOLIDO** -> modelo PREENCHE tudo
+
+CONCLUSAO (vision + medicao concordam = alta confianca):
+ (A) **t 0.54 (z ~0.635 no modelo): o modelo e um bloco solido 0.55-0.99; o concept tem 3 massas separadas**
+     com vaos em 0.77-0.80, 0.81-0.88 e 0.94-0.99. As pecas traseiras do modelo estao se FUNDINDO na silhueta.
+     Isto e o "traseira vazada vs bloco macico" do vision, agora com coordenadas.
+ (B) **t 0.66 (z ~0.776): o concept tem material em 0.73 e 0.89-0.99 e o modelo NAO tem nada** (o material do
+     modelo acaba em 0.72). => a asa/endplate do concept chega MAIS ALTO (>= z 0.776) que a do modelo (topo 0.746).
+     Candidato: subir wing_z (NUNCA testado isolado; W440 testou wing_z 0.626 = DESCER e foi rejeitado).
+ (C) t 0.78: o modelo funde vaos de 1px (0.57-0.58, 0.59-0.61) — cosmético, baixa prioridade.
+
+PROXIMO ALVO (com coordenadas, alta confianca): (A) abrir os vaos traseiros em t 0.54 e (B) subir a asa/endplate
+para alcancar t 0.66. Ambos sao mediveis e nao dependem de mascara ruim (SIDE e limpa, fill 0.481).
+
+BASE LIMPA (AUDIT_SKIP=top): W446 — IoU 0.821 | P10 0.781 | pior 0.668@side_TRASEIRA | COR_TV 0.261 |
+exc 12.6 | falta 7.8 | N=18 | <0.90 17 | <0.80 4.
