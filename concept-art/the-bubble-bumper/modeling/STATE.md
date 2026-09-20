@@ -3392,3 +3392,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
      o R_base_z (0.5143) e o dobro do erro e reordena a fila.
   FILA REORDENADA POR TAMANHO DE ERRO: 1) R_base_z 0.5143 (traseira) 2) bico_z/frente 0.2581
     3) degrau_x 0.2071 4) R_topo_z 0.1535 5) pod_area_frac 0.0993 6) degrau_amp 0.0704
+
+
+## W520 = CANDIDATO COM TRASEIRA MELHOR (ganho medido, sem regressao)
+  mudanca: wing_x1 XRE-0.015 (-0.679) -> -1.11 ; exh_x -1.19 -> -1.12 (EXTREMIDADE TRANSFERIDA, nao removida)
+  invariantes RESTAURADOS: x_range [-1.2,1.15] EXATO | len_before 2.3852 | scale 0.98523 | L/H 1.862 | W/H 1.24
+  RESULTADO nos landmarks:
+    R_topo_z 0.5434 -> 0.6258 (concept 0.6970) => erro 0.1535 -> **0.0711**  (-54%)
+    R_base_z 0.0690 -> 0.2383 (concept 0.5833) => erro 0.5143 -> **0.3450**  (-33%)
+    todos os demais INALTERADOS (L_base, L_topo, degrau_amp, degrau_x, topo_global_x/z)
+    E_mediana 0.0609 -> 0.0609 (IDENTICA) — so o 'pior landmark' capturou o ganho. Confirma a prescricao do Sol.
+  ARMADILHA (2a vez na sessao): encurtar o escape muda len_before 2.3843->2.3262 e reescala TUDO
+    (scale 0.98563->1.01022, x_range [-1.171,1.179], L/H 1.816) => W519 INVALIDO.
+    REGRA: o escape define o comprimento; para recuar a asa, TRANSFERIR a extremidade (asa assume -1.11),
+    nunca remover.
+  RESTA: R_base_z 0.3450 — o modelo ainda tem algo a ~0.298m nas colunas mais recuadas.
+    Candidatos descartados por leitura do codigo: endplate (ep_s z0.095 => desce so a 0.593m) e
+    Wing_Pylon (desce a 0.504m). rear bumper (rz0 0.078) esta em x -1.118 = FORA da ultima banda 5%.
+    => PROXIMO: sonda patch 23 com del_x [-1.20,-1.08] para nomear o elemento. Sem especular.

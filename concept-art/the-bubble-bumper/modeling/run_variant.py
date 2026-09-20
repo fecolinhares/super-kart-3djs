@@ -265,6 +265,15 @@ if o27 in SRC:
 else:
     print('P27 cover NAO ACHOU')
 
+
+# patch 28: altura do ENDPLATE da asa (o endplate desce ate ~0.30m no extremo recuado e o concept nao desce)
+o28="ep=box('Wing_Endplate"
+if o28 in SRC:
+    import re as _re
+    m=_re.search(r"ep=box\('Wing_Endplate[^\n]*\n", SRC)
+    print('P28 ep linha:', m.group(0).strip()[:140] if m else 'nao achou')
+else:
+    print('P28 sem ancora Wing_Endplate')
 exec(compile(SRC,'bb_'+VER,'exec'),g)
 R=g.get('R',{})
 print(VER,'| QA=',R.get('qa',{}).get('aprovado'),'| z_range=',R.get('z_range'),'| ERRO=',R.get('ERRO'))
