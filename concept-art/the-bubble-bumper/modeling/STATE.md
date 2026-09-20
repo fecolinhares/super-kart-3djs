@@ -4722,3 +4722,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     normal a 52 graus projeta pouco em z); precisa de FORMA alongada diagonal, nao elipsoide. Registrado.
   FAIXA 31.2%% (concept 30%%) | helmet h/w 1.231 (concept 1.240) | simetria L/R dentro do ruido do raycast.
   GLOBAIS PRESERVADAS em W618D..W622D: x_range [-1.196,1.154], W/H 1.169, 14 pecas, QA ok.
+
+
+## *** G26/VENTS: O CAMINHO DE PARAMETRO ESTA FECHADO POR MEDICAO - EXIGE MUDANCA DE FORMA ***
+  SENSIBILIDADE MEDIDA (build diagnostico W623D com sx .010->.030, tudo o mais constante):
+    delta sx (+0.020) -> alt_z +0.0136 | prof_x +0.0256 | larg_y +0.0054
+    => o eixo LOCAL X do vent aterrissa em X (PROFUNDIDADE front-back), NAO na vertical.
+  CONSEQUENCIA: para ganhar os 0.024 de alt_z que faltam (0.0308 -> 0.0549) o sx teria de ir a ~0.045, o que
+    levaria a profundidade a ~0.078 — uma protuberancia frontal absurda. E o vent_tilt ja foi medido antes:
+    32->45 PIOROU a altura (0.0373 -> 0.0356). Logo NAO existe combinacao de (sx,sy,sz,tilt,t,f) que produza
+    o oval 10.9%% x 12.5%% do concept: o ELIPSOIDE nao tem a forma certa.
+  PROXIMO LEAF (estrutural, nao parametrico): o vent do concept e um RASGO/GOTA diagonal alongado. Construir como
+    LOFT/slot na superficie (mesma tecnica do bumper G26, que saiu de 4.0 para 7.0 justamente por trocar a
+    primitiva por loft), ou como um recorte/aba rebaixada, e assentar por RAYCAST (P35 ja existe e funciona).
+    NAO continuar mexendo em escala: 3 builds provaram que a escala nao alcanca o alvo.
+  ESTADO W622D (melhor ate aqui): largura +1%% OK | centro_y 29.2%% vs 28.7%% OK | do topo 17.3%% vs 14.7%% |
+    alt_z -44%% | faixa 31.2%% vs 30%% | h/w 1.231 vs 1.240 | simetria 0.1 mm | globais preservadas.
