@@ -1200,3 +1200,25 @@ vs REAR em pixels) ANTES de continuar a usar comparacoes cruzadas de z.**
 REVERTIDO (W440/W439 pioram o todo). **BASE SEGUE W437** — IoU 0.821 | pior 0.668 | COR_TV 0.253 |
 excesso 12.1 | falta 8.3 | <0.80 = 6.
 PROXIMO: validar a escala relativa das 4 vistas do concept (roda/capacete em pixels por vista).
+
+
+## CORRECAO DO MEU RACIOCINIO (importante): o AUDITOR esta certo, minhas comparacoes cruzadas nao
+
+1) A "calibracao por pneu" que tentei NAO funciona: as colunas do pneu incluem o bodywork acima (SIDE 224px,
+   FRONT 255px, REAR 306px => px/m 577/657/789, impossivel) => medir o pneu por extensao de coluna e errado.
+2) Razao de aspecto por vista (concept vs modelo):
+     front 1.171 vs 1.238 | side 1.868 vs 1.947 | rear 1.232 vs 1.238 | top 1.510 vs 1.573
+   => o concept e consistentemente ~4% MAIS ALTO em todas as vistas. Isso e uma diferenca REAL de proporcao
+   (o concept e mais alto), nao escala quebrada entre vistas.
+3) **O auditor (audit_bb.py) usa `canvas_bbox(Mc)` — o bbox da mascara DAQUELA vista — entao as faixas sao
+   normalizadas POR VISTA e o auditor e autoconsistente. O ERRO era MEU: comparar um z medido no SIDE com um
+   z do FRONT/REAR em metros, como se as vistas compartilhassem escala absoluta.**
+
+CONSEQUENCIA PRATICA:
+- As conclusoes quantitativas do auditor continuam VALIDAS (W440 piora mesmo: IoU 0.797, <0.80 9) ✓
+- Minhas medicoes manuais de z entre vistas devem ser expressas em FRACAO da altura DA PROPRIA VISTA, nunca
+  em metros cruzando vistas.
+- O concept e ~4% mais alto que o modelo em todas as vistas: H_concept/H_modelo ~= 1.04. Candidato a proximo
+  ajuste GLOBAL (subir o modelo ~4% em z) — testar como hipotese unica, medindo o IoU.
+
+BASE SEGUE W437 — IoU 0.821 | pior 0.668 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
