@@ -1079,3 +1079,24 @@ ALTERNATIVA mais rapida: renderizar 1 mask por regiao (escondendo as outras) num
 ler a coluna xf 0.97 de cada mask — mesma informacao, sem instrumentar o builder.
 
 Base: **W429** (intacta) — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+
+
+## W436 — ILHAS DA MALHA: a peca esta IDENTIFICADA por bbox
+
+Metodo: componentes conexos da malha do REAR (union-find nos edges), projecao em (x,z), filtro da coluna.
+Ilhas que cobrem x=-1.13 na faixa z 0.077-0.677:
+  **ilha nv=330  x -1.143..-1.061  z 0.077..0.634  |y| 0.000..0.305  M_Silver**  <- A CULPADA
+   ilha nv=154  x -1.139..-1.065  z 0.251..0.333  |y| 0.000..0.265  M_Silver
+   ilha nv=152  x -1.132..-1.072  z 0.268..0.347  |y| 0.272..0.286  M_Dark
+=> e uma peca M_Silver de **0.56 m de altura, 8 cm de espessura em x, cilindrica ao longo de y** (|y| 0-0.305)
+no extremo traseiro. Perfil: 330 verts, x span 0.082, z span 0.557 => revolve/sweep de eixo Y (um CANO/CILINDRO
+transversal), nao um painel. **O mask em xf 0.97 fica solido 0.08-0.738 por causa dela.**
+
+NAO bate com nenhum bbox que eu havia suposto: rampa (x -0.748..-1.108, span 0.36 em x) ✗; rbump (x -0.928) ✗;
+collector (x -0.99) ✗; Airbox_Top (x -0.768) ✗; tubos de escape (z 0.40-0.66 nessa x) ✗.
+**PROXIMO PASSO EXATO:** casar esse bbox (x -1.143..-1.061, |y| 0-0.305, z 0.077-0.634, M_Silver, 330 verts)
+com uma peca do codigo do `rear()` — provavelmente um cilindro transversal (muffler/canister) ou o
+`Rear_Ramp` construido com eixo diferente do que assumi. Depois: reduzir/deslocar essa peca para abrir os
+vaos z 0.369-0.450 e 0.588-0.688 que o concept tem em xf 0.97.
+
+Base: **W429** — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
