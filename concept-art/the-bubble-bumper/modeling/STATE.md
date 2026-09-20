@@ -852,3 +852,25 @@ E na traseira extrema (xf 0.99) o modelo e estreito (0.304 vs 0.392) => a asa ta
 
 PROXIMO (2 mudancas medidas, um build): wing_x1 -0.905 -> -0.96 (xf 0.874->0.897) e
 wing_x2 -1.158 -> -1.195 (xf 0.982->0.998). Isso NAO mexe em z, span nem tilt — que estao provados certos.
+
+
+## W423 — ASA MAIS PARA TRAS = REFUTADO (6o experimento na asa)
+
+wing_x1 -0.905->-0.96 (xf 0.874->0.897), wing_x2 -1.158->-1.195 (xf 0.982->0.998). Z/span/tilt intactos.
+RESULTADO: IoU 0.821->0.819, P10 0.762->0.758, pior 0.657->**0.637**, excesso 12.3->12.4, falta 8.1->8.3,
+**top/ASA 0.701->0.682** (excesso 22.9->23.1, falta 13.8->**16.0**), side/TRASEIRA 0.657->0.637,
+front/PILOTO 0.743->0.743 (IDENTICO, nem se moveu).
+
+### A ASA ESTA ENCERRADA: 6 experimentos independentes, todos refutados
+  z +10cm (W422) IoU -0.051 | z +6.5cm (W410) ESCAPES -0.225 | tilt (W409) IoU -0.062
+  span 0.385 (W421) IoU -0.012 | span 0.240 (W420) IoU -0.023 | x para tras (W423) IoU -0.002, top/ASA -0.019
+=> z, span, tilt e posicao X da asa estao TODOS corretos. O excesso de top/ASA (22.9%) e front/PILOTO
+(23.8%) NAO e da asa — e de OUTRA peca que ocupa a mesma faixa.
+
+PISTA SOLIDA que sobrou da medicao TOP por coluna (xf 0.88):
+  concept: 0.504..0.446 | **0.377..-0.254** | -0.344..-0.403   => corpo central ate |y| 0.254, VAOS em
+            |y| 0.254-0.344 e 0.377-0.446, e um elemento FINO em |y| 0.344-0.377
+  W418   : 0.498..-0.496 SOLIDO
+O concept tem um elemento fino em |y| 0.344-0.377 em xf 0.88 (candidato: suspensao/eixo traseiro) e VAO
+dos dois lados dele. O modelo tem material continuo de 0 a 0.498 => ha uma peca do modelo que preenche
+esses vaos. **Proximo probe: objetos com vertices em x -0.918 (xf 0.88) e |y| 0.26-0.44, qualquer z.**
