@@ -1490,3 +1490,32 @@ penaliza as OUTRAS vistas. **O audit ja esta resolvendo o compromisso por nos: s
 alteracao esta errada para o conjunto, mesmo que "certa" para uma vista.**
 
 BASE: **W446** — IoU 0.822 | pior 0.668 | COR_TV 0.255 | excesso 12.3 | falta 8.0 | <0.80 = 6.
+
+
+## ERRO DE INSTRUMENTO DE PRIMEIRA ORDEM: a mascara TOP de referencia esta CORROMPIDA
+
+Descoberto ao rodar VISION na prancha pareada (concept | modelo). O vision reportou: "TOP-ref: FALHA TOTAL.
+Retangulo 100% vermelho preenchando tudo. Nenhum kart reconhecivel."
+Verificado por numero:
+  fill das mascaras: front 0.575 | side 0.481 | rear 0.545 | **top 0.765**  <- anormal
+  fracao vermelha nas celulas: FRONT 0.153 | SIDE 0.162 | REAR 0.148 | **TOP 0.674**  <- anormal
+=> **`/tmp/c_top.npy` e `/tmp/cell-TOP.png` estao CORROMPIDOS** (segmentacao falhou nessa vista).
+
+CONSEQUENCIAS (invalidar):
+  - TODAS as medicoes de TOP que fiz: top/ASA, top/RODAS_DIANT, top/BICO_U, top/SIDEPODS, top/MOTOR
+  - A conclusao "o TOP do concept e rotacionado/assimetrico (centro +0.07)" estava ERRADA — era corrupcao.
+  - As medicoes de FRONT/SIDE/REAR continuam VALIDAS (fills 0.48-0.58, coerentes entre si).
+  - O auditor (audit_bb.py) tambem usa c_top: as notas de top/* estao contaminadas.
+
+ACAO: reconstruir a mascara TOP a partir da arte (assets/the-bubble-bumper.jpg) antes de qualquer outra
+medicao de TOP. Enquanto isso, **so FRONT/SIDE/REAR sao confiaveis**.
+
+## VISION COMPARATIVO (prancha pareada) — o que ele disse de VALIDO (FRONT/SIDE/REAR)
+1. **Cabeca/capacete**: na ref e ENORME, alta, isolada em pescoco fino; no modelo e minuscula, baixa,
+   afundada. Erro ~50% de escala e de altura — aparece nas TRES vistas (FRONT/SIDE/REAR) => alta confianca.
+2. **Proporcao largura x altura**: refs FRONT/REAR sao karts SUPER-LARGOS, baixos, achatados; o modelo e
+   estreito e alto, com rodas para dentro. (coerente com o achado das razoes de aspecto: concept ~4% mais alto?)
+3. **Focinho**: ref SIDE = bico fina agulha, baixo; modelo = grosso, alto, rombudo.
+4. **Traseira**: ref = bloco macico alto e vertical; modelo = vazado, com canos sobressaindo e mola exposta.
+5. **Escapamentos**: o modelo tem 3 canos que FURAM a silhueta da ref (na ref a traseira e solida).
+SIDE foi a vista mais fiel; FRONT/REAR denunciam.
