@@ -6693,3 +6693,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Criterio de sucesso: o nº dessas arestas SOBE (a resolucao da silhueta de material aumenta) e o max|dz| entre as
     adjacentes cai.
   W730D verde: QA True, sep 14, 0 erros. max|dz| 0.03615 (69%% menor que o original).
+
+
+## *** A VISEIRA E UMA CASCA DESCONECTADA (0 VERTICES COMPARTILHADOS) ***
+  Medicao (/tmp/dup.py, W731D):
+    M_Visor: 9928 verts | verts que MISTURAM materiais (costura): 0
+    arestas: 19776 | com mistura de material: 0
+    posicoes com MAIS DE UM vert (tol 0.5mm) na malha: 2726 | tocando a M_Visor: 1064
+  CONCLUSAO: a M_Visor NAO compartilha vertice algum com o resto — e uma CASCA DESCONECTADA flutuando sobre o casco, com
+    1064 posicoes coincidentes. E o 'duplo layer / transparencia em camadas' que o vision cita ha varios gates. Explica por
+    que o P87 nunca achou 'fronteira de material': NAO EXISTE COSTURA — as faces da viseira nao encostam nas vizinhas.
+  CONSEQUENCIA PARA A SILHUETA: como a casca e solta, a 'borda' visivel e a borda da PROPRIA casca (arestas com 1 face).
+    O P87 falhou porque o filtro `k < len(_b6.verts)` / a construcao do set pode ter sido aplicada antes do ensure_lookup;
+    o criterio correto e: arestas de M_Visor com len(link_faces)==1 (a borda da casca). Cada uma dessas pode ser subdividida.
+  CAMINHOS POSSIVEIS:
+    (a) SUBDIVIDIR as arestas de borda da propria casca (len(link_faces)==1) e suavizar -> silhueta com mais segmentos;
+    (b) SOLDAR a casca ao casco (remove_doubles) para virar uma superficie unica — muda topologia e arrisca a QA; testar em
+        build isolado antes de adotar.
+  Recomendacao: (a) primeiro (nao muda a topologia global, ataca direto o serrilhado da silhueta).
