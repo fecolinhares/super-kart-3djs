@@ -4781,3 +4781,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     porque ambos mediam amarelo FORA do casco. E o MESMO erro de selecao ja corrigido uma vez (exigir componente
     azul da METADE SUPERIOR). Conserto: restringir as linhas ao bbox do capacete ANTES de varrer o amarelo.
   NAO afirmar o taper como validado ate refazer essa medicao com o filtro.
+
+
+## W628D/TAPER - INSTRUMENTO DE VERIFICACAO NAO FECHA (nao declarar validado) ***
+  Com o filtro de METADE SUPERIOR + linhas do casco, os resultados foram:
+    CONCEPT   casco 127 px | MAX 104.7%% | base 75.6%%   <- as linhas do 'casco' ainda pegam as OMBREIRAS:
+      o componente azul da metade superior inclui o TORSO a partir de y~200, entao o range de linhas do
+      capacete (84..243) varre tambem as ombreiras. Precisa cortar o y1 no queixo real (~200), nao no bbox azul.
+    W627D s/taper  MAX 29.3%% | razao base/max 1.00
+    W628D c/taper  MAX 42.2%% | razao base/max 1.00
+  LEITURA HONESTA: (a) o taper MUDA a geometria (bbox 29.3%% -> 42.2%%) mas a razao base/max segue 1.00 nas linhas
+    visiveis do frontal — consistente com o frontal enxergar SO a regiao da coroa, onde sin(u)~1 e a largura e
+    praticamente constante; a transicao do taper acontece embaixo, perto da viseira, onde a face/visor ocluem.
+    (b) o MAX medido (42.2%%) e MAIOR que o alvo (38.8%%), o que indica que a LARGURA DO CASCO NO RENDER esta
+    SUBESTIMADA (116 px) por oclusao de viseira/gaxetas -> a normalizacao quebra e o %% infla.
+  CONCLUSAO: o taper esta implementado e calibrado por 2 pontos medidos, mas NAO esta VERIFICADO. Duas correcoes
+    de instrumento necessarias antes: cortar y1 no queixo real e medir a largura do casco sem oclusao (ou usar o
+    bbox real do helmet do P33, que e geometrico e nao depende do render). NAO declarar validado.
