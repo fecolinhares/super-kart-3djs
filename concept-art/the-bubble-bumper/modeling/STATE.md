@@ -4269,3 +4269,28 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     item de polimento do G26 (o vision ja tinha dito que o que falta ali e material/bisel/luz, nao geometria).
   PENDENTE: (a) refinar xf 0.417 (residuo -0.071); (b) o EXCESSO em xf 0.367-0.383 (+0.071/+0.043) — a saida do
     patamar esta alta/larga; (c) traseira xf 0.90 (-0.187 -> G29); (d) polimento do frontal (G26 material/bisel).
+
+
+## *** G29 (TRASEIRA) CARACTERIZADO: FEICAO ALTA ATRASADA 0.063 L, E SUSPEITA DE ASA ENCURTADA ***
+  PERFIL TRASEIRO EM GRADE FINA (161 estacoes, W590D):
+    xf      conc   model   dTOP
+    0.850  0.544  0.506  -0.038
+    0.875  0.664  0.511  -0.152   <- o concept SOBE aqui
+    0.900  0.703  0.516  -0.187   <- PIOR
+    0.925  0.713  0.553  -0.160
+    0.950  0.720  0.710  -0.010   <- o modelo alcanca
+    0.975  0.724  0.720  -0.004
+    1.000  0.488  0.666  +0.178   <- modelo ALTO demais na ponta
+  SINAL DECISIVO: primeiro xf com topo >= 0.65 a partir de 0.80 -> CONCEPT 0.875, MODELO 0.9375.
+    Ou seja: o modelo TEM o elemento alto (chega a 0.72 H), mas ele esta DESLOCADO ~0.063 L (~15 cm)
+    para tras, e na ponta extrema nao cai como o concept (por isso +0.178). Mesma classe do cockpit:
+    FEICAO NA POSICAO ERRADA, nao tamanho errado. Alvo: mover o elemento alto da traseira ~15 cm PARA FRENTE
+    e corta-lo no extremo. Nao redesenhar.
+  *** SUSPEITA CONCRETA (verificar antes de agir): o override wing_x1=-1.11 usado em TODOS os builds recentes,
+    contra wing_x2=-1.158, da um vao de 0.048 no wing, enquanto o BASE_PARAMS original tinha wing_x1=-0.905
+    -> vao de 0.253, que e exatamente wing_sweep=0.253. Isso sugere que a ASA esta encurtada ~5x em todos os
+    builds do G26/G27/G30. Se confirmado, pode explicar parte do deficit traseiro e o excesso na ponta.
+    PROXIMO TESTE BARATO: build com wing_x1=-0.905 (valor base) mantendo todo o resto, e comparar o perfil
+    traseiro e o |dTOP| medio. Se o vao do wing volta a 0.253, confirmar contra a referencia de asa.
+  NOTA: o |dTOP| medio traseiro (xf 0.80-1.00) e 0.0908 — e a MAIOR regiao de erro que resta, maior que o
+    cockpit (0.0325) e que o patamar (0.0093).
