@@ -3717,3 +3717,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (3) testar as DUAS direcoes da deformacao; (4) scorecard com auto-teste decide.
   PROXIMO: com a Silhueta SIDE aprovada em todos os gates, partir para FRONT e REAR (mesma metrologia) e so entao
     o re-render BEAUTY para o vision proprio pareado antes do auditor (AUDIT_SKIP=top).
+
+
+## FRONT/REAR: instrumento criado (scorecard_fr.py) mas NUMEROS DO CONCEPT NAO CONFIAVEIS AINDA
+  Criado builder/scorecard_fr.py (perfil de LARGURA por linha, run>=8px nas DUAS pontas, auto-teste de plausibilidade).
+  INCONSISTENCIA QUE DENUNCIA O BUG (cross-view):
+    concept FRONT  W_max/H = 1.5084
+    concept SIDE   W/H     = 1.238   (validado hoje com auto-teste)
+    modelo  FRONT  W_max/H = 1.2339  <- COERENTE com 1.238
+  => o MODELO e coerente entre vistas; o CONCEPT nao e. Mesma classe de bug da manha (mascara contaminada por
+     moldura/reua nas laterais). As falhas W_mid 0.7653 e W_base 0.2667 no FRONT, e W_max 0.0868 no REAR do concept
+     sao CONSEQUENCIA da contaminacao, nao divergencia de forma. NAO tratar como fila.
+  AUTO-TESTE DO NOVO INSTRUMENTO (parcial):| verifica 0 < W_max < 2.5*H. Passou — mas NAO e suficiente, porque a
+    contaminacao lateral produz W_max dentro da faixa plausivel. FALTA o gate de CONSISTENCIA ENTRE VISTAS.
+  REGRA NOVA (gate obrigatorio do instrumento): a razao W/H medida no FRONT e no REAR tem de concordar com a W/H
+    derivada do SIDE/TOP dentro de ~0.05. Se nao concordar, a extracao daquela vista esta contaminada e deve ser
+    corrigida ANTES de qualquer comparacao. Isso teria pegado este bug em 1 checagem.
+  PROXIMO: consertar a extracao do concept em front.jpg/rear.jpg usando o gate cross-view como criterio de aceite,
+    e so depois re-medir FRONT/REAR. BEAUTY e vision proprio ficam para depois disso.
