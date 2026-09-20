@@ -416,6 +416,18 @@ print("G26c: pads legados gateados por g26c_pads")
 # a 0.551 da altura (grade fina de 61 estacoes na mask v2), com degrau de entrada +0.084 e saida -0.070.
 # A tabela prof_top nao contem esse patamar (da 0.430 ali). Janela trapezoidal + max() = shelf com
 # ombros suaves, e onde prof_top ja e maior o max() preserva a tabela (nao ha dano).
+# patch 32 (G26-capacete): FAIXA AMARELA. O vision so ve a faixa no topo-traseiro -> a parte frontal do loft
+# esta afundada na superficie do capacete. Patch: (a) SOBE o offset radial (1.006/1.001 -> parametro),
+# (b) ESTENDE o arco para frente (u inicial 19 -> parametro) para a faixa nascer na testa,
+# (c) engrossa a largura. Diagnostico de vision, nao de metrica.
+_oldp32 = open('/tmp/p32_anchor.txt').read()
+_newp32 = open('/tmp/p32_new.txt').read()
+if _oldp32 in SRC:
+    SRC = SRC.replace(_oldp32, _newp32, 1)
+    print('P32 aplicado (helm_trim)')
+else:
+    print('P32 NAO aplicado (ancora nao encontrada)')
+
 _oldp26 = "zt=prof_top(xf)*H*P.get('cowl_k',0.97)"
 _newp26 = ("zt=prof_top(xf)*H*P.get('cowl_k',0.97)\n"
            "        _k2=P.get('cowl_sm',0.0)\n"

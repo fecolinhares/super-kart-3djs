@@ -4497,3 +4497,30 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   MEDICAO vs VISION: a medicao diz que a SILHUETA melhorou (0.0360, -19%%) e o vision diz que a FORMA/leitura ainda
     e blockout. Ambos verdadeiros: a silhueta e o problema de forma/material sao eixos diferentes. Registrar sem
     confundir um com o outro.
+
+
+## *** G26/CAPACETE: A FAIXA AMARELA - PATCH 32 E NO-CHANGE. O ERRO FOI MEU METODO. ***
+  HIPOTESE: a faixa (Helm_Trim, L827 em bb25.py: loft de u=19 a 240 graus, raio 1.006R/1.001R, w=0.106) esta
+  afundada na superficie -> subir o offset radial, estender o arco para a testa, engrossar.
+  PATCH 32 (parametrizado: helm_trim_up/in/u0/u1/w + aplicacao via arquivos de ancora reais):
+    helm_trim_up=1.022, helm_trim_in=1.012, helm_trim_u0=-35.0, helm_trim_w=0.130
+    Resultado: 'P32 aplicado (helm_trim)' OK, 14 pecas, QA ok, W/H 1.17 ->
+      W598D medio 0.0360  |  W599D medio 0.0363   => NO-CHANGE (delta 0.0003)
+  VISION (render 'head', pareado com o concept): REPROVADO. Textual: 'fragmentos desconexos, nao uma faixa';
+    'na frente, sobre a viseira entre os dois olhos: dois retalhos amarelos verticais com Z-FIGHTING... a geometria
+    da faixa afundada para dentro do capacete e atravessando a viseira'; 'testa acima da viseira: 100%% azul';
+    'deslocada e estreita demais; o que aparece no topo esta jogado para tras e muito fino'.
+  *** O ERRO FOI DE METODO, NAO DE PARAMETRO: eu passei dois ciclos ajustando parametros de uma peca cuja POSICAO
+    REAL eu nunca medi. O instrumento que resolveu o len_before (dump de bbox por peca, que tornou o acoplamento
+    ARITMETICO) NUNCA foi aplicado ao capacete, porque o dump so publicava as 14 pecas de topo. Nudge as cegas. ***
+  REGRA (entra na skill): antes de ajustar QUALQUER parametro de uma sub-peca (pe ca dentro de um container), medir
+    o bbox REAL dessa sub-peca e compara-lo com o do container. Se o sub-bbox nao esta onde a parametrizacao diz,
+    o bug e de POSICIONAMENTO/registro, e mexer em raio/arco/largura nao pode funcionar — foi exatamente o caso.
+  PROXIMO LEAF (redefinido, com instrumento antes de ajuste):
+    (1) estender o dump de bbox para as SUB-PECAS registradas (helm_trim, visor_band, chin_guard, helm_base,
+        vent_L/R, helmet) e medir onde cada uma realmente esta.
+    (2) comparar com o bbox do 'helmet' (container) e com o esperado do concept.
+    (3) so entao decidir entre reposicionar (se deslocada) ou reconstruir (se degenerada) — o 'afundada +
+        z-fighting na viseira' sugere que a faixa cruza a regiao da viseira, isto e, arco/parametrizacao com
+        eixo errado, nao raio pequeno.
+  P32 fica no codigo (a parametrizacao e util e reversivel), com os valores atuais REGISTRADOS COMO NAO-VALIDADOS.
