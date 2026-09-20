@@ -5148,3 +5148,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     z 0.632-0.723 na frente do capacete, e entao BAIXAR/cavar esse sub-elemento (ou subir o conjunto do capacete).
   TECNICA REGISTRADA (barata e decisiva): hide_test.py — abre o .blend salvo, esconde uma lista de objetos e
     re-renderiza a camera escolhida. Testa N hipoteses de oclusao em segundos, sem rebuild de 25s cada.
+
+
+## *** OCLUSAO DA MENTONEIRA: NAO EXISTE. CORRECAO DO MEU DIAGNOSTICO ***
+  PROVA DEFINITIVA (varredura de poligonos do PL por centro): poligonos do PL com z entre 0.632 e 0.723 E x>-0.063
+    (a frente do capacete, lembrando que a camera e x=+5 olhando -x) = **0 faces**.
+    => NAO ha geometria nenhuma na frente da mentoneira naquela faixa. Nada a oclui.
+  CONFIRMACAO CRUZADA: hide_test.py mostrou que esconder COWL, Tub, CH, PODS ou NOSE nao altera o amarelo da banda
+    (0 em todas as combinacoes); e o PL nao tem faces na frente. Logo os 3782 px de amarelo visiveis = TUDO o que a
+    mentoneira realmente ocupa na projecao = 3.9%% da banda = um ARCO FINO.
+  CORRECAO: os diagnosticos anteriores ('volante oclui', 'cowl 0.094 alto oclui') eram HIPOTESES QUE EU TRATEI COMO
+    CAUSA. Foram todas refutadas por medicao. A causa real e TAMANHO/FORMA: a mentoneira e pequena/rasa demais e
+    desenha so um filete — e o vision, olhando uma prancha pequena, leu isso como 'escondida'.
+  ALVO: medir a mentoneira no concept (largura, altura e forma trapezoidal) e redimensiona-la; o chin_guard tem
+    0.33 m de largura (y +-0.1653) mas a projecao visivel e um filete.
+  LICAO CENTRAL DA SESSao (5 erros desta familia): eu aceito a LEITURA do vision como se fosse MEDICAO. Vision diz
+    'esta escondido' -> eu invento um oclusor. O correto e sempre: antes de procurar a causa, medir o FENOMENO
+    (aqui: contar as faces/px). Custou 3 builds e 3 hipoteses.
+  cowl_k=0.843 mantido (correto pelos numeros do concept: corpo deve comecar em z~0.624).
