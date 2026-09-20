@@ -5474,3 +5474,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     tras do frontal do amarelo, -0.151) ou rebaixar a mascara do piloto; depois re-renderizar e medir o amarelo do queixo
     de novo (gate objetivo: >=150 px de altura).
   W664D verde: QA ok, 14 pecas, globais preservadas.
+
+
+## *** P50: RECUO DO PILOTO DOBRA O AMARELO DO QUEIXO (2540 -> 5390 px) ***
+  CAUSA RAIZ FINAL (medida): M_Pilot tem 131 faces em x[-0.350,-0.081] no quadrado do queixo; o frontal REAL do amarelo
+    e x=-0.151. O piloto cobria a mentoneira. O limiar errado (x>-0.080, do bbox) escondia isso por 1 mm.
+  P50 aplicado (no passe pos-build, ancorado em _badn=0): clampa os verts de faces na faixa |y|<=0.10, z 0.58-0.78 que
+    ficam A FRENTE do frontal do amarelo, para x <= pilot_push_x. keep-list = ['M_Yellow'] (nunca mexer na propria peca).
+  MEDICOES (amarelo do queixo y>=700 no render do rosto, 860x860):
+    W664D (sem P50)                     2.540 px | altura 60 px
+    W665D (P50 so no M_Pilot, x<=-0.165) 4.724 px (+86%%) | altura 77 px (+28%%)
+    W666D (P50 em todos menos amarelo)   5.390 px (+14%%) | altura 77 px (INALTERADA)
+  LEITURA: o recuo do piloto RESOLVEU a invisibilidade (amarelo mais que dobrou). Mas a ALTURA estabilizou em 77 px
+    (~43%% dos ~180 px do alvo) e NAO responde ao recuo dentro da faixa z 0.58-0.78 -> o limitante de altura esta FORA
+    dessa faixa: a abertura do casco acima de z~0.78 e/ou o proprio recorte da mentoneira.
+  PROXIMO (concreto): (a) medir no render onde comeca/termina o amarelo e comparar com o z do mesh para achar a fronteira
+    exata (superior e inferior); (b) testar pilot_push_z1 maior (0.82) e/ou alargar a abertura do casco; (c) se o limitante
+    for a propria mentoneira (pouca altura projetada), aumentar chin_sz (hoje 1.60).
+  W666D verde: QA ok, 14 pecas, globais preservadas.
