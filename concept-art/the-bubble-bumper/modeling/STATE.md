@@ -6118,3 +6118,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PROXIMO: reconstruir M_Eye como DOIS discos ovais discretos (alvo do concept: 0.068 de largura cada, com vao positivo
     entre eles), em vez de escalar o elemento unico. Conferir por ilha conexa: 2 ilhas com |centroide_y| ~0.045 e vao > 0.
   W702D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14.
+
+
+## *** P70 (RECONSTRUIR M_Eye COMO 2 DISCOS) FALHOU E FOI REVERTIDO ***
+  O que funcionou: os 2 discos FORAM criados nas posicoes certas (y +-0.045, 1 face cada, x=-0.2166).
+  O que falhou:
+    1. A DELECAO das faces antigas NAO rodou — o bloco tinha codigo morto (`if False else None`) e o M_Eye ficou com 4
+       ilhas (2 discos novos + 2 ilhas antigas de 56 faces).
+    2. A QA passou a FALHAR (###QA### False) — primeira falha de QA nesta sessao. Causa provavel: os discos sao n-gons de
+       1 face (nao triangulados) e/ou a contagem de faces/materiais mudou sem o alvo antigo ser removido.
+  DECISAO: reverter o P70. Estado com QA false e pior que baseline limpo — nao se constroi em cima de QA vermelho.
+  IMPLEMENTACAO LIMPA PARA A 2a TENTATIVA (anotada):
+    a) apagar as faces antigas com bmesh.ops.delete(context='FACES') ANTES de criar as novas, e verificar que a contagem caiu;
+    b) criar cada disco como POLIGONO TRIANGULADO (fan de 24 triangulos, nao um n-gon) para satisfazer a QA;
+    c) validar por ilha conexa: exatamente 2 ilhas, |centroide_y| ~0.045, vao > 0;
+    d) so entao medir largura/altura contra o alvo de 0.068 e rodar o gate visual.
