@@ -1248,3 +1248,35 @@ ser registrado como limitacao conhecida do audit (o teto de IoU fica ~0.82 por c
 **BASE SEGUE W437** (contrato). z_k fica disponivel no builder para o teste (b) se Feco decidir.
 
 BASE: W437 — IoU 0.821 | pior 0.668 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+
+
+## ACHADO FUNDAMENTAL: as vistas do CONCEPT sao MUTUAMENTE INCONSISTENTES
+
+Medicao com normalizacao POR VISTA (a que o auditor usa — fracao da altura da propria mascara):
+FRONT, faixa PILOTO (t 0.58-0.70 medido de baixo), fill em |y|<=0.30 normalizado:
+  t 0.58-0.61 concept 1.000 | W437 1.000  (=)
+  **t 0.62-0.65 concept 0.794/0.778/0.756/0.683 | W437 1.000  => EXCESSO +0.21 a +0.32**
+  t 0.66-0.67 concept 0.594 | W437 0.625  (~)
+  t 0.68-0.69 concept 0.594/0.611 | W437 0.712 (+0.10)
+  t 0.70      concept 0.628 | W437 0.433 (**-0.195**, modelo falta)
+=> em t 0.62-0.65 o concept TEM VAOS (fill ~0.7) e o modelo e solido.
+
+MAS: o mesmo trecho no REAR da o concept SOLIDO em |y| +-0.555, e o FRONT da o centro em +-0.22 => fator 2.5
+de diferenca para a MESMA peca fisica.
+=> **As vistas do concept nao descrevem o mesmo objeto na mesma escala/proporcao.** Isso e propriedade da
+   arte (folha de concept desenhada/gerada), nao do modelo.
+CONSEQUENCIA DURA: nenhuma geometria pode satisfazer todas as vistas ao mesmo tempo. O erro residual do
+audit tem um PISO irredutivel. As tentativas W420/W421 (span 0.240/0.385) ja mostraram isso: melhoram o
+FRONT e pioram REAR/top, e o agregado cai. **O span 0.505 do W437 e o COMPROMISSO otimo** entre vistas
+incompativeis, nao um erro.
+
+DECISAO TECNICA (seguindo a instrucao de prosseguir com julgamento proprio):
+1) MANTER O CONTRATO (H=1.207, base W437) — o asset e para o jogo.
+2) PRIORIZAR as vistas por visibilidade no jogo: SIDE e FRONT (camera de gameplay) > TOP (plano) > REAR.
+3) Aceitar o piso irredutivel de IoU e registrar como LIMITACAO DA ARTE DE REFERENCIA, nao da geometria.
+4) Nao perseguir mais excesso em front/PILOTO/top/ASA com ajustes de span/z — ja refutado 4x com numero.
+PROXIMO FOCO (onde ainda ha ganho real, nao piso): regioes com FALTA (side/TRASEIRA 19.3%, top/RODAS_DIANT
+13.4%, side/PARACH_RODA 13.2%, rear/PILOTO_COSTAS 11.3%) — falta costuma indicar PECA AUSENTE, e peca
+ausente e ganho real, nao compromisso entre vistas.
+
+BASE: W437 — IoU 0.821 | pior 0.668 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
