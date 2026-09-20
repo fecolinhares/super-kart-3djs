@@ -6617,3 +6617,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
        volumes de M_Visor e M_ChinPanel/M_Yellow na regiao z 0.68-0.75 (a 'clipando no queixo' do vision e medivel);
     2. 'OLHO DIREITO LAVADO': conferir o catchlight por lado (o P80 usa _sg4*_cl*0.8 -> os dois deslocam para fora; assimetrico
        em relacao ao concept, que inverte o brilho). Medir os dois catchlights separadamente.
+
+
+## *** INTERSECAO VISEIRA x QUEIXO MEDIDA (O 'CLIPANDO' QUANTIFICADO) ***
+  /tmp/sect.py no W723D:
+    M_Visor     n=9850 | z[0.690,0.852] | frontal x=-0.127 | |y|max=0.1336
+    M_ChinPanel n=98   | z[0.648,0.756] | frontal x=-0.102 | |y|max=0.0578
+    faixas mais baixas da viseira: z~0.69 |y|max=0.0989 | z~0.70 |y|max=0.1049
+  LEITURA: a viseira NAO protrai a frente do queixo (x -0.127 vs -0.102), mas DESCE ate z 0.690 com |y| ~0.10,
+    enquanto o queixo so vai a |y| 0.058 e z 0.756 -> a borda inferior atravessa a SILHUETA do queixo nas laterais.
+    E exatamente o 'borda reta, serrilhada e clipando no queixo' do gate v30. Sobreposicao em z = 66 mm (0.690-0.756).
+  FIX: aprofundar o U — a borda inferior da viseira com |y| grande deve subir para z >= 0.76 (acima do topo do queixo).
+    Criterio: 0 faces de M_Visor com z < 0.76 e |y| > 0.06. Re-medir /tmp/sect.py.
