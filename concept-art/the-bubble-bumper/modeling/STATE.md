@@ -5769,3 +5769,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     4. FAIXA: 'larga, curta, chapada, termina abruptamente acima da viseira' -> mais estreita e continua.
     5. VAO abaixo da viseira ('fenda vazada onde se ve o fundo') -> fechar.
   W686D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## *** VISEIRA: O PROBLEMA NAO E ELA, E A GAXETA E O PAINEL DE ROSTO ***
+  MEDICAO POR MATERIAL (W686D, via mw@p.center):
+    CASCO (M_Blue)     y[+-0.165] = 0.330 | z[0.731,1.141] = 0.410  <-- referencia
+    M_Visor    9850 f  y[+-0.167] = 0.333  -> 101% do casco  | z[0.862,1.011] = 0.149 = 36% da altura
+    M_Gasket   6140 f  y[+-0.218] = 0.435  -> 132% do casco  <-- EXCEDE A CABECA
+    M_Face    18462 f  y[+-0.218] = 0.436  -> 132% do casco  <-- EXCEDE A CABECA
+    M_Eye       112 f  y[+-0.039] = 0.079  | z[0.741,0.760] = 0.019 (olhos muito baixos: z 0.74-0.76)
+  DIAGNOSTICO: a VISEIRA esta dimensionalmente CORRETA (101% da largura do casco, contra 99% do concept; e 36% da
+    altura do casco, contra os 34,5% do alvo f=0.324..0.669). O que lê como 'prato gigante que nao envolve' (vision) e o
+    CONJUNTO: gaxeta e painel de rosto 32% MAIS LARGOS que o casco — esticam a peca alem da cabeca.
+  ACOES (por ordem de impacto):
+    1. reduzir M_Gasket e M_Face para ~99-101% da largura do casco (de 0.435/0.436 para ~0.33) -> -24% em cada;
+    2. dar curvatura envolvente a gaxeta (ela deve ABRACAR o casco, nao se estender em disco);
+    3. olhos: verificar a altura — z 0.741-0.760 esta ABAIXO do alvo (o concept tem olhos dentro da viseira, que vai de
+       0.862 a 1.011) -> subir os olhos para a faixa da viseira e reduzi-los/ aproxima-los (o vision pediu menores e mais proximos).
+  W686D verde: 0 erros, QA ok, sep_parts=14.
