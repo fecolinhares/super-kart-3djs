@@ -5897,3 +5897,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
        para os olhos aparecerem ATRAVES dela;
     3. depois: faixa (fina, do topo ao nariz, sem terminar reta), sobrancelha em arco fino, vao e pivos laterais.
   W691D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## P62+P63 APLICADOS: VISEIRA COBRE OS OLHOS E TEM BORDA EM U ***
+  P62: visor_dz=-0.160 baixa a faixa ANTES da projecao (que entao segue a esfera no novo z).
+    M_Visor z 0.862-1.011 -> 0.702-0.851. M_Eye (z 0.741-0.760) passa a ficar DENTRO da viseira -> corrige o erro
+    funcional que o vision apontou ('olhos FORA da viseira, pintados na face opaca embaixo de uma viseira-toldo').
+    Bonus: com a faixa mais baixa, a elipsoide e mais estreita -> y 0.308 = 93% do casco: o 'afunilar para baixo' do
+    concept aparece SOZINHO como consequencia da esfera (nao precisou de taper artificial).
+  P63: borda inferior em U (visor_u_lift) levanta as laterais (|y|>0.55*ry, quadratico) e deixa o centro baixo — o
+    concept desce nas bochechas e afunda no centro. lift 0.085 -> span 0.212 (fundo demais) -> 0.045 -> span 0.182.
+  ESTADO FINAL W694D: M_Visor x 0.221 | y[+-0.162]=0.325 = 98,5% do casco | z[0.702,0.884]=0.182. M_Eye DENTRO.
+    = sobre a superficie + curvada (elipsoide) + afunilando + cobrindo os olhos + borda em U. Restam a transparencia
+    (alpha) e o gate visual.
+  W694D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
