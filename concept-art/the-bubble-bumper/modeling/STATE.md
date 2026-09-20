@@ -7069,3 +7069,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   automaticamente. FIX PARA A PROXIMA: apos _fs.linesets.new('Contorno'), criar o linestyle explicitamente
   (bpy.data.linestyles.new('LS') e atribuir a _ls.linestyle) ANTES de setar color/thickness.
   Freestyle e o caminho certo para o contorno porque NAO adiciona geometria -> sep_parts=14 intacto.
+
+
+# ===== REBOOT DE REPRESENTACAO (parecer Sol, 2026-09-20) =====
+  VEREDITO: DESCARTAR a geometria primaria atual; PRESERVAR o builder como sistema de medicao, montagem,
+  cameras, render e QA. Os blobs sao representacao inadequada e ja foram refutados por 68 builds sem mudanca
+  perceptivel. Parecer completo: docs/PARECER-SOL-REBOOT.md. Contrato: reference-contract.json.
+  CAUSA RAIZ (4): representacao errada | funcao objetivo incompleta | ordem de dependencias invertida |
+  validacao sem observabilidade causal.
+  FASES: A contrato+instrumento -> B datums -> C envelopes primarios -> D primary forms autorais -> E secundarios.
+  PRIMEIROS 10 BUILDS: B001 instrumento vazio | B002 rodas | B003 massa piloto 69,5%% | B004 tub/cockpit |
+  B005 nose/bumper | B006 sidepods | B007 piloto conectado | B008 traseira/asa | B009 assinaturas P0 | B010 appearance.
+  REGRA: uma hipotese estrutural por build; probe GRANDE primeiro; 3 rejeicoes da mesma classe => troca de representacao.
+  Build atual renomeado LEGACY_REFERENCE_ONLY.
