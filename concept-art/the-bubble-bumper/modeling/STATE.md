@@ -1356,3 +1356,26 @@ W437 (Rear_Bumper_U baixado — o maior: pior regiao 0.657->0.668 e vaos ABRIRAM
 TRES limitacoes da ARTE medidas e documentadas: proporcao (+4%), vistas inconsistentes (fator 2.5), TOP rotacionado.
 Parametros bracketed no otimo (nao mexer): rzb 0.050, dfz 0.170, dfh 0.145, exh_dz 0.130, exh_c_r 0.128,
 wing_span 0.505, wing_z 0.585, rz1 0.300, neck_r0/r1 0.070/0.062.
+
+
+## W445/W446 — NARIZ BAIXO: causa exata achada (fator 0.88 no prof_top) = NOVA BASE W446
+
+DIAGNOSTICO: em xf 0.15-0.23 o topo do modelo era 0.038-0.042 (normalizado) MAIS BAIXO que o concept.
+`prof_top(0.15)=0.323` e `prof_top(0.21)=0.39` (=> 0.471 m) BATEM com o concept medido (0.326 / 0.472 m) ✓
+Mas o nariz aplicava `zt=prof_top(xf)*H*0.88` => deficit de 5.7 cm = EXATAMENTE o medido. Causa unica.
+
+W445 (fator global 0.99): falta 8.3->**7.9**, side/PARACH_RODA falta 13.2->**3.4** ✓✓, IoU 0.822, MAS
+side/BICO excesso 20.5->**23.5** ✗ e <0.80 6->7 ✗ => a ponta (xf<0.14) ficou alta demais com fator global.
+
+W446 (fator VARIAVEL 0.88 -> 1.00 com ramp em xf 0.10-0.16):
+  IoU 0.821->**0.822**, P10 0.763 (=), pior 0.668 (=), **falta 8.3->8.0** ✓✓, **<0.80 6 (=)** ✓,
+  **side/PARACH_RODA falta 13.2->3.4%** ✓✓✓ (maior ganho regional da serie), side/BICO 0.800->0.802 ✓,
+  front/PILOTO 0.743->0.745 ✓. Custo: COR_TV 0.253->0.255 e excesso 12.1->12.3.
+**ADOTADO — NOVA BASE W446.** Parametros novos: nose_top_k=0.880, nose_top_k2=1.000, nose_k_x0=0.100, nose_k_ramp=0.060.
+
+LICOES:
+- O builder tinha fudge factors (0.88 no nariz, 0.97 no cowl, 0.80 no chin) que NAO batem com o prof_top medido;
+  onde o prof_top ja e medido, multiplicar por <1 cria deficit sistematico.
+- `prof_top` e a TABELA MEDIDA do concept (0=frente) — confiar nela como alvo e comparar com a medicao.
+
+BASE: **W446** — IoU 0.822 | pior 0.668 | COR_TV 0.255 | excesso 12.3 | falta 8.0 | <0.80 = 6.
