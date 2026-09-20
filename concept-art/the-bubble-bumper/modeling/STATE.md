@@ -4577,3 +4577,26 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   externo. NAO insistir em ray_cast de dentro para fora.
   SEGURANCA: P34 tem guard `helm_raycast` (default 0) — o pipeline continua saudavel e a base W598D intacta.
     Regra que evitou o estrago: feature nova entra OPT-IN, nunca substituindo o caminho validado.
+
+
+## *** G26/CAPACETE FECHADO: 4.0 -> 9/10. A FAIXA PROJETADA NA SUPERFICIE RESOLVEU. ***
+  O FIX (raycast DE FORA PARA DENTRO) FUNCIONOU. Cadeia medida:
+                                  span    larg_y  folga TOPO  FRENTE   TRASEIRA
+    BASE      (proporcional)      0.4802   0.1352    +0.0015   +0.0050  -0.0241  <- 24mm DENTRO
+    W605D/607D(raycast inside-out)0.0119   —         -0.1452   -0.2292  -0.2582  <- SLIVER (raio ~0)
+    W608D     (raycast outside-in)0.5072   0.1352    +0.0044   +0.0043  +0.0036  <- 3 folgas POSITIVAS
+    W609D     (w/2, u0=19, f=.0030)0.5044  0.0676    +0.0029   +0.0029  +0.0022  <- UNIFORME ~3mm
+  CAUSA RAIZ: era o SENTIDO do raio, NAO a conversao de espaco. De dentro para fora o hit era a propria origem
+  (distancia ~0). De fora para dentro (origem = centro + d*2HR, direcao -d) o 1o hit e a casca externa POR
+  CONSTRUCAO -> folga CONSTANTE, z-fighting morre. Alvo 0.0030, obtido 0.0022-0.0029.
+  VISION W608D: 'SIM, faixa continua do topo a frente e tras, sem interrupcao no topo; SEM z-fighting
+    generalizado no topo, sem afundar'.
+  VISION W609D: '(1) centralizada sim, largura muito proxima, parando na testa acima da viseira SIM, NAO invade a
+    viseira; (2) serrilhado/z-fighting NAO, limpo, bordas acompanham a curvatura da esfera de forma lisa, NAO DOIS
+    PLANOS BRIGANDO; (3) NOTA 9/10 para o capacete.'  (era 4.0 no frontal)
+  W609D preserva globais: x_range [-1.196,1.154], W/H 1.169, 14 pecas, QA ok, len 2.5364.
+  PROXIMO (para 10/10, do vision): 2 ENTRADAS DE AR superiores laterais (ovais afundadas, uma de cada lado da
+    faixa) + RESPiro horizontal no centro da faixa acima da viseira (o casco esta liso azul). Render FRONTAL
+    ORTOGRAFICO para cravar a centralizacao (o board usa 3/4).
+  REGRA REFORCADA (2x neste ciclo, com numero): feature nova entra OPT-IN (guard), nunca substituindo o caminho
+    validado — foi o guard helm_raycast=0 que manteve a base intacta enquanto o raycast estava quebrado.
