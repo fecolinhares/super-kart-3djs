@@ -6451,3 +6451,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
        nao por 'blue>...' generico;
     3. SO ENTAO re-medir a viseira contra a referencia correta.
   ESTADO INDISCUTIVEL: W716D verde (QA True, falhas=[], sep 14). Viseira com taper de borda (87,2%% no topo).
+
+
+## *** PREMISSA TESTADA E FALSA: AS 'ABAS' SAO A GAXETA E O ROSTO, NAO A VISEIRA ***
+  Teste da premissa (/tmp/prem.py, W716D) — largura (2*|y|max) por material em z 0.76-0.80:
+    M_Gasket  0.3360  <- o MAIS LARGO (meia-largura 0.168)
+    M_Face    0.3304  <- meia-largura 0.165
+    M_Blue    0.2448  <- o 'casco' da minha referencia (0.1224 de meia-largura!)
+    M_Visor   0.2302  <- a viseira (0.1151) — MENOR que gasket e face
+  A PREMISSA ERA FALSA: a referencia 'casco' que usei (M_Blue) NAO e o contorno mais largo naquela faixa. A viseira
+    (0.1151) e MENOR que a gaxeta (0.168) e o rosto (0.165) -> os dois instrumentos comparavam a viseira com uma
+    referencia que ESTAVA ATRAS de outras duas pecas. Contra a peca mais larga, a viseira esta em 68,5%%.
+  VEREDITO: as 'abas/orelhas laterais' que a visao aponta em 5 gates sao a GAXETA e o ROSTO, que estouram ~8-9 cm alem
+    do M_Blue NAQUELA FAIXA. A viseira era INOCENTE.
+  FIX (mesma tecnica que resolveu a viseira): aplicar o CLAMP por faixa a M_Gasket e M_Face — |y| <= ~1.02 * y_casco(z).
+    Criterio: em todas as faixas, 2*ymax(gasket) e 2*ymax(face) <= ~1.02 * 2*ymax(casco). Re-medir /tmp/prem.py + /tmp/bands2.py.
+  LICAO (instrumento, 8a): ANTES de comparar A com B, verificar se B e o contorno relevante na regiao — medir TODOS os
+    candidatos a contorno e ver qual e o mais externo. Se duas pecas estao a frente da referencia, o teste mede errado
+    e a visao fica 'errada' por 5 gates. Foi o teste da premissa que revelou isso.
