@@ -448,6 +448,11 @@ if open('/tmp/p36_anchor.txt').read() in SRC:
     print('P36 aplicado (head ORTOGRAFICO)')
 else:
     print('P36 NAO aplicado')
+if open('/tmp/p37_anchor.txt').read() in SRC:
+    SRC = SRC.replace(open('/tmp/p37_anchor.txt').read(), open('/tmp/p37_new.txt').read(), 1)
+    print('P37 aplicado (scale Y do capacete)')
+else:
+    print('P37 NAO aplicado')
 
 _oldp26 = "zt=prof_top(xf)*H*P.get('cowl_k',0.97)"
 _newp26 = ("zt=prof_top(xf)*H*P.get('cowl_k',0.97)\n"

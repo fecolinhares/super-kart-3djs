@@ -4675,3 +4675,32 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (hue), e so entao medir os vents acima da viseira. Registrado como pendencia com a causa exata.
   NAO SEGUIR: ajustar vents por nota de vision (estimativas contraditorias). Os vents estao SIMETRICOS e no lado
     certo; o alvo de grandeza vem da metrologia, nao do vision.
+
+
+## *** G26/CAPACETE: CAUSA RAIZ DO ASPECTO NO CODIGO + FAIXA MEDIDA POR MATIZ ***
+  CAUSA RAIZ (lida no codigo, nao suposta): def dome(...,R,sz=1.0,sy=1.0,...) constroi o perfil
+    (raio=R*sin(pi*i/rings)**pa*sy, altura=-R*cos(pi*i/rings)*sz) e chama dome('Helmet',...,HR,sz=SZ,sy=1.0,...)
+    => o capacete NASCE com largura TOTAL (sy=1.0) e altura COMPRIMIDA (sz=0.934). Esse e o 32%% de erro.
+    dome(sy=) escala o RAIO INTEIRO (x e y), por isso estreitar exige scale SO EM Y pos-criacao (P37),
+    que preserva a profundidade x e portanto o perfil SIDE.
+  RESULTADO W615D/W616D/W617D: helmet h/w = 1.231  (concept 1.240 medido)  =  0.7%% de erro (era 0.941 = 32%%).
+    VISION aprovou a proporcao: '10/10. 1.231 vs 1.240 e menos de 1%% de erro. Nem largo demais, nem estreito
+    demais. Essa parte pode considerar aprovada.'
+  EFEITO COLATERAL PREVISTO E CONFIRMADO: estreitar o capacete desalinha o que esta preso nele. A FAIXA e os
+    VENTS sao posicionados por RAYCAST (P34/P35) e se ADAPTARAM sozinhos a superficie nova (vent_L/vent_R foram
+    de y +-0.108..0.135 para +-0.0967..0.1388/z 1.1447->1.0891) — o instrumento pagou o investimento.
+    Mas o TAMANHO absoluto nao se adapta: por isso a faixa ficou relativamente estreita.
+  FAIXA MEDIDA NO CONCEPT POR MATIZ (amarelo: r>150 & g>120 & b<r-45 & g>b+35 — trivialmente separavel):
+    linhas 86-134 (SO o capacete; as linhas 200-236 com 100-132 px sao os OMBROS amarelos, excluidas):
+      50 px no topo (38.8%% da largura do capacete) -> 35 px na viseira (27.1%%)  | mediana 30%%
+    => A FAIXA DO CONCEPT AFUNILA (mais larga em cima). O vision descreveu exatamente isso.
+    MODELO: 0.0760/0.3566 = 21.3%% -> apliquei helm_trim_w=0.107 -> 0.1112/0.3566 = 31.2%% (erro 4%% vs 30%% mediana)
+  VENTS: NAO medidos ainda. E as estimativas do vision NAO sao monotonas aqui (sy=0.043 '2-3x grande demais',
+    sy=0.018 '2.5-3x pequeno demais', sy=0.030 '2x pequeno') — 0.030->'2x' implicaria 0.060, que e MAIOR que o
+    0.043 ja reprovado. Contradicao: as estimativas de tamanho do vision para os vents NAO servem de alvo.
+    PROXIMO LEAF: medir os vents no concept por matiz (o erro anterior foi por SATURACAO, que captura o capacete
+    inteiro como 'cinza'); alvo = fracao da largura do capacete, como fiz com a faixa.
+  ERROS DE BUILD CORRIGIDOS NESTE CICLO: (a) P37 inserido SEM indentacao -> 'SyntaxError: return outside function'
+    -> corrigido aplicando a indentacao real da linha ancora (4 espacos ao nivel do helm=dome, 8 no bloco);
+    (b) ancora digitada a mao nao casou 2x -> passar a extrair a ancora do ARQUIVO pelo indice/linha.
+  GLOBAIS PRESERVADAS em W615D..W617D: x_range [-1.196,1.154], W/H 1.169, 14 pecas, QA ok.
