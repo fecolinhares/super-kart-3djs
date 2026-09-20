@@ -6170,3 +6170,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     b) apos a delecao, remover verts sem faces (bmesh.ops.delete(context='VERTS') nos verts com len(v.link_faces)==0);
     c) ler o campo 'falhas' do retorno do qa() no log (imprimir qa()['falhas']) — para nunca mais inferir a causa.
   W706D verde (baseline).
+
+
+## *** CAUSA DO QA NOMEADA PELO PROPRIO QA: 136 NON-MANIFOLD PELA REMOCAO DAS FACES ANTIGAS ***
+  [P70v3] com lentes fechadas + debug ativo, o QA respondeu o nome exato da falha:
+    [QA-DBG] falhas = ['PL: 136 non-manifold']
+  OS DISCOS NOVOS NAO SAO A CAUSA: sao lentes fechadas (fan frontal + traseiro compartilhando o aro, 48 tris cada, sem
+    boundary) e a medicao por ilha conexa deu exatamente 2 ilhas, |centroide_y|=0.045, vao=0.0454 POSITIVO, larg=0.0446, alt=0.0499.
+  A CAUSA E A REMOCAO: as 112 faces antigas de M_Eye ERAM PARTE DA SUPERFICIE DO PL; apaga-las abriu um BURACO, e as arestas
+    de borda do buraco (1 face cada) sao os 136 non-manifold.
+  FIX DEFINITIVO (nao apagar, REATRIBUIR): trocar o material das faces antigas de M_Eye para M_Face (elas viram parte do painel
+    do rosto) e acrescentar os 2 discos novos. O mesh permanece FECHADO -> 0 non-manifold, 0 loose verts, pct_quads preservado.
+  LICAO (instrumento, 7a): imprimir o campo de diagnostico da ferramenta (qa()['falhas']) em vez de inferir a causa. Nomeou a
+    falha na PRIMEIRA execucao; as duas tentativas anteriores gastaram um build cada por inferencia.
+  W708D verde (baseline restaurado).
