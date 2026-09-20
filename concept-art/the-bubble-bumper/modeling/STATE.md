@@ -2118,3 +2118,34 @@ abrindo ar entre haste e asa. Preservando x_range/z_range (checar antes do audit
 
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## W470 (strut_dz=-0.090) — 6a HIPOTESE REFUTADA + **DIFF QUANTITATIVO = CAUSA RAIZ ENCONTRADA**
+
+Invariantes OK. t 0.54 IDENTICO. Agregado: IoU 0.826 (=) | P10 0.790 (=) | pior 0.680->**0.681** |
+COR_TV 0.252->0.253 | exc 12.9 (=) | falta 7.0 (=) | <0.80 4 (=) | side/TRASEIRA 0.680->0.681.
+
+**DIFF DE MASCARAS vs W463 (a medicao que faltava desde o inicio):**
+  w470 strut_dz -0.090 -> **18 px** alterados (0.010% da mascara) na regiao y416..421 x728..731
+  w469 duct dx -0.080  -> 497 px (0.281%) y374..420 x587..674; na linha t0.54: apenas 14 px
+  w466 exh_lr_short .35 -> 192 px (0.109%) y417..492 x621..826; na linha t0.54: 0 px
+=> **as hastes encurtadas 9 cm movem 18 PIXELS.** Elas estao quase inteiramente ESCONDIDAS na vista lateral.
+=> todas as minhas 6 mudancas alteraram 0.01-0.28% da mascara — ou seja, ATACARAM APENDICES.
+
+**CAUSA RAIZ IDENTIFICADA POR GEOMETRIA:**
+  CH (chassis): bbox x -0.844..1.01 | z 0.058..0.7938 -> em z 0.62 e uma MASSA SOLIDA que cobre
+                imagem 0.06..0.849
+  REAR:         bbox x -1.2181..-0.302 -> cobre imagem 0.849..0.995
+  => **o run `0.43..0.99` em t0.54 E o CH + o REAR.** Os vaos do concept (imagem 0.77-0.80 e 0.81-0.88)
+     caem DENTRO do span do CH (0.06..0.849) -> **e o CHASSIS que precisa ter os vaos, nao os apendices.**
+
+**LICAO DE METODO (2a vez):** o W461 ja tinha exposto isso (airbox x era neutro; o culpado era o duct em z).
+Agora com prova quantitativa: ANTES de testar uma peca, medir quantos pixels ela controla via diff de
+mascara (build com a peca movida vs base). Se o diff for <1%, a peca nao e a causa.
+
+**PROXIMA ACAO**: atacar o CHASSIS (`chassis()`) — abrir os vaos em imagem 0.77-0.80 e 0.81-0.88 = x
+-0.66..-0.73 e -0.75..-0.92 em z ~0.62, preservando x_range/z_range. Identificar primeiro, por probe de
+faces, QUAL sub-peca do CH ocupa z 0.58-0.66 nesse x (o CH e uma peca joinada com varios materiais).
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.

@@ -47,6 +47,16 @@ old7="abt=sweep('Airbox_Duct',[(-0.462,0,0.774+P.get('abt_dz',0.0)),(-0.575,0,0.
 new7="abt=sweep('Airbox_Duct',[(-0.462,0,0.774+P.get('abt_dz',0.0)),(-0.575+P.get('abt_dx',0.0)*0.5,0,0.704+P.get('abt_dz',0.0)),(-0.668+P.get('abt_dx',0.0),0,0.628+P.get('abt_dz',0.0))],P.get('abt_r',0.054),18)"
 if old7 in SRC:
     SRC=SRC.replace(old7,new7,1)
+
+# patch 8: hastes (Airbox_Strut / Wing_Pylon) encurtadas para baixo — elas se fundem com a asa em z
+old8a="sp=sweep('Airbox_Strut_'+('L' if sy>0 else 'R'),[(XRE+0.345,sy*0.078,0.596),(XRE+0.330,sy*0.090,0.430)],0.028,14)"
+new8a="sp=sweep('Airbox_Strut_'+('L' if sy>0 else 'R'),[(XRE+0.345,sy*0.078,0.596+P.get('strut_dz',0.0)),(XRE+0.330,sy*0.090,0.430)],0.028,14)"
+if old8a in SRC:
+    SRC=SRC.replace(old8a,new8a,1)
+old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
+new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
+if old8b in SRC:
+    SRC=SRC.replace(old8b,new8b,1)
 ovr=dict(BASE); ovr.update(EP_OVERRIDES); ovr['v']=VER
 g=dict(globals()); g['OVR']=ovr
 exec(compile(SRC,'bb_'+VER,'exec'),g)
