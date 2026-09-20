@@ -923,3 +923,27 @@ DEFEITO 3 — traseira extrema. em xf 0.97 o concept tem 3 elementos separados (
 PROXIMO (ordem): (a) DEFEITO 2 e o mais simples e verificavel — achar a peca que falta no corpo traseiro em
 z 0.27-0.34 (probe: objetos com vertice em x ~ -0.965 e z 0.27-0.35); (b) DEFEITO 3 exige separar o bloco
 traseiro; (c) DEFEITO 1 exige decidir se a banda e asa+airbox antes de inclinar a asa (W409 falhou).
+
+
+## W427 — vao difusor/rampa parcialmente fechado (rzb 0.100->0.050)
+
+DEFEITO 2 atacado: em x -0.965 o difusor termina em z 0.282 e a rampa comecava em 0.329 => vao de 4.7 cm
+que o concept nao tem. Param JA EXISTIA: `rzb` (rampa z base), sem precisar patch de codigo.
+(Nota: minha 1a tentativa falhou com AssertionError porque procurei `_RZ0=0.100` literal e o codigo e
+`_RZ0=P.get('rzb',0.100)` — o parametro ja estava exposto.)
+
+RESULTADO: IoU 0.821 (=), P10 0.762 (=), COR_TV 0.253 (=), excesso 12.1 (=), falta 8.3 (=), <0.80 6 (=),
+**side/TRASEIRA 0.657->0.658** (falta 20.0->19.9), side/MOTOR 0.840 (=).
+SIDE xf 0.90 runs: 0.752..0.659 | 0.639..0.327 | 0.271..0.032 => o vao caiu de 0.271-0.344 para
+0.271-0.327 (de 7.3 cm para 5.6 cm). **Ainda falta fechar 2.7 cm** (difusor top 0.282 vs rampa 0.309).
+
+MATEMATICA DO FECHAMENTO COMPLETO: _zb(t) = rzb + (rzt-rzb)*t ; em t=0.603 queremos _zb = 0.282
+=> rzb*0.397 + 0.480*0.603 = 0.282 => **rzb = -0.018** (ou alternativamente subir o difusor:
+box Diffuser z 0.152+-0.130 -> top 0.282; subir para 0.170+-0.145 da top 0.315).
+
+Base: W427 — IoU 0.821 | pior 0.658 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+PROXIMOS (medidos, na ordem): (a) fechar os 2.7 cm com rzb=-0.018 OU difusor top 0.315;
+(b) DEFEITO 3 — em xf 0.97 o concept tem 3 elementos separados (0.850..0.688 | 0.588..0.450 | 0.369..0.249)
+e o modelo e 1 bloco 0.735..0.080 => separar o bloco traseiro; (c) DEFEITO 1 — perfil da asa no SIDE
+(concept: banda 0.552-0.817 em xf 0.90 afinando ate 0.754-0.853 em xf 0.99; modelo: 0.659-0.752 fino e
+horizontal) — ATENCAO: na vista SIDE tudo projeta em y, entao essa banda pode ser asa + airbox juntos.
