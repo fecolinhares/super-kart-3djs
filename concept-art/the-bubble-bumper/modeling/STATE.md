@@ -7153,3 +7153,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     REGRA: TODA vista de comparacao deve ter a MESMA orientacao/mao do painel de referencia. Espelhamento
     produz veredito falso.
   ACHADO 18 (ja registrado): auditar a CENA (bbox por objeto) antes de aceitar veredito de render.
+
+
+## B005 + GATE 4,0/10 (convergencia lenta mas com instrumento confiavel) ***
+  [B005] piloto sentado (quadril z=0.36, coxa horizontal, torso reclinado 28 graus, encosto) e banheira em
+  blocos: nariz afunilado, frente, laterais esq/dir (deixando cockpit), assoalho, traseira larga.
+  GATE v3 (evidencia valida): 4,0/10 — subiu de 3,0 -> 3,5 -> 4,0 conforme o instrumento foi corrigido.
+    CONCEDIDO: 'SIDE espelhado CORRIGIDO' (frente a esquerda = concept) ✓; stagger de rodas certo ✓.
+    NAO CONSEGUIDO: cockpit em U (o 'vazio' virou bloco solido) ✗; piloto sentado EM CIMA e nao DENTRO ✗;
+      banheira sem cunha (tábua de altura constante, sem vao livre sob o chassi) ✗.
+  CAMINHO PARA 7 (ditado pelo gate):
+    1. travar MESMA largura/altura/comprimento nas 4 vistas (bounding box unico)
+    2. SIDE: cunha real — nariz fino e baixo, sidepod alto e gordo, VAO LIVRE sob o chassi
+    3. TOP/FRONT: o U — dois volumes laterais + VAZIO central; traseira 30-40%% mais larga;
+       roda dianteira fina / traseira gorda e com bitola para fora
+  LICAO 20: 'desenhar o vazio' — cockpit nao se faz somando blocos, se faz SUBTRAINDO (boolean difference).
