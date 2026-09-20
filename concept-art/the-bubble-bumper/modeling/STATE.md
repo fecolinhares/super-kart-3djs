@@ -2271,3 +2271,28 @@ Proximo: continuar reduzindo/deslocando o Airbox (ab2_dx) e/ou atacar o Rear_Ram
 ## BASE: **W471** (nova) — derivada de W463 + ep_s[0.085,0.042,0.095] + abt_dz-0.030 (W463) + ab2_x 0.030 + ab2_x2 0.024
 IoU 0.826 | P10 0.790 | pior 0.682@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
 Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
+
+
+## W472 — 2o GANHO CONSECUTIVO (ab2_dx +0.090) => NOVA BASE
+
+`Airbox` deslocado para a frente: centro x -0.830 -> -0.740 (half-extent 0.030).
+RAIO X na linha t0.54 (row 192 da mascara cortada):
+  concept: 0.41..0.77 | 0.80..0.81 | 0.88..0.94
+  w471:    0.39..0.42 | 0.43..0.78 | 0.80..0.99   (483 px)
+  w472:    0.39..0.42 | 0.43..0.78 | **0.82..0.99** (473 px)  -> vao 0.78..0.80 ALARGOU para 0.78..0.82
+
+AGREGADO (zero regressao, tudo igual ou melhor):
+  IoU 0.826 (=) | P10 0.790 (=) | pior **0.682->0.686** | COR_TV 0.252 (=) | exc 12.8 (=) | falta 7.0 (=) |
+  <0.80 4 (=) | side/TRASEIRA **0.682->0.686** | excesso 19.7->**18.9** | regiao COR 0.257->**0.254**
+
+**OBSERVACAO**: o vao do modelo (0.78..0.82) agora esta um pouco MAIS LARGO que o do concept (0.77..0.80)
+— o concept tem um elemento FINO em 0.80..0.81 que o modelo perdeu. Proximo ajuste fino: recuar ab2_dx
+para ~+0.075 para deixar uma lasca em 0.80..0.81.
+
+**RESTA**: o vao2 do concept (**0.81..0.88** = x -0.75..-0.92) continua FECHADO — o modelo tem 0.82..0.99 solido.
+Culpado provavel: o `Rear_Ramp` (x -0.81..-1.17, topo z 0.63 com rzt=0.480/rth=0.150) e/ou `Airbox_Top`
+(ab2_x2). Atacar `rzt`/`rth` da rampa medindo SEMPRE o diff na linha alvo (row 192).
+
+## BASE: **W472** (nova) = W463 + ab2_x 0.030 + ab2_x2 0.024 + **ab2_dx 0.090**
+IoU 0.826 | P10 0.790 | pior 0.686@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
