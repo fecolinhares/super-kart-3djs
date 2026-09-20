@@ -3777,3 +3777,29 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     duvida e se a MEDICAO do concept representa o concept.
   PROXIMO: overlay da mascara sobre front.jpg e side.jpg + vision_analyze para veredito visual de fidelidade da
     extracao, antes de qualquer nova mudanca de geometria.
+
+
+## *** VEREDITO VISUAL DOS OVERLAYS: ALVOS DO BUILDER ESTAO ERRADOS ***
+  /tmp/overlay-concept-side.png e /tmp/overlay-concept-front-erode1.png (contorno vermelho + bbox amarelo).
+  VISION no SIDE: "Contorno vermelho abraca o kart. Nao sobra para fora. Nao pega grade, moldura, reguas ou fundo.
+    Nao falta para dentro de forma relevante. Aderencia de 1-2px." Nada fora do contorno; bbox contem o kart.
+    E lista os elementos: bico azul/amarelo, roda dianteira, topo do capacete, PONTA DO ESCAPAMENTO A DIREITA
+    (confirma a orientacao: frente a esquerda) e topo do aerofolio amarelo.
+    => A EXTRACAO SIDE E FIEL. O L/H real do concept e **1.9776**, NAO 1.868 (alvo do builder).
+  VISION no FRONT: a mascara NAO abraca tudo — flanco externo e base dos DOIS pneus dianteiros (a silhueta MAIS
+    LARGA) tem cobertura fraca; nao vaza para fundo; a largura maxima e dada pelas RODAS; e o kart e ~1.3 a 1.4x
+    mais largo que alto. E aponta o defeito do bbox: "justa nas laterais e na base, mas com GRANDE FOLGA VAZIA NO
+    TOPO ACIMA DO CAPACETE", quase quadrada.
+    => a folga no topo INFLA H e portanto ACHATA o W/H medido: o 1.171 e SUBESTIMADO. A real esta acima de 1.24,
+       na faixa 1.3-1.4 que o vision ve. O alvo 1.238 do builder nao estava alto — estava BAIXO.
+
+  CONCLUSAO (recalibracao necessaria, nao ajuste fino):
+    L/H: alvo 1.868 -> REAL 1.978   => com L=2.35m fixo (contrato), H teria de ser 1.188m (hoje 1.252m, -6.4cm)
+    W/H: alvo 1.238 -> REAL ~1.30+ (pendente de bbox FRONT corrigido)
+    MODELO atual: L/H 1.859 (6.4%% alto demais) e W/H 1.236 (~5%% estreito demais)
+  POR QUE ISSO IMPORTA: todo o ajuste fino de hoje (degrau, pod, traseira) foi feito contra alvos errados. Os ganhos
+    relativos continuam validos, mas a FORMA GLOBAL precisa ser recalibrada antes de qualquer nova perseguicao.
+  METODO QUE RESOLVEU: eu me recusei a escolher o alvo por conveniencia e fui para checagem VISUAL — vision viu o que
+    nenhum numero meu viu (a folga do bbox acima do capacete e a sub-segmentacao dos pneus).
+  PROXIMO: (1) corrigir o bbox do FRONT (a folga no topo) e obter o W/H real; (2) recalibrar H do modelo para L/H=1.978;
+    (3) re-rodar os 3 scorecards (SIDE/FRONT/REAR) contra os alvos corrigidos.
