@@ -2405,3 +2405,39 @@ Medir diff NA LINHA ALVO em cada teste.
 
 ## BASE: **W472** (+ W473 rzt 0.400)
 IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## LINHA t0.54 — HISTOGRAMA M_Silver + ENUMERACAO COMPLETA M_Dark
+
+**M_Silver cruzando a linha: 1410 faces.** Histograma por x (decimos -1.19..-0.30):
+   x -1.19..-1.10: 399 | -1.10..-1.01: 14 | -1.01..-0.92: 106 | **-0.92..-0.74: NENHUMA** |
+   -0.74..-0.66: 133 | -0.66..-0.57: 149 | -0.57..-0.48: 309 | -0.48..-0.39: 83 | -0.39..-0.30: 211
+Histograma por |y|: 0-0.07:294 | 0.07-0.14:390 | 0.14-0.21:280 | 0.21-0.28:234 | 0.28-0.35:212
+   (todas as faixas com x -1.17..-0.30 => o M_Silver do REAR e um CONJUNTO de pecas, nao uma so)
+
+**CONCLUSAO 1**: na faixa do vao do concept (x -0.92..-0.74) o M_Silver tem **ZERO faces** — a banda esta
+limpa de M_Silver. O material ali vem do **REAR/M_Dark (118 faces, x -1.189..-0.738, img 0.803..0.995)**
+e do M_Yellow/M_Eye (esses fora da faixa: M_Yellow x -1.094..-0.939 = img 0.889..0.955).
+
+**ENUMERACAO COMPLETA DO BLOCO rear() (10908 chars, lido integralmente)** — 8 pecas M_Dark:
+  1 Engine_Bot  x -0.55..-0.31  z 0.464..0.536        -> FORA
+  2 ph Plug_Hole (nao esta na faixa)
+  3 bb Exh_*_bore
+  4 rv Rivet    x -0.948  z 0.412..0.452              -> abaixo
+  5 sp Airbox_Strut x -0.845  z 0.402..0.624          -> **ESTA na janela (0.605-0.624), so o topo**
+  6 fn Dslot    x -1.13  z 0.026..0.278               -> abaixo
+  7 _c Rear_Clamps z 0.272..0.352                     -> abaixo
+  8 py Wing_Pylon x -0.830  z 0.476..0.591            -> logo abaixo (0.591 < 0.605)
+=> geometricamente SO o `sp` (Airbox_Strut) alcanca a janela — **mas `strut_dz` (W470) deu 0 px na linha**.
+=> **HIPOTESE ABERTA**: as faces M_Dark do objeto REAR nessa faixa vem de OUTRA FUNCAO (o objeto REAR
+   agrega pecas de mais de um bloco do builder), OU o `strut_dz` nao deslocou o que eu presumi (patch 8
+   aplicado em `sp=sweep(...)` — conferir se `sp` sobrevive ao join/`reg`).
+
+**PROXIMA ACAO EXATA**: (a) no blend, listar as 118 faces M_Dark da faixa com seu Z REAL por face
+(min/max z dos vertices) para ver a distribuicao — se elas estao em z 0.605-0.648 mesmo, identificar a
+peca pelo z e pelo y; (b) grep no builder INTEIRO (nao so rear()) por `M_Dark` e cruzar as coords com
+x -0.74..-0.92 e z 0.6.
+
+## BASE: **W472** (+ W473 rzt 0.400)
+IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
