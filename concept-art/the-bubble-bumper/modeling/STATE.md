@@ -3532,3 +3532,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PROXIMO: despejar a curva do perfil superior (t[i] por coluna) e o gradiente coluna-a-coluna em torno de
     0.5132 do comprimento e verificar se o 'degrau' e uma aresta de bbox, uma falha de 1-2 colunas da mascara,
     ou o topo do pneu dianteiro — e nao uma peca do conjunto do piloto.
+
+
+## *** degrau_x INVALIDADO: A METRICA NUNCA MEDIU GEOMETRIA ***
+  Curva crua do perfil superior (despejo coluna-a-coluna) revelou:
+    CONCEPT: max|grad| = 0.0 px na coluna 0; t=542px (z/H=0.9982) CONSTANTE nas primeiras 10+ colunas
+      => a mascara do concept esta CONTAMINADA por moldura/borda (topo chapado em 0.9982).
+      => o 'degrau' em 0.7202 e apenas ONDE A CONTAMINACAO TERMINA, nao uma feicao do kart.
+    MODELO: coluna 429->430 salta dz=109px (z/H 0.5880 -> 0.8307) = descontinuidade de UMA coluna (2.8mm de x).
+      => artefato de mascara/antialiasing, nao geometria (nenhuma peca sobe 109px em 2.8mm).
+  CONCLUSAO: degrau_x (0.2071) e degrau_amp NAO SAO MEDIDAS VALIDAS. Explica as 7 refutacoes: eu tentava mover RUIM.
+  REGRA NOVA (obrigatoria antes de qualquer metrica de perfil/gradiente):
+    1) SANIDADE DA MASCARA: t[i] constante em mais de 5%% das colunas consecutivas => mascara contaminada
+       (moldura/borda/fundo) => rejeitar a extracao.
+    2) SUAVIZAR ANTES DE DERIVAR: nunca tirar gradiente do perfil cru; usar mediana movel de 3-5 colunas.
+    3) PASSO MINIMO PLAUSIVEL: descartar gradiente acima do salto geometrico possivel por coluna
+       (mais de 10%% da altura numa coluna = artefato, nao feicao).
+  IMPACTO NA FILA: remover degrau_x e degrau_amp dos landmarks validos. Fila real:
+    pod_area_frac 0.0993 > L_topo_z 0.0514 > L_base_z 0.0435 > R_base_z 0.0243 > topo_global_x 0.0074
+    PASSAM: R_topo_z 0.0001, topo_global_z 0.0003
+  PROXIMO: revalidar a extracao da mascara do concept (remover moldura/borda de verdade) e re-medir a fila.
