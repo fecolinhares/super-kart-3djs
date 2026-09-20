@@ -5525,3 +5525,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     que curva para tras), mantendo a largura ja calibrada (0.1742 m, 0.3%% do alvo). Medir depois: altura do amarelo no
     render (gate >=150 px) e a largura vs concept.
   W668D verde: QA ok, 14 pecas, globais preservadas.
+
+
+## *** P51: A FRENTE JA ESTA NO PLANO CERTO — FALTA PAINEL, NAO POSICAO ***
+  P51 tentou ACHATAR a face frontal projetando os verts amarelos do queixo em x=-0.151. Resultado: apenas 3 verts de 4514
+    foram projetados, e o amarelo do queixo ficou IDENTICO (7920 px / 95 px).
+  INTERPRETACAO DECISIVA: a superficie frontal do amarelo JA esta em x=-0.151 em toda a faixa de z. Logo o limite de 95 px
+    NAO e posicao nem oclusao (todos os vizinhos do PL foram recuados a x<=-0.230 e nao podem cobrir -0.151).
+    O que existe ali e uma BORDA (rim) do revolve, nao um painel largo encarando a camera: os 95 px sao a faixa em que a
+    superficie do revolve fica quase PARALELA a vista; acima e abaixo ela e aresta e nao renderiza area.
+  CONCLUSAO DE MODELAGEM (a real): falta GEOMETRIA — um PAINEL FRONTAL PLANO na mentoneira, que e literalmente o trapezio
+    grande e visivel do concept. Nenhuma translacao, escala ou reprojecao de verts existentes produz isso: e preciso
+    CRIAR a face (um quad/trapezio em x=-0.151, |y|<=~0.17, z~0.62..0.79, com a espessura/chanfro ligando ao casco).
+  SERIE DE MEDICOES (amarelo do queixo px / altura px): 2540/60 -> 4724/77 -> 5390/77 -> 7026/93 -> 7921/95 -> 7920/95
+  PROXIMO (concreto): criar o painel frontal da mentoneira (novo objeto/face) no passe pos-build, com material M_Yellow,
+    alvo de altura ~180 px no render (0.147 m) e largura ~0.175 m (49%% da largura do casco), e um leve chanfro para nao
+    ficar um plano solto; depois medir altura do amarelo (gate >=150 px) e comparar com o concept.
+  W669D verde: QA ok, 14 pecas, globais preservadas.
