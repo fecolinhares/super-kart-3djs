@@ -3084,3 +3084,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CANDIDATO RESTANTE: partes M_Dark do PILOTO (PL: x -0.57..0.65, z 0.2441..1.2708) — botas/pernas/braco escuros
   avancando ate x~0.21 acima de z0.55. Proximo: del_mat M_Dark com del_x [0.15,0.27] e del_z [0.55,0.95] MAS
   excluindo as pecas do CH/COWL — ou ler o piloto() buscando M_Dark com x>0.15.
+
+
+## Z2-A — LUVAS REFUTADAS, e a evidencia esta PARTICIONADA
+  Gloves (codigo): tubevar [(0.238,+-0.126,0.570),(0.246,+-0.126,0.520)] r 0.049/0.046, M_Dark.
+  x 0.189..0.287 | z top 0.619 — casava com a faixa do W498 (x0.15-0.27, z0.55-0.95).
+  W501 del_mat M_Dark em x 0.18..0.30 / z 0.55..0.65 => 252 faces, **ZERO mudanca** (EMA 0.0381 identico).
+  => as luvas NAO sao o ocupante. PARTICAO: W498 removeu 394 faces e mudou -0.047; W501 removeu 252 (as luvas)
+     e nao mudou nada => **o ocupante real sao os 142 faces restantes**, em z 0.65..0.95 ou x 0.15..0.18.
+     (as luvas param em z 0.619; a faixa do W498 ia ate z 0.95 — o ocupante esta ACIMA das luvas)
+
+**PROXIMO TESTE (decisivo e barato)**: del_mat M_Dark com del_z [0.65, 0.95] e del_x [0.14, 0.30].
+  Se mudar t0.40, o ocupante esta acima de z0.65 (candidatos M_Dark nessa altura: headrest, vents/helm_intake,
+  visor_band). Se NAO mudar, o ocupante esta em x 0.15..0.18 (frente das luvas/braco).
+**LICAO DE METODO**: ao particionar uma prova por delecao, repetir SEMPRE a sub-faixa exata do que ja foi testado;
+  uma faixa larga mistura 2 pecas e o resultado agregado nao identifica nenhuma das duas.
