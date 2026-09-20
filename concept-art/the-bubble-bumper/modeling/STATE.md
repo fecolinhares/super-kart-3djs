@@ -2592,3 +2592,30 @@ medindo o delta na LINHA FIXA (row 428) ANTES de rodar o audit.
 
 ## BASE: **W472** (+ W473 rzt 0.400)
 IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## W474 (exh_dz 0.130->0.070) — OCUPANTE CONFIRMADO (escapamentos), VAO ABERTO, MAS COM TRADE-OFF
+
+**ILHAS M_Silver DO REAR = OS 3 ESCAPAMENTOS** (270 faces cada), todos atravessando o vao:
+  Exh_C: x -1.184..-0.563 | y -0.126..+0.126 | z 0.340..0.659
+  Exh_L: x -1.191..-0.560 | y +0.033..+0.314 | z 0.437..0.671
+  Exh_R: x -1.191..-0.560 | y -0.314..-0.033 | z 0.437..0.671
+=> explica o W466 (encurtar 0.35 -> ponta em -0.84, exatamente a BORDA do vao => 0 px).
+
+**LINHA FIXA row=428 (z 0.6265), x MUNDO:**
+  w473 base        : 473 px | 0.16..0.23 | -0.70..0.15 | **-1.19..-0.77**
+  w474 exh_dz 0.070: 399 px | 0.16..0.23 | -0.70..0.15 | **-0.84..-0.77** | -1.07..-0.96 | -1.16..-1.13
+  => **delta -74 px e o run QUEBROU, abrindo vao em x -0.77..-0.84** (concept pede -0.75..-0.92) **MATCH**
+
+**AGREGADO — TRADE-OFF (nao adotado):**
+  IoU 0.826 (=) | P10 0.790->**0.788** | pior 0.687->**0.670** | COR_TV 0.252 (=) | excesso 12.8->**12.6** |
+  falta 7.0->7.2 | <0.80 4 (=) | rear/ESCAPES 0.890->**0.904** (falta 9.0->6.8) |
+  side/TRASEIRA 0.687->**0.670** (falta 17.8->**20.1**)
+=> baixar 6 cm abre o vao e MELHORA os escapes, mas REMOVE silhueta que o concept TEM em TRASEIRA.
+   **Bracket necessario**: testar exh_dz 0.100 e 0.115 (meia-medida) para abrir o vao sem a falta.
+
+**INSTRUMENTO AGORA EXATO**: col(x)=430-x*355.37 | row(z)=430-(z-0.62)*355.37 (validado no bbox).
+Toda medicao de linha deve usar row FIXA (nunca derivada do bbox do teste).
+
+## BASE: **W472** (+ W473 rzt 0.400) — inalterada
+IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
