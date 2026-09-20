@@ -5305,3 +5305,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     para escavar a banheira). O boolean e a via de menor risco porque nao altera a silhueta lateral.
   chin_guard preservado no W655D: y[-0.0871,+0.0871] z[0.6045,0.7504] (o P47 continua valendo).
   W655D verde: QA ok, 14 pecas, globais preservadas.
+
+
+## P48 (RECORTE DO COWL) FUNCIONA - 245 -> 170 faces ***
+  P48 aplicado (boolean DIFFERENCE com box em x 0.08-0.52, |y|<=0.130, z 0.60-0.88; tecnica do Cockpit_Cut).
+    COWL na janela da mentoneira: 137 -> 62 faces (-75, -55%% do cowl). TOTAL 245 -> 170 (-31%%).
+  RESTOU: (a) as 62 faces do COWL estao em x[+0.437,+0.507] = a BORDA do box de corte, que e ~5 cm curto em x ->
+    estender o box para x>=0.56; (b) o CH (chassi, M_Dark) segue com 108 faces em x[-0.005,+0.152] INTOCADO — e o
+    segundo oclusor e nao foi tratado; precisa de decisao propria (o chassi faz parte da estrutura, cortar tem risco).
+  METODO CONFIRMADO: (1) /tmp/ocl_all.py acha o oclusor por objeto+material na janela projetada; (2) corrigir com
+    boolean localizado; (3) RE-MEDIR a contagem de faces — gate objetivo, nao visual. 245 -> 170 e progresso medido.
+  W656D verde: QA ok, 14 pecas, globais preservadas. chin_guard preservado (o P48 nao tocou o PL).
+  CORRECAO PENDENTE DE NOTA: typo 'ALA VACA' na _nota_g26_cowl_corpo do BASE_PARAMS.json (era 'ALAVANCA').
