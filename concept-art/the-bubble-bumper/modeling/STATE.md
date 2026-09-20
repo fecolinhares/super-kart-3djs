@@ -1519,3 +1519,28 @@ medicao de TOP. Enquanto isso, **so FRONT/SIDE/REAR sao confiaveis**.
 4. **Traseira**: ref = bloco macico alto e vertical; modelo = vazado, com canos sobressaindo e mola exposta.
 5. **Escapamentos**: o modelo tem 3 canos que FURAM a silhueta da ref (na ref a traseira e solida).
 SIDE foi a vista mais fiel; FRONT/REAR denunciam.
+
+
+## RECONSTRUCAO DA MASCARA TOP — fonte VALIDA, segmentacao ainda imperfeita
+
+Verificado por VISION: `assets/reference-orthographic/top.jpg` **e valido** — kart visto de cima (frente para
+a esquerda), fundo em grade cinza-clara com reguas nas 4 bordas e 3 linhas de cota (2 horizontais longas
+acima/abaixo + 1 vertical a esquerda). Portanto o defeito e na SEGMENTACAO, nao na fonte.
+
+Diagnostico de cor da fonte: sat p50=0, p90=63, max=217 | val p10=65, p50=205, p90=219
+  criterio `sat>35 | val<140` => fill 0.354 no frame inteiro (vs 0.765 da mascara corrompida)
+Maior componente conexa: 192455 px (0.336), bbox x 199..831 y 89..507 (633x419, aspecto 1.51 = igual ao
+medido antes para o TOP) => o BBOX esta certo, mas o **fill dentro do bbox ainda da 0.726** (esperado ~0.5).
+=> as linhas de COTA/regua (finas, val<140) estao sendo incluidas e provavelmente o grid tambem.
+CORRECAO NECESSARIA: (a) subir o limiar escuro para val<120, (b) aplicar ABERTURA (erosao+dilatacao) para
+matar linhas finas antes de pegar a maior componente, (c) fechar buracos. Salvo em /tmp/c_top_fixed.npy e
+/tmp/cell-TOP-fixed.png (ainda NAO usar como referencia — fill 0.726 e alto demais).
+
+## ESTADO CRITICO DO INSTRUMENTO
+- FRONT/SIDE/REAR: mascaras validas (fill 0.48-0.58) — **usar so estas**.
+- TOP: mascara corrompida; reconstrucao em andamento. **Nenhuma medicao de top/* e confiavel ainda.**
+- O audit_bb.py usa c_top => as notas de top/* (ASA 0.695, RODAS_DIANT, BICO_U, SIDEPODS) estao contaminadas
+  e NAO devem guiar decisoes ate a mascara ser corrigida.
+
+BASE (mantida): **W446** — IoU 0.822 | pior 0.668 | COR_TV 0.255 | excesso 12.3 | falta 8.0 | <0.80 = 6.
+(Nota: esse IoU inclui as vistas de TOP com mascara ruim — o numero esta contaminado tambem.)
