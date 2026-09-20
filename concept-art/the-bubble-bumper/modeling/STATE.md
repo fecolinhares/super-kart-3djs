@@ -3286,3 +3286,30 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
 **LICAO**: a critica do Feco ('o modelo sempre igual') tinha razao — eu estava calibrando EMA de perfil com
   variacoes de 3cm em 2,35m (invisiveis). Mudanca estrutural visivel exige mexer em VOLUME (pod/traseira/piloto),
   nao em constantes de 3 casas decimais.
+
+
+## W516 (cunha v1) — VISION: AINDA HEMISFERIO. Numeros medidos pelo vision:
+  W516: pod_e 0.60 (secao superelipse n~3.3), pod_xf0 0.295/pod_xspan 0.440 (alongado), pod_taper_p 0.55,
+        pod_zt2 0.290 | PODS z 0.1056-0.5534 | x -0.5286..0.462 | y +-0.7482 | verts 13986
+  VISION: 'NAO esta mais proximo — ELE E um hemisferio liso... nao ha nenhuma parte plana'.
+  **pod_e=0.60 NAO achatou o topo na leitura visual** => a hipotese do expoente da secao NAO se confirmou.
+     Medir a secao DIRETAMENTE (varrer o contorno YZ do pod) em vez de confiar no parametro.
+  NUMEROS (do vision, convertidos em erro):
+    altura do pod: concept topo ~0.31 (medido: SIDEPOD z 0.08-0.31) vs modelo 0.5534 => **+78% ALTO**
+    largura do pod: concept ~0.36m vs modelo 0.573m (0.7482-0.175)          => **+60% LARGO**
+    comprimento: concept 40-45%% do kart (0.94-1.06m) vs modelo 0.99m        => OK
+    proporcao TOP: concept 2.5-3:1 vs modelo 1:1-1.2:1                      => quase circular
+
+### DESCOBERTA QUE MUDA O ALVO: a largura que falta esta nas RODAS, nao no pod
+  concept W/H 1.238 => meia-largura 0.787 | modelo 0.737 (travado pelos PNEUS y_half 0.737)
+  => bitola/rodas ~5cm estreitas; o pod esta 21cm LARGO demais. Eu ia 'resolver' alargando o pod = oposto.
+  ACAO: AFINAR pod (pod_w 0.450->~0.25, pod_zt 0.160->0.10, pod_zt2 0.290->0.10 => topo ~0.305) E ALARGAR BITOLA.
+
+## CONSULTA AO SOL (gpt-5.6-sol, reasoning medium) — EM ANDAMENTO
+  motivo: diagnostico ambiguo, 2 rejeicoes do usuario, multiplas hipoteses, preso em micro-ajustes.
+  brief em /tmp/sol-brief-bb.md | wrapper /home/jarvis/.hermes/scripts/deep-analysis-sol.sh | proc_7b01843255dc
+  perguntas: (1) otimizar contorno com builder procedural e abordagem errada? alternativa concreta?
+             (2) sequencia de maior alavancagem, ordenada por ganho visual/esforco
+             (3) metrica que NAO seja cega ao que o olho ve (curvatura, massa por faixa, cor por zona...)
+             (4) onde o procedural deve parar e o manual comecar (checklist)
+             (5) os 5 defeitos que mais contribuem para 'nao e AAA', em ordem de correcao

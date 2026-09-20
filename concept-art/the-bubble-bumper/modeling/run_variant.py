@@ -240,6 +240,22 @@ if old8b in SRC:
     SRC=SRC.replace(old8b,new8b,1)
 ovr=dict(BASE); ovr.update(EP_OVERRIDES); ovr['v']=VER
 g=dict(globals()); g['OVR']=ovr
+
+# patch 26: FORMA do sidepod (cunha, nao bolha) — alongar, taper da frente, aplainar laterais
+o26="            t=i/(NS-1.0); xf=0.330+0.405*t; x=XFO-xf*L\n            s=math.sin(math.pi*(0.06+0.88*t))**0.62"
+n26="            t=i/(NS-1.0); xf=P.get('pod_xf0',0.330)+P.get('pod_xspan',0.405)*t; x=XFO-xf*L\n            s=math.sin(math.pi*(0.06+0.88*t))**0.62\n            if float(P.get('pod_taper_p',0.0))>0: s=s*(min(1.0,t/float(P.get('pod_taper_t',0.20)))**float(P.get('pod_taper_p',0.0)))"
+if o26 in SRC:
+    SRC=SRC.replace(o26,n26,1); print('P26 pod-loop OK')
+else:
+    print('P26 pod-loop NAO ACHOU')
+o26b="abs(ca)**(2.0/2.0)"; n26b="abs(ca)**float(P.get('pod_e',1.0))"
+c1=SRC.count(o26b)
+if c1: SRC=SRC.replace(o26b,n26b)
+o26c="abs(sa)**(2.0/2.0)"; n26c="abs(sa)**float(P.get('pod_e',1.0))"
+c2=SRC.count(o26c)
+if c2: SRC=SRC.replace(o26c,n26c)
+print('P26 secao exp:',c1,c2)
+
 exec(compile(SRC,'bb_'+VER,'exec'),g)
 R=g.get('R',{})
 print(VER,'| QA=',R.get('qa',{}).get('aprovado'),'| z_range=',R.get('z_range'),'| ERRO=',R.get('ERRO'))
