@@ -799,3 +799,34 @@ concept tem o topo da asa em 0.847 (medido em xf 0.96, SIDE). W410 tentou subir 
 fora da faixa ESCAPES normalizada do auditor. **Antes de tentar z de novo: entender as faixas z do auditor
 (ESCAPES 0.45-0.62 normalizado => 0.543-0.748 m) e ver se o colapso de rear/ESCAPES no W410 e artefato de
 faixa ou erro real.** Esse e o proximo passo.
+
+
+## W422 — SUBIR A ASA (teste limpo na base atual) = REGRESSAO SEVERA, revertido
+
+Antes de testar, verifiquei o auditor: `band()` usa o bbox do CONCEPT e aplica a mesma fatia aos dois
+(nao ha artefato de faixa). E notei que **W410 foi testado ANTES do fix exh_dz** — a faixa ESCAPES
+(z 0.543-0.748) e preenchida pelos ESCAPAMENTOS no concept, e W410 subiu a asa para dentro dela sem ter os
+escapes la. Logo a hipotese de subir a asa nunca tinha sido testada na base atual.
+
+W422: wing_z 0.585->0.669 (placa 0.656-0.756 -> 0.757-0.857, topo alvo 0.847 medido em xf 0.96) com
+wing_span 0.505 e exh_dz 0.130 mantidos. REAR z max 0.8177->0.8675 (a asa subiu de fato).
+RESULTADO: **REGRESSAO SEVERA** — IoU 0.821->**0.770**, P10 0.762->0.656, pior 0.657->**0.421@front_PILOTO**,
+excesso 12.3->**17.9**, falta 8.1->11.2, <0.80 6->**10**.
+  front/PILOTO 0.743->**0.421** (excesso 53.3%, falta 35.5%)
+  rear/PILOTO_COSTAS 0.800->**0.429** (excesso 75.7%)
+  rear/ESCAPES 0.879->0.670 (falta 28.2%)
+  **top/ASA 0.701 -> 0.701 IGUAL** (subir a asa nao melhorou nem a propria regiao da asa)
+
+### CONCLUSAO: parametros da ASA CONFIRMADOS CORRETOS por refutacao independente
+  z para cima (W422, +10 cm)  -> IoU -0.051  REFUTADO
+  z para cima (W410, +6.5 cm) -> rear/ESCAPES -0.225  REFUTADO
+  inclinar (W409)             -> IoU -0.062, excesso 27.6%  REFUTADO
+  span menor (W421 0.385)     -> IoU -0.012, <0.80 6->9  REFUTADO
+  span menor (W420 0.240)     -> IoU -0.023, <0.80 6->9  REFUTADO
+=> A asa esta CERTA em z, span e inclinacao. **Os excessos de top/ASA (22.9%) e front/PILOTO (23.8%)
+NAO vem da asa.** Procurar em: airbox/roll hoop, tampo do bodywork traseiro, bandeja, ou o que ocupa
+z 0.79-0.81 com |y|>0.25 (o W419 probe achou so REAR M_Yellow em 0.470-0.500 = endplate da asa, que agora
+sabemos estar certo).
+
+**REGRA NOVA: antes de testar um parametro, verificar se a versao anterior dele foi medida na MESMA base
+(W410 foi medido sem exh_dz e "provou" algo falso).**
