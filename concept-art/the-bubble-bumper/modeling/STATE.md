@@ -1153,3 +1153,25 @@ Os 2 probes por vertice (W419/W433) falharam porque a peca cobre o vao com faces
 PROXIMO: DEFEITO 1 — perfil da asa no SIDE (concept: banda 0.552-0.817 em xf 0.90 afinando ate 0.754-0.853
 em xf 0.99, inclinacao ~31 graus; modelo: 0.659-0.752 fino e horizontal). Agora que os vaos abriram, a asa
 e o proximo ganho. Cuidado: W409 (tilt) falhou medido SEM este contexto — reavaliar com a base W437.
+
+
+## W438 — tilt da asa +0.12: SIDE FICA EXATO, REAR QUEBRA (revertido, mas com dado novo)
+
+wing_tilt=+0.12 ABSOLUTO (o valor medido: centro da banda do concept sobe 0.685->0.804). O W409 usou 0.266
+= mais que o dobro, o que explica aquele fracasso.
+RESULTADO:
+  SIDE xf 0.97: **0.850..0.771 | 0.673..0.406 | 0.339..0.080** = 3 runs como o concept, e o topo da asa em
+  **0.850 = EXATAMENTE o concept (0.850)** ✓✓✓  (em xf 0.90: 0.786..0.679 vs concept 0.817..0.552)
+  **side/TRASEIRA 0.668->0.686** ✓✓ (falta 19.6->**17.4**)
+  **COR_TV 0.253->0.248** ✓ (melhor da serie)
+  top/ASA excesso 22.9->20.0 ✓
+  MAS: IoU 0.821->**0.791**, P10 0.763->0.702, pior 0.668->**0.524**, excesso 12.1->**17.8**,
+  <0.80 6->**9**, **rear/PILOTO_COSTAS 0.803->0.527 (excesso 73.3%)** ✗✗
+=> **A inclinacao esta CERTA no SIDE e QUEBRA o REAR.** Leitura: o concept tem a asa inclinada (SIDE) mas
+   a faixa REAR z 0.75-0.94 tem MUITO menos material que a asa inclinada do modelo => no concept a asa sobe
+   mas e ESTREITA em |y| na parte alta (ou o topo da asa nao aparece cheio na vista REAR).
+   => a inclinacao precisa vir ACOMPANHADA de reducao de span na parte alta (asa enflechada em 2 eixos).
+REVERTIDO (ganho regional que piora o todo nao se aceita). **BASE SEGUE W437.**
+
+PROXIMO: combinar wing_tilt=0.12 COM span menor na parte alta (a sweep atual e so em x; testar span
+decrescente com o u da corda MAIS a inclinacao). O SIDE ja mostrou que o alvo e exato com 0.12.
