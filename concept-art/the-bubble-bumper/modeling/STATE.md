@@ -6541,3 +6541,10 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     1. pupila com 7,6 mm de diametro = 29%% do olho (concept: 43%%) -> aumentar;
     2. falta CATCHLIGHT (o 'sem brilho' do vision e verdadeiro);
     3. arcos da sobrancelha em z 0.8015-0.8219 (14-34 mm acima da lente) — conferir se o concept quer mais proximos.
+
+
+## P80: CATCHLIGHT NOS OLHOS ***
+  [P80] catchlight: 2 discos brancos (M_Eye) de r=0.003 em x=-0.2226 (frente das pupilas, deslocados p/ cima e p/ fora).
+  [QA-DBG] falhas = [] (3x) | ###QA### True | sep 14 | 0 erros.
+  Motivo: das queixas do vision sobre os olhos, 'sem brilho' e a UNICA que a medicao confirma (as pupilas estao exatas —
+    centro da pupila = centro da lente em y e z — e 'vesgos' foi refutado).
