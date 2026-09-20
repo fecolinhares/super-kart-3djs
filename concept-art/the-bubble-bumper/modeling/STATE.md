@@ -4133,3 +4133,7 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     cai em degrau abrupto'. Duas vias prontas: (a) alargar o ombro (cowl_plat_f 0.12 -> 0.62); (b) desligar o
     patamar (cowl_plat_a=0) e deixar a rampa vir da tabela CORRIGIDA do patch 27, que ja contem os valores medidos
     (0.416 -> 0.465 -> 0.549). A via (b) e a preferivel: remove a causa (a parede) em vez de suaviza-la.
+
+  CONSULTA AO PERFIL DEFAULT: tentada via 'hermes -p default chat -q' com as evidencias do runner duplicado.
+    NAO completou em 240s (KeyboardInterrupt/timeout do CLI). Fica registrado para repetir com timeout maior ou
+    por outro canal. O blocker permanece ABERTO e depende de infra.
