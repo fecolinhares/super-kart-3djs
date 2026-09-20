@@ -4294,3 +4294,26 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     traseiro e o |dTOP| medio. Se o vao do wing volta a 0.253, confirmar contra a referencia de asa.
   NOTA: o |dTOP| medio traseiro (xf 0.80-1.00) e 0.0908 — e a MAIOR regiao de erro que resta, maior que o
     cockpit (0.0325) e que o patamar (0.0093).
+
+
+## *** G29: SUSPEITA DA ASA CONFIRMADA (-42%% NA TRASEIRA), MAS QUEBRA AS GLOBAIS ***
+  TESTE: W591D = W590D com wing_x1 de -1.11 (override) de volta para -0.905 (valor do BASE_PARAMS).
+    Tudo o mais identico. Medido em grade de 161 estacoes.
+      W590D (wing_x1=-1.11)   medio 0.0444 | TRASEIRA(0.80-1.00) 0.0908 | 1o xf com topo>=0.65: 0.9375
+      W591D (wing_x1=-0.905)  medio 0.0465 | TRASEIRA(0.80-1.00) 0.0526 | 1o xf com topo>=0.65: 0.9000
+                                                              -42%%              concept = 0.875
+    Perfil traseiro W591D xf 0.85/0.90/0.925/0.95/0.975/1.00: 0.538/0.678/0.702/0.724/0.700/0.671
+      contra concept:                                          0.544/0.703/0.713/0.720/0.724/0.488
+    => A FEICAO ALTA ATRASADA era CAUSADA PELA ASA ENCURTADA. Confirma a suspeita registrada no leaf anterior:
+       wing_x1=-1.11 contra wing_x2=-1.158 dava vao 0.048, contra os 0.253 (= wing_sweep) do base.
+  *** EFEITO COLATERAL (a licao de sempre): mexer no comprimento da asa MUDA O COMPRIMENTO DO MODELO ->
+      len_before 2.5454 -> 2.4844, scale 0.92323 -> 0.9459 -> REESCALA TUDO: ***
+      x_range [-1.158,1.192] -> [-1.128, 1.222]  (alvo [-1.2, 1.15])
+      L/H 2.05 -> 2.001  (alvo 1.978)  |  z_range max 1.137 -> 1.164
+      => POR ISSO o |dTOP| medio piorou (0.0444 -> 0.0465) apesar da traseira melhorar 42%%.
+  PROXIMO LEAF (pronto, ordem definida): adotar wing_x1=-0.905 e RECOMPOR as globais na MESMA passada —
+    xtrans para x_range, ty_f/ty_r para W/H, helm_z para L/H — com a disciplina de 2 pontos empiricos ja
+    estabelecida (nunca escalar analiticamente). NAO adotar W591D como base enquanto as globais estao quebradas.
+  *** NOTA DE METRICA (importante para nao comparar maca com laranja): a serie anterior (0.0652 -> 0.0464) foi
+    medida em grade de 61 estacoes; este teste usou 161. W590D da 0.0464 em 61 estacoes e 0.0444 em 161. Os
+    numeros NAO sao comparaveis entre grades diferentes — fixar a grade em 161 para as proximas medicoes. ***
