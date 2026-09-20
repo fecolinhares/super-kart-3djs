@@ -4465,3 +4465,35 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   METODO (entra na skill): len_before e a FRONTEIRA entre regioes — instrumentar o bbox de TODAS as pecas
     (nao so as 3 hardcoded) torna o acoplamento calculavel em vez de mistificado, e a compensacao passa a ser
     ARITMETICA (alvo = extremo dianteiro - (comprimento desejado)) em vez de tentativa e erro.
+
+
+## *** VISION W598D: FRONT 4.0 | SIDE 6.5 | REAR 5.5 ***
+  (1a tentativa de vision foi REJEITADA pelo provider com content_policy_violation em prompt inocuo — retentado com
+   prompt curto, conforme a regra 'esperar e tentar de novo, nao validar so com pixel-measure'.)
+  VISTA A VISTA (veredito textual):
+    FRONT 4.0 (pior): (a) bico virou 'prancha reta, achatada e larga' com grade chapada e dois blocos amarelos
+      retangulares — degradacao do G26 que o vision de 7.4 ja havia sinalizado como material/bisel, nao geometria;
+      (b) capacete sem a FAIXA AMARELA central, viseira opaca, sem boca/nariz (identidade do piloto);
+      (c) rodas dianteiras quase escondidas atras do para-choque.
+    SIDE 6.5 (melhor vista — consistente com a medicao: perfil 0.0360 e 1o xf>=0.65 em 0.8812 vs concept 0.875):
+      (a) bico 'curto, grosso, truncado e alto, sem o mergulho'; (b) rodas pequenas/finas com calota cinza chapada e
+      sidepod chapado; (c) motor/escapamento deslocado para cima e simplificado.
+    REAR 5.5: (a) escapamentos '3 caninhos pequenos' VS '3 ponteiras enormes' do concept (elemento hero);
+      (b) pneus traseiros estreitos/baixos/lisos; (c) sem para-lamas amarelos.
+  RECOMENDACAO #1 DO VISION: refazer o conjunto dianteiro (volumetria da carenagem + rosto/faixa do piloto).
+  *** CONFLITO REGISTRADO (nao seguir sem checar): o vision pede 'alargar o kart ~20-30%%' e 'trazer as rodas
+    dianteiras para fora'. Isso CONTRADIZ o gate FRONT W/H=1.171, validado em QUATRO limiares de saturacao.
+    Regra vigente: vision nao fornece alvo numerico por estimativa visual. NAO alargar por causa disso; se algo
+    melhorar aqui, e a LEITURA VISUAL (rodas visiveis, carenagem com volume), nao a largura total. ***
+  TAMBEM OBSERVADO (qualidade do instrumento de board): o vision notou que 'as cameras do 3D nao estao 100%%
+    ortograficas / na mesma escala: o modelo aparece menor no frame, com leve perspectiva e angulo um pouco alto'.
+    E verdade: minha normalizacao por altura + sombra de contato no chao mudam a leitura de escala. Corrigir o
+    BOARD (mesma escala/alinhamento por eixo, sem sombra) antes de tirar conclusoes de 'tamanho' do pareado.
+  FILA CONSOLIDADA DE POLIMENTO (ordem do vision + minhas medidas):
+    1. FRONT/carenagem: volume (nao prancha) + faixa amarela e viseira do capacete  [G26]
+    2. escapes com ponteira grande e profundidade  [G29]
+    3. rodas: calota, largura traseira  [G29]
+    4. bico com mergulho (o 'curto/truncado' do SIDE)  [G27 - ligado ao residuo xf 0.417]
+  MEDICAO vs VISION: a medicao diz que a SILHUETA melhorou (0.0360, -19%%) e o vision diz que a FORMA/leitura ainda
+    e blockout. Ambos verdadeiros: a silhueta e o problema de forma/material sao eixos diferentes. Registrar sem
+    confundir um com o outro.
