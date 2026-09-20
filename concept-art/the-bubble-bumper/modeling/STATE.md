@@ -666,3 +666,21 @@ que no modelo chega a |y| 0.13 enquanto o concept ali so tem 0.07 (= meia-largur
 do capacete a z 0.80).**
 
 BASE ATUAL: **W412** (IoU 0.821, pior 0.657, COR_TV 0.258, <0.80 = 6, 14 objetos, 0 non-manifold).
+
+
+## W417 (NEUTRO) / W418 (MELHORA side/PILOTO)
+
+W417 — hipotese: patch de rosto/visor (raio HR*1.014) sem SZ protrai abaixo da elipsoide; comprimido z*SZ.
+RESULTADO: neutro-negativo (IoU 0.821->0.820, COR_TV 0.258->0.265, <0.80 6->7). NAO adotado.
+
+W418 — **VISION achou o que a metrica nao dizia**: na vista frontal aparece "uma barra preta horizontal
+atras do piloto cortando a imagem logo abaixo do queixo" e o vao existe mas e interrompido por ela e pelos
+protetores de orelha. Fui ao codigo: `nk=tubevar('Neck',[(-0.105,0,0.632),(-0.250,0,0.800)],[0.140,0.126])`
+=> **raio 0.140 = 0.28 m de diametro**, exatamente o DOBRO do concept (run central 0.07 em z 0.76-0.80).
+Mudei para 0.070/0.062. RESULTADO: IoU 0.821 (igual), excesso 12.4->**12.3**, **side/PILOTO 0.735->0.741**
+(excesso 23.7->**22.7**), P10/<0.80/falta iguais, COR_TV 0.258->0.261.
+front/PILOTO NAO moveu (23.8% igual) => o pescoco era UM dos preenchedores; o do FRONT e outro.
+
+LICAO DE METODO (registrar): a caixa de probe tinha x -0.35..0.15 e por isso NAO pegou o que esta atras do
+piloto — na vista FRONTAL tudo projeta ao longo de x, entao a caixa de probe precisa cobrir TODO o x.
+Foi a VISION que apontou a barra; a metrica sozinha nao diria.
