@@ -1544,3 +1544,23 @@ matar linhas finas antes de pegar a maior componente, (c) fechar buracos. Salvo 
 
 BASE (mantida): **W446** — IoU 0.822 | pior 0.668 | COR_TV 0.255 | excesso 12.3 | falta 8.0 | <0.80 = 6.
 (Nota: esse IoU inclui as vistas de TOP com mascara ruim — o numero esta contaminado tambem.)
+
+
+## AUDITOR CORRIGIDO: TOP excluido (AUDIT_SKIP=top) — BASELINE LIMPA
+
+A mascara TOP nao e recuperavel por heuristica de cor: a fonte tem grid + reguas + 3 linhas de cota +
+SOMBRA projetada. Testei 4 criterios; o melhor (sat>25 | val<70) da aspecto 1.49 (o esperado e 1.51) mas
+fill 0.668 e o VISION reprovou: "mancha amorfa, engoliu o kart e o fundo juntos... NAO utilizavel".
+=> **TOP excluido do audit** (flag AUDIT_SKIP=top, patch aplicado em audit_bb.py).
+
+BASELINE LIMPA (W446, so FRONT/SIDE/REAR — mascaras com fill 0.48-0.58, silhuetas reais confirmadas por vision):
+  com top (contaminado): IoU 0.822 | P10 0.763 | pior 0.668 | COR_TV 0.255 | exc 12.3 | falta 8.0 | N=23 | <0.90 21 | <0.80 6
+  **SEM top (limpo)   : IoU 0.821 | P10 0.781 | pior 0.668 | COR_TV 0.261 | exc 12.6 | falta 7.8 | N=18 | <0.90 17 | <0.80 4**
+=> as regioes de top/* estavam entre as PIORES e puxavam o P10 e o <0.80 para baixo. O modelo e melhor do que
+   os numeros contaminados sugeriam: **P10 0.781 e apenas 4 regioes abaixo de 0.80**.
+
+**REGRA: toda medicao daqui pra frente usa AUDIT_SKIP=top.** As notas de top/* ficam registradas como
+INVALIDAS (nao usar para decidir).
+
+BASE: **W446** — IoU 0.821 | P10 **0.781** | pior 0.668 | COR_TV 0.261 | excesso 12.6 | falta 7.8 |
+N=18 | <0.90 17 | **<0.80 4** (metricas limpas, sem top).

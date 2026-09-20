@@ -164,7 +164,14 @@ def band(ax, a, b, Mc):
 def main():
     rows = []
     fam_c = np.zeros(NCLS); fam_m = np.zeros(NCLS); nfam = 0
+    # AUDIT_SKIP: vistas com mascara de referencia NAO confiavel (ex.: top, cujo source tem grid+cotas+sombra
+    # e cuja segmentacao nao fecha -> fill 0.765 vs 0.48-0.58 das vistas boas; vision reprovou as duas versoes)
+    import os as _os
+    _skip=set(x for x in _os.environ.get('AUDIT_SKIP','').split(',') if x)
     for view, (ax, rs) in REGIONS.items():
+        if view in _skip:
+            print('SKIP %s (mascara de referencia nao confiavel)' % view)
+            continue
         ic, mc = load_c(view)
         im, mm = load_m(VER, view)
         if im is None:
