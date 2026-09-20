@@ -3246,3 +3246,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   o sinal, e o W512 mostrou que a mesma peca era carga em t0.408-0.417 e irrelevante em t0.392-0.400.
 
 **PROXIMO**: del_mat M_White e M_Pedal em x[0.16,0.23] z[0.55,0.80] para achar o ocupante de t0.392-0.400.
+
+
+## t0.392-0.400 FECHADO: COLUNA SATURADA, nao peca errada
+  Sonda acima de z0.75 em x0.16-0.24: SEM RESULTADO => nenhuma peca tem M_Dark ali (o mais alto e o CH a 0.712).
+  Bateria COMPLETA de materiais naquela coluna (todos com resultado medido):
+    M_Blue -> muda so t0.35 | M_Yellow 0 | M_Gold 0 | M_Silver 6 | M_BlueDk 0 | M_Pedal 0 | M_White inexistente no CH
+    M_Dark -> muda so t0.408-0.417 (e CARGA: remover piora)
+  => NENHUM material isolado muda t0.392-0.400. A coluna e SATURADA: varias pecas coincidem em z~0.709
+     e remover uma deixa as outras no topo. Delecao por material NAO identifica ocupante em coluna saturada.
+
+**REINTERPRETACAO DO RESIDUO**: o concept tambem tem penhasco, em t0.408 (0.473 -> 0.604). O modelo tem o seu
+  em t0.392. Diferenca = 0.016 em t = **3,8 cm em x**. Os '+0.10' persistente e o modelo ainda estar alto no
+  degrau de 3,8 cm de deslocamento — NAO uma peca errada. Ordem de grandeza muito menor que eu vinha tratando.
+
+**LIMITE DO METODO (registrar)**: del_mat funciona quando UMA peca domina a coluna. Em coluna saturada
+  (multiplas pecas na mesma altura) TODOS os testes dao zero e o metodo nao conclui. Detectar a saturacao:
+  se nenhum material muda a coluna, medir o numero de pecas com face em [z-0.02, z] naquele x — se >2, esta saturada.
+
+**PROXIMO**: encerrar o trecho A (residual de 3,8 cm no degrau, dentro de tolerancia razoavel) e ir para Z3 SIDEPOD
+  e Z2-B ESCAPAMENTO — os dois que o vision reconfirmou hoje (sidepod fino e baixo; traseira mecanica alta).
