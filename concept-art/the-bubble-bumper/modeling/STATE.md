@@ -2889,3 +2889,25 @@ Invariantes EXATOS: x_range [-1.2,1.15] | z_range [-0.01,1.165]. Patches no runn
 ## BASE: **W485**
 IoU 0.828 | P10 0.791 | pior 0.691@side_TRASEIRA | COR_TV 0.251 | exc 12.9 | falta 6.8 | <0.80 4 | sep_parts 14.
 Invariantes EXATOS: x_range [-1.2,1.15] | z_range [-0.01,1.165]. Patches no runner: 1..15.
+
+
+## W487 — **OCUPANTE IDENTIFICADO: `M_Dark`** (teste VALIDO, nao correlacao)
+
+  w485 (base)     : 436 px | 0.163..0.228 | -0.695..0.146 | **-0.836..-0.765** | -1.185..-0.945
+  w487 (M_Dark fora, 168 faces): 407 px | 0.163..0.228 | -0.695..0.146 | **-1.176..-0.945**
+  => **A BANDA DESAPARECE.** O resto da linha e preservado (delta total -29 px).
+  => remover M_Silver (W486) NAO removia a banda; remover M_Dark REMOVE. **Ocupante = M_Dark.**
+
+**DIRECAO**: com o M_Dark fora, o modelo fica VAZIO de -0.84 a -0.94 — contra o vao pedido pelo concept
+  de -0.75..-0.92. Ou seja, remover/remodelar o M_Dark aproxima o modelo do concept. 
+
+**PROXIMO PASSO**: rodar a analise de ILHAS CONEXAS nas 168 faces M_Dark removidas para NOMEAR a(s)
+  peca(s) (bmesh linked faces + centroide/bbox), depois EXPOR o parametro no run_variant.py, remodelar
+  a peca e medir o A/B VALIDO contra W485 (row fixa 428 + audit AUDIT_SKIP=top).
+
+**HISTORICO DA CACADA (para nao repetir):** M_Silver (W486: banda intacta), central z/raio, L/R z/raio,
+  X da frente e da ponta — todos REFUTADOS com metodo valido. A resposta era M_Dark, um material que
+  nunca testei isoladamente na banda (os testes M_Dark do inicio estavam contaminados por bbox).
+
+## BASE: **W485** (W486/W487 sao builds de DIAGNOSTICO — nao entram no audit nem viram base)
+IoU 0.828 | P10 0.791 | pior 0.691@side_TRASEIRA | COR_TV 0.251 | exc 12.9 | falta 6.8 | <0.80 4 | sep_parts 14.
