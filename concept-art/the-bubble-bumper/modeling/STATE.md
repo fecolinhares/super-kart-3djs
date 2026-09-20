@@ -4915,3 +4915,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     W633D: build limpo, QA ok, 14 pecas, globais preservadas, h/w 1.231.
   PENDENTE: (a) trim do th0; (b) mover a TEXTURA do rosto para th 75.6..100.2 e redimensionar/reposicionar os
     olhos para centro +-0.0320 e largura 0.0725; (c) GATE VISUAL no W633D (nao feito neste ciclo).
+
+
+## W635D/W637D - VISEIRA: POSICAO FECHADA, LARGURA ANOMALA NAO RESOLVIDA ***
+  FECHADO POR METRICA: viseira f 0.311..0.678 vs ALVO 0.324..0.669 -> erro +0.013 no topo e +0.009 na base =
+    4%% e 1,3%% do range. Calibracao em 3 pontos (th0 58.4 -> 68.0; th1 104.7 -> 110.6; sensibilidade medida
+    0.00689 f/grau). Antes: f 0.525..0.940 (baixa demais).
+  LARGURA ANOMALA (NAO resolvida): a viseira mede 133%% da largura do casco contra 99%% do concept. Hipotese:
+    helm_sy (0.7587) estreita o Helmet mas viseira/gaxetas sao REVOLVES no eixo do casco e nao foram afetados.
+    TENTATIVA P41 (aplicar o mesmo scale Y a Visor_Band/Visor_Gasket/Visor_Gasket2/Visor_Face) NAO TEVE EFEITO —
+    a largura seguiu 133%%. CAUSA NAO IDENTIFICADA: pode ser (a) bpy.data.objects.get() nao achar o nome real
+    (o objeto pode ter sufixo ou ser criado por loft() com outro nome), (b) a reg() ja ter capturado o bbox, ou
+    (c) a hipotese estar errada e o 133%% vir de outra coisa. NAO declarar resolvido; proximo passo e imprimir
+    [o.name for o in bpy.data.objects] no build para ver os nomes REAIS antes de escalar.
+  ERRO DE PATCH EVITADO: tentei um P41 avulso ancorado na SAIDA do P40 (dois patches em cascata) — a ancora nao
+    existe no SRC original e o bloco nao casaria. Solucao correta: EMBUTIR a mudanca no texto do P40. Bom padrao
+    quando um patch depende do resultado de outro.
+  W637D: build limpo, QA ok, 14 pecas, globais preservadas, h/w 1.231, viseira f fechado.
+  PENDENTE: (a) identificar por que o scale Y nao aplicou (imprimir os nomes reais); (b) mover a textura do rosto
+    para th 75.6..100.2 e os olhos para centro +-0.0320/largura 0.0725; (c) GATE VISUAL (nao feito).
