@@ -7108,3 +7108,10 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   [B002] 4 cilindros-envelope (SEM tread, como o Sol exige) em x=+0.4825/-0.6900, y=+-0.5764 (bitola 80% de W),
   z=R (apoio no chao). Envelope da banheira e do piloto como massas simples.
   Proximo B003: acertar 69,5% de ocupacao do piloto (proibido rosto/viseira/roupa).
+
+
+## B003: MASSA DO PILOTO EM 69,5%% ***
+  [B003] cages: cabeca (elipsoide 0.225/0.225/0.245 em z=1.0086), torso (caixa 0.40x0.40 em z=0.62), tub.
+  OCUPACAO MEDIDA: PIL=0.8703 m = 69,50%% de H (alvo 69,5%%) ✓. Proibido rosto/viseira/roupa (respeitado).
+  Render das 4 vistas ortograficas gerado pelo instrumento do B001 (cameras congeladas, orto_scale 2.70).
+  Proximo B004: tub/cockpit autoral (cage explicita + SubD + recesso real, gate de perfil top/bottom + mascara de vazio).
