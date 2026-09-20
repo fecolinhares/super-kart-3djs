@@ -5130,3 +5130,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   TRADE-OFF REGISTRADO: baixar o cowl pode abrir vao com a banheira/assento; subir o piloto mexe no z calibrado do
     capacete e no comprimento/altura globais. Decidir medindo qual dos dois preserva mais os gates ja fechados.
   W649D: build limpo mas SEM o P45 -> idêntico ao W647D na banda do queixo (0 amarelo / 12369 escuro), como esperado.
+
+
+## OCLUSOR DA MENTONEIRA = INTERNO AO PL (o proprio corpo do piloto) ***
+  Meu erro de window (x300-560) escondia o dado. Com a banda completa:
+    amarelo na banda do queixo (y687-799): 3782 px -> 3.9%% da area da banda = um FILETE. Confere exatamente com o
+    vision ('so se ve um filete amarelo fino acima da barra preta'). A mentoneira EXISTE no render, esta 96%% coberta.
+  TESTE DE OCLUSOR (esconder objeto por objeto no .blend salvo e re-renderizar, sem rebuild):
+    esconder COWL -> amarelo 0 | esconder Tub -> 0 | esconder CH,COWL,Tub,PODS,NOSE -> 0 | esconder PL -> 0
+    (PL=0 e esperado: chin_guard esta DENTRO de PL)
+    => nenhum objeto externo e o oclusor. O que cobre a mentoneira esta DENTRO de PL, junto com ela: o proprio
+       corpo/torso/ombros do piloto. Coerente com o chibi: tronco grande colado no capacete.
+  COWL: baixar o topo (cowl_k 0.97 -> 0.843, topo 0.718 -> 0.624 conforme medido no concept) deu 3782 -> 3782,
+    ZERO efeito na oclusao. A hipotese do cowl tambem caiu — mas a mudanca esta conceitualmente CORRETA pelos
+    numeros do concept (o corpo deve comecar em z~0.624) e fica registrada; se abrir vao na banheira, reverter.
+  PROXIMO: o oclusor esta no PL; e preciso separar/identificar o sub-elemento (torso, ombreira ou luva) que invade
+    z 0.632-0.723 na frente do capacete, e entao BAIXAR/cavar esse sub-elemento (ou subir o conjunto do capacete).
+  TECNICA REGISTRADA (barata e decisiva): hide_test.py — abre o .blend salvo, esconde uma lista de objetos e
+    re-renderiza a camera escolhida. Testa N hipoteses de oclusao em segundos, sem rebuild de 25s cada.
