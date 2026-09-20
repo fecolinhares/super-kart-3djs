@@ -4017,3 +4017,26 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CAVEAT ABERTO (proximo micro-passo): a orientacao do render SIDE do modelo ainda nao foi confirmada ponto a
     ponto (o mapeamento xf->x nao fechou com o bbox do piloto). Confirmar a orientacao antes de usar os numeros
     por estacao como alvo de geometria.
+
+
+## *** G27 MICRO-PASSO RESOLVIDO: ORIENTACAO + O DEFEITO NOMEADO ***
+  Orientacao CONFIRMADA (vision no render w569-side.png): frente = ESQUERDA (igual ao concept), traseira =
+    DIREITA, roda maior = direita (traseira) -> consistente. Entao xf=0 e a frente nas DUAS imagens e os
+    numeros por estacao passam a ser utilizaveis como alvo.
+  CONFIRMACAO INDEPENDENTE do defeito: o vision descreve, NA METADE SUPERIOR ENTRE O CENTRO E A FRENTE,
+    "VAO ABERTO" -> exatamente a regiao do dTOP -0.185 medido em xf 0.30. Medicao e leitura concordam.
+  IDENTIFICACAO DA PECA: xf 0.30 -> x = 1.192 - 0.30*2.35 = 0.487, que cai DENTRO do COWL (bbox x 0.206-0.735).
+    A roda dianteira ocupa xf 0.169-0.333 e seu topo e 0.330 da altura; o concept mede 0.551 ali. Logo NAO e roda.
+  ALVO MEDIDO (maior erro do perfil):
+    xf 0.20 (x=0.722, 0.47m do bico)  concept 0.416 da altura  | modelo 0.295
+    xf 0.30 (x=0.487, 0.705m do bico) concept 0.551            | modelo 0.366   <-- PIOR, -0.185
+    xf 0.35 (x=0.370)                 concept 0.540            | modelo 0.435
+    xf 0.45 (x=0.134)                 concept 0.600            | modelo 0.585   <-- bate (+-0.016)
+  LEITURA: o modelo TEM a altura no ponto xf 0.45, mas nao em xf 0.30. Ou seja, a subida nariz->carena acontece
+    TARDE e ABRUPTA em vez de continua. E um defeito de POSICAO DO DEGRAU, nao de amplitude: o concept sobe
+    continuamente do bico ate a coluna de direcao; o modelo fica baixo ate xf~0.42 e salta.
+    Em metros: o concept quer ~0.51m em x=0.722 e ~0.68m em x=0.487 (usando H=1.230m do concept) ou ~0.47m e
+    ~0.63m (usando o H congelado 1.147m). O modelo tem 0.34m e 0.42m. DEFICIT de 0.13 a 0.26m conforme a escala.
+  PROXIMO LEAF (G27 nariz/carena): construir a subida CONTINUA bico->carena com a posicao do degrau medida em
+    xf, mantendo as dimensoes globais CONGELADAS (parecer do Sol). Instrumento: builder/scorecard_side_frac.py
+    (perfil top/floor em fracoes, 21+ estacoes) + mask v2. Apos o build, re-medir e comparar com a tabela acima.
