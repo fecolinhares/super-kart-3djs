@@ -1280,3 +1280,30 @@ PROXIMO FOCO (onde ainda ha ganho real, nao piso): regioes com FALTA (side/TRASE
 ausente e ganho real, nao compromisso entre vistas.
 
 BASE: W437 — IoU 0.821 | pior 0.668 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+
+
+## W443 — rzb=0.000 (rampa no chao) = neutro-negativo, revertido; rzb=0.050 e o otimo
+
+FALTA medida em side/TRASEIRA: concept chega a z 0.003 em xf 0.82-0.86, modelo a 0.027-0.041 (inicio da rampa).
+rzb 0.050->0.000 (z min do REAR 0.025->0.000; bbox INTACTO [-0.01,1.165] como previsto).
+RESULTADO: IoU 0.821->0.820, pior 0.668->0.666, COR_TV 0.253->0.255, excesso 12.1->12.3,
+**falta 8.3->8.2** ✓, **<0.90 21->20** ✓, <0.80 6 (=), side/TRASEIRA falta 19.3->**19.9** ✗.
+=> os dois valores bracketam o otimo: rzb=0.050 -> 0.668 ; rzb=0.000 -> 0.666. **rzb=0.050 e o otimo. REVERTIDO.**
+
+## BALANCO DA SERIE (W429..W443) — 15 variantes, 2 ganhos liquidos
+  ACEITOS: W429 (vao difusor/rampa, side/TRASEIRA 0.658->0.660), W437 (Rear_Bumper_U baixado,
+           side/TRASEIRA 0.660->0.668 e vaos de xf 0.94/0.97 ABRIRAM) — base atual.
+  REJEITADOS COM NUMERO (13): W428 rzb negativo (bbox) | W430 fechamento total | W432 tubos finos |
+           W434 escapes altos | W438 tilt | W439 tilt+sweep | W440 wing_z+span | W441 z_k 1.04 |
+           W442 z_k 1.071 | W443 rzb 0.000 | W420/W421 span menor | W423 asa p/ tras.
+
+## ONDE ESTA O GANHO REAL AGORA (por falta, nao por excesso)
+Falta por regiao (W437): side/TRASEIRA 19.3% | top/RODAS_DIANT 13.4% | side/PARACH_RODA 13.2% |
+rear/PILOTO_COSTAS 11.3% | side/BICO 9.9% | front/NOSE 9.8%.
+Excesso: front/PILOTO 24.8% | top/ASA 20.0% | side/TRASEIRA 21.8% | rear/PARACH_BAIXO 21.0% |
+side/PILOTO 23.2% — **o excesso e o piso irredutivel da inconsistencia entre vistas** (documentado);
+a FALTA e peca ausente e vale perseguir.
+PROXIMOS ALVOS por falta: (a) top/RODAS_DIANT 13.4% (parachoque dianteiro/rodas visto de cima);
+(b) side/PARACH_RODA 13.2%; (c) rear/PILOTO_COSTAS 11.3%.
+
+BASE: W437 — IoU 0.821 | pior 0.668 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
