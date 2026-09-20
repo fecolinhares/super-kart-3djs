@@ -4969,3 +4969,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     usado no concept. Eu tinha os alvos do concept em maos e nao medi o modelo ANTES de mexer — se tivesse,
     veria que ja batia e teria ido direto ao estilo (pupilas/sobrancelhas), que e onde o vision apontava.
   W640D: build limpo, QA ok, 14 pecas, globais preservadas, h/w 1.231, viseira f 0.311..0.678 (fechada).
+
+
+## ESTILO DO ROSTO - DEFEITO DAS SOBRANCELHAS MEDIDO NO MODELO ***
+  INSTRUMENTO (blobs brancos/escuros na banda superior do front render + bbox do olho):
+    MODELO W640D: OLHOS 34x15 px | PUPILA 8x3 px (24%% x 20%% do olho) |
+      SOBRANCELHA 42 px de largura = 124%% DA LARGURA DO OLHO, 16 px de espessura, gap 1 px (COLADA no olho).
+      => a queixa do vision ('sobrancelhas grossas demais, em bloco, baixas') esta CONFIRMADA com numero:
+         a sobrancelha e mais LARGA que o olho e 16 px de espessura (deveria ser um arco fino).
+    CONCEPT: a segmentacao atual NAO fecha — detecta os olhos (31x40 px, provavelmente fundindo com o
+      highlight) mas NAO detecta pupila ('sem preto puro': o concept usa cinza escuro/azulado) nem a
+      sobrancelha na janela. Precisa de limiar proprio (V<150 em vez de V<110) e janela ancorada na COROA.
+  GLOBAIS W640D: QA ok, 14 pecas, h/w 1.231, viseira f 0.311..0.678.
+  PENDENTE: (a) fechar a medicao do concept com limiar de escuro mais alto e janela ancorada; (b) afinar a
+    sobrancelha na textura (espessura e largura) para o alvo medido; (c) tracinho da testa; (d) gate visual.
