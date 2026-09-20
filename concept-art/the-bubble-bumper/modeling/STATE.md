@@ -5416,3 +5416,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   NOTA DE PIPELINE: no mesmo build ha DOIS objetos cowl ('Cowl' min. criado cedo, 'COWL' maiusculo criado depois) e
     AMBOS ocluiam regioes diferentes; por isso o P48 (no ponto do Cockpit_Cut) e o P49b (pos-escala) sao complementares.
   W664D verde: QA ok, 14 pecas, globais preservadas.
+
+
+## *** ULTIMO OCLUSOR: GEOMETRIA DO PROPRIO PILOTO DENTRO DO PL ***
+  DEPOIS de zerar COWL e CH na janela estreita (0 faces), o gate visual AINDA via a mentoneira como filete de 2-3 px
+    (vision: 'resto do volante/suporte' e 'barra azul da asa' — leitura ERRADA dos oclusores).
+  VERIFICACOES QUE FECHARAM O LADO: a camera 'face' esta em x=+5.0 (linha 1375 do SRC) e o NOSE em x[+0.448,+0.935]
+    -> o FRONTAL do kart e +x; 'na frente' = x MAIOR. A janela estava CORRETA, nao invertida.
+  VARREDURA EM JANELA LARGA (z 0.55-0.80, |y|<=0.20, x>-0.080) achou:
+    CH/M_Dark 162 | COWL/M_Blue 90 | PL/M_Pilot 59 faces x[-0.010,+0.153] | PL total na faixa: 11734 faces
+  LEITURA: o PL e o merge de PILOTO + CAPACETE. As 59 faces 'PL/M_Pilot' ficam em x[-0.010,+0.153], ou seja A FRENTE do
+    chin_guard (x[-0.412,-0.080]) na faixa z do queixo. E o CORPO DO PROPRIO PILOTO (peito/ombros) cobrindo a mentoneira.
+    Por estar DENTRO do objeto PL (mergeado), nenhuma varredura por objeto separado (COWL, CH) podia encontra-lo — e
+    hide_render do PL nao e opcao (apaga o capacete junto).
+  METODO PARA O PROXIMO PASSO: separar por MATERIAL dentro do PL (M_Pilot vs o material do capacete) e conferir se as
+    faces M_Pilot na faixa sao corpo a frente do queixo; se sim, recuar/rebaixar o peito do piloto (transladar o subconjunto
+    M_Pilot) ou cortar com box tight excluindo o capacete. Medir SEMPRE por material dentro do merge.
+  W664D verde: QA ok, 14 pecas, globais preservadas. Janela estreita: 0 faces (COWL e CH eliminados).
