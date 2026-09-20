@@ -7048,3 +7048,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   P104 grade (5 vaos), P105 tread (4 pneus), P106 toon (15 materiais), P107 espumas laterais.
   FALTA: contorno preto (inverted hull - adiciona geometria, mexe em sep_parts, exige cuidado) e refinamento de
   proporcao do cockpit/prancha.
+
+
+## *** GATE v51 = 5/10: 4 DAS 6 PRIMITIVAS SE LEEM (validacao do approach) ***
+  VISION: 'VEJO: espumas toroidais SIM, grade 5 divisoes SIM, tread SIM, espumas laterais SIM; asa PARCIAL
+  (tubo existe mas endplates nao sao discos grandes); toon NAO.' Nota 5/10 (era 4).
+  MAIOR erro nomeado: 'bumper FINO, ALTO e FLUTUANTE; kart estreito; piloto afundado; asa minuscula e baixa'.
+  ACAO P108 (aplicada): bumper minor 0.055 -> 0.088 e z 0.30 -> 0.235 (grosso e BAIXO); espumas 0.085/0.048 ->
+  0.098/0.062 em y=+-0.315; asa tubo r 0.052 -> 0.058 comprimento 0.99 -> 1.06 z 0.635 -> 0.665; endplates
+  0.150 -> 0.175 e MATERIAL trocado para M_Yellow (o concept tem endplates AMARELOS).
+  VERIFICADO em W756D: FBUMP 2232 -> 2424 verts (M_Yellow 548 -> 644 = espumas maiores); REAR y +-0.515 -> +-0.553.
+  ###QA### True | falhas=[] | sep 14.
+  LICAO DO GATE: construir a primitiva NAO basta — escala, posicao e MATERIAL precisam casar. O vision ve o tubo
+  mas cobra o disco amarelo: primitiva certa + parametro errado ainda reprova.
