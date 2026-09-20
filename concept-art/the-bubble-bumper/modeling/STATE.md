@@ -6254,3 +6254,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   [QA-DBG] falhas = [] | ###QA### True | sep 14 | 0 erros.
   DISTANCIA ENTRE CENTROIDES = 0.0380 | VAO = 0.0216 POSITIVO.
   Atende os tres pedidos do gate v17: aspecto oval vertical, mais juntos, pupilas centradas.
+
+
+## *** GATE v18: 3/10 — HIPOTESE QUE EXPLICA 3 GATES CONTRADITORIOS ***
+  Medido: lentes 0.025 x 0.040 (aspecto 1.60) separadas 0.038, pupilas em y=+-0.019. Vision: 'nenhum dos 3 parametros
+    tecnicos foi aplicado' e 'continuam redondos e muito afastados'.
+  HIPOTESE: ao REATRIBUIR as 112 faces antigas de M_Eye para M_Face, elas continuam RENDERIZADAS — sao um elemento de
+    12,9 cm de largura no meio do rosto. O vision ve ESSAS (os olhos antigos) e nao as lentes novas de 2,5 cm, que ficam
+    escondidas atras/sob elas. Isso explica: 'olhos enormes' (sao os antigos), 'muito afastados' (o par antigo ia de -0.064
+    a +0.064) e 'nenhum parametro aplicado' (ele nao esta vendo as lentes novas).
+  FIX: as faces antigas (agora M_Face) precisam (a) IR PARA TRAS em x (atras das lentes novas) ou (b) receber a cor do
+    painel do rosto de forma que nao leiam como olhos. Melhor as DUAS: recuar em x e conferir por medicao que o material
+    que ocupa o retangulo dos olhos e M_Eye (nao M_Face).
+  CRITERIO MENSURAVEL NOVO: listar QUAL material ocupa o retangulo dos olhos (|y|<=0.04, z 0.741-0.760) e a frente deles.
+    Se M_Face aparecer ali, o 'olho' que o render mostra e o antigo.
