@@ -2296,3 +2296,24 @@ Culpado provavel: o `Rear_Ramp` (x -0.81..-1.17, topo z 0.63 com rzt=0.480/rth=0
 ## BASE: **W472** (nova) = W463 + ab2_x 0.030 + ab2_x2 0.024 + **ab2_dx 0.090**
 IoU 0.826 | P10 0.790 | pior 0.686@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
 Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
+
+
+## W473 (rzt 0.480->0.400, topo da rampa baixado) — NAO e o ocupante do vao2; ganho marginal
+
+RAIO X na linha t0.54: IDENTICO ao W472 (`0.43..0.78 | 0.82..0.99`, 473 px) — **0 px na linha alvo**.
+Diff total 974 px (a rampa mexeu em OUTRAS linhas). => **a rampa NAO forma o vao2 em t0.54.**
+Agregado: pior 0.686->**0.687** | side/TRASEIRA 0.686->**0.687** (falta 18.4->**17.8** ✓, excesso 18.9->19.6 ✗)
+| IoU/P10/COR_TV/exc/falta/<0.80 todos iguais. Ganho marginal liquido positivo no pior; ADOTADO.
+
+**ESTADO DO ALVO t0.54** (concept: 0.41..0.77 | 0.80..0.81 | 0.88..0.94):
+  vao1 (0.77..0.80) -> **RESOLVIDO** (W471/W472)
+  elemento fino 0.80..0.81 -> perdido (vao ficou 0.78..0.82) — ajuste fino pendente em ab2_dx
+  vao2 (**0.81..0.88** = x -0.75..-0.92) -> **AINDA FECHADO**; o modelo tem 0.82..0.99 solido
+  Refutados para o vao2: rampa rzt (W473, 0px na linha) | asa (W467) | escapes (W466) | duct x (W469)
+  O ocupante original do vao2 era o `Airbox` (108/108 faces) — ja reduzido e deslocado (ab2_x/ab2_dx),
+  mas o run 0.82..0.99 persiste => ha OUTRO ocupante na faixa x -0.78..-0.92 que ainda nao foi isolado.
+  PROXIMO: re-probe de faces em z0.600-0.650, x -0.92..-0.78 **no blend do W472** (nao do W463 — a
+  geometria mudou) para achar o novo ocupante.
+
+## BASE: **W472** (mantida) com o ganho marginal do W473 registrado (rzt 0.400)
+IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
