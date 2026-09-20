@@ -3023,3 +3023,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
 
 **PROXIMOS TESTES DA MESMA BATERIA (um build cada)**: del_mat M_Yellow, M_Dark, M_Silver no mesmo trecho.
   Depois o trecho B (t 0.90-1.00, x -1.19..-0.84, z > 0.55): M_Silver, M_Dark, M_Gold.
+
+
+## Z2-A CONCLUIDO — cowl_k: o *0.97 + SUBSURF encolhiam o topo do cowl ~18%
+  Causa medida: zt=prof_top(xf)*H*0.97 da ~0.673m em xf 0.34, mas o SUBSURF levels=1 entrega 0.550m.
+  Alavanca criada: patch 20 `cowl_k` (default 0.97). Bracket:
+    k=0.97 (w490 base): EMA 0.0393 | t0.30 0.481(-0.041) | t0.35 0.439(-0.099) | t0.40 0.566(+0.093)
+    k=1.16 (W493):      EMA 0.0381 | t0.30 0.575(+0.053) | **t0.35 0.575(+0.037)** | t0.40 0.566(+0.093)
+    k=1.105 (W494):     EMA 0.0376 | t0.30 0.548(+0.026) | t0.35 0.441(-0.096) | t0.40 0.566(+0.093)
+  **ADOTADO k=1.16 (W493)**: t0.35 -0.099 -> +0.037 (maior erro do perfil depois do capacete, corrigido).
+  PITFALL: o cowl responde NAO-MONOTONICAMENTE ao k (secoes discretas NS=22) — k=1.105 cai entre secoes
+  e nao sobe o ponto critico. Nao interpolar k; testar os valores das secoes.
+  Efeito colateral aceito: o topo do cowl (0.7405z) cruza a linha row=428 na FRENTE => run novo 0.340..0.529.
+  A banda TRASEIRA (x -0.765..-0.836) CONTINUA LIMPA (410 px do W489 preservados).
+  PRECISAO NOVA: 2 prof_top(xf) do concept = o cowl segue o perfil medido; nao inventar alturas.
+
+**RESIDUO ABERTO do trecho A**: t0.40 = +0.093 (x=0.210m) NAO e o cowl (k nao o afeta). E outro material.
+  Proximo: del_mat M_Blue/M_Yellow/M_Dark/M_Silver em x 0.16..0.26, z > 0.60 (acima da linha) para achar quem
+  forma aquele pico de 0.566 (concept manda 0.473).

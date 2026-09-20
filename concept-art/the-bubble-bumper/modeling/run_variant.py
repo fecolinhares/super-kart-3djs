@@ -156,6 +156,11 @@ old19="(exb,0.0,0.412+_edz)]"
 new19="(exb,0.0,0.412+_edz+P.get('exh_tip_dz',0.0))]"
 if old19 in SRC:
     SRC=SRC.replace(old19,new19,1)
+# patch 20: fator do topo do cowl (compensa o encolhimento do SUBSURF levels=1)
+old20="zt=prof_top(xf)*H*0.97"
+new20="zt=prof_top(xf)*H*P.get('cowl_k',0.97)"
+if old20 in SRC:
+    SRC=SRC.replace(old20,new20,1)
 
 old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
