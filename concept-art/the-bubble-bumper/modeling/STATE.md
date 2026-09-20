@@ -6203,3 +6203,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     4. validar por ILHA CONEXA (union-find por vertice), nao por corte de coordenada;
     5. so entao o gate visual.
   W709D verde: 0 SyntaxError/Traceback/NameError.
+
+
+## *** GATE v16: DOIS OLHOS CONFIRMADOS + ALVOS NUMERICOS DO VISION ***
+  Vision (W709D): 'Progresso: saiu da barra unica e virou dois volumes' | (1) 'Sim, agora sao 2 ovais separados com vao' |
+    (2) 6/10 | (3) MAIOR ERRO: 'grandes e afastados demais vs concept' |
+    (4) 'Reduza p/ ~2,5cm, gap ~2cm, centralize pupilas' -> NUMEROS, nao adjetivos.
+  RECONCILIACAO COM A METROLOGIA (importante): os 20,6%% do casco (6,8 cm) que eu havia registrado como alvo POR OLHO sao, na
+    verdade, o alvo do PAR DE OLHOS. Confere exatamente: 2,5 cm cada + 2,0 cm de vao = 7,0 cm, contra 6,8 cm medidos no concept.
+    Ou seja o numero da metrologia sempre esteve certo; a minha ATRIBUICAO ('por olho') estava errada.
+  ESTADO ATUAL vs ALVO:
+    cada olho: 4,46 cm -> alvo 2,50 cm (1,8x grande)
+    vao entre bordas: 4,54 cm -> alvo ~2,0 cm (2,2x grande)
+    distancia entre centroides: 9,0 cm -> alvo ~4,5 cm
+    PARAMETROS PARA O PROXIMO BUILD: eye_disc 0.068 -> 0.025 ; eye_sep 0.090 -> 0.045
+  PENDENTE TAMBEM: 'centralize pupilas' (a pupila esquerda estava cortada na borda e a direita fora do enquadramento, segundo o vision).
+  W709D verde: 0 SyntaxError/Traceback/NameError, QA True, falhas = [].
