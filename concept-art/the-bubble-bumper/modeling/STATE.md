@@ -2716,3 +2716,32 @@ para que o ponto alto saia da regiao da banda mantendo a silhueta baixa.
 ## BASE: **W477** (mantida; W478/W479 descartados)
 IoU 0.828 | P10 0.790 | pior 0.689@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 6.9 | <0.80 4 | sep_parts 14.
 Patches no runner: 1..11 (exh_c_dz adicionado, ainda sem uso adotado).
+
+
+## W480 (exh_lr_r 0.062) — GANHO PEQUENO LIMPO, mas a BANDA NAO MUDA => raio NAO e a alavanca
+
+  linha row 428: **IDENTICA** (435 px, mesmos runs) => a banda -0.84..-0.77 nao e governada pelo raio dos L/R.
+  AGREGADO (adotado, nada piorou): IoU 0.828 (=) | P10 0.790->**0.791** | pior 0.689->**0.690** |
+  excesso 12.8 (=) | falta 6.9 (=) | <0.80 4 (=) | side/TRASEIRA 0.689->**0.690** (COR 0.254->**0.245**) |
+  rear/ESCAPES 0.893 (=).
+
+**HISTORICO DAS HIPOTESES DA BANDA -0.77..-0.84 (todas medidas, na linha fixa row 428):**
+  | hipotese | teste | linha | pior | veredito |
+  | exh_dz global 0.115 | W475 | 473->435 | 0.688 | ADOTADO (abriu o vao 1) |
+  | exh_dz global 0.100 | W476 | 427 | 0.686 | descartado |
+  | exh_dz global 0.070 | W474 | 399 | 0.670 | descartado (TRASEIRA falta 20.1) |
+  | exh_fx 0.20 (frente X) | W477 | 435 (=) | 0.689 | ADOTADO (ganho em outra altura) |
+  | exh_c_r 0.110 (raio central) | W478 | 430 | 0.684 | descartado |
+  | exh_c_dz -0.035 (z central) | W479 | 430 | 0.688 | descartado |
+  | exh_lr_r 0.062 (raio L/R) | W480 | 435 (=) | 0.690 | ADOTADO (ganho em outra altura) |
+
+**CONCLUSAO**: a banda resiste a raio (central e L/R), a z do central e a X da frente. A UNICA alavanca que
+provou abrir a banda foi **baixar os L/R em Z** (implicito no exh_dz global 0.070 do W474) — que traz o
+trade-off de TRASEIRA. Falta testar `exh_lr_dz` isolado (patch a criar) para MEDIR se o trade-off e menor
+quando so os L/R descem (o global baixa tambem o central, que contribui para a silhueta que o concept tem).
+
+**ARITMETICA CONFERIDA**: L/R frente z = 0.472 + 0.115 = 0.587 + raio 0.080 => 0.667 (acima de 0.6265).
+Com raio 0.062 => 0.649 — **ainda acima** => explica a banda intacta no W480 (faltavam 0.023).
+
+## BASE: **W480** (nova) = W477 + exh_lr_r 0.062
+IoU 0.828 | P10 0.791 | pior 0.690@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 6.9 | <0.80 4 | sep_parts 14.
