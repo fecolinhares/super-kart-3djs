@@ -1775,3 +1775,33 @@ AGREGADO — W463 nao custa NADA:
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | N=18 |
 <0.90 17 | <0.80 4 | sep_parts 14 | 0 non-manifold | QA aprovado.
 Params: BASE_PARAMS.json + ep_s=[0.085,0.042,0.095] + abt_dz=-0.030.
+
+
+## DIAGNOSTICO DE side/TRASEIRA (0.680, pior regiao) — linhas por t na base W463
+
+SIDE, runs normalizados (concept vs W463):
+  t=0.80  c: 0.53 | 0.56..0.57 | 0.58..0.59 | 0.61..0.72   m: 0.53..0.71        <- 4 runs vs 1 SOLIDO
+  t=0.78  c: 0.53 | 0.56..0.57 | 0.58..0.59 | 0.61..0.72   m: 0.53..0.72        <- 4 vs 1 SOLIDO
+  t=0.76  c: 0.53 | 0.56..0.57 | 0.59..0.71                m: 0.53..0.72        <- 3 vs 1 SOLIDO
+  t=0.72  c: 0.53..0.70 | 0.98                              m: 0.55..0.68        OK (proximo)
+  t=0.66  c: 0.54..0.69 | 0.73 | 0.89..0.99                 m: 0.53..0.69|0.69..0.70|0.90..0.94  OK (split correto)
+  t=0.60  c: 0.41..0.43 | 0.59..0.77 | 0.88..0.98           m: 0.39..0.46|0.49..0.66|0.66..0.75|0.87..0.97  (1 run extra)
+  t=0.56  c: 0.41..0.77 | 0.89..0.94                        m: 0.39..0.46|0.46..0.77|0.78..0.85|0.89..0.99  (extra 0.78-0.85)
+  t=0.54  c: 0.41..0.77 | 0.80..0.81 | 0.88..0.94           m: 0.39..0.42|0.43..0.99  <- **SOLIDO** ✗✗
+  t=0.50  c: 0.26..0.36 | 0.41..0.94 | 0.96 | 0.99..1.00    m: 0.27..0.35|0.38..1.00  OK (proximo)
+
+**DOIS ALVOS PRINCIPAIS, ambos "SOLIDO vs SEPARADO":**
+ (A) t 0.76-0.80: o modelo e UM BLOCO 0.53-0.72; o concept tem 4 elementos finos (0.53 | 0.56-0.57 |
+     0.58-0.59 | 0.61-0.72). PROBE POR FACE em z 0.90-0.95: **so o PL (piloto)** — 7586 faces,
+     x -0.537..-0.083 => imagem 0.52..0.72 EXATAMENTE o bloco do modelo.
+     => o piloto do modelo e uma massa continua; no concept capacete/viseira/encosto/airbox aparecem
+        SEPARADOS com vaos. O alvo e ABRIR VAOS dentro do PL nessa faixa (nao mover nada de lugar).
+ (B) t 0.54: o modelo e SOLIDO 0.43-0.99; o concept tem 0.41..0.77 | 0.80..0.81 | 0.88..0.94 (3 massas).
+     z ~0.62. Mesmo padrao do achado anterior do REAR (3763 faces em z 0.58-0.66).
+
+METODO CONFIRMADO (vale para os dois): medir a LINHA por t -> probe por FACE na faixa z correspondente ->
+identificar a peca -> ajustar so ela. Foi assim que o duct (W461 neutro -> W462/W463) foi resolvido.
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+Params: BASE_PARAMS.json + ep_s=[0.085,0.042,0.095] + abt_dz=-0.030.
