@@ -146,7 +146,7 @@
   "vent_sy": 0.023,
   "vent_sz": 0.01,
   "vent_inset": 0.0028,
-  "vent_tilt": 45.0,
+  "vent_tilt": 22.0,
   "_nota_g26_vents": "P35: vents assentados na SUPERFICIE REAL (raycast outside-in, mesmo instrumento da faixa) — antes eram empurrados 11mm PARA DENTRO numa casca de 13mm (enterrados: 'casco liso azul'). W611D (sx .015, sy .034, t=48, f=38, tilt=30) posiciona os vents frontal-superior colados a faixa: VISioN 'SIM, zona correta, colada lateralmente a faixa amarela, foi corrigida a posicao', NOTA 8.5/10. Proximo: aumentar 20-30%% e alongar; render FRONTAL ORTOGRAFICO para confirmar as duas simetricas; depois respiro central na faixa e olhos/sobrancelhas. NOTA: notas de vision NAO sao comparaveis entre boards diferentes (9 -> 5 -> 8.5 com o mesmo capacete); o achado qualitativo por elemento e o sinal.",
   "head_ortho_z": 0.936,
   "head_ortho_s": 0.62,
@@ -309,5 +309,5 @@
   "visor_lift_ymin": 0.06,
   "_nota_g26_aresta": "GATE v31: clipping resolvido ('nao clippa mais o queixo') mas a aresta serrilha em DEGRAUS — o vision explica que a metrica de intersecao NAO mede a QUALIDADE da aresta. Os degraus sao AUTO-INFLIGIDOS: os clamps movem vertices por z-limite, criando escada. PROXIMO: suavizar a fronteira da M_Visor (media dos vizinhos ou bmesh.ops.smooth_vert so na borda). CRITERIO DE QUALIDADE: max|dz| entre verts adjacentes da fronteira pequeno. LICAO: medir INTERSECAO nao garante qualidade de aresta — sao duas metricas diferentes.",
   "visor_smooth": 6,
-  "_nota_g26_respiros": "RASGOS DA TESTA: 2 pares espelhados de 436 faces, larg 0.0341 / alt 0.0509, em z 1.0417-1.0926 e x -0.2168..-0.1763. O vision diz 'nao existem no concept', mas ele mesmo descreve o concept com '2 pequenos respiros laterais inclinados' — os respiros EXISTEM; o defeito e a INCLINACAO (o modelo esta vertical, o concept inclinado) e talvez o tamanho. FIX: inclinar no plano y-z. Criterio: angulo do eixo longo em relacao ao z (hoje 0 graus)."
+  "_nota_g26_p91": "P91: rasgos da testa inclinados 22 graus no plano y-z, espelhados (3472 verts). Eram verticais (0 graus) contra o concept ('respiros laterais inclinados'). QA True, sep 14. NOTA: 3472 verts e mais que o esperado (~1800) — o filtro de janela pode ter pego outras pecas de M_Dark; conferir no gate."
 }

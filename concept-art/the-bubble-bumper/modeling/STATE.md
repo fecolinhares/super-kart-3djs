@@ -6777,3 +6777,12 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   FIX: inclinar os rasgos (rota-lhos no plano y-z) e conferir o tamanho contra o concept no render. Criterio: o angulo do eixo
     longo do rasgo em relacao ao eixo z (o concept inclina; o modelo hoje esta a 0 graus).
   W733D verde: QA True, falhas=[], sep 14, 0 erros.
+
+
+## P91: RASGOS DA TESTA INCLINADOS 22 GRAUS ***
+  [P91] rasgos da testa inclinados 22 graus: 3472 verts (espelhado, para manter a simetria).
+  Motivo: medidos verticais (eixo longo = z, 0 graus) contra o concept que tem '2 pequenos respiros laterais INCLINADOS'.
+  ###QA### True, sep 14, 0 erros.
+  NOTA: 3472 verts e mais do que as ~1800 correspondentes aos 872 faces dos rasgos — o filtro de janela (z 1.02-1.11 e
+    0.05<|y|<0.15) provavelmente pegou parte de outras pecas de M_Dark. QA verde; conferir no gate se o resultado ficou
+    correto ou se algo mais foi inclinado (se sim, estreitar o filtro).
