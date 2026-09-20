@@ -4763,3 +4763,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
 ## W627D - FAIXA 28.9%% (metrologia 27.1-38.8%% medida, mediana 30%%)
   Ajuste pedido pelos DOIS instrumentos (vision '-10%%' e metrologia 31.2%%->30%%): helm_trim_w 0.107 -> 0.099.
   W627D: faixa 28.9%% | vents larg -5%%, alt +0%% | h/w 1.231 | globais preservadas | QA ok.
+
+
+## W628D - TAPER DA FAIXA IMPLEMENTADO (verificacao por linha PENDENTE de instrumento) ***
+  ONDE: o builder original tinha `w=0.106` CONSTANTE na construcao da faixa. O P32 substituiu esse trecho e expoe
+    `w=P.get('helm_trim_w',0.106)` -> adicionei o taper NO TEXTO DO P32 (mesma tecnica do P38: editando
+    /tmp/p32_new.txt, nao o builder).
+  FORMULA: w(u)=a+b*sin(u), calibrada por 2 pontos medidos do concept:
+    topo (u=90) 0.1436 pre-escala -> 38.8%% da largura do capacete
+    viseira (u=19) 0.1003 -> 27.1%%
+    sin(19)=0.3256 -> b=(0.1436-0.1003)/(1-0.3256)=0.0642 ; a=0.1003-0.0642*0.3256=0.0794
+    Params: helm_trim_taper=1.0, helm_trim_w_top=0.1436, helm_trim_w_bot=0.1003.
+  W628D: bbox da faixa 41.9%% do capacete (o bbox = o MAXIMO, alvo 38.8%%; +8%%, ajustavel em w_top) |
+    globais preservadas | 14 pecas | QA ok.
+  *** A VERIFICACAO POR LINHA FALHOU POR INSTRUMENTO, NAO POR GEOMETRIA *** o seletor de 'capacete' pegou o TORSO
+    azul (169 px) e o amarelo medido (104.7%%) sao as OMBREIRAS; W627D e W628D deram valores IDENTICOS (84.6%%)
+    porque ambos mediam amarelo FORA do casco. E o MESMO erro de selecao ja corrigido uma vez (exigir componente
+    azul da METADE SUPERIOR). Conserto: restringir as linhas ao bbox do capacete ANTES de varrer o amarelo.
+  NAO afirmar o taper como validado ate refazer essa medicao com o filtro.

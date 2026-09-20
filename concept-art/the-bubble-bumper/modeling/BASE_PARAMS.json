@@ -136,7 +136,7 @@
   "helm_raycast": 1,
   "helm_trim_u0": 19.0,
   "helm_trim_u1": 240.0,
-  "helm_trim_w": 0.099,
+  "helm_trim_w": 0.1436,
   "helm_trim_folga": 0.003,
   "helm_trim_thk": 0.0045,
   "_nota_g26_faixa_ok": "FECHADO: faixa do capacete 4.0 -> 9/10. FIX = raycast DE FORA PARA DENTRO (origem = centro + d*2HR, direcao -d). A causa raiz era o SENTIDO do raio (de dentro para fora o hit era a propria origem, distancia ~0 -> sliver 0.0119); a conversao de espaco NAO era o problema. Folgas: BASE +0.0015/+0.0050/-0.0241 (24mm dentro) -> W608D +0.0044/+0.0043/+0.0036 -> W609D +0.0029/+0.0029/+0.0022 (uniforme ~3mm, alvo 0.0030). W609D: w=0.065, u0=19, folga 0.0030; x_range [-1.196,1.154], W/H 1.169, 14 pecas, QA ok. VISION: faixa continua sem interrupcao no topo, sem z-fighting (nao dois planos brigando), centralizada parando na testa sem invadir a viseira, NOTA 9/10. PROXIMO 10/10: entradas de ar superiores laterais + respiro na faixa; render frontal ortografico. REGRA: feature nova entra OPT-IN.",
@@ -163,5 +163,9 @@
   "vent_taper": 0.35,
   "vent_bevel": 0.004,
   "vent_seg": 9,
-  "_nota_g26_vent_rasgo": "RESOLVIDO por MUDANCA DE FORMA: elipsoide -> RASGO (loft de secoes deslocadas/shear ao longo da tangente vertical). Diagnostico: eixos locais X~(x .73,y .38,z .57) e Y~(x .19,y .81,z .56) carregam z ~0.56 nos DOIS -> nenhuma rotacao no plano separa largura de altura; o DESLOCAMENTO da independencia que a escala nao da. alt_z foi de -44%% para +0.4%%. W626D: largura -5%%, altura +0.4%%, centro_y 29.2%%/28.7%%, do topo 17.3%%/14.7%%, aspecto 1.49/1.41. VISION 8.5/10 (Vents 9.5/10): 'sao rasgos alongados, nada de bolinha, simetricos, aprovado para seguir'. CONVERGENCIA: o vision pediu estreitar a faixa ~10%% e a metrologia mediu 31.2%% vs 30%% -> os dois apontam igual; quando a base e medida os instrumentos convergem, quando e chute divergem. Params do rasgo: vent_len .067, vent_wid .0297, vent_thk .008, vent_taper .35, vent_bevel .004, vent_seg 9."
+  "_nota_g26_vent_rasgo": "RESOLVIDO por MUDANCA DE FORMA: elipsoide -> RASGO (loft de secoes deslocadas/shear ao longo da tangente vertical). Diagnostico: eixos locais X~(x .73,y .38,z .57) e Y~(x .19,y .81,z .56) carregam z ~0.56 nos DOIS -> nenhuma rotacao no plano separa largura de altura; o DESLOCAMENTO da independencia que a escala nao da. alt_z foi de -44%% para +0.4%%. W626D: largura -5%%, altura +0.4%%, centro_y 29.2%%/28.7%%, do topo 17.3%%/14.7%%, aspecto 1.49/1.41. VISION 8.5/10 (Vents 9.5/10): 'sao rasgos alongados, nada de bolinha, simetricos, aprovado para seguir'. CONVERGENCIA: o vision pediu estreitar a faixa ~10%% e a metrologia mediu 31.2%% vs 30%% -> os dois apontam igual; quando a base e medida os instrumentos convergem, quando e chute divergem. Params do rasgo: vent_len .067, vent_wid .0297, vent_thk .008, vent_taper .35, vent_bevel .004, vent_seg 9.",
+  "helm_trim_taper": 1.0,
+  "helm_trim_w_top": 0.1436,
+  "helm_trim_w_bot": 0.1003,
+  "_nota_g26_taper": "TAPER DA FAIXA implementado: o builder tinha w=0.106 constante; o P32 expoe helm_trim_w e eu adicionei o taper NO TEXTO DO P32 (editando /tmp/p32_new.txt, mesma tecnica do P38). w(u)=a+b*sin(u) calibrado por 2 pontos medidos: topo 0.1436 (38.8%% do capacete), viseira 0.1003 (27.1%%) -> a=0.0794, b=0.0642. W628D: bbox 41.9%% (o bbox e o maximo, +8%% vs 38.8%%). VERIFICACAO POR LINHA PENDENTE: o seletor pegou o torso azul e mediu as ombreiras (104.7%%), e W627D/W628D deram identicos porque mediam amarelo fora do casco — mesmo erro de selecao ja corrigido (exigir componente azul da metade superior e restringir as linhas ao bbox do capacete)."
 }
