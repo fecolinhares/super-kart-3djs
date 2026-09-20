@@ -3266,3 +3266,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
 
 **PROXIMO**: encerrar o trecho A (residual de 3,8 cm no degrau, dentro de tolerancia razoavel) e ir para Z3 SIDEPOD
   e Z2-B ESCAPAMENTO — os dois que o vision reconfirmou hoje (sidepod fino e baixo; traseira mecanica alta).
+
+
+## Z3 SIDEPOD — PRIMEIRO PASSO REAL (W515) e o bracket fica definido
+  W508: pod z 0.105-0.528, y +-0.703 | W/H modelo 1.165 vs concept 1.238 (modelo 6% ESTREITO)
+  W515 (pod_w 0.405->0.450, pod_zt 0.150->0.165, pod_zt2 0.275->0.345):
+    PODS z 0.1066-0.6122 (+8,4cm) | y +-0.7474 (+4,4cm) | W/H 1.165->1.167 (largura total travada pelos PNEUS y_half 0.737)
+    invariantes EXATOS, QA aprovado, 14 pecas
+  VISION: **OVERSHOOT** — 'nao esta menor, esta MAIOR e mais volumoso que o concept... perdeu o perfil esguio'.
+    concept SIDE = banana/cunha BAIXA (~metade do diametro da roda traseira, nao passa da linha do assento),
+    frente em bico fino que desce; W515 = meia-esfera/bolha, corte vertical gordo. concept TOP = retangular
+    alongada ~1/2 do pneu; W515 = quase circular e saltando para fora. concept tem REBAIXO AZUL CENTRAL
+    (quebra o volume e faz parecer mais fino); W515 = amarelo liso.
+  => BRACKET: W508 fino demais / W515 gordo demais. O alvo esta ENTRE os dois, com LINGUAGEM de cunha.
+  RECEITA DO VISION p/ corrigir: manter parte da largura; ACHATAR o topo; ALONGAR para frente; AFINAR a frente
+    em bico; APLAINAR as laterais; REINTRODUZIR o rebaixo azul central.
+  ACAO PROXIMA: pod_zt2 ~0.28-0.30 (entre 0.275 e 0.345), alongar o range xf (0.330+0.405t -> comecar mais cedo),
+    taper da frente (reduzir a altura nos primeiros 20% das secoes), e mexer no pod_split/cap p/ criar o rebaixo azul.
+**LICAO**: a critica do Feco ('o modelo sempre igual') tinha razao — eu estava calibrando EMA de perfil com
+  variacoes de 3cm em 2,35m (invisiveis). Mudanca estrutural visivel exige mexer em VOLUME (pod/traseira/piloto),
+  nao em constantes de 3 casas decimais.
