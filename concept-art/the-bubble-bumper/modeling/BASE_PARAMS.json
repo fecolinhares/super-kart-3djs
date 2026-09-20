@@ -332,5 +332,6 @@
   "tire_tread": 1,
   "toon_mats": 1,
   "pod_foams": 1,
-  "_nota_g26_gate_v51": "GATE v51=5/10: 4 das 6 primitivas se leem (espumas, grade, tread, espumas laterais). P108 corrigiu bumper (minor 0.088, z 0.235), espumas (0.098/0.062), asa (r 0.058, L 1.06, z 0.665) e endplates (0.175, M_Yellow)."
+  "_nota_g26_gate_v51": "GATE v51=5/10: 4 das 6 primitivas se leem (espumas, grade, tread, espumas laterais). P108 corrigiu bumper (minor 0.088, z 0.235), espumas (0.098/0.062), asa (r 0.058, L 1.06, z 0.665) e endplates (0.175, M_Yellow).",
+  "toon_outline": 1
 }

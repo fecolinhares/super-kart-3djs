@@ -7061,3 +7061,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ###QA### True | falhas=[] | sep 14.
   LICAO DO GATE: construir a primitiva NAO basta — escala, posicao e MATERIAL precisam casar. O vision ve o tubo
   mas cobra o disco amarelo: primitiva certa + parametro errado ainda reprova.
+
+
+## P109: EMISSAO TOON 0.35 -> 0.55 (16 nos) | FREESTYLE FALHOU ***
+  [P109] emissao reforcada em 16 nos (cores mais chapadas). ###QA### True | falhas=[] | sep 14.
+  FREESTYLE FALHOU: 'NoneType object has no attribute color' — o lineset criado por linesets.new() nao traz .linestyle
+  automaticamente. FIX PARA A PROXIMA: apos _fs.linesets.new('Contorno'), criar o linestyle explicitamente
+  (bpy.data.linestyles.new('LS') e atribuir a _ls.linestyle) ANTES de setar color/thickness.
+  Freestyle e o caminho certo para o contorno porque NAO adiciona geometria -> sep_parts=14 intacto.
