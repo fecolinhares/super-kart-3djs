@@ -6504,3 +6504,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   [P66] 1946 de 2422 verts de M_Yellow na calota (antes 1682 de 2070) -> |y| <= 0.022 em toda a volta.
   [P67] 1962 verts levantados para z>=0.800. ###QA### True, sep 14, 0 erros.
   MEDICAO: FAIXA em z>0.95 tem |y|max = 0.0220 (era 0.0691) -> CRITERIO <= 0.025 ATINGIDO.
+
+
+## P79b: FAIXA DESCE ATE A VISEIRA (stripe_zmin 0.800 -> 0.880) ***
+  O gate v25 isolou o defeito real da faixa: 'terminacao frontal: corte reto, largo e destacado da viseira; no concept ela
+    alarga, arredonda e ENCOSTA DIRETO na moldura SEM AZUL NO MEIO'. Causa: o proprio P67 (levantava verts para z>=0.800
+    para nao cobrir os olhos) criou o vao azul entre faixa e viseira.
+  FIX: stripe_zmin 0.800 -> 0.880 -> [P67] 2022 verts levantados; a faixa desce ate o topo da viseira (z 0.852), sem tocar
+    os olhos (0.755-0.795). ###QA### True, sep 14, 0 erros, falhas=[].
+  NOTA DE MEDICAO: tentar medir o 'gap' com |y|<0.03 pegou o AMARELO DO KART em z 0.34 (deu 508 mm, absurdo) e depois, com
+    z>0.70, ainda mistura verts levantados e nao levantados (a faixa continua abaixo de 0.74). Medida de gap em peca
+    multi-segmento precisa de janela por COR+FAIXA; o gate visual decide aqui.
