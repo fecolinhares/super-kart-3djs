@@ -536,3 +536,26 @@ plastico em vez de metal escovado; bocas laterais sao tampoes chapados sem funil
 Mantenha piloto/chassi/carenagens/rodas como OBJETOS DISTINTOS no .blend."
 O builder faz `FIN=join(made,'<V>_body')` -> entregar as pecas separadas.
 Depois: superexposicao dos aneis dos escapes (M_Silver metalico 0.85 estoura) e funil interno nas bocas laterais.
+
+
+## T5 + W406/W407 — OBJETOS SEPARADOS e EIXO TRASEIRO (2026-09-19, ciclo unlazy)
+
+### T5 (skill: "o join() final apaga a identidade das pecas; revisores convergem em monolito")
+Builder passa a suportar `sep_parts=1`: W405 entrega **14 OBJETOS SEPARADOS**, cada um com QA proprio
+(todos 0 non-manifold; NOSE 96.4%, Tub 99.5%, PODS 97.4%, pneus 97.8-97.9%, CH 98.2%, REAR 97.9%, PL 98.5% quads).
+Metrica IDENTICA ao W404 => mudou a estrutura, nao a forma. Pendencia: Tub e PODS com has_uv=false.
+
+### W406 — comprimento calibrado no contrato
+`target_length=2.350` (o eixo alongado levara a 2.384): scale 0.98568, x_range -1.20..1.15 = 2.350 exato.
+Efeito metrico: nulo (IoU 0.816, excesso 12.3->12.2), <0.80 9->8. Hipótese de que o deslocamento das
+faixas causava o top/MOTOR foi REFUTADA (0.778 -> 0.777): pela regra da skill, "if the metric does not
+move, you are editing the WRONG PART".
+
+### W407 — EIXO TRASEIRO pelo teste de RUN COUNT (a regra que a skill ensina)
+TOP xf 0.72-0.80: o concept tem **1 run contiguo**, o modelo tinha **3** com vao em |y| 0.30-0.51.
+Causa achada no codigo: `Rear_Axle` ia so ate **+-0.240** e nao alcancava a face interna do pneu (0.494).
+Fix `axle_w=0.520`:
+- run count xf 0.76 e 0.78: **3 -> 1** (igual ao concept)
+- IoU 0.816 -> **0.818** | falta 8.8 -> **8.6** | regioes <0.80: 8 -> **7** | excesso 12.2 | COR_TV 0.266
+- xf 0.72 ainda com 3 runs -> falta um elemento naquela faixa (proximo alvo)
+=> W407 = nova base.
