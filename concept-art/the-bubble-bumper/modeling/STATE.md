@@ -989,3 +989,20 @@ verificar se isso abre os vaos 0.369-0.450 e 0.588-0.688 sem perder a leitura da
 consolidou as bocas como 3 cilindros protraidos ~6 cm — reduzir o raio mantem as 3 bocas, so mais finas).
 
 Base: **W429** — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+
+
+## W432 — tubos de escape afinados = REFUTADO (nao eram o preenchedor)
+
+exh_c_r 0.128->0.088, laterais ->0.076 (furo interno 0.074 mantido; parede de 5.4cm -> 1.4cm).
+RESULTADO: IoU 0.821->0.820, P10 0.762->0.761, pior 0.660->**0.644**, side/TRASEIRA 0.660->**0.644**
+(falta 19.6->21.9), falta 8.3->8.4. E **o run em xf 0.97 continua SOLIDO 0.735..0.080** (nao abriu nada).
+=> os tubos NAO eram o que fecha os vaos. A hipotese do diametro 2x estava errada quanto a causa.
+
+**Estado do DEFEITO 3: ainda ABERTO.** O probe mostrou que em x -1.17..-1.09 SO o REAR tem vertices
+(M_Silver 1390, M_Eye 893, M_Dark 866, M_Blue 116) e o z vai de 0.026 a 0.745. Como o probe por VERTICE
+nao pega face grande (licao do W419), e provavel que seja uma FACE GRANDE do REAR cruzando essa faixa
+(candidatos M_Silver: rampa/muffler/laterais) — medir o mask, nao os vertices.
+PROXIMO: para cada sub-peca do REAR, calcular a silhueta projetada em Y (numpy sobre os vertices da peca,
+nao do conjunto) e ver qual cobre z 0.08..0.47 nessa coluna.
+
+Base: **W429** (intacta) — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
