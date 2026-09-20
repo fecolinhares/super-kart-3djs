@@ -3735,3 +3735,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     corrigida ANTES de qualquer comparacao. Isso teria pegado este bug em 1 checagem.
   PROXIMO: consertar a extracao do concept em front.jpg/rear.jpg usando o gate cross-view como criterio de aceite,
     e so depois re-medir FRONT/REAR. BEAUTY e vision proprio ficam para depois disso.
+
+
+## *** 4o FALSO RESULTADO DO DIA (meu de novo): scorecard_fr INVALIDO — W_max > W_bbox e impossivel ***
+  scorecard_fr deu concept FRONT W_max/H = 1.5084. Mas a medida DIRETA da o bbox W/H = 1.171 e o maximo
+  FISICAMENTE POSSIVEL e W_bbox/H. 1.5084 NAO PODE EXISTIR => o instrumento esta errado, nao o concept.
+  CAUSA: o flood() selecionou o COMPONENTE ERRADO no front/rear do concept (bbox e H diferentes) — o flood que
+  funciona no SIDE nao generaliza para as outras vistas sem verificacao.
+  DIAGNOSTICO DIRETO (confiavel, sem flood):
+    concept FRONT mask cru: bbox W/H = 1.171  (esperado 1.238 => a 6.7%%, praticamente certo)
+    concept REAR  mask cru: bbox W/H = 1.847  (cobre quase a imagem toda => severamente contaminado)
+  NOVA CHECAGEM OBRIGATORIA (pega este bug em 1 linha): ** W_max <= W_bbox ** — a largura maxima de uma linha
+    nunca pode exceder a largura do bbox. Se exceder, a extracao esta errada, SEMPRE.
+  SELF-TESTS DO INSTRUMENTO ATE AGORA (acumulado, 3 gates):
+    (a) topo da silhueta ~1.0 no SIDE  -> pega perfil invertido/contaminado
+    (b) W_max <= W_bbox               -> pega componente errado no flood
+    (c) W/H do FRONT/REAR concorda com o do SIDE/TOP em ~0.05 -> pega contaminacao lateral
+  SEQUENCIA DE ERROS DE INSTRUMENTO HOJE: metrica degrau_x contaminada -> pod_area herdando -> scorecard com
+    indice invertido -> scorecard_fr com componente errado. TODOS pegos por checagem, nenhum por intuicao.
+  PROXIMO: FRONT usa o mask CRU (bbox 1.171 ja quase certo, so falta o gate cross-view apertar); REAR precisa de
+    extracao propria (o cru esta contaminado). Re-medir as duas e so depois BEAUTY/vision.
