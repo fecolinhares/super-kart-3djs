@@ -186,6 +186,39 @@ new22="""_b=[i for i,mm in enumerate(o.data.materials) if mm is None]
     _badn+=len(_b)"""
 if old22 in SRC:
     SRC=SRC.replace(old22,new22,1)
+# patch 23: DIAGNOSTICO das faces M_Dark por peca (bbox) — achar o ocupante de t0.40
+anchor="R['none_slots']=_badn"
+new23="""R['none_slots']=_badn
+print('===== DIAG M_DARK por peca =====')
+for o in FINS:
+    _mi=[i for i,mm in enumerate(o.data.materials) if mm and mm.name=='M_Dark']
+    if not _mi: continue
+    _fz=[]; _fx=[]
+    for f in o.data.polygons:
+        if f.material_index in _mi:
+            for vi in f.vertices:
+                v=o.matrix_world@o.data.vertices[vi].co; _fz.append(v.z); _fx.append(v.x)
+    if _fz:
+        print('MDARK piece=%-10s nf=%d x[%.3f,%.3f] z[%.3f,%.3f]'%(
+            o.name,sum(1 for f in o.data.polygons if f.material_index in _mi),
+            min(_fx),max(_fx),min(_fz),max(_fz)))
+        # sub-faixa alvo (t0.40: x 0.14..0.30, z>=0.65)
+        _sx=[]; _sz=[]
+        for f in o.data.polygons:
+            if f.material_index in _mi:
+                vs=[o.matrix_world@o.data.vertices[vi].co for vi in f.vertices]
+                if max(v.x for v in vs)>=0.14 and max(v.x for v in vs)<=0.30 and max(v.z for v in vs)>=0.65:
+                    _sx+= [v.x for v in vs]; _sz+=[v.z for v in vs]
+        if _sx:
+            print('   >>> NA FAIXA t0.40: nf=%d x[%.3f,%.3f] z[%.3f,%.3f]'%(
+                sum(1 for f in o.data.polygons if f.material_index in _mi and
+                    max((o.matrix_world@o.data.vertices[vi].co).x for vi in f.vertices)>=0.14 and
+                    max((o.matrix_world@o.data.vertices[vi].co).x for vi in f.vertices)<=0.30 and
+                    max((o.matrix_world@o.data.vertices[vi].co).z for vi in f.vertices)>=0.65),
+                min(_sx),max(_sx),min(_sz),max(_sz)))
+print('===== FIM DIAG =====')"""
+if anchor in SRC:
+    SRC=SRC.replace(anchor,new23,1)
 
 old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"

@@ -3154,3 +3154,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   junto com o bbox de cada sub-peca do cockpit; depois expor `ch_dark_dz` no ponto certo.
 **TAREFA SEPARADA (vai para a lista)**: corrigir o farol — 54 faces com material indefinido virando M_Dark.
   Atribuir o material correto (M_White/M_Silver do farol) em vez de M_Dark.
+
+
+## OCUPANTE DE t0.40 NOMEADO COM PRECISAO (patch 23, W505)
+  MDARK por peca (bbox das faces M_Dark):
+    LAMP nf=54 x[1.063,1.092] | GRILLE nf=130 x[0.996,1.087] | Tub nf=4200 x[-0.662,0.131] z<=0.190
+    Tires nf=832/896 | REAR nf=4010 x[-1.200,-0.305] | PL nf=2298 x[-0.561,0.640] z<=1.234
+    **CH nf=1192 x[-0.581,0.996] z[0.057,0.782] — e NA FAIXA t0.40: nf=259 x[0.093,0.249] z[0.617,0.782]**
+  => 259 faces M_Dark do CH em x0.093-0.249 / z0.617-0.782 SAO o pico de t0.40. Nenhuma outra peca tem face ali.
+  Bate com as delecoes medida (W498 394 faces -> -0.047; W501 252 luvas -> 0; W502 209 acima de z0.65 -> -0.047).
+  O PL (2298 faces M_Dark) NAO tem face na faixa: gloves param em z0.619, headrest em x<0, boots em z<=0.404 —
+  a eliminacao por bbox estava certa e a sonda confirmou o CH.
+
+**PROXIMO**: no builder, localizar as sub-pecas do cockpit que geram M_Dark em z0.617-0.782 e x0.093-0.249
+  (dash/volante/manopla) e expor `ch_dark_dz` para descer ~0.11 m — medindo o EMA do perfil (0.0381) e a coluna t0.40.
+**LIÇÃO**: instrumentar o proprio dado (bbox por material por peca) levou 2 builds e nomeou com 259 faces exatas;
+  inferir por bbox de PECA inteira custou 5 builds e 2 hipoteses erradas. Quando a pergunta e 'quem ocupa X',
+  nao inferir de bbox agregado — medir a populacao de faces dentro da faixa.
