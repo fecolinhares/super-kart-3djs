@@ -4439,3 +4439,29 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
         -> seria MELHOR QUE W590D (0.0444) e entao ADOTAR.
     NOTA: nao tentar compensar com helm_z (ja provado lever errado para proporcao) nem com reajuste do meio
         por offsets (recria dependencia entre parametros).
+
+
+## *** W598D: A COMPENSACAO FUNCIONOU. NOVA MELHOR BASE, -19%% GERAL E -49%% NA TRASEIRA. ***
+  INSTRUMENTO NOVO: dump ###BBOX### estendido para as 14 pecas (antes: 3 hardcoded NOSE/COWL/FBUMP) +
+  linha ###XEXT### com os extremos. Com ele, len_before ficou TOTALMENTE explicado:
+      extremidade traseira: REAR   x_min = -1.1519
+      extremidade dianteira: FBUMP x_max = +1.3264
+      extent = 1.3264 - (-1.1519) = 2.4783  ==  len_before 2.4782   EXATO
+    => len_before = FBUMP.x_max - REAR.x_min (pre-escala)  e  scale = 2.35 / len_before
+    => o REAR.x_min E a borda traseira da asa (wing_x1 - 0.009). A asa DEFINE o comprimento pela extremidade
+       traseira, mas era a asa CURTA (span 0.012/0.217) que manteve len_before alto; aumentando o span para 0.250
+       o len_before CAIU (2.5454 -> 2.4782) e reescalou o meio. Dai a compensacao ter de ESTENDER a asa ainda mais.
+  COMPENSACAO ARITMETICA (nao foi tentativa): para len_before = 2.5454 -> REAR.x_min = 1.3264 - 2.5454 = -1.219
+    -> wing_x1 = -1.210. xtrans recomposto -0.033 -> -0.075 (0.042 medido de W590D).
+  RESULTADO W598D (grade 161):
+                   medio   TRASEIRA   frente-meio  patamar   1o xf>=0.65  len_before  scale
+    W590D (base)   0.0444   0.0908     0.0377      0.0123    0.9375       2.5454      0.92323
+    W596D (span.25)0.0477   0.0530     0.0422      0.0126    0.9000       2.4782      0.94828
+    W598D (comp.)  0.0360   0.0461     0.0389      0.0124    0.8812       2.5364      0.92651
+                    -19%%     -49%%       ~igual      ~igual    concept 0.875  <- MELHOR BASE
+    x_range [-1.196, 1.154] (alvo [-1.2, 1.15]); W/H 1.171; 14 pecas; QA ok; REAR.x_min = -1.210 exato.
+  A ESTRATEGIA 'TRAVAR len_before' FOI VALIDADA: o meio ficou imovel (0.0389 vs 0.0377) enquanto a traseira
+    melhorou 49%%. Confirma que o acoplamento era mesmo o recálculo de escala, nao acoplamento geometrico.
+  METODO (entra na skill): len_before e a FRONTEIRA entre regioes — instrumentar o bbox de TODAS as pecas
+    (nao so as 3 hardcoded) torna o acoplamento calculavel em vez de mistificado, e a compensacao passa a ser
+    ARITMETICA (alvo = extremo dianteiro - (comprimento desejado)) em vez de tentativa e erro.
