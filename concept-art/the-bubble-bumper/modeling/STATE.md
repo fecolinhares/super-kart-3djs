@@ -5816,3 +5816,13 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     4. VAO entre viseira e queixo ('vão preto/vasado') que NAO existe no concept -> fechar.
     5. Discos pretos laterais (pivos da viseira) visiveis nas laterais -> remover ou embutir.
   W687D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## P60: VISEIRA ENVOLVENTE (TAPER + CURVATURA + TRANSPARENCIA) ***
+  [P60] viseira envolvente: 9928 verts | taper base=0.75 | wrap k=0.055 | ymax=0.167 | z 0.862..1.011
+  Taper em y (mais estreito embaixo) + curvatura em x (bordas recuam com k*(|y|/ymax)^2) + alpha 0.78.
+  M_Visor: x 0.216 -> 0.190 | y 0.333 -> 0.310 (94% da largura do casco) | z 0.862-1.011 = 0.149 (altura intacta).
+  Por que: o vision (W687D, 6.5/10) disse 'caixa reta, sem curva e sem afunilar, parece placa chapada' e o concept e
+    'translucida, CURVA, que ENVOLVE o rosto, mais larga em cima e AFUNILANDO para baixo'. Os tres elementos do concept
+    estao agora implementados; a validacao e o proximo gate.
+  W688D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas. build 48.1s.
