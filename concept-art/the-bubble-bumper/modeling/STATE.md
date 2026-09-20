@@ -6469,3 +6469,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   LICAO (instrumento, 8a): ANTES de comparar A com B, verificar se B e o contorno relevante na regiao — medir TODOS os
     candidatos a contorno e ver qual e o mais externo. Se duas pecas estao a frente da referencia, o teste mede errado
     e a visao fica 'errada' por 5 gates. Foi o teste da premissa que revelou isso.
+
+
+## P78: GAXETA E ROSTO LIMITADOS AO PERFIL DO CASCO ***
+  [P78] M_Gasket: 624 verts | M_Face: 6422 verts -> 7046 limitados a 1.02 x casco. ###QA### True, sep 14, 0 erros.
+  ANTES -> DEPOIS (2*ymax em z 0.76-0.80): M_Gasket 0.3360 -> 0.2127 | M_Face 0.3304 -> 0.2551.
+    Referencia: M_Blue 0.2448 | M_Visor 0.2302. As 'abas' de 0.336 foram eliminadas.
+  Esta correcao so foi possivel depois do TESTE DA PREMISSA: 5 gates apontavam 'abas na viseira' e meus 2 instrumentos
+    comparavam contra o M_Blue, que NAO e o contorno mais largo daquela faixa. A viseira era inocente.

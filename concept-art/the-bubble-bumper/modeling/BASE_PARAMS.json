@@ -294,5 +294,10 @@
   "visor_clamp": 0.9,
   "_nota_g26_kart_confundidor": "CONFUNDIDOR REMOVIDO: os 3021 px de 'cinza fora do azul' nas linhas y 440-520 sao o AMARELO DO KART (sidepods) — por faixa, M_Yellow tem 0.2147 em z 0.600-0.625 e 0.1989 em 0.650-0.675, legitimamente mais largo que o capacete (0.165). Meu teste comparava com a silhueta AZUL (so o capacete). CONCLUSAO: nao ha protrusao geometrica da viseira — por faixa 97,6-98,6%% e por pixels 16 px na regiao dos olhos. O 'abas laterais' da visao vem da FORMA (topologia em caixa: faces planas + arestas duras) e do GHOSTING da dupla camada. FIX: arredondar/suavizar a BORDA da viseira (silhueta curva, sem quinas) — criterio: contorno no plano y-z como curva, canto com raio >= ~0.01 m.",
   "visor_round": 0.12,
-  "_nota_g26_abas_gasket": "PREMISSA TESTADA E FALSA: em z 0.76-0.80 o MAIS LARGO e M_Gasket (2*ymax 0.3360) e M_Face (0.3304); o M_Blue — que eu usei como referencia de 'casco' — tem apenas 0.2448, e a M_Visor 0.2302. Ou seja a viseira estava sendo comparada com uma referencia que NAO e o contorno relevante: a gaxeta e o rosto estouram ~8-9 cm alem NAQUELA FAIXA. As 'abas/orelhas laterais' dos 5 gates sao a GAXETA e o ROSTO; a viseira era inocente (contra a peca mais larga ela esta em 68,5%%). FIX: clamp por faixa em M_Gasket e M_Face, |y| <= ~1.02 * y_casco(z), mesma tecnica do P74. LICAO: antes de comparar A com B, medir TODOS os candidatos a contorno e ver qual e o mais externo."
+  "face_clamp": 1.02,
+  "face_mats": [
+    "M_Gasket",
+    "M_Face"
+  ],
+  "_nota_g26_p78": "P78: clamp por faixa em M_Gasket e M_Face (7046 verts a 1.02 x casco). ANTES->DEPOIS em z 0.76-0.80: M_Gasket 0.3360->0.2127, M_Face 0.3304->0.2551, contra M_Blue 0.2448 e M_Visor 0.2302. As 'abas' de 0.336 foram eliminadas — so foi possivel depois do teste da premissa (a referencia M_Blue nao era o contorno mais largo). QA True, sep 14."
 }
