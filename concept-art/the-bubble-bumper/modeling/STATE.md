@@ -1033,3 +1033,26 @@ LICOES DE METODO consolidadas nesta serie:
 
 Base: **W429** — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
 PROXIMO: exh_dz 0.130 -> 0.192 (medido pelo elemento 2 do concept em z 0.450-0.588).
+
+
+## W434 — escapes 6 cm mais altos = REFUTADO (e o run xf 0.97 segue SOLIDO)
+
+exh_dz 0.130->0.192 (tubos para z 0.522-0.604, alinhando com o elemento 2 do concept 0.450-0.588).
+RESULTADO: IoU 0.821->0.819, P10 0.762->0.760, pior 0.660->**0.630**, COR_TV 0.253->0.256,
+side/TRASEIRA 0.660->**0.630** (falta 19.6->22.5), side/MOTOR 0.840->0.835.
+E **o run em xf 0.97 continua SOLIDO 0.738..0.080** => os escapes NAO sao o preenchedor.
+
+### DEFEITO 3 — DUAS hipoteses refutadas (W432 diametro, W434 altura); o preenchedor e OUTRA peca
+O meu detector de "COBRE" no W433 usou formula baricentrica de TRIANGULO em faces de 4 vertices => o
+resultado nao e confiavel. O dado bruto confiavel foi: faces M_Silver com x **-1.183..-0.855** e
+z 0.388..0.504 (tubos) — mas o mask e solido de 0.08 a 0.738 nessa coluna, ou seja HA material em
+z 0.08-0.388 e 0.504-0.656 que nenhuma peca do REAR deveria ter ali (bbox: difusor x -0.988..-0.868;
+rampa x -0.748..-1.108; wing z 0.656-0.756; rbump x -0.928; collector x -0.99; tray x -0.50).
+
+**PROXIMO PASSO CORRETO (nao repetir o erro do W433):** nao usar formula de triangulo em quads. Fazer
+RASTERIZACAO de verdade por peca: renderizar um mask por sub-peca do REAR (escondendo todas as outras)
+em 1 unico processo Blender e ler a coluna xf 0.97 de cada mask. So assim se acha a peca que cobre
+z 0.08-0.388 naquela coluna. Alternativa barata: projetar cada vertice/face em numpy com PIL (poligono
+preenchido) e somar a cobertura por peca.
+
+Base: **W429** (intacta) — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
