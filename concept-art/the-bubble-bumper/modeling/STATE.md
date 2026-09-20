@@ -6640,3 +6640,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     auto-scale, se a cadeia permitir.)
   LICAO (11a): ao reportar um patch, o numero do print e PRE-scale; o criterio medido no .blend e POS-scale. Converter antes
     de comparar — senao o patch parece 'nao fazer efeito' exatamente pelo fator da escala.
+
+
+## *** P85 COM ALVO PRE-SCALE: CRITERIO ATINGIDO (0 VERTES) ***
+  visor_lift_z 0.760 -> 0.820 (= 0.760/0.92651). [P85] 3882 verts levantados. ###QA### True, sep 14, 0 erros.
+  CRITERIO POR VERTICE (o que o passe move): verts de M_Visor com z<0.76 e |y|>0.06 = 0 (alvo 0) — ATINGIDO.
+  O 'borda inferior reta, serrilhada e clipando no queixo' do gate v30 esta geometricamente eliminado.
+  NOTA: o criterio por FACE (centroide) continua alto (1310) porque faces que misturam verts levantados e nao-levantados
+    mantem centroide baixo — nao e o criterio correto para um passe que move VERTICES.
