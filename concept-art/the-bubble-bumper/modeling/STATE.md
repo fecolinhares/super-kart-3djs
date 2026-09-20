@@ -874,3 +874,23 @@ PISTA SOLIDA que sobrou da medicao TOP por coluna (xf 0.88):
 O concept tem um elemento fino em |y| 0.344-0.377 em xf 0.88 (candidato: suspensao/eixo traseiro) e VAO
 dos dois lados dele. O modelo tem material continuo de 0 a 0.498 => ha uma peca do modelo que preenche
 esses vaos. **Proximo probe: objetos com vertices em x -0.918 (xf 0.88) e |y| 0.26-0.44, qualquer z.**
+
+
+## W424 probe / W425 (NOVA BASE) / W426 — a asa e ENFLECHADA (achado real)
+
+W424 probe em x -0.97..-0.87 (xf 0.88) com |y| 0.26-0.44: **so** REAR M_Silver, 12 verts, |y| 0.324-0.325,
+z 0.286-0.434 (= o elemento fino do concept, que o modelo TEM certo). Nenhuma face grande cruzando.
+=> o material solido ate |y| 0.498 em xf 0.88 so pode ser a ASA (x -0.905..-1.158 cobre -0.918), cuja secao
+e um QUAD RETANGULAR de |y| 0 a 0.505. O concept em xf 0.88 tem material so ate |y| 0.377 e VAOS em
+0.254-0.344 / 0.377-0.446 => **a asa do concept e ENFLECHADA: estreita no bordo de ataque, cheia em xf 0.92**.
+
+W425 — sweep LINEAR (span 0.377 em u=0 -> 0.505 em u=1): IoU 0.821 (=), COR_TV 0.261->**0.253**,
+excesso 12.3->**12.1**, falta 8.1->8.3, <0.80 6 (=), top/ASA 0.701->0.695 (excesso 22.9->**20.0**),
+front/PILOTO 0.743->**0.745** (excesso 23.8->23.2), side/PILOTO 0.741 (=).
+W426 — sweep CUBICO (so o bordo de ataque afina): COR_TV 0.257, excesso 12.2, **<0.80 7** => PIOR que W425.
+
+**W425 ADOTADO COMO BASE**: mesmo IoU/P10/pior/<0.80 do W418, com COR_TV e excesso MELHORES. Ganho real
+(geometria medida no concept + metrica de cor melhor). Builder: /tmp/bb25.py (+ param wing_sweep).
+Novo padrao: wing_sweep=0.253.
+
+Base: W425 — IoU 0.821 | pior 0.657 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
