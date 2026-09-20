@@ -3334,3 +3334,40 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
    4) TOP: concept tem pods simetricos bojudos p/ fora com borda amarela em U espessa e miolo azul largo; modelo = prancha
    5) FRONT BUMPER: concept e carenado azul/amarelo integrado; modelo e TUBO PRATA aparente em U => muda a leitura da largura
    6) TOP: tanque/carenagem central do concept e mais largo/arredondado; modelo mais estreito e pontiagudo
+
+
+## *** PARECER DO SOL RECUPERADO E VERIFICADO (job 932d7364, completed, exit 0, 15942 bytes) ***
+  MODEL=gpt-5.6-sol-900k | PROVIDER=openai-codex | REASONING=medium
+  NOTA: meus 2 lancamentos (ea78583f, f7293bac) morreram com .out VAZIO. O parecer valido e de outro job (932d7364).
+  Arquivado em modeling/SOL-STRATEGY-2026-09-20.md
+
+  VEREDITO CENTRAL: 'Procedural nao e o problema; usa-lo como AUTOR DA IDENTIDADE e.'
+    MANTER procedural: datums, eixos, escala 2.35m, cameras/luzes/passes, montagem dos 14 objetos,
+      materiais/nomes/colecoes/export, auditoria bbox/simetria/manifold, pecas repetitivas (rodas, fixadores, tubos).
+    PARAR de gerar proceduralmente: sidepods, nose/cowl+transicao, cockpit/banheira, capacete/rosto/torso/pose,
+      carenagem traseira+transicoes. Motivo: loft/dome/box/sweep enchem volume mas NAO decidem onde a superficie
+      deve comprimir, criar ombro, quebrar curvatura, afundar ou fundir.
+    ALTERNATIVA: pipeline hibrido com assets autorais por zona (authored/*.blend + contracts/zone-landmarks.json
+      + semantic-materials.json). Metodo: cage manual baixa -> SubD com loops nas quebras de curvatura -> sculpt ->
+      retopo -> RECESSOS REAIS (nao pintura fingindo profundidade) -> .blend versionado -> builder importa e so
+      aplica transformacoes contratuais.
+    REPRODUTIBILIDADE: nao exige regenerar cada vertice por formula. .blend versionado + transforms aplicados +
+      nomes estaveis + script deterministico de montagem e perfeitamente reproduzivel.
+    CRITERIO DE ACEITE da mudanca: rebuild limpo importa os 4 assets sem intervencao; L=2.35 e x=[-1.20,1.15];
+      cada asset com versao+hash no manifesto; trocar renderer/reconstruir cena nao muda geometria; NENHUMA forma
+      identitaria depende de novo de pod_e/cowl_k ou dezenas de constantes correlacionadas.
+
+  SEQUENCIA (por alavancagem): 1) arquitetura de massas e ESPACOS NEGATIVOS (cockpit escavado, piloto como massa
+    vertical dominante, degrau de perfil >=85%% da amplitude do concept 0.132 vs W516 0.085, pelvis DENTRO da banheira,
+    maos alcancando o volante); 2) sidepods autorais de DUAS CAMADAS (corpo amarelo + rebaixo azul escavado como dois
+    niveis, area semantica amarelo/azul <=5pp por vista); 3) nose+bumper como UM gesto (bumper AZUL integrado, remover
+    leitura de barra prata — 'o modelo parece outro kart porque o primeiro landmark e semanticamente errado');
+    4) piloto+capacete+rosto como CONJUNTO (torso ereto +-5 graus, olhos+sorriso legiveis a 256px); 5) traseira
+    (plastico azul fechado, 3 bocas com central dominante, remover chassis tubular e molas douradas e listras) e SO
+    DEPOIS o passe AAA (bevels por escala, espessuras, seams, roughness, cavidades, normais limpas).
+
+  METRICA (resposta a 'como medir o que o olho ve'): NAO trocar a EMA por outro numero unico — 'otimizar uma media
+    unica so cria um Goodhart mais sofisticado'. Usar VETOR de metricas com PISOS por zona:
+      A. Erro de LANDMARKS: pontos (ponta do bico, centros de roda, extremos dos pods, abertura do cockpit, centro/topo
+         do capacete, volante, centros dos 3 escapes), normalizado pela extensao da propria vista;
+         E_landmark = mediana(dist/extensao). GATE: mediana <= 2.5%% e nenhum P0 > 5%%. Reportar tambem o pior landmark.
