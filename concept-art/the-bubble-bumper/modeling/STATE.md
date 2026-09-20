@@ -3492,3 +3492,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
      E exatamente o item 1 do Sol (piloto/capacete como massa AUTORAL, nao escalada por parametro).
   PROXIMO: patch que, apos a construcao do capacete, roda bmesh nos verts com x > hx (frente) e os desloca para
      tras proporcionalmente a distancia do pico (deformacao com peso 0 no pico e 1 na frente), preservando o pico.
+
+
+## W529 — RECUO AUTORAL DO CAPACETE: patch aplicou (2984 verts) mas SILHUETA 0.0000
+  P33 helm_front=1.00 verts_movidos=2984 w_max=1.000 (peso 0 no pico, 1 na frente) — o pico nao se moveu.
+  TODOS os 7 landmarks: movimento 0.0000 (soma 0.4042 -> 0.4042). PL bbox e verts identicos.
+  => **O CONTORNO naquela regiao NAO E A CASCA DO CAPACETE.** Deformar 2984 verts dela nao moveu 1 pixel.
+     Mesma armadilha do cowl (W527): a peca que domina a silhueta e OUTRA. Candidatos restantes no conjunto PL:
+     face/cabeca interna (M_Face/M_Eye), gasket (M_Gasket), visor (M_Visor), queixeira (chin_guard), helm_base.
+
+### TABELA DE REFUTACOES DO DEGRAU (todas medidas, 1 build cada)
+  Cockpit_Cut   ch_cut_dx -0.350 -> 0.0000   REFUTADO
+  Assento       seat_dx  +0.25   -> 0.0000   REFUTADO
+  Cowl          cowl_xspan 0.35  -> 0.0000   REFUTADO (massa dentro do contorno)
+  Casca capacete helm_front 1.0  -> 0.0000   REFUTADO (2984 verts, silhueta identica)
+  Capacete todo helm_x  -0.25   -> 0.3194   CONFIRMADO (mas move o pico)
+  helm_sz       escala X dome    -> baixa o pico, quebra L/H   REFUTADO
+  METODO: quando 4+ pecas vizinhas dao 0.0000, o dono NAO e nenhuma delas individualmente; usar o teste de
+    alavanca no CONJUNTO (helm_x, que moveu 0.3194) e depois identificar a sub-peca por MATERIAL dentro do
+    conjunto (del_mat por M_Gasket/M_Visor/M_Face/M_Eye numa banda x) — nao por geometria individual.
+  PROXIMO: sonda del_mat com del_x na banda do degrau (x -0.22..0.02) para M_Face/M_Eye/M_Gasket/M_Visor.

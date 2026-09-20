@@ -316,6 +316,27 @@ else:
 # Objetivo: recolher a FRENTE mantendo o CENTRO (onde esta o pico/topo_global_x, ja correto).
 print('P32v2 alavanca do capacete = helm_sz (escala X); base usa helm_sz=0.934')
 
+
+# patch 33: RECUO AUTORAL DA FRENTE DO CAPACETE (o caminho procedural esta esgotado: helm_x move o pico,
+# helm_sz acopla altura, estender o cowl fica dentro do contorno). Aqui deformamos a malha do capacete:
+# o PICO do dome esta em x = hx (no perfil [(raio_Y, -R*cos(t)*sz)] o offset em x e 0 quando t=90 graus).
+# Peso w = (x-hx)/(HR*SZ) => 0 no pico, 1 na frente. O pico fica EXATAMENTE parado.
+o33="helm=dome('Helmet',hx,0.0,hz,HR,sz=SZ,sy=1.0,seg=104,rings=62); assign(helm,'M_Blue')"
+n33=("helm=dome('Helmet',hx,0.0,hz,HR,sz=SZ,sy=1.0,seg=104,rings=62); assign(helm,'M_Blue')\n"
+     "    _hf=P.get('helm_front',0.0)\n"
+     "    if _hf>0:\n"
+     "        _n=0; _mx=0.0\n"
+     "        for _v in helm.data.vertices:\n"
+     "            _d=_v.co.x-hx\n"
+     "            if _d>0:\n"
+     "                _w=min(1.0,_d/(HR*SZ)); _v.co.x=hx+_d*(1.0-_hf*_w); _n+=1; _mx=max(_mx,_w)\n"
+     "        helm.data.update()\n"
+     "        print('P33 helm_front=%.2f verts_movidos=%d w_max=%.3f'%(_hf,_n,_mx))\n"
+     "    else:\n"
+     "        print('P33 helm_front OFF')")
+if o33 in SRC: SRC=SRC.replace(o33,n33,1); print('P33 INSERIDO OK')
+else: print('P33 ALVO NAO ENCONTRADO')
+
 exec(compile(SRC,'bb_'+VER,'exec'),g)
 R=g.get('R',{})
 print(VER,'| QA=',R.get('qa',{}).get('aprovado'),'| z_range=',R.get('z_range'),'| ERRO=',R.get('ERRO'))
