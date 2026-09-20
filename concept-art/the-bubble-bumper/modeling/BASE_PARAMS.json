@@ -286,5 +286,5 @@
   "eye_z": 0.7745,
   "eye_thick": 0.006,
   "eye_pupil": 0.012,
-  "_nota_g26_p71": "P71: olhos reduzidos para os alvos do vision — 2 lentes de 0.025 x 0.028 separadas 0.045 (alvo 2,5 cm e vao 2 cm) e 2 pupilas M_Dark de r 0.006 (1,2 cm de diametro, 48%% do olho contra 43%% do concept) centradas em y +-0.022. [QA-DBG] falhas = [] e QA True. Medicao por ilha: 2 ilhas de 48 faces, centroides a 0.0450, vao 0.0286 positivo. NOTA DE INSTRUMENTO: a medicao por ilha usa centroide de FACE, o que subestima objeto fino (0.0164 para um desenho de 0.025) — para objetos finos medir o BBOX DOS VERTICES, nao centroides."
+  "_nota_g26_gate_v17": "GATE v17 (W710D): 3/10, com o vision CONTRADIZENDO a propria instrucao do gate v16 ('reduza p/ ~2,5cm, gap ~2cm') e chamando os mesmos 2,5 cm de '2x maiores'. A medicao confirma 0.025 de largura, centroides a 0.0450 e vao 0.0286 positivo. Julgamento de proporcao instavel na visao; a MEDICAO decide (nao desfazer o que o numero confirma). O que a visao aponta E a geometria confirma: (1) as lentes sao quase REDONDAS (0.025 x 0.028) enquanto o concept tem OVAIS VERTICAIS (altura ~1,6x a largura) — ajustar o ASPECTO, nao o tamanho; (2) as sobrancelhas sao blocos pretos grossos, retos e altos. PROXIMOS: aspecto h/w 1.12 -> 1.6, eye_sep 0.045 -> ~0.038 para juntar, sobrancelha em arco fino."
 }

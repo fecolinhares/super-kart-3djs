@@ -6230,3 +6230,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     desenho de 0.025). Para objetos finos, medir pelo BBOX DOS VERTICES, nao pelos centroides das faces — senao o numero
     mente para baixo. (Registrado para nao 'corrigir' o que ja esta certo.)
   W710D verde: 0 SyntaxError/Traceback/NameError.
+
+
+## *** GATE v17: 3/10 — O VISION CONTRADIS A PROPRIA INSTRUCAO ANTERIOR ***
+  Vision (W710D): (1) 'Nao, continuam 2x maiores que o concept' | (2) 3/10 |
+    (3) 'enormes, redondos e muito separados' | (4) 'Reduza metade, faca oval vertical e junte'.
+  CONFLITO MEDIDO: o gate v16 (W709D) instruiu 'reduza p/ ~2,5cm, gap ~2cm'. A medicao CONFIRMA que o olho tem
+    exatamente 0.025 (2,5 cm), centroides a 0.0450 e vao POSITIVO de 0.0286. O vision pediu 2,5 cm e agora chama os mesmos
+    2,5 cm de '2x maiores' -> a nota caiu 6 -> 3 com uma mudanca que ELE MESMO pediu. Julgamento de proporcao instavel.
+  REGRA APLICADA: a MEDICAO decide (regra da familia 'instrumento', 5a). Nao desfaco o que o numero confirma.
+  O QUE O VISION APONTA E A GEOMETRIA CONFIRMA (alteracoes REAIS a fazer):
+    1. 'perfeitamente REDONDOS' — verdade: minha lente e 0.025 x 0.028 (quase circular). O concept tem OVAIS VERTICAIS
+       (altura ~1,6x a largura). Ajustar o ASPECTO da lente, nao o tamanho.
+    2. 'sobrancelhas viraram dois blocos pretos grossos, retos e muito altos' — peca ainda nao atacada.
+  PROXIMOS PASSOS: (a) aspecto da lente h/w 1.12 -> 1.6 (oval vertical, como o concept); (b) aproximar um pouco
+    (eye_sep 0.045 -> ~0.038) para 'juntar'; (c) sobrancelha: substituir os blocos por arco fino.
+  W710D verde: QA True, falhas = [], 0 erros.
