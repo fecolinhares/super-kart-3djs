@@ -2801,3 +2801,35 @@ z_range off 1mm e scale off 0,034%, **qual e a tolerancia?** Opcoes:
 
 ## BASE: **W480** (mantida)
 IoU 0.828 | P10 0.791 | pior 0.690 | COR_TV 0.252 | exc 12.8 | falta 6.9 | <0.80 4 | sep_parts 14.
+
+
+## W484/W485 — COMPENSACAO VIA TRANSLACAO RIGIDA (a solucao correta) + A/B VALIDO
+
+**W484 (exh_lr_dz -0.045, exh_x -1.190 canonico)**: IDENTICO ao W481 sem compensacao => confirma que
+  W481 ja usava exh_x=-1.19 e que os dois requisitos (x_range exato vs len_before exato) CONFLITAM ao
+  mexer na peca: sao a MESMA medida (x_range e o comprimento pos-escala).
+
+**W485 (exh_lr_dz -0.045 + patch 14 `xtrans`=+0.001)**: **INVARIANTES EXATOS**
+  x_range [-1.2, 1.15] ✓ | z_range [-0.01, 1.165] ✓ | len_before 2.3843 | scale 0.98563 (=2.35/2.3843, DERIVADO)
+  => a TRANSLACAO RIGIDA em X pos-escala e a compensacao CORRETA: restaura posicao sem tocar comprimento
+     nem z. O scale_factor NAO e constraint independente (e funcao do len_before) — as constraints reais sao
+     x_range, z_range e o comprimento (=2.35).
+
+**RESULTADO DO A/B (VALIDO):**
+  linha row 428: 435 -> 436 px | **banda -0.84..-0.77 INTACTA**
+  pior 0.690->**0.691** | side/TRASEIRA 0.690->**0.691** (falta 17.7->17.6, COR 0.245->**0.234**) |
+  falta 6.9->**6.8** | IoU 0.828 (=) | P10 0.791 (=) | **excesso 12.8->12.9** (+0.1) | <0.80 4 (=)
+
+**HIPOTESE DOS L/R REFUTADA**: com exh_lr_dz -0.045 o topo dos L/R vai a 0.604 (abaixo da linha 0.6265)
+  e a banda DEVERIA abrir. **NAO ABRIU.** Somado ao W479 (central tambem nao), conclui-se que a banda
+  -0.77..-0.84 nao e governada por: raio central, raio L/R, z central, z L/R, X da frente, X da ponta.
+  A unica acao que JA abriu a banda foi baixar OS TRES 0.06 (W474) — o que sugere um efeito COMBINADO
+  (sombra/oclusao entre tubos) ou um ocupante que nao e nenhum dos tres tubos isoladamente.
+
+**PROXIMO PASSO DECISIVO (metodo de delecao ja provado)**: no blend do W485, DELETAR os tres tubos
+  inteiros (todas as faces M_Silver do REAR acima de z 0.55) e medir a linha — se a banda abrir, o
+  ocupante e um tubo e o problema e COMBINADO; se nao abrir, o ocupante e OUTRA peca (M_Dark etc) e os
+  4 testes de tubo foram todos inconclusivos por medirem efeito de oclusao.
+
+## BASE: **W485** (nova, invariantes exatos) — mas excesso +0.1 mantem W480 como referencia conservadora
+IoU 0.828 | P10 0.791 | pior 0.691@side_TRASEIRA | COR_TV 0.251 | exc 12.9 | falta 6.8 | <0.80 4 | sep_parts 14.

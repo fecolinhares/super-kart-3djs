@@ -101,6 +101,15 @@ old13c="sy*0.110,0.392+_edz)"
 new13c="sy*0.110,0.392+_edz+P.get('exh_lr_dz',0.0))"
 if old13c in SRC:
     SRC=SRC.replace(old13c,new13c,1)
+# patch 14: TRANSLACAO RIGIDA em X pos-escala (compensa deslocamento do x_range sem tocar comprimento/z_range)
+old14="    R['target_length']=_tl"
+new14="""    _xt=P.get('xtrans',0.0)
+    if _xt:
+        for o in FINS: o.data.transform(Matrix.Translation((_xt,0.0,0.0)))
+    R['xtrans']=_xt
+    R['target_length']=_tl"""
+if old14 in SRC:
+    SRC=SRC.replace(old14,new14,1)
 
 old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
