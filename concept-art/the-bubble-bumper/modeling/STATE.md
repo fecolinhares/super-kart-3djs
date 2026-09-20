@@ -6297,3 +6297,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     3. VAO entre viseira e queixo — medir se ha faces cobrindo a fenda;
     4. PIVOS laterais visiveis (discos pretos) — medir o diametro exposto.
   Depois: G31 + auditor independente.
+
+
+## *** SOBRANCELHA MEDIDA: UMA FAIXA UNICA DE 47,6 CM (NAO DOIS ARCOS) ***
+  Medicao por ilha conexa (/tmp/brow.py) no W711D:
+    M_Dark: 2354 faces, 13 ilhas.
+    A SOBRANCELHA e a ilha de 242 faces: y[-0.238,+0.238] larg=0.476 m | z[0.822,0.898] alt=0.077 m.
+    Ou seja UMA faixa unica de 47,6 cm de largura e 7,7 cm de altura — o casco tem 33 cm de largura, entao ela
+    EXTRAPOLA o casco (y +-0.238 contra +-0.165). Nao sao dois arcos finos.
+    (outras ilhas: pares em z 1.042-1.093 = respiros; pares em z 0.941-0.997 = fendas laterais.)
+  Confere com o vision: 'sobrancelhas viraram dois blocos pretos grossos, retos e muito altos'.
+  FIX (mesma sequencia que fechou os olhos):
+    1. REATRIBUIR o material da faixa antiga (nao apagar -> nao abrir buraco/non-manifold) para M_Face;
+    2. criar DOIS arcOS finos FECHADOS (lente curva) acima de cada olho: largura ~0.028, espessura ~0.006,
+       z logo acima das lentes (olhos em z 0.7745, alt 0.040 -> arco em z ~0.800);
+    3. validar por ILHA CONEXA (2 ilhas, |centroide_y| ~0.019 alinhado com as lentes) e por qa()['falhas'];
+    4. medir largura/altura/espessura do arco contra o concept.
+  W711D verde (QA True, falhas=[], 0 erros) — base para esta mudanca.
