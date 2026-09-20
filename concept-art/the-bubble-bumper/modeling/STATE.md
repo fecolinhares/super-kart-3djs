@@ -4347,3 +4347,27 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     W590D tem L/H 2.05 e MELHOR perfil (0.0444) do que W593D com L/H 1.978 (0.0519) — evidencia ADICIONAL
     contra o 1.978, coerente com 'o modelo precisa ser MAIS ALTO' (~8cm). Recalibrar altura com o Sol e o
     proximo passo depois de fechar as formas.
+
+
+## *** CORRECAO: A ASA NUNCA ESTEVE 5x CURTA. EU A ESTREITEI. ***
+  Li o codigo em vez de inferir (deveria ter sido o primeiro passo):
+    bb25.py L277:   XFO=+1.128; XRE=-1.128     <- XRE e CONSTANTE, nao derivado da geometria
+    bb25.py L709:   wx1=P.get('wing_x1',XRE-0.015); wx2=P.get('wing_x2',XRE+0.235)
+      => DEFAULTS: wing_x1=-1.143 (BORDA TRASEIRA) e wing_x2=-0.893 (BORDA DIANTEIRA; +x aponta para a FRENTE)
+    Usos de XRE no rear(): Dslot em XRE+0.060; _bl em XRE+0.135/+0.168/+0.190; _bx em XRE+0.010
+      => a estrutura traseira e ancorada na CONSTANTE XRE, logo NAO se move quando a asa muda.
+        (Minha hipotese de 'acoplamento oculto via XRE' estava ERRADA.)
+  CONTA CERTA:
+    base:        wing_x1=-0.905, wing_x2=-1.158  -> span 0.253  OK
+    meu override: wing_x1=-1.11 (com wing_x2=-1.158) -> span 0.048  ESTREITADO POR MIM
+    => 'adotar wing_x1=-0.905' NAO e consertar um erro do passado: e REVERTER o meu proprio estreitamento.
+       A asa nunca esteve 5x curta. A associacao '0.253 = wing_sweep' foi coincidencia de valor (wing_sweep
+       e um TAPER 0..1 usado em L723, nao um comprimento) — eu comparei o par errado.
+  O que fica de pe (medido, independente da minha explicacao):
+    xf 0.900: W590D 0.516 -> W594D 0.673 (concept 0.703): erro -0.187 -> -0.030, ganho REAL na traseira.
+    xf 0.713: +0.099 -> +0.134 ; xf 0.750: -0.034 -> +0.162: EXCESSO novo. A asa cobre render-xf 0.892-1.0,
+      entao ela NAO explica 0.713-0.750 (x=-0.484). Causa ainda NAO atribuida — atribuir antes de novo ajuste.
+  DECISAO MANTIDA: W590D e a base (net melhor: 0.0444 vs 0.0491). O lever da asa fica provado para a traseira,
+    pendente de atribuicao do excesso em 0.713-0.750 antes de adotar.
+  METODO (entra na skill): antes de 'reverter para o valor base', LER A DEFINICAO DO DEFAULT e o eixo de cada
+    parametro no codigo. Um override meu pode ser a causa do defeito que estou atribuindo ao modelo.
