@@ -291,5 +291,6 @@
   "brow_w": 0.03,
   "brow_z": 0.805,
   "brow_th": 0.006,
-  "_nota_g26_orelhas": "AS 'ORELHAS' DA VISEIRA, MEDIDAS POR FAIXA DE Z (a media global de 98,5%% escondia): z 0.725-0.760 = 156,4%% do casco; 0.760-0.795 = 122,3%%; 0.795-0.830 = 111,0%%; 0.830-0.865 = 103,6%% (OK). A viseira acompanha o casco em cima e ESTOURA embaixo, onde o casco afina — esses cantos inferiores sao as 'abas/orelhas' apontadas pelo vision desde o P60. CAUSA: a projecao na elipsoide (P61) usa raios FIXOS e direcao normalizada; em z 0.7307 a elipsoide comeca, entao abaixo/nesse limite o vert sai PARA FORA da superficie. FIX: limitar a viseira ao perfil do casco por faixa, |y_visor| <= 1.05 * y_casco(z). CRITERIO: 105%% em todas as faixas. Re-medir com /tmp/bands2.py."
+  "visor_clamp": 1.05,
+  "_nota_g26_p74": "P74: viseira limitada ao perfil do casco (|y| <= 1.05*y_casco(z)), 3158 verts em 21 faixas. CRITERIO por faixa ANTES->DEPOIS: 0.725-0.760: 156,4%%->113,9%%; 0.760-0.795: 122,3%%->115,1%%; 0.795-0.830: 111,0%%->108,2%%; 0.830-0.865: 103,6%%->103,6%%. As 'orelhas' de 156%% acabaram. Restam ~10%% acima do alvo de 105%% nas faixas do meio por GRANULARIDADE da banda (2 cm: um vert no topo carrega o maximo da banda) — refinar com banda de 1 cm ou interpolar. QA True, falhas = [], sep 14."
 }

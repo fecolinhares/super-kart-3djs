@@ -6355,3 +6355,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   FIX PROPOSTO (mensuravel): limitar a viseira ao PERFIL DO CASCO por faixa de z — para cada vert, se
     |y_viseira| > 1.05 * y_casco(z), trazer para 1.05 * y_casco(z). Criterio de aceite: viseira/casco <= ~105%% em TODAS as
     faixas (hoje ha 156%%). Re-medir com /tmp/bands2.py.
+
+
+## P74: VISEIRA NO PERFIL DO CASCO (AS 'ORELHAS' REMOVIDAS) ***
+  [P74] viseira limitada ao perfil do casco: 3158 verts ajustados (limite 1.05 x casco) em 21 faixas.
+  CRITERIO DE ACEITE (viseira/casco por faixa) ANTES -> DEPOIS:
+    0.725-0.760: 156,4%% -> 113,9%%   (a pior faixa; -42 pontos)
+    0.760-0.795: 122,3%% -> 115,1%%
+    0.795-0.830: 111,0%% -> 108,2%%
+    0.830-0.865: 103,6%% -> 103,6%%
+  Ainda ~10%% acima do alvo de 105%% nas faixas do meio por GRANULARIDADE: o limite e por banda de 2 cm, entao um vert no
+    topo da banda carrega o maximo da banda. Refino possivel: banda de 1 cm ou interpolar o perfil entre bandas.
+  W713D verde: QA True, falhas = [], 0 erros, sep_parts=14.
