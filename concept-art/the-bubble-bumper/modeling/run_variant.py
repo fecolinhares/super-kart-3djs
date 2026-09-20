@@ -418,18 +418,20 @@ print("G26c: pads legados gateados por g26c_pads")
 # ombros suaves, e onde prof_top ja e maior o max() preserva a tabela (nao ha dano).
 _oldp26 = "zt=prof_top(xf)*H*P.get('cowl_k',0.97)"
 _newp26 = ("zt=prof_top(xf)*H*P.get('cowl_k',0.97)\n"
+           "        _k2=P.get('cowl_sm',0.0)\n"
+           "        _sm2=(lambda a,b: (a+b+math.sqrt((a-b)**2+_k2*_k2))*0.5) if _k2>0.0 else max\n"
            "        _pa=P.get('cowl_plat_a',0.0)\n"
            "        if _pa>0.0:\n"
            "            _pb=P.get('cowl_plat_b',1.0); _pf=max(1e-6,P.get('cowl_plat_f',0.12))\n"
            "            _pu=(xf-_pa)/max(1e-9,(_pb-_pa))\n"
            "            _pw=0.0 if (_pu<=0.0 or _pu>=1.0) else min(1.0,_pu/_pf,(1.0-_pu)/_pf)\n"
-"            zt=max(zt,H*P.get('cowl_plat_h',0.0)*_pw)\n"
+"            zt=_sm2(zt,H*P.get('cowl_plat_h',0.0)*_pw)\n"
 "        _pa2=P.get('cowl_plat2_a',0.0)\n"
 "        if _pa2>0.0:\n"
 "            _pb2=P.get('cowl_plat2_b',1.0); _pf2=max(1e-6,P.get('cowl_plat2_f',0.30))\n"
 "            _pu2=(xf-_pa2)/max(1e-9,(_pb2-_pa2))\n"
 "            _pw2=0.0 if (_pu2<=0.0 or _pu2>=1.0) else min(1.0,_pu2/_pf2,(1.0-_pu2)/_pf2)\n"
-"            zt=max(zt,H*P.get('cowl_plat2_h',0.0)*_pw2)\n"
+"            zt=_sm2(zt,H*P.get('cowl_plat2_h',0.0)*_pw2)\n"
            "            zt=max(zt,H*P.get('cowl_plat_h',0.0)*_pw)")
 assert _oldp26 in SRC, "linha zt da carena nao encontrada"
 assert "cowl_plat_h" not in SRC

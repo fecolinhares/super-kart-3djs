@@ -118,5 +118,7 @@
   "cowl_plat2_b": 0.43,
   "cowl_plat2_f": 0.3,
   "cowl_plat2_h": 0.636,
-  "_nota_g30_best": "NOVA MELHOR BASE = W588D (|dTOP| 0.0474, frente-meio 0.0385, patamar 0.0176, cockpit 0.0330). Janela 2 da carena em a=0.365 b=0.430 f=0.30 h=0.636, deslocada +0.030 vs W587D. Confirmado por medicao que o topo em render-xf 0.417 responde a geometria da CARENA (a duvida 'sera do piloto?' foi resolvida). Deslocamento builder-xf->render-xf NAO e constante: janela 1 pediu -0.051 e janela 2 +0.030; cada feicao exige build propria. Serie: W569 0.0652 -> W573 0.0498 -> W586D 0.0486 -> W588D 0.0474. Globais congeladas em todas."
+  "_nota_g30_best": "NOVA MELHOR BASE = W588D (|dTOP| 0.0474, frente-meio 0.0385, patamar 0.0176, cockpit 0.0330). Janela 2 da carena em a=0.365 b=0.430 f=0.30 h=0.636, deslocada +0.030 vs W587D. Confirmado por medicao que o topo em render-xf 0.417 responde a geometria da CARENA (a duvida 'sera do piloto?' foi resolvida). Deslocamento builder-xf->render-xf NAO e constante: janela 1 pediu -0.051 e janela 2 +0.030; cada feicao exige build propria. Serie: W569 0.0652 -> W573 0.0498 -> W586D 0.0486 -> W588D 0.0474. Globais congeladas em todas.",
+  "cowl_sm": 0.075,
+  "_nota_g30_vision": "VISION W588D = 7.4/10 (era 6.5): 'o vao aberto FECHOU; na lateral ha massa azul solida conectando bico->meio->cockpit'. Residuo: KINK na emenda patamar->rampa do cockpit em xf 0.417; pedido do vision = spline unica com tangencia G1. Atendido em parte pelo patch 31 (SMOOTH-MAX substitui o max() duro), cowl_sm=0.075: W590D = NOVA MELHOR BASE (|dTOP| 0.0464, frente-meio 0.0354, patamar 0.0093). Regra: o raio do smooth-max precisa ser da ORDEM do degrau. Serie G27: 0.0652 -> 0.0464 (-29%). Frontal degradado registrado como polimento (G26)."
 }

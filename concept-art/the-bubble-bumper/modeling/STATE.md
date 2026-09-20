@@ -4242,3 +4242,30 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     peca. Cada feicao exige a sua propria build de medicao; nada de reaproveitar nem derivar analiticamente.
   PENDENTE: xf 0.417 ainda -0.078 (refinar a janela 2: altura 0.636 pode precisar subir, ou a posicao +0.005);
     xf 0.367-0.383 (+0.066/+0.040 excesso, na saida do patamar); xf 0.90 traseira (-0.187 -> G29).
+
+
+## *** G30 FECHADO NA PRATICA: W590D, VISION 7.4/10, SERIE -29%% ***
+  VISION (pareado FRONT+SIDE, W588D): 7.4/10 (era 6.5). Veredito textual:
+    'O Vao aberto FECHOU. Na lateral nao ha mais o buraco preto nem a fenda na metade superior — ha massa azul
+     solida conectando bico -> meio -> cockpit. O -60%% que voce mediu aparece.'
+    'Rampa continua? Nao. Melhorou mas ainda ha KINK na emenda patamar -> rampa do cockpit em xf ~0.417: da
+     para ver a quebra de tangente. Concept e curva unica suave; modelo e 2 retas + quina.'
+    'Unico proximo passo: matar a quina em xf 0.417 — trocar patamar+rampa por SPLINE UNICA com tangencia G1.'
+  IMPLEMENTADO EM RESPOSTA (patch 31): o max() duro que criava as quinas virou SMOOTH-MAX
+    (zt = (a+b+sqrt((a-b)^2+k^2))/2, parametro cowl_sm). Series medidas:
+      k=0.0   (W588D) medio 0.0474 | frente-meio 0.0385 | patamar 0.0176 | cockpit 0.0330
+      k=0.025 (W589D) medio 0.0473 | frente-meio 0.0382 | patamar 0.0163 | cockpit 0.0335  (marginal: raio
+                       de 2.9cm e pequeno para degraus de 6-10cm)
+      k=0.075 (W590D) medio 0.0464 | frente-meio 0.0354 | patamar 0.0093 | cockpit 0.0325  <-- MELHOR BASE
+    REGRA: o raio do smooth-max precisa ser da ORDEM do degrau a arredondar; k << degrau nao muda nada.
+    Perfil W590D em xf 0.25-0.45: 0.420 0.518 0.553 0.550 0.536 0.543 0.543 0.541 0.531 0.501 0.565 0.624 0.585
+      contra o concept:          0.465 0.549 0.551 0.551 0.551 0.547 0.540 0.470 0.488 0.509 0.636 0.598 0.600
+      -> o patamar TRACKA o concept; residuo principal = xf 0.417 (0.565 vs 0.636) e o excesso em 0.367-0.383.
+  SERIE COMPLETA DO G27 (|dTOP| medio 61 estacoes):
+    W569 0.0652 -> W573 0.0498 -> W586D 0.0486 -> W588D 0.0474 -> W589D 0.0473 -> W590D 0.0464  (-29%%)
+    Globais INALTERADAS em TODOS: L/H 2.05, W/H 1.171, x_range [-1.158,1.192], z_range [-0.01,1.137], 14 pecas, QA ok.
+  VISION: 'o FRONTAL ficou degradado' — para-choque tubular prata quase invisivel (engolido pelo bumper azul),
+    coxins amarelos presentes mas finos/retos sem volume almofadado, intake legivel mas chapado. Registrado como
+    item de polimento do G26 (o vision ja tinha dito que o que falta ali e material/bisel/luz, nao geometria).
+  PENDENTE: (a) refinar xf 0.417 (residuo -0.071); (b) o EXCESSO em xf 0.367-0.383 (+0.071/+0.043) — a saida do
+    patamar esta alta/larga; (c) traseira xf 0.90 (-0.187 -> G29); (d) polimento do frontal (G26 material/bisel).
