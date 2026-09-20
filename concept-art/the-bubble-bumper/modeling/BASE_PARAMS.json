@@ -312,5 +312,5 @@
   "visor_smooth": 6,
   "wedge_reassign": 1,
   "wedge_form": 0.98,
-  "_nota_g26_p94": "P94: fix de FORMA — 3282 verts trazidos para |y| <= 0.98*casco na faixa z 0.88-1.04, fazendo as protuberancias que rompiam a silhueta entrarem DENTRO da superficie. QA True, sep 14. Fecha a serie: POSICAO (P92) -> COR (P93) -> FORMA (P94)."
+  "_nota_g26_face_vs_vertice": "GATE v37: 98%% nao bastou — 'a geometria delas tem VOLUME e ainda perfura a superficie'. MECANISMO: o clamp limita os VERTICES, mas as FACES se estendem entre eles; limitar o vertice nao limita a face. FIX: clamp mais forte (0.93-0.94) ou achatamento em z da regiao ou dissolve na superficie. CRITERIO NOVO DE SILHUETA por pixels: por linha, a largura do azul deve ser monotonica perto do topo, sem picos locais."
 }

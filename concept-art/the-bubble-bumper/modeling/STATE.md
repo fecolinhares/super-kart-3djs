@@ -6837,3 +6837,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   [P94] 3282 verts trazidos para |y| <= 0.98 * casco na faixa z 0.88-1.04 -> as protuberancias que rompiam a SILHUETA entram
     DENTRO da superficie. ###QA### True, sep 14, 0 erros.
   Fecha a serie das 3 ferramentas: POSICAO (P92 clamp) -> COR (P93 reassign) -> FORMA (P94).
+
+
+## *** GATE v37: 98%% NAO BASTOU — AS CUNHAS TEM VOLUME ***
+  Vision: (1) 'a silhueta NAO esta limpa — ainda ha 2 pontas pretas rompendo a curva oval nos laterais superiores'. (2) 4/10.
+    (3) 'a geometria delas TEM VOLUME e ainda perfura a superficie; 98%% nao bastou'.
+  MECANISMO: o clamp limita os VERTICES (|y| <= 0.98*casco), mas as FACES se estendem entre os vertices — a superficie da
+    face ainda sai para fora. Limitando o VERTICE nao se limita a FACE.
+  FIX (proximo): (a) clamp mais forte (|y| <= 0.93-0.94 * casco) para o volume inteiro ficar dentro; ou (b) achatamento em z
+    das faces da regiao (z 0.88-1.04, |y|>0.13) para ~0 espessura; ou (c) reassignar essas faces e colapsa-las (dissolve)
+    na superficie do casco.
+  CRITERIO DE SILHUETA (novo, por pixels): contar, por linha do render, a largura do azul; a curva deve ser MONOTONA perto do
+    topo, sem picos locais. Um pico = protuberancia.
+  REGISTRO FINAL DA SERIE: POSICAO (P92) -> COR (P93) -> FORMA (P94, insuficiente: face != vertice).
