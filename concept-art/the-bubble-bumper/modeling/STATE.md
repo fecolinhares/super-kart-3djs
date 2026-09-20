@@ -6682,3 +6682,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     fronteira, cut=2..3, use_grid_fill) e DEPOIS suavizar; ou um Subdivision Surface aplicado so na regiao da viseira.
     Criterio: (a) numero de segmentos na silhueta da borda (contar arestas de fronteira) e (b) max|dz| entre adjacentes.
   ESTADO W729D: QA True, falhas=[], sep 14, 0 erros. Intersecao com o queixo: 4 verts (era 0 antes do P86; colateral ok).
+
+
+## *** P87: FRONTEIRA DE MATERIAL, NAO TOPOLOGICA (0 ARESTAS DE BORDA) ***
+  [P86] com 6 iteracoes: max|dz| 0.11814 -> 0.03615 = 69%% menor (melhor que 4 iter).
+  [P87] 'arestas de fronteira 0 -> 0': a M_Visor NAO e casca separada — suas faces fazem parte da malha CONTINUA do PL, entao
+    todas as arestas tem 2 faces (interiores ao PL). O conceito de 'fronteira' aqui e de MATERIAL: as arestas onde uma face
+    M_Visor encontra uma face NAO-M_Visor. E essas que o P87 precisa subdividir.
+  FIX: no P87, selecionar as arestas cujas FACES tem materiais DIFERENTES (uma M_Visor, outra nao) e subdividir essas.
+    Criterio de sucesso: o nº dessas arestas SOBE (a resolucao da silhueta de material aumenta) e o max|dz| entre as
+    adjacentes cai.
+  W730D verde: QA True, sep 14, 0 erros. max|dz| 0.03615 (69%% menor que o original).
