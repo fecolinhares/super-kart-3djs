@@ -5317,3 +5317,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     boolean localizado; (3) RE-MEDIR a contagem de faces — gate objetivo, nao visual. 245 -> 170 e progresso medido.
   W656D verde: QA ok, 14 pecas, globais preservadas. chin_guard preservado (o P48 nao tocou o PL).
   CORRECAO PENDENTE DE NOTA: typo 'ALA VACA' na _nota_g26_cowl_corpo do BASE_PARAMS.json (era 'ALAVANCA').
+
+
+## P48: CORTE FUNCIONA MAS PLATOA EM 157 FACES ***
+  SEQUENCIA MEDIDA (faces do COWL na janela da mentoneira, x>-0.080, |y|<0.095, z 0.6045-0.7504):
+    W655D (sem corte)          COWL 137 (x 0.126-0.507) + CH 108  = 245
+    W656D (box x 0.08-0.52)    COWL  62 (x 0.437-0.507) + CH 108  = 170   (-75)
+    W657D (box x 0.08-0.58)    COWL  49 (x 0.462-0.507) + CH 108  = 157   (-13)
+    W658D (box |y|<=0.190)     COWL  49 (x 0.462-0.507) + CH 108  = 157   (0 — o y NAO era o limitante)
+  DIAGNOSTICO: as 49 faces restantes estao DENTRO do box em x, y e z, e mesmo assim nao sao cortadas. Ou seja o
+    boolean nao esta atuando nesse bolsao — hipoteses: (a) conflito/curto-circuito entre o 1o boolean (Cockpit_Cut)
+    + seal(o) e este 2o; (b) geometria aberta nao-manifold apos a primeira operacao; (c) o objeto o nao e mais o cowl
+    nesse ponto do codigo. PROXIMO DIAGNOSTICO (barato): imprimir bool(o2 retorno) e len(o.data.polygons) ANTES e
+    DEPOIS do P48 no build, e usar um box unico cobrindo Cockpit_Cut + Cowl_Cut numa so operacao (evita o encadeamento).
+  E O CH: 108 faces em x[-0.005,+0.152] intocado em todos os testes. E o segundo oclusor, e e ESTRUTURA (chassi).
+    Decisao pendente: cortar o chassi na faixa z do queixo ou aceitar (no concept o chassi tambem fica atras do piloto).
+  W658D verde: QA ok, 14 pecas, globais preservadas. chin_guard preservado.
+  NOTA: o progresso real e 245 -> 157 (-36%%) e esta medido; o plateau esta diagnosticado, nao e incognita.
