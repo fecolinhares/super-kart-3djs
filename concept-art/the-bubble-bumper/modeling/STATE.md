@@ -2498,3 +2498,33 @@ possivel sem split) -> usar `bpy.ops.mesh.separate` num blend de teste e compara
 
 ## BASE: **W472** (+ W473 rzt 0.400)
 IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## EXPERIMENTO DE DELECAO (metodo novo e decisivo) — a ilha controla so 13 px
+
+Metodo: abrir o blend, **remover as faces do candidato**, renderizar a mascara lateral ortho com a MESMA
+config do builder (film_transparent, luzes e Ground ocultos, ortho_scale 2.42, 860x860), e medir a linha.
+Sem builder, sem grep, sem adivinhar parametro.
+
+**RESULTADO — removendo as 144 faces do par L/R M_Dark (ilhas 0+1, x -0.851..-0.731, y +-0.112..0.183):**
+  baseline w473 row 192: **473 px**  (0.39..0.42 | 0.43..0.78 | 0.82..0.99)
+  teste  (sem a ilha)   : **460 px**  (0.39..0.42 | 0.43..0.78 | 0.83..0.99)
+  **DELTA = -13 px** (a borda esquerda do 2o run moveu 0.82 -> 0.83)
+=> **a ilha NAO e o ocupante dominante da linha.** O grosso do run (img 0.83..0.99) vem de OUTRAS pecas.
+=> o bbox do blend NAO mudou (y236..653 x20..856) — a remocao nao alterou os extremos (bom: teste limpo).
+
+**METODO ADOTADO A PARTIR DAQUI (elimina a classe inteira de erro dos W466-W473):**
+  Para QUALQUER linha/regiao alvo: remover o candidato no blend -> render -> medir a linha -> delta.
+  Se delta ~0, o candidato esta descartado SEM gastar build nem medir agregado.
+  **Isso torna a busca de ocupante O(1) por candidato e a prova e DIRETA (na imagem), nao inferida.**
+
+**COMO DEVE SER USADO AGORA**: remover por GRUPO de material + faixa, nao por ilha adivinhada.
+  ex.: remover TODAS as faces M_Silver do REAR que cruzam a linha -> mede delta; depois M_Dark; M_Yellow;
+  M_Eye. O grupo com delta grande e o ocupante -> depois subdividir esse grupo em ilhas.
+
+**BUG DE BMESH CORRIGIDO**: `bmesh.ops.delete(bm, geom=[bm.faces[i] ...])` exige `ensure_lookup_table()`
+e apos coletar indices os objetos ficam invalidos -> coletar as FACES (objetos), nao indices.
+
+## BASE: **W472** (+ W473 rzt 0.400)
+IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
