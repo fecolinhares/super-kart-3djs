@@ -6050,3 +6050,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     4. 'a faixa desce sobre os olhos' -> CONFIRMADO e corrigido (P67, encurtar em z);
     5. 'o casco afoga os olhos' -> CONFIRMADO e corrigido (eye_dx +0.048).
   W700D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## *** GATE v15: CADEIA DE OCLUSAO FECHADA E CONFIRMADA PELO VISION ***
+  Vision (W700D): 'Evolucao: a ordem de oclusao foi corrigida: casco < olhos/rosto < vidro. So o vidro cobre os olhos e a
+    faixa nao invade mais a viseira.' | (1) 'Sim, os dois olhos aparecem atras do vidro agora' | (2) 6/10 |
+    (3) MAIOR ERRO: 'olhos gigantes e afastados demais, viseira caixa' | (4) 'Reduza olhos ~50% e junte ao centro igual concept'.
+  Dois instrumentos independentes concordando pela 2a vez seguida: o medidor de cobertura e o vision. A oclusao esta fechada.
+  BOM: olhos atras do vidro; faixa fina/curta que nao desce nos olhos. PENDENTE: proporcao dos olhos (grandes/afastados) e a
+    viseira ainda lida como 'caixa' (cantos retos a 90 graus que o vision mapeia mesmo com a casca curva).
+  PROXIMO (medido com o proprio M_Eye, sem vision):
+    1. OLHOS: reduzir ~50% e aproximar. Medir M_Eye: hoje x[-0.282,-0.254] (0.028 de profundidade), y[+-0.039] (0.079 de
+       largura total -> ~0.04 por olho) e z[0.741,0.760] (0.019 de altura). O concept tem olhos PEQUENOS, ovais e JUNTOS,
+       com a distancia entre centros menor que a largura de um olho. Medir distancia entre centroides dos 2 olhos e a
+       largura/altura de cada um antes de mexer.
+    2. VISEIRA 'caixa': o angulo de 90 graus lido pelo vision esta nos cantos LATERAIS (onde a casca termina). Arredondar a
+       borda lateral / aumentar a densidade perto da borda para a silhueta nao ter quina.
+  W700D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
