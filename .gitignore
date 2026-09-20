@@ -16,6 +16,10 @@ concept-art/the-bubble-bumper/modeling/*.pyc
 concept-art/the-bubble-bumper/modeling/build_bubble_bumper_v0*.py
 concept-art/the-bubble-bumper/modeling/v0*.py
 concept-art/the-bubble-bumper/modeling/*.json
+# canonicos: NAO ignorar (calibracao/contratos do modelo)
+!concept-art/the-bubble-bumper/modeling/BASE_PARAMS.json
+!concept-art/the-bubble-bumper/modeling/contracts/*.json
+!concept-art/the-bubble-bumper/modeling/builder/*.json
 concept-art/the-bubble-bumper/modeling/renders-candidate*/
 concept-art/the-bubble-bumper/modeling/renders-v*/
 concept-art/the-bubble-bumper/modeling/render_bubble_bumper*.py
