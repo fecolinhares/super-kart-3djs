@@ -6850,3 +6850,9 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CRITERIO DE SILHUETA (novo, por pixels): contar, por linha do render, a largura do azul; a curva deve ser MONOTONA perto do
     topo, sem picos locais. Um pico = protuberancia.
   REGISTRO FINAL DA SERIE: POSICAO (P92) -> COR (P93) -> FORMA (P94, insuficiente: face != vertice).
+
+
+## P95: CLAMP FORTE NAS CUNHAS (0.93 x casco) ***
+  [P94] 4220 verts trazidos para |y| <= 0.93 * casco (z 0.88-1.04) — mais 938 que a versao 0.98. ###QA### True, sep 14, 0 erros.
+  Se o gate ainda vir picos na silhueta, o proximo e a opcao (b) (achatar em z a regiao) ou (c) (dissolver as faces na
+    superficie do casco).

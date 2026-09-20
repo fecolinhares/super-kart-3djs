@@ -311,6 +311,6 @@
   "_nota_g26_aresta": "GATE v31: clipping resolvido ('nao clippa mais o queixo') mas a aresta serrilha em DEGRAUS — o vision explica que a metrica de intersecao NAO mede a QUALIDADE da aresta. Os degraus sao AUTO-INFLIGIDOS: os clamps movem vertices por z-limite, criando escada. PROXIMO: suavizar a fronteira da M_Visor (media dos vizinhos ou bmesh.ops.smooth_vert so na borda). CRITERIO DE QUALIDADE: max|dz| entre verts adjacentes da fronteira pequeno. LICAO: medir INTERSECAO nao garante qualidade de aresta — sao duas metricas diferentes.",
   "visor_smooth": 6,
   "wedge_reassign": 1,
-  "wedge_form": 0.98,
-  "_nota_g26_face_vs_vertice": "GATE v37: 98%% nao bastou — 'a geometria delas tem VOLUME e ainda perfura a superficie'. MECANISMO: o clamp limita os VERTICES, mas as FACES se estendem entre eles; limitar o vertice nao limita a face. FIX: clamp mais forte (0.93-0.94) ou achatamento em z da regiao ou dissolve na superficie. CRITERIO NOVO DE SILHUETA por pixels: por linha, a largura do azul deve ser monotonica perto do topo, sem picos locais."
+  "wedge_form": 0.93,
+  "_nota_g26_p95": "P95: clamp forte 0.93 x casco nas cunhas (4220 verts, mais 938 que 0.98). QA True, sep 14. Se a silhueta ainda tiver picos, proximo: achatar em z a regiao ou dissolver as faces na superficie."
 }
