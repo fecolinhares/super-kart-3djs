@@ -6515,3 +6515,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   NOTA DE MEDICAO: tentar medir o 'gap' com |y|<0.03 pegou o AMARELO DO KART em z 0.34 (deu 508 mm, absurdo) e depois, com
     z>0.70, ainda mistura verts levantados e nao levantados (a faixa continua abaixo de 0.74). Medida de gap em peca
     multi-segmento precisa de janela por COR+FAIXA; o gate visual decide aqui.
+
+
+## *** GATE v26: 7/10 — FAIXA FECHADA; O ERRO AGORA E CONSISTENTE: OS OLHOS ***
+  Vision (W719D): (1) 'Sim, agora encosta 100% — a base da faixa amarela coincide com a linha do topo da viseira, sem
+    faixa azul no meio' -> a faixa esta FECHADA. (2) 7/10 para a cabeca ('silhueta, cores e posicao corrigidas, faltam
+    detalhes cartoon'). (3) MAIOR erro: 'olhos gigantes, separados e VESGOS sem brilho + sobrancelhas grossas chapadas'.
+  O erro dos olhos agora e CONSISTENTE entre gates e vem em termos acionaveis:
+    - 'vesgos'  -> as PUPILAS nao estao centradas (medir posicao da pupila vs centro da lente em y E z);
+    - 'sem brilho' -> falta o CATCHLIGHT branco (pequeno disco especular na pupila);
+    - sobrancelhas grossas/chapadas -> afinar e arquea-las.
+  PROGRESSAO DOS GATES NESTA SERIE: 4,0 -> 4,5 -> 4,0 -> 7,0 (abas/gaxeta+rosto) -> 4,0 (faixa, escopo da faixa) ->
+    7,0 (faixa encostada). A CABECA consolidou 7,0 com silhueta/cores/posicao corretas.
