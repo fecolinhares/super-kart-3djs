@@ -1615,3 +1615,45 @@ para alcancar t 0.66. Ambos sao mediveis e nao dependem de mascara ruim (SIDE e 
 
 BASE LIMPA (AUDIT_SKIP=top): W446 — IoU 0.821 | P10 0.781 | pior 0.668@side_TRASEIRA | COR_TV 0.261 |
 exc 12.6 | falta 7.8 | N=18 | <0.90 17 | <0.80 4.
+
+
+## A/B CONTAMINADO (2o erro de instrumento) + W457 = NOVA BASE (ganho limpo)
+
+Sintoma: W454 (que eu julguei ser "so endplate +1cm") foi descrito pelo VISION como tendo "uma cupula azul
+enorme que engole a perna". Eu duvidei — a unica mudanca era o endplate. **O vision estava certo.**
+Causa: passei o OVR A MAO com 17 parametros; o builder usa ~45. Os que faltaram caíram nos DEFAULTS:
+  pod_w/pod_zt/pod_zt2 (0.150/0.275 em vez de 0.096/0.084) -> a CUPULA AZUL que o vision viu
+  side_cover/cover_zt/cover_w/cover_mat -> a cobertura
+  wing_tube (default 1 = TUBO em vez do loft) | cap_s (default 0.085 em vez de 0.055 = capacete maior)
+  target_length/axle_w/exh_x/wing_x1/wing_x2/bevel_*/sep_parts
+Prova nos bboxes: CH y 0.6301->0.5908 | NOSE z topo 0.5073->0.4464 | REAR x -1.2181->-1.16.
+Dano extra: `sep_parts:1` tambem faltava -> **o gate T5 (14 objetos separados) estava sendo violado**
+nos builds recentes (W454 tinha n_parts=1).
+
+CORRECAO (permanente):
+  - `modeling/BASE_PARAMS.json`: os 56 parametros extraidos do run.py do job W446 (fonte da verdade).
+  - `modeling/run_variant.py`: constroi SEMPRE a partir da BASE + EP_OVERRIDES (so o que o teste muda).
+  - CONTROLE VERIFICADO: W455 (base, sem overrides) reproduz W446 **exatamente** em todos os bboxes,
+    sep_parts=14, QA aprovado. O instrumento esta calibrado.
+  - Patch do endplate: `ep_s` (cap_s e COMPARTILHADO com o capacete -> nao podia ser reusado).
+
+**W457 = BASE + ep_s=[0.085,0.042,0.095] (endplate 1cm mais alto) = GANHO LIMPO:**
+  metrica    W446      W457
+  IoU        0.821  -> 0.826
+  P10        0.781  -> 0.790
+  pior       0.668  -> 0.680   (side/TRASEIRA)
+  COR_TV     0.261  -> 0.251
+  excesso    12.6   -> 12.9    (unica piora, +0.3 = desprezivel)
+  falta      7.8    -> 7.0
+  <0.80      4      -> 4       (mantido)
+  regioes: side/TRASEIRA 0.668->0.680 | front/PILOTO 0.745->0.767 (runs 3/1->**3/3**) |
+           rear/ESCAPES 0.879->0.890 (runs 3/1->**3/3**) | PARACH_RODA 0.852=0.852 |
+           ASA_AIRBOX 0.857=0.857 (as "regressoes" do W454 eram CONTAMINACAO, nao efeito do endplate)
+=> **W457 e a nova base.** Nenhuma regiao regrediu; a pior regiao melhorou; os runs batem em 2 regioes.
+
+## LICAO DE PROCESSO (registrar como regra)
+**Nunca montar OVR a mao. Sempre BASE_PARAMS.json + override explicito.** E **validar o instrumento com um
+build de CONTROLE** antes de comparar: se o controle nao reproduz a base exata, a comparacao e invalida.
+Corolario: quando o vision descreve algo que a mudanca declarada nao explica, **suspeitar do instrumento
+antes de descartar o vision** — nas duas vezes em que isso aconteceu nesta sessao (mascara TOP corrompida e
+o OVR incompleto), o vision estava certo.
