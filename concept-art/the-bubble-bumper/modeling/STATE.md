@@ -5643,3 +5643,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     join, para localizar em que passo o tamanho muda.
   ALVO: z ~0.640-0.748 (0.108 m, 133 px, 18%% do casco) e |y|<=0.087 (0.175 m).
   W674D verde: QA ok, sep_parts=14, globais preservadas. M_ChinPanel no PL (9 materiais) = instrumento novo funcionando.
+
+
+## *** BUG DO PAINEL LOCALIZADO: ESPACO LOCAL DO PL (fator 1/0.6) ***
+  P52 cria o painel com size=2 + scale (0.025,0.092,0.054) -> half-extents iguais ao scale -> 0.05 x 0.184 x 0.108 m
+    nas coordenadas de MUNDO. A matematica do P52 esta CORRETA.
+  MEDIDO no .blend: |y|<=0.142 (0.284 m) e z 0.694-0.874 (0.1804 m).
+    0.108 / 0.1804 = 0.5987 ~ 0.6  =>  o fator e 1/0.6 = 1.667  (casou com 1,67x medido na altura).
+  CAUSA: o painel e criado em coordenadas de MUNDO e depois UNIDO ao PL, que tem ESCALA DE OBJETO propria (~0.6).
+    O join converte os verts para o espaco LOCAL do PL (divide por ~0.6), entao o painel aterrissa 1/0.6 maior do que
+    o pretendido nesse espaco — e e ESSE o espaco em que ele e renderizado/exportado.
+  FIX (escolher): (a) criar o painel ja no espaco LOCAL do PL — dividir centro e half-extents pela escala do PL
+    (bpy.data.objects['PL'].scale) antes de criar; (b) aplicar a escala do PL (transform_apply scale) ANTES de criar e
+    unir o painel; (c) nao unir: manter o painel como objeto separado e ajustar sep_parts (indesejavel: quebra o gate 14).
+    Preferencia: (b) — elimina a classe de erro para todas as pecas futuras desenhadas no passe pos-build.
+  ALVO: z 0.640-0.748 (0.108 m = 133 px) e |y|<=0.087 (0.175 m).
+  W674D verde: QA ok, sep_parts=14. Instrumento M_ChinPanel funcionando (9 materiais no PL).
