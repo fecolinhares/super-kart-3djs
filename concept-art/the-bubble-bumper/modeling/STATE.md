@@ -2935,3 +2935,56 @@ IoU 0.828 | P10 0.791 | pior 0.691@side_TRASEIRA | COR_TV 0.251 | exc 12.9 | fal
 ## BASE: **W489** (nova) = W485 + pyl_dz2 -0.090
 IoU 0.828 | P10 0.791 | pior 0.699@side_TRASEIRA | COR_TV 0.253 | exc 12.8 | falta 6.8 | <0.80 4 | sep_parts 14.
 Invariantes EXATOS: x_range [-1.2,1.15] | z_range [-0.01,1.165]. Patches no runner: 1..17.
+
+
+# ================= RECONSTRUCAO PROPORCIONAL — REJEICAO DO USUARIO (2026-09-20) =================
+
+**VEREDITO**: "ainda esta bem fraco o design e bem longe de ser um 3d aaa e fiel ao concept".
+Vision proprio pareado (concordou, reprovou): "a silhueta nao e a mesma ... parece outro kart".
+=> **REJEICAO DO USUARIO INVALIDA TODOS OS GATES ANTERIORES.** Ajuste parametrico (W4xx) NAO resolve;
+   o problema e ESTRUTURAL. Vai ser feito REMODELAMENTO POR ZONA, com alvo medido no concept.
+
+## ESPECIFICACAO MEDIDA DO CONCEPT (mask c_side.npy, bbox 402x751 px)
+  **L/H = 1.868**  (modelo atual: 1.999 => **7% comprido demais** => altura baixa demais)
+  => H alvo = 2.35/1.868 = **1.258 m**  |  modelo atual H = 2.35/1.999 = **1.176 m**  |  **faltam ~8,2 cm**
+
+  PERFIL SUPERIOR (t=0 frente -> 1 traseira), z normalizado (1.0 = topo do capacete):
+    t=0.00 z=0.204  bico
+    t=0.20 z=0.378
+    t=0.30 z=0.522  cowl/volante
+    t=0.40 z=0.473  VALE atras do cowl
+    t=0.50 z=0.567  ombro do piloto
+    t=0.55 z=0.928  **SALTO BRUSCO +0.36 em 5% do comprimento** (capacete/encosto)
+    t=0.65 z=0.993  **PICO = CAPACETE** (topo absoluto da silhueta)
+    t=0.70 z=0.940
+    t=0.75 z=0.619  **queda brusca**
+    t=0.85 z=0.520  **TRASEIRA BAIXA**
+    t=0.95 z=0.697  **escapamento = pico LOCAL** (30% abaixo do capacete)
+    t=1.00 z=0.500
+
+## AS 3 DIFERENCAS GRAVES (vision, com localizacao)
+  1. **SILHUETA SUPERIOR CENTRAL (t 0.45-0.75)**: concept = capacete ALTO (pico 0.993) + piloto ERETO +
+     ENCOSTO PRETO ALTO e vertical. Modelo = capacete menor/baixo e adiantado, tronco DEITADO, e o encosto
+     alto PRETO NAO EXISTE (virou lombada azul baixa). => a linha superior AFUNDA no meio.
+  2. **TRASEIRA (t 0.75-1.00)**: concept = BAIXA e curta, termina no pneu, com UM escapamento gordo +
+     caixinha amarela. Modelo = bloco cinza + mola dourada exposta + quadro tubular + bola amarela +
+     para-choques longos => **a traseira virou o segundo pico mais alto**, criando 2 picos inexistentes.
+  3. **SIDEPOD (entre-eixos, faixa inferior)**: concept = AMARELO volumoso, gordo, curvo (banana), desce
+     quase ao chao, define o ventre. Modelo = menor, dividido (topo azul inchado + aba amarela fina reta)
+     com chassi/vazio exposto => linha inferior fina/reta/alta vs gorda/curva.
+
+## PLANO DE RECONSTRUCAO (por zona, ordem de impacto) — alvos numericos
+  Z1 PILOTO/CAPACETE/ENCOSTO: capacete no PICO z=0.993 (topo absoluto), piloto SENTADO ERETO (nao deitado),
+     ENCOSTO PRETO ALTO E VERTICAL visivel acima da linha do ombro. H -> 1.258 m (z_range alvo [-0.01,1.258]).
+     Salto t 0.50->0.55 de 0.567 para 0.928 = parede quase vertical do conjunto encosto/capacete.
+  Z2 TRASEIRA: baixar TODO o conjunto mecanico para z<=0.62 em t 0.75-0.85; escapamento UNICO gordo como
+     pico LOCAL em z~0.674-0.697 em t 0.90-0.95; remover/expor menos: mola dourada, quadro tubular, bola
+     amarela e para-choques alem do pneu.
+  Z3 SIDEPOD: volume UNICO amarelo, gordo e curvo, preenchendo o entre-eixos e descendo quase ao chao.
+  Z4 RE-MEDIR L/H = 1.868 e o perfil superior t-a-t contra a spec acima (o perfil e a metrica de aceite).
+
+**METRICA DE ACEITE NOVA**: correlacao do PERFIL SUPERIOR (20 pontos) + L/H 1.868 + pico do capacete em
+  t=0.65 com z=0.993 + traseira <=0.62 em t 0.80-0.85. O IoU/COR_TV anteriores ficam como secundarios.
+
+**NOTA**: isso muda `z_range` de proposito — a spec do concept (L/H 1.868) e a AUTORIDADE depois da
+  rejeicao do usuario. O gate antigo de z_range [-0.01,1.165] fica INVALIDADO.
