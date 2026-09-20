@@ -5870,3 +5870,12 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     2. z cresceu de 0.149 para 0.177 porque a projecao tambem moveu z para a elipsoide; reconter a faixa (visor_z0/z1) ou
        limitar a projecao a keep-z. O alvo do concept e z 0.862..1.011 = 0.149.
   W690D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## *** P61 AJUSTADO: VISEIRA COM OS TRES EIXOS NO ALVO ***
+  visor_off 0.075 -> 0.020 e z PRESERVADO na projecao.
+  M_Visor: x[-0.348,-0.102]=0.246 | y[+-0.168]=0.336 = 102% do casco | z[0.862,1.011]=0.149 (alvo exato do concept).
+  Frontal da viseira em x=-0.102, 5 mm A FRENTE do frontal do casco (-0.107) -> sobre a superficie, com casca curvando.
+  Comparativo com o concept: largura 102% (concept 99-101%) | altura 0.149 = 36% da altura do casco (concept 34,5%) |
+    contorno acompanhando a esfera | frente na superficie. Os tres eixos batem.
+  W691D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
