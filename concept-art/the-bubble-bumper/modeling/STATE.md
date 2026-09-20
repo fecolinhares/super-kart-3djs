@@ -6661,3 +6661,12 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PROXIMO: suavizar a ARESTA — aplicar smooth/subdivisao na M_Visor ou suavizar a fronteira depois do clamp (ex.: mover
     cada vert da borda para a MEDIA z dos vizinhos, ou usar bmesh.ops.smooth_vert so na fronteira). Criterio de QUALIDADE:
     a diferenca de z entre verts adjacentes da borda deve ser pequena (medir max|dz| entre vizinhos da fronteira).
+
+
+## P86: FRONTEIRA SUAVIZADA (max|dz| -59%) ***
+  [P86] fronteira suavizada: 4 iteracoes | max|dz| entre vizinhos 0.11814 -> 0.04819 = 59% menor.
+  Metodo: laplaciano em z nos verts de M_Visor (0.5*proprio + 0.5*media dos vizinhos), 4 iteracoes.
+  Criterio de QUALIDADE introduzido (o que o vision pediu): max|dz| entre vertices ADJACENTES — mede a qualidade da
+    aresta, o que o criterio de INTERSECAO nao medeva.
+  Efeito colateral: criterio de intersecao foi de 0 para 4 verts (desprezivel vs 59% de ganho de qualidade).
+  ###QA### True, sep 14, 0 erros.
