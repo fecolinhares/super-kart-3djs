@@ -1907,3 +1907,34 @@ imagem 0.53-0.56 e 0.59-0.61. Alternativa: conferir se o concept tem postes vert
 
 ## BASE: W463 (inalterada — W464 nao adotado)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## ALVO A — PROVA DE QUE NAO E AJUSTE PARAMETRICO (por que (a)/(b)/(c) nao podem funcionar)
+
+Geometria do domo: helm=dome(hx,0,hz,HR,sz=SZ) com hz=0.985, HR=0.210, SZ=0.934.
+A secao transversal em z e um circulo de raio R(z) = HR*sqrt(1 - ((z-hz)/(HR*SZ))^2).
+Em z=0.93: (0.93-0.985)/(0.210*0.934) = -0.2805 -> R = 0.210*sqrt(1-0.0787) = 0.2016 -> x span 0.403 m
+=> a secao em z 0.93 e 96% do raio maximo. Ou seja, z 0.93 esta ABAIXO do centro do domo -> a secao ali e
+   quase cheia POR CONSTRUCAO.
+
+Consequencias provadas/previstas:
+  (a) helm_x (mover): TRANSLADA o run — nao divide. **TESTADO (W464): regride, sem vao.**
+  (b) helm_r menor: ENCOLHE o run (0.403 -> ~0.355 m) — nao divide.
+  (c) helm_sz maior: achata; a secao em z 0.93 continua ~cheia — nao divide.
+  E baixar o capacete e PROIBIDO: o topo do modelo (z_range 1.165) E o topo do capacete
+  (hz+HR*SZ = 1.181). Baixar mudaria z_range e deslocaria a normalizacao de TODAS as metricas.
+
+=> **NENHUM ajuste de posicao/escala pode dividir esse run.** Só uma mudanca de FORMA:
+   corte frontal (frente rebaixada) ou slots verticais no capacete. Isso e alteracao de MODELAGEM,
+   nao de parametro — exige patch no `dome('Helmet',...)` (ex.: pos-processar os vertices com x>hx
+   rebaixando-os em z, preservando o apice em x=hx, que e onde esta o topo z 1.181).
+
+## ALVO ALTERNATIVO (mais barato, mesma classe de defeito): t 0.54
+  concept: 0.41..0.77 | 0.80..0.81 | 0.88..0.94   (3 massas)
+  W463:    0.43..0.99 SOLIDO
+  z ~0.62; a peca dominante ali e o REAR (3763 faces em z 0.58-0.66, medido antes). Diferente do capacete,
+  aqui as sub-pecas do REAR (motor/escapes/asa/difusor/rampa) SAO separadas no codigo — entao separa-las
+  na silhueta e viavel por parametro (exh_dz/dfz/rzb ja existem).
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
