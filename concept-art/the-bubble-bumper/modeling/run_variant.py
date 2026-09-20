@@ -228,6 +228,11 @@ old24b="(P.get('sc_x1',0.185),0,0.650)"
 new24b="(P.get('sc_x1',0.185),0,0.650+P.get('sw_dz',0.0))"
 if old24b in SRC:
     SRC=SRC.replace(old24b,new24b,1)
+# patch 25: x do Cockpit_Cut (o PENHASCO do perfil; concept manda ~11cm mais atras)
+old25="cut=box('Cockpit_Cut',(XFO-0.452*L,0,0.640+P.get('ch_top_dz',0.0)),(0.232,0.150,0.116)"
+new25="cut=box('Cockpit_Cut',(XFO-0.452*L+P.get('ch_cut_dx',0.0),0,0.640+P.get('ch_top_dz',0.0)),(0.232,0.150,0.116)"
+if old25 in SRC:
+    SRC=SRC.replace(old25,new25,1)
 
 old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"

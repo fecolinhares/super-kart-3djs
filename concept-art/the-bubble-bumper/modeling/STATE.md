@@ -3192,3 +3192,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   3. adotar sw_dz=-0.110 (ganho real em t0.417-0.433);
   4. ao declarar 'ZERO mudanca', verificar antes se a grade tem coluna na regiao afetada pelo bbox da peca movida.
      Regra: passo da grade << tamanho da peca movida. 12cm de passo vs 23cm de volante = subamostragem.
+
+
+## W508 = BASE ATUAL (melhor nos 2 eixos)
+  W493 + cowl_k 1.10 + sw_dz -0.110 + ch_cut_dx -0.110
+  EMA fino(121) 0.0427 -> **0.0388** (-9%) | maior degrau 0.151 -> **0.085** (concept 0.132)
+  ADOTADOS: cowl_k 1.10 | sw_dz -0.110 | ch_cut_dx -0.110 | (cowl_xf0 0.174 mantido)
+  janela t0.35: concept 0.537 / w508 0.546 (+0.009) | t0.358: concept 0.535 / w508 0.519 (-0.016)
+
+## DOIS TESTES DE EFEITO ZERO (ja com a grade fina, nao e aliasing):
+  W509 sw_dz -0.160:  IDENTICO ao W508 => o volante ja saiu do caminho com -0.110.
+  W510 ch_top_dz -0.110: IDENTICO ao W508 => o Cockpit_Cut NAO toca a silhueta (confirma o W500
+       agora com o instrumento correto; a explicacao 'era aliasing' estava ERRADA nesse caso).
+  => o topo de t0.392-0.400 (0.566 = 0.709m) e OUTRO M_Dark do CH (nem volante, nem cutter).
+     Candidatos M_Dark do chassis(): tray (tr, tray_x -0.500 => fora da faixa), seat_base (st1, z0.348),
+     seat (st2) — o CH zmax caiu para 0.7219 depois de baixar o volante, entao o seat e o novo topo do CH.
+
+**PROXIMO (a ferramenta que ja acertou 2x)**: sonda patch 23 com faixa ESTREITA em t0.392-0.400
+  (x 0.19..0.21, z >= 0.65) para listar a peca exata; depois del_mat nessa faixa para confirmar.
+**ESTADO**: L/H 1.861 | z_range [-0.01,1.253] | x_range EXATO | EMA 0.0388 | degrau 0.085 | banda t0.54 limpa | QA ok
