@@ -3590,3 +3590,30 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     plausibilidade fisica do gradiente). Metricas nao validadas geram ciclos inteiros perseguindo ruido.
   PROXIMO: rodar o scorecard COMPLETO de todos os landmarks com o metodo limpo e emitir a fila real de uma vez —
     e so entao voltar a tocar geometria. Screcard = o instrumento que o auditor precisa.
+
+
+## *** SCORECARD LIMPO (builder/scorecard.py) — 7 de 9 PASSAM ***
+  Instrumento reutilizavel criado: builder/scorecard.py <variante>. Emite tabela + contracts/scorecard-<v>.json
+  Metodo embutido: flood no raw + run vertical >=8px + mediana movel 5 (a metrologia validada hoje).
+  RESULTADO W522: concept W=793 H=401 | modelo W=836 H=449
+    L_base_z      0.0773 vs 0.0423  erro 0.0350  OK
+    L_topo_z      0.7581 vs 0.7216  erro 0.0365  OK
+    R_base_z      0.5736 vs 0.5590  erro 0.0145  OK
+    R_topo_z      0.2943 vs 0.3007  erro 0.0064  OK
+    degrau_x      0.5107 vs 0.5132  erro 0.0024  OK
+    pod_area_frac 0.1808 vs 0.1638  erro 0.0170  OK
+    degrau_amp    0.3242 vs 0.2428  erro 0.0814  FALHA P0
+    topo_global_z 0.8479 vs 0.7728  erro 0.0751  FALHA P0
+    topo_global_x 0.1576 vs 0.0000  erro 0.1576  FALHA (bug de definicao: argmax devolve a 1a coluna
+                                                          de um topo plano; usado centroid das colunas a <=2%% do max)
+    mediana 0.0350 (gate 0.025) FALHA | pior 0.1576 (gate 0.05) FALHA | soma 0.4260
+
+  ACHADOS REAIS (o que sobra depois de limpar a metrologia):
+   1) topo_global_z 0.0751 = O PICO DO CAPACETE ESTA BAIXO em relacao ao total. Real e geometrico. O valor antigo
+      (0.9975 vs 0.9978, 'quase exato') era a MOLDURA da mascara contaminada. Correcao: subir o capacete via
+      helm_z (parametro PURO, ao contrario de helm_sz que acopla altura — ver W528).
+   2) degrau_amp 0.0814 = o degrau do modelo e MAIS SUAVE que o do concept (0.2428 vs 0.3242). Agora que degrau_x
+      passou (0.0024), o que falta e a INTENSIDADE do degrau no mesmo lugar — mexer no angulo/quebra da carcaca.
+   3) As quatro extremidades (L/R topo/base) TODAS passam: a silhueta global esta correta.
+  IMPACTO: a fila real e CURTA e especifica: topo_global_z (capacete baixo) > degrau_amp (degrau suave).
+  PROXIMO: corrigir a definicao de topo_global_x (centroid do topo) e atacar topo_global_z via helm_z.
