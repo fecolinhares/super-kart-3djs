@@ -6944,3 +6944,13 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     frente do capacete seja VISOR, nao FACE. Criterio: M_Face < 300 celulas frontais (hoje 6702).
   INSTRUMENTO NOVO (16): PROJECAO ORTOGONAL POR MATERIAL — conta celulas 1mm visiveis por material. Revela quem
     DOMINA a vista, o que nenhum instrumento anterior mostrava (todos mediam tamanho, nao AREA VISIVEL DE FRENTE).
+
+
+## *** P100: A FRENTE DO CAPACETE AGORA E A VISEIRA (M_Visor 6224 > M_Face 3490) ***
+  Aplicado o fix nomeado: reatribuidas as faces FRONTAIS do M_Face a M_Visor (7343 faces) e recuadas as restantes
+  em x por 0.030 (45864 faces).
+    ANTES: M_Face 6702 (dominava a frente) | M_Visor 2553 | M_Blue 2938
+    AGORA: M_Visor 6224 (dominante)        | M_Face 3490  | M_Blue 2963
+  W745D: ###QA### True | falhas=[] | sep 14 | 0 erros.
+  Esta e a correcao ESTRUTURAL da leitura 'placa': a frente do capacete passa a ser VIDRO (como no concept), nao
+  a placa de rosto. Ate agora eu tratava o sintoma (largura) em vez da causa (area visivel frontal).
