@@ -970,3 +970,22 @@ Parametros: rzb=0.050, dfz=0.170, dfh=0.145, wing_sweep=0.253, exh_dz=0.130, nec
 PROXIMOS: (a) DEFEITO 3 — em xf 0.97 o concept tem 3 elementos separados (0.850..0.688 | 0.588..0.450 |
 0.369..0.249) e o modelo e 1 bloco 0.735..0.080 => separar o bloco traseiro; (b) DEFEITO 1 — perfil da asa
 no SIDE (banda 0.552-0.817 em xf 0.90), com a ressalva de que SIDE projeta tudo em y (asa + airbox juntos).
+
+
+## DEFEITO 3 — causa identificada: TUBOS DE ESCAPE GROSSOS DEMAIS
+
+Probe em xf 0.97 (x -1.17..-1.09): SO o REAR — M_Silver 1390, M_Eye 893 (bocas), M_Dark 866, M_Blue 116,
+z **0.026..0.745** (continuo). O concept nessa coluna tem 3 elementos SEPARADOS:
+  **0.850..0.688** (asa) | **0.588..0.450** (escapamentos, 0.138 de altura) | **0.369..0.249** (difusor/rampa)
+  => VAOS do concept em z 0.369-0.450 (8 cm) e 0.588-0.688 (10 cm).
+
+CAUSA: `exh_c_r=0.128` (tubo central) e os laterais ~0.110 => DIAMETRO 0.256 m. O tubo central apos exh_dz
+ocupa z 0.470+-0.128 = **0.342..0.598** e os laterais 0.392+-0.110 = 0.282..0.502. Isso FECHA o vao
+0.369-0.450 que o concept tem. O elemento 2 do concept tem apenas 0.138 de altura
+(z 0.450-0.588) => o diametro dos tubos deveria ser ~0.14 => **raio ~0.070** (o modelo usa 0.128 = ~2x).
+
+PROXIMO (concreto): `exh_c_r` 0.128 -> ~0.070 e os raios laterais proporcionalmente (~0.110 -> ~0.062);
+verificar se isso abre os vaos 0.369-0.450 e 0.588-0.688 sem perder a leitura das 3 bocas (o W404/W412
+consolidou as bocas como 3 cilindros protraidos ~6 cm — reduzir o raio mantem as 3 bocas, so mais finas).
+
+Base: **W429** — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
