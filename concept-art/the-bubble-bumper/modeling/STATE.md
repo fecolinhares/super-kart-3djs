@@ -5334,3 +5334,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Decisao pendente: cortar o chassi na faixa z do queixo ou aceitar (no concept o chassi tambem fica atras do piloto).
   W658D verde: QA ok, 14 pecas, globais preservadas. chin_guard preservado.
   NOTA: o progresso real e 245 -> 157 (-36%%) e esta medido; o plateau esta diagnosticado, nao e incognita.
+
+
+## *** CAUSA RAIZ DO PLATEAU: O CORTE ESTA NO PONTO ERRADO DO PIPELINE ***
+  DIAGNOSTICO (build W659D/W660D instrumentado, log [P48]):
+    no ponto do corte (logo apos o Cockpit_Cut) existe APENAS UM objeto cowl: 'Cowl' (min., x[0.206,0.735], z ate 0.772).
+    o boolean RETORNA bpy.data.objects['Cowl'] e FUNCIONA: polys 3076->2957, topo 0.772->0.678. (Ou seja: nunca foi problema
+      de parametro do box, nem de y, nem de x — o corte sempre funcionou, no objeto errado.)
+    mas no .blend FINAL as faces na janela da mentoneira pertencem a 'COWL' (MAIUSCULO, 49 faces x[0.462,0.507]).
+  CAUSA RAIZ: 'COWL' e criado DEPOIS do ponto onde o P48 e aplicado. Logo nenhum ajuste de box poderia alcancar essas faces.
+  FIX DEFINIDO: aplicar o recorte como PASSE POS-BUILD (ao final do build, quando todos os objetos existem), varrendo todo objeto
+    MESH cujo nome comece por 'cowl' (case-insensitive) e re-aplicando a cada um. Assim cobre 'Cowl' e 'COWL' em qualquer ordem.
+  E O CH: 108 faces em x[-0.005,+0.152], ainda nao tratado — segundo oclusor, e estrutura.
+  LICAO CENTRAL (ja registrada na skill): em pipeline com objetos criados em etapas, um ajuste aplicado cedo pode operar sobre
+    um HOMONIMO PARCIAL. Antes de iterar parametros, provar QUE O ALVO DO AJUSTE E O MESMO OBJETO QUE A MEDICAO ENXERGA
+    (logar nome+bbox+polys no ponto do ajuste e comparar com o objeto medido no arquivo final). Diferenciacao por maiusculas
+    ('Cowl' vs 'COWL') passou despercebida por 4 builds.
+  W660D verde: QA ok, 14 pecas, globais preservadas.
