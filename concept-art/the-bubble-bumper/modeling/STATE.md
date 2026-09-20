@@ -3114,3 +3114,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   repetir del_mat restringindo ao que sobra (z<0.65 / x<0.14) para achar o 2o ocupante dos +0.046.
 **FERRAMENTA**: a particao por sub-faixa (mesmo material, faixas disjuntas) identifica o ocupante em 2 builds
   em vez de inferir por bbox — foi o que faltou nos 3 primeiros testes do trecho A.
+
+
+## *** CAUSA RAIZ DO TRECHO A: FACES SEM MATERIAL (none_slots=4) ***
+  Codigo (fim do builder, pos-escala):
+    for o in FINS:
+        _b=[i for i,mm in enumerate(o.data.materials) if mm is None]
+        for i in _b: o.data.materials[i]=MG.get('M_Dark')   # faces SEM material viram M_Dark
+        _badn+=len(_b)
+    R['none_slots']=_badn
+  => o `M_Dark` de 209 faces acima de z0.65 (que forma o pico de t0.40) NAO e peca escura:
+     sao FACES SEM MATERIAL silenciosamente pintadas de M_Dark.
+  => none_slots=4 aparece em TODOS os builds (W405..W502) e nunca foi investigado.
+  2 CONSEQUENCIAS: (1) silhueta — as faces entram no render e criam o pico falso de t0.40 (+0.093);
+                   (2) MATERIAL — geometria visivel com material indefinido virando PRETO (explica o
+                       COR_TV piorar quando a peca se move: 0.234 -> 0.247 no W489).
+
+**PROXIMO (alto valor)**: identificar QUAL objeto/peca tem o slot None. Sondar no build: para cada FINS,
+  listar slots None + o bbox dos faces que apontam para esse slot => nomear a peca culpada.
+  Depois: (a) atribuir o material CORRETO em vez de M_Dark; (b) se a caixa existir no concept, manter; se nao, remover.
+  ISSO CORRIGE SILHUETA E MATERIAL DE UMA VEZ — nao usar None como material default e um bug de disciplina
+  de autor: toda face precisa de material explicito (regra da skill concept-driven-3d-modeling).
