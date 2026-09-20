@@ -113,5 +113,10 @@
   "cowl_ry_k": 0.098,
   "cowl_ry0": 0.03,
   "cowl_ns": 22,
-  "_nota_g27_best": "MELHOR BASE = W586D (|dTOP| 0.0486, frente-meio 0.0425, patamar 0.0176). Janela do patamar da carena deslocada -0.051 por MEDICAO (existe offset empirico entre xf do builder e xf do render; a derivacao analitica deu identidade e estava errada). Globais congeladas. Refutados: engrossar a secao (invisivel na lateral) e aumentar NS (22->66, sem efeito)."
+  "_nota_g27_best": "MELHOR BASE = W586D (|dTOP| 0.0486, frente-meio 0.0425, patamar 0.0176). Janela do patamar da carena deslocada -0.051 por MEDICAO (existe offset empirico entre xf do builder e xf do render; a derivacao analitica deu identidade e estava errada). Globais congeladas. Refutados: engrossar a secao (invisivel na lateral) e aumentar NS (22->66, sem efeito).",
+  "cowl_plat2_a": 0.365,
+  "cowl_plat2_b": 0.43,
+  "cowl_plat2_f": 0.3,
+  "cowl_plat2_h": 0.636,
+  "_nota_g30_best": "NOVA MELHOR BASE = W588D (|dTOP| 0.0474, frente-meio 0.0385, patamar 0.0176, cockpit 0.0330). Janela 2 da carena em a=0.365 b=0.430 f=0.30 h=0.636, deslocada +0.030 vs W587D. Confirmado por medicao que o topo em render-xf 0.417 responde a geometria da CARENA (a duvida 'sera do piloto?' foi resolvida). Deslocamento builder-xf->render-xf NAO e constante: janela 1 pediu -0.051 e janela 2 +0.030; cada feicao exige build propria. Serie: W569 0.0652 -> W573 0.0498 -> W586D 0.0486 -> W588D 0.0474. Globais congeladas em todas."
 }

@@ -4222,3 +4222,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PROXIMO LEAF: reexecutar a janela 2 deslocada ~+0.030 (a=0.365 b=0.430 f=0.30 h=0.636) e medir; se o degrau
     de render-xf 0.417 nao responder a janela, investigar se o topo ali e do COWL ou do conjunto do PILOTO
     (o PL cobre x final -0.560..0.566, logo x=0.212 esta dentro dele) antes de insistir na geometria da carena.
+
+
+## *** G30: W588D E A NOVA MELHOR BASE (janela 2 no lugar certo) ***
+  SERIE COMPLETA DO G27 (|dTOP| medio 61 estacoes | frente-meio | patamar | cockpit 0.38-0.46):
+    W569  0.0652 | 0.0957 | --     | --      (antes do G27)
+    W573  0.0498 | 0.0462 | 0.0285 | --      (patamar curto = PAREDE vertical)
+    W586D 0.0486 | 0.0425 | 0.0176 | 0.0482  (rampa continua no patamar)
+    W587D 0.0493 | 0.0448 | 0.0176 | 0.0567  (janela 2 adiantada -> regressao)
+    W588D 0.0474 | 0.0385 | 0.0176 | 0.0330  <-- MELHOR BASE (-32%% no cockpit vs W586D)
+  W588D = janela 2 da carena em a=0.365 b=0.430 f=0.30 h=0.636 (deslocada +0.030 em relacao a W587D).
+    Perfil xf 0.40/0.417/0.433/0.450: modelo 0.496/0.558/0.617/0.585 vs concept 0.509/0.636/0.598/0.600.
+    O degrau POUSA agora; residuo em xf 0.417 caiu de -0.156 (W586D) para -0.078. Globais INALTERADAS
+    (L/H 2.05, W/H 1.171, x_range, z_range, 14 pecas, QA ok).
+  *** CONFIRMADO QUE O TOPO EM render-xf 0.417 RESPONDE A GEOMETRIA DA CARENA — nao era o piloto. ***
+    (a duvida registrada no leaf anterior foi resolvida por medicao: a janela 2 mudou o perfil naquela estacao).
+  *** A REGRA DO DESLOCAMENTO NAO-CONSTANTE FICA VALIDADA E QUANTIFICADA: ***
+    janela 1 (patamar): -0.051 | janela 2 (degrau do cockpit): +0.030. Duas correcoes de sinal OPOSTO na mesma
+    peca. Cada feicao exige a sua propria build de medicao; nada de reaproveitar nem derivar analiticamente.
+  PENDENTE: xf 0.417 ainda -0.078 (refinar a janela 2: altura 0.636 pode precisar subir, ou a posicao +0.005);
+    xf 0.367-0.383 (+0.066/+0.040 excesso, na saida do patamar); xf 0.90 traseira (-0.187 -> G29).
