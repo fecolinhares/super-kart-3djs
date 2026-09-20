@@ -5598,3 +5598,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     meu taper fez o oposto (mais estreita embaixo). Registrar como hipotese a confirmar medindo o concept: largura do
     amarelo do queixo por linha no front.jpg (y196..232 do concept) — se for maior em cima, inverter o sinal do taper.
   W672D verde: QA ok, sep_parts=14, globais preservadas.
+
+
+## TAPER CONFIRMADO POR MEDICAO DO CONCEPT (nao por leitura do vision) ***
+  MEDICAO no front.jpg do concept (1024x559), largura do amarelo do queixo por linha:
+    y=196 largura=4  |  y=204 largura=53 (PICO)  |  y=212 largura=47
+    abaixo de y~220 o amarelo detectado ja pertence a outras pecas do kart (x deslocado: 447-462, 345-359).
+  CONCLUSAO: a mentoneira do concept e MAIS LARGA EM CIMA e estreita para baixo -> 'trapezoidal invertida' como o
+    vision descreveu. Meu taper (y *= 1-tp*(1-t), mais estreito embaixo) esta na DIRECAO CORRETA. Confirmado por
+    medicao; a leitura do vision serviu como hipotese e a medicao decidiu.
+  ALTURA: a mentoneira do concept mede 20-36 px num casco de 148 px = 13,5%% a 24%% da altura do capacete.
+    Meu painel esta em 0.144 m = 24%% (o TETO da faixa) — o que explica o 'muito alto' do vision. Alvo melhor: ~18%%
+    = 0.108 m, que no render da camera face equivale a ~133 px.
+  PROXIMO (concreto): reduzir o painel para z0=0.640, z1=0.748 (0.108 m, ~133 px) mantendo o taper e o bevel; re-render e
+    conferir altura do amarelo e o gate visual.
+  W672D verde: QA ok, sep_parts=14, globais preservadas.
