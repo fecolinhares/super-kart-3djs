@@ -5561,3 +5561,13 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     mentoneira e um trapezio separado); o painel pode precisar de ajuste de bevel/posicao em x; e falta o sorriso.
     Gate visual pareado re-executado depois disso.
   W670D verde: QA ok, sep_parts=14, globais preservadas.
+
+
+## P53: SORRISO DA MENTONEIRA ***
+  P53 adicionou a linha fina escura do concept: laje M_Dark em x=-0.153, |y|<=0.052, z 0.660..0.676 (1.6 cm), unida ao PL.
+    Green: QA ok, sep_parts=14. AMARELO no painel (y630-830): 21.317 px, y[630,817].
+  JUNTO: P52 (painel frontal plano) + P53 (sorriso) = mentoneira com altura de alvo e a linha do concept.
+  PENDENTE VISUAL: (a) a faixa desce e encontra a mentoneira sem separacao (no concept a faixa termina na viseira e a
+    mentoneira e trapezio separado); (b) bevel/x do painel; (c) conferir o sorriso no render (medicao por 'escuro dentro do
+    amarelo', porque o filtro simples de escuro pega o fundo).
+  W671D verde.
