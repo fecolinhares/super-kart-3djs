@@ -5433,3 +5433,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     faces M_Pilot na faixa sao corpo a frente do queixo; se sim, recuar/rebaixar o peito do piloto (transladar o subconjunto
     M_Pilot) ou cortar com box tight excluindo o capacete. Medir SEMPRE por material dentro do merge.
   W664D verde: QA ok, 14 pecas, globais preservadas. Janela estreita: 0 faces (COWL e CH eliminados).
+
+
+## *** TEORIA DO PILOTO REFUTADA E MENTONEIRA MEDIDA NO RENDER: 2.540 px ***
+  REFUTACAO: as faces M_Pilot na faixa do queixo (|y|<=0.090, z 0.60-0.76, x>-0.080) sao ZERO. O piloto NAO cobre o queixo.
+    (M_Pilot: 473 faces y[+-0.216] z[0.551,0.778] x[-0.350,+0.153] — mas nenhuma no quadrado do queixo.)
+  MEDICAO DIRETA DO RENDER (w664d-face.png, 860x860, amarelo r>140 g>110 b<90):
+    17.702 px de amarelo no total:
+      y160-320  =>  a FAIXA do capacete (~15.900 px)
+      y740-800  =>  O QUEIXO (~2.540 px, ~60 px de altura em 4 buckets de 20 px)
+  CONCLUSOES:
+    1) a mentoneira EXISTE e RENDERIZA com ~60 px de altura. O '2-3 px' relatado pelo vision e ERRO DE LEITURA do vision
+       (confundiu a mentoneira com a barra preta fina adjacente). Nao aceitar sem medir — regra do instrumento, de novo.
+    2) mas esta ~3x CURTA: 60 px vs alvo do concept (24%% da altura do capacete = 0.147 m ~ 180 px). Esse e o alvo real.
+    3) a oclusao (COWL/CH, 245 -> 0 faces) foi trabalho real e necessario, mas NAO era a causa da 'invisibilidade'.
+  PROXIMO (concreto): aumentar a mentoneira no eixo vertical — o chin_sz esta em 1.60 (alvo 0.147 m no bbox do SUBCAP) e o render
+    mostra 60 px. Ou o bbox do SUBCAP nao corresponde ao que aparece (reg() e snapshot) ou a mentoneira esta PARCIALMENTE dentro do
+    capacete (a calota azul a cobre a partir de cima). Medir no render a fronteira superior do amarelo do queixo vs o topo da
+    mentoneira no mesh para saber quanto esta enterrado, e entao subir/abaixar a pecica ou alargar a abertura do casco.
+  W664D verde: QA ok, 14 pecas, globais preservadas.
