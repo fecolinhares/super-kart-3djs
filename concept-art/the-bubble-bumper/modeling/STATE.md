@@ -5933,3 +5933,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   U achatada: visor_u_lift 0.045 -> 0.020 e limiar |y| 0.55 -> 0.65 -> span z 0.182 -> 0.162 (o centro fica livre).
   M_Visor: x 0.221 | y 0.315 = 95,5% do casco | z[0.702,0.864] = 0.162. M_Eye recuada.
   W695D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas. build 47.7s.
+
+
+## P65 (GATE v13): U 12mm MAIS BAIXA + ALPHA 0.30 ***
+  Gate v13 (W695D) = 6/10. Positivo registrado pelo vision: 'com alpha 0.80 da pra ver o fantasma da pupila atraves' -> a
+    transparencia FUNCIONA. Maior erro: 'borda/U inferior ainda cruza a linha dos olhos'. Acao dada: 'desca a U 10-12mm pro
+    queixo e baixe alpha pra ~0.3'.
+  APLICADO no W696D: visor_dz -0.160 -> -0.172 (U 12 mm mais baixa: z 0.702 -> 0.690) e visor_alpha 0.80 -> 0.30.
+    M_Visor: x 0.214 | y 0.308 = 93% do casco | z[0.690,0.852] = 0.162. M_Eye (0.741-0.760) segue dentro.
+  NOTA DE ESCALA REAL: 12 mm em 2,35 m = 0,5% da peca. O vision pediu em mm e a mudanca e mensuravel, mas e do tipo que
+    'nao aparece' em render de longe — por isso a medicao por material vem antes do gate, e o gate decide o perceptivel.
+  W696D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
