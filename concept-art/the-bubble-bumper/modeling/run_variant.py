@@ -337,6 +337,59 @@ n33=("helm=dome('Helmet',hx,0.0,hz,HR,sz=SZ,sy=1.0,seg=104,rings=62); assign(hel
 if o33 in SRC: SRC=SRC.replace(o33,n33,1); print('P33 INSERIDO OK')
 else: print('P33 ALVO NAO ENCONTRADO')
 
+
+# patch 34: FRENTE-INFERIOR DO CAPACETE (autorais/bmesh). Medido: a parede quase vertical do perfil no ponto do degrau
+# mede 0.30m no modelo e 0.41m no concept (degrau_amp 0.2428 vs 0.3242) — mesma posicao (0.5107 vs 0.5132), logo e feicao
+# REAL e ancorada. A parede desce de z/H 0.8307 (1.040m) para 0.5880 (0.736m): para subir o TOPO da parede 11cm sem mover
+# o PICO do capacete, a frente-inferior precisa AVANCAR. Peso duplo: 0 no pico e no topo (x<=hx ou z>=hz), 1 na frente-baixa.
+# Nao mexer em constantes: 6 refutacoes (rzt, cowl_k, cockpit_cut, helm_front, M_Face, M_Visor) provaram que nao ha parametro.
+o34="        print('P33 helm_front=%.2f verts_movidos=%d w_max=%.3f'%(_hf,_n,_mx))\n    else:\n        print('P33 helm_front OFF')"
+n34=("        print('P33 helm_front=%.2f verts_movidos=%d w_max=%.3f'%(_hf,_n,_mx))\n"
+     "    else:\n        print('P33 helm_front OFF')\n"
+     "    _hl=P.get('helm_low',0.0)\n"
+     "    if _hl>0:\n"
+     "        _n2=0; _mx2=0.0\n"
+     "        for _v in helm.data.vertices:\n"
+     "            _dx=_v.co.x-hx; _dz=hz-_v.co.z\n"
+     "            if _dx>0 and _dz>0:\n"
+     "                _wx=min(1.0,_dx/(HR*SZ)); _wz=min(1.0,_dz/(HR*SZ*0.9))\n"
+     "                _w=_wx*_wz\n"
+     "                if _w>0.0:\n"
+     "                    _v.co.x+=_hl*_w; _v.co.z-=0.35*_hl*_w; _n2+=1; _mx2=max(_mx2,_w)\n"
+     "        helm.data.update()\n"
+     "        print('P34 helm_low=%.3f verts=%d w_max=%.3f'%(_hl,_n2,_mx2))\n"
+     "    else:\n        print('P34 helm_low OFF')")
+if o34 in SRC:
+    SRC=SRC.replace(o34,n34,1); print('P34 INSERIDO OK (frente-inferior do capacete)')
+else:
+    print('P34 ALVO NAO ENCONTRADO')
+
+
+# patch 35: FRENTE-SUPERIOR DO CAPACETE = ABA/TESTA. W535 provou o inverso do que eu supunha: estender a frente-INFERIOR
+# para frente PREENCHE o vao e derruba a parede (degrau_amp 0.2428->0.1915) e ainda MOVE o degrau (degrau_x 0.5132->0.7273,
+# erro 0.0024->0.2166 => REGRESSAO). A parede e a QUEDA do topo frontal do capacete: para deixa-la mais alta sem mover o
+# degrau, o que avanca e a frente-SUPERIOR (aba/testa), mantendo o topo do pico onde esta (topo_global_x ja correto 0.0134).
+o35="        print('P34 helm_low=%.3f verts=%d w_max=%.3f'%(_hl,_n2,_mx2))\n    else:\n        print('P34 helm_low OFF')"
+n35=("        print('P34 helm_low=%.3f verts=%d w_max=%.3f'%(_hl,_n2,_mx2))\n"
+     "    else:\n        print('P34 helm_low OFF')\n"
+     "    _hb=P.get('helm_brow',0.0)\n"
+     "    if _hb>0:\n"
+     "        _n3=0; _mx3=0.0\n"
+     "        for _v in helm.data.vertices:\n"
+     "            _dx=_v.co.x-hx; _dz=_v.co.z-hz\n"
+     "            if _dx>0 and _dz>0:\n"
+     "                _wx=min(1.0,_dx/(HR*SZ)); _wz=min(1.0,_dz/(HR*0.9))\n"
+     "                _w=_wx*_wz\n"
+     "                if _w>0.0:\n"
+     "                    _v.co.x+=_hb*_w; _v.co.z+=0.30*_hb*_w; _n3+=1; _mx3=max(_mx3,_w)\n"
+     "        helm.data.update()\n"
+     "        print('P35 helm_brow=%.3f verts=%d w_max=%.3f'%(_hb,_n3,_mx3))\n"
+     "    else:\n        print('P35 helm_brow OFF')")
+if o35 in SRC:
+    SRC=SRC.replace(o35,n35,1); print('P35 INSERIDO OK (aba da frente-superior)')
+else:
+    print('P35 ALVO NAO ENCONTRADO')
+
 exec(compile(SRC,'bb_'+VER,'exec'),g)
 R=g.get('R',{})
 print(VER,'| QA=',R.get('qa',{}).get('aprovado'),'| z_range=',R.get('z_range'),'| ERRO=',R.get('ERRO'))

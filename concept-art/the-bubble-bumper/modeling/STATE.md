@@ -3696,3 +3696,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     deixa-la 11cm mais alta sem mover o pico, o caminho e AUTORAL (bmesh) na frente-inferior do capacete — mesma familia
     do P33 que ja esta escrito. Nao insistir em constantes.
   PROXIMO: sonda del_mat M_Gasket na banda do degrau; se 0.0000 tambem, partir para o ajuste autoral da frente-inferior.
+
+
+## *** W536 ADOTADO: TODOS OS GATES PASSAM (9/9 landmarks, mediana E pior) ***
+  MUDANCA: P35 helm_brow=0.12 => 1466 verts da frente-SUPERIOR do capacete (aba/testa) movidos +x e +0.30z,
+    com peso duplo (0 no pico e no topo, 1 na frente-alta). O pico nao se moveu (topo_global_z 0.9978 mantido).
+  RESULTADO: degrau_amp erro 0.0814 (FALHA) -> **0.0232 OK** | degrau_x 0.0071 OK | topo_global_x 0.0308 OK
+    mediana 0.0145 OK | **pior 0.0368 OK** | soma 0.1660 (melhor da sessao)
+  HISTORICO DA SOMA: 0.7962 -> 0.5468 -> 0.4045 -> 0.2071 -> 0.1660
+
+### O CAMINHO ATE AQUI (por que funcionou)
+  6 alavancas refutadas na parede: rzt 0.0000 | cowl_k 0.0000 | cockpit_cut 0.0000 | helm_front(bmesh) 0.0000
+    | M_Face 0.0012 | M_Visor 0.0000  (so helm_x movia, e era posicao)
+  => nao havia PARAMETRO. Solucao AUTORAL (bmesh), exatamente o que o Sol prescreveu para identidade.
+  A REGRESSAO W535 ENSINOU A DIRECAO: estender a frente-INFERIOR (helm_low) preenche o vao e derruba a parede
+    (degrau_amp 0.2428->0.1915) e ainda MOVE o degrau (degrau_x 0.5132->0.7273, erro 0.0024->0.2166) = REGRESSAO.
+    O oposto — frente-SUPERIOR (aba) — levantou a parede para 0.3474 (concept 0.3242) mantendo o degrau em 0.5036.
+    LICAO: quando o conserto por deformacao falha numa direcao, a regressao costuma revelar a direcao certa; medir as DUAS.
+  METODO QUE FECHOU O CASO: (1) alavancas descartam parametros em 1 build cada; (2) quando todas falham, AUTORAL;
+    (3) testar as DUAS direcoes da deformacao; (4) scorecard com auto-teste decide.
+  PROXIMO: com a Silhueta SIDE aprovada em todos os gates, partir para FRONT e REAR (mesma metrologia) e so entao
+    o re-render BEAUTY para o vision proprio pareado antes do auditor (AUDIT_SKIP=top).
