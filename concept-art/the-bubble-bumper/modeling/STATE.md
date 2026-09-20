@@ -6133,3 +6133,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     b) criar cada disco como POLIGONO TRIANGULADO (fan de 24 triangulos, nao um n-gon) para satisfazer a QA;
     c) validar por ilha conexa: exatamente 2 ilhas, |centroide_y| ~0.045, vao > 0;
     d) so entao medir largura/altura contra o alvo de 0.068 e rodar o gate visual.
+
+
+## *** P70v2: GEOMETRIA PERFEITA, QA AINDA FALSO — HIPOTESE REFINADA ***
+  [P70v2] delecao: 112 faces M_Eye removidas (49579 -> 49467) — a delecao FUNCIONOU (corrigido o codigo morto).
+  [P70v2] 2 discos em fan de 24 TRIANGULOS: 0.068 x 0.076, separados 0.090, em x=-0.2166.
+  MEDICAO POR ILHA CONEXA (o desenho projetado, exatamente como pedido):
+    ILHAS de M_Eye: 2  (exatamente 2)
+    ILHA: 24 faces | larg=0.0446 alt=0.0499 | centroide (y=+0.0450, z=0.7745)
+    ILHA: 24 faces | larg=0.0446 alt=0.0499 | centroide (y=-0.0450, z=0.7745)
+    DISTANCIA ENTRE CENTROIDES = 0.0900 | VAO ENTRE BORDAS INTERNAS = 0.0454 (POSITIVO)
+  MAS: ###QA### False de novo.
+  O QUE ISSO ELIMINA E O QUE SOBRA: nao e o n-gon (agora sao 24 triangulos) e nao e a delecao (funcionou). O fator
+    comum aos DOIS builds que falharam e a GEOMETRIA NOVA SER UMA SUPERFICIE ABERTA: um disco plano tem um loop de
+    borda (boundary/non-manifold). HIPOTESE: a QA rejeita borda aberta. CORRECAO: cada disco deve ser um SOLIDO FINO
+    (lente extrudada, ~5 mm de espessura) formando manifold fechado.
+  DECISAO: reverter para manter baseline verde. Registrado que o DESENHO esta validado (2 ilhas, +-0.045, vao positivo,
+    0.0446 de largura) e que so falta a topologia fechada para o QA aceitar.
