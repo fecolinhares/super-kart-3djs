@@ -5386,3 +5386,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     x 0.4991-0.5475, |y|<=0.0501, z 0.6570-0.6778); (b) o CH (108 faces, x[-0.0054,0.1519], z 0.6072-0.6652) segue
     intocado — mesmo tratamento, com decisao sobre cortar estrutura.
   W661D verde: QA ok, 14 pecas, globais preservadas.
+
+
+## *** COWL ZERADO NA JANELA DA MENTONEIRA: 245 -> 108 FACES ***
+  W663D = P48 (box grande na faixa x 0.126-0.436) + P49b (box TIGHT x 0.44-0.53 / y+-0.06 / z 0.59-0.65, solver EXACT)
+    [P48] Cowl polys 3076 -> 2957
+    [P49b] COWL polys 3109 -> 2903
+    JANELA DA MENTONEIRA: SO o CH/M_Dark (108 faces x[-0.005,+0.152]). COWL = 0 faces. TOTAL 108 (era 245).
+  APRENDIZADO CENTRAL: os dois cortes atuam em OBJETOS DIFERENTES e sao COMPLEMENTARES, nao redundantes:
+    P48 corta 'Cowl' (minusculo) e cobre a faixa x 0.126-0.436; P49b corta 'COWL' (maiusculo) e cobre x 0.462-0.507.
+    Desligar o P48 ao ligar o P49b PIOROU (157 -> 191) e foi isso que revelou a complementaridade.
+  E o box tight + EXACT e o que faz o P49b funcionar: o box grande deixava a casca alvo intacta.
+  RESTA: CH/M_Dark 108 faces (x[-0.005,+0.152] |y|<=0.0927 z[0.6072,0.6652]) — ultimo oclusor, e ESTRUTURA (chassi).
+    Proximo: aplicar box tight no CH tambem (o chassi na faixa z do queixo nao aparece no concept atras do piloto).
+  W663D verde: QA ok, 14 pecas, globais preservadas.
