@@ -26,6 +26,13 @@ old4="abt=sweep('Airbox_Duct',[(-0.462,0,0.774),(-0.575,0,0.704),(-0.668,0,0.628
 new4="abt=sweep('Airbox_Duct',[(-0.462,0,0.774+P.get('abt_dz',0.0)),(-0.575,0,0.704+P.get('abt_dz',0.0)),(-0.668,0,0.628+P.get('abt_dz',0.0))],P.get('abt_r',0.054),18)"
 if old4 in SRC:
     SRC=SRC.replace(old4,new4,1)
+
+# patch 5: encurtamento dos escapamentos em x (os 3 tubos diferem em Y e se projetam no MESMO x na vista
+# lateral -> fundem num run continuo; o concept deixa -0.66..-0.92 VAZIO em z~0.62)
+old5="    exb=P.get('exh_x',XRE+0.041)"
+new5="    exb=P.get('exh_x',XRE+0.041)+P.get('exh_short',0.0)"
+if old5 in SRC:
+    SRC=SRC.replace(old5,new5,1)
 ovr=dict(BASE); ovr.update(EP_OVERRIDES); ovr['v']=VER
 g=dict(globals()); g['OVR']=ovr
 exec(compile(SRC,'bb_'+VER,'exec'),g)

@@ -1938,3 +1938,39 @@ Consequencias provadas/previstas:
 
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## W465 — A RESTRICAO DE NORMALIZACAO FOI CONFIRMADA EMPIRICAMENTE (achado de metodo)
+
+Teste: `exh_short=0.45` (encurtar os escapamentos 45cm, porque o M_Silver cobre x -0.999..-0.550 continuo
+em z 0.554-0.675 e o concept deixa -0.66..-0.92 VAZIO em z~0.62).
+
+RESULTADO DO BUILD (antes de qualquer auditoria):
+  len_before   2.3841 -> **2.3262**   (encurtou, como esperado)
+  scale_factor 0.98568 -> **1.01022**  (o builder RE-ESCALOU para target_length=2.350)
+  z_range      [-0.01, 1.165] -> **[-0.01, 1.194]**  ✗✗
+  x_range      [-1.2, 1.15] -> **[-1.172, 1.178]**  ✗✗
+=> **A COMPARACAO E INVALIDA.** A normalizacao do auditor e pelo bbox; mudar o comprimento re-escala tudo e
+   desloca TODAS as metricas. Foi por isso que a restricao foi formalizada antes (topo do capacete = z_range).
+
+**REGRA DE METODO (obrigatoria daqui pra frente)**:
+  Toda variante DEVE preservar `x_range` E `z_range` da base (W463: x [-1.2,1.15], z [-0.01,1.165]).
+  Se a mudanca altera o comprimento ou a altura, ela precisa ser COMPENSADA (esticar/encurtar outra peca na
+  mesma direcao) OU a comparacao tem de ser refeita com a base re-normalizada — nunca comparar direto.
+  Verificacao automatica: checar x_range/z_range/scale_factor no retorno do build ANTES de rodar o audit.
+
+## COMO ENCURTAR OS ESCAPAMENTOS SEM QUEBRAR A NORMALIZACAO
+O comprimento do modelo e dado por x_range (extremos). Hoje: frente 1.15/1.178 (NOSE/FBUMP) e tras -1.2
+(exhaust/wing). Encurtar o escapamento tira material do extremo TRAS -> o builder re-escala.
+Alternativas que PRESERVAM o comprimento:
+  (i) manter o comprimento total esticando a ASA para tras o mesmo tanto (wing_x2), de modo que o extremo
+      traseiro continue em x -1.2;
+  (ii) em vez de encurtar em x, SEPARAR os 3 escapamentos em x (hoje diferem so em Y e por isso se projetam
+      no mesmo run na lateral): dar offsets x distintos aos tubos L/C/R -> abre os vaos SEM mudar extremos;
+  (iii) reduzir o RAIO (engrossa/murcha a silhueta sem mexer no comprimento) — mas isso nao divide o run.
+=> (ii) e a mais promissora: os vaos do concept (-0.66..-0.73 e -0.75..-0.92) pedem SEPARACAO em x, nao
+   encurtamento. Isso e o mesmo padrao "solido vs separado" ja resolvido no duct (W463).
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568  <- **invariantes a preservar**
