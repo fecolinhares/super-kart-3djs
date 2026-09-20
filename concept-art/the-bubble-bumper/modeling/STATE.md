@@ -572,3 +572,29 @@ porque no SIDE o concept tem run de 0.24 m em xf 0.92-0.96 contra 0.12 m do mode
 RESULTADO: IoU 0.820 -> **0.758**, excesso 12.2 -> **27.6%**, side/TRASEIRA 0.647 -> 0.576, <0.80 7 -> 10.
 => REVERTIDO. Licao: aquele run alto no SIDE nao e a lamina da asa inflada; inclinar a asa gera excesso
 em vez de preencher falta. A falta de 22.6% em side/TRASEIRA tem outra causa (a identificar por cor/run).
+
+
+## W410 (REVERTIDO) + DIAGNOSTICO DA LINHA DE PISO — 2026-09-19
+
+W410 (wing_z 0.585 -> 0.650, sem tilt): IoU 0.820 -> **0.779**, rear/ESCAPES 0.894 -> **0.669** (falta 29.9%:
+subir a asa abriu vao embaixo). => REVERTIDO.
+DOIS experimentos seguidos na mesma direcao (altura da asa) falharam => pela skill, a regiao NAO e
+mal-parametrizada: falta uma PECA. Base segue **W408** (IoU 0.820, COR_TV 0.264, falta 8.4, <0.80=7).
+
+### MEDICAO DA LINHA DE PISO (a skill: "read the per-column runs' LOWEST bound, not only the highest")
+Piso em z (limite inferior do run mais baixo), concept vs W408:
+| xf | concept | modelo | delta |
+|---|---|---|---|
+| 0.60 | 0.087 | 0.118 | +3 cm |
+| 0.66 | 0.081 | 0.118 | +4 cm |
+| 0.72 | 0.105 | 0.043 | **-6 cm** |
+| 0.78 | 0.093 | 0.009 | **-8 cm** |
+| 0.84 | 0.003 | 0.092 | +9 cm |
+| 0.92 | 0.048 | 0.040 | -1 cm |
+| 0.95 | 0.129 | 0.040 | **-9 cm** |
+| 0.98 | 0.300 | 0.300 | 0 |
+=> O modelo fica 6-9 cm BAIXO DEMAIS em xf 0.72-0.78 e xf 0.95 (excesso embaixo) e alto demais em 0.84.
+A rampa existe e ja sobe (z 0.10 -> 0.48 + espessura 0.15, xf 0.83-0.99): logo o excesso baixo vem de
+OUTRA peca na faixa z 0.04-0.10 em xf 0.95 (candidatos: rbump / difusor / escape central).
+PROXIMO: identificar por cor/bbox qual peca ocupa z 0.04-0.10 em xf 0.95 e subir/remover; repetir para
+xf 0.72-0.78.
