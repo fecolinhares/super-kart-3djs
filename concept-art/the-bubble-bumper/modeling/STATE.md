@@ -3041,3 +3041,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
 **RESIDUO ABERTO do trecho A**: t0.40 = +0.093 (x=0.210m) NAO e o cowl (k nao o afeta). E outro material.
   Proximo: del_mat M_Blue/M_Yellow/M_Dark/M_Silver em x 0.16..0.26, z > 0.60 (acima da linha) para achar quem
   forma aquele pico de 0.566 (concept manda 0.473).
+
+
+## Z2-A BATERIA COMPLETA (delecao por material no trecho A: x 0.15..0.27, z 0.55..0.95)
+  M_Yellow -> 0 faces  (REFUTADO: nao ha macacao do piloto nesse x acima de z0.55)
+  M_Gold   -> 0 faces  (REFUTADO)
+  M_Silver -> 6 faces  (irrelevante)
+  M_Blue   -> 335 faces => muda SO t0.35: 0.439 -> 0.403 (-0.036)   [e o cowl]
+  M_Dark   -> 394 faces => muda SO t0.40: 0.566 -> 0.519 (-0.047)   [OCUPANTE DO PICO t0.40]
+
+**CONCLUSAO**: o pico de t0.40 (modelo 0.566 vs concept 0.473 = +0.093) e material M_Dark em x~0.21m,
+  z 0.55-0.95. A remocao total dessas faces recupera -0.047 (51% do excesso); o restante e outro material
+  (candidato: M_Blue do CH, 4o a testar). Peça candidata no builder: o CH (cockpit/dash, z max 0.7938).
+
+**METODO CONSOLIDADO (vale para qualquer trecho do perfil)**:
+  1. medir a coluna do perfil em x_alvo = XFO - t*L  (XFO ~1.128, L=2.35);
+  2. rodar del_mat com del_z acima do valor do modelo e del_x estreito em torno de x_alvo;
+  3. comparar o perfil: o material cuja remocao muda SO aquela coluna E o ocupante;
+  4. del_n pequeno (<10) descarta a hipotese sem gastar render de silhueta.
+  PITFALL: o cowl com cowl_xf0=0.174 comeca em x=0.2061 => a coluna de t0.40 (x=0.210) fica na BORDA do cowl.
+  Por isso mudar cowl_k nao afeta t0.40 — nao confundir 'peca existe na coluna' com 'peca forma o topo'.
