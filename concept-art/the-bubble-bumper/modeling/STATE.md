@@ -6903,3 +6903,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     com o sinal de y espelhado e comparar; ou medir a simetria diretamente: para cada vert de M_Visor, procurar o vert
     espelhado em -y e comparar z/x. Criterio: max|dz| e max|dx| entre pares espelhados abaixo de ~1 mm.
   INSTRUMENTO NOVO (13o): medicao de SIMETRIA por pareamento de vertices espelhados. Mede o que nenhum dos outros media.
+
+
+## *** SIMETRIA MEDIDA: GEOMETRIA PERFEITA (0,07 mm) — A ASSIMETRIA E DE RENDER ***
+  Medicao por PAREAMENTO de vertices espelhados (/tmp/sym.py, 13o instrumento, W739D):
+    4684 pares espelhados encontrados | apenas 2 verts sem par | desvio maximo: dz=0,02 mm dx/dy=0,07 mm
+  A geometria da viseira e SIMETRICA a menos de 0,1 mm. Logo a assimetria medida NOS PIXELS (borda direita 2x mais
+    rugosa: 3,12 px vs 1,52 px de salto medio) NAO ESTA NA GEOMETRIA — e artefato de RENDER (ordenacao/sombreamento da
+    casca transparente de um lado). Mesma classe do dither: o render mente sobre algo que a geometria tem correto.
+  VALOR DO INSTRUMENTO: refutou em UMA medicao a hipotese que a medicao de pixels levantou. Sem ele eu cacaria a assimetria
+    nos passes de modelagem (P61..P90) e nao acharia nada — porque nao ha nada.
+  SERIE DE INSTRUMENTOS (13, consolidada): qa()['falhas'] | reassign-nunca-delete | solido fechado | ilha conexa | todos os
+    candidatos a contorno | medir por faixa | teste em pixels | 3 correcoes geometricas = pipeline de render | sentido do eixo |
+    resolucao minima ~30 px | print pre-scale vs medida pos-scale | vertice != face | SILHUETA por picos | SIMETRIA por pareamento.

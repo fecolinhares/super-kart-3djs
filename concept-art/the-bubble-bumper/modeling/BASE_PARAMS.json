@@ -312,5 +312,5 @@
   "visor_smooth": 6,
   "wedge_reassign": 1,
   "wedge_form": 0.93,
-  "_nota_g26_assimetria": "ACHADO FINAL: ASSIMETRIA REAL entre as bordas da viseira — BORDA ESQUERDA salto medio 1,52 px / max 98 px / 1 alternacao; BORDA DIREITA 3,12 px / 212 px / 5 alternacoes. O lado direito e 2x mais rugoso: defeito genuino, e casa com 'olho direito lavado' e 'borda lateral serrilhada' que eu tratava como ruido. PROXIMO: achar a origem nos passes que tocam a viseira (P61/P62/P63/P74/P77/P85/P86/P80/P90) e medir SIMETRIA pareando vertices espelhados em -y (criterio max|dz| e max|dx| abaixo de ~1 mm). INSTRUMENTO NOVO: medicao de simetria por pareamento."
+  "_nota_g26_simetria_ok": "SIMETRIA MEDIDA (13o instrumento, pareamento de vertices espelhados): 4684 pares, 2 verts sem par, desvio maximo dz=0,02 mm e dx/dy=0,07 mm. A geometria da viseira e SIMETRICA a menos de 0,1 mm — logo a assimetria de PIXELS (borda direita 2x mais rugosa: 3,12 vs 1,52 px) e artefato de RENDER, nao de geometria (mesma classe do dither). O instrumento refutou em UMA medicao a hipotese levantada pela medicao de pixels — sem ele eu cacaria a assimetria nos passes de modelagem e nao acharia nada."
 }
