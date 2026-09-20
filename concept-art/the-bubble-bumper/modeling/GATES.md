@@ -55,8 +55,11 @@ VERSao MEDIDA: W404 (base corrente). Candidatos medidos: w393, w401, w402, w403,
   EVIDENCE: `smooth: pecas_suavizadas=14` no build (shade_auto_smooth + apply_mods ANTES do join)
 - [x] T4 QA de malha aprovado no candidato corrente
   EVIDENCE: W404 qa.aprovado=true, 0 non-manifold, 98.2% quads
-- [ ] T5 pecas como OBJETOS SEPARADOS no .blend (regra da skill: o join unico faz o auditor ver monobloco)
-  EVIDENCE: pendente — builder ainda faz FIN=join(made,'<V>_body')
+- [x] T5 pecas como OBJETOS SEPARADOS no .blend (regra da skill: o join unico faz o auditor ver monobloco)
+  EVIDENCE: W405 `sep_parts=14` — QA por peca: NOSE 2916v/96.4%quads/0nm, Tub 14994v/99.5%/0nm,
+  PODS 14452v/97.4%/0nm, 4 pneus 97.8-97.9%/0nm, CH 98.2%, REAR 17672v/97.9%/0nm, PL 49536v/98.5%/0nm.
+  Metrica IDENTICA ao W404 (0.816/0.756/0.265/12.3/8.7/9) => mudou so a estrutura, nao a forma.
+  Pendencia anotada: Tub e PODS com has_uv=false.
 
 ## R — REGIOES (pior primeiro)
 - [x] R1 side/TRASEIRA (pior regiao historica) melhorada de forma sustentada
