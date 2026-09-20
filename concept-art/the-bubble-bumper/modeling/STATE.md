@@ -5625,3 +5625,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Assim ele e medivel por material, sem ambiguidade com o amarelo do casco e sem depender de cor/geometria.
     Alvo numerico ja fixado: z 0.640-0.748 = 0.108 m = 133 px (18%% do casco, meio da faixa do concept 13,5-24%%).
   W673D verde: QA ok, sep_parts=14, globais preservadas.
+
+
+## *** M_ChinPanel REVELA BUG: O PAINEL E 67%% MAIOR QUE O PEDIDO ***
+  P55 deu ao painel MATERIAL PROPRIO (M_ChinPanel, copia do M_Yellow) -> medicao sem ambiguidade. Resultado (6 faces,
+    o cubo do painel):
+      x[-0.1520,-0.1020]  |y|<=0.142 (largura 0.284 m)  z[0.6940,0.8744] = 0.1804 m = 222 px
+  ESPERADO (o que o P52 passa): z 0.640..0.748 (0.108 m) e |y|<=0.092 (0.184 m).
+  DISCREPANCIA: 0.1804/0.108 = 1,67x em altura e 0.284/0.184 = 1,54x em largura. O painel NAO aterrissa com as dimensoes
+    passadas. Isso explica o 'muito alto' e o 'tipo bico' do vision: contra o concept (13,5-24%% do casco = 0.081-0.144 m),
+    0.1804 m = 30%% — ACIMA da faixa.
+  HIPOTESES DO BUG (checar em ordem): (a) o bloco do P52 roda ANTES da auto-escala e o painel, criado com as coordenadas
+    finais, e depois escalado — mas a escala e ~0.9265 (encolheria), nao 1,67 (aumenta) -> NAO explica; (b) o loop de taper/
+    bevel do P52 estar rodando sobre coords LOCAIS quando a origem do objeto nao esta em (0,0,0) -> deslocaria, nao escalaria;
+    (c) o painel estar pegando tambem faces de outro objeto no JOIN (mas sao 6 faces = 1 cubo); (d) a escala estar sendo
+    aplicada 2x (transform_apply + algo depois). MEDIR: imprimir no build a bbox do painel IMEDIATAMENTE apos cria-lo e apos o
+    join, para localizar em que passo o tamanho muda.
+  ALVO: z ~0.640-0.748 (0.108 m, 133 px, 18%% do casco) e |y|<=0.087 (0.175 m).
+  W674D verde: QA ok, sep_parts=14, globais preservadas. M_ChinPanel no PL (9 materiais) = instrumento novo funcionando.
