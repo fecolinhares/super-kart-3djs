@@ -219,6 +219,15 @@ for o in FINS:
 print('===== FIM DIAG =====')"""
 if anchor in SRC:
     SRC=SRC.replace(anchor,new23,1)
+# patch 24: z do VOLANTE (sw_z) + ponta da coluna — o ocupante real de t0.40
+old24="WX=P.get('sw_x',0.185); WZ=P.get('sw_z',0.655); WR=P.get('sw_r',0.115); WT=P.get('sw_tilt',0.040)"
+new24="WX=P.get('sw_x',0.185); WZ=P.get('sw_z',0.655)+P.get('sw_dz',0.0); WR=P.get('sw_r',0.115); WT=P.get('sw_tilt',0.040)"
+if old24 in SRC:
+    SRC=SRC.replace(old24,new24,1)
+old24b="(P.get('sc_x1',0.185),0,0.650)"
+new24b="(P.get('sc_x1',0.185),0,0.650+P.get('sw_dz',0.0))"
+if old24b in SRC:
+    SRC=SRC.replace(old24b,new24b,1)
 
 old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"

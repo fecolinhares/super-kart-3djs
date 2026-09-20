@@ -3171,3 +3171,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
 **LIÇÃO**: instrumentar o proprio dado (bbox por material por peca) levou 2 builds e nomeou com 259 faces exatas;
   inferir por bbox de PECA inteira custou 5 builds e 2 hipoteses erradas. Quando a pergunta e 'quem ocupa X',
   nao inferir de bbox agregado — medir a populacao de faces dentro da faixa.
+
+
+## *** ACHADO CRITICO: A GRADE DE 21 PONTOS TEM ALIASING ***
+  W506 (sw_dz=-0.110) deu 'ZERO mudanca' na grade de 21 pts. A grade FINA (121 pts, 2cm/amostra) mostra:
+    t0.383 -0.016 | t0.417 -0.022 | t0.425 -0.053 | t0.433 -0.056  => O FIX DO VOLANTE FUNCIONOU.
+  A grade de 21 pts nao tem coluna entre t0.40 e t0.45 (12cm por amostra) e o volante tem 23cm de diametro:
+  a mudanca caiu EXATAMENTE no vao. => **os ultimos builds foram julgados por um instrumento com aliasing.**
+  EMA 121 pts: w493 0.0427 -> w506 0.0426 (o valor absoluto e maior que o de 21 pts: 0.0427 vs 0.0381 —
+  a grade grossa SUBAVALIA o erro, porque amostra so os pontos baixos do perfil).
+
+**DEFEITO REAL REVELADO PELA GRADE FINA (nao pelo volante)**:
+  t0.350 -> 0.575, t0.358 -> 0.423 : **DEGRAU de 0.15 num unico passo**, enquanto o concept vai 0.537 -> 0.535 (suave).
+  => o modelo tem um CORTE ABRUPTO (fim do cowl / inicio da zona do piloto) onde o concept e continuo.
+     Isso e um erro de FORMA estrutural — muito mais grave que o pico de t0.40 — e ficou invisivel na grade grossa.
+
+**CORRECOES DE INSTRUMENTO (aplicar SEMPRE agora)**:
+  1. medir o perfil em 121 pontos (2cm), nunca 21;
+  2. reportar EMA fino + pior coluna + maior DEGRAU (|d(i)-d(i-1)|) — o degrau pega cortes abruptos que o EMA esconde;
+  3. adotar sw_dz=-0.110 (ganho real em t0.417-0.433);
+  4. ao declarar 'ZERO mudanca', verificar antes se a grade tem coluna na regiao afetada pelo bbox da peca movida.
+     Regra: passo da grade << tamanho da peca movida. 12cm de passo vs 23cm de volante = subamostragem.
