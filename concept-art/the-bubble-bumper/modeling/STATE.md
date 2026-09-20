@@ -3824,3 +3824,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     LARGO DEMAIS em ~16cm. Precisa ser revertido parcialmente. E a altura precisa cair 6.4cm.
   PROXIMO: recalibrar H (-6.4cm) e W (-15.7cm) no builder, re-rodar os 3 scorecards contra os alvos corrigidos e so
     depois retomar o ajuste de forma.
+
+
+## *** W541: CALIBRACAO GLOBAL FECHADA CONTRA ALVOS VALIDADOS ***
+  L/H = 1.976  (alvo 1.978, erro 0.002)
+  W/H = 1.171  (alvo 1.171, erro 0.000)
+  x_range [-1.2,1.15] exato | sep_parts 14 | QA aprovado | mask_ok flat_ok
+  Metrodo: (a) alvo validado por overlay+vision (L/H) e estabilidade de limiar (W/H);
+           (b) interpolacao EMPIRICA de 2 pontos em cada eixo, refeita a cada mudanca de H porque o slope em W/H e
+               proporcional a 1/H — previ 1.433 escalando analiticamente e o real medido foi 1.654. NAO ESCALAR SLOPE,
+               MEDIR DE NOVO.
+  SCORECARD W541 (geometria renormalizada):
+    L_base_z 0.0324 OK | L_topo_z 0.0537 FALHA P0 | R_base_z 0.0198 OK | R_topo_z 0.0367 OK
+    degrau_amp 0.0192 OK (melhorou) | degrau_x 0.0071 OK | pod_area_frac 0.0102 OK
+    topo_global_x 0.0212 OK | topo_global_z 0.0001 OK | mediana 0.0198 OK | pior 0.0537 FALHA | soma 0.2006
+  CAUSA DO P0 IDENTIFICADA POR BBOX (nao por palpite): L_topo_z modelo 0.2931 e FBUMP topo z=0.3469 => 0.3469/1.188 =
+    0.292 casa. Alvo 0.2394 x 1.188 = 0.284m. O topo do PARA-CHOQUE esta 6.3cm alto demais. Baixar o capacete reduziu H
+    e RENORMALIZOU tudo: o para-choque ficou relativamente mais alto. Efeito esperado ao recalibrar a escala.
+  PROXIMO: baixar o topo do FBUMP 6.3cm (0.3469 -> 0.284) e re-rodar o scorecard.
