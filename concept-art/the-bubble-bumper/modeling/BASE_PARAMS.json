@@ -108,5 +108,6 @@
   "cowl_plat_f": 0.12,
   "cowl_plat_h": 0.556,
   "_nota_g27": "G27 carena. cowl_k 0.85->1.00 remove o fudge <1.0 sobre a tabela MEDIDA prof_top (bug documentado na skill). Patch 26 adiciona o PATAMAR medido do concept (xf 0.267-0.350 a 0.551 H) via janela trapezoidal + max() — preserva prof_top onde ele e maior. Melhor |dTOP| medio sobre 61 estacoes: W572. Globais congeladas.",
-  "_nota_g27_tabela": "prof_top tinha os 19 nos de xf 0.00-0.45 ~10%% BAIXOS porque foi medida com a altura inflada pela linha de cota embutida na mascara antiga (438 vs 403 px, fator 1.087). Patch 27 substituiu por valores medidos na mask v2. Efeito: NOSE z max 0.5073 -> 0.5482. Globais inalteradas."
+  "_nota_g27_tabela": "prof_top tinha os 19 nos de xf 0.00-0.45 ~10%% BAIXOS porque foi medida com a altura inflada pela linha de cota embutida na mascara antiga (438 vs 403 px, fator 1.087). Patch 27 substituiu por valores medidos na mask v2. Efeito: NOSE z max 0.5073 -> 0.5482. Globais inalteradas.",
+  "_nota_g27_pendente": "Degrau em xf 0.267 (x=0.565, borda traseira do bico): concept 0.549H vs modelo 0.423H. A carena tem topo nominal 0.638m ali mas o render mede 0.485m. PROXIMA ACAO: sonda do topo por faixa de x com R['probe'] (nomes de peca MINUSCULOS; print pos-exec nao e capturado). W573 = melhor base, nao regredir."
 }

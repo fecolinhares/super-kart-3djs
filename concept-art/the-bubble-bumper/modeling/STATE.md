@@ -4077,3 +4077,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     pela linha de cota (~10%% baixa na frente).
   RESIDUO RESTANTE NOMEADO: xf 0.417 (-0.169, 2o degrau do concept, zona cockpit -> G30); xf 0.90 (-0.187,
     traseira -> G29); xf 0.367-0.383 (+0.03 a +0.04, excesso na saida do patamar).
+
+
+## *** G27 CONTINUACAO: CONTRADICAO ABERTA NO DEGRAU xf 0.267 ***
+  RESIDUO: em xf 0.267 (x=0.565 = borda TRASEIRA do bico) o concept tem 0.549 H e o modelo 0.423 H -> -0.126.
+    E o degrau de +0.084 do concept; o modelo sobe suave, sem degrau.
+  CONTRADICAO: a aritmetica diz que a carena tem topo NOMINAL de 0.638 m naquela estacao (patamar cowl_plat_h
+    0.556 * H 1.147 = 0.638; a janela a=0.210/b=0.327/f=0.12 da _pw=1.0 em xf 0.267). Mas o render mede 0.485 m
+    (24%% abaixo). Em xf 0.30 o nominal e 0.638 e o medido 0.623 (2%% abaixo). Um shrink de SUBSURF nao explica
+    2%% num ponto e 24%% em outro a 4cm de distancia: ou o topo ali NAO e a carena, ou as estacoes da carena nao
+    cobrem xf 0.267 como o calculo supoe (cowl_xf0=0.174 + 0.235*t -> 0.174..0.409 em 22 estacoes, passo 0.0112).
+  PROXIMA ACAO (bloqueada por um detalhe de instrumentacao, nao pelo modelo): SONDA DO TOPO DA PECA por faixa de x.
+    Duas correcoes necessarias na sonda: (1) os nomes das pecas no QA/part_bbox sao MINUSCULOS ('cowl', 'nose'),
+    nao 'COWL'/'NOSE' — bpy.data.objects.get('COWL') devolve None; (2) os print() do codigo que roda DEPOIS do
+    exec(run_variant.py) nao foram capturados neste job — gravar o resultado DENTRO do dict R (ex.: R['probe']=...)
+    antes do marcador ###RESULT###, ou emitir via o proprio R, em vez de depender de stdout.
+  NOTA: W573 e a MELHOR base quantitativa do G27 (|dTOP| 0.0498, frente-meio 0.0462) e NAO deve ser regredida.
