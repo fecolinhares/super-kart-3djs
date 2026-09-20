@@ -4934,3 +4934,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   W637D: build limpo, QA ok, 14 pecas, globais preservadas, h/w 1.231, viseira f fechado.
   PENDENTE: (a) identificar por que o scale Y nao aplicou (imprimir os nomes reais); (b) mover a textura do rosto
     para th 75.6..100.2 e os olhos para centro +-0.0320/largura 0.0725; (c) GATE VISUAL (nao feito).
+
+
+## *** VISEIRA RESOLVIDA NOS DOIS EIXOS - e o 133%% era ARTEFATO DE TIMING ***
+  DIAGNOSTICO (print de [o.name, dimensions] dentro do build):
+    helm_sy=0.7587 APLICADO | Helmet y 0.3566 | Visor_Band y 0.3601 | Visor_Gasket 0.3408 | Visor_Gasket2 0.3435
+    razao real Visor_Band/Helmet = 0.3601/0.3566 = 101%%   (concept: 99%%)  -> CORRETO
+    Ou seja: o P41 FUNCIONOU. O '133%%' era artefato: reg() registra bbox = matrix_world @ bound_box NO MOMENTO
+    DA CRIACAO, portanto o visor_band no dump e PRE-P41 enquanto o helmet ja estava pos-P41 -> comparacao
+    entre snapshots de TEMPOS DIFERENTES. Nao era defeito de geometria.
+  ESTADO DA VISEIRA (W638D): POSICAO f 0.311..0.678 vs alvo 0.324..0.669 (erro 4%% e 1.3%% do range) FECHADA
+    + LARGURA 101%% vs 99%% FECHADA. Ambos os eixos fechados por medicao.
+  LICAO (quarta da familia): o bbox de reg() e um SNAPSHOT no instante da criacao. Comparar bboxes de partes
+    criadas/modificadas em MOMENTOS DIFERENTES do pipeline produz razoes falsas. Para checar acoplamento
+    dimensional, medir o.dimensions no FIM do build (todos no mesmo instante) — foi o print HSN que resolveu.
+  W638D: build limpo, QA ok, 14 pecas, globais preservadas, h/w 1.231.
+  PENDENTE: (a) textura do rosto para th 75.6..100.2 e olhos centro +-0.0320/largura 0.0725; (b) tracinho da
+    testa (respiro); (c) GATE VISUAL do casco; (d) G31 final + auditor independente.
