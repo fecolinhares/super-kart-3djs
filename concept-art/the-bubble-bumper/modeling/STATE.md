@@ -2347,3 +2347,31 @@ caem na linha 192 / colunas 0.82..0.99. Depois atacar o ocupante real do vao2.
 
 ## BASE: **W472** (+ ganho marginal W473: rzt 0.400)
 IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## CORRECAO DO INSIGHT ANTERIOR + BUG DO PROBE ENCONTRADO E CORRIGIDO
+
+**O RENDER E ORTOGRAFICO — minha conclusao de "perspectiva" estava ERRADA.**
+  Builder: `zc=0.62; OSC=2.42` e `cam('MK_'+nm, loc, rot, ortho=OSC)` -> cd.type='ORTHO'.
+  Camera side: (0,5,0.62) olhando -y. Mapeamento confere: row236->z1.166 (topo), row653->z-0.007 (base).
+  => `row = (1.165 - z)/1.175 * H` VALE (ortho). Linha alvo row192 (cortada) = y428 (completa) = **z 0.626**.
+
+**A MASCARA ESTA CORRETA** (mascara vs BEAUTY na mesma linha y428):
+  MASK  : 0.407..0.433 | 0.440..0.787 | 0.817..0.991
+  BEAUTY: 0.406..0.410 0.413..0.430 | 0.438..0.788 | 0.819..0.978 0.984..0.992
+  divergencia: 8 px (mask=corpo/beauty=fundo) e 4 px (inverso) — so ANTIALIASING nas bordas.
+  => nao ha contaminacao; o material em 0.817..0.991 e geometria REAL.
+
+**BUG DO MEU PROBE ENCONTRADO**: eu filtrava por `p.center`. **Faces GRANDES tem centro longe da linha**
+e escapam da janela de z. Refazendo por VERTICE (min/max z da face):
+  janela z 0.600-0.650, x -0.920..-0.770 -> **22 faces** (antes: 2!)
+    REAR  M_Dark  22  x -0.851..-0.738  z 0.495..0.674   <- face grande cruzando a linha
+=> o ocupante do vao2 e da familia `REAR/M_Dark` em x -0.74..-0.85: **`Airbox_Strut` (XRE+0.345=-0.845)
+   e `Wing_Pylon` (wx1+0.075=-0.830)** — EXATAMENTE as pecas do W470 (`strut_dz`), cujo teste deu 18 px
+   no total MAS **nunca foi medido na linha alvo**.
+
+**METODO CORRIGIDO (definitivo)**: probe de faces por (a) EXTENSAO DE VERTICES na faixa de z (nao centro)
+e (b) medicao do diff NA LINHA ALVO da mascara cortada (row 192). O render e ortho, entao z<->row mapeia.
+
+## BASE: **W472** (+ W473 rzt 0.400)
+IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
