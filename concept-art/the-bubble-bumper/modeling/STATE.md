@@ -6670,3 +6670,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     aresta, o que o criterio de INTERSECAO nao medeva.
   Efeito colateral: criterio de intersecao foi de 0 para 4 verts (desprezivel vs 59% de ganho de qualidade).
   ###QA### True, sep 14, 0 erros.
+
+
+## *** GATE v32: O LA PLACIANO NAO BASTA — FALTA SUBDIVISAO (DIAGNOSTICO FECHADO) ***
+  Vision (W729D): 'laplaciano reduziu degrau de vertice MAS sem SUBDIVISAO/CURVA NOVA nao some o serrilhado'.
+    (1) 'a borda inferior-lateral continua muito serrilhada em escada, cortando os olhos'. (2) 4/10.
+    (3) MAIOR erro: 'a TOPOLOGIA da viseira em baixa resolucao com silhueta em degraus'.
+  CONFIRMA A MEDICAO: o max|dz| caiu 59%% (passo entre vertices) mas a SILHUETA continua em degraus -> a malha tem pouca
+    RESOLUCAO. Suavizar vertices existentes NAO cria curva; so SUBDIVISAO acrescenta geometria.
+  PROXIMO (o passo que fecha a aresta): SUBDIVIDIR a fronteira da M_Visor (bmesh.ops.subdivide_edges nas arestas de
+    fronteira, cut=2..3, use_grid_fill) e DEPOIS suavizar; ou um Subdivision Surface aplicado so na regiao da viseira.
+    Criterio: (a) numero de segmentos na silhueta da borda (contar arestas de fronteira) e (b) max|dz| entre adjacentes.
+  ESTADO W729D: QA True, falhas=[], sep 14, 0 erros. Intersecao com o queixo: 4 verts (era 0 antes do P86; colateral ok).
