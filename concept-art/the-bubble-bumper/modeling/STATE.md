@@ -644,3 +644,25 @@ Cor medida no flat pass em z 0.74-0.80 = RGB(106,117,130)..(118,131,146), cinza-
 bate com nenhuma cor-base (M_Pilot sRGB ~ (35,68,124); M_Gasket (32,32,36)). => o passe FLAT pode ter
 iluminacao/ambient residual. Antes de usar cor-do-flat para identificar peca, validar contra um material
 conhecido de posicao conhecida.
+
+
+## W415 (PROBE) / W416 (REVERTIDO)
+
+W415 — bisseccao do vao por MATERIAL dentro de PL (caixa x -0.35..0.15, |y| 0.05-0.16, z 0.74-0.83):
+  CH  {'M_Dark': 8}  z 0.747..0.769
+  PL  {'M_Gasket':2252,'M_Face':1902,'M_Visor':1724,'M_Yellow':890,'M_Blue':496,'M_Pilot':30} z 0.747..0.830
+=> quem preenche o vao e o CONJUNTO INFERIOR DO CAPACETE (gasket/rosto/visor/queixeira), nao os pads.
+Chin_Guard esta em z FIXO 0.842 (depois scale z*0.80). Patches de rosto/visor = esfera raio HR*1.014=0.213
+centrada em hz, com z-radius NAO escalado por SZ => descem abaixo do dome (0.789).
+
+W416 — hipotese: capacete comprido embaixo (0.789-1.181 = 0.39 m vs concept 0.82-1.15 = 0.33 m);
+helm_z 0.985->1.015 + helm_sz 0.934->0.790 (base 0.789->0.849, topo 1.181 preservado) + chin_z 0.842->0.872.
+RESULTADO: **REGRIDE** — IoU 0.821->0.818, P10 0.762->0.760, COR_TV 0.258->0.269, falta 8.1->8.3,
+<0.80 6->7, front/CAPACETE 0.832->0.801, rear/PILOTO_COSTAS 0.800->0.786. Excesso do piloto caiu
+(23.8->21.8) mas abriu FALTA no capacete (3.0->6.3).
+**LICAO: o tamanho em z do capacete esta CERTO. Encolher quebra a faixa CAPACETE (z 0.94-1.21).
+Nao atacar o vao encolhendo o capacete — atacar a LARGURA (|y|) do rosto/visor abaixo de z ~0.84,
+que no modelo chega a |y| 0.13 enquanto o concept ali so tem 0.07 (= meia-largura da propria esfera
+do capacete a z 0.80).**
+
+BASE ATUAL: **W412** (IoU 0.821, pior 0.657, COR_TV 0.258, <0.80 = 6, 14 objetos, 0 non-manifold).
