@@ -4877,3 +4877,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     OLHOS: y153..y181 (pico de branco em y156-159) -> rel 66..94, centro rel ~80 = 0.63 da largura |
       larg 26 px (20.5%%) e 23 px (18.1%%), centros -16.5%% e +19.3%% do eixo
     BRANCOS em y87-96 (51 e 39 px) sao highlight do TOPO, nao olhos — nao confundir.
+
+
+## *** RETRATO DO MEU ERRO: O 'QUEIXO' QUE EU CHAMEI DE OMBROS ***
+  HISTORICO: eu tinha o alvo h/w=1.240 vindo do bbox 129x160 (y84..243). Chamei esse bbox de CONTAMINADO
+    ('coroa ate os ombros'), estimei o queixo em y213 e conclui que o alvo real seria 0.88..0.98 — e REVERTI o
+    estreitamento (helm_sy 0.7587 -> 1.0) achando que o modelo original (0.941) ja estava certo.
+  ESTAVA ERRADO. A varredura de linhas mostra y195-210 com FAIXA AMARELA de 41-54 px dentro do casco — e o vision
+    descreve o concept como 'queixo afunilado em U, com MENTONEIRA AMARELA e linha de sorriso'. Ou seja: aquele
+    amarelo NAO e ombreira, e a QUEIXEIRA do capacete (chibi). y212-224 (azul 100->88) e o U do queixo.
+    => o bbox y84..243 E o capacete (nao estava contaminado), o alvo 1.240 estava ~certo, e o modelo ESTREITADO
+    (1.231) estava CERTO. A REVERSAO FOI ERRO MEU.
+  CONFIRMACAO CRUZADA: bbox correta coroa y87 -> queixeira ~y235 = 148 px / 128 de largura = h/w 1.156, que casa
+    com a estimativa do vision ('h/w ~1.10-1.15, oval vertical'). No revertido o vision deu 4.5/10 e disse
+    textualmente 'precisa re-aplicar o estreitamento'.
+  *** ESTADO OFICIAL: W631D *** (helm_sy=0.7587, h/w 1.231, faixa 0.099 com taper VERIFICADO 0.68 vs 0.70,
+    vents como rasgo fechados em 9.5/10). O W632D (revertido) esta DESCARTADO.
+  LICAO (a terceira do mesmo tipo nesta sessao): ANTES de descartar um bbox como 'contaminado', verificar o que a
+    regiao descartada REALMENTE e — checando contra a descricao do concept (o vision descreveu a mentoneira
+    amarela e eu nao liguei as duas coisas). Eu corrigi um alvo certo e quase reverti uma melhoria real.
