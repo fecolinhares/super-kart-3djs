@@ -4896,3 +4896,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   LICAO (a terceira do mesmo tipo nesta sessao): ANTES de descartar um bbox como 'contaminado', verificar o que a
     regiao descartada REALMENTE e — checando contra a descricao do concept (o vision descreveu a mentoneira
     amarela e eu nao liguei as duas coisas). Eu corrigi um alvo certo e quase reverti uma melhoria real.
+
+
+## W633D - P40 VISEIRA REPOSICIONADA POR METRICA (progrediu, com residuo medido) ***
+  MINHA VERIFICACAO DA DESCRICAO DO VISION contra a varredura: o vision descreve o concept com 'viseira grande
+    cinza-azulada, cantos arredondados, base curvada acompanhando o rosto' e MENTONEIRA AMARELA no queixo.
+  ALVOS DERIVADOS (referencial agora validado: coroa y87, queixeira y235 -> altura 148 px; largura 128 px):
+    VISEIRA y135..y186 = f 0.324..0.669 da altura -> z 1.0877..0.9352 -> th 58.4..104.7 graus
+    OLHOS   y153..y181 = f 0.446..0.635 -> z 1.0338..0.9502 -> th 75.6..100.2 graus (a textura do rosto hoje
+      usa _T0,_T1 = 88..142 -> precisa subir)
+    OLHOS lateral: centros +-0.0320 m | largura do olho 0.0725 m (20.3%% da largura do casco)
+    salvos em contracts/alvos-rosto.json
+  P40 implementado (viseira + as DUAS gaxetas que a emolduram, todas derivadas de _vt0/_vt1):
+    ANTES: band th 86..150 -> z 0.815..0.999 -> f 0.525..0.940  (BAIXA demais) X
+    AGORA: z 0.952..1.124 -> f 0.235..0.628  (alvo 0.324..0.669) -> muito mais perto, com residuo:
+      topo ~0.09 da altura ALTO demais -> th0 58.4 -> ~68; largura da viseira 133%% do casco vs 99%% do
+      concept (a medir se a band envolve mais que o necessario).
+    W633D: build limpo, QA ok, 14 pecas, globais preservadas, h/w 1.231.
+  PENDENTE: (a) trim do th0; (b) mover a TEXTURA do rosto para th 75.6..100.2 e redimensionar/reposicionar os
+    olhos para centro +-0.0320 e largura 0.0725; (c) GATE VISUAL no W633D (nao feito neste ciclo).
