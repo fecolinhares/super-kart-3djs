@@ -705,3 +705,37 @@ O auditor (audit_bb.py) normaliza por bbox e NAO sofre disso — so as sondas ma
 
 Consequencia: front/PILOTO (excesso 23.8%) e side/PILOTO (22.7%) precisam de diagnostico NOVO com
 mapeamento correto antes de qualquer outro build. Nao atacar mais por "run count de vao" no FRONT.
+
+
+## DIAGNOSTICO NOVO front/PILOTO (mapeamento z CORRETO) — o excesso NAO e o piloto
+
+Perfil de preenchimento em |y|<=0.30, concept vs W418 (z fisica, cada um com seu H/topo):
+  z 0.845 concept 0.586 | W418 0.535 (-0.051)
+  z 0.835         0.576 |      0.498 (-0.078)
+  z 0.824         0.560 |      0.469 (-0.091)
+  z 0.814         0.560 |      0.423 (-0.138)  <- FALTA
+  z 0.804         0.560 |      0.695 (+0.135)  <- EXCESSO
+  z 0.793         0.560 |      0.695 (+0.135)  <- EXCESSO
+  z 0.783         0.670 |      0.695 (+0.025)
+  z 0.772         0.717 |      0.610 (-0.107)
+  z 0.762         0.733 |      0.610 (-0.123)
+  z 0.752         0.749 |      1.000 (+0.251)  <- PIOR
+
+RUNS na mesma z fisica (a chave):
+  z 0.752 concept: 0.528..0.469 | **0.222..-0.222** | -0.469..-0.528
+          W418  : **0.493..-0.490**  (bloco SOLIDO de 0.98 m)
+  z 0.762 concept: 0.528..0.469 | 0.219..-0.216 | -0.469..-0.528
+          W418  : 0.183..-0.180
+  z 0.793 concept: 0.510..0.485 | 0.166..-0.166 | -0.481..-0.510
+          W418  : 0.208..-0.206
+  z 0.804 concept: 0.166..-0.166 |  W418: 0.208..-0.206
+  z 0.814 concept: 0.166..-0.166 |  W418: 0.127..-0.124
+
+=> Em z 0.752-0.772 o modelo tem material em **|y| 0.222-0.490** que o concept NAO tem (la o concept tem
+o corpo central ate 0.222 e os sidepods so em 0.469-0.528, com VAO entre 0.222 e 0.469).
+O excesso de 23.8% de front/PILOTO **nao e o piloto**: e o BODYWORK TRASEIRO largo/continuo demais nessa
+altura (parte REAR: y +-0.52, z ate 0.8177) preenchendo o vao que o concept tem entre o corpo e os sidepods.
+Confirma o que a VISION viu ("barra preta horizontal atras do piloto" cortando a imagem).
+
+PROXIMO (concreto): probe no Blender do REAR na faixa z 0.74-0.82 com |y|>0.25 -> material -> identificar a
+peca larga; depois estreitar/recuar essa peca para abrir o vao |y| 0.222-0.469 nessa altura.
