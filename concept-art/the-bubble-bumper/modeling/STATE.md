@@ -7124,3 +7124,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA NOVA (17): evidencia de blockout exige COR CHAPADA POR CLASSE + fundo contrastante. Clay monocromatico
   sobre fundo claro nao e evidencia valida de massa.
   B003 segue valido: ocupacao do piloto 69,50%% de H (medida) e rodas D=0.703 m (medido na fonte).
+
+
+## *** BUG DE EVIDENCIA ENCONTRADO: CUBO DEFAULT DE 2x2x2 ENGOLIA O MODELO ***
+  O blend do B003 tinha o `Cube` default (2x2x2 m) do --factory-startup. Como o modelo tem 1,25 m de altura,
+  o CUBO aparecia no lugar dele: os DOIS gates de vision anteriores (0/10 e 1/10) julgaram O CUBO, nao o blockout.
+  ACHADO POR AUDITORIA DA CENA (bbox por objeto no .blend), nao pelo render. INSTRUMENTO 18: ANTES de aceitar
+  veredito de render, AUDITAR A CENA (listar objetos e bbox). Evidencia de render pode mostrar outra coisa.
+  FIX: remover Cube + corrigir escala do E_Tub (o size=1.0+scale dava metade do pretendido).
+  GATE v2 (evidencia honesta, B003d): 3/10 — util e acionavel:
+    1. RODAS 3x GRANDES: no concept o diametro da roda ~1x o capacete (~0.45 m); o meu tem 0.703 m (3x a cabeca).
+       Tambem nao ha hierarquia dianteira menor / traseira maior (no concept ha).
+    2. BANHEIRA INEXISTENTE: deve ser o MAIOR volume continuo (caixa longa, baixa, larga do nariz ao motor)
+       que abraca o piloto; hoje e um selo de 0.376 m.
+    3. PILOTO FANTASMA: so cabeca + caco de torso, flutuando; falta massa sentada (quadril/coxa) que no
+       concept ocupa o sidepod inteiro. E wheelbase/bitolas errados por causa disso.
+  ORDEM QUE O GATE MANDA SEGUIR: (a) travar no TOP o retangulo comprimento x largura + bitolas diferentes;
+    (b) no SIDE travar diametro de roda e wheelbase USANDO A CABECA COMO REGUA; (c) refazer a banheira como
+    bloco unico baixo que conecta tudo; so entao voltar a comparar.
