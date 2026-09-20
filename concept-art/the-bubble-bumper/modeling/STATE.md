@@ -6856,3 +6856,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   [P94] 4220 verts trazidos para |y| <= 0.93 * casco (z 0.88-1.04) — mais 938 que a versao 0.98. ###QA### True, sep 14, 0 erros.
   Se o gate ainda vir picos na silhueta, o proximo e a opcao (b) (achatar em z a regiao) ou (c) (dissolver as faces na
     superficie do casco).
+
+
+## *** CAUSA FINAL: AS PONTAS SAO OS RESPIROS QUE EU INCLINEI (P91) ***
+  Gate v38: 'duas pontinhas pretas triangulares furando para fora da cupula azul no TERCO SUPERIOR esquerdo e direito'.
+  z ~1.05-1.10 = exatamente a faixa dos RESPIROS INCLINADOS (z 1.0417-1.0926). O tilt de 22 graus (P91) rotacionou os
+    vertices com componente em y e empurrou a quina EXTERNA para fora -> criou as saliencias que o vision chama de espinhos.
+  CONCLUSAO: eu CRIEI o defeito ao 'consertar' a inclinacao — e o proprio vision havia dito que 'de frente os 22 graus quase
+    nao se leem' (efeito de perfil). Custo/beneficio invertido: ganho visual nulo, defeito novo.
+  FIX: REVERTER o P91 (respiros verticais de novo) e, se quiser o efeito de respiro inclinado, faze-lo SEM mover a silhueta
+    (ex.: so na textura/normal, ou aprofundando os rasgos para dentro em vez de girar o volume).
+  LICAO (12a): antes de 'melhorar' uma feature, medir o efeito dela na SILHUETA (perfil de largura por linha). Um ajuste que
+    nao se le na vista que o gate usa pode so criar defeito. Custo zero medido > ganho nao medido.

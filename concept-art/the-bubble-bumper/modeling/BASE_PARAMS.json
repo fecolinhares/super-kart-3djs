@@ -312,5 +312,5 @@
   "visor_smooth": 6,
   "wedge_reassign": 1,
   "wedge_form": 0.93,
-  "_nota_g26_p95": "P95: clamp forte 0.93 x casco nas cunhas (4220 verts, mais 938 que 0.98). QA True, sep 14. Se a silhueta ainda tiver picos, proximo: achatar em z a regiao ou dissolver as faces na superficie."
+  "_nota_g26_p91_reverter": "CAUSA FINAL DAS PONTAS: sao os RESPIROS que eu inclinei no P91. z ~1.05-1.10 e a faixa dos respiros (1.0417-1.0926); girar 22 graus empurrou a quina externa para FORA em y, criando as saliencias que o vision chama de espinhos — e ele mesmo disse que 'de frente os 22 graus quase nao se leem'. Custo/beneficio invertido: ganho nulo, defeito novo. FIX: REVERTER o P91 (respiros verticais); se quiser o respiro inclinado, fazer sem mover a silhueta. LICAO: antes de 'melhorar' uma feature, medir o efeito na SILHUETA (perfil de largura por linha)."
 }
