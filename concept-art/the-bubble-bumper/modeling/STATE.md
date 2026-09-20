@@ -1396,3 +1396,28 @@ uma tabela MEDIDA por <1, medir o deficit antes: se for grande, corrigir; se for
 
 BASE: **W446** — IoU 0.822 | pior 0.668 | COR_TV 0.255 | excesso 12.3 | falta 8.0 | <0.80 = 6.
 PARAMETROS NOVOS (W446): nose_top_k=0.880, nose_top_k2=1.000, nose_k_x0=0.100, nose_k_ramp=0.060.
+
+
+## W448 — subir sidepods +11.4cm = REGRESSAO SEVERA, revertido; topo 0.53 CONFIRMADO
+
+FRONT faixa NARIZ, fill por linha (normalizado por vista):
+  t 0.42-0.50 |y|<=0.30: concept 0.967-0.978 | W446 1.000 (+0.022/+0.033)
+  t 0.42-0.50 |y|<=0.55: concept 0.584-0.602 | W446 0.604-0.719 (+0.008/+0.116)
+  **t 0.548-0.564 |y|<=0.55: concept 1.000 | W446 0.604/0.641 (-0.396/-0.359)**  <- A FALTA GRANDE
+  t 0.580 |y|<=0.55: concept 1.000 | W446 0.943 (-0.057)
+=> no FRONT, t 0.55 (z 0.646 no modelo) o concept e SOLIDO ate |y| 0.55 (=0.41 m) e o modelo so ~0.24 m.
+
+Tentei resolver subindo os sidepods (pod_zt2 0.275->0.390, topo 0.530->0.642). RESULTADO: IoU 0.822->**0.798**,
+pior 0.668->**0.585@front_NARIZ**, **COR_TV 0.255->0.291**, excesso 12.3->**17.2**, <0.80 6->**9**,
+front/NARIZ excesso 56.2%, side/PILOTO cor 0.255->0.519. **REVERTIDO.**
+=> **o topo do sidepod em 0.53 esta CERTO** (a medicao do SIDE valia). A inferencia pelo FRONT estava errada:
+   o material do concept em |y| 0.24-0.41 / z 0.646 NAO e o sidepod.
+
+CANDIDATOS RESTANTES para esse material (|y| 0.30-0.41 em z 0.646, vista FRONT):
+  - o motor (box 'Engine' em (EXC,0,0.585) half (0.128, **0.300**, 0.058) => topo z 0.643 e |y| 0.300 — chega
+    a 3 mm de z 0.646 mas so +-0.30, e o concept pede +-0.41)
+  - ombro/tampo do bodywork traseiro (nao existe como peca separada)
+PROXIMO: probe das ilhas do REAR/CH na faixa z 0.60-0.70 e |y| 0.28-0.45 para ver o que o modelo tem ali
+e quanto falta para +-0.41.
+
+BASE: **W446** — IoU 0.822 | pior 0.668 | COR_TV 0.255 | excesso 12.3 | falta 8.0 | <0.80 = 6.
