@@ -6016,3 +6016,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CRITERIO NOVO (substitui o contador de faces): usar x_max POR MATERIAL na janela — quem tem x_max > x_max(M_Eye) e um
     oclusor potencial; a medida certa e 'existe face de X cobrindo o RETANGULO dos olhos', nao 'quantas faces tem centroide ali'.
   W698D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## *** P67 RESOLVEU A OCLUSAO DA FAIXA — E O CRITERIO NOVO PROVA ***
+  [P67] faixa central encurtada: 1898 verts levantados para z>=0.800 (acima da faixa dos olhos 0.741-0.760).
+  CRITERIO NOVO (cobertura do RETANGULO dos olhos, y +-0.04, z 0.741-0.760, com x > x_max(M_Eye)):
+    M_Visor     206 faces  -> CORRETO (e o vidro, deve estar a frente)
+    M_Blue       60 faces  -> O CASCO cobre parte do retangulo dos olhos (NOVA causa, medida)
+    M_Gasket     20 faces
+    M_ChinPanel   5 faces
+    M_Yellow    AUSENTE    -> a faixa NAO cobre mais os olhos (antes: 258-356 pela contagem de centroides)
+  O criterio novo (cobertura) e MUITO melhor que o contador de centroides: provou a correcao do P67 de forma
+    inequivoca e revelou o oclusor seguinte (M_Blue) na MESMA medicao.
+  FIXES SEGUINTES (por contagem, mesma medicao):
+    1. M_Blue 60 faces — os olhos estao afundados na superficie do casco. Trazer M_Eye para a frente em x (o front e +x) ou
+       abrir o casco na regiao; com o vidro a 206 faces a frente, os olhos vao ficar atras do vidro, que e o objetivo;
+    2. M_ChinPanel 5 faces — topo em z 0.7565 invade 0.741-0.760; encurtar o topo OU subir os olhos;
+    3. M_Gasket 20 faces — conferir se sao o aro (esperado) ou invasao.
+  W699D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
