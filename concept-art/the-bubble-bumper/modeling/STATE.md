@@ -1222,3 +1222,29 @@ CONSEQUENCIA PRATICA:
   ajuste GLOBAL (subir o modelo ~4% em z) — testar como hipotese unica, medindo o IoU.
 
 BASE SEGUE W437 — IoU 0.821 | pior 0.668 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+
+
+## W441/W442 — QUANTIFICADO: o concept e ~7% mais alto que o CONTRATO (decisao do Feco)
+
+Parametro novo `z_k` (multiplicador de z na escala final). Razoes de aspecto:
+  concept: side L/H=1.868 | front W/H=1.171   =>  H_concept ~ 1.256 m
+  modelo (contrato): L/H=1.947 | W/H=1.238    =>  H_modelo  = 1.207 m (contrato Hero Kart V2)
+  W442 com z_k=1.071: L/H=**1.867** e W/H=**1.168** = as razoes do concept EXATAS.
+
+  variante        IoU    P10    pior    COR_TV  excesso  falta  <0.90  <0.80
+  W437 (contrato) 0.821  0.763  0.668   0.253   12.1     8.3    21     6
+  W441 (z 1.04)   0.824  0.762  0.681   0.254   12.0     8.1    20     7
+  W442 (z 1.071)  0.823  0.757  **0.688** 0.258  12.0     8.2    **19**  **9**
+
+LEITURA: a altura maior MELHORA IoU, pior-regiao, <0.90 e falta — mas PIORA <0.80 (6->9) e COR_TV (0.253->0.258).
+E viola o CONTRATO (H 1.207 -> 1.258).
+
+**DECISAO NECESSARIA (Feco):** o audit mede fidelidade a ARTE; o contrato do Hero Kart V2 fixa H=1.207.
+O concept implica H~1.256 (+4% sobre o contrato, +7% sobre o modelo atual). Ou
+  (a) mantem o CONTRATO (H=1.207, base W437) e aceita um erro sistematico de ~7% de altura no IoU, ou
+  (b) segue a ARTE (z_k=1.071) e sai do contrato do jogo.
+Recomendacao tecnica: (a) — o asset e para o jogo e o contrato e a especificacao; o gap de proporcao deve
+ser registrado como limitacao conhecida do audit (o teto de IoU fica ~0.82 por causa disso, nao por geometria).
+**BASE SEGUE W437** (contrato). z_k fica disponivel no builder para o teste (b) se Feco decidir.
+
+BASE: W437 — IoU 0.821 | pior 0.668 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
