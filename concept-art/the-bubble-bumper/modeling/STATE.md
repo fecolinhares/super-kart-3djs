@@ -4317,3 +4317,33 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   *** NOTA DE METRICA (importante para nao comparar maca com laranja): a serie anterior (0.0652 -> 0.0464) foi
     medida em grade de 61 estacoes; este teste usou 161. W590D da 0.0464 em 61 estacoes e 0.0444 em 161. Os
     numeros NAO sao comparaveis entre grades diferentes — fixar a grade em 161 para as proximas medicoes. ***
+
+
+## *** G29: A ASA E UM TRADE, NAO UM GANHO. W590D MANTIDA COMO BASE. ***
+  TESTES DA CADEIA (grade de 161 estacoes; todas com QA ok e 14 pecas):
+                     medio   TRASEIRA   frente-meio  patamar   1o xf>=0.65   globais
+    W590D (base)     0.0444   0.0908     0.0377      0.0123    0.9375        congeladas OK
+    W591D            0.0465   0.0526     0.0422      0.0128    0.9000        QUEBRADAS (x_range [-1.128,1.222], L/H 2.001)
+    W592D            0.0569   0.0662     0.0540      0.0192    0.9000        x_range EXATO, L/H 1.942 W/H 1.137 (helm_z estourou)
+    W593D            0.0519   0.0580     0.0487      0.0192    0.9000        x_range EXATO, L/H 1.978 EXATO, W/H 1.157
+    W594D            0.0491   0.0538     0.0461      0.0155    0.9000        x_range EXATO, W/H 1.171 EXATO, L/H 2.001
+  CONCLUSAO: adotar wing_x1=-0.905 MELHORA A TRASEIRA 41%% (0.0908->0.0538) mas PIORA frente-meio 22%%
+    (0.0377->0.0461) e o patamar 26%%. NET = PIOR (0.0444 -> 0.0491). E um TRADE, nao um ganho.
+    DECISAO DISCIPLINADA: NAO adotar. W590D permanece a base oficial. O lever da asa fica PROVADO e registrado
+    para ser combinado com uma compensacao da frente/meio numa passada futura.
+  MECANISMO: wing_x1=-0.905 muda len_before 2.5454 -> 2.4844, o scale 0.92323 -> 0.9459 e reescala o modelo
+    inteiro. As fracoes normalizadas de frente/meio mudam ~20%%, o que mostra que o efeito NAO e um simples
+    escalonamento uniforme (algo nao-uniforme entra, provavelmente via H do builder nas tabelas derivadas).
+  *** LICAO DE LEVER (a mais util deste ciclo): helm_z e o lever ERRADO para L/H. ***
+    Comparacao medida na MESMA geometria: helm_z 1.00825 -> L/H 2.001 ; helm_z 1.046 -> L/H 1.942.
+    Coeficiente MEDIDO d(L/H)/d(helm_z) = -1.563 (eu havia extrapolado -0.605 de um par historico de OUTRA
+    geometria -> estourou 2.6x). helm_z muda H, que e o NORMALIZADOR do perfil: subir o capacete rebaixa TODAS
+    as fracoes sem mudar a forma. Por isso W592D/W593D pioraram o perfil mesmo com L/H exato.
+    REGRA: para L/H, preferir o comprimento; se so H estiver disponivel, saber que o ganho em L/H custa
+    diretamente em todas as fracoes do perfil (H e o denominador). Coeficientes de sensibilidade NAO atravessam
+    geometrias — remedir com 2 pontos a cada mudanca estrutural (foi o que salvou W593D: interpolar com o par
+    MEDIDO deu L/H 1.978 exato).
+  *** TAMBEM: o L/H alvo 1.978 do SIDE segue sob suspeita (o Sol ja apontou que 1.903 e o numero reproduzivel).
+    W590D tem L/H 2.05 e MELHOR perfil (0.0444) do que W593D com L/H 1.978 (0.0519) — evidencia ADICIONAL
+    contra o 1.978, coerente com 'o modelo precisa ser MAIS ALTO' (~8cm). Recalibrar altura com o Sol e o
+    proximo passo depois de fechar as formas.
