@@ -2619,3 +2619,26 @@ Toda medicao de linha deve usar row FIXA (nunca derivada do bbox do teste).
 
 ## BASE: **W472** (+ W473 rzt 0.400) — inalterada
 IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## W475 (exh_dz 0.130->0.115) — **GANHO LIMPO, ZERO REGRESSAO** => NOVA BASE
+
+**BRACKET COMPLETO DO exh_dz (linha fixa row 428, x MUNDO):**
+  w473 (exh_dz 0.130, base): 473 px | 0.16..0.23 | -0.70..0.15 | -1.19..-0.77
+  **w475 (exh_dz 0.115)      : 435 px | 0.16..0.23 | -0.70..0.15 | -0.84..-0.77 | -1.18..-0.95  <- ADOTADO**
+  w474 (exh_dz 0.070)       : 399 px | ... | -0.84..-0.77 | -1.07..-0.96 | -1.16..-1.13
+  concept: vao em x -0.66..-0.73 e -0.75..-0.92
+
+**AGREGADO — w475 e igual ou MELHOR em tudo:**
+  IoU 0.826->**0.827** | P10 0.790 (=) | **pior 0.687->0.688** | COR_TV 0.252 (=) | excesso 12.8 (=) |
+  falta 7.0 (=) | <0.80 4 (=) | sep_parts 14 | **side/TRASEIRA 0.687->0.688** (excesso 19.6->19.4, COR 0.257->0.253,
+  falta 17.8 (=)) | **rear/ESCAPES 0.890->0.893** (falta 9.0->8.7)
+  (w474 com 0.070 abria mais o vao mas estourava TRASEIRA 17.8->20.1 e pior 0.687->0.670 => descartado)
+
+**exh_dz ERA PARAMETRO PROTEGIDO nos registros** ("nao alterar salvo novo teste controlado que demonstre
+ganho sem regressao") — **agora HA esse teste**: 0.115 e o otimo do bracket, com 0.130 e 0.070 medidos.
+
+## BASE: **W475** (nova) = W472 + rzt 0.400 + **exh_dz 0.115**
+IoU 0.827 | P10 0.790 | pior 0.688@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
+Instrumento: col(x)=430-x*355.37 | row(z)=430-(z-0.62)*355.37 (row fixa 428 = z 0.6265).
