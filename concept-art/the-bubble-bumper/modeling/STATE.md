@@ -2149,3 +2149,34 @@ faces, QUAL sub-peca do CH ocupa z 0.58-0.66 nesse x (o CH e uma peca joinada co
 
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## CORRECAO DA CAUSA RAIZ + DIFF COMPLETO (W467/W468) — o CH NAO e o culpado
+
+**REFUTACAO DA MINHA PROPRIA INFERENCIA:** probe de faces do CH em z0.58-0.66 x-0.92..-0.60 =>
+**NENHUMA FACE**. Em todo o x nessa faixa de z o CH tem so 174 faces (M_Dark x-0.322..0.241) + 8 (M_Silver).
+=> o bbox do CH (x -0.844..1.01) NAO significa presenca em z 0.62. **Inferencia por bbox e INVALIDA** —
+   so o probe de faces por faixa de z decide. (Terceira vez que bbox engana; registrar como regra.)
+
+**DIFF DE MASCARAS COMPLETO (px alterados vs W463; base = 176636 px):**
+  w468 rx0 0.300 (rampa frente)  ->  802 px (0.454%)  regiao **y509..631**  <- ABAIXO da linha t0.54 (y395)
+  w467 wing_x1/x2 estreitada     ->  714 px (0.404%)  regiao y370..425      <- INCLUI y395
+  w469 duct dx -0.080            ->  497 px (0.281%)  regiao y374..420      <- INCLUI y395
+  w466 exh_lr_short 0.35         ->  192 px (0.109%)  regiao y417..492
+  w470 strut_dz -0.090           ->   18 px (0.010%)  regiao y416..421
+
+**LEITURA:** a linha t0.54 tem 240 px de corpo. Nenhuma peca isolada controla mais de 0.45% da mascara.
+A rampa controla 802 px MAS em y509..631 (z baixo) -> `rx0` move a FRENTE BAIXA, nao a parte alta que
+cruza t0.54. **Testei o parametro certo da peca na ALTURA errada** — mesmo erro do W462 (abt_dz uniforme
+saiu da faixa do motor).
+
+**PROXIMA ACAO CORRETA**: na rampa, os parametros que controlam a ALTURA sao **`rzt`** (topo, default 0.480)
+e **`rth`** (espessura, 0.150) — nao `rx0`. Testar `rzt`/`rth` para abrir o vao em z0.62, medindo o diff
+ANTES do audit (regra nova: diff < 1% => peca nao e a causa; e conferir que a regiao do diff INCLUI a
+linha alvo).
+
+**REGRA NOVA (metodo)**: antes de julgar um teste por agregado, checar (a) % de px alterados e (b) se a
+REGIAO do diff contem a linha/regiao alvo. Sem isso, 6 testes podem ser gastos em apendices.
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
