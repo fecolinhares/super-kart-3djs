@@ -5659,3 +5659,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Preferencia: (b) — elimina a classe de erro para todas as pecas futuras desenhadas no passe pos-build.
   ALVO: z 0.640-0.748 (0.108 m = 133 px) e |y|<=0.087 (0.175 m).
   W674D verde: QA ok, sep_parts=14. Instrumento M_ChinPanel funcionando (9 materiais no PL).
+
+
+## P56 REFUTA A HIPOTESE DA ESCALA DO PL ***
+  P56 (transform_apply de scale em todo objeto com scale != 1) NAO IMPRIMIU NADA e o painel ficou identico.
+    => _sq vazio => NENHUM objeto tem escala de objeto != 1 => o PL NAO tem escala propria. HIPOTESE REFUTADA.
+  PADRAO NOVO (medido por M_ChinPanel, 6 faces):
+      x[-0.152,-0.102] = 0.050 m  -> CORRETO (bate com _dp=0.05)
+      y[+-0.142] = 0.284 m        -> 1,54x o pedido (0.184)
+      z[0.694,0.874] = 0.1804 m   -> 1,67x o pedido (0.108)
+    X certo e Y/Z inflados por fatores DIFERENTES. Os lacos de taper/bevel do P52 apenas ENCOLHEM y e z
+    (y*=(1-tp*(1-t)) e y*=(1-bf); z = zm + (z-zm)*(1-bf)), logo nao explicam crescimento.
+  CONCLUSAO: o que e medido como M_ChinPanel nao corresponde ao cubo que o P52 cria — ou o painel medido e outra
+    geometria (mas 6 faces = um cubo), ou a criacao esta aterrissando com outra escala/ancora.
+  PROXIMO (instrumento cirurgico, agora com ancoras de LINHA exata extraidas do arquivo, nao por bloco):
+    imprimir a bbox logo APOS primitive_cube_add, APOS transform_apply e APOS o join, comparando com a bbox lida no
+    .blend final. Foi a faltar instrumentacao em CADA passo que permitiu a hipotese errada da escala do PL.
+  W676D verde: QA ok, sep_parts=14, globais preservadas.
