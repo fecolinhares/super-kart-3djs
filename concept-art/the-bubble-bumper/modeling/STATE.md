@@ -6594,3 +6594,12 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     3. so depois reavaliar catchlight e 'olhos cortados'.
   LICAO (instrumento/robusto, 10a): quando 3 correcoes geometricas da MESMA feature nao mudam a leitura visual, o problema
     esta no PIPELINE DE RENDER (material/engine), nao na geometria. Medir o render (pixels) revela o que a geometria esconde.
+
+
+## P83: DITHER DA VISEIRA ATACADO NOS SETTINGS DO MATERIAL ***
+  Auditoria (/tmp/dith.py): M_Visor blend_method=BLEND, use_raytrace_refraction=False, refraction_depth=0.0,
+    MAS show_transparent_back=TRUE e use_backface_culling=FALSE. Render: EEVEE, taa_render_samples=96, raytracing+denoise.
+  CAUSA DO DITHER: a viseira tem 2396 faces = MUITAS camadas transparentes sobrepostas; com show_transparent_back=True e
+    sem backface culling, o Eevee ordena/soma todas -> padrao xadrez (screen-door) -> come o catchlight e 'corta' os olhos.
+  [P83] aplicado: show_transparent_back=False, use_backface_culling=True. ###QA### True, sep 14, 0 erros.
+  (A amostragem NAO era o problema: taa 96 e denoise ativos.)
