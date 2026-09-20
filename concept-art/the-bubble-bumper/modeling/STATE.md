@@ -7142,3 +7142,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ORDEM QUE O GATE MANDA SEGUIR: (a) travar no TOP o retangulo comprimento x largura + bitolas diferentes;
     (b) no SIDE travar diametro de roda e wheelbase USANDO A CABECA COMO REGUA; (c) refazer a banheira como
     bloco unico baixo que conecta tudo; so entao voltar a comparar.
+
+
+## B004 + CORRECOES DE INSTRUMENTO (2 achados) ***
+  [B004] rodas com HIERARQUIA (dianteira D=0.42 estreita / traseira D=0.52 larga), wheelbase 1.34 m, banheira
+  como bloco unico 1.95 x 0.62 x 0.42, piloto com quadril+coxa+torso+cabeca.
+  ACHADO 19 (INSTRUMENTO): a vista SIDE estava ESPELHADA em relacao ao painel do concept (concept tem a frente
+    a esquerda; meu render tinha a frente a direita). O vision leu a roda TRASEIRA (0.52) como dianteira e
+    concluiu 'hierarquia invertida'. FIX: camera SIDE pelo lado +Y (frente aparece a esquerda, como o concept).
+    REGRA: TODA vista de comparacao deve ter a MESMA orientacao/mao do painel de referencia. Espelhamento
+    produz veredito falso.
+  ACHADO 18 (ja registrado): auditar a CENA (bbox por objeto) antes de aceitar veredito de render.
