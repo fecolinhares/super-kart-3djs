@@ -3899,3 +3899,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PENDENTE DO G26 (spec do vision, por ordem): (a) laterais com profundidade real e caixas fechadas; (b) U amarelo 3D
     com 2 volumes verticais + barra inferior com retorno 90; (c) intake como CAIXA PRETA rebaixada com lamelas grossas;
     (d) aproximar a camera do render para casar de tamanho com o concept.
+
+
+## *** G26 ITER 3 — VISION DA NOTA 4.0/10 E INVALIDA A ABORDAGEM (nao os parametros) ***
+  Prancha: /tmp/nose-w549-front.png (FRONT, render ampliado).
+  VEREDITO: (1) 'ainda prateleira/chapa fina — laje de topo plano, frente plana, quina viva; o concept e um TUBO
+    INFLADO, cilindrico, sem face plana, com barriga e laterais dobrando para tras envolvendo a roda'.
+    (2) 'lábio virou fita — e PIOR: o concept NEM TEM labio inferior horizontal; tem 2 VOLUMES AMARELOS VERTICAIS
+    de canto, grossos como coxins, que fazem o U na vertical/lateral. Criei um elemento que nao existe e sumi com o
+    que existe.' (3) largura: concept cobre ~85-90%% da bitola encostando no flanco interno dos pneus; modelo ~65%%
+    => FALTA ~25%% (~12%% por lado). (4) 'abaixou a tabua, nao assentou o kart'. (5) NOTA 4.0/10.
+  *** CAUSA RAIZ E O TIPO DE PRIMITIVA, NAO O VALOR DO PARAMETRO ***
+    Eu construi com box(): topo plano, frente plana, quina viva -> NUNCA le como inflado, por mais bevel/params.
+    O concept e um volume TUBULADO inflado: raio grande, barriga para frente, pontas dobrando para tras.
+    Ajustar g26_c/g26_d/g26_lr NAO resolve — e outra primitiva. Mesma classe de erro do dia: micro-ajuste onde
+    o problema e estrutural (o usuario ja me disse isso antes: 'micro-calibracao e INVISIVEL no render').
+  SPEC DEFINITIVO DO VISION (unico proximo passo de maior impacto):
+    jogar fora caixa + barra + toquinhos e modelar o para-choque como UM VOLUME TUBULAR FECHADO E INFLADO de pneu a
+    pneu, com cantos em RAIO GRANDE dobrando para tras, e os AMARELOS como 2 COXINS VOLUMETRICOS DE CANTO que
+    abracam a curva — nao como barra inferior.
+  PLANO G26b: spine curva do flanco interno do pneu esquerdo ate o direito (y +-0.63), raio de tubo ~0.11, pontas
+    com retorno para tras; 2 coxins amarelos verticais (~0.09 de raio) nos cantos; intake como CAIXA PRETA rebaixada
+    com 5 lamelas grossas; remover fbump_lip horizontal e os fin_* atuais.
