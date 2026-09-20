@@ -56,7 +56,7 @@ def top_rob(mask,runmin=8):
                 if k-j>=runmin: break
                 j=k
             else: j+=1
-        if j<n: t[i]=r1-(r0+(n-1-j))
+        if j<n: t[i]=(n-1)-j   # ALTURA ACIMA DA BASE DO CROP (nao distancia do topo)
     return t,Hh,Ww
 
 def smooth(tv,k=5):
@@ -108,6 +108,12 @@ def main():
     v=sys.argv[1]
     mc=mask_concept("side"); tc,Hc,Wc=top_rob(mc)
     mm=mask_modelo(v);      tm,Hm,Wm=top_rob(mm)
+    # AUTO-TESTE DO INSTRUMENTO: o topo da silhueta TEM de dar ~1.0. Se nao der, o medidor esta errado.
+    for nome,t,H in (("concept",tc,Hc),("modelo",tm,Hm)):
+        tv=t[~np.isnan(t)]; pico=float(np.max(tv))/H
+        if pico<0.99:
+            print("ABORTADO: auto-teste do instrumento falhou em %s (pico=%.4f, esperado ~1.0)"%(nome,pico))
+            sys.exit(2)
     C=landmarks(mc,tc,Hc,Wc); M=landmarks(mm,tm,Hm,Wm)
     C["pod_area_frac"]=amarelo_frac(None)/100.0
     M["pod_area_frac"]=amarelo_frac(v,mm)/100.0

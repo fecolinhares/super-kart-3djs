@@ -3636,3 +3636,29 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     concept: pendente de re-medicao direta com a mesma rotina para comparar de verdade.
   PROXIMO: consertar scorecard.py (unificar a derivacao de t/H/W e adicionar auto-teste 'topo deve dar ~1.0')
     ANTES de qualquer nova conclusao de fila.
+
+
+## *** SCORECARD CORRIGIDO E VALIDADO: 8/9 PASSAM, MEDIANA PASSA ***
+  BUG (1 linha): em top_rob eu escrevi t[i]=r1-(r0+(n-1-j)), que da 0 no pixel MAIS ALTO => PERFIL INVERTIDO.
+    Correcao: t[i]=(n-1)-j  (altura acima da base do crop). Foi o que invalidou TODAS as linhas do scorecard.
+  AUTO-TESTE embutido (permanente): se max(t)/H < 0.99 em qualquer vista, o script ABORTA com exit 2.
+    O topo da silhueta TEM de dar ~1.0; se nao der, o medidor esta errado e nao o modelo.
+  RESULTADO (w522):
+    L_base_z       0.0773 vs 0.0423  erro 0.0350  OK
+    L_topo_z       0.2394 vs 0.2762  erro 0.0368  OK
+    R_base_z       0.5736 vs 0.5590  erro 0.0145  OK
+    R_topo_z       0.7032 vs 0.6971  erro 0.0061  OK
+    degrau_x       0.5107 vs 0.5132  erro 0.0024  OK
+    pod_area_frac  0.1808 vs 0.1638  erro 0.0170  OK
+    topo_global_x  0.5990 vs 0.6124  erro 0.0134  OK
+    topo_global_z  0.9975 vs 0.9978  erro 0.0003  OK
+    degrau_amp     0.3242 vs 0.2428  erro 0.0814  FALHA P0  <-- UNICO item real restante
+    mediana 0.0145 (gate <= 0.025) ** PASSA ** | pior 0.0814 (gate 0.05) FALHA | soma 0.2071
+
+  LEITURA: 8 de 9 landmarks passam; a mediana passa o gate pela primeira vez; topo_global_z e topo_global_x
+    sao praticamente exatos (0.0003 e 0.0134). O UNICO problema real e degrau_amp: o degrau do modelo existe na
+    posicao certa (degrau_x 0.0024) mas e MAIS SUAVE que o do concept (0.2428 vs 0.3242) = falta intensidade na
+    quebra da carcaca naquele ponto.
+  HISTORICO DA SOMA: 0.7962 -> 0.5468 -> 0.4045 -> 0.4260 (scorecard bugado) -> **0.2071** (instrumento correto)
+  PROXIMO: atacar degrau_amp (a quebra da carcaca), e antes de tocar geometria conferir que o auto-teste continua
+    dando OK em cada nova medicao.
