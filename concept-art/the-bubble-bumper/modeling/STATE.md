@@ -947,3 +947,26 @@ PROXIMOS (medidos, na ordem): (a) fechar os 2.7 cm com rzb=-0.018 OU difusor top
 e o modelo e 1 bloco 0.735..0.080 => separar o bloco traseiro; (c) DEFEITO 1 — perfil da asa no SIDE
 (concept: banda 0.552-0.817 em xf 0.90 afinando ate 0.754-0.853 em xf 0.99; modelo: 0.659-0.752 fino e
 horizontal) — ATENCAO: na vista SIDE tudo projeta em y, entao essa banda pode ser asa + airbox juntos.
+
+
+## W428/W429/W430 — fechamento do vao difusor/rampa (W429 = NOVA BASE)
+
+W428 — fechar por BAIXO (rzb -0.018): a rampa furou o chao (z -0.017), o z_range cresceu para [-0.017,1.165]
+=> mudou o bbox e a normalizacao do auditor. RESULTADO: IoU 0.821->0.817, COR_TV 0.253->0.256,
+excesso 12.1->12.6, <0.80 6->8. **REVERTIDO. LICAO: nunca mexer em parametro que altere o z_range/bbox do
+modelo — isso desloca TODAS as medicoes do auditor (normaliza por bbox).**
+
+W429 — fechar por CIMA: dfz 0.152->0.170, dfh 0.130->0.145 (difusor top 0.282->0.305), rzb 0.050 mantido.
+bbox intacto (z_range [-0.01,1.165]).
+RESULTADO: IoU 0.821 (=), P10 0.762 (=), COR_TV 0.253 (=), excesso 12.1 (=), falta 8.3 (=), <0.80 6 (=),
+**side/TRASEIRA 0.658->0.660** (falta 19.9->19.6). Vao em xf 0.90 caiu para 2.2 cm.
+**ADOTADO — melhora sem nenhuma regressao.**
+
+W430 — dfz 0.180, dfh 0.147 (top 0.327, fechamento total, vao 1.1 cm): side/TRASEIRA 0.660->**0.657** ✗
+(o difusor crescendo adiciona area em outras colunas). **REVERTIDO — W429 e o otimo deste par.**
+
+Base: **W429** — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+Parametros: rzb=0.050, dfz=0.170, dfh=0.145, wing_sweep=0.253, exh_dz=0.130, neck_r0=0.070, neck_r1=0.062.
+PROXIMOS: (a) DEFEITO 3 — em xf 0.97 o concept tem 3 elementos separados (0.850..0.688 | 0.588..0.450 |
+0.369..0.249) e o modelo e 1 bloco 0.735..0.080 => separar o bloco traseiro; (b) DEFEITO 1 — perfil da asa
+no SIDE (banda 0.552-0.817 em xf 0.90), com a ressalva de que SIDE projeta tudo em y (asa + airbox juntos).
