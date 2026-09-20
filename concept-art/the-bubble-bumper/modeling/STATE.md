@@ -4108,3 +4108,28 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CAMINHO CORRETO PARA A SONDA (proximo leaf): o hook tem de ser injetado DENTRO do SRC (patch que edita o proprio
     script construido, antes do ###RESULT###), nao anexado ao runner. Alternativa mais simples: usar as bboxes por
     peca que o proprio R ja expoe (part_bbox) e cruzar com a medicao do render, sem tocar no runner.
+
+
+## *** BLOCKER DE INFRA: DOIS blender-runner server.py CONCORRENTES ***
+  SINTOMA: W578, W579 e W580 falharam 3x seguidas com result {} VAZIO e o blender.log contendo APENAS
+    '###RESULT###{}' + a linha de versao do Blender + 'Blender quit' — SEM saida de build e SEM traceback.
+  NAO E O CODIGO: W580 usou um conjunto de parametros equivalente ao W573 (que buildou OK) e ainda assim falhou.
+    O arquivo run_variant.py foi commitado e verificado em W577_VERIFY (metricas identicas ao W573) ANTES das falhas.
+  CAUSA PROVAVEL ENCONTRADA: existem DOIS processos do runner rodando ao mesmo tempo:
+      PID 8873  server.py  ppid 2192  iniciado sex set 18 05:00:34
+      PID 10363 server.py  ppid 2194  iniciado sex set 18 05:03:17
+    Pais DIFERENTES e horarios diferentes -> um runner POR PERFIL Hermes (default e coder), ambos apontando para
+    o MESMO /opt/blender-runner (jobs/ e outputs/ compartilhados). Dois processos disputando a mesma fila explicam
+    um job reivindicado por um e o resultado emitido vazio por outro. Porta 5001 em LISTEN.
+  POR QUE W569-W573 E W577_VERIFY FUNCIONARAM E DEPOIS PAROU: nao determinado; a disputa depende de qual servidor
+    pega o job. E uma condicao de corrida, nao um defeito deterministico.
+  ACAO: parei de repetir o caminho que falha (regra: apos 1 diagnostico, reportar o blocker em vez de insistir).
+    O problema e de INFRA/papeis e deve ser roteado ao perfil DEFAULT (regra de coordenacao entre perfis).
+  ESTADO PRESERVADO: repositorio intacto e commitado. Ultimo build BOM = W573 (|dTOP| 0.0498) e W577_VERIFY
+    confirmou que o runner aceita o codigo quando um unico servidor atende. Nenhum dano ao modelo.
+  PENDENTE DE EXECUCAO (pronto para quando o runner voltar): converter o ombro frontal do patamar de PAREDE
+    VERTICAL em RAMPA CONTINUA. O vision validou qualitativamente: 'no concept o contorno e CONTINUO, sem degraus
+    — uma rampa reta subindo da frente para o meio'; 'no modelo a face dianteira e uma PAREDE quase vertical que
+    cai em degrau abrupto'. Duas vias prontas: (a) alargar o ombro (cowl_plat_f 0.12 -> 0.62); (b) desligar o
+    patamar (cowl_plat_a=0) e deixar a rampa vir da tabela CORRIGIDA do patch 27, que ja contem os valores medidos
+    (0.416 -> 0.465 -> 0.549). A via (b) e a preferivel: remove a causa (a parede) em vez de suaviza-la.
