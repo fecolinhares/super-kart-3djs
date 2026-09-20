@@ -3867,3 +3867,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Detalhamento completo por item (nose, sidepod, escapes, rear, piloto) e os gates G26-G31 em IDENTITY-GAPS.md.
   ORDEM DE IMPACTO: G26 nose -> G27 sidepod -> G28 escapes -> G29 rear -> G30 piloto -> G31 (vision proprio
     aprova -> Sol avalia a MESMA imagem).
+
+
+## *** G26 NOSE: TUBO ELIMINADO, CARENAGEM FECHADA ENTRA (W544-W548) ***
+  Vision reprovou o nose ('barra/tubo prateado flutuante') -> patch G26 substitui o anel fino por:
+    fbump_body (corpo fechado com bevel, M_Blue) + fbump_lip (labio amarelo em U, tubo grosso) +
+    intake_0..4 (5 lamelas M_BlueDk) + fin_l/fin_r (2 aletas amarelas). O anel fino SAIU.
+  Iteracoes guiadas por vision:
+    W544: carenagem entra, mas x_range deriva para [-1.196,1.154] (scale_factor muda com len_before).
+    W545: xtrans -0.003 restaura x_range exato.
+    W546: alargar/baixar/aprofundar -> FBUMP y +-0.666, mas a carenagem FURA O CHAO (z_range [-0.034,...]).
+    W547: centro z 0.175 + meia-altura 0.120 => base 0.055; profundidade 0.360; clipping resolvido.
+    W548: xtrans -0.008 e helm_z 0.982 => x_range EXATO, L/H 1.978 EXATO (erro 0.000), W/H 1.164 (erro 0.007).
+  VISION na iter1 (W545) ainda reprovou FORMA: 'trocou tubo por prateleira' — sem lateral, sem espessura, sem barriga;
+    labio virou barra reta ('parece fita, nao para-choque'); intake invisivel (5 risquinhos); largura ~60%% do necessario.
+    Spec dado pelo vision: alargar ate a face interna dos pneus, baixar a 5cm do solo, 15-20cm de profundidade
+    nas laterais, U amarelo 3D com retorno 90, intake rebaixado em caixa preta com lamelas grossas.
+  PROXIMOS PASSOS DO G26: (a) ty_f 0.586/ty_r 0.584 para fechar W/H 1.171; (b) laterais com profundidade real e
+    caixas fechadas; (c) U amarelo 3D (2 volumes verticais + barra inferior com retorno); (d) intake como CAIXA
+    PRE-BA bruta e recuada com lamelas grossas; (e) aproximar a camera do render para casar com o concept.

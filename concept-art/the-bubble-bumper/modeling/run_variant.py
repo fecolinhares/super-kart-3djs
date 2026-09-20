@@ -404,6 +404,42 @@ if _o36 in SRC:
 else:
     print('P36 ALVO NAO ENCONTRADO')
 
+# patch G26: FBUMP deixa de ser TUBO e vira CARENAGEM FECHADA + LABIO AMARELO EM U + INTAKE LAMELADO.
+# Veredito do vision (IDENTITY-GAPS.md item 1): "barra/tubo prateado horizontal flutuante, fino, reto,
+# separado do chassi, com 2 tocos amarelos. Sem carenagem, sem grade volumosa, sem U amarelo."
+# Aqui: (a) substitui o anel fino por um corpo FECHADO baixo/largo com bevel toy; (b) labio amarelo
+# espesso em U abracando a frente; (c) 5 lamelas de intake azul-escuras; (d) 2 aletas amarelas laterais.
+_o_g26 = ("    o=tube_round('Bumper_Ring',spine,rb*1.07,20); assign(o,P.get('ringmat','M_Plate'))")
+_n_g26 = ("    # G26: CARENAGEM FECHADA no lugar do anel fino\n"
+"    _bc=P.get('g26_c',[0.560,0.108,0.178])   # meia-largura, meia-altura, centro z\n"
+"    _bd=P.get('g26_d',0.300)                 # profundidade em x\n"
+"    _body=box('FBump_Body',(XFO-0.026-_bd*0.5,0.0,_bc[2]),(_bd*0.5,_bc[0],_bc[1]),bevel=P.get('g26_bv',0.052),segs=3)\n"
+"    assign(_body,P.get('g26_mat','M_Blue')); out.append(reg('fbump_body',_body))\n"
+"    # G26: LABIO AMARELO EM U (tubo grosso) acompanhando a borda frontal-baixa da carenagem\n"
+"    _lip=[]; _NL=23\n"
+"    for _i in range(_NL):\n"
+"        _t=_i/(_NL-1.0); _a=-math.pi/2+math.pi*_t; _sn=math.sin(_a)\n"
+"        _yy=_bc[0]*0.96*math.copysign(abs(_sn)**P.get('g26_py',0.88),_sn)\n"
+"        _xx=(XFO-0.012)-0.040*(1.0-math.cos(_a))\n"
+"        _lip.append((_xx,_yy,_bc[2]-_bc[1]*P.get('g26_lz',0.62)))\n"
+"    _lo=tube_round('FBump_Lip',_lip,P.get('g26_lr',0.058),18)\n"
+"    assign(_lo,P.get('g26_lmat','M_Yellow')); out.append(reg('fbump_lip',_lo))\n"
+"    # G26: LAMELAS DE INTAKE (5 verticais azul-escuras) no centro da carenagem\n"
+"    for _i in range(5):\n"
+"        _yy=-0.26+0.13*_i\n"
+"        _lv=box('Intk_L%d'%_i,(XFO+0.006,_yy,_bc[2]+0.012),(0.014,0.020,0.058),bevel=0.005,segs=2)\n"
+"        assign(_lv,P.get('g26_lmat2','M_BlueDk')); out.append(reg('intake_%d'%_i,_lv))\n"
+"    # G26: ALETAS AMARELAS LATERAIS verticais\n"
+"    for _sy in (1,-1):\n"
+"        _fn=box('Fin_'+('L' if _sy>0 else 'R'),(XFO-0.135,_sy*0.500,_bc[2]+0.026),(0.082,0.018,0.078),bevel=0.009,segs=2)\n"
+"        assign(_fn,P.get('g26_fmat','M_Yellow')); out.append(reg('fin_'+('l' if _sy>0 else 'r'),_fn))\n"
+"    # (G26) o antigo anel fino SAI: era o 'tubo prateado flutuante' reprovado pelo vision\n"
+"    o=None")
+if _o_g26 in SRC:
+    SRC=SRC.replace(_o_g26,_n_g26,1); print('G26 INSERIDO OK (carenagem fechada + labio U + intake + aletas)')
+else:
+    print('G26 ALVO NAO ENCONTRADO')
+
 exec(compile(SRC,'bb_'+VER,'exec'),g)
 R=g.get('R',{})
 print(VER,'| QA=',R.get('qa',{}).get('aprovado'),'| z_range=',R.get('z_range'),'| ERRO=',R.get('ERRO'))
