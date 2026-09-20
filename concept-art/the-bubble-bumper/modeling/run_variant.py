@@ -13,6 +13,12 @@ old2="        _cs=P.get('cap_s',(0.085,0.042,0.085)); ep.scale=_cs"
 new2="        _cs=P.get('ep_s',P.get('cap_s',(0.085,0.042,0.085))); ep.scale=_cs"
 if old2 in SRC:
     SRC=SRC.replace(old2,new2,1)
+
+# patch 3: airbox com meia-largura x parametrizavel (0.058 faz as 3 caixas se SOBREPOREM -> barra solida)
+old3="ab=box('Airbox%d'%j,(xx,0,zz),(0.058,ry_,rz_),bevel=0.020,segs=3)"
+new3="ab=box('Airbox%d'%j,(xx,0,zz),(P.get('ab_x',0.058),ry_,rz_),bevel=0.020,segs=3)"
+if old3 in SRC:
+    SRC=SRC.replace(old3,new3,1)
 ovr=dict(BASE); ovr.update(EP_OVERRIDES); ovr['v']=VER
 g=dict(globals()); g['OVR']=ovr
 exec(compile(SRC,'bb_'+VER,'exec'),g)

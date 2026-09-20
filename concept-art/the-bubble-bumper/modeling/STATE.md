@@ -1692,3 +1692,26 @@ side/TRASEIRA 0.680->0.577, rear/ESCAPES 0.890->0.670 (falta 3.0->28.2%).
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.251 | excesso 12.9 | falta 7.0 |
 N=18 | <0.90 17 | <0.80 4 | sep_parts 14 | 0 non-manifold | QA aprovado.
 Parametros: BASE_PARAMS.json + ep_s=[0.085,0.042,0.095].
+
+
+## W461 — airbox com meia-largura x reduzida (0.058->0.046) = NEUTRO
+
+Hipotese: as 3 caixas do airbox (x -0.470/-0.575/-0.665, meia-largura x 0.058 = comprimento 0.116 com centros
+a 0.105) SE SOBREPOEM em x -> barra solida onde o concept tem 3 elementos separados.
+Medido: W461 e IDENTICO ao W457 (IoU 0.826, P10 0.790, pior 0.680, COR_TV 0.251, exc 12.9, falta 7.0,
+<0.80 4; side/MOTOR 0.840->0.839 apenas). Os runs em t 0.66/0.60/0.54 sao IDENTICOS.
+
+CAUSA do neutro (z das caixas): airbox0 z 0.652+/-0.068 = 0.584..0.720 | airbox1 0.536..0.656 |
+airbox2 0.488..0.592. **Em t 0.66 (z ~0.766) NENHUMA das 3 caixas esta presente** -> mexer nelas nao
+pode mudar aquela linha. A hipotese estava mal endereçada (medi o x, mas o alvo era o z).
+
+**VERDADEIRO CULPADO LOCALIZADO**: `Airbox_Duct` = sweep que comeca em **(-0.462, 0, 0.774)**.
+z 0.774 = t 0.660 exatamente; x -0.462 -> imagem ~0.68. E ele que fecha o vao 0.69-0.73 que o concept
+deixa aberto em t 0.66 (concept: 0.54..0.69 | 0.73..0.73 | 0.89..0.99).
+
+PROXIMO ALVO (endereçado por z, nao por x): reduzir/baixar o `Airbox_Duct` para abrir o vao em imagem 0.69-0.73
+em t 0.66. Nao mexer nas 3 caixas do airbox (provado neutro).
+
+## ESTADO DA BASE: W457 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.251 | exc 12.9 | falta 7.0 | N=18 | <0.90 17 |
+<0.80 4 | sep_parts 14 | QA aprovado. Params: BASE_PARAMS.json + ep_s=[0.085,0.042,0.095].
