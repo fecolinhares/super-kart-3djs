@@ -1006,3 +1006,30 @@ PROXIMO: para cada sub-peca do REAR, calcular a silhueta projetada em Y (numpy s
 nao do conjunto) e ver qual cobre z 0.08..0.47 nessa coluna.
 
 Base: **W429** (intacta) — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+
+
+## W433 probe de FACES — os escapes estao ~6 cm BAIXOS (nao e o diametro, e o Z)
+
+Varredura das FACES do REAR que cruzam a coluna x=-1.13 na faixa z 0.08-0.47:
+  {('M_Silver','COBRE'): 41, ('M_Silver','cruza'): 18, ('M_Dark','COBRE'): 8}
+Exemplos decisivos:
+  M_Silver x **-1.183..-0.864** z 0.388..0.431 |y| 0.045..0.072
+  M_Silver x **-1.182..-0.862** z 0.402..0.451 |y| 0.072..0.094
+  M_Silver x **-1.180..-0.859** z 0.422..0.476 |y| 0.094..0.112
+  M_Silver x **-1.177..-0.855** z 0.446..0.504 |y| 0.112..0.123
+=> sao as faces LONGAS dos tubos de escape (0.32 m de comprimento em x, M_Silver). Elas cobrem a coluna em
+**z 0.388-0.504**. O elemento 2 do concept (SIDE xf 0.97) esta em **z 0.450-0.588**.
+=> **os tubos estao ~6 cm BAIXOS**, nao grossos (W432 afinou o diametro e foi refutado; o defeito e o Z).
+   exh_dz 0.130 -> ~0.192 desloca o conjunto para 0.450-0.566 (bate o elemento 2 do concept).
+Outros: M_Silver x -1.133..-1.126 z 0.267..0.276 e 0.315..0.324 |y| 0.262..0.265 (elemento fino da suspensao
+= o do concept em |y| 0.344-0.377, ja presente) e 8 faces M_Dark.
+
+LICOES DE METODO consolidadas nesta serie:
+  1. Probe por VERTICE nao acha face grande (W419, W433) -> varrer FACES quando o mask for solido.
+  2. Comparacao por z entre concept e modelo exige H/topo proprios de cada um (o erro de 2.7% gerou 3
+     experimentos inuteis: W413/W416/W417).
+  3. Nunca mexer em parametro que altere o bbox/z_range do modelo (W428) — o auditor normaliza por bbox.
+  4. Antes de testar um parametro, conferir se a versao anterior dele foi medida na MESMA base (W410).
+
+Base: **W429** — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+PROXIMO: exh_dz 0.130 -> 0.192 (medido pelo elemento 2 do concept em z 0.450-0.588).
