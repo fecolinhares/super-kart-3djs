@@ -5250,3 +5250,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     orfao -> SyntaxError no runner. REGRA: ao inserir patch apos bloco if/else, ancorar APOS a linha do 'else: ...' do
     bloco anterior, nunca na linha do 'print' do ramo verdadeiro.
   W654D verde: QA ok, 14 pecas, globais preservadas (x_range [-1.196,1.154], W/H 1.169).
+
+
+## GATE VISUAL W654D: 4.0/10 - mentoneira medida CERTA mas ainda nao VISIVEL ***
+  VEREDITO: 4.0/10 (era 5.0 no W647D). O vision diz explicitamente que NAO consegue avaliar a mentoneira: 'sumiu,
+    ocluida por duas barras pretas horizontais em primeiro plano (volante/cockpit); so se ve um filete amarelo fino'.
+    Tambem: 'a viseira cinza estoura ate a borda' e 'o enquadramento esta colado no topo'.
+  LEITURA CORRETA: a mentoneira esta DIMENSIONADA certa (bbox do SUBCAP: 0.3%% largura, 0.7%% altura) mas NAO esta
+    LEGIVEL no render. Medida e legibilidade sao gates DIFERENTES — o gate visual julga legibilidade, nao dimensao.
+  ACAO IMEDIATA: meu teste 'PL nao tem faces a frente no z do queixo' usou X > -0.063, que era o limite ANTIGO. Com a
+    mentoneira agora em z[0.6045,0.7504] e a bbox nova, o teste PRECISA ser refeito — e, desta vez, varrendo TODOS os
+    objetos (nao so o PL), porque as 'barras pretas' podem ser outra peca (asa, FBUMP, volante). Ferramenta: mesmo
+    criterio do /tmp/pl_band.py, aplicado a todos os objetos da cena.
+  ORDEM DE IMPACTO do vision, para os proximos ciclos:
+    1) MENTONEIRA/QUEIXO legivel (limpar o que cobre + mostrar o sorriso) — 'maior rompedor de likeness'
+    2) VISEIRA como casca esferica curva e semi-transparente com borda inferior em U (o erro ESTRUTURAL)
+    3) FAIXA: largura, cor ouro (nao neon) e o detalhe retangular em baixo-relevo acima da viseira
+    4) OLHOS: mais altos/ovais e mais proximos (o modelo tem ~60%% da altura e divergentes)
+    5) PUPILA: 30%% do olho com catchlight (medido 43%%x54%% — o vision estima 30%%; manter medicao, mas o catchlight
+       e o deslocamento convergente/divergente sao reais e precisam de checagem de simetria)
+    6) SOBRANCELHA: arco afunilado, nao barrinha reta
+  W654D verde: QA ok, 14 pecas, globais preservadas.
