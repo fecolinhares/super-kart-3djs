@@ -6389,3 +6389,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     medicao por faixa localizou 156,4%% em z 0.725-0.760 -> P74 com 1.05 deu 113,9%% -> 0.95 deu 104,1%% -> 0.90 deu 97,6%%.
   LICAO DE CALIBRACAO: quando o clamp e aplicado por BANDA, o resultado medido fica ~5%% ACIMA do parametro (o vert no topo da
     banda carrega o maximo dela). Para entregar 95%% medidos, configurar ~90%%. Parametro e criterio nao sao a mesma escala.
+
+
+## *** TESTE EM PIXELS: A VISEIRA ESTA RENTE; A PROTRUSAO REAL E NO QUEIXO ***
+  Teste (/tmp/px2.py, w715d-front.png, 860x860): 3136 px de cinza fora da silhueta azul, distribuidos:
+    y 320-360 (olhos/viseira, z~0.78):   16 px   <- RUÍDO
+    y 360-400:                            9 px
+    y 400-440:                          305 px   (ja com amarelo = queixo)
+    y 440-480:                         1165 px   <- O GROSSO
+    y 480-520:                         1396 px   <- O GROSSO
+    y 520-560:                          223 px
+  96%% dos pixels fora estao em y 400-520 = QUEIXO/MANDIBULA, nao na altura dos olhos.
+  CONCLUSAO: (a) a VISEIRA esta rente na regiao dos olhos (~25 px = ruido de contraste), confirmando a medicao por
+    faixa (97,6-98,6%%) -> o vision estava ERRADO ao ver 'abas nos olhos'; (b) ha uma PROTRUSAO REAL de cinza na
+    altura do QUEIXO, ~60x mais forte (3021 px vs 25 px) — o vision aponta no lugar errado o fenomeno certo.
+  PROXIMO: identificar QUAL MATERIAL ocupa aqueles pixels (y 440-520) — candidatos: M_Gasket (0.336 = 102%% do casco),
+    M_ChinPanel, M_Face. Medir a extensao em y por faixa de z NA REGIAO DO QUEIXO (z ~0.55-0.70) e comparar com o casco;
+    depois limitar como foi feito na viseira.
+  METODO QUE FICOU PROVADO: quando a visao e a medicao 3D discordam, o TESTE EM PIXELS na mesma vista da visao decide —
+    foi ele que separou ruido de contraste (25 px) de protrusao real (3021 px).

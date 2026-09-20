@@ -292,5 +292,5 @@
   "brow_z": 0.805,
   "brow_th": 0.006,
   "visor_clamp": 0.9,
-  "_nota_g26_p76": "P76: clamp da viseira 0.90 -> medidas por faixa 97,6%% / 98,6%% / 94,0%% / 91,7%%, TODAS dentro do casco (era 156,4%%). LICAO DE CALIBRACAO: clamp aplicado por BANDA entrega ~5%% ACIMA do parametro (o vert no topo da banda carrega o maximo dela) — para medir 95%% e preciso configurar ~90%%. Parametro e criterio nao sao a mesma escala. QA True, sep 14."
+  "_nota_g26_pixels": "TESTE EM PIXELS (w715d-front 860x860): 3136 px de cinza fora da silhueta azul, mas 96%% em y 400-520 (QUEIXO/MANDIBULA), nao na altura dos olhos — onde ha so ~25 px (ruido). CONCLUSAO: a VISEIRA esta rente (confirma as faixas 97,6-98,6%%) e o vision errou o lugar ao ver 'abas nos olhos'; a PROTRUSAO REAL esta no QUEIXO, ~60x mais forte. PROXIMO: identificar o material dos pixels em y 440-520 (candidatos M_Gasket 0.336=102%%, M_ChinPanel, M_Face), medir a extensao em y por faixa ali (z 0.55-0.70) e limitar como na viseira. METODO: quando visao e medicao 3D discordam, o TESTE EM PIXELS na mesma vista decide."
 }
