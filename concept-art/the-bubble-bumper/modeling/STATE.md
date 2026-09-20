@@ -775,3 +775,27 @@ span — a face continuou cobrindo o vao.
 
 PROXIMO: reduzir o SPAN da asa de +-0.5 para ~+-0.24 e reavaliar z depois. Candidato: parametro de span
 da asa no builder (wing span / cap position).
+
+
+## W420/W421 — BISSECAO DO SPAN DA ASA (ambas rejeitadas; span 0.505 fica)
+
+Mecanismo achado no builder: `_WS=P.get('wing_span',0.505)`; a asa e um LOFT de 13 secoes, cada uma um
+quad de |y| 0 a 0.505 => FACE UNICA (por isso o probe por vertice nao a detectou). E `wz=wing_z*H`
+= 0.585*1.207 = 0.706 ABSOLUTO, com hh 0.040 => placa em z 0.656-0.756, exatamente onde o mask FRONT
+esta solido em z 0.752. Endplates em sy*0.492 (o M_Yellow do probe, |y| 0.470-0.500).
+
+  variante  span   IoU    P10    pior            excesso  falta  <0.80  COR_TV
+  W418      0.505  0.821  0.762  0.657 TRASEIRA  12.3     8.1    6      0.261
+  W421      0.385  0.809  0.743  0.657 TRASEIRA  11.7     9.9    9      0.257
+  W420      0.240  0.798  0.716  0.623 top/ASA   11.0     11.6   9      0.263
+
+front/PILOTO: span 0.505 -> excesso 23.8% ; 0.240 -> excesso 5.5% MAS falta 32.3%.
+=> O DIAGNOSTICO ESTAVA CERTO (a asa cobre o vao), mas **estreitar o span piora o conjunto** (IoU e <0.80).
+REGRA APLICADA: ganho regional (excesso 23.8->5.5) que piora o todo NAO se aceita. **span 0.505 fica.**
+
+CONCLUSAO: o problema da asa nao e o SPAN — e o **Z**. A asa esta em z 0.656-0.756 (absoluto) enquanto o
+concept tem o topo da asa em 0.847 (medido em xf 0.96, SIDE). W410 tentou subir (wing_z 0.585->0.650 =>
+0.785 absoluto) e falhou por rear/ESCAPES 0.894->0.669 (falta 29.9%) — ou seja, subir a asa a joga para
+fora da faixa ESCAPES normalizada do auditor. **Antes de tentar z de novo: entender as faixas z do auditor
+(ESCAPES 0.45-0.62 normalizado => 0.543-0.748 m) e ver se o colapso de rear/ESCAPES no W410 e artefato de
+faixa ou erro real.** Esse e o proximo passo.
