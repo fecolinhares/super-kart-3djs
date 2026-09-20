@@ -309,6 +309,13 @@ else:
     for _l in SRC.split(chr(10)):
         if 'cowl_xf0' in _l: print('   linha cowl_xf0:', _l.strip()[:120])
 
+
+# patch 32 (v2): ATENCAO — em dome(name,cx,cy,cz,R,sz,sy...) o perfil e [(raio_em_Y, -R*cos()*sz)] e
+# revolve() usa o 2o elemento como OFFSET EM X. Logo **helm_sz JA E A ESCALA EM X do capacete**.
+# Nao existe 'sx' na assinatura (passar sx quebra o build com TypeError). A alavanca correta e helm_sz.
+# Objetivo: recolher a FRENTE mantendo o CENTRO (onde esta o pico/topo_global_x, ja correto).
+print('P32v2 alavanca do capacete = helm_sz (escala X); base usa helm_sz=0.934')
+
 exec(compile(SRC,'bb_'+VER,'exec'),g)
 R=g.get('R',{})
 print(VER,'| QA=',R.get('qa',{}).get('aprovado'),'| z_range=',R.get('z_range'),'| ERRO=',R.get('ERRO'))

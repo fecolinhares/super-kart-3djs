@@ -3475,3 +3475,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   gradiente e a SUBIDA da FRENTE do capacete. Ou seja: frente do capacete precisa recuar ~0.49m SEM mover o pico.
   => helm_x sozinho NAO serve (move o pico junto). Precisa de um parametro de FORMA: achatar/recuar a frente do
      capacete (helm_front_scale / helm_x_front) mantendo o centro do pico. E o proximo alvo.
+
+
+## W528 — helm_sz REFUTADO como escala X pura (3a refutacao do capacete)
+  helm_sz 0.934 -> 0.450: PL z max 1.2708 -> 1.1564 (o PICO baixou) e L/H 1.862 -> 2.044, z_range 1.139.
+  CAUSA lida no codigo: em dome(name,cx,cy,cz,R,sz,sy) o perfil e [(raio_em_Y, -R*cos(t)*sz)] e revolve() usa o
+    2o elemento como OFFSET EM X => sz escala o comprimento do dome E define a altura. PARAMETROS ACOPLADOS.
+  => NAO existe parametro de recuo da frente do capacete independente do pico.
+
+### CAPACETE: CAMINHO PROCEDURAL ESGOTADO (3 refutacoes medidas)
+  helm_x   (move o capacete)      -> conserta degrau_x (-46%%) mas move o PICO (topo_global_x 0.0074->0.0979) REFUTADO
+  helm_sz  (escala X do dome)     -> baixa o pico em 0.11m e quebra L/H (2.044)                                REFUTADO
+  cowl_xspan (estende o cowl)     -> massa nova fica DENTRO do contorno, 0.0000 de movimento                   REFUTADO
+  => o recuo da frente do capacete NAO e alcancavel por parametro: exige MODIFICACAO AUTORAL da malha do capacete
+     (mover os vertices da FRENTE para tras mantendo fixo o vertice do pico) DENTRO do pipeline canonico.
+     E exatamente o item 1 do Sol (piloto/capacete como massa AUTORAL, nao escalada por parametro).
+  PROXIMO: patch que, apos a construcao do capacete, roda bmesh nos verts com x > hx (frente) e os desloca para
+     tras proporcionalmente a distancia do pico (deformacao com peso 0 no pico e 1 na frente), preservando o pico.
