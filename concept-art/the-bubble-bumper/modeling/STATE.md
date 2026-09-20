@@ -1805,3 +1805,26 @@ identificar a peca -> ajustar so ela. Foi assim que o duct (W461 neutro -> W462/
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
 Params: BASE_PARAMS.json + ep_s=[0.085,0.042,0.095] + abt_dz=-0.030.
+
+
+## ALVO A DECOMPOSTO — o PL em z 0.88-0.97 por material (probe por face)
+
+MATERIAL        faces  x_range            -> imagem (0-1)
+M_Face           8777  -0.256..-0.081     -> 0.53..0.60   (rosto/pele)
+M_Visor          3698  -0.291..-0.085     -> 0.58..0.63   (viseira)
+**M_Blue         1045  -0.500..-0.087     -> 0.53..0.72** (capacete + encosto = MASSA CONTINUA) ✗✗
+M_Dark            178  -0.537..-0.258     -> 0.65..0.72   (traseira do capacete/encosto)
+M_Yellow           60  -0.502..-0.483     -> 0.71..0.72   (faixa)
+
+O `M_Blue` sozinho cobre TODA a extensao do bloco solido (0.53-0.72). O concept, nessa mesma faixa, tem:
+  0.53 | 0.56..0.57 | 0.58..0.59   (frente: rosto/viseira, finos, SEPARADOS)
+  0.61..0.72                        (tras: capacete/encosto)
+=> o que falta e o VAO entre a frente (0.53-0.59) e a tras (0.61-0.72): no modelo o capacete e o encosto
+   do banco se TOCAM e a silhueta funde; no concept ha um vao visivel entre eles.
+
+**ACAO PROPOSTA (proximo build)**: separar capacete e encosto na silhueta — deslocar o piloto para a FRENTE
+(poucos cm) e/ou reduzir a profundidade do encosto, ate abrir o vao em imagem ~0.59-0.61 em z 0.90-0.95.
+Verificar o parametro correspondente no builder (piloto/assento) e expor via patch, como foi feito com ep_s/abt_dz.
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
