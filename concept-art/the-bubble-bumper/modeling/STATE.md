@@ -6979,3 +6979,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   detalhe do capacete, que eu refinava havia ~65 builds.
   FIX (grande, visivel, estrutural): escalar o PILOTO ~1,3-1,45x em altura e/ou BAIXAR o kart, de modo que a razao
   capacete/silhueta va de 45,2%% para ~69,5%%. CRITERIO MENSURAVEL: razao no render orto = 69,5%% +-3%%.
+
+
+## *** P101: PILOTO ESCALADO — 45,2%% -> 53,4%% (concept ~65%%) ***
+  [P101] 40566 verts do grupo do piloto (cabeca+torso+volante, z>0.62 e |x|<0.36) escalados x1.30 em Z (desde a base
+  do cockpit z=0.5439) e em X/Y a partir da origem. ###QA### True | falhas=[] | sep 14 | 0 erros.
+  Proporcao capacete/silhueta no render ORTO: 45,2%% -> 53,4%% (concept 64,9-69,5%% conforme o limiar).
+  MAIOR MUDANCA VISIVEL DE TODA A SESSAO — mais que as ~65 builds de detalhe do capacete somadas.
+  PROXIMO: um incremento (pilot_sz 1.30 -> ~1.42) fecha o alvo; medir sempre a razao capacete/silhueta no -front.
