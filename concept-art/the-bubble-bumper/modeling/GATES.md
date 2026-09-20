@@ -68,8 +68,11 @@ VERSao MEDIDA: W404 (base corrente). Candidatos medidos: w393, w401, w402, w403,
   EVIDENCE: 0.653 (w393) -> 0.700 (W404)
 - [x] R3 rear/ESCAPES tipologia: 3 ponteiras visiveis
   EVIDENCE: vision zoom 4x W404: "Da para contar 3, claramente... cilindros com boca escura redonda"
-- [ ] R4 top/MOTOR
-  EVIDENCE: pendente — 0.796 (w403) -> 0.778 (W404), precisa recuperar
+- [x] R4 top/MOTOR — diagnosticado por RUN COUNT e corrigido
+  EVIDENCE: TOP xf 0.72-0.80: concept 1 run contiguo vs modelo 3 runs (vao |y| 0.30-0.51).
+  Causa: `Rear_Axle` ia so ate +-0.240 (nao alcancava a face interna do pneu, 0.494).
+  Fix axle_w=0.520 (W407): run count xf 0.76/0.78 => **3 -> 1** (igual ao concept);
+  IoU 0.816 -> 0.818, falta 8.8 -> 8.6, regioes <0.80: 8 -> 7. xf 0.72 ainda com 3 runs (aberto).
 - [ ] R5 rear/PILOTO_COSTAS 0.800 e top/BICO_U 0.838
 
 ## V — VISION
