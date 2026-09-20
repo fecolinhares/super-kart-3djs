@@ -323,6 +323,6 @@
   "_nota_g26_p100": "P100: fix estrutural da 'placa'. Reatribuidas 7343 faces frontais de M_Face para M_Visor e recuadas 45864 faces em x. ANTES M_Face 6702 (dominava) / M_Visor 2553; AGORA M_Visor 6224 (dominante) / M_Face 3490. A frente do capacete passa a ser vidro.",
   "_nota_g26_gate_v43": "GATE v43 (vista ORTO pareada): 'placa' RESOLVIDO — 'a frente agora le-se como viseira/vidro e nao mais como placa de pele' (confirmacao do P100). Nota 4/10. MAIOR erro restante: escala/proporcao — piloto MINUSCULO/AFUNDADO (o concept e chibi, cabeca dominante) e para-choque em laje reta em vez de tubo arredondado. PROXIMO: medir a razao altura-piloto/altura-total no concept vs modelo e escalar/subir o piloto.",
   "_nota_g26_proporcao_piloto": "MEDICAO DECISIVA: o piloto do concept ocupa 69,5% da altura total (chibi); o do modelo, 45,2%. Fator 1,54x. E a causa principal da leitura 'esta ruim / sem fidelidade'. FIX: escalar o piloto ~1,3-1,45x e/ou baixar o kart para a razao ir de 45,2% a ~69,5%. CRITERIO no render orto: capacete/silhueta = 69,5% +-3%. Medir sempre na vista -front (orto).",
-  "pilot_sz": 1.3,
-  "_nota_g26_p101": "P101: escala do grupo do piloto (z>0.62, |x|<0.36) x1.30 em Z desde z=0.5439 e X/Y da origem. 40566 verts. Proporcao capacete/silhueta 45,2% -> 53,4% (concept ~65%). Maior mudanca visual da sessao. Proximo: pilot_sz ~1.42."
+  "pilot_sz": 1.42,
+  "_nota_g26_p101": "P101: piloto escalado. pilot_sz 1.30 -> 53,4% da silhueta; 1.42 final. Concept ~65%. Maior mudanca visual da sessao."
 }

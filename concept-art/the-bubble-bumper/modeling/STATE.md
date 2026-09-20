@@ -6987,3 +6987,7 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Proporcao capacete/silhueta no render ORTO: 45,2%% -> 53,4%% (concept 64,9-69,5%% conforme o limiar).
   MAIOR MUDANCA VISIVEL DE TODA A SESSAO — mais que as ~65 builds de detalhe do capacete somadas.
   PROXIMO: um incremento (pilot_sz 1.30 -> ~1.42) fecha o alvo; medir sempre a razao capacete/silhueta no -front.
+
+
+## P101b: pilot_sz 1.30 -> 1.42 (incremento final da proporcao)
+  Medir a razao capacete/silhueta no render -front; alvo ~65%%.
