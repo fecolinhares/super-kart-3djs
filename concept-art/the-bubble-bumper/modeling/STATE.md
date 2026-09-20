@@ -3617,3 +3617,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
    3) As quatro extremidades (L/R topo/base) TODAS passam: a silhueta global esta correta.
   IMPACTO: a fila real e CURTA e especifica: topo_global_z (capacete baixo) > degrau_amp (degrau suave).
   PROXIMO: corrigir a definicao de topo_global_x (centroid do topo) e atacar topo_global_z via helm_z.
+
+
+## *** SCORECARD NOVO TEM BUG: topo_global_z/x nao confiaveis (EU CRIEI O 3o FALSO ERRO) ***
+  Medicao DIRETA do modelo w522 (ground truth):
+    max(t) = 448.0 px de H=449  =>  topo_global_z = 0.9978   argmax = coluna 512
+  O scorecard imprimiu: topo_global_z 0.7728 | topo_global_x 0.0000 (coluna 0)
+  => o 'erro 0.0751 no pico do capacete' e FALSO. 3o falso erro do dia, e este eu introduzi no instrumento
+     que escrevi minutos antes para acabar com falsos erros.
+  CONSEQUENCIA IMEDIATA: NENHUMA linha do scorecard e confiavel ate o bug ser corrigido — inclusive as
+    '7 aprovacoes'. Suspeita principal: divergencia entre a assinatura landmarks(mask,t,H,W) e como t/H/W sao
+    derivados para concept vs modelo (o concept deu 0.8479 e o modelo 0.7728, ambos muito abaixo do esperado).
+  REGRA (a mesma de hoje, aplicada a instrumento): validar o INSTRUMENTO antes de confiar no OUTPUT — inclusive
+    quando o instrumento e novinho e escrito por mim. Teste minimo: o topo da silhueta TEM de dar ~1.0; se nao der,
+    o medidor esta errado, nao o modelo.
+  ESTADO SEGURO (medido direto, nao pelo scorecard):
+    modelo w522: topo_global_z 0.9978 (pico no topo), bbox y205..653 x20..855, W/H do bbox 1.862
+    concept: pendente de re-medicao direta com a mesma rotina para comparar de verdade.
+  PROXIMO: consertar scorecard.py (unificar a derivacao de t/H/W e adicionar auto-teste 'topo deve dar ~1.0')
+    ANTES de qualquer nova conclusao de fila.
