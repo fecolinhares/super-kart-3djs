@@ -5826,3 +5826,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     'translucida, CURVA, que ENVOLVE o rosto, mais larga em cima e AFUNILANDO para baixo'. Os tres elementos do concept
     estao agora implementados; a validacao e o proximo gate.
   W688D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas. build 48.1s.
+
+
+## *** P60 REVERTIDO: MEDIDA MELHOROU, VISION PIOROU (6.5 -> 3.0) ***
+  P60 mudou a geometria de M_Visor de fato (x 0.216->0.190; y 0.333->0.310 = 94% do casco), MAS o gate visual CAIU de
+  6.5/10 para 3.0/10 e o vision descreveu artefatos NOVOS que nao existiam antes:
+    'caixa retangular, frente plana, cantos laterais em 90 graus que ESTOURAM PARA FORA da cabeca como orelhas/caixa de
+     Minecraft'; 'a promessa de bordas recuam, afunila, transparencia NAO APARECE nesse render'.
+  VEREDITO DO VISION: 'Apague e refaca como CASCA ESFERICA com SHRINKWRAP no capacete'.
+  LICAO (regra nova): alteracao que MELHORA a medida mas PIORA o gate visual deve ser REVERTIDA e a abordagem trocada —
+    deformar uma CAIXA (taper+offset quadratico) nao produz uma casca esferica; o taper em y com wrap em x criou quinas que
+    estouram. Nao insistir na deformacao: construir a viseira como geometria curva de origem (secao de esfera/shrinkwrap).
+  P60 REVERTIDO -> W689D volta ao estado do W687D (gate 6.5), que permanece a MELHOR base validada do capacete.
