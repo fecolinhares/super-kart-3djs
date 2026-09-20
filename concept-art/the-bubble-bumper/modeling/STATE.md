@@ -1056,3 +1056,26 @@ z 0.08-0.388 naquela coluna. Alternativa barata: projetar cada vertice/face em n
 preenchido) e somar a cobertura por peca.
 
 Base: **W429** (intacta) — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+
+
+## W435 — RASTERIZACAO REAL: o preenchedor e uma peca M_Silver do REAR (z 0.077-0.677)
+
+Metodo correto (dois triangulos por quad, baricentrico verdadeiro, grade 2400x1200 projetada em (x,z)):
+coluna x=-1.13:
+  REAR  M_Silver  **0.077..0.677**   <- UMA peca de ~0.60 m de altura nessa coluna
+  REAR  M_Dark    0.277..0.338
+  REAR  M_Blue    0.659..0.736
+  CH / PL / Tub / PODS: VAZIO (descarta chassis, piloto, tub e sidepods)
+=> o bloco solido 0.738..0.080 do mask vem de uma peca **M_Silver do REAR** com ~0.6 m de altura em
+x=-1.13. Candidatos por material (M_Silver no REAR): rampa (x -0.748..-1.108, z 0.05-0.63),
+tubos de escape (z 0.40-0.66 nessa x), Airbox_Top (x -0.768), rbump (x -0.928), collector (x -0.99).
+Nenhum bbox explica z 0.077-0.677 => e preciso o NOME da peca, nao o material.
+
+**PROXIMO PASSO EXATO:** refazer a rasterizacao por REGIAO e nao por material. O builder chama
+`reg('nome', obj)` para cada sub-peca (ramp, rbump, wing, headrest, collector, airbox0/1/2, ...) —
+instrumentar o builder para guardar, por objeto, o nome da regiao e o indice de faces, e depois rasterizar
+cada regiao isolada na coluna x=-1.13. Isso da o nome direto da peca de 0.6 m.
+ALTERNATIVA mais rapida: renderizar 1 mask por regiao (escondendo as outras) num unico processo Blender e
+ler a coluna xf 0.97 de cada mask — mesma informacao, sem instrumentar o builder.
+
+Base: **W429** (intacta) — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
