@@ -5542,3 +5542,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     alvo de altura ~180 px no render (0.147 m) e largura ~0.175 m (49%% da largura do casco), e um leve chanfro para nao
     ficar um plano solto; depois medir altura do amarelo (gate >=150 px) e comparar com o concept.
   W669D verde: QA ok, 14 pecas, globais preservadas.
+
+
+## *** P52 FECHA O GATE DE ALTURA DA MENTONEIRA: 177 px (ALVO 180) ***
+  P52 criou o PAINEL FRONTAL PLANO (geometria nova): laje com face frontal em x=-0.152, |y|<=0.087 (0.175 m),
+    z 0.618..0.762 (0.144 m), chanfro de 18%% na face frontal (trapezio) e material M_Yellow, UNIDA ao PL (preserva sep_parts=14).
+  MEDICAO (clusters de linhas amarelas no render do rosto):
+    (171,330,160) = faixa do capacete
+    (508,817,310) = descida da faixa + painel/mentoneira (contiguos)
+    O painel ocupa y 640-817 = 177 px = EXATAMENTE o alvo (0.144 m).
+    AMARELO total: 23.244 -> 47.421 (+24.177 px = o painel entrando).
+  GATE DE ALTURA: >=150 px pedido -> 177 px MEDIDO. FECHADO (98%% do alvo de 180 px).
+  ERRO DE INSTRUMENTO CORRIGIDO NO CAMINHO: eu filtrava 'queixo' como y>=700, o que cortava a metade SUPERIOR do painel
+    (que vai de y640 a y817). Isso fez a altura parecer 118 px. A janela de medicao deve ser derivada do mapeamento
+    render<->mesh (z -> y), nao escolhida por conveniencia. Mesma familia do erro do limiar de 1 mm.
+  SERIE DE ALTURA: 60 -> 77 -> 77 -> 93 -> 95 -> 95 -> 177 px (alvo 180).
+  PENDENTE VISUAL: a faixa desce e encontra a mentoneira sem separacao (no concept a faixa termina na viseira e a
+    mentoneira e um trapezio separado); o painel pode precisar de ajuste de bevel/posicao em x; e falta o sorriso.
+    Gate visual pareado re-executado depois disso.
+  W670D verde: QA ok, sep_parts=14, globais preservadas.

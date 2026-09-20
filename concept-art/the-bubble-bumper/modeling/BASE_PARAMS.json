@@ -248,5 +248,9 @@
   "pilot_keep": [
     "M_Yellow"
   ],
-  "_nota_g26_falta_painel": "A FRENTE DA MENTONEIRA JA ESTA EM x=-0.151 em toda a faixa de z: o P51 (projetar os verts amarelos do queixo nesse plano) achou apenas 3 verts de 4514 e o amarelo ficou identico (7920 px / 95 px). Logo o limite de 95 px NAO e posicao nem oclusao (todos os vizinhos do PL foram recuados a x<=-0.230). O que existe ali e uma BORDA (rim) do revolve, nao um painel largo: os 95 px sao a faixa em que a superficie fica quase paralela a vista. CONCLUSAO: falta GEOMETRIA — criar um PAINEL FRONTAL PLANO (o trapezio grande do concept) em x=-0.151, |y|<=~0.17, z~0.62..0.79, com chanfro ligando ao casco. Nenhuma translacao, escala ou reprojecao de verts existentes produz isso. SERIE: 2540/60, 4724/77, 5390/77, 7026/93, 7921/95, 7920/95."
+  "chinpanel_x": -0.152,
+  "chinpanel_z0": 0.618,
+  "chinpanel_z1": 0.762,
+  "chinpanel_hy": 0.087,
+  "_nota_g26_painel_ok": "GATE DE ALTURA DA MENTONEIRA FECHADO: o P52 criou um PAINEL FRONTAL PLANO (geometria nova) — laje com face frontal em x=-0.152, |y|<=0.087 (0.175 m), z 0.618..0.762 (0.144 m), chanfro de 18%% e material M_Yellow, unida ao PL para preservar sep_parts=14 — e o painel ocupa y 640-817 = 177 px no render, equivalente ao alvo de 180 px (98%%). O amarelo total subiu de 23.244 para 47.421 px. SERIE DE ALTURA: 60 -> 77 -> 77 -> 93 -> 95 -> 95 -> 177 px. ERRO DE INSTRUMENTO CORRIGIDO: filtrar 'queixo' como y>=700 cortava a metade superior do painel (y640 a y817) e fazia a altura parecer 118 px; a janela de medicao deve vir do mapeamento render<->mesh (z -> y), nunca escolhida por conveniencia — mesma familia do erro do limiar de 1 mm. PENDENTE VISUAL: a faixa desce e encontra a mentoneira sem separacao (no concept a faixa termina na viseira), possivel ajuste de bevel/x do painel e o sorriso ainda faltam."
 }
