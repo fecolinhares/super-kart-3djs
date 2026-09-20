@@ -4654,3 +4654,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     na faixa do casco ACIMA da viseira, convertidos em fracao da LARGURA DO CAPACETE (nao do quadro). Depois
     aplicar t/sx/sy para bater esses numeros, e validar com headortho. NAO continuar ajustando por nota de vision.
   GLOBAIS PRESERVADAS em W610D..W613D: x_range [-1.196,1.154], W/H 1.169, 14 pecas, QA ok.
+
+
+## *** G26/CAPACETE: ALVO MEDIDO (aspect h/w 1.240) - 32%% DE ERRO, CONSISTENTE COM O VISION ***
+  METROLOGIA DO CONCEPT (front.jpg, labeling por BFS escrito a mao — NAO ha scipy neste ambiente):
+    capacete = componente AZUL da METADE SUPERIOR (o primeiro seletor pegou o TORSO, que tambem e azul:
+               componente de 12426 px em y[357,450] = peito; o capacete e 10093 px em y[84,243]).
+    CONCEPT: capacete 129 x 160 px  ->  aspect h/w = 1.240
+  MODELO (bbox real do helmet, P33): y +-0.2350 (largura 0.4700) | z 0.7888..1.2310 (altura 0.4422)
+    -> aspect h/w = 0.941
+  *** ERRO: 1.240 vs 0.941 = o capacete do modelo e 32%% MAIS LARGO/ACHATADO que o concept. ***
+    Este e o primeiro numero CONFI AVEL de forma do capacete, e ele CONFIRMA o que o vision repetiu em tres
+    chamadas ('o 3D esta mais largo e achatado que o concept', 'calota mais larga e achatada') — enquanto as
+    ESTIMATIVAS NUMERICAS dele para os vents se contradiziam entre chamadas.
+  ALAVANCAS (ja parametrizadas no builder): helm_sz (escala X do capacete, base 0.934), helm_r (HR), helm_z.
+    Para levar h/w de 0.941 a 1.240: ou estreitar a largura ~24%% (helm_sz), ou subir a altura. helm_sz e a
+    alavanca direta da LARGURA e ja esta exposto (P32v2 alavanca do capacete = helm_sz).
+  SEGMENTACAO DOS VENTS AINDA NAO FECHADA: o limiar por saturacao (sat<45) capturou o CAPACETE INTEIRO como
+    'cinza' (6202 px) — num JPEG de baixa resolucao o azul tem saturacao baixa. Precisa segmentar por MATIZ
+    (hue), e so entao medir os vents acima da viseira. Registrado como pendencia com a causa exata.
+  NAO SEGUIR: ajustar vents por nota de vision (estimativas contraditorias). Os vents estao SIMETRICOS e no lado
+    certo; o alvo de grandeza vem da metrologia, nao do vision.
