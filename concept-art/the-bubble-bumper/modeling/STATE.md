@@ -2528,3 +2528,33 @@ e apos coletar indices os objetos ficam invalidos -> coletar as FACES (objetos),
 ## BASE: **W472** (+ W473 rzt 0.400)
 IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
 Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
+
+
+## DELECAO POR GRUPO DE MATERIAL — M_Silver e o ocupante dominante (com ressalva)
+
+8 renders (delete->render->medir), zero builds:
+  **M_Silver -> 342 px  delta -131**  run vira `0.43..0.64 | 0.72..0.78 | 0.82..0.85 | 0.90..0.95 | 0.98..0.99`
+  M_Dark   -> 458 px  delta  -15   (run 0.43..0.78 | 0.83..0.99)
+  M_BlueDk -> 467 px  delta   -6   (run 0.43..0.75 | 0.76..0.78 | 0.82..0.99)
+  M_Yellow -> 473 px  delta    0  | M_Eye 0 | M_Blue 0 | M_White 0 | M_Gold 0
+=> **o M_Silver do REAR e o ocupante dominante da linha t0.54.** Removendo-o o run se abre em 5 pedacos,
+   o que revela a estrutura interna (a linha e composta de ~5 massas M_Silver sobrepostas).
+
+**RESSALVA METODOLOGICA (importante)**: o M_Silver inclui as pecas MAIS TRASEIRAS (x -1.19), logo
+remove-lo ENCOLHE o bbox -> a normalizacao desloca -> o delta -131 mistura remocao real com reescala.
+O teste da ilha L/R foi LIMPO porque era interior (bbox identico: y236..653 x20..856).
+**REGRA ADICIONAL**: em delete->render, conferir SEMPRE se o bbox do teste e igual ao do baseline;
+se mudou, o delta nao e comparavel diretamente (corrigir comparando pelo BBOX DO CONJUNTO COMPLETO, ou
+medindo em coordenadas mundo->imagem usando a camera, nao a bbox do resultado).
+
+**CONSISTENCIA**: o histograma anterior por x dizia "ZERO M_Silver em x -0.92..-0.74". O teste de delecao
+mostra mudanca em img 0.82..0.85 (= x -0.78..-0.85) — ou seja, a remocao do M_Silver altera a faixa mesmo
+sem faces M_Silver ali => **confirma que o deslocamento de normalizacao (bbox) esta contaminando**. Esses
+dois resultados so reconciliam se o delta incluir reescala.
+
+**PROXIMA ACAO (correta)**: repetir a delecao por material, mas comparando SEMPRE em coordenadas MUNDO
+projetadas pela camera (x_mundo -> coluna da imagem via ortho_scale 2.42, sem depender da bbox), OU
+remover apenas faces INTERIORES (que nao tocam os extremos x/z do modelo) para manter o bbox intacto.
+
+## BASE: **W472** (+ W473 rzt 0.400)
+IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
