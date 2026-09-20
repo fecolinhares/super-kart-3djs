@@ -2471,3 +2471,30 @@ Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
 
 ## BASE: **W472** (+ W473 rzt 0.400)
 IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## ILHAS CONEXAS — OCUPANTE DO VAO E UM PAR L/R M_Dark
+
+bmesh linked-faces a partir de 28 sementes (x -0.83..-0.75, z_max>0.63, M_Dark):
+  **ilha 0: 72 faces | x -0.851..-0.731 | y +0.112..+0.183 | z 0.494..0.677 | centroide (-0.791, +0.148, 0.586)**
+  **ilha 1: 72 faces | x -0.851..-0.731 | y -0.183..-0.112 | z 0.494..0.677 | centroide (-0.791, -0.148, 0.586)**
+=> par ESPELHADO (L/R), 72 faces cada, box com bevel. Bbox x -0.851..-0.731 = **img 0.800..0.851**
+   (cobre a maior parte do vao do concept 0.81..0.88). z 0.494..0.677 cruza a linha (0.626).
+   y +-0.112..0.183 (par L/R claramente deslocado em y).
+
+**DESCARTADOS por x/material:**
+  trio `Airbox%d` (loop em rear()): x -0.470/-0.575/-0.665, z 0.652/0.596/0.540, M_Silver -> x FORA e material errado
+  `Airbox` (XRE+0.360+ab2_dx = -0.740, y half 0.118) -> y nao casa (+-0.183)
+  `Airbox_Strut` (XRE+0.345=-0.845, y +-0.078, z ..0.624) -> y nao casa e z nao alcanca 0.677
+  `Diffuser` (y 0.170, x -0.93..-1.05) e `Seat_Base` (y 0.188, x -0.21..+0.09) -> x NAO casam
+
+**MAIS PROVAVEL (por y +-0.112..0.183 e x dentro da faixa):** um sub-elemento do par de ESCAPAMENTOS
+L/R (y do `pt` = +-0.110/0.185/0.240; x de -0.59 a -1.19) ou o `Airbox_Duct`/`Exh*_cut` (M_Dark).
+Isso explica o W466: encurtar os L/R em 0.35 moveu a PONTA (x -1.19 -> -0.84) mas o grupo (-0.851..-0.731)
+sobreviveu -> 0 px na linha.
+**PROXIMA ACAO**: expor/afastar o sub-elemento L/R em y (ou encurtar mais para x > -0.73) e medir o diff
+NA LINHA ALVO. Alternativa direta: esconder temporariamente as ilhas (hide_render por ilha nao e
+possivel sem split) -> usar `bpy.ops.mesh.separate` num blend de teste e comparar a linha.
+
+## BASE: **W472** (+ W473 rzt 0.400)
+IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
