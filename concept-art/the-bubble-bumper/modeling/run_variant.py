@@ -53,6 +53,17 @@ old8a="sp=sweep('Airbox_Strut_'+('L' if sy>0 else 'R'),[(XRE+0.345,sy*0.078,0.59
 new8a="sp=sweep('Airbox_Strut_'+('L' if sy>0 else 'R'),[(XRE+0.345,sy*0.078,0.596+P.get('strut_dz',0.0)),(XRE+0.330,sy*0.090,0.430)],0.028,14)"
 if old8a in SRC:
     SRC=SRC.replace(old8a,new8a,1)
+
+# patch 9: Airbox de x -0.830 (o box 'Airbox' com half-extent 0.100 HARDCODED) — ocupa vao2 inteiro em t0.54
+old9="ab=box('Airbox',(XRE+0.360,0,0.585),(0.100,0.118,0.078),bevel=0.032,segs=4)"
+new9="ab=box('Airbox',(XRE+0.360+P.get('ab2_dx',0.0),0,0.585),(P.get('ab2_x',0.100),0.118,0.078),bevel=0.032,segs=4)"
+if old9 in SRC:
+    SRC=SRC.replace(old9,new9,1)
+old9b="ab2=box('Airbox_Top',(XRE+0.360,0,0.655),(0.082,0.094,0.030),bevel=0.016,segs=3)"
+new9b="ab2=box('Airbox_Top',(XRE+0.360+P.get('ab2_dx',0.0),0,0.655),(P.get('ab2_x2',0.082),0.094,0.030),bevel=0.016,segs=3)"
+if old9b in SRC:
+    SRC=SRC.replace(old9b,new9b,1)
+
 old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 if old8b in SRC:

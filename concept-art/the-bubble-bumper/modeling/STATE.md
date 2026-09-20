@@ -2243,3 +2243,31 @@ mascara cortada); (2) no vao1, atacar o Rear_Bumper_U/difusor e reconfirmar o du
 
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## W471 — **PRIMEIRO GANHO NA LINHA t0.54** (Airbox ab2_x 0.100->0.030, ab2_x2 0.082->0.024) => NOVA BASE
+
+**O RUN DIVIDIU (primeira vez em 7 tentativas):**
+  w463:    0.39..0.42 | 0.43..0.99                 (solido)
+  w471:    0.39..0.42 | 0.43..0.78 | 0.80..0.99    -> **VAO ABERTO em 0.78..0.80**
+  concept: 0.41..0.77 | 0.80..0.81 | 0.88..0.94    -> vao1 do concept = 0.77..0.80  **CASA**
+Diff: 502 px total | **15 px NA LINHA ALVO** (row 192 da mascara cortada) — pequeno mas REAL.
+
+**AGREGADO — nenhuma regressao:**
+  IoU 0.826 (=) | P10 0.790 (=) | pior **0.680->0.682** | COR_TV 0.252 (=) | excesso **12.9->12.8** |
+  falta 7.0 (=) | <0.80 4 (=) | sep_parts 14 (=) | side/TRASEIRA **0.680->0.682**
+  side/TRASEIRA excesso 20.3->**19.7** | regiao COR 0.260->**0.257**
+
+**MECANISMO**: o `Airbox` (box em XRE+0.360 = x -0.830, half-extent 0.100 HARDCODED) ocupava x -0.730..-0.930
+= o vao2 inteiro (108 das 108 faces). Reduzido a half-extent 0.030 -> x -0.800..-0.860 -> abriu x -0.730..-0.800.
+=> **a cadeia correta e: probe de faces por faixa de z -> ocupante exato -> expor parametro -> medir o diff
+   NA LINHA ALVO (row 192 da mascara cortada) -> so entao julgar pelo agregado.**
+=> confirma tambem que o veredito antigo do W461 (ab_x) era duplamente invalido: linha errada E peca errada
+   (ab_x e do trio Airbox%d de half-extent 0.058, nao do box Airbox de -0.830).
+
+**RESTA**: o vao2 do concept (0.81..0.88 = x -0.75..-0.92) ainda esta fechado — o modelo tem 0.80..0.99 solido.
+Proximo: continuar reduzindo/deslocando o Airbox (ab2_dx) e/ou atacar o Rear_Ramp (rzt/rth) na faixa 0.81..0.88.
+
+## BASE: **W471** (nova) — derivada de W463 + ep_s[0.085,0.042,0.095] + abt_dz-0.030 (W463) + ab2_x 0.030 + ab2_x2 0.024
+IoU 0.826 | P10 0.790 | pior 0.682@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
