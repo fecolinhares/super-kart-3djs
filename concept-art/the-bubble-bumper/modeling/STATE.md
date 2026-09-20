@@ -5097,3 +5097,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     concept; para validar o rosto isoladamente, usar hide_render no volante no render do rosto.
   FERRAMENTA NOVA (vale para todo o resto): /tmp/ls_blend.py e /tmp/chk_pl.py abrem o .blend e imprimem bbox+flags
     de TODOS os objetos — usar quando o SUBCAP nao explicar uma oclusao.
+
+
+## OCLUSOR REAL = O COWL (nao o volante; hipotese refutada por medicao) ***
+  TESTE QUE REFUTOU: baixei o volante (sw_dz -0.110 -> -0.250, topo do volante de 0.660 para 0.520) e a banda do
+    queixo no render do rosto ficou IDENTICA: 12369 px escuros, 0 px de amarelo — antes e depois. Nao e o volante.
+  MEDICAO NA BANDA DO QUEIXO (z 0.632-0.723 -> y[687,799] no render do rosto): 0 px de AMARELO, ou seja a
+    mentoneira NAO aparece. E 42%% da janela e escuro.
+  OCLUSOR: COWL x[+0.116,+0.606] z[0.102,0.718] — a carenagem fica A FRENTE do piloto (x maior = mais perto da
+    camera em x=+5) e seu topo (z 0.718) cobre a mentoneira (z 0.632-0.723). O queixo esta sepultado atras do cowl.
+  IMPLICACAO: nao e enquadramento, nao e material, nao e o volante: e a RELACAO PILOTO/COCARPIT. No concept o queixo
+    aparece na frontal — logo o capacete/piloto esta BAIXO DEMAIS em relacao ao cowl (ou o cowl alto demais).
+    Isso e uma correcao estrutural de posicionamento, nao um parametro de detalhe.
+  sw_dz REVERTIDO para -0.110 (a mudanca nao teve efeito na oclusao; manter a base limpa).
+  LICAO: antes de 'consertar' um oclusor, MUDAR a peca suspeita e RE-MEDIR a banda ocluida. Uma mudanca de 14 cm sem
+    efeito nenhum mata a hipotese em um build — mais barato que 3 pranchas de vision.
