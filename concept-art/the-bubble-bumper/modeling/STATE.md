@@ -5218,3 +5218,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Hipoteses: (a) a escala roda em outra instancia/loop de chinp; (b) o transform_apply seguinte a desfaz/normaliza;
     (c) o .blend que abri e anterior. Checar lendo o built_last.py e o bbox do chin_guard no .blend.
   W653D verde (QA ok, 14 pecas, globais preservadas).
+
+
+## MENTONEIRA: LARGURA E ALTURA JA NO ALVO - FALTA SO A TRANSLACAO ***
+  JUIZ = o bbox que o PROPRIO build reporta (SUBCAP), nao o render:
+    W652D (sem chin_sy): y[-0.1653,+0.1653] z[0.6320,0.7232]  -> mentoneira no queixo
+    W653D (com chin_sy): y[-0.0871,+0.0871] z[1.0112,1.1571]  -> largura certa, peca SUBIU
+  RESULTADO:
+    LARGURA 0.174 m vs alvo 0.175 m -> OK (chin_sy=0.527 funcionou)
+    ALTURA  0.146 m vs alvo 0.147 m -> OK (chin_sz=1.60 deu exatamente o alvo)
+    POSICAO subiu +0.4067 no z -> a escala Z sobre a ORIGEM do objeto empurrou a peca para cima
+  ERRO MEU NO TESTE: o magenta usou a bbox ANTIGA (z 0.632-0.724) e por isso pintou OUTRA peca (410 px) — me
+    levou a concluir 'chin_sy nao aplicou', quando tinha aplicado. TESTE COM COORDENADAS TEM QUE SER REFEITO se
+    o build mudou a posicao da peca. O bbox do SUBCAP e mais barato e mais confiavel que repintar.
+  FIX (proximo, 1 linha): compensar com translacao rigida pos-escala, chin_dz=-0.4067, no mesmo ponto do chinp.scale.
+    Padrao ja conhecido (registrado na memoria): escala + transpiacao=translacao rigida compensando a origem.
+  W653D verde (QA ok, 14 pecas, globais preservadas).
