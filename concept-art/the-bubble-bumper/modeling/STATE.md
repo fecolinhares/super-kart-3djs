@@ -5613,3 +5613,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PROXIMO (concreto): reduzir o painel para z0=0.640, z1=0.748 (0.108 m, ~133 px) mantendo o taper e o bevel; re-render e
     conferir altura do amarelo e o gate visual.
   W672D verde: QA ok, sep_parts=14, globais preservadas.
+
+
+## W673D: PAINEL EM 18%% (0.108 m) E A MEDICAO POR COR E INUTILIZAVEL ***
+  P52 agora: z 0.640..0.748 (0.108 m = 18%% da altura do casco = 133 px na camera face). Build verde.
+  CLUSTERS AMARELOS: (171,330,160) faixa do capacete | (457,460,4) ruido | (495,817,323) — a faixa DESCE CONTIGUA
+    ate a mentoneira, sem gap. Logo 'largura do amarelo por linha' mede faixa + chin_guard + painel JUNTOS: inutil.
+  ISOLAMENTO POR CAIXA tambem contamina: filtrando M_Yellow com x<-0.145, |y|<=0.10 e z 0.63-0.76 dao 2107 faces e
+    z[0.6333,0.7594] = 0.126 m, quando o painel tem 0.108 m — a caixa capturou o amarelo do proprio chin_guard.
+  SOLUCAO DEFINITIVA (proximo): dar ao painel um MATERIAL PROPRIO (M_ChinPanel, mesma cor do M_Yellow) em vez de M_Yellow.
+    Assim ele e medivel por material, sem ambiguidade com o amarelo do casco e sem depender de cor/geometria.
+    Alvo numerico ja fixado: z 0.640-0.748 = 0.108 m = 133 px (18%% do casco, meio da faixa do concept 13,5-24%%).
+  W673D verde: QA ok, sep_parts=14, globais preservadas.
