@@ -4137,3 +4137,45 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CONSULTA AO PERFIL DEFAULT: tentada via 'hermes -p default chat -q' com as evidencias do runner duplicado.
     NAO completou em 240s (KeyboardInterrupt/timeout do CLI). Fica registrado para repetir com timeout maior ou
     por outro canal. O blocker permanece ABERTO e depende de infra.
+
+
+## *** UNBLOCK: CAMINHO DIRETO DE BLENDER (sem o runner MCP) ***
+  DESCOBERTA: o runner MCP voltou a quebrar (server.py MODIFICADO as 07:04 por OUTRO ator; os dois 'servers'
+    nao sao por perfil — sao filhos de 'gateway run' (2192) e 'serve --port 9119' (2194)). Log de 109 bytes com
+    apenas '###RESULT###{}' = payload chegando VAZIO ao servidor. 5 builds perdidos (W578-W581).
+  SOLUCAO (funcionando, 3 builds OK): replicar o runner no terminal, sem servidor. O server.py monta
+    HEAD + PRELUDE + codigo + TAIL. Recipe exata:
+      1) HEAD   = sp[i+len('HEAD = """'):sp.index('"""', ...)]                    (server.py:192)
+      2) PRELUDE= sp[k+len("PRELUDE = r'''"):<indice do marcador 'fim do prelude'>]      (server.py:206)
+         ATENCAO: cortar pelo MARCADOR, nao pelo proximo ''' (o PRELUDE contem ''' aninhado).
+      3) PRELUDE.replace('OUTDIR = %r', "OUTDIR = %r" % '/opt/blender-runner/outputs')
+      4) 'import time' (o PRELUDE importa mathutils mas NAO time; bb25.py usa time)
+      5) rodar: flock -n /opt/blender-runner/.lock timeout -s KILL 420 /snap/bin/blender -b
+                --factory-startup --python <script> 2>&1 | grep '^###'
+    O script imprime ###DIRECT_OK ###METRICS ###BBOX ###QA e depois o ###RESULT### do emit().
+    Build leva ~18s. Renders em /opt/blender-runner/outputs/<ver>-*.png (+ f- flat e m- mask).
+    Scripts prontos: /tmp/b581d.py, /tmp/b582d.py, /tmp/b583d.py.
+  TAMBEM ADICIONADO: run_variant.py agora despeja o SRC construido em /tmp/built_last.py (debug de linha real).
+
+## *** CONTRADICAO DO xf 0.267 EXPLICADA: SUBSURF COLAPSA SECAO ESTREITA-ALTA ***
+  O topo medido da carena fica MUITO abaixo do nominal nas estacoes FRONTAIS e apenas ~2%% no meio. A carena
+    constroi secoes com ry=0.098*s+0.030 -> nas estacoes frontais (s pequeno) a secao e ESTREITA E ALTA
+    (ry~0.030 contra altura ~0.55), e o SUBSURF(levels=1) colapsa esse tipo de secao. Onde a secao e larga
+    (meio da carena) o shrink e ~2%%. E a mesma causa que o vision viu como 'parede vertical': o topo sobe
+    tarde porque as estacoes frontais nao sustentam o topo.
+  ALVO CONFIRMADO POR MEDICAO (grade fina): patamar do concept em xf 0.267-0.350 a 0.549-0.551, entrando por
+    degrau a partir de 0.465 (xf 0.250).
+
+## *** TENTATIVAS DESTE CICLO (caminho direto) ***
+  W581D  sem patamar (rampa so da tabela corrigida): medio 0.0531 | frente-meio 0.0568 | sobe CONTINUO ✓
+  W582D  f=0.62: BYTE-IDENTICO ao W581D -> o trapezio DEGENERA (sem zona plana) e o patamar nao contribui.
+         REGRA: com largura (b-a) e fracao f, a zona plana vale (b-a)*(1-2f); f>=0.5 ANULA o patamar.
+  W583D  a=0.215 b=0.360 f=0.35 h=0.556 (plano xf 0.266-0.309 + rampas de 0.051): medio 0.0528 | frente-meio
+         0.0558 | patamar 0.0588. Rampa CONTINUA ✓ (sem parede) mas ATRASADA: modelo chega ao patamar em
+         xf 0.317, concept em 0.267.
+  MELHOR BASE segue W573: medio 0.0498 | frente-meio 0.0462 | patamar 0.0285.
+
+## *** PROXIMO LEAF (nomeado, pronto) ***
+  Engrossar as SECOES FRONTAIS da carena (o termo '+0.030' em ry=0.098*s+0.030) para que o SUBSURF nao
+    colapse o topo ali, e SO ENTAO re-posicionar a janela do patamar. Ordem: primeiro dar sustentacao a secao,
+    depois o patamar; fazer o contrario (como em W583D) nao funciona porque a secao nao sustenta o topo novo.

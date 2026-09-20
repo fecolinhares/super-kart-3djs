@@ -493,6 +493,7 @@ if _o_g26 in SRC:
 else:
     print('G26 ALVO NAO ENCONTRADO')
 
+open('/tmp/built_last.py','w').write(SRC)
 exec(compile(SRC,'bb_'+VER,'exec'),g)
 R=g.get('R',{})
 print(VER,'| QA=',R.get('qa',{}).get('aprovado'),'| z_range=',R.get('z_range'),'| ERRO=',R.get('ERRO'))
