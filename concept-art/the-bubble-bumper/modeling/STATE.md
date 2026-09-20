@@ -4835,3 +4835,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     queixo por onde o azul do capacete encontra a gola; (2) so entao medir olhos/viseira/sobrancelhas com
     referencial valido (%% da largura do CASCO e altura a partir da coroa); (3) usar o mesmo recorte no render.
   NAO construir sobre bbox cujo topo esta errado.
+
+
+## PERFIL DE LARGURA DO AZUL NO CONCEPT (dado novo, resolve o referencial) ***
+  Medido linha a linha na front.jpg (azul: matiz 120-185, S>80):
+    COROA y=87 (primeira linha com azul relevante)
+    y88..y120: 71 -> 122 px (dome do capacete alargando)
+    y120..y168: 118-128 px = EQUADOR do capacete (mais largo; max 128 px)
+    y172..y224: 125 -> 88 px = estreitando (tronco/ombros)
+  *** AS LINHAS 'QUEBRADAS' NAO SAO RUIDO: SAO A FAIXA E A VISEIRA CORTANDO O AZUL ***
+    y136:14 | y140:37 | y148:47 | y156:24 | y160:29 | y172:27 px — nesses Y o azul e interrompido pela
+    FAIXA amarela (centro) e pela VISEIRA. Isto explica RETROATIVAMENTE as bboxes absurdas de 127x77 e
+    as medicoes que pegaram ombros: a mascara azul de uma linha pode ter so 14 px porque faixa+viseira
+    partem o casco em duas metades.
+  O QUEIXO NAO TEM MINIMO LOCAL: e um chibi, o capacete transita SUAVE para o tronco (nao ha 'pescoco').
+    => o referencial vertical NAO pode vir da silhueta azul; deve vir da VISEIRA/FAIXA (ex.: base da viseira)
+    ou da coroa + a razao conhecida. Registrar como o proximo ajuste de instrumento.
+  DADOS SOLIDOS PARA O ROSTO: coroa y=87 | equador y120..y168 com 118..128 px (largura de referencia 128) |
+    olhos (medidos antes) em y[166,181] com 26 e 23 px = 20.5%% e 18.1%% da largura, centros -16.5%%/+19.3%%.
