@@ -4798,3 +4798,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CONCLUSAO: o taper esta implementado e calibrado por 2 pontos medidos, mas NAO esta VERIFICADO. Duas correcoes
     de instrumento necessarias antes: cortar y1 no queixo real e medir a largura do casco sem oclusao (ou usar o
     bbox real do helmet do P33, que e geometrico e nao depende do render). NAO declarar validado.
+
+
+## *** W631D - TAPER DA FAIXA VERIFICADO: 0.68 vs 0.70 DO CONCEPT (erro 3%%) ***
+  A VERIFICACAO POR LINHA (razao sem escala, imune a oclusao) e o instrumento certo:
+    W627D (w constante):  1a 34 px | meio 34 | ultima 34 -> razao 1.00
+    W631D (com taper):    1a 50 px | meio 40 | ultima 34 -> razao 0.68
+    CONCEPT (medido):     38.8%% na coroa -> 27.1%% na viseira   -> razao 0.70
+    ERRO 3%%. Taper FECHADO. QA ok, 14 pecas, globais preservadas.
+  DOIS BUGS MEUS ENCONTRADOS E CORRIGIDOS NESTE CICLO (mesma familia: ANCHOR/INDENTACAO):
+    (1) CODIGO MORTO: escrevi o taper no texto do P32, mas com helm_raycast=1 o caminho ATIVO e o P34 (que tem
+        a SUA PROPRIA linha w=P.get('helm_trim_w',...)). O teste extremo (w_bot 0.1003 -> 0.0400) deu render
+        PIXEL-IDENTICO, o que provou que o parametro nao tinha efeito -> o taper nunca foi lido. LICAO: ao
+        editar um patch, confirmar QUAL patch e o caminho ATIVO — patches empilhados podem se sobrescrever.
+        (2) INDENTACAO: a linha `w=P.get(...)` do P34 esta a 12 ESPACOS (dentro do `for i in range(41)`), meu
+        anchor usou 8 -> o taper entrou FORA do loop e engoliu o corpo seguinte dentro do `if`, quebrando a
+        faixa (###QA### False e render sem faixa). Mesma classe do erro do P37. LICAO: extrair o anchor do
+        ARQUIVO com a indentacao real (regex com ^(\s*)) — nunca digitar.
+  INSTRUMENTO DE MEDICAO (o que finalmente separou sinal de ruido): amarelo por MATIZ dentro de uma BANDA do
+    topo do quadro, e comparacao por RAZAO (base/max) — a razao e LIVRE DE ESCALA, entao a oclusao da viseira
+    (que subestima a largura do casco no render e inflava o %% absoluto para 42.2%%) deixa de importar.
