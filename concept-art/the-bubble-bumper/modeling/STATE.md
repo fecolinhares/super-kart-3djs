@@ -5737,3 +5737,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     3. comparar com a bbox do .blend final para localizar em QUE passo o numero divergia;
     4. corrigir a formula (coords locais, nao de mundo) e re-medir.
   W684D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## P58: CANTOS ARREDONDADOS (U) — E NOVA COMPENSACAO DE Z ***
+  P58 adiciona BEVEL modifier (width 0.014, 3 segmentos, limit ANGLE) no painel ANTES do join -> U arredondado em vez de
+    trapezio anguloso (o vision pediu isso: o concept e 'U arredondado'). Faces do painel: 6 -> 98.
+  M_ChinPanel no W685D: x 0.050 | y[+-0.058]=0.116 m (era 0.128 — mais estreito) | z[0.6409,0.7631]=0.1221 m = 150 px.
+    ALVO 133 px -> +13%: o bevel EXPANDE a geometria (o arredondamento soma ao redor). Compensar reduzindo z0/z1 (~-8mm).
+  LARGURA vs CONCEPT: concept tem pico de 63 px num casco de 128 px = 49% -> 0.175 m. Modelo: 0.116 m = 33%. O vision
+    disse 'largo' quando estava 0.128 (forma chapada), mas em NUMERO o concept e mais largo -> a leitura e sobre a FORMA
+    (U arredondado vs trapezio chapado), nao sobre a largura. Nao estreitar mais; o P58 acertou a forma.
+  ANOTACAO DE METODO: duas vezes a ancora por TEXTO casou no bloco errado (a string '_pl=bpy.data.objects.get(P.get(\'pilot_obj\',\'PL\'))'
+    existe no P50 E no P52). Verificar UNICIDADE da ancora (count==1) antes de inserir — regra nova de patch.
+  W685D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
