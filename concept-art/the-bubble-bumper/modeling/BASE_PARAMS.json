@@ -291,5 +291,5 @@
   "brow_w": 0.03,
   "brow_z": 0.805,
   "brow_th": 0.006,
-  "_nota_g26_p73": "P73: sobrancelha reconstruida. A faixa antiga (228 faces na janela z 0.822-0.898) foi REATRIBUIDA para M_Face e dois arcos finos fechados foram criados: 0.030 x 0.011, espessura 0.006, em z 0.805 e y +-0.019 (alinhados com as lentes em z 0.7745). QA True, falhas = [], sep 14."
+  "_nota_g26_gate_v19": "GATE v19 (W712D): 6.5/10 — a sobrancelha reconstruida foi CONFIRMADA ('acabaram a faixa gigante; agora sao dois arcos separados e alinhados com os olhos'), com refinamento ('mais grossos, curtos e baixos que o fio fino do concept'). MAIOR erro: 'viseira-caixa opaca com ABAS LATERAIS QUE PARECEM ORELHAS' — o mesmo artefato que o gate do P60 descreveu ('cantos que estouram para fora como orelhas'), logo e real. CANDIDATOS: (1) medir a extensao em y da M_Visor POR FAIXA de z contra o casco (a media global de 98,5% nao pega a pior faixa); (2) os rasgos extra na testa = pares de M_Dark em z 1.042-1.093; (3) os 'ovais soltos' = pupilas novas flutuando fora da superficie (medir a distancia em x ao painel) ou as fendas laterais (z 0.941-0.997); (4) afinar e subir o arco da sobrancelha."
 }

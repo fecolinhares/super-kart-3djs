@@ -6322,3 +6322,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   [QA-DBG] falhas = [] (duas vezes) | ###QA### True | sep 14 | 0 erros.
   Sequencia aplicada (a mesma que fechou os olhos): reatribuir material em vez de apagar; solido fechado (lente);
     validar por ilha conexa; conferir qa()['falhas'].
+
+
+## *** GATE v19: 6.5/10 — SOBRANCELHA OK E DOIS ACHADOS NOVOS ***
+  Vision (W712D): (1) 'Sim, acabaram a faixa gigante — agora sao dois arcos separados e alinhados com os olhos' (refinamento:
+    'ainda mais grossos, curtos e baixos que o fio fino do concept') | (2) 6.5/10 para a cabeca (melhor marca, empatada) |
+    (3) MAIOR erro: 'viseira-caixa opaca com ABAS LATERAIS QUE PARECEM ORELHAS, quebrando toda a leitura do capacete'.
+    Outros achados: 'dois pequenos rasgos pretos verticais extras na testa que nao existem no concept' e 'dois ovais pretos
+    flutuantes que parecem geometria solta' nas laterais.
+  AS 'ABAS/ORELHAS' NAO SAO NOVIDADE: o vision ja havia dito 'cantos que estouram para fora como orelhas' no gate do P60.
+    Dois gates independentes apontam o mesmo artefato nas LATERAIS DA VISEIRA -> e real, nao ruido.
+  PROXIMOS CANDIDATOS (com criterio mensuravel):
+    1. ABAS LATERAIS da viseira: medir a extensao em y da M_Visor por faixa de z e comparar com o casco — se em alguma faixa
+       a viseira passar o casco, a 'orelha' e medivel (hoje a medicao GLOBAL da 98,5%, mas isso e a media, nao a pior faixa);
+    2. RASGOS EXTRAS na testa: os pares de M_Dark em z 1.042-1.093 (436 faces cada) — conferir se existem no concept;
+    3. OVAIS PRETOS 'SOLTOS' nas laterais: conferir se sao as pupilas novas flutuando fora da superficie (medir a distancia
+       em x entre elas e o painel do rosto) ou as fendas laterais de M_Dark (z 0.941-0.997).
+    4. Arco da sobrancelha: deixar mais fino/curto e subir (o vision pediu).
