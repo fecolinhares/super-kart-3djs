@@ -5585,3 +5585,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   GATES: altura da mentoneira 177 px (alvo 180) FECHADO. Visual 4.0/10 (era 5.0 no W647D, mas com mentoneira invisivel;
     agora ela existe e o que falha e forma/integracao).
   W671D verde: QA ok, sep_parts=14, globais preservadas.
+
+
+## W672D: TRAPEZIO APLICADO (taper 0.40, bevel 0.26) + MEDICAO CONTAMINADA ***
+  P52 agora aplica taper em y em funcao de z (mais estreito embaixo) e bevel 0.26. Build verde (QA ok, sep 14).
+  MEDICAO por largura de amarelo por linha (y 650..810): 244, 251, 257, 263, 268, 418, 476, 515, 529.
+    O salto entre y730 (268) e y750 (418) mostra que ABAIXO de y~745 a medicao NAO e mais o painel, e sim o amarelo
+    do chin_guard original (mais largo, mesma projecao). Logo: nao medir o trapezio do painel por cor de amarelo.
+    alternativas: medir a LARGURA por linha apenas na faixa onde o painel e exclusivo, ou isolar por material com
+    repintura magenta (metodo ja validado), ou medir a silhueta do conjunto.
+  AMBIGUIDADE A RESOLVER COM O CONCEPT: o vision descreve a mentoneira como 'trapezoidal INVERTIDA' (mais larga em CIMA);
+    meu taper fez o oposto (mais estreita embaixo). Registrar como hipotese a confirmar medindo o concept: largura do
+    amarelo do queixo por linha no front.jpg (y196..232 do concept) — se for maior em cima, inverter o sinal do taper.
+  W672D verde: QA ok, sep_parts=14, globais preservadas.
