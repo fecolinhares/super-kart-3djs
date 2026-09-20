@@ -7023,3 +7023,13 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   TRES FORMAS AUTORAIS POR PRIMITIVA nesta sessao: P102 para-choque (tubo+2 espumas toroidais), P103 asa
   (tubo+2 discos), P104 grade (5 divisoes). Receita provada: primitive_*_add + join no objeto certo, medido na orto.
   FILA: tread nos pneus, sidepods em cunha, acabamento cel-shading.
+
+
+## P105: TREAD NOS PNEUS (4 pneus x 18 blocos) ***
+  [P105] 18 blocos de banda de rodagem por pneu, em anel (R=0.178), orientados radialmente, largura 92%% da banda,
+  juntados a cada um dos 4 pneus. 72 blocos no total. ###QA### True | falhas=[] | sep 14.
+  ERRO E LICAO: a 1a tentativa falhou com 'ReferenceError: StructRNA of type Object has been removed' porque eu
+  guardei REFERENCIAS de objeto e o join() as invalida. REGRA: em passos que fazem join(), trabalhar por NOMES
+  (bpy.data.objects[nome]) e nunca guardar o objeto atraves da operacao.
+  QUATRO FORMAS AUTORAIS POR PRIMITIVA: P102 para-choque (tubo+2 espumas), P103 asa (tubo+2 discos), P104 grade
+  (5 vaos), P105 pneus (tread). Fila: sidepods em cunha, acabamento cel-shading.
