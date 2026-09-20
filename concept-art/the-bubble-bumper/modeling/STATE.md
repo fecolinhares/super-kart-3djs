@@ -2055,3 +2055,36 @@ side/TRASEIRA 0.680->**0.670** (falta 18.1->19.4). => leve regressao. NAO adotad
 
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## W468 (rx0 0.380->0.300, frente da rampa recuada) — 4a HIPOTESE REFUTADA
+
+Invariantes OK. t 0.54 IDENTICO (`0.43..0.99` solido). Agregado: IoU 0.826 (=) | P10 0.790->0.789 |
+pior 0.680->**0.676** | COR_TV 0.252 (=) | exc 12.9 (=) | falta 7.0 (=) | <0.80 4 (=) |
+side/TRASEIRA 0.680->0.676 | rear/DIFUSOR 0.860 (=) | rear/ESCAPES 0.890 (=).
+=> a rampa nao e o ocupante do vao t 0.54.
+
+**BALANCO COMPLETO DAS HIPOTESES PARA t 0.54 (TODAS REFUTADAS):**
+  1. escapamentos L/R encurtados em x  (W466) -> NEUTRO
+  2. asa estreitada                    (W467) -> NEUTRO/regressivo
+  3. rampa recuada em x (rx0)          (W468) -> NEUTRO/regressivo
+  4. (o run 0.43..0.99 tambem nao muda com nenhuma delas)
+
+**RE-LEITURA DA GEOMETRIA (o que os dados dizem):**
+O run solido vai de imagem 0.43 a 0.99 = x **+0.14 .. -1.18**. O concept quebra em 0.77-0.80 e 0.81-0.88.
+Convertendo: vao1 = x -0.66..-0.73 | vao2 = x -0.75..-0.92.
+O probe por material (z 0.55-0.70, x -1.00..-0.55) listou como ocupantes:
+  M_Silver 656 x -0.999..-0.550 | M_Dark 188 x -0.851..-0.746 | M_Yellow 156 x -1.000..-0.935 |
+  M_Blue 86 x -0.986..-0.892 | **M_BlueDk 81 x -0.690..-0.582 = O DUCT**
+=> **vao1 (x -0.66..-0.73) e ocupado pelo DUCT** (x -0.582..-0.690). O duct ja foi mexido em Z
+   (`abt_dz=-0.030`, que resolveu t 0.66) mas NUNCA em X.
+=> vao2 (x -0.75..-0.92): os testes de rampa/asa/escape nao o abriram. Candidato remanescente: o
+   `M_Dark` em x -0.851..-0.746 = Airbox_Strut (XRE+0.345 = -0.845) e/ou Wing_Pylon (wx1+0.075 = -0.830),
+   que se fundem com a asa em z (haste topo z 0.596 vs asa z 0.545-0.625).
+
+**PROXIMA ACAO**: (a) patch do DUCT em X (afastar a ponta de x -0.668 para ~-0.75, abrindo vao1);
+(b) encurtar as hastes (Airbox_Strut de z 0.596 para baixo) para abrir vao2. Uma por build, invariantes
+checados antes do audit.
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
