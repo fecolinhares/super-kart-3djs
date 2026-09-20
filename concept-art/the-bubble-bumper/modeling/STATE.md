@@ -6314,3 +6314,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     3. validar por ILHA CONEXA (2 ilhas, |centroide_y| ~0.019 alinhado com as lentes) e por qa()['falhas'];
     4. medir largura/altura/espessura do arco contra o concept.
   W711D verde (QA True, falhas=[], 0 erros) — base para esta mudanca.
+
+
+## P73: SOBRANCELHA = DOIS ARCOS FINOS ***
+  [P73] faixa da sobrancelha: 228 faces reatribuidas para M_Face (era UMA faixa de 47,6 cm x 7,7 cm).
+  [P73] 2 arcos de 0.030 x 0.011 (esp 0.006) em z=0.805, y=+-0.019 -> alinhados com as lentes (que estao em z 0.7745, y +-0.019).
+  [QA-DBG] falhas = [] (duas vezes) | ###QA### True | sep 14 | 0 erros.
+  Sequencia aplicada (a mesma que fechou os olhos): reatribuir material em vez de apagar; solido fechado (lente);
+    validar por ilha conexa; conferir qa()['falhas'].
