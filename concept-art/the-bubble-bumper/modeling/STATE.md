@@ -6219,3 +6219,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     PARAMETROS PARA O PROXIMO BUILD: eye_disc 0.068 -> 0.025 ; eye_sep 0.090 -> 0.045
   PENDENTE TAMBEM: 'centralize pupilas' (a pupila esquerda estava cortada na borda e a direita fora do enquadramento, segundo o vision).
   W709D verde: 0 SyntaxError/Traceback/NameError, QA True, falhas = [].
+
+
+## *** P71: OLHOS NOS ALVOS DO VISION + PUPILAS COLORIDAS ***
+  [P70v4] 2 lentes fechadas de 0.025 x 0.028 (esp 0.006) separadas 0.045 -> atende 'reduza p/ ~2,5cm, gap ~2cm'.
+  [P71] 2 pupilas M_Dark de r=0.006 (1,2 cm de diametro = 48%% do olho; alvo do concept 43%%) centradas em y=+-0.022.
+  [QA-DBG] falhas = []  |  ###QA### True | sep 14 | len 2.5364 | scale 0.92651
+  Medicao por ilha conexa: 2 ilhas de 48 faces | centroides a 0.0450 um do outro | VAO 0.0286 POSITIVO.
+  NOTA DE INSTRUMENTO: a medicao por ilha usa o CENTROIDE DAS FACES, o que SUBESTIMA uma lente chata (da 0.0164 para um
+    desenho de 0.025). Para objetos finos, medir pelo BBOX DOS VERTICES, nao pelos centroides das faces — senao o numero
+    mente para baixo. (Registrado para nao 'corrigir' o que ja esta certo.)
+  W710D verde: 0 SyntaxError/Traceback/NameError.
