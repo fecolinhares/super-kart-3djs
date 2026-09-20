@@ -4995,3 +4995,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Falta medir a do concept com o mesmo metodo (escuro encerrado) para fechar o alvo.
   ALVOS PARA A TEXTURA: pupila ~43%% x 55%% do olho (oval ALTO, nao traco plano); sobrancelha fina e mais estreita
     que o olho, com folga acima (nao colada).
+
+
+## SOBRANCELHA DO CONCEPT: NAO ISOLAVEL POR LUMINANCIA (resultado negativo registrado) ***
+  TESTEI limiares progressivos na janela acima do olho ESQ (y125-154, x476-504):
+    V<130 -> 27-28 px de largura por 20 linhas = e a PROPRIA VISEIRA (a sobrancelha esta desenhada SOBRE o cinza)
+    V<90  -> 358 px (41% da janela)  |  V<70 -> 211 px (24%)  |  V<50 -> 144 px (17%)
+    Nenhum limiar isola um ARCO FINO (~2 px como o modelo, ou uma linha fina): o gradiente da viseira cobre a
+    mesma faixa de valores. CONCLUSao: a sobrancelha do concept NAO e mensuravel por luminancia no frontal.
+  FONTES DISPONIVEIS (checadas): reference-views-board.png 1536x860 (maior que front.jpg 1024x559);
+    the-bubble-bumper.jpg 1024x559 (= front.jpg); assets/reference-views/ (diretorio, a listar).
+  ALTERNATIVAS PARA O ALVO DA SOBRANCELHA: (a) procurar um recorte de rosto em reference-views/; (b) usar a
+    descricao do vision ('finas, arqueadas, altas' vs o modelo 'grossas, em bloco, baixas') como PRINCIPIO e
+    validar por GATE VISUAL em vez de por metrica; (c) medir so a ESPESSURA por varredura vertical na coluna
+    central da sobrancelha, onde o gradiente e mais fraco.
+  Mesmo resultado negativo e util: evita eu 'fechar' um alvo inventado.
