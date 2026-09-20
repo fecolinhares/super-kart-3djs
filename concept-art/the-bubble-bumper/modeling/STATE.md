@@ -6954,3 +6954,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   W745D: ###QA### True | falhas=[] | sep 14 | 0 erros.
   Esta e a correcao ESTRUTURAL da leitura 'placa': a frente do capacete passa a ser VIDRO (como no concept), nao
   a placa de rosto. Ate agora eu tratava o sintoma (largura) em vez da causa (area visivel frontal).
+
+
+## *** GATE v43: 'PLACA' RESOLVIDO — O PROXIMO ESTRUTURAL E O PILOTO ***
+  VISION (vista ORTO pareada):
+    (1) 'Sim, a frente agora le-se como VISEIRA/VIDRO cinza-azulado e nao mais como placa de pele' ✓
+    (2) 4/10
+    (3) MAIOR erro: 'escala/proporcao e caracterizacao — piloto MINUSCULO/AFUNDADO com capacete estreito,
+        viseira opaca sem olhos/expressao, para-choque em LAJE RETA em vez do tubo arredondado com espumas amarelas'
+  CONFIRMADO: o fix P100 (frente = viseira) resolveu a queixa que persistia por ~8 gates.
+  PROXIMO ESTRUTURAL (maior impacto na leitura, conforme Feco 'mudanca perceptivel = VOLUME'):
+    1. ESCALA/POSICAO DO PILOTO — esta minusculo e afundado; o concept e CHIBI (cabeca dominante).
+       Medir: razao altura-do-piloto / altura-total no concept (orto) vs no modelo; subir e escalar.
+    2. Velculo: para-choque e LAJE RETA em vez do tubo arredondado com espumas amarelas toroidais.
+    3. Viseira opaca sem olhos visiveis na vista orto (os olhos existem e estao medidos, mas nao se leem no render).

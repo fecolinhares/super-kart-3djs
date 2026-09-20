@@ -320,5 +320,6 @@
   "_nota_g26_causa_placa": "CAUSA RAIZ da leitura 'placa': M_Face tem 6702 celulas frontais visiveis contra 2938 do casco azul e 2553 da viseira. O M_Face domina a frente e por isso o clamp de largura (P78) nao mudou nada visualmente. FIX: recuar o M_Face ou reatribuir suas faces frontais a M_Visor. CRITERIO: M_Face < 300 celulas (hoje 6702). INSTRUMENTO: projecao ortogonal por material (/tmp/idv.py).",
   "face_front": 0.03,
   "face_xlim": -0.1,
-  "_nota_g26_p100": "P100: fix estrutural da 'placa'. Reatribuidas 7343 faces frontais de M_Face para M_Visor e recuadas 45864 faces em x. ANTES M_Face 6702 (dominava) / M_Visor 2553; AGORA M_Visor 6224 (dominante) / M_Face 3490. A frente do capacete passa a ser vidro."
+  "_nota_g26_p100": "P100: fix estrutural da 'placa'. Reatribuidas 7343 faces frontais de M_Face para M_Visor e recuadas 45864 faces em x. ANTES M_Face 6702 (dominava) / M_Visor 2553; AGORA M_Visor 6224 (dominante) / M_Face 3490. A frente do capacete passa a ser vidro.",
+  "_nota_g26_gate_v43": "GATE v43 (vista ORTO pareada): 'placa' RESOLVIDO — 'a frente agora le-se como viseira/vidro e nao mais como placa de pele' (confirmacao do P100). Nota 4/10. MAIOR erro restante: escala/proporcao — piloto MINUSCULO/AFUNDADO (o concept e chibi, cabeca dominante) e para-choque em laje reta em vez de tubo arredondado. PROXIMO: medir a razao altura-piloto/altura-total no concept vs modelo e escalar/subir o piloto."
 }
