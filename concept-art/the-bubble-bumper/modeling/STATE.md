@@ -3571,3 +3571,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     pod_area_frac 0.0993 > L_topo_z 0.0514 > L_base_z 0.0435 > R_base_z 0.0243 > topo_global_x 0.0074
     PASSAM: degrau_x 0.0024, R_topo_z 0.0001, topo_global_z 0.0003
   PROXIMO: re-medir pod_area_frac (0.0993) com a mascara limpa — pode herdar a mesma contaminacao.
+
+
+## *** pod_area_frac TAMBEM ERA ARTEFATO: erro real 0.0170 (era 0.0993) ***
+  Com a mascara limpa (flood raw + run vertical + mediana 5):
+    concept 19677/108819 = 18.08%% amarelo | modelo 29873/182384 = 16.38%% | erro 0.0170  (PASSA o gate 0.05)
+  => 83%% do erro era medicao. SEGUNDO maior item da fila invalidado no mesmo dia que o primeiro.
+
+### PADRAO DOMINANTE DA SESSAO (a licao central)
+  Praticamente TODO erro grande da minha fila era ARTEFATO DE MEDICAO, nao divergencia de forma:
+    degrau_x        0.2071 -> 0.0024  (98.8%% artefato)
+    pod_area_frac   0.0993 -> 0.0170  (83%% artefato)
+    R_base_z        0.5143 -> 0.0243  (95%% artefato, corrigido por mudanca real de geometria ja feita)
+    degrau_amp      0.0704 -> revalidar (mascarado pelo mesmo salto de 1 coluna)
+  CONSEQUENCIA: o modelo pode estar MUITO mais proximo do concept do que minhas metricas diziam desde o inicio.
+    As 7 refutacoes de peca do turno anterior nao foram trabalho perdido em vao: provaram que a metrica era cega.
+  REGRA CONSOLIDADA: antes de qualquer ciclo de otimizacao, VALIDAR A METROLOGIA (saneza da mascara, suavizacao,
+    plausibilidade fisica do gradiente). Metricas nao validadas geram ciclos inteiros perseguindo ruido.
+  PROXIMO: rodar o scorecard COMPLETO de todos os landmarks com o metodo limpo e emitir a fila real de uma vez —
+    e so entao voltar a tocar geometria. Screcard = o instrumento que o auditor precisa.
