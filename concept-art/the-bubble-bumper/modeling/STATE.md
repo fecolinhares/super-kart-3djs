@@ -3963,3 +3963,28 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     labio inferior (queixo) e so depois encontra a capsula do cubo da roda — ha TRES volumes empilhados em
     perfil. No W569 ha um.' Mexer no nariz/sidepod sobe 1-1.5 ponto; mexer mais no bumper da 0.2.
   PROXIMO: G27 lado esquerdo da fila agora e NARIZ (bico) + SIDEPOD, nao o para-choque.
+
+
+## *** G27 ABERTURA: O ALVO CANONICO L/H=1.978 DO SIDE ESTA ERRADO. MODELO ~8cm BAIXO DEMAIS. ***
+  METODO 1 (linhas de cota do proprio concept, que marcam os extremos por construcao):
+    detectadas por componente conexa na imagem side.jpg:
+      vertical   : comp 925px em x 70-96,  y 83-484  -> altura = 402 px
+      horizontal : comp 1870px em y 487-558, x 122-886 -> comprimento = 765 px
+    L/H = 765/402 = 1.9030
+  METODO 2 (mascara v2 do build_masks.py, overlay VALIDADO por vision: 'adere ao kart, pega a ponta do
+    bico, a asa, a ponta do escapamento, o topo do capacete e a base dos pneus'):
+    conteudo real termina na linha 486; as linhas 509-521 tem so 1-10 px = pontos da LINHA DE COTA.
+    bbox limpo 766 x 403 (rows 84-486) -> L/H = 1.90 a 1.93
+  METODO 3 (validacao cruzada do INSTRUMENTO): a mascara v2 no FRONT da 453x388 = 1.1675 contra o canonico
+    W/H=1.171 medido por 4 limiares de saturacao -> erro 0.3%%. Isso valida a v2 em FRONT.
+  Numeros conflitantes: 1.776 (v2 cru, inclui cota) | 1.90-1.93 (v2 limpo + cotas) | 1.868 (c_side.npy,
+    bbox = imagem inteira, contaminada) | 1.978 (canonico, SEM fonte reproduzivel nesta sessao).
+  CONSEQUENCIA: com L=2.35m e L/H=1.903 -> H = 1.230 m. O modelo tem z_range [-0.01,1.137] = 1.147 m.
+    FALTAM ~8.3 cm de altura (6.8%%).
+  *** ISSO BATE COM UMA MEDICAO ANTERIOR INDEPENDENTE DESTE PROJETO: 'H alvo 1.258m (modelo 1.176,
+      faltam 8,2cm)'. Duas medicoes independentes, sessoes diferentes, concordam em ~8cm. O alvo 1.978
+      (H=1.188) suprimiu esse sinal em vez de corrigi-lo. ***
+  RISCO: mudar o alvo de altura REABRE a calibracao global (L/H 1.978, W/H 1.171, ty_f/ty_r, helm_z,
+    xtrans, xtrans). Por isso esta em consulta ao modelo forte antes de agir.
+  INSTRUMENTO: build_masks.py (mask v2) e o valido para SIDE/FRONT; /tmp/c_side.npy esta CONTAMINADA
+    (bbox = imagem inteira) e nao deve ser usada.
