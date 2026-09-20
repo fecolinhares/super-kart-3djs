@@ -483,6 +483,11 @@ if open('/tmp/p48_anchor.txt').read() in SRC:
     print('P48 aplicado (cowl_cut_z)')
 else:
     print('P48 NAO aplicado')
+if open('/tmp/p49_anchor.txt').read() in SRC:
+    SRC = SRC.replace(open('/tmp/p49_anchor.txt').read(), open('/tmp/p49_new.txt').read(), 1)
+    print('P49 aplicado (recorte pos-build)')
+else:
+    print('P49 NAO aplicado')
 if open('/tmp/p47_anchor.txt').read() in SRC:
     SRC = SRC.replace(open('/tmp/p47_anchor.txt').read(), open('/tmp/p47_new.txt').read(), 1)
     print('P47 aplicado (chin_dz)')

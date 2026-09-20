@@ -5351,3 +5351,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (logar nome+bbox+polys no ponto do ajuste e comparar com o objeto medido no arquivo final). Diferenciacao por maiusculas
     ('Cowl' vs 'COWL') passou despercebida por 4 builds.
   W660D verde: QA ok, 14 pecas, globais preservadas.
+
+
+## P49 ACERTA O OBJETO MAS AINDA NAO PEGA AS 49 FACES ***
+  P49 (recorte pos-build, ancorado em FIN=FINS[0], antes da auto-escala) roda e o log confirma:
+    [P49] alvos cowl: ['COWL']         <- UM objeto, o NOME CERTO (a confusao Cowl/COWL esta resolvida)
+    [P49] COWL polys 3109 -> 2963      <- 146 poligonos removidos
+    MAS janela da mentoneira: COWL 49 faces x[0.462,0.507] + CH 108 = 157 — INALTERADO
+  LEITURA: o corte acerta o objeto e remove geometria, mas nao a casca que cobre o queixo. Duas hipoteses:
+    (a) o box nao cobre a posicao REAL dessas faces (unidades pre-escala x post-escala: a janela medida no .blend e
+        POST-escala (fator 0.92651); o P49 roda ANTES da auto-escala, entao a janela equivalente em unidades do P49 e
+        z 0.652-0.810 e x 0.499-0.547 — dentro do box (z 0.60-0.88, x 0.08-0.58) em teoria);
+    (b) a casca e nao-manifold e o boolean DIFFERENCE falha silenciosamente nela (padrao conhecido de boolean).
+  DADO QUE FALTA (parar de inferir por janela): imprimir as coordenadas CRUAS das 49 faces — min/max de c.x, c.y, c.z
+    no objeto COWL do arquivo final. Com isso o box passa a ser calculado, nao adivinhado.
+  E O CH: 108 faces x[-0.005,+0.152] — segue intocado em TODOS os builds.
+  W661D verde: QA ok, 14 pecas, globais preservadas.
