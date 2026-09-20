@@ -1379,3 +1379,20 @@ LICOES:
 - `prof_top` e a TABELA MEDIDA do concept (0=frente) — confiar nela como alvo e comparar com a medicao.
 
 BASE: **W446** — IoU 0.822 | pior 0.668 | COR_TV 0.255 | excesso 12.3 | falta 8.0 | <0.80 = 6.
+
+
+## W447 — cowl fudge 0.97->1.00 = EMPATE, nao adotado
+
+Mesmo padrao do nariz (o cowl usava prof_top*H*0.97). COWL z max 0.6213->0.6405.
+RESULTADO: IoU 0.822 (=), P10 0.763 (=), pior 0.668 (=), **falta 8.0->7.9** ✓, excesso 12.3->12.4 ✗,
+COR_TV 0.255->0.257 ✗, <0.90/<0.80 iguais. side/COWL 0.776->0.774 (falta 13.7->12.7 ✓ mas excesso 11.1->12.8 ✗).
+=> empate: troca falta por excesso e piora a cor. **NAO ADOTADO — base segue W446.**
+(Nota: o fudge de 0.97 e so -3%, pequeno; o do nariz era -12% e por isso deu ganho grande.)
+
+## REGRA NOVA: auditar FUDGE FACTORS do builder contra as tabelas medidas
+O builder tinha `*0.88` no nariz (deficit de 12% => 5.7 cm, ganho grande ao corrigir) e `*0.97` no cowl
+(-3%, empate) e `*0.80` no queixo (z-scale, provavelmente intencional). **Sempre que uma peca multiplica
+uma tabela MEDIDA por <1, medir o deficit antes: se for grande, corrigir; se for pequeno, e ruido.**
+
+BASE: **W446** — IoU 0.822 | pior 0.668 | COR_TV 0.255 | excesso 12.3 | falta 8.0 | <0.80 = 6.
+PARAMETROS NOVOS (W446): nose_top_k=0.880, nose_top_k2=1.000, nose_k_x0=0.100, nose_k_ramp=0.060.
