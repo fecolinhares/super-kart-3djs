@@ -2558,3 +2558,37 @@ remover apenas faces INTERIORES (que nao tocam os extremos x/z do modelo) para m
 
 ## BASE: **W472** (+ W473 rzt 0.400)
 IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## MAPEAMENTO MUNDO->IMAGEM DERIVADO (elimina a dependencia de bbox)
+
+Camera side ortho: loc (0,5,0.62), rot (90,0,180), ortho_scale 2.42, 860x860.
+  col(x) = 430 - x*355.37        | x(col) = (430-col)/355.37
+  row(z) = 430 - (z-0.62)*355.37 | z(row) = 0.62 - (row-430)/355.37
+VALIDACAO: x=+1.15 -> col 21 (bbox 20 ✓) | x=-1.20 -> col 856 (bbox 856 ✓)
+           z=1.165 -> row 236 (bbox 236 ✓) | z=-0.01 -> row 654 (bbox 653 ✓)  ** EXATO **
+=> a linha t0.54 e a FIXA **row 428** (z 0.6265). Nao derivar do bbox do teste (era o erro).
+
+## DELECAO POR MATERIAL RE-MEDIDA NA LINHA FIXA row 428 (x MUNDO) — resultado LIMPO
+  BASE        : 473 px | x: 0.16..0.23 | -0.70..0.15 | -1.19..-0.77
+  **M_Silver  : 342 px delta -131** | x: 0.16..0.23 | -0.35..0.15 | -0.68..-0.53 | **-0.84..-0.77** | -1.09..-0.96 | -1.19..-1.15
+  M_Dark      : 458 px delta  -15 | x: 0.16..0.23 | -0.70..0.15 | -1.18..-0.80
+  M_BlueDk    : 467 px delta   -6 | x: 0.16..0.23 | -0.62..0.15 | -0.70..-0.64 | -1.19..-0.77
+  M_Yellow/M_Eye/M_Blue/M_White/M_Gold: 473 px delta 0
+
+**CONCLUSOES:**
+1. O run traseiro do modelo (`-1.19..-0.77`) e formado pelo **M_Silver** (delta -131 REAL).
+2. Removendo o M_Silver, ele se abre em pedacos — e **`-0.84..-0.77` cai EXATAMENTE no vao2 do concept
+   (x -0.75..-0.92)**. **E ESTE o alvo a remover/reformar.**
+3. A ressalva anterior (reescala) NAO se aplica quando medimos na LINHA FIXA row 428: a camera e fixa e
+   remover extremos em x nao desloca z. O -131 e real.
+4. O bug "centro vs extensao" reapareceu em X: o histograma por decimos de x agrupava por CENTRO DE FACE,
+   entao dizia "zero M_Silver em -0.92..-0.74" — mas faces grandes tem centro longe e superficie ali.
+   **REGRA: agrupar por EXTENSAO (min/max), nunca por centro — vale para z E para x.**
+
+**PROXIMA ACAO**: subdividir o M_Silver do REAR em ilhas conexas, medir o bbox de cada ilha e achar a que
+cobre x -0.84..-0.77 em z 0.6265. Depois: expor parametro no builder e reformar/remover essa peca,
+medindo o delta na LINHA FIXA (row 428) ANTES de rodar o audit.
+
+## BASE: **W472** (+ W473 rzt 0.400)
+IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
