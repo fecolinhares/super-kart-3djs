@@ -3855,3 +3855,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     LER O CODIGO e achar o literal real (o topo do FBUMP era o pad amarelo: 0.2622 + raio 0.086 = 0.3482).
   Isto valida a sequencia completa: alvo validado -> recalibracao por 2 pontos -> renormalizacao expoe novo P0 ->
     diagnostico por bbox/leitura de codigo -> fix no parametro certo -> gates fecham.
+
+
+## *** GATE DE FORMA REPROVADO — veredito do MEU vision sobre a prancha pareada de W543 ***
+  /tmp/board-w543-pareado.png (3x2: SIDE/FRONT/REAR x CONCEPT|MODELO)
+  VEREDITO: "nao e producao AAA fiel; e blockout/prototipo procedural com primitives; silhueta cheia/baixa/larga
+    no concept contra magra/alta/tubular/vazia no modelo; precisa remodelar 80%%".
+  *** LICAO CENTRAL DO DIA: o scorecard da 9/9 landmarks OK E AO MESMO TEMPO o modelo e vazio e ve-se atraves.
+    Os landmarks medem o CONTORNO; contorno certo NAO significa forma certa. Metrica de silhueta nao substitui
+    leitura visual de forma — as duas sao necessarias e nao intercambiaveis. ***
+  Detalhamento completo por item (nose, sidepod, escapes, rear, piloto) e os gates G26-G31 em IDENTITY-GAPS.md.
+  ORDEM DE IMPACTO: G26 nose -> G27 sidepod -> G28 escapes -> G29 rear -> G30 piloto -> G31 (vision proprio
+    aprova -> Sol avalia a MESMA imagem).
