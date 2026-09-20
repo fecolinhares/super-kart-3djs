@@ -2862,3 +2862,30 @@ IoU 0.828 | P10 0.791 | pior 0.691@side_TRASEIRA | COR_TV 0.251 | exc 12.9 | fal
 ## BASE: **W485**
 IoU 0.828 | P10 0.791 | pior 0.691@side_TRASEIRA | COR_TV 0.251 | exc 12.9 | falta 6.8 | <0.80 4 | sep_parts 14.
 Invariantes EXATOS: x_range [-1.2,1.15] | z_range [-0.01,1.165]. Patches no runner: 1..14.
+
+
+## W486 — DELECAO NO PIPELINE CANONICO (metodo VALIDO) => OCUPANTE NAO E M_Silver
+
+**METODO AGORA VALIDO** (patch 15 no runner: `del_mat`/`del_z`/`del_x`, aplicado ANTES do passe de mascara
+  canonico => mesmas settings de alpha/mundo/camera). Invariantes exatos, mask_ok, 304 faces removidas.
+
+  w485 (base)          : 436 px | 0.163..0.228 | -0.695..0.146 | **-0.836..-0.765** | -1.185..-0.945
+  w486 (M_Silver fora) : 408 px | 0.163..0.228 | -0.695..0.146 | **-0.836..-0.765** | -1.086..-0.962 | -1.185..-1.151
+  => **A BANDA FICA INTACTA.** O delta de -28 px ocorre na TRASEIRA (-1.185..-0.945 quebra em dois).
+
+**CONCLUSAO DURA**: o ocupante da banda -0.765..-0.836 **NAO E M_Silver**. A alegacao anterior
+  ("M_Silver controla 131 px na linha") era **CONTAMINACAO DE BBOX** — a mesma ressalva que eu havia
+  levantado e depois tratei como resolvida. Ela NAO estava resolvida.
+
+**BUSCA AGORA ESTREITADA E VALIDA**: o ocupante e um material NAO-silver do REAR: M_Dark, M_BlueDk,
+  M_Yellow, M_Eye, M_Gold, M_White ou M_Blue. Proximo: repetir o teste com `del_mat='M_Dark'`
+  (mesma faixa) — se a banda abrir, e M_Dark; se nao, seguir a lista. Cada teste custa 1 build.
+  **Este e o primeiro teste de ocupante VALIDO da investigacao inteira** (os 8 anteriores mediam a
+  configuracao global ou estavam contaminados por bbox).
+
+**NOTA DE SEGURANCA METODOLOGICA**: W486 e um build de DIAGNOSTICO (tem faces removidas) — NAO pode
+  entrar no audit nem virar base. Serve apenas para localizar o ocupante.
+
+## BASE: **W485**
+IoU 0.828 | P10 0.791 | pior 0.691@side_TRASEIRA | COR_TV 0.251 | exc 12.9 | falta 6.8 | <0.80 4 | sep_parts 14.
+Invariantes EXATOS: x_range [-1.2,1.15] | z_range [-0.01,1.165]. Patches no runner: 1..15.

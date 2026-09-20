@@ -110,6 +110,32 @@ new14="""    _xt=P.get('xtrans',0.0)
     R['target_length']=_tl"""
 if old14 in SRC:
     SRC=SRC.replace(old14,new14,1)
+# patch 15: DELECAO controlada por material+faixa, ANTES do passe de mascara canonico
+old15="# --- passe de MASCARA"
+new15="""# --- DELECAO CONTROLADA (patch 15): esconde faces por material e faixa, no pipeline canonico ---
+_dm=P.get('del_mat'); _dz=P.get('del_z'); _dx=P.get('del_x')
+if _dm and _dz and _dx:
+    import bmesh as _bm
+    _n=0
+    for _o in FINS:
+        if _o.type!='MESH': continue
+        _ms=[m.name for m in _o.data.materials]
+        if _dm not in _ms: continue
+        _i=_ms.index(_dm)
+        _b=_bm.new(); _b.from_mesh(_o.data); _b.faces.ensure_lookup_table()
+        _k=[]
+        for _f in _b.faces:
+            if _f.material_index!=_i: continue
+            _zs=[_v.co.z for _v in _f.verts]; _xs=[_v.co.x for _v in _f.verts]
+            if min(_zs)<=_dz[1] and max(_zs)>=_dz[0] and min(_xs)>=_dx[0] and max(_xs)<=_dx[1]:
+                _k.append(_f)
+        if _k:
+            _bm.ops.delete(_b, geom=_k, context='FACES'); _b.to_mesh(_o.data); _n+=len(_k)
+        _b.free()
+    R['del_mat']=_dm; R['del_n']=_n
+# --- passe de MASCARA"""
+if old15 in SRC:
+    SRC=SRC.replace(old15,new15,1)
 
 old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
