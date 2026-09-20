@@ -5911,3 +5911,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     = sobre a superficie + curvada (elipsoide) + afunilando + cobrindo os olhos + borda em U. Restam a transparencia
     (alpha) e o gate visual.
   W694D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## *** GATE v12: 6.5/10 — OLHOS DENTRO DA VISEIRA CONFIRMADO ***
+  Vision (W694D): (1) 'Sim, em Z os olhos ja estao dentro de 0.70-0.88' | (2) 6.5/10 (melhor marca, empatada com a do W687D) |
+    (3) MAIOR ERRO: 'U central alto tampando metade inferior dos olhos' | (4) 'Faca: baixar e achatar o U para liberar os olhos'.
+  OBSERVACAO NOVA: 'em Y/profundidade os olhos parecem colados na frente, nao atras de um vidro' -> (a) os olhos precisam estar
+    RECUADOS atras do vidro e (b) a TRANSPARENCIA (alpha) da viseira ainda NAO foi aplicada (a P60 tentou, mas foi revertida junto
+    com a deformacao). Sem alpha o olho nao le 'atras do vidro'.
+  PROXIMOS PASSOS (dois, ambos pequenos e medidos):
+    1. BAIXAR/ACHATAR a U: visor_u_lift 0.045 -> ~0.020, e subir o limiar de |y| de 0.55 para ~0.65 para o centro ficar livre;
+       conferir por medicao que a U nao invade z 0.741-0.760 no centro (|y|<0.04);
+    2. TRANSPARENCIA (alpha ~0.80 em M_Visor, blend_method BLEND) + recuar M_Eye em x algum mm para ler 'atras do vidro'.
+    Depois: faixa (fina, do topo ao nariz), sobrancelha em arco, vao inferior e pivos laterais. Depois G31 + auditor.
+  W694D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
