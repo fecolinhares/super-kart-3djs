@@ -6738,3 +6738,12 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   DECISAO DE ENGENHARIA: nao subdividir nada (nao ha borda: a casca e fechada — P89) e nao soldar (topologia + QA).
     Se quiser escurecer o contorno, o caminho e de RENDER (samples/edges), nao de geometria. Passar aos itens REALMENTE
     pendentes: catchlight por lado, rasgos da testa, faixa em T, e G31 + auditor independente.
+
+
+## P90: CATCHLIGHT DE FONTE UNICA (ERA ESPELHADO) ***
+  Medido antes: os dois catchlights eram ESPELHADOS (ambos p/ fora) — ESQ y[+0.0198,+0.0254], DIR y[-0.0254,-0.0198].
+    Uma fonte de luz real poe as duas faixas do MESMO lado; o espelhamento faz os olhos lerem DIVERGENTES -> provavel origem
+    da queixa 'vesgos' em 3 gates.
+  [P90]: _cy4 = _sg4*_sep4/2 + _cl*0.8 (antes: + _sg4*_cl*0.8). Resultado: os dois ficam em +0.0008..+0.0064
+    RELATIVO ao centro de cada olho = mesmo lado do MUNDO = fonte unica. Convencao correta de cartoon.
+  ###QA### True, sep 14, 0 erros.
