@@ -5010,3 +5010,8 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     validar por GATE VISUAL em vez de por metrica; (c) medir so a ESPESSURA por varredura vertical na coluna
     central da sobrancelha, onde o gradiente e mais fraco.
   Mesmo resultado negativo e util: evita eu 'fechar' um alvo inventado.
+  >> FONTES FECHADAS: reference-views/ (front/lateral/isometric/rear/top) medem apenas 341-342 x 279 px — MENORES que
+     front.jpg (1024x559). O board e 1536x860 mas contem 4 vistas (o rosto fica pequeno). Ou seja: a MELHOR fonte e o
+     proprio front.jpg, onde o casco tem 127 px de largura e a sobrancelha ~1-2 px de espessura, indistinguivel do
+     gradiente da viseira. DECISAO: adotar a descricao do vision ('finas, arqueadas, altas' contra 'grossas, em bloco,
+     baixas' do modelo) como PRINCIPIO e validar por GATE VISUAL, sem inventar alvo numerico.
