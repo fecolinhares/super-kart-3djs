@@ -830,3 +830,25 @@ sabemos estar certo).
 
 **REGRA NOVA: antes de testar um parametro, verificar se a versao anterior dele foi medida na MESMA base
 (W410 foi medido sem exh_dz e "provou" algo falso).**
+
+
+## TOP/ASA — medicao por COLUNA acha o excesso: a asa comeca 6 cm cedo demais
+
+TOP, largura (y) por coluna xf (concept y_total 1.494 | modelo 1.470):
+  xf 0.80 concept 0.747..0.228 | -0.094..-0.620   |  W418 0.735..0.490 | 0.360..-0.358 | -0.487..-0.732
+  xf 0.84 concept 0.743..0.442 | 0.381..-0.609   |  W418 0.732..0.493 | 0.327..-0.324 | -0.490..-0.729
+  xf 0.88 concept 0.504..0.446 | **0.377..-0.254 | -0.344..-0.403**  (2 VAOS)
+         W418   **0.498..-0.496** (SOLIDO, sem vao)
+  xf 0.92 concept 0.504..-0.403 (solido) | W418 0.513..-0.510  ~igual
+  xf 0.96 concept 0.508..-0.403 (solido) | W418 0.498..-0.496  ~igual
+  xf 0.99 concept 0.392..0.228 | -0.105..-0.268 | W418 0.304..0.135 | 0.113..-0.110 | -0.132..-0.301
+         (modelo 0.304 vs concept 0.392 => modelo mais ESTREITO na traseira extrema)
+
+LEITURA: o concept tem VAOS em xf 0.88 e e SOLIDO a partir de ~0.90 => **a asa do concept comeca em xf ~0.90**.
+O modelo: wing_x1=-0.905 => xf=(1.15+0.905)/2.35=**0.874** => comeca ~6 cm CEDO DEMAIS, e os endplates
+(|y| 0.492) junto. Isso preenche os vaos |y| 0.254-0.446 em xf 0.88 = o excesso de 22.9% de top/ASA.
+E na traseira extrema (xf 0.99) o modelo e estreito (0.304 vs 0.392) => a asa tambem TERMINA cedo demais
+(wing_x2=-1.158 => xf=(1.15+1.158)/2.35=0.982 vs concept ~1.00).
+
+PROXIMO (2 mudancas medidas, um build): wing_x1 -0.905 -> -0.96 (xf 0.874->0.897) e
+wing_x2 -1.158 -> -1.195 (xf 0.982->0.998). Isso NAO mexe em z, span nem tilt — que estao provados certos.
