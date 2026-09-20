@@ -5234,3 +5234,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   FIX (proximo, 1 linha): compensar com translacao rigida pos-escala, chin_dz=-0.4067, no mesmo ponto do chinp.scale.
     Padrao ja conhecido (registrado na memoria): escala + transpiacao=translacao rigida compensando a origem.
   W653D verde (QA ok, 14 pecas, globais preservadas).
+
+
+## *** MENTONEIRA FECHADA - 0,3%% NA LARGURA E 0,7%% NA ALTURA ***
+  P47 (chin_dz=-0.4067, translacao rigida pos-escala) resolvido. bbox final do SUBCAP:
+    chin_guard: y[-0.0871,+0.0871] z[0.6045,0.7504]
+    LARGURA 0.1742 m vs alvo 0.1748 m -> erro 0,3%%
+    ALTURA  0.1459 m vs alvo 0.1470 m -> erro 0,7%%
+    CENTRO z 0.6775 vs o centro original 0.6776 -> a transpiracao=translacao compensou exatamente; nada deslocado.
+  CADEIA COMPLETA DA MENTONEIRA (para reuso): (1) isolar por repintura magenta para validar o instrumento;
+    (2) medir no concept por varredura de matiz -> 49%% da largura e 24%% da altura do capacete;
+    (3) dimensionar por SCALE do objeto (chin_sy/chin_sz) em vez de reescrever o statement multi-linha (que quebrou);
+    (4) compensar a origem com translacao rigida (chin_dz); (5) conferir pelo bbox do SUBCAP (nao pelo render).
+  ERRO DE PROCESSO CORRIGIDO NO CAMINHO: um patch meu foi inserido DENTRO do if do patch anterior, deixando o else
+    orfao -> SyntaxError no runner. REGRA: ao inserir patch apos bloco if/else, ancorar APOS a linha do 'else: ...' do
+    bloco anterior, nunca na linha do 'print' do ramo verdadeiro.
+  W654D verde: QA ok, 14 pecas, globais preservadas (x_range [-1.196,1.154], W/H 1.169).

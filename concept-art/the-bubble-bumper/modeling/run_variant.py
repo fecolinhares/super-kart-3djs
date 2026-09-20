@@ -478,6 +478,11 @@ if open('/tmp/p46_anchor.txt').read() in SRC:
     print('P46v2 aplicado (chin scale)')
 else:
     print('P46v2 NAO aplicado')
+if open('/tmp/p47_anchor.txt').read() in SRC:
+    SRC = SRC.replace(open('/tmp/p47_anchor.txt').read(), open('/tmp/p47_new.txt').read(), 1)
+    print('P47 aplicado (chin_dz)')
+else:
+    print('P47 NAO aplicado')
 if open('/tmp/p45_anchor.txt').read() in SRC:
     SRC = SRC.replace(open('/tmp/p45_anchor.txt').read(), open('/tmp/p45_new.txt').read(), 1)
     print('P45 aplicado (cowl_dzt)')
