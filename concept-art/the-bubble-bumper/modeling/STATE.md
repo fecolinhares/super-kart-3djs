@@ -3803,3 +3803,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     nenhum numero meu viu (a folga do bbox acima do capacete e a sub-segmentacao dos pneus).
   PROXIMO: (1) corrigir o bbox do FRONT (a folga no topo) e obter o W/H real; (2) recalibrar H do modelo para L/H=1.978;
     (3) re-rodar os 3 scorecards (SIDE/FRONT/REAR) contra os alvos corrigidos.
+
+
+## *** ALVOS CORRIGIDOS E VALIDADOS POR ESTABILIDADE DE LIMIAR ***
+  Varredura de limiares no FRONT do concept:
+    sat>60/45/30/20 com max<85  ==>  W=452 H=386 W/H = 1.1710  (IDENTICO nos 4) => MEDIDA ROBUSTA
+    max<110/130/160/140 ==> H explode (474/558/559/522) porque a mascara engole a GRADE => limiar de escuro
+      correto e <85; os valores acima sao contaminacao, nao sinal.
+  ALTURA DA LARGURA MAXIMA (checagem de forma independente da escala):
+    concept 0.780 | modelo 0.771  => a largura maxima ocorre na MESMA altura relativa => coerente.
+  => VISION ACERTOU NO QUALITATIVO E ERROU NO NUMERICO: a estimativa a olho '1.3 a 1.4x' esta errada (o real e
+     1.171, estavel); mas ele viu certo a fragmentacao da mascara, listou os elementos corretos e detectou a orientacao.
+    REGRA DE USO DAS FERRAMENTAS: vision para QUALITATIVO (o que existe, o que falta, orientacao, defeitos visiveis);
+    numeros so com medida validada por estabilidade de parametro. Nunca usar estimativa visual como alvo numerico.
+
+  ALVOS FINAIS (L=2.35m fixo por contrato):
+    L/H = 1.978  =>  H = 1.188m   (modelo hoje 1.252m => 6.4cm ALTO demais)
+    W/H = 1.171  =>  W = 1.391m   (modelo hoje 1.548m => 15.7cm LARGO demais)
+  IMPLICACAO DIRETA: o alargamento de bitola que eu fiz em W517/W518 (baseado no alvo errado 1.238) deixou o modelo
+    LARGO DEMAIS em ~16cm. Precisa ser revertido parcialmente. E a altura precisa cair 6.4cm.
+  PROXIMO: recalibrar H (-6.4cm) e W (-15.7cm) no builder, re-rodar os 3 scorecards contra os alvos corrigidos e so
+    depois retomar o ajuste de forma.
