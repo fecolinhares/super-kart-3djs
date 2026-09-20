@@ -412,6 +412,23 @@ assert _og26c in SRC, "loop dos pads legados nao encontrado"
 SRC = SRC.replace(_og26c, _ng26c, 1)
 print("G26c: pads legados gateados por g26c_pads")
 
+# patch 26 (G27): PATAMAR FRONTAL DA CARENA. O concept tem um shelf MEDIDO e plano em xf 0.267-0.350
+# a 0.551 da altura (grade fina de 61 estacoes na mask v2), com degrau de entrada +0.084 e saida -0.070.
+# A tabela prof_top nao contem esse patamar (da 0.430 ali). Janela trapezoidal + max() = shelf com
+# ombros suaves, e onde prof_top ja e maior o max() preserva a tabela (nao ha dano).
+_oldp26 = "zt=prof_top(xf)*H*P.get('cowl_k',0.97)"
+_newp26 = ("zt=prof_top(xf)*H*P.get('cowl_k',0.97)\n"
+           "        _pa=P.get('cowl_plat_a',0.0)\n"
+           "        if _pa>0.0:\n"
+           "            _pb=P.get('cowl_plat_b',1.0); _pf=max(1e-6,P.get('cowl_plat_f',0.12))\n"
+           "            _pu=(xf-_pa)/max(1e-9,(_pb-_pa))\n"
+           "            _pw=0.0 if (_pu<=0.0 or _pu>=1.0) else min(1.0,_pu/_pf,(1.0-_pu)/_pf)\n"
+           "            zt=max(zt,H*P.get('cowl_plat_h',0.0)*_pw)")
+assert _oldp26 in SRC, "linha zt da carena nao encontrada"
+assert "cowl_plat_h" not in SRC
+SRC = SRC.replace(_oldp26, _newp26, 1)
+print("G27 patch 26 aplicado: patamar frontal da carena parametrizado")
+
 # patch G26: FBUMP deixa de ser TUBO e vira CARENAGEM FECHADA + LABIO AMARELO EM U + INTAKE LAMELADO.
 # Veredito do vision (IDENTITY-GAPS.md item 1): "barra/tubo prateado horizontal flutuante, fino, reto,
 # separado do chassi, com 2 tocos amarelos. Sem carenagem, sem grade volumosa, sem U amarelo."

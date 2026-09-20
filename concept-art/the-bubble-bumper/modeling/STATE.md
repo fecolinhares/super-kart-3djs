@@ -4040,3 +4040,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PROXIMO LEAF (G27 nariz/carena): construir a subida CONTINUA bico->carena com a posicao do degrau medida em
     xf, mantendo as dimensoes globais CONGELADAS (parecer do Sol). Instrumento: builder/scorecard_side_frac.py
     (perfil top/floor em fracoes, 21+ estacoes) + mask v2. Apos o build, re-medir e comparar com a tabela acima.
+
+
+## *** G27 CARENA: FUDGE + PATAMAR MEDIDO. MELHOR = W572 ***
+  CAUSA 1 (fudge): a carena usava zt=prof_top(xf)*H*0.85. Um multiplicador <1.0 sobre uma TABELA MEDIDA e
+    bug conhecido (skill concept-driven-3d-modeling). Removido para 1.00 -> COWL z max 0.560 -> 0.6384.
+  CAUSA 2 (tabela): com o fudge fora, o topo em xf 0.30 virou 0.430 = o proprio valor de prof_top(0.30),
+    enquanto o concept mede 0.551 naquela estacao. A TABELA prof_top esta 0.121 baixa ali (numero herdado).
+  FEICAO MEDIDA (grade fina de 61 estacoes na mask v2): o concept tem um PATAMAR plano em xf 0.267-0.350 a
+    0.551 da altura, com degrau de +0.084 na entrada e -0.070 na saida, e um segundo degrau de +0.126 em xf 0.417.
+    Degrau no concept = feicao de projeto, nao ruido (max|diff| 0.126 contra mediana 0.016).
+  IMPLEMENTADO (patch 26 em run_variant.py): patamar da carena parametrizado como JANELA TRAPEZOIDAL +
+    max(zt, H*cowl_plat_h*_w) — onde prof_top ja e maior o max() preserva a tabela, entao nao ha dano.
+  RESULTADO (|dTOP| medio sobre 61 estacoes):
+    W569  media 0.0652  frente-meio(0.15-0.45) 0.0957
+    W570  media 0.0594  frente-meio(0.15-0.45) 0.0771
+    W571  media 0.0588  frente-meio(0.15-0.45) 0.0753
+    W572  media 0.0537  frente-meio(0.15-0.45) 0.0587
+  Ganho na frente-meio: 0.0957 -> 0.0587 (39% melhor). Globais CONGELADAS em todos os builds:
+    L/H 2.05, W/H 1.171, x_range [-1.158,1.192], z_range [-0.01,1.137], 14 pecas, QA aprovado (identicos).
+  RESIDUO NOMEADO: xf 0.417 (dTOP -0.169) — o segundo degrau do concept (+0.126, x=0.212 = borda traseira do
+    cowl / zona do cockpit). E zona do G30 (piloto/cockpit), nao da carena. E xf 0.90 (-0.187) e a traseira (G29).

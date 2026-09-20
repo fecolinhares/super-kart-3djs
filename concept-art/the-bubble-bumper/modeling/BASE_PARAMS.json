@@ -27,7 +27,7 @@
   "neck_r1": 0.062,
   "nose_k_ramp": 0.06,
   "nose_k_x0": 0.1,
-  "nose_top_k": 0.88,
+  "nose_top_k": 1.0,
   "nose_top_k2": 1.0,
   "pin_mat": "M_Silver",
   "pins": 5,
@@ -101,5 +101,11 @@
   "g26b_lmat": "M_Blue",
   "_nota_g26d": "G26d VENCEDOR (vision 7.0/10, era 4.0). Tubo = LOFT de secoes com raio variavel (tube_round so aceita raio escalar). TUDO ancorado em _xs = superficie frontal calculada, NUNCA em XFO (era o bug que enterrava coxins e intake 26cm). fbar=0 e g26c_pads=0 DESLIGAM as pecas legadas do front_bumper() do builder base (pad_l/pad_r/fbar) que conviviam com o tubo novo e dominavam o render por 3 iteracoes. Topo nivelado em 0.400, queixo descendo 6.5cm no centro, altura = pneu (0.389 vs 0.388).",
   "alvo_L_H_side_provisorio": 1.903,
-  "_nota_alvo_L_H": "CUIDADO: o alvo 1.978 foi RETIRADO do status canonico (sem fonte reproduzivel). Evidencia convergente aponta 1.903: (a) cotas do proprio concept 765/402 px; (b) mask v2 limpa ~1.90-1.93. Validacao do instrumento: mask v2 no FRONT da 1.1675 vs 1.171 canonico (0.26% de erro). NAO recalibrar a altura ate fechar nariz/sidepod — parecer do gpt-5.6-sol (medium). Com L=2.35m, L/H=1.903 implica H=1.230m; o modelo tem 1.147m => falta ~8.3cm."
+  "_nota_alvo_L_H": "CUIDADO: o alvo 1.978 foi RETIRADO do status canonico (sem fonte reproduzivel). Evidencia convergente aponta 1.903: (a) cotas do proprio concept 765/402 px; (b) mask v2 limpa ~1.90-1.93. Validacao do instrumento: mask v2 no FRONT da 1.1675 vs 1.171 canonico (0.26% de erro). NAO recalibrar a altura ate fechar nariz/sidepod — parecer do gpt-5.6-sol (medium). Com L=2.35m, L/H=1.903 implica H=1.230m; o modelo tem 1.147m => falta ~8.3cm.",
+  "cowl_k": 1.0,
+  "cowl_plat_a": 0.21,
+  "cowl_plat_b": 0.327,
+  "cowl_plat_f": 0.12,
+  "cowl_plat_h": 0.556,
+  "_nota_g27": "G27 carena. cowl_k 0.85->1.00 remove o fudge <1.0 sobre a tabela MEDIDA prof_top (bug documentado na skill). Patch 26 adiciona o PATAMAR medido do concept (xf 0.267-0.350 a 0.551 H) via janela trapezoidal + max() — preserva prof_top onde ele e maior. Melhor |dTOP| medio sobre 61 estacoes: W572. Globais congeladas."
 }
