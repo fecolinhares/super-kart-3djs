@@ -3061,3 +3061,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   4. del_n pequeno (<10) descarta a hipotese sem gastar render de silhueta.
   PITFALL: o cowl com cowl_xf0=0.174 comeca em x=0.2061 => a coluna de t0.40 (x=0.210) fica na BORDA do cowl.
   Por isso mudar cowl_k nao afeta t0.40 — nao confundir 'peca existe na coluna' com 'peca forma o topo'.
+
+
+## Z2-A BATERIA FECHADA (7 materiais, trecho A: x~0.21, z 0.50..0.95)
+  M_Yellow 0 | M_Gold 0 | M_BlueDk 0 | M_Silver 6  => todos REFUTADOS (del_n<10 = nao gastar render)
+  M_Blue 335 faces -> muda SO t0.35 (cowl) | M_Dark 394 faces -> muda SO t0.40 (OCUPANTE)
+  => SO DOIS materiais vivem na faixa. M_Dark explica -0.047 dos +0.093 de t0.40 (51%).
+  Os ~0.046 restantes: M_Dark fora da faixa z (o teste usou z>=0.55) ou M_Pedal. Candidato fisico: CH/cockpit
+  (z max 0.7938) — provavel volante+dash altos demais.
+
+**ALVO FISICO DO TRECHO A**: descer a estrutura escura do dash/volante ~0.11 m (0.566 -> 0.473 no perfil = -0.093).
+  Fix planejado: parametro `ch_top_dz` no CH, baixando so o topo do conjunto escuro em x 0.15..0.30.
