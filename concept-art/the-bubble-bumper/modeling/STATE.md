@@ -4204,3 +4204,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PATCHES NOVOS (run_variant.py): P28 secao ry da carena (cowl_ry_k/cowl_ry0); P29 NS da carena (cowl_ns).
   PENDENTE: subir W586D para o GATES/BASE_PARAMS como base oficial do G27 e seguir para o degrau de xf 0.417
     (-0.156, borda traseira do cowl / zona do cockpit -> G30) e a traseira xf 0.90 (-0.187 -> G29).
+
+
+## *** G30 (cockpit): 2a JANELA REGRIDE E FALSIFICA A REGRA DO OFFSET CONSTANTE ***
+  W587D: patch 30 (2a janela na carena) com a=0.335 b=0.400 f=0.30 h=0.636 (alvo: degrau do concept em
+    render-xf 0.417, que sobe para 0.636 H).
+    RESULTADO: REGRESSAO. medio 0.0486 -> 0.0493 | cockpit(0.38-0.46) 0.0482 -> 0.0567.
+    Perfil em xf 0.383/0.400/0.417: modelo 0.612/0.543 -> EXCESSO +0.10 em 0.400 e ainda -0.093 em 0.417.
+    A janela POUSOU ADIANTE do alvo (levantou a regiao ANTERIOR ao degrau).
+  *** REGRA CORRIGIDA (a anterior estava errada): NAO EXISTE OFFSET UNICO entre builder-xf e render-xf. ***
+    A janela 1 (patamar da carena) exigiu -0.051; esta janela 2 exige ~+0.030. Correcoes de SINAL OPOSTO na
+    MESMA peca -> o deslocamento nao e uma constante do pipeline, e sim especifico de cada feicao (depende de
+    onde as estacoes da peca caem e de como o loft/subsurf redistribui o degrau).
+    CONSEQUENCIA PRATICA: posicionar feicao por xf exige UMA build de medicao POR FEICAO; nunca reaproveitar
+    o deslocamento calibrado em outra feicao nem derivar analiticamente (a derivacao analitica deu identidade).
+  ACAO: W587D REVERTIDA. W586D continua a base oficial (medio 0.0486 | frente-meio 0.0425 | patamar 0.0176).
+  PROXIMO LEAF: reexecutar a janela 2 deslocada ~+0.030 (a=0.365 b=0.430 f=0.30 h=0.636) e medir; se o degrau
+    de render-xf 0.417 nao responder a janela, investigar se o topo ali e do COWL ou do conjunto do PILOTO
+    (o PL cobre x final -0.560..0.566, logo x=0.212 esta dentro dele) antes de insistir na geometria da carena.
