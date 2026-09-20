@@ -3227,3 +3227,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
 **PROXIMO**: del_mat M_Dark com del_x [0.14,0.23] / del_z [0.60,0.75] para confirmar se as 28 faces (o aro) sao o
   ultimo ocupante de t0.392-0.400; se sim, a solucao e subir o eixo do volante (sw_z) ou reduzir sw_r,
   nao baixar mais (o volante ja esta abaixo do cowl em t0.35).
+
+
+## W512 — CORRECAO DE DIRECAO: o M_Dark do volante e CARGA, nao excesso
+  del_mat M_Dark x[0.14,0.23] z[0.60,0.75] => 120 faces. Perfil:
+    t0.392 +0.000 | t0.400 +0.000 | t0.408 **-0.082** | t0.417 **-0.076** | EMA 0.0388 -> 0.0401 (PIOROU)
+  => (1) o alvo de t0.392-0.400 (+0.10) NAO e M_Dark (nem nenhum material ja testado na faixa:
+         M_Blue/M_Yellow/M_Gold/M_Silver/M_BlueDk todos refutados ali; candidatos restantes M_White/M_Pedal,
+         ou M_Dark ACIMA de z0.75 — a faixa do W512 comecava em 0.60 e a do W498 ia ate 0.95);
+     (2) em t0.408-0.417 o modelo esta ABAIXO do concept (0.568 vs 0.604/0.614) e as 120 faces do aro
+         SUSTENTAM aquele trecho. Remover derruba para 0.486 = erro -0.12. **O aro e CARGA, nao excesso.**
+  => ACAO CORRETA no volante ali: SUBIR (ou manter), nunca baixar mais. sw_dz=-0.110 ficou NEUTRO no perfil
+     (W493 e W508 tem 0.568 em t0.408-0.417), mas um valor mais profundo seria PREJUDICIAL — o W509 (-0.160)
+     ainda era identico porque 120 faces load-bearing permanecem.
+
+**LICAO**: antes de mover uma peca, medir se o modelo esta ACIMA ou ABAIXO do concept NAQUELA coluna.
+  Acima => a peca e excesso, baixar ajuda. Abaixo => a peca e carga, baixar piora. Eu assumi 'excesso' sem medir
+  o sinal, e o W512 mostrou que a mesma peca era carga em t0.408-0.417 e irrelevante em t0.392-0.400.
+
+**PROXIMO**: del_mat M_White e M_Pedal em x[0.16,0.23] z[0.55,0.80] para achar o ocupante de t0.392-0.400.
