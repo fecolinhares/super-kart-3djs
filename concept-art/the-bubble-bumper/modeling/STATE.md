@@ -5879,3 +5879,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Comparativo com o concept: largura 102% (concept 99-101%) | altura 0.149 = 36% da altura do casco (concept 34,5%) |
     contorno acompanhando a esfera | frente na superficie. Os tres eixos batem.
   W691D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## *** GATE v11: PENSA CONFIRMA A CASCA, MAS ELA ESTA ALTA DEMAIS ***
+  Vision (W691D, prancha v11): 'Evoluiu. NAO e mais a caixa interna: agora e uma CASCA FINA EXTERNA. Prova: highlight
+    especular que corre na lateral e dobra para tras, o topo acompanha a esfera do casco, e as laterais nao tem mais quina
+    viva de box.' -> 'geometria da curvatura horizontal esta certa'.
+  (1) agora curva/envolve, nao e mais placa-caixa | (2) 6/10 | (3) MAIOR ERRO: 'alta demais, olhos FORA da viseira' |
+  (4) 'Baixe-a e recorte a borda inferior em U transparente'.
+  DIAGNOSTICO FUNCIONAL do vision: 'no concept os olhos estao DENTRO da viseira transparente; no seu estao FORA, pintados
+    na face opaca embaixo de uma viseira-toldo alta como bone'. ISSO BATE COM A MEDICAO: M_Eye em z 0.741-0.760 contra a
+    viseira em z 0.862-1.011 -> os olhos estao ~0,10 m ABAIXO da faixa da viseira. A geometria certa no lugar errado.
+  PROXIMOS PASSOS (o vision ditou a ordem):
+    1. BAIXAR a faixa da viseira para envolver os olhos: z 0.862..1.011 -> algo como z 0.74..0.90 (cobrindo M_Eye 0.741-0.760),
+       mantendo a altura de faixa (~0.15) e a projecao na elipsoide;
+    2. BORDA INFERIOR EM U + TRANSPARENCIA (alpha): a aba reta de baixo deve descer nas bochechas em U e ser transparente
+       para os olhos aparecerem ATRAVES dela;
+    3. depois: faixa (fina, do topo ao nariz, sem terminar reta), sobrancelha em arco fino, vao e pivos laterais.
+  W691D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
