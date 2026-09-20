@@ -4758,3 +4758,8 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   RESTA NO CASCO: (a) o tracinho horizontal da testa no meio da faixa (respiro, feature nova); (b) TAPER da faixa
     (largura variavel em u — o concept afunila); (c) viseira/olhos/sobrancelhas (o vision diz que a viseira e
     'mais chapada/larga' e os olhos/sobrancelhas 'mais grossos' que o concept).
+
+
+## W627D - FAIXA 28.9%% (metrologia 27.1-38.8%% medida, mediana 30%%)
+  Ajuste pedido pelos DOIS instrumentos (vision '-10%%' e metrologia 31.2%%->30%%): helm_trim_w 0.107 -> 0.099.
+  W627D: faixa 28.9%% | vents larg -5%%, alt +0%% | h/w 1.231 | globais preservadas | QA ok.
