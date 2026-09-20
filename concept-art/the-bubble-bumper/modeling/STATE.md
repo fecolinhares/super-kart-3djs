@@ -6711,3 +6711,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (b) SOLDAR a casca ao casco (remove_doubles) para virar uma superficie unica — muda topologia e arrisca a QA; testar em
         build isolado antes de adotar.
   Recomendacao: (a) primeiro (nao muda a topologia global, ataca direto o serrilhado da silhueta).
+
+
+## *** A CASCA DA VISEIRA E FECHADA (0 ARESTAS DE BORDA) — O SERRILHADO NAO E ARESTA DE MALHA ***
+  [P89] selecao feita com os OBJETOS DO BMESH (sem troca de indices): 9850 faces, 19776 arestas, BORDA (1 face) = 0 -> 0.
+  Ou seja a casca e FECHADA (manifold fechado — coerente com a QA: 0 non-manifold, sep 14). NAO EXISTE borda para subdividir.
+  RACIOCINIO QUE FECHA O CASO: o 'serrilhado' que o vision ve NAO e aresta de malha. E o CONTORNO DE PROFUNDIDADE onde a
+    casca TRANSPARENTE cruza a superficie OPACA do casco — duas geometrias separadas que se interoperam (a P89 mediu: 0
+    verts compartilhados, 1064 posicoes coincidentes). Onde as duas superficies se cruzam, o contorno fica 'em degraus'
+    porque cada superficie tem sua propria discretizacao.
+  IMPLICACAO (muda o proximo passo): nao adianta subdividir a casca. Os caminhos reais sao:
+    (a) AFASTAR as superficies o suficiente para o contorno de intersecao sair de dentro da area visivel (offset maior);
+    (b) SOLDAR a casca ao casco para as duas virarem UMA superficie (topologia muda; testar em build isolado);
+    (c) aceitar o contorno e suavizar por RENDER (anti-aliasing/samples), nao por geometria.
+  Recomendacao: medir PRIMEIRO se o contorno 'em degraus' esta na intersecao (visivel) ou fora dela — pela contagem de
+    pixels de contorno no render vs a posicao esperada.
