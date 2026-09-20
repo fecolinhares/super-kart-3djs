@@ -7100,3 +7100,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CONTRATO REEMITIDO: L=2.350 H=1.2523 W=1.4411 L/H=1.8765 W/H=1.1508
   O L/H canonico antigo (1.978) foi DESCARTADO por contaminacao (o Sol avisou: 'nao copie numeros antigos
   sem proveniencia').
+
+
+## B002: RODAS E ENVELOPES ***
+  Diâmetro de roda MEDIDO na fonte (FRONT): blob de pneu 218x206 px, escala do painel 1.4411/447 = 0.003224 m/px
+    -> D = 0.703 m, R = 0.351 m (chibi, coerente com o concept).
+  [B002] 4 cilindros-envelope (SEM tread, como o Sol exige) em x=+0.4825/-0.6900, y=+-0.5764 (bitola 80% de W),
+  z=R (apoio no chao). Envelope da banheira e do piloto como massas simples.
+  Proximo B003: acertar 69,5% de ocupacao do piloto (proibido rosto/viseira/roupa).
