@@ -4600,3 +4600,30 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     ORTOGRAFICO para cravar a centralizacao (o board usa 3/4).
   REGRA REFORCADA (2x neste ciclo, com numero): feature nova entra OPT-IN (guard), nunca substituindo o caminho
     validado — foi o guard helm_raycast=0 que manteve a base intacta enquanto o raycast estava quebrado.
+
+
+## *** G26/CAPACETE: ENTRADAS DE AR - MESMA CLASSE DE BUG DA FAIXA, CORRIGIDA (8.5/10) ***
+  BUG ENCONTRADO NO CODIGO (bb25.py L806-819): os vents eram empurrados 11mm PARA DENTRO numa casca de
+  13mm de espessura -> ENTERRADOS (por isso o vision dizia 'casco totalmente liso azul'). Mesma classe do bug
+  da faixa: peca existe no builder mas esta enterrada por causa do descasamento da parametrizacao radial.
+  P35: assenta o vent na SUPERFICIE REAL pelo MESMO instrumento validado na faixa (raycast outside-in) e
+  parametriza tamanho/posicao/tilt: vent_t, vent_f, vent_sx/sy/sz, vent_inset, vent_tilt.
+  CADEIA DE MEDICAO:
+    estado anterior: vent_L x[-0.2793,-0.2164] y[0.1766,0.2259] z[1.0647,1.1578]  (enterrado, invisivel)
+    W610D (na superficie, params originais): visivel mas 2x grande, longe da faixa, vertical
+      -> VISION 5/10: 'isolada, 3 a 4x a distancia do concept, jogada para a lateral da calota, mais
+         baixa/atrasada, bem maior (2x), preta chapada, orientacao vertical e nao diagonal'
+    W611D (sx .015, sy .034, t=48, f=38, tilt=30): x[-0.1553,-0.1292] y[0.0956,0.1478] z[1.1509,1.1980]
+      -> movidos PARA FRENTE (x -0.28 -> -0.155), PARA PERTO DA FAIXA (y 0.22 -> 0.148; a faixa esta em +-0.0338)
+         e PARA CIMA (z 1.06 -> 1.20; o topo do casco e 1.231)
+      -> VISION 8.5/10: '(1) SIM, na zona correta: frontal-superior, sobre o azul, COLADA lateralmente a faixa
+         amarela, como no concept. Foi corrigida a posicao. (2) orientacao muito proxima; tamanho um pouco menor,
+         da para aumentar 20-30%% e alongar. (3) NOTA 8.5/10.'
+  GLOBAIS PRESERVADAS em W610D/W611D: x_range [-1.196,1.154], W/H 1.169, 14 pecas, QA ok, len 2.5364.
+  *** NOTA METODOLOGICA: as notas de vision NAO sao comparaveis entre BOARDS diferentes (9/10 no board anterior,
+  5/10 e 8.5/10 nos seguintes com o MESMO capacete e a mesma faixa). O que e comparavel e o achado QUALITATIVO
+  por elemento ('a faixa continua', 'os vents estao no lugar certo'), que se manteve estavel e coerente com a
+  medicao. Usar a nota como sinal de tendencia NA MESMA PRANCHA, nunca entre pranchas. ***
+  PROXIMOS (do vision): (a) aumentar os vents 20-30%% e alongar; (b) render FRONTAL ORTOGRAFICO para confirmar
+  as DUAS entradas simetricas (pedido 2x — o board 3/4 nao permite julgar simetria); (c) depois: respiro central
+  na faixa; olhos/sobrancelhas (grossos e 'bravos' vs finos e amigaveis no concept).

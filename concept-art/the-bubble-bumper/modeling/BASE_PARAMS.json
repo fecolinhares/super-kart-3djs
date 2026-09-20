@@ -139,5 +139,13 @@
   "helm_trim_w": 0.065,
   "helm_trim_folga": 0.003,
   "helm_trim_thk": 0.0045,
-  "_nota_g26_faixa_ok": "FECHADO: faixa do capacete 4.0 -> 9/10. FIX = raycast DE FORA PARA DENTRO (origem = centro + d*2HR, direcao -d). A causa raiz era o SENTIDO do raio (de dentro para fora o hit era a propria origem, distancia ~0 -> sliver 0.0119); a conversao de espaco NAO era o problema. Folgas: BASE +0.0015/+0.0050/-0.0241 (24mm dentro) -> W608D +0.0044/+0.0043/+0.0036 -> W609D +0.0029/+0.0029/+0.0022 (uniforme ~3mm, alvo 0.0030). W609D: w=0.065, u0=19, folga 0.0030; x_range [-1.196,1.154], W/H 1.169, 14 pecas, QA ok. VISION: faixa continua sem interrupcao no topo, sem z-fighting (nao dois planos brigando), centralizada parando na testa sem invadir a viseira, NOTA 9/10. PROXIMO 10/10: entradas de ar superiores laterais + respiro na faixa; render frontal ortografico. REGRA: feature nova entra OPT-IN."
+  "_nota_g26_faixa_ok": "FECHADO: faixa do capacete 4.0 -> 9/10. FIX = raycast DE FORA PARA DENTRO (origem = centro + d*2HR, direcao -d). A causa raiz era o SENTIDO do raio (de dentro para fora o hit era a propria origem, distancia ~0 -> sliver 0.0119); a conversao de espaco NAO era o problema. Folgas: BASE +0.0015/+0.0050/-0.0241 (24mm dentro) -> W608D +0.0044/+0.0043/+0.0036 -> W609D +0.0029/+0.0029/+0.0022 (uniforme ~3mm, alvo 0.0030). W609D: w=0.065, u0=19, folga 0.0030; x_range [-1.196,1.154], W/H 1.169, 14 pecas, QA ok. VISION: faixa continua sem interrupcao no topo, sem z-fighting (nao dois planos brigando), centralizada parando na testa sem invadir a viseira, NOTA 9/10. PROXIMO 10/10: entradas de ar superiores laterais + respiro na faixa; render frontal ortografico. REGRA: feature nova entra OPT-IN.",
+  "vent_t": 48.0,
+  "vent_f": 38.0,
+  "vent_sx": 0.015,
+  "vent_sy": 0.034,
+  "vent_sz": 0.006,
+  "vent_inset": 0.0028,
+  "vent_tilt": 30.0,
+  "_nota_g26_vents": "P35: vents assentados na SUPERFICIE REAL (raycast outside-in, mesmo instrumento da faixa) — antes eram empurrados 11mm PARA DENTRO numa casca de 13mm (enterrados: 'casco liso azul'). W611D (sx .015, sy .034, t=48, f=38, tilt=30) posiciona os vents frontal-superior colados a faixa: VISioN 'SIM, zona correta, colada lateralmente a faixa amarela, foi corrigida a posicao', NOTA 8.5/10. Proximo: aumentar 20-30%% e alongar; render FRONTAL ORTOGRAFICO para confirmar as duas simetricas; depois respiro central na faixa e olhos/sobrancelhas. NOTA: notas de vision NAO sao comparaveis entre boards diferentes (9 -> 5 -> 8.5 com o mesmo capacete); o achado qualitativo por elemento e o sinal."
 }
