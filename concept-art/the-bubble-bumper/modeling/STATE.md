@@ -3921,3 +3921,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PLANO G26b: spine curva do flanco interno do pneu esquerdo ate o direito (y +-0.63), raio de tubo ~0.11, pontas
     com retorno para tras; 2 coxins amarelos verticais (~0.09 de raio) nos cantos; intake como CAIXA PRETA rebaixada
     com 5 lamelas grossas; remover fbump_lip horizontal e os fin_* atuais.
+
+
+## *** G26b: PRIMITIVA TROCADA — TUBO INFLADO. VISION 4.0 -> 5.0 ***
+  W550: fbump_tube (tube_round com spine curva y +-0.630, raio 0.106) + cushion_l/r + intake_box + intake2_0..4
+    substituem a caixa. O QA confirma os componentes novos e o tubo encosta no flanco interno dos pneus.
+  VISION W550: 'AGORA LE COMO TUBO. A quina viva sumiu, o highlight corre continuo. PRIMITIVA CERTA.'
+    NOTA 5.0/10 (era 4.0) — 'acertou a primitiva, errou os dois elementos de carater'.
+  O que ainda falta (spec do vision): (a) o tubo e uma salsicha de diametro CONSTANTE — o concept e gordo,
+    com diametro maior no centro e barriga baixa/achatada embaixo ('saiu da caixa, caiu no cano de PVC');
+    (b) os coxins amarelos precisam ser VERTICAIS na FACE FRONTAL (donuts em pe), diametro ~1.3x o tubo;
+    (c) o intake tem que ser grande, baixo, preto fosco, 30%% da largura, afundado 2-3cm.
+  W551/W552: coxins parametrizados (g26b_cx/cyk/cr) e corrigidos para a face frontal; reduzidos apos
+    overshoot (cr 0.196 empurrou y para +-0.835 e F UROU O CHAO; com cr 0.155/cx -0.075/cyk 0.90/z 0.155
+    o clipping voltou a zero e y ficou 0.733).
+  *** ACOPLAMENTO CONFIRMADO 3x NO MESMO DIA: toda mudanca de geometria frontal altera len_before ->
+    scale_factor -> reescala tudo -> move x_range, L/H e W/H. Aconteceu em W544, W546 e W551. NAO E REGRESSAO,
+    E ACOPLAMENTO. A ordem correta e: mudar geometria PRIMEIRO, calibrar invariantes DEPOIS (uma passada). ***
+  PENDENTE IMEDIATO: recalibrar os invariantes na geometria W552 (L/H 2.02 -> 1.978, W/H 1.26 -> 1.171,
+    x_range [-1.175,1.175] -> [-1.2,1.15]) por 2 pontos em cada eixo. Depois: dar barriga ao tubo (diametro
+    variavel no spine) e afundar/engrossar o intake, e re-verificar com vision.
