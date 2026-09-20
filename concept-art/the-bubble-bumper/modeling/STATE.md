@@ -2216,3 +2216,30 @@ todos com params ja expostos (rzb/rz1/dfz/rzt). Medir o diff NA LINHA ALVO antes
 
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## VAOS t0.54 — OCUPANTES EXATOS (probe fino por vao)
+
+  **vao1** x -0.730..-0.660 (115 faces):
+       REAR M_Silver  93  x -0.713..-0.661  z 0.604..0.647
+       REAR M_BlueDk  22  x -0.690..-0.668  z 0.601..0.629   <- o DUCT
+  **vao2** x -0.920..-0.750 (108 faces):
+       REAR M_Silver 108  x -0.854..-0.757  z 0.616..0.647   <- 100% da massa
+  **TOTAL 201 faces ~= os ~182 px a remover.** Coerencia confirmada (faces x pixels).
+
+**CANDIDATOS M_Silver do bloco rear() nessa faixa de x/z:**
+  Rear_Ramp  x -0.81..-1.17  z 0.05..0.63  -> cobre vao2 (x -0.854..-0.757) no TOPO (rzt=0.480 + rth=0.150)
+  Airbox     XRE+0.360 = -0.830 (ab_x)     -> tambem em vao2
+  Collector  exb+0.200 = -0.990 +-0.042    -> FORA dos vaos (x -0.948..-1.032)
+  vao1: M_Silver em x -0.713..-0.661 -> provavel Rear_Bumper_U (rz1=0.300) ou difusor; + o DUCT (M_BlueDk)
+
+**CORRECAO RETROSPECTIVA IMPORTANTE:**
+  O W461 (ab_x 0.058->0.046 no airbox) foi julgado NEUTRO usando a LINHA ERRADA (row 395 da imagem
+  completa em vez de row 192 da mascara cortada). **Esse veredito e INVALIDO** — ab_x controla x -0.83,
+  que esta EXATAMENTE em vao2. Retestar ab_x medindo na linha correta.
+
+**PROXIMA ACAO**: (1) retestar a familia do airbox/rampa no vao2 com medicao NA LINHA ALVO (row 192 da
+mascara cortada); (2) no vao1, atacar o Rear_Bumper_U/difusor e reconfirmar o duct.
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
