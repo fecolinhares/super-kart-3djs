@@ -6184,3 +6184,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   LICAO (instrumento, 7a): imprimir o campo de diagnostico da ferramenta (qa()['falhas']) em vez de inferir a causa. Nomeou a
     falha na PRIMEIRA execucao; as duas tentativas anteriores gastaram um build cada por inferencia.
   W708D verde (baseline restaurado).
+
+
+## *** P70v4: OLHOS = DOIS DISCOS DISCRETOS, QA VERDE, falhas = [] ***
+  [P70v4] 112 faces antigas de M_Eye REATRIBUIDAS para M_Face (sem buraco, sem non-manifold).
+  [P70v4] 2 lentes fechadas de 0.068 x 0.076 (espessura 0.006) separadas 0.090.
+  [QA-DBG] falhas = []   <- ZERO falhas (o debug ativo provou o estado, nao inferi).
+  ###QA### True | sep 14 | len 2.5364 | scale 0.92651
+  MEDICAO POR ILHA CONEXA (exatamente o desenhado):
+    ILHAS de M_Eye: 2
+    ILHA: 48 faces | larg=0.0446 alt=0.0499 | centroide (y=+0.0450, z=0.7745)
+    ILHA: 48 faces | larg=0.0446 alt=0.0499 | centroide (y=-0.0450, z=0.7745)
+    DISTANCIA ENTRE CENTROIDES = 0.0900 | VAO ENTRE BORDAS INTERNAS = 0.0454 (POSITIVO)
+  A SEQUENCIA QUE FECHOU (para reuso em qualquer peca nova):
+    1. diagnosticar com o campo da ferramenta (qa()['falhas']) ANTES de teorizar;
+    2. NUNCA apagar faces que compoem a superficie de um objeto fechado (abre buraco -> non-manifold): REATRIBUIR material;
+    3. peca nova = solido fechado (lente com fan frontal e traseiro), nunca superficie plana aberta;
+    4. validar por ILHA CONEXA (union-find por vertice), nao por corte de coordenada;
+    5. so entao o gate visual.
+  W709D verde: 0 SyntaxError/Traceback/NameError.
