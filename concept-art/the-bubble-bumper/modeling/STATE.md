@@ -4704,3 +4704,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     -> corrigido aplicando a indentacao real da linha ancora (4 espacos ao nivel do helm=dome, 8 no bloco);
     (b) ancora digitada a mao nao casou 2x -> passar a extrair a ancora do ARQUIVO pelo indice/linha.
   GLOBAIS PRESERVADAS em W615D..W617D: x_range [-1.196,1.154], W/H 1.169, 14 pecas, QA ok.
+
+
+## *** G26/VENTS MEDIDOS POR MATIZ: POSICAO E LARGURA FECHADAS ***
+  METODO: HSV (PIL convert('HSV')). Casco = matiz 140-180 e S>110 (a FAIXA amarela, matiz ~40, fica FORA do
+    casco automaticamente). A tentativa anterior por SATURACAO (S<45) capturou o capacete INTEIRO (7291 px)
+    por causa do anti-aliasing do JPEG -> medir por MATIZ, nao por saturacao.
+  MEDICAO DO CONCEPT (par simetrico ESTAVEL nas 3 bandas de teste y84-180 / y84-160 / y90-170 -> confiavel):
+    vent E x[468,482] y[98,117]  |  vent D x[543,555] y[98,111]
+    larg 14 px = 10.9%% da largura do casco (129 px) | alt 20 px = 12.5%% da altura (160 px)
+    centros a +-28.7%% do eixo | a 8.75%%-20.6%% da altura A PARTIR DO TOPO -> vents ALTOS, perto da coroa
+  ISTO CONTRADIZ O VISION: ele mandou 'trazer para baixo' e eu fui t 48->62. A MEDICAO diz centro a 14.7%% do
+    topo => t ~31-45. Revertido para t=52 com calibracao empírica de 3 pontos (o raycast faz o f quase nao mover
+    a posicao lateral: f=24 -> 21.4%%, f=21 -> 21.5%%; foi t que domina).
+  RESULTADO W622D:  largura 0.0394 vs 0.0389 (+1%%)  OK | centro_y 29.2%% vs 28.7%%  OK | do topo 17.3%% vs 14.7%%
+    | alt_z 0.0308 vs 0.0549 (-44%%) PENDENTE — a altura NAO responde a sz nem ao tilt (um elipsoide com
+    normal a 52 graus projeta pouco em z); precisa de FORMA alongada diagonal, nao elipsoide. Registrado.
+  FAIXA 31.2%% (concept 30%%) | helmet h/w 1.231 (concept 1.240) | simetria L/R dentro do ruido do raycast.
+  GLOBAIS PRESERVADAS em W618D..W622D: x_range [-1.196,1.154], W/H 1.169, 14 pecas, QA ok.
