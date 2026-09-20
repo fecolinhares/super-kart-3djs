@@ -6831,3 +6831,9 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   FIX PENDENTE: clamp mais FORTE (|y| <= 0.98 * casco, em vez de 1.05) para as faces entrarem DENTRO da superficie do
     casco, ou achatar a protuberancia em z. Criterio: 0 faces de M_Blue/materiais de casco com |y| > 0.98*y_casco_na_faixa
     E a silhueta frontal sem picos (verificar por perfil de pixels: contagem de mudancas de largura por linha).
+
+
+## P94: FIX DE FORMA DAS CUNHAS (|y| <= 0.98 x casco) ***
+  [P94] 3282 verts trazidos para |y| <= 0.98 * casco na faixa z 0.88-1.04 -> as protuberancias que rompiam a SILHUETA entram
+    DENTRO da superficie. ###QA### True, sep 14, 0 erros.
+  Fecha a serie das 3 ferramentas: POSICAO (P92 clamp) -> COR (P93 reassign) -> FORMA (P94).

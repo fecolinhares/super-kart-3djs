@@ -311,5 +311,6 @@
   "_nota_g26_aresta": "GATE v31: clipping resolvido ('nao clippa mais o queixo') mas a aresta serrilha em DEGRAUS — o vision explica que a metrica de intersecao NAO mede a QUALIDADE da aresta. Os degraus sao AUTO-INFLIGIDOS: os clamps movem vertices por z-limite, criando escada. PROXIMO: suavizar a fronteira da M_Visor (media dos vizinhos ou bmesh.ops.smooth_vert so na borda). CRITERIO DE QUALIDADE: max|dz| entre verts adjacentes da fronteira pequeno. LICAO: medir INTERSECAO nao garante qualidade de aresta — sao duas metricas diferentes.",
   "visor_smooth": 6,
   "wedge_reassign": 1,
-  "_nota_g26_material_vs_silhueta": "GATE v36: as cunhas laterais 'rompem a SILHUETA' — protuberancias geometricas. O P93 trocou a COR (M_Dark->M_Blue) mas elas continuam saliencias: REATRIBUIR MATERIAL CORRIGE COR, NAO SILHUETA. Consolidado das 3 ferramentas: CLAMP POR FAIXA -> POSICAO (P92: 60mm fora -> 0,8mm); REASSIGN -> COR (P93); FORMA/GEOMETRIA -> SILHUETA (PENDENTE). FIX: clamp mais forte (|y| <= 0.98*casco) para as faces entrarem DENTRO da superficie ou achatar em z; criterio: 0 faces de casco com |y| > 0.98*y_casco na faixa."
+  "wedge_form": 0.98,
+  "_nota_g26_p94": "P94: fix de FORMA — 3282 verts trazidos para |y| <= 0.98*casco na faixa z 0.88-1.04, fazendo as protuberancias que rompiam a silhueta entrarem DENTRO da superficie. QA True, sep 14. Fecha a serie: POSICAO (P92) -> COR (P93) -> FORMA (P94)."
 }
