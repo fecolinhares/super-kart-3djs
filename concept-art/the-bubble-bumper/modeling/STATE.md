@@ -5725,3 +5725,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   LICAO CENTRAL (4a da familia 'instrumento'): APOS transform_apply(scale), os verts estao em coords LOCAIS — nunca aplicar
     formulas com valores de mundo (centros/limites) sobre eles. Foi isso que fez o painel parecer 'bico' gigante no gate visual.
   W683D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## *** PAINEL EXATO: 0.1079 m (ALVO 0.108) — ERRO 0,1%% ***
+  Ajuste de compensacao do bevel: input z 0.632..0.756 (0.124 m) gera 0.1079 m medidos (fator 0.87 do bevel).
+  M_ChinPanel no W684D: x[-0.152,-0.102] = 0.050 m | y[+-0.064] = 0.128 m | z[0.6401,0.7479] = 0.1079 m = 133 px
+    133 px = 18%% da altura do casco = exatamente o MEIO da faixa medida no concept (13,5%%-24%%). ERRO 0,1%%.
+  A cadeia de instrumentos que permitiu isso (registro para reuso):
+    1. material PROPRIO (M_ChinPanel) para medir por material, sem ambiguidade com o amarelo do casco;
+    2. print apos o transform_apply para separar criacao de pos-processamento;
+    3. comparar com a bbox do .blend final para localizar em QUE passo o numero divergia;
+    4. corrigir a formula (coords locais, nao de mundo) e re-medir.
+  W684D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
