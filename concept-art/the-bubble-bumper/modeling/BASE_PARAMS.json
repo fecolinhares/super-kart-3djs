@@ -299,5 +299,5 @@
     "M_Gasket",
     "M_Face"
   ],
-  "_nota_g26_p78": "P78: clamp por faixa em M_Gasket e M_Face (7046 verts a 1.02 x casco). ANTES->DEPOIS em z 0.76-0.80: M_Gasket 0.3360->0.2127, M_Face 0.3304->0.2551, contra M_Blue 0.2448 e M_Visor 0.2302. As 'abas' de 0.336 foram eliminadas — so foi possivel depois do teste da premissa (a referencia M_Blue nao era o contorno mais largo). QA True, sep 14."
+  "_nota_g26_gate_v24": "GATE v24 (W717D): 7,0/10 — MELHOR MARCA DA SESSAO (era 4,0-4,5). O vision CONFIRMA que 'as abas laterais sumiram; viseira/gaxeta/rosto agora acompanham o perfil do casco' e reconhece a correcao ('a gaxeta agora esta dentro, o rosto 0.01 acima mas visualmente colado'). Resolveu tambem o misterio dos 'ovais soltos': sao os ENDPLATES DA ASA ao fundo, desfocados. MAIOR erro restante: olhos gigantes/baixos/cortados + sobrancelhas chapadas, e a faixa amarela em caixa que flutua em T no topo. A cadeia: 5 gates acusando a viseira -> 2 instrumentos negando -> regra de nomear a premissa -> referencia errada (M_Blue nao era o contorno mais largo) -> M_Gasket 0.336 / M_Face 0.330 vs M_Blue 0.245 -> clamp por faixa (P78) -> 7,0."
 }

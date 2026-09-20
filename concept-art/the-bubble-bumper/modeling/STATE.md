@@ -6477,3 +6477,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Referencia: M_Blue 0.2448 | M_Visor 0.2302. As 'abas' de 0.336 foram eliminadas.
   Esta correcao so foi possivel depois do TESTE DA PREMISSA: 5 gates apontavam 'abas na viseira' e meus 2 instrumentos
     comparavam contra o M_Blue, que NAO e o contorno mais largo daquela faixa. A viseira era inocente.
+
+
+## *** GATE v24: 7,0/10 — MELHOR MARCA DA SESSAO. O TESTE DA PREMISSA VALEU +3,0 ***
+  Vision (W717D): (1) 'Sim, as abas laterais coladas no capacete SUMIRAM — viseira/gaxeta/rosto agora acompanham o perfil do
+    casco'; reconhece explicitamente a correcao ('a gaxeta agora esta dentro, o rosto ainda 0.01 acima mas visualmente
+    colado'). (2) 7,0/10 (era 4,0-4,5 nos 5 gates anteriores; +3,0). (3) MAIOR erro: 'olhos gigantes, baixos e cortados +
+    sobrancelhas chapadas' e 'faixa amarela em caixa que flutua em T no topo'.
+  RESOLVEU TAMBEM O MISTERIO DOS 'OVAIS SOLTOS': sao os ENDPLATES DA ASA ao fundo, desfocados — nao geometria do capacete.
+  HISTORICO QUE LEVOU AO 7,0: 5 gates apontaram 'abas na viseira' -> 2 instrumentos meus (por faixa e por pixels) diziam que
+    a viseira estava dentro -> regra '3 falhas = nomear a premissa' -> a premissa era a REFERENCIA (M_Blue nao e o contorno
+    mais largo da faixa) -> medido: M_Gasket 0.336 e M_Face 0.330 contra M_Blue 0.245 -> clamp por faixa (P78) -> 7,0.
+    A viseira era inocente; o vision apontava o fenomeno certo no lugar errado; a MEDICAO da premissa localizou o lugar certo.
