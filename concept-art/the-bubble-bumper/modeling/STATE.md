@@ -6726,3 +6726,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (c) aceitar o contorno e suavizar por RENDER (anti-aliasing/samples), nao por geometria.
   Recomendacao: medir PRIMEIRO se o contorno 'em degraus' esta na intersecao (visivel) ou fora dela — pela contagem de
     pixels de contorno no render vs a posicao esperada.
+
+
+## *** O SERRILHADO NAO ESTA NOS PIXELS: CONTORNO MEDE LISO (1,53 px) ***
+  Teste (/tmp/jag.py, w732d-face.png):
+    linhas com viseira: 315 | saltos >=3px no contorno esquerdo: 29 (9%%) | media dos saltos: 1,53 px
+    pontos de ALTERNACAO (serrilhado classico): 1 | salto maximo: 98 px (isolado — regiao do queixo, fronteira legitima)
+  CONCLUSAO: um contorno serrilhado teria DEZENAS de pontos de alternacao; este tem UM e salta 1,53 px em media. O
+    'em degraus/escalonado' do vision NAO existe nos pixels — e artefato PERCEPTIVO da casca transparente sobre o casco
+    opaco (borda suave e mesclada que le como degrau). Terceiro caso nesta sessao em que a visao descreve o que a medida nega.
+  DECISAO DE ENGENHARIA: nao subdividir nada (nao ha borda: a casca e fechada — P89) e nao soldar (topologia + QA).
+    Se quiser escurecer o contorno, o caminho e de RENDER (samples/edges), nao de geometria. Passar aos itens REALMENTE
+    pendentes: catchlight por lado, rasgos da testa, faixa em T, e G31 + auditor independente.
