@@ -752,3 +752,26 @@ O concept em z 0.752 tem apenas uma faixa estreita 0.469..0.528 (amortecedores/c
 0.222 e 0.469. O modelo esta SOLIDO 0.222..0.490 => a suspensao/chassi nessa altura fecha o vao.
 Candidatos dentro de CH: springs (springL/springR), eixo traseiro (axle_w=0.520 de W407) e suportes.
 PROXIMO: probe do CH na faixa z 0.74-0.80 com |y|>0.25 -> material -> estreitar/recuar a peca.
+
+
+## W419 PROBE — o preenchimento vem de FACE GRANDE, e a ASA do modelo e larga demais
+
+Probe por VERTICE em z 0.74-0.80 com |y|>0.25: **so um objeto** — REAR, M_Yellow (170 verts) + M_Blue (72),
+|y| 0.470..0.500, z 0.740..0.755. NADA entre |y| 0.25 e 0.47.
+Mas o mask em z 0.752 e SOLIDO 0.222..0.490 => o preenchimento nao vem de vertices: vem de uma FACE GRANDE
+que atravessa o vao (vertices so nas extremidades). **Licao de metodo: probe por vertice NAO detecta peca
+que cobre o vao com uma unica face — nesses casos medir o mask, nao os vertices.**
+
+Leitura correta dos runs do concept em z 0.752: `0.528..0.469 | 0.222..-0.222 | -0.469..-0.528`
+  -> centro 0.222..-0.222 = largura 0.444 m
+  -> 0.469..0.528 = elemento separado (sidepod/coilover), VAO entre 0.222 e 0.469
+O modelo tem 0.222..0.490 SOLIDO => a peca que cobre o vao e a **ASA** (placa unica de face grande):
+no concept a asa tem **span +-0.222**; no modelo ela vai a **+-0.5**. A asa do modelo e ~2.3x larga demais,
+e o elemento REAR M_Yellow em |y| 0.470..0.500 z 0.740..0.755 e o cap/endplate dela.
+
+CONSISTENTE com o resto: a asa do modelo esta ao mesmo tempo LARGA DEMAIS (span) e BAIXA (topo 0.783 vs
+concept 0.847 em xf 0.96). W409 (inclinar) e W410 (subir) falharam porque mexeram em z/tilt SEM reduzir o
+span — a face continuou cobrindo o vao.
+
+PROXIMO: reduzir o SPAN da asa de +-0.5 para ~+-0.24 e reavaliar z depois. Candidato: parametro de span
+da asa no builder (wing span / cap position).
