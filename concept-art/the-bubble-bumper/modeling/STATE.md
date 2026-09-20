@@ -5750,3 +5750,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ANOTACAO DE METODO: duas vezes a ancora por TEXTO casou no bloco errado (a string '_pl=bpy.data.objects.get(P.get(\'pilot_obj\',\'PL\'))'
     existe no P50 E no P52). Verificar UNICIDADE da ancora (count==1) antes de inserir — regra nova de patch.
   W685D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## *** MENTONEIRA FECHADA: 132 px vs ALVO 133 (ERRO 0,8%%) ***
+  Compensacao do bevel: input z 0.6475..0.7565 (0.109 m) -> medido 0.1071 m = 132 px (alvo 133). ERRO 0,8%%.
+  ESTADO FINAL DA MENTONEIRA (tudo medido, nada inferido):
+    geometria: painel PLANO proprio (P52) + cantos arredondados U (P58) + sorriso (P53), unidos ao PL;
+    material proprio M_ChinPanel -> medicao sem ambiguidade;
+    x[-0.152,-0.102] = 0.050 m  |  y[+-0.058] = 0.116 m  |  z[0.6484,0.7556] = 0.1071 m = 132 px;
+    oclusao: COWL e CH zerados na janela (245 -> 0 faces) por recorte tight + EXACT; piloto recuado (P50);
+    largura vs concept: concept tem pico de 63 px em casco de 128 px (0.175 m); modelo 0.116 m = 66%% do concept;
+      o vision reclamava de FORMA (trapezio chapado), nao de largura — U arredondado resolveu.
+  PENDENTE DO CAPACETE (ordem do vision, do maior erro ao menor):
+    1. VISEIRA: 'gigante, plana como prato/meia-lua, larga demais, nao envolve' -> estreitar (a do concept e uma faixa
+       estreita e curvada) e dar curvatura envolvente; o maior erro atual.
+    2. OLHOS: 'enormes, muito espacados, sem brilho' -> menores, mais proximos, com catchlight.
+    3. SOBRANCELHA: 'grossas, retas, altas' -> arco fino.
+    4. FAIXA: 'larga, curta, chapada, termina abruptamente acima da viseira' -> mais estreita e continua.
+    5. VAO abaixo da viseira ('fenda vazada onde se ve o fundo') -> fechar.
+  W686D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
