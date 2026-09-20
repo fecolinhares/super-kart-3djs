@@ -1440,3 +1440,29 @@ Refutados com numero: W445 (fator global: BICO excesso 23.5%) | W447 (cowl: empa
 regressao severa IoU 0.798, COR_TV 0.291) | W443 (rzb 0: bracketed) | W441/W442 (z_k: melhora IoU mas
 <0.80 6->9 e viola contrato).
 **BASE: W446** — IoU 0.822 | pior 0.668 | COR_TV 0.255 | excesso 12.3 | falta 8.0 | <0.80 = 6.
+
+
+## W450 — FRONT t 0.55: o concept e SOLIDO ATE A LARGURA TOTAL; o modelo tem vaos
+
+FRONT runs (|y| normalizado, 1.0 = meia-largura da vista):
+  t 0.548 concept **0.748..-0.748 (SOLIDO, largura total)** | W446 0.444..-0.441  <- falta 0.30 em CADA lado
+  t 0.556 concept 0.748..-0.748                             | W446 0.670..0.655 | 0.441..-0.437 | -0.651..-0.667
+  t 0.564 concept 0.748..-0.752                             | W446 0.682..0.644 | 0.429..-0.425 | -0.640..-0.678
+  t 0.572 concept 0.748..-0.752                             | W446 0.690..-0.686 (solido mas estreito)
+  t 0.580 concept 0.748..-0.752                             | W446 0.693..-0.690
+
+=> em z ~0.65 o concept tem material continuo do centro ate as RODAS (|y| 0.44-0.75 incluido) e o modelo tem
+   VAOS entre o corpo e as rodas. O material que falta esta em |y| ~0.44-0.75 (nao em 0.24-0.41 como eu
+   supus no W448 — por isso subir os pods foi regressao: atacou o lado errado).
+
+CONFLITO DE VISTAS (3o medido): o SIDE diz que os sidepods topam em 0.53 m (e W448 confirmou que mexer neles
+piora: IoU 0.798); o FRONT pede material continuo ate a largura total em z ~0.65. Como as escalas das duas
+vistas diferem so ~4%, **nao pode ser o mesmo sidepod**: o material do FRONT em |y| 0.44-0.75 / z 0.65 e
+OUTRA coisa — candidatos: ombro do bodywork traseiro, ou ARCO DE RODA (o modelo tem rodas expostas, sem
+fender).
+
+PROXIMO: probe das ilhas com vertice em |y| 0.44-0.75 e z 0.60-0.70 (qualquer x) para ver o que o modelo
+tem ali (deve ser quase nada) e comparar com a roda (topo z 0.379). Se nao houver nada, o concept tem um
+ARCO/FENDER sobre a roda dianteira que o modelo nao tem -> peca AUSENTE (ganho real, nao compromisso).
+
+BASE: **W446** — IoU 0.822 | pior 0.668 | COR_TV 0.255 | excesso 12.3 | falta 8.0 | <0.80 = 6.
