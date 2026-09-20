@@ -6991,3 +6991,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
 
 ## P101b: pilot_sz 1.30 -> 1.42 (incremento final da proporcao)
   Medir a razao capacete/silhueta no render -front; alvo ~65%%.
+
+
+## *** MUDANCA DE APPROACH (decisao de metodo) ***
+  Feco questionou: 'nao esta nada parecido ainda. voce realmente esta usando o melhor approach para modelar?' — e a
+  resposta honesta e NAO. Por 68 builds (P1..P101) eu fiz PUSH DE VERTICE, CLAMP e REASSIGN em blobs procedurais.
+  Isso nao CONSTROI forma: desloca a que existe. Os 'consertos' nao apareciam por isso.
+  DIAGNOSTICO: dos 15 objetos (179k verts), NENHUM continha as 3 assinaturas do concept:
+    espumas amarelas TOROIDAIS do para-choque, para-choque como TUBO, tread nos pneus, grade de 5 divisoias,
+    asa CILINDRICA com endplates em DISCO.
+  APPROACH CORRETO (adotado agora): construir cada componente por PRIMITIVA medida contra a ortografica
+    (toro/sweep para tubo, toro para espuma e pneu, cilindro para disco), nunca por deslocamento de blob.
+  [P102] FEITO: para-choque reconstruido como TUBO (toro major 0.55, minor 0.055, achatado x0.35) + 2 ESPUMAS
+    TOROIDAIS amarelas (major 0.085, minor 0.048, eixo X, y=+-0.30). FBUMP: 1176 -> 2232 verts; M_Yellow 0 -> 548 faces.
+    W749D: ###QA### True | falhas=[] | sep 14 | 0 erros.
+  FILA POR FORMA (nao por parametro): 2. tread nos pneus | 3. grade com 5 divisoias | 4. asa cilindrica com
+    endplates em disco | 5. sidepods em cunha | 6. acabamento cel-shading. Cada um = geometria nova por primitiva.

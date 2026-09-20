@@ -324,5 +324,7 @@
   "_nota_g26_gate_v43": "GATE v43 (vista ORTO pareada): 'placa' RESOLVIDO — 'a frente agora le-se como viseira/vidro e nao mais como placa de pele' (confirmacao do P100). Nota 4/10. MAIOR erro restante: escala/proporcao — piloto MINUSCULO/AFUNDADO (o concept e chibi, cabeca dominante) e para-choque em laje reta em vez de tubo arredondado. PROXIMO: medir a razao altura-piloto/altura-total no concept vs modelo e escalar/subir o piloto.",
   "_nota_g26_proporcao_piloto": "MEDICAO DECISIVA: o piloto do concept ocupa 69,5% da altura total (chibi); o do modelo, 45,2%. Fator 1,54x. E a causa principal da leitura 'esta ruim / sem fidelidade'. FIX: escalar o piloto ~1,3-1,45x e/ou baixar o kart para a razao ir de 45,2% a ~69,5%. CRITERIO no render orto: capacete/silhueta = 69,5% +-3%. Medir sempre na vista -front (orto).",
   "pilot_sz": 1.42,
-  "_nota_g26_p101": "P101: piloto escalado. pilot_sz 1.30 -> 53,4% da silhueta; 1.42 final. Concept ~65%. Maior mudanca visual da sessao."
+  "_nota_g26_p101": "P101: piloto escalado. pilot_sz 1.30 -> 53,4% da silhueta; 1.42 final. Concept ~65%. Maior mudanca visual da sessao.",
+  "bumper_rebuild": 1,
+  "_nota_g26_approach": "MUDANCA DE APPROACH: 68 builds (P1..P101) foram push de vertice/clamp/reassign em blobs procedurais - isso nao constroi forma. O concept tem assinaturas que NAO EXISTIAM no modelo (espumas toroidais, tubo do para-choque, tread, grade 5 divisoias, asa cilindrica com discos). NOVO APPROACH: cada componente por PRIMITIVA medida contra a ortografica. P102 feito: tubo (toro 0.55/0.055 achatado x0.35) + 2 espumas toroidais amarelas (0.085/0.048, eixo X, y=+-0.30); FBUMP 1176->2232 verts, M_Yellow 0->548 faces."
 }
