@@ -7007,3 +7007,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     W749D: ###QA### True | falhas=[] | sep 14 | 0 erros.
   FILA POR FORMA (nao por parametro): 2. tread nos pneus | 3. grade com 5 divisoias | 4. asa cilindrica com
     endplates em disco | 5. sidepods em cunha | 6. acabamento cel-shading. Cada um = geometria nova por primitiva.
+
+
+## P103: ASA TRASEIRA POR FORMA (tubo + endplates em disco) ***
+  [P103] tubo cilindrico r=0.052 L=0.99 em x=-1.05 z=0.635 + 2 endplates em DISCO r=0.150 depth=0.040 em y=+-0.495,
+  juntados ao objeto REAR. REAR: 17560 -> 17688 verts (y +-0.495 -> +-0.515). ###QA### True | falhas=[] | sep 14.
+  Duas formas autorais construidas por primitiva ate agora: P102 (para-choque: tubo+2 espumas toroidais) e
+  P103 (asa: tubo+2 discos). Fila restante por FORMA: tread nos pneus, grade com 5 divisoias, sidepods em cunha,
+  acabamento cel-shading.
