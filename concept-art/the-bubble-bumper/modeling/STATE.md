@@ -6001,3 +6001,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   METODO CONSOLIDADO (vale para todos os proximos): medir por material NA JANELA DA REGIAO e listar QUEM ESTA A FRENTE do
     alvo — isso identifica o oclusor real em uma medicao, sem hide-test e sem repintura.
   W697D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14.
+
+
+## *** P66: ESTREITAR EM Y NAO RESOLVE A OCLUSAO — O FIX E ENCURTAR EM Z ***
+  P66 aplicado: 1682 de 2070 verts de M_Yellow na calota trazidos para |y|<=0.022 (a faixa ESTREITOU — ataca o 'muito larga'
+    do vision).
+  EFEITO COLATERAL QUE ENSINA: as faces de M_Yellow na janela dos olhos SUBIRAM de 258 -> 356.
+    CAUSA: a janela classifica faces pelo CENTROIDE. Puxar verts de |y|>0.022 para +-0.022 move os CENTROIDES para o centro,
+    fazendo MAIS faces caberem em |y|<=0.05. Ou seja: o contador da janela NAO mede 'quanto oclui' — mede 'quantas faces
+    tem centroide ali'. Estreitar em y nao e o fix da profundidade.
+  O FIX REAL (a profundidade diz): M_Yellow esta a x=-0.2161, NA FRENTE dos olhos (-0.2542) -> a faixa desce SOBRE os olhos.
+    No concept a faixa termina no NARIZ, ACIMA dos olhos. Entao: ENCURTAR a faixa em Z (terminar em ~0.80, acima da faixa dos
+    olhos 0.741-0.760), nao estreitar em Y. O estreitamento em Y permanece valido pelo 'muito larga', mas e outro objetivo.
+  CRITERIO NOVO (substitui o contador de faces): usar x_max POR MATERIAL na janela — quem tem x_max > x_max(M_Eye) e um
+    oclusor potencial; a medida certa e 'existe face de X cobrindo o RETANGULO dos olhos', nao 'quantas faces tem centroide ali'.
+  W698D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
