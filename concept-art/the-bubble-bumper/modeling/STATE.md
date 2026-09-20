@@ -3313,3 +3313,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
              (3) metrica que NAO seja cega ao que o olho ve (curvatura, massa por faixa, cor por zona...)
              (4) onde o procedural deve parar e o manual comecar (checklist)
              (5) os 5 defeitos que mais contribuem para 'nao e AAA', em ordem de correcao
+
+
+## *** W518 = NOVA BASE — primeiros alvos globais BATIDOS e vision CONFIRMA a cunha ***
+  parametros: pod_w 0.250 | pod_zt 0.100 | pod_zt2 0.105 | pod_xf0 0.295 | pod_xspan 0.440
+              pod_taper_p 0.55 | pod_e 0.60 | cover_zb 0.170 | cover_zt 0.090 | ty_f 0.670 | ty_r 0.667
+  RESULTADO: L/H 1.861 (concept 1.868) | **W/H 1.240 (concept 1.238)** | y_half 0.783
+             PODS z 0.1053-3189 (concept medido ~0.31) | y +-0.549 | x -0.5286..0.462 (42%% do kart)
+             pneus y +-0.794 | x_range EXATO | z_range [-0.01,1.253] | 14 pecas | QA aprovado
+  VISION: 'BAIXO e COMPRIDO como o concept, SIM lembra uma cunha alongada... perdeu totalmente o aspecto
+          anterior alto, curto e barrigudo. O objetivo foi cumprido.'
+  **CHAVE DO SUCESSO**: o side_cover tinha zb=0.240 e zt=0.300+cover_zt(0.230) HARDCODED => topo 0.530 FIXO,
+    dominava o bbox do PODS. Enquanto ele nao foi parametrizado (patch 27: cover_zb), baixar pod_zt/pod_zt2 nao
+    surtia efeito no bbox. LICAO: ao baixar uma peca, checar TODAS as sub-pecas do grupo (Pod/cap/cover).
+
+  GAPS REMANESCENTES (palavras do vision):
+   1) SIDE terco traseiro: concept tem LOMBADA arredondada com inserto azul sobre o amarelo; modelo esta reto/fino
+   2) SIDE: concept tem contornos sup/tras arredondados e cheios; modelo tem aresta superior viva e canto traseiro cortado
+   3) SIDE: transicao bico->sidepod do concept e continua e gorda; no modelo ha estreitamento maior e um vao antes da roda
+   4) TOP: concept tem pods simetricos bojudos p/ fora com borda amarela em U espessa e miolo azul largo; modelo = prancha
+   5) FRONT BUMPER: concept e carenado azul/amarelo integrado; modelo e TUBO PRATA aparente em U => muda a leitura da largura
+   6) TOP: tanque/carenagem central do concept e mais largo/arredondado; modelo mais estreito e pontiagudo

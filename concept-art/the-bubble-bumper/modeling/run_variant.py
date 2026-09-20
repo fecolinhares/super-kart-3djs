@@ -256,6 +256,15 @@ c2=SRC.count(o26c)
 if c2: SRC=SRC.replace(o26c,n26c)
 print('P26 secao exp:',c1,c2)
 
+
+# patch 27: side_cover com zb parametrizavel (era zb=0.240 HARDCODED -> topo 0.530 fixo, dominava o bbox do PODS)
+o27="                zb=0.240\n                zt=0.300+float(P.get('cover_zt',0.230))*sc"
+n27="                zb=float(P.get('cover_zb',0.240))\n                zt=(float(P.get('cover_zb',0.240))+0.060)+float(P.get('cover_zt',0.230))*sc"
+if o27 in SRC:
+    SRC=SRC.replace(o27,n27,1); print('P27 cover OK')
+else:
+    print('P27 cover NAO ACHOU')
+
 exec(compile(SRC,'bb_'+VER,'exec'),g)
 R=g.get('R',{})
 print(VER,'| QA=',R.get('qa',{}).get('aprovado'),'| z_range=',R.get('z_range'),'| ERRO=',R.get('ERRO'))
