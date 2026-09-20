@@ -6527,3 +6527,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     - sobrancelhas grossas/chapadas -> afinar e arquea-las.
   PROGRESSAO DOS GATES NESTA SERIE: 4,0 -> 4,5 -> 4,0 -> 7,0 (abas/gaxeta+rosto) -> 4,0 (faixa, escopo da faixa) ->
     7,0 (faixa encostada). A CABECA consolidou 7,0 com silhueta/cores/posicao corretas.
+
+
+## *** PUPILAS MEDIDAS: PERFEITAMENTE CENTRADAS — 'VESGO' REFUTADO ***
+  Medicao (/tmp/pup2.py, janela z 0.755-0.795 que EXCLUI os arcos):
+    PUPILA ESQ: y=+0.0190 z=0.7745 x=-0.2209 | 32 faces | z[0.7707,0.7783]
+    PUPILA DIR: y=-0.0190 z=0.7745 x=-0.2209
+    LENTE: z centro 0.7745 | z[0.7614,0.7876]
+  Centro da pupila = centro da lente em y E z (0.0190/0.0190 e 0.7745/0.7745). O 'vesgos' do vision e FALSO.
+  A primeira medicao deu 'z=0.7898' porque a janela 0.74-0.82 pegou TAMBEM os arcos novos (z 0.8064) — mesmo erro de
+    janela de antes (medir sem excluir a peca vizinha). Corrigido estreitando a janela.
+  DELTAS REAIS QUE RESTAM NOS OLHOS:
+    1. pupila com 7,6 mm de diametro = 29%% do olho (concept: 43%%) -> aumentar;
+    2. falta CATCHLIGHT (o 'sem brilho' do vision e verdadeiro);
+    3. arcos da sobrancelha em z 0.8015-0.8219 (14-34 mm acima da lente) — conferir se o concept quer mais proximos.
