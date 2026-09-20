@@ -1564,3 +1564,28 @@ INVALIDAS (nao usar para decidir).
 
 BASE: **W446** — IoU 0.821 | P10 **0.781** | pior 0.668 | COR_TV 0.261 | excesso 12.6 | falta 7.8 |
 N=18 | <0.90 17 | **<0.80 4** (metricas limpas, sem top).
+
+
+## VISION NAO E INFALIVEL: achado #1 (capacete 50% pequeno) REFUTADO por medicao
+
+FRONT, largura do capacete por linha (t = fracao da altura; normalizada pela largura da vista):
+  t 1.00 concept 0.058 | W446 0.073   |  t 0.97 concept 0.179 | W446 0.157
+  t 0.94 concept 0.232 | W446 0.218   |  t 0.91 concept 0.259 | W446 0.249
+  t 0.88 concept 0.281 | **W446 0.284** |  t 0.85 concept 0.290 | **W446 0.295**
+=> **batem dentro de 5%**. O capacete NAO e 50% pequeno. O vision leu a MASCARA vermelha (onde a cabeca
+aparece isolada, saliente) contra o RENDER (onde o capacete se integra ao corpo) e superestimou a diferenca.
+
+**REGRA NOVA: vision PROPoe, medicao DISPOE.** Todo achado de vision que implique mudanca de geometria deve
+ser medido por coluna/linha antes de virar alteracao. (O vision continua sendo o gate de QUALIDADE — "parece
+um kart de corrida?" — mas nao e a fonte de verdade dimensional.)
+
+STATUS dos 5 achados do vision comparativo:
+  #1 capacete 2x pequeno -> REFUTADO por medicao (batem em 5%)
+  #2 proporcao estreito/alto -> conflita com minha medicao de aspecto (que diz o concept ~4% MAIS ALTO);
+      precisa de medicao por vista antes de agir
+  #3 focinho grosso/alto -> contra o W446, que SUBIU o nariz e MELHOROU a falta (8.3->8.0) => cuidado
+  #4 traseira vazada vs bloco macico -> PLAUSIVEL, medivel no SIDE/REAR
+  #5 escapamentos furam a silhueta -> PLAUSIVEL (as ilhas de 0.62 m existem); medivel
+
+BASE LIMPA (AUDIT_SKIP=top): W446 — IoU 0.821 | P10 0.781 | pior 0.668 | COR_TV 0.261 | exc 12.6 | falta 7.8 |
+N=18 | <0.90 17 | <0.80 4.
