@@ -6930,3 +6930,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   MECANISMO: para corrigir a PROPORCAO de uma peca, escalar A PECA (nao o conjunto). Escalar o conjunto move tudo junto e a
     razao medida quase nao muda.
   REFERENCIA: CONCEPT azul H/W = 0.945 (medido no render ORTO — usar sempre a vista -front, nao a -face em perspectiva).
+
+
+## *** CAUSA RAIZ DA 'PLACA': M_Face OCUPA 6702 CELULAS FRONTAIS (mais que o casco 2938) ***
+  Medicao por PROJECAO ORTOGONAL frontal (/tmp/idv.py, W744D): conta celulas 1mm sem conflito por material,
+  so faces com normal apontando para -y (a frente).
+    ID 6 M_Face = 6702 | ID 4 M_Blue = 2938 | ID 5 M_Visor = 2553 | ID 0 M_Gasket = 2129 | ID 2 M_Yellow = 1329
+    ID 1 M_Pilot = 427 | ID 3 M_Dark = 366 | ID 8 M_ChinPanel = 53 | ID 7 M_Eye = 26
+  O M_Face e a MAIOR superficie frontal do capacete — maior que o proprio casco azul. A queixa persistente do
+    vision ('viseira chapada/placa') nao e a viseira: e o M_Face dominando a frente. Por isso o clamp de LARGURA
+    (P78) nao mudou nada visualmente — limitar a largura nao reduz a AREA VISIVEL.
+  FIX NOMEADO: recuar o M_Face (x) para tras da viseira ou reatribuir suas faces frontais a M_Visor, de modo que a
+    frente do capacete seja VISOR, nao FACE. Criterio: M_Face < 300 celulas frontais (hoje 6702).
+  INSTRUMENTO NOVO (16): PROJECAO ORTOGONAL POR MATERIAL — conta celulas 1mm visiveis por material. Revela quem
+    DOMINA a vista, o que nenhum instrumento anterior mostrava (todos mediam tamanho, nao AREA VISIVEL DE FRENTE).
