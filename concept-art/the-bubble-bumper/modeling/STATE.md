@@ -5452,3 +5452,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     capacete (a calota azul a cobre a partir de cima). Medir no render a fronteira superior do amarelo do queixo vs o topo da
     mentoneira no mesh para saber quanto esta enterrado, e entao subir/abaixar a pecica ou alargar a abertura do casco.
   W664D verde: QA ok, 14 pecas, globais preservadas.
+
+
+## *** OCLUSOR FINAL ENCONTRADO: M_Pilot. E O ERRO DO MEU LIMIAR POR 1 mm ***
+  MEDICAO (quadrado do queixo: |y|<=0.09, z 0.60-0.76; maior x = mais perto da camera):
+    M_Pilot   131 faces  x[-0.350,-0.081]  x_medio=-0.221   <-- MAIOR x = o mais a FRENTE
+    M_Yellow 2171 faces  x[-0.462,-0.151]  x_medio=-0.299   <-- a mentoneira; frontal REAL = -0.151
+    M_Gasket  272 faces  x[-0.569,-0.133]
+    M_Blue   1054 faces  x[-0.461,-0.241]
+    M_Eye     110 faces  x[-0.274,-0.246]
+  ERRO DO INSTRUMENTO (a causa de TODA a serie de buscas frustradas): eu definia 'na frente' como x > -0.080, usando o
+    frontal do BBOX do chin_guard como plano de referencia. O M_Pilot atinge x=-0.081, ficando FORA por 1 MILIMETRO.
+    O plano de referencia certo e o frontal REAL da superficie alvo: o amarelo comeca em -0.151, e -0.081 > -0.151,
+    logo o piloto ESTA a frente e cobre. Regra: comparar com a superficie REAL da peca (medida nas faces dela), nunca com
+    o bbox arredondado nem com o limite de uma janela escolhida por conveniencia.
+  POR QUE O TESTE M_Pilot DENTRO DO QUADRADO DEU 0 ANTES: aquele teste exigia x > -0.080 (mesmo erro) — os dois testes
+    usavam o mesmo limiar errado, entao concordaram entre si e se reforcaram. Dois testes com o mesmo vicio nao sao duas
+    evidencias.
+  TAMANHO DA COBERTURA: 131 faces do piloto na faixa; a mentoneira renderiza ~60 px dos ~180 px do alvo (2/3 cobertos).
+  PROXIMO (concreto): recuar o subconjunto M_Pilot que invade o quadrado do queixo (transladar essas faces em -x para
+    tras do frontal do amarelo, -0.151) ou rebaixar a mascara do piloto; depois re-renderizar e medir o amarelo do queixo
+    de novo (gate objetivo: >=150 px de altura).
+  W664D verde: QA ok, 14 pecas, globais preservadas.
