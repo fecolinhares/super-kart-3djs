@@ -5692,3 +5692,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     segue NAO localizada, mas o espaco de busca esta reduzido: X certo e Y/Z inflados por fatores diferentes, e taper/bevel
     do P52 apenas encolhem.
   W679D verde: QA ok, sep_parts=14, globais preservadas.
+
+
+## INSTRUMENTACAO FUNCIONA: A CAUSA DO NameError ERA A ORDEM, NAO O ESCOPO ***
+  DIAGNOSTICO CORRETO (linhas 52 e 53 do bloco):
+    52: print('[P52dbg] ... _pn ...')      <- referencia _pn
+    53: _pn=bpy.context.active_object      <- define _pn
+    => NameError. Era ORDEM INVERTIDA, nao escopo/indentacao. Eu havia diagnosticado escopo DUAS vezes (removi o
+       print do join; tentei reancorar por texto) — ambas erradas. Licao: ler o NameError LITERALMENTE e checar a ordem
+       das linhas antes de teorizar sobre escopo.
+  APOS mover o print para depois da definicao, o build W681D ficou verde (0 SyntaxError/Traceback/NameError, QA ok) e:
+    [P52dbg] dim=(2.0,2.0,2.0) loc=(-0.127,0.0,0.694) scale=(1.0,1.0,1.0)
+    Ou seja: o cubo cru (size=2) e a LOCATION 0.694 = exatamente o centro do alvo (z0+z1)/2 — a criacao esta correta;
+    o print roda ANTES da linha que aplica o scale (ordem do bloco), entao ele ainda nao mostra o inflar.
+  PROXIMO: mover/duplicar o print para DEPOIS do transform_apply e comparar com a bbox do .blend final (medida por
+    M_ChinPanel). UM print por build, ancorado por TEXTO, validado no SRC final.
+  W681D verde: QA ok, sep_parts=14, globais preservadas.
