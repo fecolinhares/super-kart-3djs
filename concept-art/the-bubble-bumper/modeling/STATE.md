@@ -2005,3 +2005,27 @@ em z (abt_dz) mas nao em x — testar encurtar o duct em x preservando x_range.
 
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## M_Dark DO VAO t 0.54 — IDENTIFICADO: sao ESTRUTURAS VERTICAIS FINAS
+
+Candidatos no bloco rear() que caem em x -0.746..-0.851:
+  sp = sweep('Airbox_Strut_L/R', [(XRE+0.345, sy*0.078, 0.596),(XRE+0.330, sy*0.090, 0.430)], 0.028, 14)
+       -> x ~ -0.845 (XRE ~ -1.19)   raio 0.028 (5.6 cm)
+  py = tube_round('Wing_Pylon_L/R', [(wx1+0.075, sy*0.150, wz-0.030),(wx1+0.130, sy*0.150, 0.512)], 0.036, 14)
+       -> x ~ -0.830 (wx1 -0.905)    raio 0.036 (7.2 cm)
+  (rv=Rivet em exb+0.242 = -0.948 -> FORA;  Dslot em XRE+0.060 -> fora;  Rear_Clamps em _bx)
+
+Analise: 5.6-7.2 cm de largura NAO preenchem um vao de 17 cm (-0.75..-0.92) — mas DIVIDEM-no em dois vaos
+menores. Como a medicao mostra o run SOLIDO, essas hastes estao se FUNDINDO com a asa/rampa na silhueta
+(o topo da haste chega a z 0.596 e a asa esta em z 0.545-0.625 -> sobreposicao em z).
+=> o problema nao e "a haste existe", e "a haste + asa formam uma massa continua sem ar entre elas".
+
+**PROXIMA ACAO (com invariantes preservados)**: abrir ar entre a haste e a asa/rampa — testar reduzir o
+comprimento das hastes (Airbox_Strut: de z 0.596 para baixo; Wing_Pylon: de wz-0.030 para baixo), ou
+estreitar a asa (wing_x1 -0.905 -> -0.935 / wing_x2 -1.158 -> -1.130) para o concept (imagem 0.88-0.94 =
+x -0.92..-1.06). Uma por build, checando x_range/z_range/scale_factor ANTES do audit.
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
