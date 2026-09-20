@@ -6246,3 +6246,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PROXIMOS PASSOS: (a) aspecto da lente h/w 1.12 -> 1.6 (oval vertical, como o concept); (b) aproximar um pouco
     (eye_sep 0.045 -> ~0.038) para 'juntar'; (c) sobrancelha: substituir os blocos por arco fino.
   W710D verde: QA True, falhas = [], 0 erros.
+
+
+## P72: OLHOS OVAIS VERTICAIS E MAIS JUNTOS ***
+  [P70v4] 2 lentes de 0.025 x 0.040 (aspecto 1.60 = oval vertical) separadas 0.038.
+  [P71] 2 pupilas M_Dark de r=0.006 centradas em y=+-0.019.
+  [QA-DBG] falhas = [] | ###QA### True | sep 14 | 0 erros.
+  DISTANCIA ENTRE CENTROIDES = 0.0380 | VAO = 0.0216 POSITIVO.
+  Atende os tres pedidos do gate v17: aspecto oval vertical, mais juntos, pupilas centradas.

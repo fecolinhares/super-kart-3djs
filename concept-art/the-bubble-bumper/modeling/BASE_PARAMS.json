@@ -281,10 +281,12 @@
   "eye_scale": 2.85,
   "_nota_g26_eye_ilhas": "M_Eye NAO SAO DOIS OLHOS: medindo por ILHA CONEXA (union-find por vertice compartilhado), sao 2 ilhas AMBAS centradas em y~0, cada uma cobrindo a largura inteira (0.1294 e 0.1280), separadas em z (0.7741 e 0.7770) — duas camadas empilhadas, nao olho esquerdo/direito. Isso INVALIDA a medicao anterior que dividia por y>0/y<0 (media as METADES de um elemento largo e chamava de dois olhos de 2,4 cm com 2,5 mm entre bordas). O vision acertou no tamanho: o elemento tem 12,9 cm de largura. REGRA: antes de medir 'o par', verificar que o par EXISTE como geometria separada — usar ilhas conexas, nunca cortes por sinal de coordenada. PROXIMO: reconstruir M_Eye como dois discos ovais discretos (0.068 de largura cada, vao positivo entre eles).",
   "eye_disc": 0.025,
-  "eye_sep": 0.045,
+  "eye_sep": 0.038,
   "eye_x": -0.2166,
   "eye_z": 0.7745,
   "eye_thick": 0.006,
   "eye_pupil": 0.012,
-  "_nota_g26_gate_v17": "GATE v17 (W710D): 3/10, com o vision CONTRADIZENDO a propria instrucao do gate v16 ('reduza p/ ~2,5cm, gap ~2cm') e chamando os mesmos 2,5 cm de '2x maiores'. A medicao confirma 0.025 de largura, centroides a 0.0450 e vao 0.0286 positivo. Julgamento de proporcao instavel na visao; a MEDICAO decide (nao desfazer o que o numero confirma). O que a visao aponta E a geometria confirma: (1) as lentes sao quase REDONDAS (0.025 x 0.028) enquanto o concept tem OVAIS VERTICAIS (altura ~1,6x a largura) — ajustar o ASPECTO, nao o tamanho; (2) as sobrancelhas sao blocos pretos grossos, retos e altos. PROXIMOS: aspecto h/w 1.12 -> 1.6, eye_sep 0.045 -> ~0.038 para juntar, sobrancelha em arco fino."
+  "_nota_g26_gate_v17": "GATE v17 (W710D): 3/10, com o vision CONTRADIZENDO a propria instrucao do gate v16 ('reduza p/ ~2,5cm, gap ~2cm') e chamando os mesmos 2,5 cm de '2x maiores'. A medicao confirma 0.025 de largura, centroides a 0.0450 e vao 0.0286 positivo. Julgamento de proporcao instavel na visao; a MEDICAO decide (nao desfazer o que o numero confirma). O que a visao aponta E a geometria confirma: (1) as lentes sao quase REDONDAS (0.025 x 0.028) enquanto o concept tem OVAIS VERTICAIS (altura ~1,6x a largura) — ajustar o ASPECTO, nao o tamanho; (2) as sobrancelhas sao blocos pretos grossos, retos e altos. PROXIMOS: aspecto h/w 1.12 -> 1.6, eye_sep 0.045 -> ~0.038 para juntar, sobrancelha em arco fino.",
+  "eye_aspect": 1.6,
+  "_nota_g26_p72": "P72: aspecto da lente 1.12 -> 1.60 (oval vertical, como o concept) e eye_sep 0.045 -> 0.038 (juntar). Lentes 0.025 x 0.040, pupilas M_Dark centradas em y +-0.019. QA True, falhas = [], centroides a 0.0380, vao 0.0216 positivo."
 }
