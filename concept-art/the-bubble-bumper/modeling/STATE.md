@@ -894,3 +894,32 @@ W426 — sweep CUBICO (so o bordo de ataque afina): COR_TV 0.257, excesso 12.2, 
 Novo padrao: wing_sweep=0.253.
 
 Base: W425 — IoU 0.821 | pior 0.657 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+
+
+## SIDE/TRASEIRA (0.657, pior regiao) — medicao por COLUNA acha 3 defeitos
+
+SIDE, runs (z) por coluna xf. concept H=1.207/topo 1.207 | W425 H=1.175/topo 1.165:
+  xf 0.82 concept 0.646..0.003            | W425 0.676..0.041      (~ok; modelo 3.8cm alto no piso)
+  xf 0.86 concept 0.625..0.003            | W425 0.631..0.027      (~ok)
+  xf 0.90 concept **0.817..0.552 | 0.477..0.003**  (2 runs: asa 0.265 de altura + corpo SOLIDO)
+         W425    **0.752..0.659 | 0.639..0.344 | 0.271..0.032**  (3 runs)
+  xf 0.94 concept 0.841..0.613 | 0.537..0.093
+         W425    0.752..0.400 | 0.274..0.029
+  xf 0.97 concept **0.850..0.688 | 0.588..0.450 | 0.369..0.249** (3 runs separados)
+         W425    **0.735..0.080** (1 run SOLIDO)
+  xf 0.99 concept 0.853..0.754 | 0.597..0.501 | W425 0.659..0.412
+
+DEFEITO 1 — perfil da ASA no SIDE. concept: banda que sobe e afina: 0.552-0.817 (xf 0.90, 0.265 de altura),
+  0.613-0.841 (0.94), 0.688-0.850 (0.97), 0.754-0.853 (0.99) => bordo de ataque em (xf 0.90, z 0.552) e
+  fuga em (xf 0.99, z 0.853): corda ~0.21 em xf (~0.49 m) subindo 0.30 em z => INCLINACAO ~31 graus.
+  W425: 0.659-0.752 (xf 0.90) = 0.093 de altura => placa FINA e HORIZONTAL, topo 0.752 vs concept 0.817.
+  (ATENCAO: na vista SIDE tudo projeta em y, entao essa banda pode ser asa + airbox/roll hoop juntos.)
+DEFEITO 2 — BURACO no corpo. em xf 0.90 o concept e SOLIDO 0.003..0.477; o modelo tem VAO em z 0.271-0.344
+  (runs 0.639..0.344 e 0.271..0.032). Ha material faltando no corpo traseiro nessa altura.
+DEFEITO 3 — traseira extrema. em xf 0.97 o concept tem 3 elementos separados (0.850..0.688 | 0.588..0.450 |
+  0.369..0.249) e o modelo e 1 bloco SOLIDO 0.735..0.080 => o modelo funde o que no concept e separado
+  (mesmo padrao da asa: o concept separa, o modelo preenche).
+
+PROXIMO (ordem): (a) DEFEITO 2 e o mais simples e verificavel — achar a peca que falta no corpo traseiro em
+z 0.27-0.34 (probe: objetos com vertice em x ~ -0.965 e z 0.27-0.35); (b) DEFEITO 3 exige separar o bloco
+traseiro; (c) DEFEITO 1 exige decidir se a banda e asa+airbox antes de inclinar a asa (W409 falhou).
