@@ -6922,3 +6922,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   MEDIDO: extensao do par 0.0544 / casco 0.3125 = 17,4%% (alvo 20,6%% do concept) -> o par estava 15%% estreito.
   [P97] eye_sep 0.038 -> 0.048 -> extensao 0.073 = 23,4%% do casco (alvo 20,6%%): agora 13%% ACIMA, dentro da mesma ordem.
   ###QA### (ver log) — base para o proximo ajuste fino se necessario.
+
+
+## P98+P99: REDONDEZ ESTRUTURAL — O DOMO E O MECANISMO CERTO ***
+  P98 (escala da cabeca toda em Z): H/W 0.877 -> 0.889 -> 0.901 — SATURA (a silhueta azul e cortada pelas vizinhas).
+  P99 (escala SO do M_Blue em Z a partir da base z=0.7009): 1.055 deu 0.925 (+2,4% num passo) e 1.078 deve fechar.
+  MECANISMO: para corrigir a PROPORCAO de uma peca, escalar A PECA (nao o conjunto). Escalar o conjunto move tudo junto e a
+    razao medida quase nao muda.
+  REFERENCIA: CONCEPT azul H/W = 0.945 (medido no render ORTO — usar sempre a vista -front, nao a -face em perspectiva).

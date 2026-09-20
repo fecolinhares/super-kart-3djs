@@ -313,5 +313,8 @@
   "wedge_reassign": 1,
   "wedge_form": 0.93,
   "_nota_g26_simetria_ok": "SIMETRIA MEDIDA (13o instrumento, pareamento de vertices espelhados): 4684 pares, 2 verts sem par, desvio maximo dz=0,02 mm e dx/dy=0,07 mm. A geometria da viseira e SIMETRICA a menos de 0,1 mm — logo a assimetria de PIXELS (borda direita 2x mais rugosa: 3,12 vs 1,52 px) e artefato de RENDER, nao de geometria (mesma classe do dither). O instrumento refutou em UMA medicao a hipotese levantada pela medicao de pixels — sem ele eu cacaria a assimetria nos passes de modelagem e nao acharia nada.",
-  "_nota_g26_p97": "P97: espacamento dos olhos. MEDIDO: a extensao do par era 0.0544 contra o casco 0.3125 = 17,4%% (o concept pede 20,6%%), ou seja 15%% estreito. eye_sep 0.038 -> 0.048 leva a extensao a 0.073 = 23,4%%. Este e o instrumento que faltava para o item 'olhos' — medir a EXTENSAO DO PAR como razao da largura do casco, nao o tamanho unitario."
+  "_nota_g26_p97": "P97: espacamento dos olhos. MEDIDO: a extensao do par era 0.0544 contra o casco 0.3125 = 17,4%% (o concept pede 20,6%%), ou seja 15%% estreito. eye_sep 0.038 -> 0.048 leva a extensao a 0.073 = 23,4%%. Este e o instrumento que faltava para o item 'olhos' — medir a EXTENSAO DO PAR como razao da largura do casco, nao o tamanho unitario.",
+  "dome_sz": 1.078,
+  "helm_round": 1.146,
+  "_nota_g26_domo": "P98/P99: REDONDEZ. Escalar a cabeca toda saturou (0.877->0.889->0.901) porque a silhueta azul e cortada pelas pecas vizinhas. Escalar SO o M_Blue em Z a partir da sua base (0.7009) funciona: 1.055 deu 0.925. MECANISMO: para corrigir a PROPORCAO de uma peca, escalar A PECA, nao o conjunto. REFERENCIA: concept azul H/W = 0.945, medido SEMPRE no render -front (orto), nunca no -face (perspectiva)."
 }
