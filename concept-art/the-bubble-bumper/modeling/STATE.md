@@ -1879,3 +1879,31 @@ Medir depois: runs em t 0.80/0.78/0.76 e o agregado (IoU/P10/<0.80). Nada disso 
 
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## W464 (helm_x -0.360) = REGRESSIVA — e revela o que o concept realmente tem em t 0.76-0.80
+
+Resultado: t 0.80 `0.53..0.71` -> `0.55..0.74` (o run DESLOCOU mas continua SOLIDO — nenhum vao abriu).
+Agregado: IoU 0.826->**0.824** | P10 0.790->**0.786** | <0.80 4->**5** | COR_TV 0.251->0.250.
+=> deslocar o domo nao cria vao (a secao transversal em z 0.93 e quase um circulo cheio: move, nao quebra).
+   Opcoes (b) raio menor e (c) achatar teriam o mesmo defeito: ENCOLHEM o run, nao o DIVIDEM.
+
+**OBSERVACAO DECISIVA**: os runs do concept em t 0.76, 0.78 e 0.80 sao PRATICAMENTE IDENTICOS
+(0.53 | 0.56..0.57 | 0.58..0.59 | 0.61..0.72) ao longo de 4 cm de altura.
+  - Uma SECAO DE DOMO mudaria de largura com a altura (o modelo muda: 0.53-0.72 -> 0.53-0.72 -> 0.53-0.72, e
+    a largura do modelo tambem e constante, mas CHEIA).
+  - Largura CONSTANTE em 4 cm = **elementos VERTICAIS finos** (postes/rollhoop/intake/antena), nao uma calota.
+=> em z 0.90-0.95 o concept tem ELEMENTOS VERTICAIS SEPARADOS; o modelo tem a CALOTA DO CAPACETE ali.
+
+## RESTRICAO CRITICA (nao violar)
+O topo do modelo (z_range max 1.165) E o topo do capacete (hz + HR*SZ = 0.985 + 0.210*0.934 = 1.181).
+=> BAIXAR o capacete mudaria o z_range e portanto DESLOCARIA A NORMALIZACAO DE TODAS AS METRICAS
+   (invalidaria a comparacao). A correcao tem de PRESERVAR o topo e mudar a FORMA.
+
+**PROXIMA ACAO**: dar ao capacete uma FRENTE REBAIXADA/CORTADA (preservando o topo em z 1.181), de modo que
+em z 0.90-0.95 o material fique so na parte de tras (x -0.284..-0.542, medido) e apareçam os vaos em
+imagem 0.53-0.56 e 0.59-0.61. Alternativa: conferir se o concept tem postes verticais que o modelo nao tem
+(rollhoop/intake) e adiciona-los, deixando a calota mais baixa SO onde ela conflita.
+
+## BASE: W463 (inalterada — W464 nao adotado)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
