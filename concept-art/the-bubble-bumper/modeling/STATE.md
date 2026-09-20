@@ -5980,3 +5980,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (2) o M_Gasket (opaco, 7 cm a frente dos olhos). PROXIMO: medir x_max(M_Blue) e a cobertura do M_Gasket na faixa
     dos olhos; e conferir se o alpha 0.30 do M_Visor realmente atua no render Eevee (blend_method BLEND).
   W697D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14.
+
+
+## *** CAUSA DO 'TOPO OPACO': A FAIXA AMARELA ATRAVESSA A JANELA DOS OLHOS ***
+  Medicao (W697D, /tmp/depth2.py):
+    x_max na faixa dos olhos (z 0.735-0.770): M_Visor -0.1585 (1988 faces) > M_Yellow -0.2161 (1597) > M_Blue -0.2330
+      > M_Eye -0.2542 (112)
+    Faces A FRENTE dos olhos (-0.2542) na janela |y|<=0.05: M_Visor 466 | M_Yellow 258 | M_Gasket 58 | M_Blue 46 |
+      M_ChinPanel 20
+  CONCLUSAO: o oclusor opaco NAO e a viseira nem o rosto (hipoteses anteriores) — e a FAIXA AMARELA (M_Yellow), com
+    258 faces dentro da janela dos olhos, a x=-0.2161, na frente dos olhos. Confere com o que o vision repete desde o
+    primeiro gate: 'faixa central muito larga, reta, chapada, terminando abruptamente acima da testa'. No concept a faixa
+    e FINA e vai do topo ate o NARIZ, com os olhos AO LADO dela.
+  SEGUNDO ACHADO: M_ChinPanel tem 20 faces dentro da janela dos olhos (topo em z 0.7565 invade a faixa 0.741-0.760).
+  FIXES (dois, ambos mensuraveis com o mesmo instrumento):
+    1. ESTREITAR a faixa central (M_Yellow) para ela nao cruzar |y| dos olhos (~0.04) na altura deles — alvo: 0 faces
+       de M_Yellow na janela |y|<=0.05, z 0.735-0.770;
+    2. resolver a sobreposicao M_ChinPanel x olhos: subir os olhos OU baixar o topo do painel (a altura do painel esta
+       calibrada em 132 px, entao preferir reposicionar os olhos preservando a altura do painel).
+  METODO CONSOLIDADO (vale para todos os proximos): medir por material NA JANELA DA REGIAO e listar QUEM ESTA A FRENTE do
+    alvo — isso identifica o oclusor real em uma medicao, sem hide-test e sem repintura.
+  W697D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14.
