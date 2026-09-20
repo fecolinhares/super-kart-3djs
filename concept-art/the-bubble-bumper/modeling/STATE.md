@@ -6367,3 +6367,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Ainda ~10%% acima do alvo de 105%% nas faixas do meio por GRANULARIDADE: o limite e por banda de 2 cm, entao um vert no
     topo da banda carrega o maximo da banda. Refino possivel: banda de 1 cm ou interpolar o perfil entre bandas.
   W713D verde: QA True, falhas = [], 0 erros, sep_parts=14.
+
+
+## *** P75: VISEIRA A 96,8-104,1%% DO CASCO — ORELHAS ELIMINADAS ***
+  O vision deu o alvo exato no gate v20: 'no concept a largura da viseira e ~90-95%% da largura do casco, rente e curva
+    junto'. Eu estava em 1.05 -> apertei para 0.95.
+  [P74] 4340 verts ajustados (limite 0.95 x casco) em 21 faixas. ###QA### True, sep 14, 0 erros.
+  CRITERIO por faixa (viseira/casco): 0.725-0.760 -> 103,1%% | 0.760-0.795 -> 104,1%% | 0.795-0.830 -> 99,2%% |
+    0.830-0.865 -> 96,8%%. TODAS <= 104,1%% (antes a pior era 156,4%%).
+  Evolucao do trabalho das 'orelhas' (registro): gate P60 'cantos que estouram para fora como orelhas' -> gate v19 'abas
+    laterais' -> medicao por faixa localizou 156%% em z 0.725-0.760 -> P74 corrigiu -> v714 mede 96,8-104,1%%.
+  LICAO CONSOLIDADA: alvo dado pela VISao em numero (90-95%%) e verificavel por MEDICAO (razao por faixa). Quando a visao
+    da um numero, use-o como criterio; quando da adjetivo, meça primeiro.

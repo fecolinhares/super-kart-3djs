@@ -291,6 +291,6 @@
   "brow_w": 0.03,
   "brow_z": 0.805,
   "brow_th": 0.006,
-  "visor_clamp": 1.05,
-  "_nota_g26_p74": "P74: viseira limitada ao perfil do casco (|y| <= 1.05*y_casco(z)), 3158 verts em 21 faixas. CRITERIO por faixa ANTES->DEPOIS: 0.725-0.760: 156,4%%->113,9%%; 0.760-0.795: 122,3%%->115,1%%; 0.795-0.830: 111,0%%->108,2%%; 0.830-0.865: 103,6%%->103,6%%. As 'orelhas' de 156%% acabaram. Restam ~10%% acima do alvo de 105%% nas faixas do meio por GRANULARIDADE da banda (2 cm: um vert no topo carrega o maximo da banda) — refinar com banda de 1 cm ou interpolar. QA True, falhas = [], sep 14."
+  "visor_clamp": 0.95,
+  "_nota_g26_p75": "P75: clamp da viseira apertado de 1.05 para 0.95 (o vision deu o alvo: 'no concept a viseira e ~90-95%% da largura do casco'). 4340 verts ajustados em 21 faixas. CRITERIO por faixa: 103,1%% / 104,1%% / 99,2%% / 96,8%% — TODAS <= 104,1%% (antes a pior era 156,4%%). QA True, sep 14. LICAO: alvo em NUMERO dado pela visao e verificavel por medicao (razao por faixa); alvo em adjetivo exige medir primeiro."
 }
