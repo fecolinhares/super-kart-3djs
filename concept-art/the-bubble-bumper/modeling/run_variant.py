@@ -166,6 +166,26 @@ old21="cut=box('Cockpit_Cut',(XFO-0.452*L,0,0.640),(0.232,0.150,0.116)"
 new21="cut=box('Cockpit_Cut',(XFO-0.452*L,0,0.640+P.get('ch_top_dz',0.0)),(0.232,0.150,0.116)"
 if old21 in SRC:
     SRC=SRC.replace(old21,new21,1)
+# patch 22: DIAGNOSTICO do slot None (quem vira M_Dark silenciosamente)
+old22="""_b=[i for i,mm in enumerate(o.data.materials) if mm is None]
+    for i in _b: o.data.materials[i]=MG.get('M_Dark')
+    _badn+=len(_b)"""
+new22="""_b=[i for i,mm in enumerate(o.data.materials) if mm is None]
+    _wm=[o.matrix_world@v.co for v in o.data.vertices]
+    if _b:
+        _fz=[]; _fx=[]
+        for f in o.data.polygons:
+            if f.material_index in _b:
+                for vi in f.vertices:
+                    v=o.matrix_world@o.data.vertices[vi].co; _fz.append(v.z); _fx.append(v.x)
+        print('NONE piece=%s slots=%s nf=%d bbox_z[%.3f,%.3f] bbox_x[%.3f,%.3f] | facesNone x[%.3f,%.3f] z[%.3f,%.3f]'%(
+            o.name,_b,sum(1 for f in o.data.polygons if f.material_index in _b),
+            min(v.z for v in _wm),max(v.z for v in _wm),min(v.x for v in _wm),max(v.x for v in _wm),
+            min(_fx) if _fx else 0,max(_fx) if _fx else 0,min(_fz) if _fz else 0,max(_fz) if _fz else 0))
+    for i in _b: o.data.materials[i]=MG.get('M_Dark')
+    _badn+=len(_b)"""
+if old22 in SRC:
+    SRC=SRC.replace(old22,new22,1)
 
 old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"

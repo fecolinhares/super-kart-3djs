@@ -3135,3 +3135,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Depois: (a) atribuir o material CORRETO em vez de M_Dark; (b) se a caixa existir no concept, manter; se nao, remover.
   ISSO CORRIGE SILHUETA E MATERIAL DE UMA VEZ — nao usar None como material default e um bug de disciplina
   de autor: toda face precisa de material explicito (regra da skill concept-driven-3d-modeling).
+
+
+## DIAGNOSTICO none_slots (W503, patch 22) — HIPOTESE REFUTADA
+  Somente o LAMP tem faces sem material: 54, em x[1.063,1.092] z[0.136,0.195] = FAROL (frente/baixo).
+  NOSE/COWL/REAR tem slot orfa (1,1,4) com ZERO faces => inofensivas (sujeira, nao defeito visual).
+  => o fallback None->M_Dark NAO explica os 209 faces M_Dark acima de z0.65 em x0.14-0.30.
+  DEFEITO REAL mas de outro efeito: 54 faces de farol preto (impacto visual na frente, corrigir depois).
+
+**DEDUCAO POR ELIMINACAO** (bbox das pecas vs faixa x0.14-0.30 / z0.65-0.95):
+  NOSE x0.56-1.07 | LAMP x1.05-1.09 | GRILLE x0.86-1.11 | Tub x-0.68..0.135 (zmax 0.51) | REAR x-1.22..-0.30  => fora
+  PL  x-0.57..0.649 z0.244..1.271 | CH x-0.844..1.01 z0.058..0.794                                => AMBAS cobrem
+  No PL os M_Dark sao: gloves (z<=0.619), headrest (x<0), boots (z<=0.404) => todos FORA da faixa.
+  => **O OCUPANTE E O CH** (estrutura escura do cockpit: dash/volante). Hipotese original confirmada
+     por eliminacao, nao por palpite — e o patch do Cockpit_Cut falhou porque o cutter NAO e o M_Dark do CH.
+
+**PROXIMO**: instrumentar o CH como fiz com o slot None — imprimir as faces M_Dark do CH com x>0.14 e z>0.65,
+  junto com o bbox de cada sub-peca do cockpit; depois expor `ch_dark_dz` no ponto certo.
+**TAREFA SEPARADA (vai para a lista)**: corrigir o farol — 54 faces com material indefinido virando M_Dark.
+  Atribuir o material correto (M_White/M_Silver do farol) em vez de M_Dark.
