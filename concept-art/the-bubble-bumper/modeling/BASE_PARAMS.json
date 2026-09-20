@@ -50,8 +50,8 @@
  "tread_bulge": 0.012,
  "tread_mat": "M_Plate",
  "tread_n": 6,
- "ty_f": 0.582,
- "ty_r": 0.58,
+ "ty_f": 0.586,
+ "ty_r": 0.584,
  "wing_hh": 0.04,
  "wing_span": 0.505,
  "wing_sweep": 0.253,
@@ -62,5 +62,16 @@
  "alvo_L_H": 1.978,
  "alvo_W_H": 1.171,
  "_nota_alvos": "ALVOS VALIDADOS: L/H 1.978 (overlay+vision no SIDE) e W/H 1.171 (estavel em 4 limiares de saturacao no FRONT). Derivados com L=2.35m: H=1.188m, W=1.391m. ty calibrado por 2 pontos EMPIRICOS (nunca escalar slope analiticamente: previ 1.433, real 1.654).",
- "helm_z": 0.974
+ "helm_z": 0.982,
+ "xtrans": -0.008,
+ "pad_dz": -0.06,
+ "g26_c": [
+  0.6,
+  0.12,
+  0.175
+ ],
+ "g26_d": 0.36,
+ "g26_lr": 0.068,
+ "g26_lz": 0.78,
+ "_nota_g26": "G26 nose: carenagem FECHADA (fbump_body) + labio amarelo em U (fbump_lip) + 5 lamelas (intake_0..4) + 2 aletas (fin_l/r) substituem o anel fino. Todo componente novo altera len_before e portanto o scale_factor: cada mudanca de geometria frontal exige re-checar x_range, L/H e W/H. xtrans compensa a translacao rigida pos-escala."
 }

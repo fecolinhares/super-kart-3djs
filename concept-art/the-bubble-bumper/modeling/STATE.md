@@ -3886,3 +3886,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PROXIMOS PASSOS DO G26: (a) ty_f 0.586/ty_r 0.584 para fechar W/H 1.171; (b) laterais com profundidade real e
     caixas fechadas; (c) U amarelo 3D (2 volumes verticais + barra inferior com retorno); (d) intake como CAIXA
     PRE-BA bruta e recuada com lamelas grossas; (e) aproximar a camera do render para casar com o concept.
+
+
+## *** W549: G26 ATIVO E INVARIANTES FECHADOS ***
+  L/H 1.978 (alvo 1.978, erro 0.000) | W/H 1.170 (alvo 1.171, erro 0.001)
+  x_range [-1.2,1.15] EXATO | z_range [-0.01,1.178] sem clipping | 14 pecas | QA aprovado
+  A calibracao SOBREVIVEU a troca de geometria do nose, que era o risco real do G26.
+  ty fechado por 2 pontos: 0.582->1.164 e 0.586->1.170 (slope ~1.5), alvo 1.171.
+  LIÇÃO DE PROCESSO: todo componente novo no builder muda len_before -> muda scale_factor -> reescala o modelo
+    inteiro -> move x_range, L/H e W/H. Nao e regressao: e acoplamento. Ordem correta: mudar geometria PRIMEIRO,
+    calibrar invariantes DEPOIS. Fazer o contrario gera 5 builds de retrabalho (foi o que aconteceu em W544-W548).
+  PENDENTE DO G26 (spec do vision, por ordem): (a) laterais com profundidade real e caixas fechadas; (b) U amarelo 3D
+    com 2 volumes verticais + barra inferior com retorno 90; (c) intake como CAIXA PRETA rebaixada com lamelas grossas;
+    (d) aproximar a camera do render para casar de tamanho com o concept.
