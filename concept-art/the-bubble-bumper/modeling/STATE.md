@@ -4415,3 +4415,27 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     melhorar a traseira SEM deslocar o meio, adotar; senao, manter W590D.
   METODO REFORCADO (skill): antes de atribuir um defeito a um valor do BASE_PARAMS, imprimir o DICT EFETIVO do
     build (nao o json) e conferir quais chaves existem. Chave ausente -> default do codigo, que pode estar OK.
+
+
+## *** W596D: O GANHO DA TRASEIRA E REAL (VEM DO SPAN CORRETO). O ACOPLAMENTO E len_before. ***
+  TESTE LIMPO: wing_x1=-1.143 e wing_x2=-0.893 explicitos (span 0.250 = default verdadeiro).
+                   medio   TRASEIRA   frente-meio  patamar   1o xf>=0.65  len_before  scale
+    W590D (base)   0.0444   0.0908     0.0377      0.0123    0.9375       2.5454      0.92323
+    W594D (sliver) 0.0491   0.0538     0.0461      0.0155    0.9000       2.4844      0.9459
+    W596D (span.25)0.0477   0.0530     0.0422      0.0126    0.9000       2.4782      0.94828
+  REFUTO MINHA PROPRIA HIPOTESE: eu havia dito que o ganho da traseira era ARTEFATO do sliver lendo melhor na
+    estacao 0.900. ERRADO. W596D com a ASA INTEIRA (span 0.250) entrega o mesmo ganho (TRASEIRA 0.0530, 1o
+    xf>=0.65 em 0.9000). O ganho e REAL e vem de AUMENTAR O SPAN (0.217 -> 0.250). O sliver nao era necessario.
+  PADRAO DECISIVO: apenas W590D tem len_before 2.5454 -> scale 0.92323 -> frente-meio 0.0377. TODA build com
+    outro len_before (2.4844, 2.4782 -> scale 0.9459, 0.94828) pega 0.042-0.046 no meio. => len_before E O
+    ACOPLAMENTO. E ele NAO e a asa: a asa MAIS LONGA (0.250) REDUZIU o len_before (2.5454 -> 2.4782).
+    Logo o elemento que define o comprimento pre-escala nao e a asa — precisa ser identificado antes de
+    compensar. Compensacao necessaria: +0.067 no elemento QUE DEFINE len_before para voltar a 2.5454.
+  PROXIMO LEAF (quantificado e pronto):
+    (1) descobrir o elemento real que define len_before -> o dump ###BBOX### publica so 3 pecas
+        (NOSE/COWL/FBUMP); estender o dump para TODAS as 14 e achar max/min x de verdade (medir, nao supor).
+    (2) compensar esse elemento em +0.067 mantendo wing_x1=-1.143/wing_x2=-0.893 e xtrans recomposto.
+    (3) se len_before voltar a 2.5454 com o span 0.250, esperar: TRASEIRA ~0.053 com frente-meio ~0.0377
+        -> seria MELHOR QUE W590D (0.0444) e entao ADOTAR.
+    NOTA: nao tentar compensar com helm_z (ja provado lever errado para proporcao) nem com reajuste do meio
+        por offsets (recria dependencia entre parametros).
