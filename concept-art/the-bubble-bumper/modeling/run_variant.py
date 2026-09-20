@@ -284,6 +284,18 @@ if o29 in SRC:
 else:
     print('P29 NAO ACHOU _bx')
 
+
+# patch 30: x do ASSENTO (Seat_Base em -0.060 e Seat_Shell -0.150..-0.412).
+# O degrau do perfil esta em x ~ -0.056 (0.5132 do comprimento) e o Seat_Base esta exatamente ali.
+o30a="st1=box('Seat_Base',(-0.060,0,0.348)"
+n30a="st1=box('Seat_Base',(-0.060+P.get('seat_dx',0.0),0,0.348)"
+o30b="st2=tubevar('Seat_Shell',[(-0.150,0,0.368),(-0.234,0,0.432),(-0.322,0,0.500),(-0.412,0,0.560)]"
+n30b="st2=tubevar('Seat_Shell',[(-0.150+P.get('seat_dx',0.0),0,0.368),(-0.234+P.get('seat_dx',0.0),0,0.432),(-0.322+P.get('seat_dx',0.0),0,0.500),(-0.412+P.get('seat_dx',0.0),0,0.560)]"
+_c=0
+if o30a in SRC: SRC=SRC.replace(o30a,n30a,1); _c+=1
+if o30b in SRC: SRC=SRC.replace(o30b,n30b,1); _c+=1
+print('P30 seat_dx patches aplicados:',_c,'de 2')
+
 exec(compile(SRC,'bb_'+VER,'exec'),g)
 R=g.get('R',{})
 print(VER,'| QA=',R.get('qa',{}).get('aprovado'),'| z_range=',R.get('z_range'),'| ERRO=',R.get('ERRO'))

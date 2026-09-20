@@ -3428,3 +3428,31 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     metrica se move; se nao se move, refuta em 1 build sem precisar de sondas de delecao.
   PROXIMO: identificar a peca do degrau (em 0.5132 do comprimento a partir da frente). Candidatos: capacete
     (borda frontal do pico), borda traseira do cowl, airbox, encosto. Usar o teste de alavanca grande em cada um.
+
+
+## *** ALAVANCA DO DEGRAU ENCONTRADA: O CAPACETE — e o problema estrutural nomeado ***
+  Sequencia de testes de alavanca (amplitude grande, 24-25cm, 1 build cada):
+    Cockpit_Cut (ch_cut_dx -0.350): movimento 0.0000 => REFUTADO
+    Assento      (seat_dx +0.25):   movimento 0.0000 => REFUTADO
+    Capacete     (helm_x -0.548):   movimento 0.3194 => **CONFIRMADO**
+  Efeito de helm_x -0.298 -> -0.548:
+    degrau_x   0.5132 -> 0.8325 (concept 0.7202) | erro 0.2071 -> 0.1123 (-46%%)
+    degrau_amp 0.2428 -> 0.2762 (concept 0.3131) | erro 0.0704 -> **0.0370** (DENTRO do gate 0.05, -47%%)
+    topo_global_x 0.6077 -> 0.7177 (concept 0.6198) | erro 0.0074 -> 0.0979 (PIOROU)
+
+### PROBLEMA ESTRUTURAL REAL (medido, nao suposto):
+    CONCEPT: pico do capacete 0.6198 -> degrau 0.7202  => o degrau esta DEPOIS do pico
+    MODELO : pico do capacete 0.6077 -> degrau 0.5132  => o degrau esta ANTES do pico
+  No concept o degrau e a DESCIDA DA NUCA do capacete para a tampa traseira.
+  No modelo o degrau e a SUBIDA DA CARENAGEM para a frente do capacete.
+  => ARQUITETURAS DIFERENTES. Nenhuma constante resolve: o piloto tem de sentar mais para tras e a
+     carenagem subir suave ate a frente do capacete, deixando UM UNICO degrau (a nuca).
+     E o item 1 do Sol (piloto como massa vertical dominante / espacos negativos) e a hierarquia do vision.
+  TRADE-OFF medido: mexer helm_x conserta degrau_x+degrau_amp e quebra topo_global_x (o pico tambem e
+     do capacete). Interpolacao linear: helm_x ~ -0.460 daria degrau_x ~0.72 (exato) mas topo_global_x ~0.679
+     => erro 0.059 no pico. NAO adotar esse caminho: mover o PICO e errado; o certo e mudar a arquitetura
+     (carenagem subindo ate o capacete) para que o degrau nasça da nuca sem deslocar o pico.
+
+**METODO CONSOLIDADO (usar sempre)**: teste de alavanca = mover o parametro da peca SUSPEITA em amplitude
+  GRANDE (>=10x o passo da grade de medicao) e ver se a metrica se move. Refuta em 1 build sem sondas de
+  delecao. Custo: 1 build por candidato. Ordem: geometria mais proxima do x do landmark primeiro.
