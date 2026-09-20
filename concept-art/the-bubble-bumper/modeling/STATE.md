@@ -1100,3 +1100,31 @@ com uma peca do codigo do `rear()` — provavelmente um cilindro transversal (mu
 vaos z 0.369-0.450 e 0.588-0.688 que o concept tem em xf 0.97.
 
 Base: **W429** — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+
+
+## W436b — CULPADA NOMEADA: o PARA-CHOQUE TRASEIRO EM U
+
+Cruzando o bbox da ilha (x span 0.082, |y| 0-0.305, z 0.077-0.634, M_Silver, 330 verts) com o codigo do rear():
+  linha 702: `rb=tube_round('Rear_Bumper_U',scr,0.042,22)` -> tubo em U: |y| +-0.30, x +-0.042 (=span 0.084)
+             e **z de 0.077 a 0.634** => e a ilha 1. CONFIRMADO.
+  ilha 2 (nv=154, |y| 0-0.265, z 0.251-0.333) = `Rear_Bumper_Bot` (z = rbz 0.300 +- 0.038) ✓
+  ilha 3 (M_Dark, |y| 0.272-0.286, z 0.268-0.347) = `Rear_Clamps` (z = rbz+0.012, |y| +-0.290) ✓
+
+=> **O para-choque traseiro em U sobe ate z 0.634**, criando no SIDE a barra vertical de 0.56 m em x=-1.10
+que fecha os vaos do concept em xf 0.97 (z 0.369-0.450 e 0.588-0.688). No concept o para-choque traseiro e
+BAIXO (a faixa rear/PARACH_BAIXO do auditor vai de z 0 a 0.30).
+
+**PROXIMO PASSO EXATO:** baixar/encolher o `Rear_Bumper_U` — o arco em U deve ficar em z ~0.077-0.35 (nao
+0.634). Ler `scr` (linha ~700) para ver a construcao do U e reduzir a altura do arco (parametrizar com
+`rbu_h`). Isso deve abrir os dois vaos de uma vez, sem tocar em bbox (z min 0.077 ja e o do para-choque).
+
+Base: **W429** — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+
+### SERIE DE METODO (para nao repetir): 5 erros de instrumento ja corrigidos
+  1. fator de z 1.207 no modelo (H real 1.175) -> 3 experimentos inuteis
+  2. probe por vertice nao acha face grande (W419/W433)
+  3. baricentrico de triangulo em quad (W433) -> resultado nao confiavel
+  4. parametro que altera bbox/z_range desloca o auditor inteiro (W428)
+  5. comparar contra uma versao medida em base diferente (W410 sem exh_dz)
+  METODO QUE FUNCIONA: (a) runs por coluna com calibracao propria; (b) ilhas da malha (union-find) para
+  nomear a peca; (c) rasterizacao por material como triagem; (d) cruzar bbox com o codigo do builder.
