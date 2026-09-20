@@ -207,19 +207,41 @@
   "_nota_g26_oclusor_cowl_corpo": "OCLUSOR DA MENTONEIRA CONFIRMADO: COWL/M_Blue com 141 faces em x[+0.126,+0.507] na janela y+-0.095 z 0.6045-0.7504 (a frente da mentoneira) + CH/M_Dark com 108 faces em x[-0.005,+0.152]; total 249 faces. O cowl_k=0.843 nao resolveu porque ele baixa so o TOPO (prof_top) e o que cobre e o CORPO do cowl. O hide_test enganou porque o amarelo medido era o proprio M_Yellow do COWL (escondia oclusor e alvo juntos). FIX: baixar/escavar o corpo do cowl na regiao frontal ou reduzir zb/zt do cowl como um todo; avaliar tambem o CH. METODO: /tmp/ocl_all.py conta faces por objeto e material cujo centro cai na janela projetada da peca alvo — mais confiavel que hide_test e que repintura.",
   "cowl_cut_z": 0.6,
   "cowl_cut_mode": "post-build (loop case-insensitive por prefixo cowl)",
-  "cowl_cut_boxes": [
+  "cut_boxes": [
     [
+      "cowl",
       [
-        0.485,
-        0.0,
-        0.62
-      ],
+        [
+          [
+            0.485,
+            0.0,
+            0.62
+          ],
+          [
+            0.045,
+            0.06,
+            0.03
+          ]
+        ]
+      ]
+    ],
+    [
+      "ch",
       [
-        0.045,
-        0.06,
-        0.03
+        [
+          [
+            0.073,
+            0.0,
+            0.636
+          ],
+          [
+            0.1,
+            0.11,
+            0.045
+          ]
+        ]
       ]
     ]
   ],
-  "_nota_g26_cowl_zerado": "COWL ZERADO na janela da mentoneira (245 -> 108 faces) com P48 (box grande, atua em 'Cowl' minusculo, cobre x 0.126-0.436) + P49b (box TIGHT x 0.44-0.53, y+-0.06, z 0.59-0.65 com solver EXACT, atua em 'COWL' maiusculo, cobre x 0.462-0.507). Os dois cortes sao COMPLEMENTARES: desligar o P48 ao ligar o P49b piorou (157->191). O box tight + EXACT e o que faz o P49b funcionar — box grande deixava a casca alvo intacta. RESTA o CH/M_Dark (108 faces, x[-0.005,+0.152], |y|<=0.0927, z[0.6072,0.6652]): ultimo oclusor, estrutura, tratar com o mesmo box tight."
+  "_nota_g26_oclusao_zero": "OCLUSAO DA MENTONEIRA ZERADA (245 -> 0 faces) no W664D com P48 (Cowl min.) + P49b generalizado em spec [(prefixo,[[centro],[half]])] aplicado a 'cowl' e 'ch', box TIGHT com margem 1-2 cm e solver EXACT. METODO: achar o oclusor por objeto+material na janela projetada (nunca hide_test), medir as coordenadas cruas das faces, cortar com box tight + EXACT e re-medir a contagem como gate objetivo. NOTA DE PIPELINE: existem DOIS objetos cowl no mesmo build ('Cowl' minusculo criado cedo e 'COWL' maiusculo criado depois) que ocluiam regioes diferentes, por isso os cortes no ponto do Cockpit_Cut (P48) e pos-escala (P49b) sao complementares."
 }

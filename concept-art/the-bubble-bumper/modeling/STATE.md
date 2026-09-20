@@ -5400,3 +5400,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   RESTA: CH/M_Dark 108 faces (x[-0.005,+0.152] |y|<=0.0927 z[0.6072,0.6652]) — ultimo oclusor, e ESTRUTURA (chassi).
     Proximo: aplicar box tight no CH tambem (o chassi na faixa z do queixo nao aparece no concept atras do piloto).
   W663D verde: QA ok, 14 pecas, globais preservadas.
+
+
+## *** OCLUSAO DA MENTONEIRA COMPLETAMENTE ZERADA: 245 -> 0 FACES ***
+  W664D com P48 + P49b generalizado (spec [(prefixo,[[centro],[half]])]) aplicado a 'cowl' E 'ch':
+    [P48]  Cowl 3076 -> 2957
+    [P49b] COWL 3109 -> 2903   (box tight x 0.485 +- 0.045, y +-0.060, z 0.62 +- 0.030, solver EXACT)
+    [P49b] CH   3396 -> 3145   (box tight x 0.073 +- 0.100, y +-0.110, z 0.636 +- 0.045, solver EXACT)
+    JANELA DA MENTONEIRA: TOTAL 0 faces.  Historico: 245 (W655D) -> 170 -> 157 -> 108 -> 0 (W664D).
+  METODO CONSOLIDADO (vai para a skill):
+    1) achar o oclusor por OBJETO+MATERIAL na janela projetada (/tmp/ocl_all.py) — nunca hide_test;
+    2) medir as coordenadas CRUAS (min/max c.x,c.y,c.z) das faces a remover;
+    3) box TIGHT com margem 1-2 cm + solver EXACT (box grande falha em malha complexa);
+    4) re-medir a contagem de faces na janela como gate OBJETIVO.
+  NOTA DE PIPELINE: no mesmo build ha DOIS objetos cowl ('Cowl' min. criado cedo, 'COWL' maiusculo criado depois) e
+    AMBOS ocluiam regioes diferentes; por isso o P48 (no ponto do Cockpit_Cut) e o P49b (pos-escala) sao complementares.
+  W664D verde: QA ok, 14 pecas, globais preservadas.
