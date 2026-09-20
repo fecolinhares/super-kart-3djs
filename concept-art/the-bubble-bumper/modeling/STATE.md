@@ -2375,3 +2375,33 @@ e (b) medicao do diff NA LINHA ALVO da mascara cortada (row 192). O render e ort
 
 ## BASE: **W472** (+ W473 rzt 0.400)
 IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## INVENTARIO DEFINITIVO DA LINHA t0.54 (z~0.626, x -1.18..-0.77, POR VERTICE) — 1025 faces
+
+  REAR  M_Silver  485  x -1.191..-0.832  img 0.843..0.996   <== OCUPANTE DOMINANTE
+  REAR  M_Yellow  280  x -1.094..-0.939  img 0.889..0.955
+  REAR  M_Eye     142  x -1.101..-1.057  img 0.939..0.958
+  REAR  M_Dark    118  x -1.189..-0.738  img 0.803..0.995
+  (imagem do modelo na linha: `0.43..0.99` solido | concept: `0.41..0.77 | 0.80..0.81 | 0.88..0.94`)
+
+**VEREDITO DAS 8 HIPOTESES (TODAS 0 px NA LINHA ALVO — medido e re-medido):**
+  w470 strut_dz -0.090 -> 18 px total  | 0 px na linha   (M_Dark, mas so 41 px de largura em x)
+  w468 rx0 rampa       -> 802 px total | 0 px na linha
+  w467 asa             -> 714 px total | 0 px na linha
+  w469 duct dx -0.080  -> 497 px total | 0 px na linha
+  w466 exh_lr_short    -> 192 px total | 0 px na linha
+
+**POR QUE**: o run da linha vai de img 0.43 a 0.99 = x +0.14..-1.18 (1.3 m!). O ocupante dominante
+nessa linha e o **`M_Silver` do REAR (485 faces, img 0.843..0.996)** — e os 5 testes moveram pecas de
+OUTROS materiais/faixas (rampa M_Silver mas em z baixo, asa M_Blue, duct M_BlueDk, escapes em z<0.62,
+hastes M_Dark mas com so 41 px de pegada em x).
+=> **as mudancas eram de material/faixa errados, nao so de altura.**
+
+**PROXIMA ACAO (agora com alvo certo)**: identificar QUAL peca do bloco rear() produz os 485 faces
+M_Silver que cruzam z 0.626 em x -0.83..-1.19 (o M_Silver ocupante = candidatos: Rear_Ramp topo
+(ao subir rzt ELE SAI da linha — testar rzt para CIMA), Rear_Bumper_U (rz1), Collector, ou o wing_tube).
+Medir diff NA LINHA ALVO em cada teste.
+
+## BASE: **W472** (+ W473 rzt 0.400)
+IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
