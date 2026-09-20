@@ -5036,3 +5036,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PENDENTE: (a) decidir entre compensar empiricamente (~2x no parametro) ou medir a nao-linearidade do UV e corrigir o
     mapeamento; (b) subir a resolucao do render do rosto (render de detalhe) para medir a pupila com menos ruido;
     (c) tracinho da testa; (d) GATE VISUAL; (e) G31 + auditor.
+
+
+## *** PUPILA E SOBRANCELHA FECHADAS - e o 'amortecimento' era RESOLUCAO DE MEDICAO ***
+  MEDICAO EM ALTO DETALHE (render headortho, casco com 136 px = 4x o front que tinha 34 px):
+                       PUPILA             SOBRANCELHA (largura / espessura / gap)
+    ANTES (W640D)    34%% x 33%%          110%% do olho  · 29%%  · 1 px (colada)
+    P43   (W642D)    43%% x 54%%           91%% do olho  · 24%%  · 8 px
+    ALVO (concept)   43%% x 55%%           <100%% do olho · fina · com folga
+    => PUPILA FECHADA com erro de 0%% e 1%%. SOBRANCELHA toda na direcao certa (mais estreita que o olho,
+       mais fina, e com folga real de 8 px em vez de 1).
+  *** CORRECAO DA MINHA PROPRIA CONCLUSAO ANTERIOR ***: eu havia diagnosticado 'resposta amortecida ~2,2x' e
+    atribuido a 'mapeamento textura->esfera nao linear'. ISSO ESTAVA ERRADO. O efeito era a RESOLUCAO DO
+    INSTRUMENTO: no front o olho tem 34 px e a pupila ~9 px, logo +-1 px de quantizacao = +-11%% de erro, e o
+    blob de 9 px era sistematicamente MENOR que o real. No headortho (136 px) a resposta ao parametro e EXATA.
+    LICAO (5a da familia 'instrumento'): antes de concluir que um modelo/mapping responde de forma nao linear,
+    VALIDAR A RESOLUCAO DO INSTRUMENTO na feature medida. Regra pratica: a feature precisa de >=30 px no render
+    para o erro de quantizacao ficar <5%%. O headortho ja existia e nao estava sendo usado para medir o rosto.
+  W642D: QA ok, 14 pecas, globais preservadas, h/w 1.231, viseira fechada.
+  PENDENTE: (a) tracinho horizontal da testa (respiro); (b) GATE VISUAL do casco (olhos/pupila/sobrancelha/viseira);
+    (c) G31 + auditor independente.
