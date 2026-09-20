@@ -279,6 +279,5 @@
   "stripe_xlo": -0.35,
   "stripe_zmin": 0.8,
   "eye_scale": 2.85,
-  "eye_spread": 0.022,
-  "_nota_g26_p68_tentativa1": "P68 1a tentativa: olhos x2.85 em y E z + spread 0.022. Resultado: largura por olho 0.0682 (BATE no alvo de 0.0680) mas ALTURA 0.1208 (era 0.0424) e distancia entre centroides 0.1312 (alvo ~0.075). DOIS DEFEITOS: (1) escalei z pelo mesmo fator do y, mas o concept e oval, nao 1:1 — usar fatores separados, y 2.85 e z ~1.35; (2) o spread devia ser ~ -0.007, nao +0.022, porque a propria escala ja leva a distancia de 0.0311 para 0.0886 e o alvo e 0.075 (os olhos sao JUNTOS no concept). NOTA DE MEDICAO: /tmp/eyes.py separa por y>0/y<0 e apos o crescimento os dois olhos tem faces cruzando y=0, misturando os clusters — medir por ilha conexa ou pelo sinal do centroide ORIGINAL."
+  "_nota_g26_eye_ilhas": "M_Eye NAO SAO DOIS OLHOS: medindo por ILHA CONEXA (union-find por vertice compartilhado), sao 2 ilhas AMBAS centradas em y~0, cada uma cobrindo a largura inteira (0.1294 e 0.1280), separadas em z (0.7741 e 0.7770) — duas camadas empilhadas, nao olho esquerdo/direito. Isso INVALIDA a medicao anterior que dividia por y>0/y<0 (media as METADES de um elemento largo e chamava de dois olhos de 2,4 cm com 2,5 mm entre bordas). O vision acertou no tamanho: o elemento tem 12,9 cm de largura. REGRA: antes de medir 'o par', verificar que o par EXISTE como geometria separada — usar ilhas conexas, nunca cortes por sinal de coordenada. PROXIMO: reconstruir M_Eye como dois discos ovais discretos (0.068 de largura cada, vao positivo entre eles)."
 }

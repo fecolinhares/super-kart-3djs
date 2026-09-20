@@ -6100,3 +6100,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   NOTA DE MEDICAO: /tmp/eyes.py separa por y>0/y<0 e ambos os olhos tem faces cruzando y=0 depois do crescimento -> o
     cluster 'ESQ' e 'DIR' misturam faces. Medir por CLUSTER CONEXO (ilhas) ou separar por sinal do centroide ORIGINAL.
   W701D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14. Oclusao segue OK (M_Visor 206 + M_ChinPanel 5).
+
+
+## *** M_Eye NAO SAO DOIS OLHOS: E UM ELEMENTO LARGO DE 12,9 CM (MINHA MEDICAO ESTAVA ERRADA) ***
+  MEDICAO POR ILHA CONEXA (union-find por vertice compartilhado, /tmp/eyes2.py) no W702D:
+    ILHAS de M_Eye: 2
+    ILHA A: 56 faces | larg=0.1294 | alt=0.0572 | centroide (y=-0.0003, z=0.7741)
+    ILHA B: 56 faces | larg=0.1280 | alt=0.0519 | centroide (y=-0.0002, z=0.7770)
+    DISTANCIA ENTRE CENTROIDES = 0.0000 | VAO = -0.1287
+  As duas ilhas NAO sao olho esquerdo/direito: ambas estao centradas em y~0 e cada uma cobre a LARGURA INTEIRA. Sao duas
+    camadas empilhadas. Nao existe 'olho esquerdo' e 'olho direito' como geometria separada.
+  ISSO INVALIDA A MEDICAO ANTERIOR (/tmp/eyes.py, que dividia por y>0/y<0): eu media as METADES de UM elemento largo e
+    interpretei como dois olhos de 2,4 cm com 2,5 mm entre as bordas. Era artefato do corte. O vision acertou no tamanho
+    ('gigantes'): o olho e um elemento de 12,9 cm de largura.
+  LICAO (instrumento, 6a): antes de medir 'o par', verificar que o par EXISTE como geometria separada. Usar ILHAS CONEXAS
+    (union-find por vertice compartilhado), nunca cortes por sinal de coordenada — o corte por sinal inventa partes.
+  PROXIMO: reconstruir M_Eye como DOIS discos ovais discretos (alvo do concept: 0.068 de largura cada, com vao positivo
+    entre eles), em vez de escalar o elemento unico. Conferir por ilha conexa: 2 ilhas com |centroide_y| ~0.045 e vao > 0.
+  W702D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14.
