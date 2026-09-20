@@ -41,6 +41,12 @@ old6="        pt=((exb,sy*0.240,0.472+_edz),(XR-0.20,sy*0.185,0.420+_edz),(EXC-0
 new6="        _lr=P.get('exh_lr_short',0.0); pt=((exb+_lr,sy*0.240,0.472+_edz),(XR-0.20+_lr*0.5,sy*0.185,0.420+_edz),(EXC-0.16,sy*0.110,0.392+_edz))"
 if old6 in SRC:
     SRC=SRC.replace(old6,new6,1)
+
+# patch 7: DUCT com deslocamento em X (o duct ocupa x -0.582..-0.690 = exatamente o vao1 do concept em t0.54)
+old7="abt=sweep('Airbox_Duct',[(-0.462,0,0.774+P.get('abt_dz',0.0)),(-0.575,0,0.704+P.get('abt_dz',0.0)),(-0.668,0,0.628+P.get('abt_dz',0.0))],P.get('abt_r',0.054),18)"
+new7="abt=sweep('Airbox_Duct',[(-0.462,0,0.774+P.get('abt_dz',0.0)),(-0.575+P.get('abt_dx',0.0)*0.5,0,0.704+P.get('abt_dz',0.0)),(-0.668+P.get('abt_dx',0.0),0,0.628+P.get('abt_dz',0.0))],P.get('abt_r',0.054),18)"
+if old7 in SRC:
+    SRC=SRC.replace(old7,new7,1)
 ovr=dict(BASE); ovr.update(EP_OVERRIDES); ovr['v']=VER
 g=dict(globals()); g['OVR']=ovr
 exec(compile(SRC,'bb_'+VER,'exec'),g)

@@ -2088,3 +2088,33 @@ checados antes do audit.
 
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## W469 (duct abt_dx=-0.080) — 5a HIPOTESE REFUTADA + VERIFICACAO DE INSTRUMENTO (mascara LIMPA)
+
+Invariantes OK. t 0.54 IDENTICO (`0.43..0.99` solido). Agregado IDENTICO: IoU 0.826 (=) | P10 0.790 (=) |
+pior 0.680 (=) | COR_TV 0.252->0.251 | exc 12.9 (=) | falta 7.0 (=) | <0.80 4 (=) | side/TRASEIRA 0.680 (=).
+
+**SUSPEITA DE ERRO DE INSTRUMENTO INVESTIGADA E DESCARTADA** (5 mudancas geometricas sem efeito pedem isso):
+  mascara w463 side: alpha>128 bbox y 236..653 x 20..856 (imagem 860x860)
+  linha a 2%/5%/10%/20% do fundo: **0 px** -> NAO ha sombra de chao na mascara
+  densidade por faixas: 0.000 0.000 0.022 0.166 0.307 0.708 0.885 0.300 0.000 0.000 (faixas 8-9 vazias)
+  w469 identica em bbox e densidades (0.314 vs 0.307 na faixa 4 -> mudou minimamente, logo os builds diferem)
+  => **instrumento CORRETO. O run solido em t 0.54 e geometria real, nao sombra nem artefato.**
+
+**POR QUE rx0 NAO ABRIU O VAO (explicacao geometrica coerente):**
+rx0 move a FRENTE da rampa (x -0.81), nao a traseira (x -1.17). O run do modelo em t 0.54 vai de
+imagem 0.43 a 0.99 = x +0.14 .. -1.18 -> o extremo (0.99) e a TRASEIRA da rampa/difusor, que rx0 nao toca.
+E a area que a frente da rampa deixaria livre (x -0.81..-0.89 = imagem 0.83..0.87) e coberta pelas
+**hastes** `Airbox_Strut` (x -0.845) e `Wing_Pylon` (x -0.830) — **os 2 candidatos identificados e AINDA NAO TESTADOS**.
+
+**BALANCO FINAL DAS HIPOTESES PARA t 0.54:**
+  1. escapamentos L/R (W466) NEUTRO | 2. asa (W467) NEUTRO/regressivo | 3. rampa rx0 (W468) NEUTRO/regressivo
+  4. duct x (W469) NEUTRO | 5. sombra/artefato -> DESCARTADO por medicao
+  => resta a hipotese 6: **as HASTES** (Airbox_Strut topo z 0.596 / Wing_Pylon) que se fundem com a asa.
+
+**PROXIMA ACAO**: encurtar as hastes para baixo (Airbox_Strut de z 0.596; Wing_Pylon de wz-0.030),
+abrindo ar entre haste e asa. Preservando x_range/z_range (checar antes do audit).
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
