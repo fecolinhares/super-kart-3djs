@@ -6747,3 +6747,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   [P90]: _cy4 = _sg4*_sep4/2 + _cl*0.8 (antes: + _sg4*_cl*0.8). Resultado: os dois ficam em +0.0008..+0.0064
     RELATIVO ao centro de cada olho = mesmo lado do MUNDO = fonte unica. Convencao correta de cartoon.
   ###QA### True, sep 14, 0 erros.
+
+
+## *** GATE v33: QUEIXA OCULAR REFUTADA PELA 5a VEZ ***
+  Vision: 'continuam vesgos porque o problema nao era so o brilho, e a PUPILA DESLOCADA para fora e para baixo'. (2) 4/10.
+  MEDIDO: centro da pupila M_Dark = centro da lente M_Eye EXATAMENTE em y E z (0.0190/0.0190 e 0.7745/0.7745). Pupilas
+    CENTRADAS. A queixa nao corresponde a geometria.
+  PADRAO CONSOLIDADO DA SESSAO (5 casos): a visao descreve o oposto da medida no MESMO render —
+    1. contador de centroides subindo ao estreitar (artefato de instrumento);
+    2. 'olhos gigantes' (medido 2,5cm = o alvo que ela mesma pediu);
+    3. 'abas na viseira' (eram a gaxeta e o rosto);
+    4. 'serrilhado' (contorno mede 1,53 px, 1 alternacao);
+    5. 'pupilas deslocadas' (centro = centro, exato).
+  Regra que fica: quando a visao e a medida discordam, MEDIR o fenomeno na janela/vista correta antes de mexer. Nesta sessao
+    isso evitou 5 mudancas erradas — e as duas vezes em que a visao estava certa (gaxeta/rosto; dither do material) foram
+    descobertas exatamente assim.
+  ESTADO: W733D verde (QA True, falhas=[], sep 14). Fechados: mentoneira, faixa, oclusao, abas, viseira rente, dither, olhos,
+    catchlight (fonte unica), clipping, fronteira. PENDENTES: rasgos da testa, faixa em T, G31 + auditor independente.
