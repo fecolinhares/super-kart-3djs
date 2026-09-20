@@ -3211,3 +3211,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
 **PROXIMO (a ferramenta que ja acertou 2x)**: sonda patch 23 com faixa ESTREITA em t0.392-0.400
   (x 0.19..0.21, z >= 0.65) para listar a peca exata; depois del_mat nessa faixa para confirmar.
 **ESTADO**: L/H 1.861 | z_range [-0.01,1.253] | x_range EXATO | EMA 0.0388 | degrau 0.085 | banda t0.54 limpa | QA ok
+
+
+## SONDA PARAMETRIZADA (patch 23 aceita probe_x0/x1/z0) — MEDE O EFEITO DO FIX
+  W505 (base antiga): CH nf=1192 z[0.057,0.782] | NA FAIXA(x0.14-0.30,z>=0.65): nf=259 x[0.093,0.249] z[0.617,0.782]
+  W511 (base W508):   CH nf=1192 z[0.057,0.712] | NA FAIXA(x0.185-0.215,z>=0.65): nf=28 x[0.159,0.212] z[0.631,0.710]
+  => **sw_dz=-0.110 removeu 231 das 259 faces da faixa** CONFIRMANDO o fix do volante por contagem de faces,
+     nao por 'o perfil mudou'. Sobram 28 faces (x0.159-0.212, z0.631-0.710) = topo do aro do volante apos -0.110
+     (0.655-0.110+0.115 = 0.660 + espessura => ate ~0.71). Essas 28 faces seguram o topo em 0.566.
+  => explica o W509 ser IDENTICO: baixar mais o volante nao move o topo porque o topo de 0.566 nao e mais o volante
+     — ou e a ultima faixa do aro, ou e outra peca exatamente nessa altura.
+
+**METRICA NOVA ADOTADA (contagem, nao silhouette)**: apos cada fix, rodar a sonda e reportar
+  'faces na faixa ANTES -> DEPOIS'. E diagnostico direto do mecanismo, imune a aliasing e a saturacao de silhueta.
+**PROXIMO**: del_mat M_Dark com del_x [0.14,0.23] / del_z [0.60,0.75] para confirmar se as 28 faces (o aro) sao o
+  ultimo ocupante de t0.392-0.400; se sim, a solucao e subir o eixo do volante (sw_z) ou reduzir sw_r,
+  nao baixar mais (o volante ja esta abaixo do cowl em t0.35).

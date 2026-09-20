@@ -207,14 +207,14 @@ for o in FINS:
         for f in o.data.polygons:
             if f.material_index in _mi:
                 vs=[o.matrix_world@o.data.vertices[vi].co for vi in f.vertices]
-                if max(v.x for v in vs)>=0.14 and max(v.x for v in vs)<=0.30 and max(v.z for v in vs)>=0.65:
+                if max(v.x for v in vs)>=P.get('probe_x0',0.14) and max(v.x for v in vs)<=P.get('probe_x1',0.30) and max(v.z for v in vs)>=P.get('probe_z0',0.65):
                     _sx+= [v.x for v in vs]; _sz+=[v.z for v in vs]
         if _sx:
             print('   >>> NA FAIXA t0.40: nf=%d x[%.3f,%.3f] z[%.3f,%.3f]'%(
                 sum(1 for f in o.data.polygons if f.material_index in _mi and
-                    max((o.matrix_world@o.data.vertices[vi].co).x for vi in f.vertices)>=0.14 and
-                    max((o.matrix_world@o.data.vertices[vi].co).x for vi in f.vertices)<=0.30 and
-                    max((o.matrix_world@o.data.vertices[vi].co).z for vi in f.vertices)>=0.65),
+                    max((o.matrix_world@o.data.vertices[vi].co).x for vi in f.vertices)>=P.get('probe_x0',0.14) and
+                    max((o.matrix_world@o.data.vertices[vi].co).x for vi in f.vertices)<=P.get('probe_x1',0.30) and
+                    max((o.matrix_world@o.data.vertices[vi].co).z for vi in f.vertices)>=P.get('probe_z0',0.65)),
                 min(_sx),max(_sx),min(_sz),max(_sz)))
 print('===== FIM DIAG =====')"""
 if anchor in SRC:
