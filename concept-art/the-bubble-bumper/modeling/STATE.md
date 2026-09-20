@@ -6548,3 +6548,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   [QA-DBG] falhas = [] (3x) | ###QA### True | sep 14 | 0 erros.
   Motivo: das queixas do vision sobre os olhos, 'sem brilho' e a UNICA que a medicao confirma (as pupilas estao exatas —
     centro da pupila = centro da lente em y e z — e 'vesgos' foi refutado).
+
+
+## *** ERRO DE SINAL ACHADO: PUPILAS E BRILHOS ESTAO ATRAS (O FRONTAL E +X) ***
+  Medido: M_Eye (lente) x = -0.2166 | pupila M_Dark x = -0.2209 | catchlight x = -0.2226.
+  Com o frontal em +x, x MENOR = para TRAS. Logo:
+    - o catchlight (r 0.003, x -0.2226) esta 1,7 mm ATRAS da pupila -> invisivel (o vision nao ve brilho);
+    - a propria pupila (x -0.2209) esta 4,3 mm ATRAS da lente (x -0.2166) -> o vision descreve como 'colados na
+      frente/por cima da viseira, nao atras dela' (a leitura esta invertida em relacao ao real, mas o defeito EXISTE).
+  CAUSA: nos P71/P80 usei x = eye_x - offset em ambos. Com o frontal em +X o correto e x = eye_x + offset.
+  FIX: pupila para eye_x + ~0.004 (na frente da lente) e catchlight para eye_x + ~0.008 (na frente da pupila).
+    Critério: x(pupila) > x(lente) e x(catchlight) > x(pupila). Re-medir e conferir no gate.
+  LICAO (instrumento/geometria, 9a): antes de posicionar por offset, verificar o SENTIDO do eixo no contrato do modelo
+    (aqui o frontal e +X, mas o 'forward -Y' do contrato Hero induz ao erro). Checar com uma medida, nao com intuicao.
