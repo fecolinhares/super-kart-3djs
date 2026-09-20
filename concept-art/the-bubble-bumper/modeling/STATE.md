@@ -3755,3 +3755,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     indice invertido -> scorecard_fr com componente errado. TODOS pegos por checagem, nenhum por intuicao.
   PROXIMO: FRONT usa o mask CRU (bbox 1.171 ja quase certo, so falta o gate cross-view apertar); REAR precisa de
     extracao propria (o cru esta contaminado). Re-medir as duas e so depois BEAUTY/vision.
+
+
+## *** ALERTA DE METROLOGIA: os ALVOS do builder divergem das medicoes limpas de hoje ***
+  scorecard_fr v2 (com busca de extracao guiada pelo gate) — RESULTADO:
+    REAR  ACEITA 'erode1' (W_bbox/H=1.2387 passa o gate) e da 4/4 landmarks OK:
+      W_topo 0.0327 OK | W_base 0.0041 OK | W_max 0.0026 OK | W_max_z 0.0004 OK
+    FRONT BLOQUEADO: NENHUM candidato passa o gate cross-view (raw 1.1710, erode1 1.1749, flood 1.5117,
+      erode1+flood 1.5734, erode2+flood 1.1000) — sistematicamente 6.3-6.7%% abaixo do 1.238 esperado.
+  DESEMPATE INDEPENDENTE (TOP.jpg): TAMBEM CONTAMINADO (raw cobre a imagem toda 1009x550; erode da 1.64) —
+    consistente com c_top.npy invalido. NAO desempata.
+
+  DIVERGENCIA CRITICA (nao resolver por conveniencia):
+    concept L/H : builder/alvo 1.868  vs  medicao LIMPA de hoje 1.978
+    concept W/H : builder/alvo 1.238  vs  medicao LIMPA de hoje 1.171
+  => o modelo foi calibrado INTEIRO nos alvos 1.868/1.238. Se os alvos vierem de medicoes contaminadas (mesma
+     classe dos bugs de hoje), o modelo esta calibrado para uma forma que o concept nao tem.
+  NAO ESCOLHER UM POR CONVENIENCIA. Resolver com checagem VISUAL (nao numerica): desenhar o contorno da mascara
+    por cima da imagem do concept e olhar com vision se a mascara e o kart. Vision ve o que o numero nao ve.
+  ESTADO SEGURO: SIDE 9/9 OK e REAR 4/4 OK sao comparacoes MODELO-vs-MEDICAO, sempre relativas; o que esta em
+    duvida e se a MEDICAO do concept representa o concept.
+  PROXIMO: overlay da mascara sobre front.jpg e side.jpg + vision_analyze para veredito visual de fidelidade da
+    extracao, antes de qualquer nova mudanca de geometria.
