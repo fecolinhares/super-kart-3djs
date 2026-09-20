@@ -6085,3 +6085,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     primeiro. Vision julga CONTRASTE; a medida julga dimensao. Duas vezes nesta sessao o vision descreveu o que o numero negou
     (o contador de centroides e agora os olhos).
   W700D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14.
+
+
+## P68 (1a tentativa): OLHOS CRESCERAM, MAS EM EIXO ERRADO E LONGE DEMAIS ***
+  [P68] olhos x2.85 + afastados 0.022 -> largura por olho 0.0987 (alvo 0.0680).
+  OLHO ESQ: larg=0.0682 (BATE no alvo!) | ALTURA=0.1208 (era 0.0424 -> 12 cm de altura) | centroide y=+0.0664
+  DISTANCIA ENTRE CENTROIDES 0.0311 -> 0.1312 (alvo do concept ~0.075).
+  DOIS DEFEITOS MEUS, ambos quantificaveis:
+    1. ESCALEI z PELO MESMO FATOR DO y (2.85) -> altura 12 cm. O concept e OVAL (mais alto que largo), mas nao 1:1.
+       Corrigir com fatores SEPARADOS: y ~2.85 (largura 0.068 ✓) e z ~1.35 (altura ~0.057).
+    2. 'ABRI O VAO' com spread +0.022 quando a conta pedia o CONTRARIO: a escala sozinha ja leva a distancia entre
+       centroides de 0.0311 para 0.0311*2.85 = 0.0886; para o alvo 0.075 o spread tem de ser ~ -0.007 (ou seja, os olhos
+       ficam proximos, como o concept: 'olhos pequenos, ovais e JUNTOS').
+  NOTA DE MEDICAO: /tmp/eyes.py separa por y>0/y<0 e ambos os olhos tem faces cruzando y=0 depois do crescimento -> o
+    cluster 'ESQ' e 'DIR' misturam faces. Medir por CLUSTER CONEXO (ilhas) ou separar por sinal do centroide ORIGINAL.
+  W701D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14. Oclusao segue OK (M_Visor 206 + M_ChinPanel 5).
