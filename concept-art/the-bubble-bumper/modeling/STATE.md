@@ -7015,3 +7015,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Duas formas autorais construidas por primitiva ate agora: P102 (para-choque: tubo+2 espumas toroidais) e
   P103 (asa: tubo+2 discos). Fila restante por FORMA: tread nos pneus, grade com 5 divisoias, sidepods em cunha,
   acabamento cel-shading.
+
+
+## P104: GRADE COM 5 DIVISOES (4 barras) ***
+  [P104] 4 barras divisiorias finas de M_Dark (12 x 6 mm x altura do vao) em x=0.905, dividindo y em 5 vaos,
+  juntadas ao GRILLE (368 verts originais preservados). ###QA### True | falhas=[] | sep 14.
+  TRES FORMAS AUTORAIS POR PRIMITIVA nesta sessao: P102 para-choque (tubo+2 espumas toroidais), P103 asa
+  (tubo+2 discos), P104 grade (5 divisoes). Receita provada: primitive_*_add + join no objeto certo, medido na orto.
+  FILA: tread nos pneus, sidepods em cunha, acabamento cel-shading.

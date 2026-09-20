@@ -327,5 +327,6 @@
   "_nota_g26_p101": "P101: piloto escalado. pilot_sz 1.30 -> 53,4% da silhueta; 1.42 final. Concept ~65%. Maior mudanca visual da sessao.",
   "bumper_rebuild": 1,
   "_nota_g26_approach": "MUDANCA DE APPROACH: 68 builds (P1..P101) foram push de vertice/clamp/reassign em blobs procedurais - isso nao constroi forma. O concept tem assinaturas que NAO EXISTIAM no modelo (espumas toroidais, tubo do para-choque, tread, grade 5 divisoias, asa cilindrica com discos). NOVO APPROACH: cada componente por PRIMITIVA medida contra a ortografica. P102 feito: tubo (toro 0.55/0.055 achatado x0.35) + 2 espumas toroidais amarelas (0.085/0.048, eixo X, y=+-0.30); FBUMP 1176->2232 verts, M_Yellow 0->548 faces.",
-  "wing_rebuild": 1
+  "wing_rebuild": 1,
+  "grille_bars": 1
 }
