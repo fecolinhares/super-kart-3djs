@@ -4818,3 +4818,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   INSTRUMENTO DE MEDICAO (o que finalmente separou sinal de ruido): amarelo por MATIZ dentro de uma BANDA do
     topo do quadro, e comparacao por RAZAO (base/max) — a razao e LIVRE DE ESCALA, entao a oclusao da viseira
     (que subestima a largura do casco no render e inflava o %% absoluto para 42.2%%) deixa de importar.
+
+
+## G26/FACE - MEDICAO BLOQUEADA POR BBOX DO CAPACETE (registrado, nao over-claim) ***
+  DESCOBERTA: o capacete azul e o TORSO azul sao o MESMO componente conexo (mesma cor) -> o bbox 'do capacete'
+    inclui as ombreiras. Em execucoes diferentes o componente escolhido mudou (x[447,575] y[84,243] = 129x160
+    numa; x[448,574] y[166,242] = 127x77 noutra, porque o limiar de saturacao mudou a conectividade).
+    O capacete REAL vai de y~84 (coroa) ate o QUEIXO (~y 200); de 200 pra baixo e gola/peito.
+    ISTO EXPLICA retroativamente varias medicoes que pegaram ombros (ex.: amarelo '104.7%%' e faixa '75.6%%').
+  O QUE JA E SOLIDO (relativo a largura do casco no recorte):
+    OLHOS: dois blobs brancos em y[166,181] | larg 26 px (20.5%% da largura) e 23 px (18.1%%) |
+      centros a -16.5%% e +19.3%% do eixo. (Os componentes em y[199,215] com centro +-44%% sao brilhos de BORDA
+      da viseira, nao olhos — descartar.)
+    VISEIRA: 1 componente de 1890 px, largura 99%% do casco, y[166,196] = 40%% da altura do recorte.
+  PASSOS ANTES DE MODELAR O ROSTO: (1) recortar o bbox do capacete em COROA..QUEIXO (y 84..~200), determinando o
+    queixo por onde o azul do capacete encontra a gola; (2) so entao medir olhos/viseira/sobrancelhas com
+    referencial valido (%% da largura do CASCO e altura a partir da coroa); (3) usar o mesmo recorte no render.
+  NAO construir sobre bbox cujo topo esta errado.
