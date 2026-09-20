@@ -6561,3 +6561,9 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Critério: x(pupila) > x(lente) e x(catchlight) > x(pupila). Re-medir e conferir no gate.
   LICAO (instrumento/geometria, 9a): antes de posicionar por offset, verificar o SENTIDO do eixo no contrato do modelo
     (aqui o frontal e +X, mas o 'forward -Y' do contrato Hero induz ao erro). Checar com uma medida, nao com intuicao.
+
+
+## P81: ERRO DE SINAL CORRIGIDO — PUPILA E BRILHO NA FRENTE ***
+  P71: _xp = _xc + _tk/2 + 0.004 ; P80: _xp4 = eye_x + 0.008.
+  Medido: LENTE x=-0.2166 | PUPILA x=-0.2089 | CATCHLIGHT x=-0.2086.
+  Criterio atendido: x(pupila) > x(lente) e x(catchlight) > x(pupila). ###QA### True, sep 14, 0 erros.
