@@ -5367,3 +5367,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     no objeto COWL do arquivo final. Com isso o box passa a ser calculado, nao adivinhado.
   E O CH: 108 faces x[-0.005,+0.152] — segue intocado em TODOS os builds.
   W661D verde: QA ok, 14 pecas, globais preservadas.
+
+
+## *** OCLUSAO ZERADA: 49 -> 0 FACES. BOX GRANDE ERA A CAUSA ***
+  COORDENADAS CRUAS (post-escala, .blend final):
+    COWL: 49 faces x[0.4624,0.5072] |y|<=0.0464 z[0.6087,0.6280] M_Blue
+    CH: 108 faces x[-0.0054,0.1519] |y|<=0.0927 z[0.6072,0.6652] M_Dark
+  TESTE DIRETO NO .blend (sem rebuild), box TIGHT x 0.44-0.53 / y +-0.06 / z 0.59-0.65 + solver EXACT:
+    ANTES  polys=2963 janela=49 bboxZ[0.101,0.629]
+    DEPOIS polys=2909 janela= 0 bboxZ[0.101,0.595]   <-- ZERO FACES
+  CAUSA RAIZ DOS 4 BUILDS DE PLATEAU: eu usava um box ENORME (0.44 x 0.38 x 0.28 m) atravessando varias cascas do cowl.
+    O boolean DIFFERENCE resolve mal caixas grandes em malhas complexas: corta parte e deixa a casca alvo intacta (foi o
+    '146 polys removidos mas as 49 intactas'). Alem disso o box estava em coordenadas PRE-escala (o P49 roda antes da
+    auto-escala 0.92651) enquanto a medicao e POS-escala.
+  REGRA NOVA (para a skill): para recorte por oclusao, usar box TIGHT (margem ~1-2 cm sobre as faces medidas) centrado
+    nas coordenadas CRUAS das faces a remover, solver EXACT, e logar polys+janela antes/depois. Nunca 'cobrir a regiao'.
+  PENDENTE: (a) portar o box tight para o P49 (com as coordenadas pre-escala equivalentes: dividir por 0.92651 ->
+    x 0.4991-0.5475, |y|<=0.0501, z 0.6570-0.6778); (b) o CH (108 faces, x[-0.0054,0.1519], z 0.6072-0.6652) segue
+    intocado — mesmo tratamento, com decisao sobre cortar estrutura.
+  W661D verde: QA ok, 14 pecas, globais preservadas.
