@@ -598,3 +598,27 @@ A rampa existe e ja sobe (z 0.10 -> 0.48 + espessura 0.15, xf 0.83-0.99): logo o
 OUTRA peca na faixa z 0.04-0.10 em xf 0.95 (candidatos: rbump / difusor / escape central).
 PROXIMO: identificar por cor/bbox qual peca ocupa z 0.04-0.10 em xf 0.95 e subir/remover; repetir para
 xf 0.72-0.78.
+
+
+## W412 (BASE) / W413 — 2026-09-19/20
+
+**W412 ACEITO (nova base):** escapes sobem `exh_dz=0.130`. Causa achada lendo as REGIOES do auditor:
+`rear/ESCAPES` = vista REAR, faixa z 0.54-0.75 m (PARACH_BAIXO 0-0.30, DIFUSOR 0.30-0.54, ESCAPES 0.54-0.75,
+PILOTO_COSTAS 0.75-0.94, ASA_CAPACETE 0.94-1.21). Os tubos estavam em z 0.34-0.47 = dentro do DIFUSOR.
+Patch move tubos+bocas+labios+piso+bore+coletor juntos (8 pontos).
+RESULTADO: IoU 0.820->**0.821**, P10 0.759->**0.762**, pior 0.647->**0.657**, COR_TV 0.264->**0.258**,
+falta 8.4->**8.1**, **<0.80 7->6**, side/TRASEIRA falta 22.6->**20.0** e run count **3/2->3/1** (bate concept),
+side/MOTOR 0.832->0.840. Custo: rear/ESCAPES 0.894->0.879 (cor 0.740->0.562). QA 0 non-manifold, 14 objetos.
+
+**W413 (REVERTIDO/INÓCUO):** pads do piloto r 0.098->0.062 e |y| 0.162->0.176 (hipotese: pads fechavam o vao).
+RESULTADO: metricas IDENTICAS (IoU 0.821, excesso 12.4, falta 8.1, side/PILOTO 0.735, front/PILOTO 0.743)
+e run count em z 0.76/0.80 continua 1 (concept tem 3). Pads ficam ocluidos pelos bracos => nao eram a causa.
+
+### DIAGNOSTICO PILOTO (medido, proximo leaf)
+FRONT: em z 0.76 e 0.80 o concept tem **3 runs**: ombro 0.20..0.12 | cabeca 0.07..-0.07 | ombro -0.11..-0.20,
+com VAOS em |y| 0.07-0.11/0.12. O modelo e **1 run solido 0.22..-0.22** => excesso 23.8% (front/PILOTO) e
+23.7% (side/PILOTO). Em z 0.84 o concept ja e 1 run 0.21..-0.20 (capacete cheio).
+=> O capacete do modelo comeca ~6 cm BAIXO demais (concept: so pescoco 0.14 m de largura em z 0.76-0.80;
+capacete cheio so a partir de ~z 0.82). PROXIMO: subir/base do capacete e reduzir a largura na base.
+Regioes rankeadas W412: side/TRASEIRA 0.657 | top/ASA 0.701 | side/PILOTO 0.735 | front/PILOTO 0.743 |
+side/COWL 0.776 | top/RODAS_DIANT 0.792 | rear/PILOTO_COSTAS 0.800 | side/BICO 0.800.
