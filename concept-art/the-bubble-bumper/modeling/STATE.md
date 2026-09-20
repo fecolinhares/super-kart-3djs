@@ -6786,3 +6786,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   NOTA: 3472 verts e mais do que as ~1800 correspondentes aos 872 faces dos rasgos — o filtro de janela (z 1.02-1.11 e
     0.05<|y|<0.15) provavelmente pegou parte de outras pecas de M_Dark. QA verde; conferir no gate se o resultado ficou
     correto ou se algo mais foi inclinado (se sim, estreitar o filtro).
+
+
+## *** ACHADO FINAL: PECAS PRETAS FLUTUANDO FORA DO CASCO (|y| 0.225 vs casco 0.165) ***
+  O gate v34 registrou: 'nas laterais, isolados e FLUTUANDO no ar longe do capacete, dois ovais pretos — parecem respiros
+    laterais / geometria desconectada'. (2) 5/10
+  E ISSO CASA COM UMA MEDICAO QUE EU JA TINHA: os pares de M_Dark em |y| 0.197-0.225 estao FORA do casco (|y|max 0.165).
+    Sao pecas soltas no espaco — a MESMA CLASSE das 'abas' da viseira (que resolvi com clamp por faixa em M_Gasket/M_Face).
+  O vision apontou isso em ~4 gates ('dois ovais pretos flutuando') e eu tratei como ruido/endplates da asa. Errado: e
+    geometria da cabeca fora do lugar.
+  FIX (mesma tecnica, agora MEDIDA): clamp por faixa nos pares de M_Dark laterais (z 0.941-0.997, |y| 0.197-0.225) para
+    |y| <= ~1.02 x casco(z). Criterio: 0 faces de M_Dark com |y| > 1.02*y_casco(z) na faixa z 0.90-1.05.
+  Sobre o tilt dos respiros: de frente os 22 graus quase nao se leem (ficam no topo). O tilt esta correto; o efeito e de
+    perfil. Manter.
+  W734D verde: QA True, falhas=[], sep 14, 0 erros.
