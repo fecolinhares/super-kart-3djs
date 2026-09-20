@@ -5571,3 +5571,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     mentoneira e trapezio separado); (b) bevel/x do painel; (c) conferir o sorriso no render (medicao por 'escuro dentro do
     amarelo', porque o filtro simples de escuro pega o fundo).
   W671D verde.
+
+
+## GATE VISUAL W671D (painel+sorriso): 4.0/10 — PROGRESSO REAL, ERRO DE INTEGRACAO ***
+  VISION (literal): "(1) Sim, agora o queixo amarelo aparece e bem forte; (2) Nao, esta retangular alto tipo bico, nao
+    trapezio curto; (3) 4/10; (4) Mais errado: queixo gigante vertical cobrindo a viseira." E descreve o concept como
+    mentoneira "pequena, trapezoidal invertida e ARREDONDADA, com um sorriso".
+  LEITURA: o painel RESOLVEU a existencia (o filete virou volume visivel) — o erro mudou de natureza: agora e INTEGRACAO
+    e FORMA. Acoes derivadas: (a) chanfro/arredondamento maior e transicao para a calota (nao um slab reto); (b) trapezio
+    de verdade (mais estreito embaixo, como o concept); (c) conferir o enquadramento — geometricamente o painel (z 0.618-0.762)
+    esta ABAIXO da viseira (z 0.819-1.040 pela conversao do alvo f=0.311..0.678), entao o 'cobrindo a viseira' do vision
+    e efeito de crop/leitura, nao sobreposicao real; (d) o sorriso precisa ser conferido isolando escuro DENTRO do amarelo.
+  GATES: altura da mentoneira 177 px (alvo 180) FECHADO. Visual 4.0/10 (era 5.0 no W647D, mas com mentoneira invisivel;
+    agora ela existe e o que falha e forma/integracao).
+  W671D verde: QA ok, sep_parts=14, globais preservadas.
