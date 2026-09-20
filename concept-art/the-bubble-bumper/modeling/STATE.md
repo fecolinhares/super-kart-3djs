@@ -3941,3 +3941,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PENDENTE IMEDIATO: recalibrar os invariantes na geometria W552 (L/H 2.02 -> 1.978, W/H 1.26 -> 1.171,
     x_range [-1.175,1.175] -> [-1.2,1.15]) por 2 pontos em cada eixo. Depois: dar barriga ao tubo (diametro
     variavel no spine) e afundar/engrossar o intake, e re-verificar com vision.
+
+
+## *** G26 PARA-CHOQUE: 4.0 -> 7.0 EM SEIS ITERACOES. VISION MANDA PARAR E IR PARA NARIZ/SIDEPOD ***
+  W550 tubo raio constante 4.0 | W551/552 coxins na face 5.0 | W566 barriga em Y (zsq 0.92 achatou Z) 5.5
+  W567 ancorado em _xs 6.0 | W568 LEGADO REMOVIDO 6.5 | W569 barriga 1.5x + queixo 6.5cm 7.0
+  *** CAUSA RAIZ DE 3 ITERACOES PERDIDAS: front_bumper() do builder base AINDA cria pad_l/pad_r (2 blocos
+      amarelos chapados) e fbar (barra azul retangular) ALEM do meu tubo. Eu tunei raio/protrusao/posicao
+      enquanto as pecas ANTIGAS dominavam o render. O vision descrevia 'bloco azul de quinas vivas' e '2 selos
+      amarelos chapados' = era o fbar e os pads, nao o meu tubo. FIX: fbar=0 + g26c_pads=0 (loop vazio).
+      REGRA: antes de tunar qualquer peca patchada, LISTAR as metricas do QA e confirmar que as pecas LEGADAS
+      da mesma funcao nao estao la. O QA do W568 provou: pad_l/pad_r/fbar ausentes. ***
+  *** NUMERO NAO E LEITURA: barriga 1.5x no parametro NAO virou volume no pixel. O vision exige QUEBRA DE
+      SILHUETA (afinamento visivel nas pontas, sombra correndo no eixo, ombro), nao valor de arquivo. ***
+  *** BUG DE ANCORAGEM: coxins e intake estavam em XFO-0.045 e XFO-0.145, mas a superficie frontal do tubo esta
+      em XFO+0.165. Ficavam 21cm e 31cm ENTERRADOS (so a tampinha aparecia). FIX: _xs=(XFO-0.030)+r*(be0+belly)
+      e tudo posicionado relativo a _xs. ***
+  VEREDITO DO VISION (7.0): para-choque chegou no limite da geometria — o que falta nele e material/bisel/luz
+    e isso e polimento. O que mata o modelo e a SILHUETA LATERAL: wheelbase visual, altura do sidepod e a
+    transicao nariz->assoalho. 'No concept a frente desce da coluna de direcao em curva continua, forma um
+    labio inferior (queixo) e so depois encontra a capsula do cubo da roda — ha TRES volumes empilhados em
+    perfil. No W569 ha um.' Mexer no nariz/sidepod sobe 1-1.5 ponto; mexer mais no bumper da 0.2.
+  PROXIMO: G27 lado esquerdo da fila agora e NARIZ (bico) + SIDEPOD, nao o para-choque.

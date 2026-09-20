@@ -404,36 +404,58 @@ if _o36 in SRC:
 else:
     print('P36 ALVO NAO ENCONTRADO')
 
+# patch G26c: DESLIGA as pecas LEGADAS do front_bumper (pad_l/pad_r) — elas conviviam com o tubo novo
+# e eram elas que o vision via como "2 selos amarelos chapados"; o fbar virava "bloco retangular de quinas vivas".
+_og26c = "    for _sy in (1,-1):\n        # BLOCO AMARELO integrado SOBRE a barra"
+_ng26c = "    for _sy in ((1,-1) if P.get('g26c_pads',1) else ()):\n        # BLOCO AMARELO integrado SOBRE a barra"
+assert _og26c in SRC, "loop dos pads legados nao encontrado"
+SRC = SRC.replace(_og26c, _ng26c, 1)
+print("G26c: pads legados gateados por g26c_pads")
+
 # patch G26: FBUMP deixa de ser TUBO e vira CARENAGEM FECHADA + LABIO AMARELO EM U + INTAKE LAMELADO.
 # Veredito do vision (IDENTITY-GAPS.md item 1): "barra/tubo prateado horizontal flutuante, fino, reto,
 # separado do chassi, com 2 tocos amarelos. Sem carenagem, sem grade volumosa, sem U amarelo."
 # Aqui: (a) substitui o anel fino por um corpo FECHADO baixo/largo com bevel toy; (b) labio amarelo
 # espesso em U abracando a frente; (c) 5 lamelas de intake azul-escuras; (d) 2 aletas amarelas laterais.
 _o_g26 = ("    o=tube_round('Bumper_Ring',spine,rb*1.07,20); assign(o,P.get('ringmat','M_Plate'))")
-_n_g26 = ("    # G26b: PARA-CHOQUE = VOLUME TUBULAR INFLADO DE PNEU A PNEU (spec do vision, nao box)\n"
-"    _rw=P.get('g26b_r',0.148); _yyw=P.get('g26b_w',0.630); _zzc=P.get('g26b_z',0.140); _back=P.get('g26b_back',0.150)\n"
-"    _sp=[]; _NS=31\n"
+_n_g26 = ("    # G26d: ancorado na SUPERFICIE FRONTAL do tubo (_xs), nao em XFO (bug que enterrava coxins e intake)\n"
+"    _rw=P.get('g26b_r',0.180); _yyw=P.get('g26b_w',0.630); _zzc=P.get('g26b_z',0.216)\n"
+"    _back=P.get('g26b_back',0.150); _dip=P.get('g26b_dip',0.012); _zsq=P.get('g26b_zsq',1.00)\n"
+"    _be0=P.get('g26b_be0',0.94); _belly=P.get('g26b_belly',0.14); _seg=int(P.get('g26b_seg',24))\n"
+"    _xs=(XFO-0.030)+_rw*(_be0+_belly)\n"
+"    _NS=31; _sp=[]; _rr=[]\n"
 "    for _i in range(_NS):\n"
 "        _t=_i/(_NS-1.0); _a=-math.pi/2+math.pi*_t; _sn=math.sin(_a); _cs=math.cos(_a)\n"
 "        _yy=_yyw*math.copysign(abs(_sn)**P.get('g26b_py',0.92),_sn)\n"
 "        _xx=(XFO-0.030)-_back*(1.0-abs(_cs))\n"
-"        _zz=_zzc-0.022*abs(_cs)\n"
+"        _zz=_zzc-_dip*abs(_cs)\n"
 "        _sp.append((_xx,_yy,_zz))\n"
-"    _tb=tube_round('FBump_Tube',_sp,_rw,22)\n"
+"        _rr.append(_rw*(_be0+_belly*math.sin(math.pi*_t)))\n"
+"    _secs=[]\n"
+"    for _i in range(_NS):\n"
+"        _x0,_y0,_z0=_sp[_i]; _r=_rr[_i]; _rz=_r*_zsq\n"
+"        _secs.append([(_x0+_r*math.cos(2*math.pi*_k/_seg),_y0,_z0+_rz*math.sin(2*math.pi*_k/_seg)) for _k in range(_seg)])\n"
+"    _tb=loft('FBump_Tube',_secs)\n"
 "    assign(_tb,P.get('g26b_mat','M_Blue')); out.append(reg('fbump_tube',_tb))\n"
+"    # COXINS: capsulas VERTICAIS PROTRUSAS na face frontal, nas quinas, abracando o intake\n"
 "    for _sy in (1,-1):\n"
-"        _cx=XFO+P.get('g26b_cx',-0.022); _cy=_sy*_yyw*P.get('g26b_cyk',0.985); _cs2=[]\n"
-"        for _k in range(9):\n"
-"            _u=_k/8.0\n"
-"            _cs2.append((_cx-0.020*_u,_cy+_sy*0.020*_u,_zzc-0.088+0.176*_u))\n"
-"        _cu=tube_round('Cush_'+('L' if _sy>0 else 'R'),_cs2,P.get('g26b_cr',0.196),16)\n"
+"        _cx=_xs+P.get('g26b_cx',-0.045); _cy=_sy*_yyw*P.get('g26b_cyk',0.66)\n"
+"        _cz0=_zzc+P.get('g26b_cz0',-0.095); _cz1=_zzc+P.get('g26b_cz1',0.095)\n"
+"        _cs2=[(_cx,_cy,_cz0),(_cx,_cy+_sy*0.010,(_cz0+_cz1)*0.5),(_cx-0.006,_cy+_sy*0.014,_cz1)]\n"
+"        _cu=tube_round('Cush_'+('L' if _sy>0 else 'R'),_cs2,P.get('g26b_cr',0.090),16)\n"
 "        assign(_cu,P.get('g26b_cmat','M_Yellow')); out.append(reg('cushion_'+('l' if _sy>0 else 'r'),_cu))\n"
-"    _ib=box('Intake_Box',(XFO-0.088,0.0,_zzc-0.020),(0.058,0.320,0.082),bevel=0.010,segs=2)\n"
+"    # INTAKE: caixa PRETA grande FLUSH/+2cm PARA FORA da superficie frontal\n"
+"    _ibc=P.get('g26b_ibc',0.075); _ibp=P.get('g26b_ibp',0.020)\n"
+"    _ibx=_xs+_ibp-_ibc\n"
+"    _ib=box('Intake_Box',(_ibx,0.0,_zzc+P.get('g26b_ibz',0.0)),\n"
+"           (_ibc,P.get('g26b_ibw',0.252),P.get('g26b_ibh',0.088)),bevel=0.012,segs=2)\n"
 "    assign(_ib,P.get('g26b_imat','M_Dark')); out.append(reg('intake_box',_ib))\n"
+"    _lvs=P.get('g26b_lvs',0.0985); _lvx=_xs+P.get('g26b_lvx',0.012)\n"
 "    for _i in range(5):\n"
-"        _yy2=-0.216+0.108*_i\n"
-"        _lv2=box('Intk2_L%d'%_i,(XFO-0.068,_yy2,_zzc-0.020),(0.014,0.036,0.070),bevel=0.006,segs=2)\n"
-"        assign(_lv2,P.get('g26b_lmat','M_BlueDk')); out.append(reg('intake2_%d'%_i,_lv2))\n"
+"        _yy2=_lvs*(-2.0+_i)\n"
+"        _lv2=box('Intk2_L%d'%_i,(_lvx,_yy2,_zzc+P.get('g26b_lvz',0.0)),\n"
+"                (P.get('g26b_lvc',0.018),P.get('g26b_lvw',0.022),P.get('g26b_lvh',0.082)),bevel=0.006,segs=2)\n"
+"        assign(_lv2,P.get('g26b_lmat','M_Dark')); out.append(reg('intake2_%d'%_i,_lv2))\n"
 "    o=None")
 if _o_g26 in SRC:
     SRC=SRC.replace(_o_g26,_n_g26,1); print('G26 INSERIDO OK (carenagem fechada + labio U + intake + aletas)')
