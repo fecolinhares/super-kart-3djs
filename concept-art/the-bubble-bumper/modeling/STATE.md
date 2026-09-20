@@ -6489,3 +6489,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     a viseira estava dentro -> regra '3 falhas = nomear a premissa' -> a premissa era a REFERENCIA (M_Blue nao e o contorno
     mais largo da faixa) -> medido: M_Gasket 0.336 e M_Face 0.330 contra M_Blue 0.245 -> clamp por faixa (P78) -> 7,0.
     A viseira era inocente; o vision apontava o fenomeno certo no lugar errado; a MEDICAO da premissa localizou o lugar certo.
+
+
+## FAIXA NO TOPO MEDIDA: 3 MM DE SALTO (O 'T' E FORMA, NAO VOLUME) ***
+  CASCO z max 1.1406 | FAIXA(M_Yellow, z>0.95) z max 1.1431 -> salto de 0.0025 m = 3 mm.
+  |y|max da faixa em z>0.95 = 0.0691 -> o P66 (limite 0.022) cobriu so a metade frontal; a faixa segue pelo FUNDO do casco.
+  PROXIMO: estender o taper ao fundo + arredondar a listra. Criterio: |y| no topo <= ~0.025 em todas as direcoes e contorno
+    curvo, sem segmento reto longo.
+  W717D verde (QA True, falhas=[], sep 14) — base validada em 7,0/10 no gate v24.
