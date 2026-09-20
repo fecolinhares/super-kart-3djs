@@ -19,6 +19,13 @@ old3="ab=box('Airbox%d'%j,(xx,0,zz),(0.058,ry_,rz_),bevel=0.020,segs=3)"
 new3="ab=box('Airbox%d'%j,(xx,0,zz),(P.get('ab_x',0.058),ry_,rz_),bevel=0.020,segs=3)"
 if old3 in SRC:
     SRC=SRC.replace(old3,new3,1)
+
+# patch 4: Airbox_Duct com deslocamento z e raio parametrizaveis (o duct em z 0.774 fecha o vao que o
+# concept deixa aberto em imagem 0.69-0.73 na linha t 0.66)
+old4="abt=sweep('Airbox_Duct',[(-0.462,0,0.774),(-0.575,0,0.704),(-0.668,0,0.628)],0.054,18)"
+new4="abt=sweep('Airbox_Duct',[(-0.462,0,0.774+P.get('abt_dz',0.0)),(-0.575,0,0.704+P.get('abt_dz',0.0)),(-0.668,0,0.628+P.get('abt_dz',0.0))],P.get('abt_r',0.054),18)"
+if old4 in SRC:
+    SRC=SRC.replace(old4,new4,1)
 ovr=dict(BASE); ovr.update(EP_OVERRIDES); ovr['v']=VER
 g=dict(globals()); g['OVR']=ovr
 exec(compile(SRC,'bb_'+VER,'exec'),g)

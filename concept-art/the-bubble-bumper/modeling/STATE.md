@@ -1715,3 +1715,29 @@ em t 0.66. Nao mexer nas 3 caixas do airbox (provado neutro).
 ## ESTADO DA BASE: W457 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.251 | exc 12.9 | falta 7.0 | N=18 | <0.90 17 |
 <0.80 4 | sep_parts 14 | QA aprovado. Params: BASE_PARAMS.json + ep_s=[0.085,0.042,0.095].
+
+
+## W462 — Airbox_Duct baixado 6cm: ACERTA A LINHA-ALVO, mas regride o MOTOR
+
+`abt_dz=-0.060` (duct: z 0.774/0.704/0.628 -> 0.714/0.644/0.568). REAR z max 0.8177->0.8011.
+
+LINHA-ALVO t 0.66 (SIDE) — acerto preciso:
+  concept: 0.54..0.69 | 0.73..0.73 | 0.89..0.99
+  W457:    0.53..0.72                 | 0.90..0.94     <- run continuo ate 0.72
+  W462:    0.53..0.69                 | 0.90..0.94     <- **borda esquerda agora bate exatamente**
+
+AGREGADO: IoU 0.826->0.825 | P10 0.790->0.789 | pior 0.680 (=) | COR_TV 0.251->0.254 | excesso 12.9->12.8 |
+falta 7.0->7.1 | <0.80 4 (=) | side/TRASEIRA 0.680 (=) | **side/MOTOR 0.840->0.826** (excesso 8.8->7.0 ✓
+mas falta 8.6->**11.6** ✗).
+=> O duct INTEIRO desceu e saiu da faixa do MOTOR -> ganha o vao em t 0.66 mas perde material na faixa do motor.
+   Resultado liquido: empate negativo. NAO adotado.
+
+**OTIMO ESTA ENTRE W457 e W462.** O concept quer, em t 0.66: material ate 0.69, VAO em 0.69-0.73, e um
+elemento FINO em 0.73 (o fim do duct). Ou seja: o duct precisa da ponta DISTANTE (x -0.668) mantida ALTA
+(z ~0.77) e o TRECHO MEDIO (x -0.575) mais baixo -> **descida mais acentuada no fim, nao deslocamento
+uniforme**. Proximo teste: `abt_dz` menor (-0.030) ou z por ponto (ponta alta + meio baixo).
+
+## ESTADO DA BASE: W457 (inalterada — W462 nao adotado)
+IoU 0.826 | P10 0.790 | pior 0.680 | COR_TV 0.251 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+Params: BASE_PARAMS.json + ep_s=[0.085,0.042,0.095].
+Runners/patches disponiveis em run_variant.py: ep_s (endplate), ab_x (airbox x), abt_dz/abt_r (duct).
