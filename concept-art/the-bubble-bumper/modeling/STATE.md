@@ -559,3 +559,16 @@ Fix `axle_w=0.520`:
 - IoU 0.816 -> **0.818** | falta 8.8 -> **8.6** | regioes <0.80: 8 -> **7** | excesso 12.2 | COR_TV 0.266
 - xf 0.72 ainda com 3 runs -> falta um elemento naquela faixa (proximo alvo)
 => W407 = nova base.
+
+
+## W408 (BASE) / W409 (REVERTIDO) — 2026-09-19
+
+W408: bandeja traseira escura pelo diagnostico de RUN COUNT -> TOP xf 0.70/0.72 de 3 -> 1 run (igual ao
+concept); **top/MOTOR 0.812 -> 0.855**, falta 11.2->6.5%, cor 0.148->0.100; IoU 0.820 (recorde da serie),
+COR_TV 0.264, falta 8.4. QA 0 non-manifold, 14 objetos separados.
+
+W409 (EXPERIMENTO REVERTIDO — nao repetir): asa inclinada (wing_tilt=0.220, wing_z=0.690, hh=0.060)
+porque no SIDE o concept tem run de 0.24 m em xf 0.92-0.96 contra 0.12 m do modelo.
+RESULTADO: IoU 0.820 -> **0.758**, excesso 12.2 -> **27.6%**, side/TRASEIRA 0.647 -> 0.576, <0.80 7 -> 10.
+=> REVERTIDO. Licao: aquele run alto no SIDE nao e a lamina da asa inflada; inclinar a asa gera excesso
+em vez de preencher falta. A falta de 22.6% em side/TRASEIRA tem outra causa (a identificar por cor/run).
