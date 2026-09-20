@@ -6425,3 +6425,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   FIX REAL (proximo): ARREDONDAR/SUAVIZAR A BORDA da viseira — silhueta curva, sem quinas, como o concept descreve
     ('curva, continua, abracando o casco sem quinas'). Criterio mensuravel: o contorno da M_Visor no plano y-z deve ser
     uma curva (sem segmentos retos longos) e o raio do canto >= ~0.01 m.
+
+
+## P77: BORDA DA VISEIRA ARREDONDADA ***
+  [P77] 2688 verts, encolhimento maximo 45%% nas extremidades de z (z 0.690-0.852). ###QA### True, sep 14, 0 erros.
+  Efeito medido: a faixa do topo foi de 91,7%% para 87,2%% da largura do casco -> a silhueta AFINA na ponta = canto
+    arredondado, sem quina. As faixas do meio seguem rentes (97,6%% | 98,6%% | 94,0%%).
+  Contexto: dois instrumentos provaram que nao havia protrusao (faixas + pixels); a leitura de 'caixa com abas' vem da FORMA
+    (faces planas + arestas duras), que e exatamente o que o P77 ataca.
