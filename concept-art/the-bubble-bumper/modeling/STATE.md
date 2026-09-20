@@ -5015,3 +5015,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
      proprio front.jpg, onde o casco tem 127 px de largura e a sobrancelha ~1-2 px de espessura, indistinguivel do
      gradiente da viseira. DECISAO: adotar a descricao do vision ('finas, arqueadas, altas' contra 'grossas, em bloco,
      baixas' do modelo) como PRINCIPIO e validar por GATE VISUAL, sem inventar alvo numerico.
+
+
+## P43 APLICADO - pupila oval + sobrancelha fina (direcao certa, resposta AMORTECIDA) ***
+  PARAMETROS DA TEXTURA (func _face_tex, indentacao 12):
+    PUPILA: a[ell(cx,cy+0.18*ry, rx*0.34, ry*0.34)] -> rx*0.43, ry*0.55  (= EXATAMENTE o alvo medido no concept)
+    SOBRANCELHA: bx,by=px(sgn*25.0, 96.0) -> 93.0 (mais alta) ; b1=ell(...,rx*1.02,ry*0.55)+b2=ell(...,rx*1.02,ry*0.46)
+                 -> rx*0.85,ry*0.30 / rx*0.85,ry*0.22 (arco fino)
+  RESULTADO MEDIDO (front render, blobs):
+    ANTES: pupila 8x3 px = 24%%x20%% do olho | sobr 42-43 px = 126%% do olho, 18 px esp, gap 1
+    P43:   pupila 9x4 px = 26%%x25%%           | sobr 39-44 px = 118-129%%, 16 px esp, gap 3
+  DIAGNOSTICO DA RESPOSTA AMORTECIDA: o alvo esta CERTO no parametro (0.43x0.55 = 43%%x55%%) mas o render devolve
+    26%%x25%% (~2,2x menos). Duas causas concorrentes: (a) o mapeamento textura->esfera NAO e linear (DU/DV em th comprime
+    perto do polo, entao rx/ry nao viram razao de pixels); (b) a pupila tem ~9 px, logo +-1 px de ruido = +-11%% de erro.
+    O instrumento esta no LIMITE DA RESOLUCAO para esta feature.
+  BUG DE PATCH (2a vez na sessao): a ancora de 3 linhas nao casava porque PULAVA a linha do highlight entre a pupila
+    e a sobrancelha -> as linhas nao eram contiguas. Corrigido dividindo em 2 replaces contiguos + assert que falha alto.
+    REGRA: ao ancorar em MULTIPLAS linhas, conferir que elas sao CONTIGUAS no fonte.
+  W642D: QA ok, 14 pecas, globais preservadas, h/w 1.231, viseira fechada.
+  PENDENTE: (a) decidir entre compensar empiricamente (~2x no parametro) ou medir a nao-linearidade do UV e corrigir o
+    mapeamento; (b) subir a resolucao do render do rosto (render de detalhe) para medir a pupila com menos ruido;
+    (c) tracinho da testa; (d) GATE VISUAL; (e) G31 + auditor.

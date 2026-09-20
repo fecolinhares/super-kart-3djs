@@ -463,6 +463,11 @@ if open('/tmp/p42_anchor.txt').read() in SRC:
     print('P42 aplicado (face reposicionada)')
 else:
     print('P42 NAO aplicado')
+_anc=open('/tmp/p43_anchor.txt').read().split('\n\n'); _nw=open('/tmp/p43_new.txt').read().split('\n\n')
+for _a,_b in zip(_anc,_nw):
+    assert _a in SRC or _a in SRC.replace(chr(13),''), 'P43 ancora nao casa: '+_a[:40]
+    SRC = SRC.replace(_a,_b,1)
+print('P43 aplicado (pupila oval + sobrancelha fina)')
 
 _oldp26 = "zt=prof_top(xf)*H*P.get('cowl_k',0.97)"
 _newp26 = ("zt=prof_top(xf)*H*P.get('cowl_k',0.97)\n"
