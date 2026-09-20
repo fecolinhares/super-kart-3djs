@@ -6433,3 +6433,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     arredondado, sem quina. As faixas do meio seguem rentes (97,6%% | 98,6%% | 94,0%%).
   Contexto: dois instrumentos provaram que nao havia protrusao (faixas + pixels); a leitura de 'caixa com abas' vem da FORMA
     (faces planas + arestas duras), que e exatamente o que o P77 ataca.
+
+
+## *** PARADA ESTRUTURADA: 5 GATES vs 2 INSTRUMENTOS — PREMISSA NOMEADA ***
+  GATES v19, v20, v21, v22, v23: todos relatam 'abas laterais da viseira sobrando'.
+  MEDICOES (2 instrumentos independentes): razao por faixa 91,7-98,6%% do casco M_Blue; pixels na regiao dos olhos = 16 px.
+  REGRA APLICADA (3 falhas -> parar e nomear a premissa duvidosa): depois de 5 gates contradizendo 2 medicaes independentes,
+    parar de ajustar parametro e atacar a premissa.
+  PREMISSA DUVIDOSA NOMEADA: que a silhueta de referencia ('o casco') seja a geometria do M_BLUE.
+    AMBOS os instrumentos foram construidos por mim EM CIMA do M_Blue. Se o contorno azul do render vier de OUTRA peca
+    (M_Gasket 0.336 = 102%% do M_Blue; casca traseira; ou o casco lido de outro angulo), entao os dois instrumentos medem
+    'certo' contra a REFERENCIA ERRADA e a visao estaria certa.
+  PROXIMO (teste da premissa, nao ajuste):
+    1. medir a largura maxima de CADA material de carcaca azul/cinzenta em z 0.76-0.80 (M_Blue, M_Gasket, M_Face, M_Pilot) e
+       ver qual DELAS corresponde ao contorno azul do render;
+    2. identificar no render (w716d-front.png) qual pixel e o limite azul e mapear de volta para o material via a cor exata,
+       nao por 'blue>...' generico;
+    3. SO ENTAO re-medir a viseira contra a referencia correta.
+  ESTADO INDISCUTIVEL: W716D verde (QA True, falhas=[], sep 14). Viseira com taper de borda (87,2%% no topo).
