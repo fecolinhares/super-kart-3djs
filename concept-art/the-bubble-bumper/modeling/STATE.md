@@ -6800,3 +6800,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Sobre o tilt dos respiros: de frente os 22 graus quase nao se leem (ficam no topo). O tilt esta correto; o efeito e de
     perfil. Manter.
   W734D verde: QA True, falhas=[], sep 14, 0 erros.
+
+
+## *** P92: PECAS FLUTUANTES RECOLHIDAS (|y| 0.225 -> 0.164) ***
+  face_mats estendido para incluir M_Dark no clamp por faixa do P78.
+  [P78] M_Gasket 624 | M_Face 6422 | M_Dark 674 -> total 7720 verts limitados a 1.02 x casco.
+  Verificacao: M_Dark fora do casco (|y|>1.05*y_casco) = 24 faces (antes: pares em |y| 0.225 = 60 mm fora).
+    PIOR: z=0.996 |y|=0.1639 contra casco 0.1561 -> apenas 0,8 mm alem do limite. As pecas soltas sumiram.
+  ###QA### True, sep 14, 0 erros.

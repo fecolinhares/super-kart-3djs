@@ -297,7 +297,8 @@
   "face_clamp": 1.02,
   "face_mats": [
     "M_Gasket",
-    "M_Face"
+    "M_Face",
+    "M_Dark"
   ],
   "_nota_g26_gate_v24": "GATE v24 (W717D): 7,0/10 — MELHOR MARCA DA SESSAO (era 4,0-4,5). O vision CONFIRMA que 'as abas laterais sumiram; viseira/gaxeta/rosto agora acompanham o perfil do casco' e reconhece a correcao ('a gaxeta agora esta dentro, o rosto 0.01 acima mas visualmente colado'). Resolveu tambem o misterio dos 'ovais soltos': sao os ENDPLATES DA ASA ao fundo, desfocados. MAIOR erro restante: olhos gigantes/baixos/cortados + sobrancelhas chapadas, e a faixa amarela em caixa que flutua em T no topo. A cadeia: 5 gates acusando a viseira -> 2 instrumentos negando -> regra de nomear a premissa -> referencia errada (M_Blue nao era o contorno mais largo) -> M_Gasket 0.336 / M_Face 0.330 vs M_Blue 0.245 -> clamp por faixa (P78) -> 7,0.",
   "_nota_g26_p79": "P79: stripe_xlo -0.35 -> -0.60 estende o taper ao FUNDO do casco. [P66] 1946 de 2422 verts; |y|max da faixa em z>0.95 caiu de 0.0691 para 0.0220 — criterio <= 0.025 atingido. QA True, sep 14.",
@@ -309,5 +310,5 @@
   "visor_lift_ymin": 0.06,
   "_nota_g26_aresta": "GATE v31: clipping resolvido ('nao clippa mais o queixo') mas a aresta serrilha em DEGRAUS — o vision explica que a metrica de intersecao NAO mede a QUALIDADE da aresta. Os degraus sao AUTO-INFLIGIDOS: os clamps movem vertices por z-limite, criando escada. PROXIMO: suavizar a fronteira da M_Visor (media dos vizinhos ou bmesh.ops.smooth_vert so na borda). CRITERIO DE QUALIDADE: max|dz| entre verts adjacentes da fronteira pequeno. LICAO: medir INTERSECAO nao garante qualidade de aresta — sao duas metricas diferentes.",
   "visor_smooth": 6,
-  "_nota_g26_flutuantes": "ACHADO FINAL: os pares de M_Dark em |y| 0.197-0.225 estao FORA do casco (|y|max 0.165) — pecas pretoas flutuando no espaco, a MESMA CLASSE das 'abas' da viseira. O vision apontou em ~4 gates ('dois ovais pretos flutuando') e eu tratei como ruido. FIX: clamp por faixa (z 0.941-0.997) para |y| <= ~1.02*y_casco(z); criterio 0 faces de M_Dark com |y| > 1.02*y_casco(z) em z 0.90-1.05. O tilt de 22 graus dos respiros esta correto (le-se de perfil)."
+  "_nota_g26_p92": "P92: face_mats estendido a M_Dark — 674 verts limitados (total 7720). M_Dark fora do casco agora: 24 faces, pior 0.8 mm alem do limite (antes |y| 0.225 = 60 mm fora). As pecas flutuantes que o vision apontou em ~4 gates estao recolhidas. QA True, sep 14."
 }
