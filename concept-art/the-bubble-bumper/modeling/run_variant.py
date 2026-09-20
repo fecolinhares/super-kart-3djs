@@ -78,6 +78,11 @@ old10b="(EXC-0.16,sy*0.110,0.392+_edz)"
 new10b="(EXC-0.16+P.get('exh_fx',0.0),sy*0.110,0.392+_edz)"
 if old10b in SRC:
     SRC=SRC.replace(old10b,new10b,1)
+# patch 11: z PROPRIO do escapamento CENTRAL (desacopla do exh_dz global que baixa os 3 juntos)
+old11a="(EXC-0.16+P.get('exh_fx',0.0),0.0,0.340+_edz),(XR-0.20,0.0,0.382+_edz),(exb,0.0,0.412+_edz)"
+new11a="(EXC-0.16+P.get('exh_fx',0.0),0.0,0.340+_edz+P.get('exh_c_dz',0.0)),(XR-0.20,0.0,0.382+_edz+P.get('exh_c_dz',0.0)),(exb,0.0,0.412+_edz+P.get('exh_c_dz',0.0))"
+if old11a in SRC:
+    SRC=SRC.replace(old11a,new11a,1)
 
 old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"

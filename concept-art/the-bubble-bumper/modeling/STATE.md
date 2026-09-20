@@ -2690,3 +2690,29 @@ regra de medir na LINHA ALVO: o ganho agregado veio de outro lugar, nao do alvo.
 ## BASE: **W477** (nova) = W475 + **exh_fx 0.20**
 IoU 0.828 | P10 0.790 | pior 0.689@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 6.9 | <0.80 4 | sep_parts 14.
 Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
+
+
+## W478 (exh_c_r 0.110) e W479 (exh_c_dz -0.035) — AMBOS DESCARTADOS, + ERRO DE ARITMETICA CORRIGIDO
+
+  w478: pior 0.689->**0.684** ✗ | TRASEIRA 0.689->0.684 ✗ (falta 17.7->18.7) | linha 435->430
+  w479: pior 0.689->**0.688** ✗ | excesso 12.8->**12.9** ✗ | TRASEIRA excesso 19.4->**20.4** ✗ |
+        COR_TV 0.252->0.253 ✗ | falta 6.9->6.8 ✓ | **linha: banda -0.84..-0.77 INTACTA** (so o fundo -0.95->-0.96)
+
+**ERRO DE ARITMETICA CORRIGIDO (meu)**: calculei o topo dos L/R pelo Z DO PONTO MEDIO. O ponto
+**DIANTEIRO** dos L/R (frente, o mais alto) esta em z = 0.472 + _edz. Com _edz 0.115 => **0.587**, + raio
+0.080 => **TOPO 0.667** — ACIMA da linha 0.6265. 
+  central: pontos 0.340/0.382/0.412 +0.115 => topo 0.527 + raio 0.128 = **0.655** (tambem acima, mas o
+  W479 mostrou que baixa-lo mexe so o FUNDO, nao a banda).
+  L/R    : pontos 0.392/0.420/**0.472**(frente) +0.115 => topo **0.587** + 0.080 = **0.667** <= OCUPANTE DA BANDA
+=> **A BANDA -0.77..-0.84 E OCUPADA PELOS L/R (frente), NAO PELO CENTRAL.** Hipotese do W479 refutada.
+
+**CONSISTENTE COM W474**: baixar os TRES 0.06 (exh_dz 0.070) abria a banda -= porque baixava os L/R.
+Logo a alavanca certa e: **z PROPRIO DOS L/R** (patch a criar: `exh_lr_dz`), nao o central.
+
+**TRADE-OFF ESPERADO (ja medido no W474)**: baixar os L/R abre a banda mas custa TRASEIRA (falta 17.7->20.1).
+Alternativa sem trade-off: **reduzir o RAIO dos L/R** (0.080) OU **recuar a frente deles em X** (exh_fx maior)
+para que o ponto alto saia da regiao da banda mantendo a silhueta baixa.
+
+## BASE: **W477** (mantida; W478/W479 descartados)
+IoU 0.828 | P10 0.790 | pior 0.689@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 6.9 | <0.80 4 | sep_parts 14.
+Patches no runner: 1..11 (exh_c_dz adicionado, ainda sem uso adotado).
