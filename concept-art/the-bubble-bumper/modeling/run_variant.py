@@ -420,6 +420,12 @@ print("G26c: pads legados gateados por g26c_pads")
 # esta afundada na superficie do capacete. Patch: (a) SOBE o offset radial (1.006/1.001 -> parametro),
 # (b) ESTENDE o arco para frente (u inicial 19 -> parametro) para a faixa nascer na testa,
 # (c) engrossa a largura. Diagnostico de vision, nao de metrica.
+# patch 33: reg() passa a guardar o BBOX REAL da sub-peca (qp() devolvia 0)
+if open('/tmp/p33_anchor.txt').read() in SRC:
+    SRC = SRC.replace(open('/tmp/p33_anchor.txt').read(), open('/tmp/p33_new.txt').read(), 1)
+    print('P33 aplicado (bbox real em reg())')
+else:
+    print('P33 NAO aplicado')
 _oldp32 = open('/tmp/p32_anchor.txt').read()
 _newp32 = open('/tmp/p32_new.txt').read()
 if _oldp32 in SRC:

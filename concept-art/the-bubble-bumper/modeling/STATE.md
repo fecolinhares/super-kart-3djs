@@ -4524,3 +4524,32 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
         z-fighting na viseira' sugere que a faixa cruza a regiao da viseira, isto e, arco/parametrizacao com
         eixo errado, nao raio pequeno.
   P32 fica no codigo (a parametrizacao e util e reversivel), com os valores atuais REGISTRADOS COMO NAO-VALIDADOS.
+
+
+## *** G26/CAPACETE: INSTRUMENTO NOVO (P33) + DIAGNOSTICO QUANTITATIVO DA FAIXA ***
+  DESCOBERTA DO INSTRUMENTO: 'def reg(nm,ob): QA[nm]=qp(ob)' guarda as sub-pecas em R['QA'] (MAIUSCULO; R['qa']
+    minusculo e so o resumo {aprovado,falhas,metricas}) — mas qp() devolvia 0. As 53 sub-pecas registradas
+    existiam como NOMES, sem bbox. P33 (patch no reg(), ancora lida de arquivo) passa a guardar o BBOX REAL
+    (matrix_world @ bound_box) de cada sub-peca no momento da construcao — antes do join em 14 pecas.
+    'P33 aplicado (bbox real em reg())' OK. Agora sub-pecas sao MENSURAVEIS, nao dedutiveis da parametrizacao.
+  MEDICAO (pre-escala, W604D, helm_trim_up=1.060):
+    helmet     x[-0.5330,-0.0337] z[0.7888,1.2310] y[+-0.2350]
+    helm_trim  x[-0.5470,-0.0489] z[0.8068,1.2409] y[+-0.0676]
+    FOLGA no TOPO    : +0.0099  (10 mm fora)
+    FOLGA na FRENTE  : +0.0140  (14 mm fora)
+    FOLGA na TRASEIRA: -0.0152  (15 mm DENTRO)
+    espessura da faixa = 1%% de HR = 2.1 mm  =>  15 mm de afundamento = 7x a espessura.
+  VEREDITO SOBRE A ABORDAGEM PARAMETRICA (encerrada): a faixa segue um CIRCULO ESCALADO (hx+RR*cos(u),
+    hz+RR*sin(u)*SZ) e o capacete e um DOME com perfil diferente; o descasamento chega a ~15-20 mm. NENHUM offset
+    radial proporcional deixa a faixa fora da superficie em TODO o arco: com 1.022 afundava no topo, com 1.060
+    afunda atras. Isto e o mesmo padrao ja registrado — micro-calibracao numa primitiva com o PERFIL ERRADO e
+    invisivel/instavel. Verificado agora com numero, nao com argumento.
+  FAIXA TAMBEM NAO E SLIVER (descartada a hipotese anterior): o bbox da faixa corre o capacete inteiro
+    (x -0.538 -> -0.058, span 0.480 contra 0.499 do capacete) e esta centrada (y +-0.0676). O defeito era
+    POSICIONAMENTO VERTICAL RELATIVO A SUPERFICIE, nao extensao nem centralizacao.
+  PROXIMO LEAF (fix geometrico, desenhado): construir a faixa PROJETANDO NA SUPERFICIE REAL do capacete —
+    para cada u, amostrar o raio real do mesh 'Helmet' na direcao (cos u, 0, sin u) (raycast de (hx,0,hz) ou
+    interpolacao da malha) e deslocar por FOLGA FIXA (ex. 0.004 m) em vez de multiplicador radial.
+    Isso torna a folga CONSTANTE por construcao e acaba com o z-fighting. Alternativa se raycast for caro:
+    envolver a faixa numa casca de offset do proprio capacete (solidify/selecao de faces).
+    NAO continuar ajustando helm_trim_up: ja provado que o range util nao existe.
