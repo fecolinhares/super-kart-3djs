@@ -5199,3 +5199,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     geometria conhecida da peca (aqui: a largura medida 0.427 m > a largura da peca 0.332 m delatava o erro). Corrigir
     o instrumento ANTES de ajustar o modelo — senao ajusta-se a peca certa e mede-se a errada, sem efeito visivel.
   ESTADO: W653D verde (QA ok, 14 pecas, globais preservadas). chin_sy=0.527 e chin_sz=1.60 ficam aplicados.
+
+
+## MENTONEIRA ISOLADA POR MAGENTA - INSTRUMENTO CONFIaVEL E ALVO MEDIDO ***
+  TECNICA (decisiva, usar sempre que a peca nao se isolar por cor): repintar as faces cujo CENTRO cai na bbox conhecida
+    da peca com um material de cor unica (magenta) e medir essa cor no render. Arquivo: /tmp/pinta.py.
+    Resultado: 518 faces pintadas; no render, MAGENTA = 6378 px, bbox x[225,634] y[724,759] => 410 px de largura
+    = 0.334 m, batendo EXATAMENTE com a largura do chin_guard (0.332 m). Instrumento validado.
+  CORRECAO 1: meu mapeamento z->y estava ERRADO. Previsto z0.632->y799; o real e y759->724. Erro de ~40-75 px. Todas
+    as medicoes de 'banda do queixo' desta sessao herdaram esse erro (por isso o alvo parecia na peca errada).
+  CORRECAO 2: o amarelo que eu media na banda (3636 px, 526 px de largura) NAO e a mentoneira (410 px) nem o COWL
+    (esconder o COWL nao mudou: 3636->3631). Era outra peca amarela projetando ali.
+  ALVO DA MENTONEIRA (agora com instrumento confiavel):
+    modelo: 410 x 36 px = 0.334 x 0.029 m
+    concept: 49%% da largura do capacete (128 px) e 24%% da altura (148 px) => 0.175 x 0.147 m
+    erro: LARGURA x1.9 e ALTURA x5 CURTA. Ou seja: estreitar ~47%% e SUBIR bastante a altura.
+  A INVESTIGAR: chin_sy=0.527 foi aplicado no build (QA ok) mas a largura renderizada continua 410 px = original.
+    Hipoteses: (a) a escala roda em outra instancia/loop de chinp; (b) o transform_apply seguinte a desfaz/normaliza;
+    (c) o .blend que abri e anterior. Checar lendo o built_last.py e o bbox do chin_guard no .blend.
+  W653D verde (QA ok, 14 pecas, globais preservadas).
