@@ -2774,3 +2774,30 @@ z_range nao entra em A/B sem COMPENSACAO.
 ## BASE: **W480** (mantida; W481 descartado por invariante)
 IoU 0.828 | P10 0.791 | pior 0.690@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 6.9 | <0.80 4 | sep_parts 14.
 Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
+
+
+## W482/W483 — COMPENSACAO DO INVARIANTE (via `exh_x`, a ponta traseira)
+
+**W482 (exh_x -1.086)**: ERRO MEU — usei o DEFAULT do builder (XRE+0.041=-1.087) em vez do valor
+  canonico do BASE_PARAMS.json (**exh_x = -1.19**). Erro de 0,104 m => len_before 2.3262, scale 1.01022,
+  x_range [-1.172,1.178], z_range ate 1.194. **INVALIDO por erro de dado, nao por hipotese.**
+  **LICAO: TODO override deve ser conferido contra BASE_PARAMS.json antes do build** (o default do
+  builder NAO e o valor base para: exh_x=-1.19, e possivelmente outros).
+
+**W483 (exh_lr_dz -0.045 + exh_x -1.189)**: compensacao quase convergida —
+  x_range **[-1.2, 1.15] ✓ EXATO** | z_range [-0.01, **1.166**] (off 0,001) | len_before 2.3833 (off 0,8mm) |
+  scale_factor **0.98602** (off 3,4e-4 = 0,034%)
+=> o extremo x voltou, mas o comprimento PRE-ESCALA ficou 0,8mm curto (mover exh_x 1mm tira comprimento
+   do tubo inclinado) => o scale sobe para compensar o target_length.
+
+**PERGUNTA DE METODO ABERTA (honesta)**: a regra diz "nao entra em A/B sem compensacao". Com x_range EXATO,
+z_range off 1mm e scale off 0,034%, **qual e a tolerancia?** Opcoes:
+  (a) exigir EXATO (iterar mais nudges em exh_x ate len_before=2.3841) — mais 1-2 builds;
+  (b) aceitar <=0,1% e documentar (o efeito no pixel e <1px: 2,35*0,00034 = 0,8mm = 0,3px);
+  (c) medir as DUAS versoes no MESMO bin de comparacao e reportar a sensibilidade.
+
+**DECISAO**: seguir (a) — mais um nudge — porque a regra existe justamente porque eu ja me queimei com
+  reescala (W465). Um build a mais e barato; um A/B contaminado custa o ciclo inteiro.
+
+## BASE: **W480** (mantida)
+IoU 0.828 | P10 0.791 | pior 0.690 | COR_TV 0.252 | exc 12.8 | falta 6.9 | <0.80 4 | sep_parts 14.
