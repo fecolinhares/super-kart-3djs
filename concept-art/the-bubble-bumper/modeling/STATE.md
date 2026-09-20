@@ -3842,3 +3842,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     0.292 casa. Alvo 0.2394 x 1.188 = 0.284m. O topo do PARA-CHOQUE esta 6.3cm alto demais. Baixar o capacete reduziu H
     e RENORMALIZOU tudo: o para-choque ficou relativamente mais alto. Efeito esperado ao recalibrar a escala.
   PROXIMO: baixar o topo do FBUMP 6.3cm (0.3469 -> 0.284) e re-rodar o scorecard.
+
+
+## *** W543: 9/9 LANDMARKS OK NA CALIBRACAO GLOBAL CORRIGIDA ***
+  L_base_z 0.0324 OK | L_topo_z 0.0467 OK (era FALHA 0.0537) | R_base_z 0.0198 OK | R_topo_z 0.0367 OK
+  degrau_amp 0.0192 OK | degrau_x 0.0071 OK | pod_area_frac 0.0096 OK | topo_global_x 0.0212 OK | topo_global_z 0.0001 OK
+  mediana 0.0198 OK | pior 0.0467 OK | soma 0.1929  <-- MELHOR ESTADO DO PROJETO
+  FIX: P36 pad_dz=-0.060 parametriza o Z do pad amarelo do para-choque (era literal hardcoded 0.2622/0.2610/0.2596).
+    Topo do FBUMP 0.3469 -> 0.2869 contra alvo 0.284 (erro 0.003). Previsao 0.2883, acertou.
+  ACHADO IMPORTANTE SOBRE PARAMETROS: `ep_s` NAO controla o FBUMP — a sonda W542 provou que ele controla o REAR
+    (topo 0.8916 -> 0.8566 com FBUMP z inalterado). Nomes de parametro neste builder sao ENGANOSOS: antes de sondar,
+    LER O CODIGO e achar o literal real (o topo do FBUMP era o pad amarelo: 0.2622 + raio 0.086 = 0.3482).
+  Isto valida a sequencia completa: alvo validado -> recalibracao por 2 pontos -> renormalizacao expoe novo P0 ->
+    diagnostico por bbox/leitura de codigo -> fix no parametro certo -> gates fecham.

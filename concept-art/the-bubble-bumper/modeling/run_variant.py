@@ -390,6 +390,20 @@ if o35 in SRC:
 else:
     print('P35 ALVO NAO ENCONTRADO')
 
+# patch 36: Z PROPRIO DO PAD AMARELO DO PARA-CHOQUE. O topo do FBUMP (0.3469) e o pad amarelo:
+#   0.2622 + raio 0.086 = 0.3482, x escala 0.98523 = 0.343 (casa com 0.3469). Alvo validado
+#   L_topo_z 0.2394 x H 1.188 = 0.284m => pre-escala 0.2883 => centro 0.2023 => pad_dz = -0.060.
+#   ANTES era literal hardcoded; agora e parametro. (ep_s NAO controla o FBUMP: sonda W542 provou
+#   que ele controla o REAR, topo 0.8916->0.8566.)
+_o36="                       [(XFO-0.028,_sy*0.330,0.2622),(XFO-0.086,_sy*0.400,0.2610),(XFO-0.150,_sy*0.470,0.2596)],"
+_n36=("                       [(XFO-0.028,_sy*0.330,0.2622+P.get('pad_dz',0.0)),"
+      "(XFO-0.086,_sy*0.400,0.2610+P.get('pad_dz',0.0)),"
+      "(XFO-0.150,_sy*0.470,0.2596+P.get('pad_dz',0.0))],")
+if _o36 in SRC:
+    SRC=SRC.replace(_o36,_n36,1); print('P36 INSERIDO OK (pad_dz parametrizado)')
+else:
+    print('P36 ALVO NAO ENCONTRADO')
+
 exec(compile(SRC,'bb_'+VER,'exec'),g)
 R=g.get('R',{})
 print(VER,'| QA=',R.get('qa',{}).get('aprovado'),'| z_range=',R.get('z_range'),'| ERRO=',R.get('ERRO'))
