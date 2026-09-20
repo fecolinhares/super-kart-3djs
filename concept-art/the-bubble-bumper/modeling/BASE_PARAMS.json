@@ -274,10 +274,10 @@
   "visor_dz": -0.172,
   "visor_u_lift": 0.02,
   "visor_alpha": 0.3,
-  "eye_dx": -0.008,
+  "eye_dx": 0.048,
   "stripe_hy": 0.022,
   "stripe_zlo": 0.74,
   "stripe_xlo": -0.35,
   "stripe_zmin": 0.8,
-  "_nota_g26_criterio_cobertura": "CRITERIO NOVO ADOTADO (cobertura, nao centroide): para cada material, contar faces DENTRO do retangulo dos olhos (|y|<=0.04, z 0.741-0.760) E com x > x_max(M_Eye). Resultado no W699D: M_Visor 206 (correto, e o vidro), M_Blue 60 (o casco cobre parte dos olhos — NOVA causa), M_Gasket 20, M_ChinPanel 5, M_Yellow AUSENTE. O P67 (stripe_zmin 0.800, 1898 verts levantados) removeu a faixa de cima dos olhos, o que a contagem de centroides (que subia ao estreitar) nao conseguia mostrar. FIXES: (1) M_Blue 60 faces — os olhos estao afundados na superficie do casco, trazer M_Eye para a frente em x ou abrir o casco ali; (2) M_ChinPanel topo 0.7565 invade a faixa, encurtar o topo ou subir os olhos; (3) M_Gasket 20 conferir se e o aro."
+  "_nota_g26_oclusao_resolvida": "OCLUSAO DOS OLHOS RESOLVIDA: eye_dx -0.008 -> +0.048 (o front e +x), levando x_max dos olhos de -0.2726 para -0.2166. Criterio de cobertura no W700D: M_Visor 206 faces a frente (correto, e o vidro), M_ChinPanel 5 (encurtar o topo), M_Blue AUSENTE (era 60), M_Gasket AUSENTE (era 20), M_Yellow AUSENTE. O casco e o gasket deixaram de cobrir os olhos: o unico material na frente dos olhos e o vidro. HISTORICO: das 4 hipoteses formuladas, 3 foram refutadas por medicao (o rosto a frente; estreitar em y resolvia; a viseira ser caixa) e 2 confirmadas e corrigidas (a faixa desce sobre os olhos — P67; o casco afoga os olhos — eye_dx)."
 }

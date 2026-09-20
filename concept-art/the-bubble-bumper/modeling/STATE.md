@@ -6034,3 +6034,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     2. M_ChinPanel 5 faces — topo em z 0.7565 invade 0.741-0.760; encurtar o topo OU subir os olhos;
     3. M_Gasket 20 faces — conferir se sao o aro (esperado) ou invasao.
   W699D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## *** OCLUSAO DOS OLHOS RESOLVIDA: SO O VIDRO ESTA A FRENTE ***
+  eye_dx -0.008 -> +0.048 (o front e +x). x_max dos olhos: -0.2726 -> -0.2166 (5,6 cm para a frente).
+  CRITERIO DE COBERTURA no W700D:
+    M_Visor     206 faces a frente (CORRETO — e o vidro)
+    M_ChinPanel   5 faces (resta encurtar o topo)
+    M_Blue AUSENTE (era 60) | M_Gasket AUSENTE (era 20) | M_Yellow AUSENTE
+  Ou seja: o casco e o gasket deixaram de cobrir os olhos e o UNICO material na frente dos olhos e o vidro.
+  HISTORICO DO DIAGNOSTICO (4 hipoteses, 3 refutadas por medicao — todas registradas):
+    1. 'a viseira e uma caixa' -> verdadeiro, corrigido com a projecao na elipsoide (P61);
+    2. 'o rosto opaco esta a frente' -> REFUTADO (M_Face nao tem faces na faixa);
+    3. 'estreitar a faixa em y resolve' -> REFUTADO (a contagem de centroides SUBIA ao estreitar);
+    4. 'a faixa desce sobre os olhos' -> CONFIRMADO e corrigido (P67, encurtar em z);
+    5. 'o casco afoga os olhos' -> CONFIRMADO e corrigido (eye_dx +0.048).
+  W700D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
