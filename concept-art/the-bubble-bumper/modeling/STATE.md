@@ -1175,3 +1175,28 @@ REVERTIDO (ganho regional que piora o todo nao se aceita). **BASE SEGUE W437.**
 
 PROXIMO: combinar wing_tilt=0.12 COM span menor na parte alta (a sweep atual e so em x; testar span
 decrescente com o u da corda MAIS a inclinacao). O SIDE ja mostrou que o alvo e exato com 0.12.
+
+
+## W439/W440 — a asa: REAR e FRONT do concept sao INCONSISTENTES (achado de instrumento)
+
+W439 (tilt 0.12 + sweep REVERSO): IoU 0.800, excesso 16.8, <0.80 9, side/TRASEIRA 0.686 (=W438),
+rear/PILOTO_COSTAS 0.572, front/PILOTO 0.569 (excesso 64.6%). Melhora vs W438 mas longe do W437.
+
+W440 (wing_z 0.585->0.626 = +5cm ABSOLUTO e span 0.505->0.555, ambos MEDIDOS no REAR):
+  **REAR z 0.74: 0.560..-0.558 = concept 0.555..-0.555 ✓✓✓ EXATO**
+  **REAR z 0.68: 0.290..-0.287 = concept 0.287..-0.287 ✓✓✓ EXATO**
+  MAS: IoU 0.821->**0.797**, P10 0.714, pior **0.503**, excesso 12.1->**15.5**, falta 8.3->9.1, <0.80 6->**9**,
+  **front/PILOTO 0.503 (excesso 64.3%)**, rear/PILOTO_COSTAS 0.689 (excesso 43.6%).
+
+**CONTRADICAO MEDIDA:** no REAR o concept tem a asa SOLIDA em |y| +-0.555 no z 0.74; no FRONT a mesma
+faixa z 0.74 nao pode ter essa largura (senao nao haveria excesso de 64% quando o modelo poe a asa la).
+=> ou (a) as vistas do concept NAO compartilham a mesma escala/normalizacao de z (minha premissa H=1.207
+   para todas as vistas pode estar errada), ou (b) a asa do concept tem forma que se comporta diferente
+   nas duas projecoes (impossivel para corpo rigido).
+**A hipotese (a) e a mais provavel e e um erro de INSTRUMENTO de primeira ordem: preciso validar a escala
+relativa das vistas do concept (ex.: comparar a altura do capacete ou o diametro da roda em FRONT vs SIDE
+vs REAR em pixels) ANTES de continuar a usar comparacoes cruzadas de z.**
+
+REVERTIDO (W440/W439 pioram o todo). **BASE SEGUE W437** — IoU 0.821 | pior 0.668 | COR_TV 0.253 |
+excesso 12.1 | falta 8.3 | <0.80 = 6.
+PROXIMO: validar a escala relativa das 4 vistas do concept (roda/capacete em pixels por vista).
