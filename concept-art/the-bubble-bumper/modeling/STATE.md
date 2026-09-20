@@ -5944,3 +5944,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   NOTA DE ESCALA REAL: 12 mm em 2,35 m = 0,5% da peca. O vision pediu em mm e a mudanca e mensuravel, mas e do tipo que
     'nao aparece' em render de longe — por isso a medicao por material vem antes do gate, e o gate decide o perceptivel.
   W696D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## *** GATE v14: 'VISEIRA EM 2 PARTES' — O ROSTO ESTA A FRENTE DA VISEIRA ***
+  Vision (W696D): (1) 'ainda cruza o branco inferior dos olhos' | (2) 6/10 | (3) MAIOR ERRO: 'viseira em 2 PARTES, topo ainda
+    OPACO' | (4) 'faca viseira unica curva com alpha 0.30 em tudo'. Tambem registrou o positivo: 'o U transparente esta mais baixo
+    e mais apagado' -> o P65 funcionou.
+  CAUSA, MEDIDA (nao inferida):
+    M_Face : x[-0.323,-0.128]  -> frontal em -0.128
+    M_Visor: x[-0.347,-0.133]  -> frontal em -0.133
+    O front e +X, logo MAIOR x = mais a frente. O ROSTO (M_Face, OPACO) esta 5 mm A FRENTE da VISEIRA.
+    Isso explica exatamente a leitura 'duas pecas': na faixa dos olhos quem aparece e o M_Face opaco (com os olhos pintados
+    nele); so na faixa de baixo, onde nao ha rosto, a viseira transparente aparece. O alpha 0.30 esta correto — esta no lugar
+    errado da PILHA.
+  FIX CONCRETO (uma ordem de profundidade, nao estetica):
+    a viseira tem de ficar NA FRENTE do rosto. Opcoes: (a) aumentar visor_off de 0.020 para ~0.045-0.055 para o frontal da
+    viseira passar o do rosto; ou (b) recuar M_Face em x (empurrar o rosto para dentro) preservando os olhos. Depois reconferir
+    que x_max(M_Visor) > x_max(M_Face) na faixa z dos olhos, na medicao por material — e so entao o gate visual.
+  W696D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
