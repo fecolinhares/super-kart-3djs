@@ -6408,3 +6408,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     depois limitar como foi feito na viseira.
   METODO QUE FICOU PROVADO: quando a visao e a medicao 3D discordam, o TESTE EM PIXELS na mesma vista da visao decide —
     foi ele que separou ruido de contraste (25 px) de protrusao real (3021 px).
+
+
+## *** CONFUNDIDOR DO TESTE EM PIXELS REMOVIDO: OS 3021 px SAO O SIDEPOD DO KART ***
+  Medicao por faixa na regiao do queixo (z 0.50-0.75, /tmp/chin.py):
+    z 0.600-0.625: M_Yellow = 0.2147 | z 0.625-0.650: 0.2149 | z 0.650-0.675: 0.1989
+    (M_Blue nao tem faces abaixo de 0.725; M_Gasket aparece so em 0.700-0.750 a 0.1680.)
+  As linhas de imagem 440-520 mapeiam para z ~0.55-0.65 -> a 'protrusao' e o AMARELO do KART (sidepods), que e
+    legitimamente mais largo que o capacete (0.215 vs 0.165). O meu teste comparava o cinza com a silhueta AZUL (so o
+    capacete), esquecendo que abaixo dele esta o kart. CONFUNDIDOR IDENTIFICADO E REMOVIDO.
+  CONCLUSAO FINAL DA VISEIRA: nao ha protrusao geometrica.
+    - medicao por faixa: 97,6%% | 98,6%% | 94,0%% | 91,7%% (dentro do casco)
+    - medicao por pixels na regiao dos olhos (y 320-360): 16 px = ruido
+    - o vision ve 'abas laterais' por CAUSA DE FORMA (topologia em caixa: faces planas + arestas duras) e por GHOSTING
+      da dupla camada transparente, nao por largura.
+  FIX REAL (proximo): ARREDONDAR/SUAVIZAR A BORDA da viseira — silhueta curva, sem quinas, como o concept descreve
+    ('curva, continua, abracando o casco sem quinas'). Criterio mensuravel: o contorno da M_Visor no plano y-z deve ser
+    uma curva (sem segmentos retos longos) e o raio do canto >= ~0.01 m.
