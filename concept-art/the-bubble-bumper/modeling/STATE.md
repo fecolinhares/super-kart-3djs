@@ -6875,3 +6875,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CRITERIO NOVO DE SILHUETA (/tmp/sil.py): por linha, a largura do azul. PICOS locais (crescimento >6 px de uma linha p/
     outra) = protuberancias. RESULTADO: 3 picos em 356 linhas -> silhueta LISA (uma silhueta com espinhos teria dezenas).
   Este e o instrumento que faltava: mede a SILHUETA (o que o vision chama de 'romper a curva'), nao a posicao de vertices.
+
+
+## *** GATE v39: ESPINHOS RESOLVIDOS — PIXELS E VISION CONCORDAM PELA 1a VEZ ***
+  Vision (W739D): 'Voce corrigiu a causa dos espinhos — eram os respiros inclinados que criavam picos na silhueta. Agora com
+    eles verticais, o contorno do domo azul voltou a ser continuo.' (1) 'Sim, os espinhos laterais longos sumiram — silhueta do
+    domo azul esta lisa/continua'. (2) 6/10. (3) MAIOR erro: 'viseira chapada com borda lateral serrilhada em degraus + olhos
+    2x maiores, afastados e descentrados'; tambem 'mentoneira em bloco pontudo protuberante'.
+  MARCO: o criterio de silhueta por pixels (3 picos em 356 linhas) e o vision ('silhueta lisa/continua') CONCORDAM — a primeira
+    concordancia explicita entre instrumento e visao nesta sessao.
+  A CAUSA DO DEFEITO ERA MINHA: o P91 (tilt de 22 graus) empurrou a quina externa dos respiros para fora. Reverter foi a
+    correcao. Custo/beneficio: o tilt nao se lia de frente (o proprio vision disse) e criou os espinhos.
+  PENDENTES (por ordem do vision): (a) borda lateral da viseira em degraus (o serrilhado que ja medi como 1,53 px no contorno
+    interno, mas nas LATERAIS pode ser real — medir as laterais separadamente); (b) olhos 2x maiores/afastados (medido: 2,5 cm =
+    o alvo que o vision pediu; conferir se e o ESPACAMENTO real ou leitura); (c) mentoneira 'bloco pontudo protuberante'.

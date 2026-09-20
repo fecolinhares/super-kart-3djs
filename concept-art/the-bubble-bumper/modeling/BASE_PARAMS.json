@@ -312,5 +312,5 @@
   "visor_smooth": 6,
   "wedge_reassign": 1,
   "wedge_form": 0.93,
-  "_nota_g26_p96": "P96: P91 revertido (vent_tilt 0). CRITERIO NOVO DE SILHUETA por pixels (/tmp/sil.py): conta PICOS locais no perfil de largura do azul por linha (crescimento >6px). Resultado: 3 picos em 356 linhas = silhueta lisa (com espinhos seriam dezenas). Este instrumento mede a SILHUETA, que e o que o vision chama de 'romper a curva' — nao a posicao de vertices. QA True, sep 14."
+  "_nota_g26_gate_v39": "GATE v39 (W739D): 6/10 e MARCO DE CONCORDANCIA — o vision confirma 'voce corrigiu a causa dos espinhos; eram os respiros inclinados que criavam picos; agora o contorno do domo azul voltou a ser continuo', e o criterio de silhueta por pixels (3 picos em 356 linhas) concorda. Primeira concordancia explicita entre instrumento e visao na sessao. A CAUSA ERA MINHA (o tilt do P91). PENDENTES: (a) borda lateral da viseira em degraus; (b) olhos 2x maiores/afastados (medido 2,5 cm = o alvo pedido); (c) mentoneira 'bloco pontudo protuberante'."
 }
