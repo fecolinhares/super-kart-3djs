@@ -1421,3 +1421,22 @@ PROXIMO: probe das ilhas do REAR/CH na faixa z 0.60-0.70 e |y| 0.28-0.45 para ve
 e quanto falta para +-0.41.
 
 BASE: **W446** — IoU 0.822 | pior 0.668 | COR_TV 0.255 | excesso 12.3 | falta 8.0 | <0.80 = 6.
+
+
+## W449 probe — a falta do FRONT t 0.55 e de CONTINUIDADE, nao de peca ausente
+
+Probe em z 0.60-0.70 com |y| 0.28-0.45: **so o REAR** — M_Silver 206, M_Dark 120, M_Blue 114, M_White 90,
+M_Eye 12, |y| 0.281..0.450, z 0.607..0.676. => o material EXISTE nessa faixa.
+Mas o fill do FRONT em t 0.55 e 0.604 (0.50 m de material em janela de 0.82 m) e o concept e 1.000 (0.82 m)
+=> faltam ~0.32 m em VAOS entre pecas, nao uma peca inteira.
+Candidatos de vao em z 0.646: entre o motor (|y| 0.30) e as pecas laterais do REAR; e entre 0.45 e a roda.
+PROXIMO: medir os RUNS do FRONT em t 0.55 (linha exata) para localizar os vaos em |y| e decidir qual peca
+fechar (provavelmente o topo do bodywork traseiro entre o motor e os pods).
+
+## BALANCO DESTA JANELA
+Ganho liquido: **W446** (nariz: fudge 0.88 vs prof_top medido; fator variavel) — IoU 0.821->0.822,
+falta 8.3->8.0, side/PARACH_RODA falta 13.2%->3.4% (maior ganho regional da serie), <0.80 mantido em 6.
+Refutados com numero: W445 (fator global: BICO excesso 23.5%) | W447 (cowl: empate) | W448 (sidepods:
+regressao severa IoU 0.798, COR_TV 0.291) | W443 (rzb 0: bracketed) | W441/W442 (z_k: melhora IoU mas
+<0.80 6->9 e viola contrato).
+**BASE: W446** — IoU 0.822 | pior 0.668 | COR_TV 0.255 | excesso 12.3 | falta 8.0 | <0.80 = 6.
