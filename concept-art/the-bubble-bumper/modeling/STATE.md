@@ -4853,3 +4853,27 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     ou da coroa + a razao conhecida. Registrar como o proximo ajuste de instrumento.
   DADOS SOLIDOS PARA O ROSTO: coroa y=87 | equador y120..y168 com 118..128 px (largura de referencia 128) |
     olhos (medidos antes) em y[166,181] com 26 e 23 px = 20.5%% e 18.1%% da largura, centros -16.5%%/+19.3%%.
+
+
+## *** ALVO h/w 1.240 SUSPEITO: VINHA DE BBOX COM OMBROS DENTRO ***
+  VARREDURA POR LINHA (x 448..574, larg 127, coroa y=87) classificou cada linha:
+    y87-96    (rel 0-9)     cinza+branco+amarelo, pouco azul  -> topo viseira/rosto
+    y99-132   (rel 12-45)   AZUL dominante (52-79 px) + faixa -> casca
+    y135-186  (rel 48-99)   VISEIRA dominante (28-59%%) + branco (olhos) -> FAIXA DA VISEIRA
+    y189-192  (rel 102-105) azul (41-53)                      -> casca abaixo da viseira
+    y195-210  (rel 108-123) FAIXA amarela (41-54) + azul      -> queixeira
+  *** CONSEQUENCIA: o alvo h/w=1.240 que eu 'fechei' com 0.7%% vinha de um bbox de 129x160 px =
+    y84..243, que vai da COROA ATE OS OMBROS (o azul do capacete e do tronco sao o mesmo componente).
+    Capacete sozinho: coroa y87 -> queixo ~y213 = 126 px  =>  h/w = 126/127 = 0.992.
+    Modelo: 0.941  ->  erro 6%% contra 0.99 (e nao 0.7%% contra 1.240).
+  O QUE SEGUE VALENDO: o VISION aprovou a proporcao visualmente ('10/10, nem largo nem estreito demais')
+    no board ortografico — julgamento INDEPENDENTE da minha metrica, e continua de pe. O que cai e o NUMERO
+    1.240 e a afirmacao 'erro 0.7%%'. Alvo numerico a REDERIVAR com bbox so-do-capacete.
+  LICAO: fechar um gate contra um NUMERO que veio de bbox contaminada nao fecha nada. A contaminacao estava
+    documentada varias vezes (medicoes que pegaram ombros) e eu mesmo a expliquei — sem perceber que o alvo
+    de proporcao tinha a mesma origem.
+  ALVOS DO ROSTO (relativos a coroa y=87 e a largura 127 px do casco):
+    VISEIRA: y135..y186 -> rel 48..99 = 0.378..0.780 da largura | altura 52 px = 41%% da largura
+    OLHOS: y153..y181 (pico de branco em y156-159) -> rel 66..94, centro rel ~80 = 0.63 da largura |
+      larg 26 px (20.5%%) e 23 px (18.1%%), centros -16.5%% e +19.3%% do eixo
+    BRANCOS em y87-96 (51 e 39 px) sao highlight do TOPO, nao olhos — nao confundir.
