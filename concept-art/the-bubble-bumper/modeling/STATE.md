@@ -2642,3 +2642,27 @@ ganho sem regressao") — **agora HA esse teste**: 0.115 e o otimo do bracket, c
 IoU 0.827 | P10 0.790 | pior 0.688@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
 Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
 Instrumento: col(x)=430-x*355.37 | row(z)=430-(z-0.62)*355.37 (row fixa 428 = z 0.6265).
+
+
+## W476 (exh_dz 0.100) — BRACKET FECHADO DOS DOIS LADOS => W475 CONFIRMADO COMO OTIMO
+
+  w475 exh_dz 0.115: 435 px | pior **0.688** | TRASEIRA 0.688 (falta 17.8) | ESCAPES 0.893  <== BASE
+  w476 exh_dz 0.100: 427 px | pior **0.686** | TRASEIRA 0.686 (falta 18.2) | ESCAPES 0.897
+  w474 exh_dz 0.070: 399 px | pior **0.670** | TRASEIRA 0.670 (falta 20.1) | ESCAPES 0.904
+IoU/P10/COR_TV/excesso/falta/<0.80 identicos nos tres (0.827/0.790/0.252/12.8/7.0/4).
+
+**LEI DE ALAVANCA DO exh_dz**: baixar mais SEMPRE melhora `rear/ESCAPES` e SEMPRE piora `side/TRASEIRA`
+(a falta cresce porque o concept TEM silhueta ali). **0.115 e o ponto de sela** — medido nos dois lados.
+
+**RESIDUO DO ALVO t0.54 (nao sai por exh_dz):**
+  concept: material -0.73..-0.75 | **VAO -0.75..-0.92** | material -0.92..-1.06
+  w475   : material -0.77..-0.84 | **VAO -0.84..-0.95** | material -0.95..-1.18
+  => o vao ABRIU mas esta deslocado ~8cm para tras (o modelo ainda tem material em -0.77..-0.84, onde o
+     concept quer vazio) e o material traseiro vai ate -1.18 (concept para em -1.06, 12cm de excesso).
+  => **nao e alavancavel por exh_dz** (0.115 ja e o otimo). Precisa de outro eixo:
+     (a) extensao em X dos escapamentos (encurtar alem de -0.73, como no W466 mas mantendo o z),
+     (b) offset em Y dos L/R (afastar da silhueta), ou
+     (c) remodelar a ponteira/tailpipe (eixo x do ultimo ponto do sweep).
+
+## BASE: **W475** (mantida)
+IoU 0.827 | P10 0.790 | pior 0.688@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
