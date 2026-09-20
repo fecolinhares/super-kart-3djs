@@ -6497,3 +6497,10 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PROXIMO: estender o taper ao fundo + arredondar a listra. Criterio: |y| no topo <= ~0.025 em todas as direcoes e contorno
     curvo, sem segmento reto longo.
   W717D verde (QA True, falhas=[], sep 14) — base validada em 7,0/10 no gate v24.
+
+
+## P79: FAIXA FINA EM TODA A VOLTA (|y|max 0.0691 -> 0.0220) ***
+  stripe_xlo -0.35 -> -0.60 (cobre o FUNDO do casco, nao so a metade frontal).
+  [P66] 1946 de 2422 verts de M_Yellow na calota (antes 1682 de 2070) -> |y| <= 0.022 em toda a volta.
+  [P67] 1962 verts levantados para z>=0.800. ###QA### True, sep 14, 0 erros.
+  MEDICAO: FAIXA em z>0.95 tem |y|max = 0.0220 (era 0.0691) -> CRITERIO <= 0.025 ATINGIDO.

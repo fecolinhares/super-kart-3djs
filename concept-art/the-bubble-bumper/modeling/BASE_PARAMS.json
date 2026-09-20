@@ -275,7 +275,7 @@
   "eye_dx": 0.048,
   "stripe_hy": 0.022,
   "stripe_zlo": 0.74,
-  "stripe_xlo": -0.35,
+  "stripe_xlo": -0.6,
   "stripe_zmin": 0.8,
   "eye_scale": 2.85,
   "_nota_g26_eye_ilhas": "M_Eye NAO SAO DOIS OLHOS: medindo por ILHA CONEXA (union-find por vertice compartilhado), sao 2 ilhas AMBAS centradas em y~0, cada uma cobrindo a largura inteira (0.1294 e 0.1280), separadas em z (0.7741 e 0.7770) — duas camadas empilhadas, nao olho esquerdo/direito. Isso INVALIDA a medicao anterior que dividia por y>0/y<0 (media as METADES de um elemento largo e chamava de dois olhos de 2,4 cm com 2,5 mm entre bordas). O vision acertou no tamanho: o elemento tem 12,9 cm de largura. REGRA: antes de medir 'o par', verificar que o par EXISTE como geometria separada — usar ilhas conexas, nunca cortes por sinal de coordenada. PROXIMO: reconstruir M_Eye como dois discos ovais discretos (0.068 de largura cada, vao positivo entre eles).",
@@ -299,5 +299,6 @@
     "M_Gasket",
     "M_Face"
   ],
-  "_nota_g26_gate_v24": "GATE v24 (W717D): 7,0/10 — MELHOR MARCA DA SESSAO (era 4,0-4,5). O vision CONFIRMA que 'as abas laterais sumiram; viseira/gaxeta/rosto agora acompanham o perfil do casco' e reconhece a correcao ('a gaxeta agora esta dentro, o rosto 0.01 acima mas visualmente colado'). Resolveu tambem o misterio dos 'ovais soltos': sao os ENDPLATES DA ASA ao fundo, desfocados. MAIOR erro restante: olhos gigantes/baixos/cortados + sobrancelhas chapadas, e a faixa amarela em caixa que flutua em T no topo. A cadeia: 5 gates acusando a viseira -> 2 instrumentos negando -> regra de nomear a premissa -> referencia errada (M_Blue nao era o contorno mais largo) -> M_Gasket 0.336 / M_Face 0.330 vs M_Blue 0.245 -> clamp por faixa (P78) -> 7,0."
+  "_nota_g26_gate_v24": "GATE v24 (W717D): 7,0/10 — MELHOR MARCA DA SESSAO (era 4,0-4,5). O vision CONFIRMA que 'as abas laterais sumiram; viseira/gaxeta/rosto agora acompanham o perfil do casco' e reconhece a correcao ('a gaxeta agora esta dentro, o rosto 0.01 acima mas visualmente colado'). Resolveu tambem o misterio dos 'ovais soltos': sao os ENDPLATES DA ASA ao fundo, desfocados. MAIOR erro restante: olhos gigantes/baixos/cortados + sobrancelhas chapadas, e a faixa amarela em caixa que flutua em T no topo. A cadeia: 5 gates acusando a viseira -> 2 instrumentos negando -> regra de nomear a premissa -> referencia errada (M_Blue nao era o contorno mais largo) -> M_Gasket 0.336 / M_Face 0.330 vs M_Blue 0.245 -> clamp por faixa (P78) -> 7,0.",
+  "_nota_g26_p79": "P79: stripe_xlo -0.35 -> -0.60 estende o taper ao FUNDO do casco. [P66] 1946 de 2422 verts; |y|max da faixa em z>0.95 caiu de 0.0691 para 0.0220 — criterio <= 0.025 atingido. QA True, sep 14."
 }
