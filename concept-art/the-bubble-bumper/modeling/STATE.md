@@ -5166,3 +5166,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     'esta escondido' -> eu invento um oclusor. O correto e sempre: antes de procurar a causa, medir o FENOMENO
     (aqui: contar as faces/px). Custou 3 builds e 3 hipoteses.
   cowl_k=0.843 mantido (correto pelos numeros do concept: corpo deve comecar em z~0.624).
+
+
+## ALVO DA MENTONEIRA MEDIDO + P46 FALHOU E FOI REVERTIDO ***
+  ALVO (concept, frontal): amarelo y196-232 (36 px de altura), largura de pico 63 px; capacete 128 px de largura e
+    148 px de altura => a mentoneira tem 49%% da largura e 24%% da altura do capacete.
+    Mapeado: largura alvo 0.175 m (+-0.0874) e altura alvo 0.147 m.
+  DIAGNOSTICO DO MODELO: o chin_guard e um revolve cujo perfil chega a RAIO 0.166 -> 0.332 m de largura = 93%% do
+    capacete (0.3566). Ou seja, ~2x largo. E a projecao visivel e um risco de 526 px por ~7 px (3,9%% da banda).
+  P46 (parameterizar o perfil com chin_k=0.527): ANCORA CASOU e o patch foi aplicado, MAS o build quebrou com
+    SyntaxError reportado na linha do exec(compile(SRC,...)) — ou seja, o patch gerou PYTHON INVALIDO no SRC.
+    Causa provavel: a ancora e uma instrucao de 2 linhas com indentacao diferente na continuacao (4 e 18 espacos)
+    e minha substituicao rearranjou a quebra de linha/indentacao do statement. E a 2a geracao de SRC invalido por
+    patch nesta sessao (a 1a foi o P37 sem indentacao).
+  REVERTIDO: bloco do P46 removido do runner; build de sanidade W652D verde (QA ok, 14 pecas, globais preservadas,
+    0 tracebacks). Estado limpo.
+  REGRA NOVA: patch que substitui um statement MULTI-LINHA deve preservar EXATAMENTE a quebra de linha e a indentacao
+    da continuacao; alternativa mais segura e mudar um PARAMETRO ja existente (como cowl_k) em vez de reescrever o
+    statement. O P46 vai ser refeito como escala do OBJETO apos o build (chinp.scale), que nao mexe na sintaxe.
