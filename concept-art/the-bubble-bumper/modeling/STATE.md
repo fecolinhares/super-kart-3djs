@@ -1332,3 +1332,27 @@ Medicao TOP faixa RODAS_DIANT (xf 0.18-0.36), runs em |y| normalizado (1.0 = mei
 BASE: W437 — IoU 0.821 | pior 0.668 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
 PROXIMOS (SIDE/FRONT, por FALTA): side/TRASEIRA 19.3% | side/PARACH_RODA 13.2% | side/BICO 9.9% |
 front/NOSE 9.8% | side/PILOTO 5.9% (a menor falta entre as grandes).
+
+
+## W444 — ilhas em xf 0.90: os TUBOS DE ESCAPE (0.62 m de comprimento) preenchem o vao
+
+Ilhas que cobrem x=-0.965 (xf 0.90) em z 0.45-0.65:
+  REAR nv=314 x **-1.184..-0.563** z 0.340..0.659 |y| 0.010..0.126 M_Silver  <- tubo CENTRAL
+  REAR nv=314 x **-1.191..-0.560** z 0.437..0.671 |y| 0.033..0.314 M_Silver  <- tubos LATERAIS (2x)
+  REAR nv=152 x -1.017..-0.934  z 0.483..0.625 |y| 0.190..0.209 M_Silver
+  REAR nv=116 x -1.092..-0.737  z 0.050..0.621 |y| 0.324..0.325 M_Silver  (elemento fino/suspensao)
+=> os tubos vao do MOTOR (x -0.56) ate a PONTA (x -1.19) = 0.62 m, e na coluna xf 0.90 cobrem z 0.34-0.66.
+O concept em xf 0.90 tem corpo 0.003-0.477 e asa 0.552-0.817 => **VAO em 0.477-0.552** que o tubo fecha ✗.
+
+MAS: z dos tubos (exh_dz) esta BRACKETED no otimo — 0.130 (base) > 0.000 (original, pior) e 0.192 (W434, pior);
+e o RAIO tambem — 0.128 (base) vs 0.088 (W432, pior). Ambos os parametros tem otimo em 0.130/0.128.
+=> o residuo de xf 0.90 nao e corrigivel por z nem raio do tubo. Sobra: (i) o tubo do concept e CURVADO
+   (desce em direcao ao motor) ou (ii) e mais uma consequencia da inconsistencia da arte.
+
+## BALANCO FINAL DESTA JANELA
+Base **W437** — IoU 0.821 | pior 0.668 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6 | 14 objetos.
+Ganhos liquidos na serie: W412 (escapes na faixa ESCAPES), W425 (asa enflechada), W429 (vao difusor/rampa),
+W437 (Rear_Bumper_U baixado — o maior: pior regiao 0.657->0.668 e vaos ABRIRAM).
+TRES limitacoes da ARTE medidas e documentadas: proporcao (+4%), vistas inconsistentes (fator 2.5), TOP rotacionado.
+Parametros bracketed no otimo (nao mexer): rzb 0.050, dfz 0.170, dfh 0.145, exh_dz 0.130, exh_c_r 0.128,
+wing_span 0.505, wing_z 0.585, rz1 0.300, neck_r0/r1 0.070/0.062.
