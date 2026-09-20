@@ -7089,3 +7089,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Contrato: L=2.35 H=1.1881 W=1.3912 P=0.8257 (69,5%%) X0=-1.175 X1=+1.175 Z1=1.1881.
   GEOMETRIA: apenas datums (o Sol proibe modelar shell/piloto em B001).
   Proximo: B002 (rodas e envelopes: 4 centros, diametros, wheelbase, tracks; cilindros-envelope sem tread).
+
+
+## FASE A: EXTRATOR DE REFERENCIA (reemite os numeros da fonte) ***
+  `extractor.py` -> `reference-landmarks.json`. Mascara = saturacao>26 OR lum<110, erosao 3x3, maior componente.
+  CADA PAINEL TEM ZOOM PROPRIO (erro 5.1 do Sol): calibracao por painel.
+    SIDE  745 px = 2.35 m -> 0.003154 m/px -> H = 1.2523 m
+    TOP   605 px = 2.35 m -> 0.003884 m/px -> largura = 1.4411 m
+    FRONT  W/H = 1.1732 (canonico antigo 1.171 -> 0,2% de acordo: VALIDA o extrator)
+  CONTRATO REEMITIDO: L=2.350 H=1.2523 W=1.4411 L/H=1.8765 W/H=1.1508
+  O L/H canonico antigo (1.978) foi DESCARTADO por contaminacao (o Sol avisou: 'nao copie numeros antigos
+  sem proveniencia').
