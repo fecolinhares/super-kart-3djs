@@ -4983,3 +4983,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   GLOBAIS W640D: QA ok, 14 pecas, h/w 1.231, viseira f 0.311..0.678.
   PENDENTE: (a) fechar a medicao do concept com limiar de escuro mais alto e janela ancorada; (b) afinar a
     sobrancelha na textura (espessura e largura) para o alvo medido; (c) tracinho da testa; (d) gate visual.
+
+
+## PUPILA E SOBRANCELHA - ALVOS MEDIDOS NOS DOIS LADOS ***
+  METODO DA PUPILA (o limiar simples falhava: contorno e pupila sao ambos escuros e CONECTADOS):
+    pupila = pixel escuro ENCERRADO por branco dos dois lados NA MESMA LINHA.
+    CONCEPT: pupila ESQ 10x16 px (101 px) | olho branco 23x29 px -> pupila = 43%% da largura e 55%% da ALTURA do olho.
+      (a DIR deu 21x24, pegando sombra extra da viseira; a ESQ e a medida limpa.)
+    MODELO W640D: pupila 8x3 px = 24%% x 20%% -> muito menor e PLANA (3 px de altura contra 16).
+  SOBRANCELHA (modelo): 42 px de largura = 124%% da largura do olho, 16 px de espessura, gap 1 px (colada).
+    Falta medir a do concept com o mesmo metodo (escuro encerrado) para fechar o alvo.
+  ALVOS PARA A TEXTURA: pupila ~43%% x 55%% do olho (oval ALTO, nao traco plano); sobrancelha fina e mais estreita
+    que o olho, com folga acima (nao colada).
