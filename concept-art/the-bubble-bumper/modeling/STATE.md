@@ -4392,3 +4392,26 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   METODO (entra na skill): se uma mudanca em peca de EXTREMIDADE altera metricas de regiao que ela nao toca,
     suspeitar do recálculo de escala/comprimento ANTES de suspeitar de acoplamento geometrico. Medir xf da peca
     afetada nas duas builds: se deslocou ~a mesma distancia que o scale mudou, e recálculo, nao forma.
+
+
+## *** ACHADO DECISIVO: wing_x2 NAO EXISTE NO OVERRIDE. O BASE -0.905 E O BUG. ***
+  Inspecao do dict de overrides do build (nao do BASE_PARAMS, do BUILD):
+    'ty_f':0.600,'ty_r':0.600,'wing_x1':-0.905,'exh_x':-1.12,'rb_x_off':0.115,'wing_z':0.660, ...
+    => wing_x2 NAO ESTA no dict. Logo wing_x2 = DEFAULT = XRE+0.235 = -0.893.
+  CONTA (correta agora):
+    W590D: wing_x1=-1.11  vs wing_x2=-0.893  -> span 0.217  asa REAL (quase a correta)
+    W594D: wing_x1=-0.905 vs wing_x2=-0.893  -> span 0.012  SLIVER de 1.2 cm
+    BASE_PARAMS: wing_x1=-0.905               -> span 0.012  idem
+    DEFAULT VERDADEIRO: wing_x1 = XRE-0.015 = -1.143 -> span 0.250 (tamanho certo)
+  INVERSAO DA MINHA CORRECAO: eu havia 'corrigido' dizendo que meu -1.11 era o erro. ERRADO de novo. O valor
+    -0.905 do BASE_PARAMS e que destroi a asa; o -1.11 (meu override) e o CONSERTO. Ja sao DUAS inversoes:
+      (1) 'a asa esta 5x curta' -> sim, mas por causa do valor -0.905, nao do meu -1.11;
+      (2) 'eu estreei a asa' -> nao, eu a consertei parcialmente.
+  O QUE O 'GANHO DA TRASEIRA' REALMENTE ERA: o sliver atua em x ~ -0.9 (render-xf 0.892) e le melhor na estacao
+    0.900 por ACIDENTE — trocar uma asa por uma lamina melhora uma estacao e quebra o resto. Nao e um lever validado;
+    e um artefato. A regra 'medir antes de celebrar' valeu de novo.
+  PROXIMO LEAF (limpo): wing_x1=-1.143 (default verdadeiro, span 0.250) + wing_x2 explicito -0.893 + compensar
+    xtrans pela mudanca de len_before. Comparar contra W590D (wing_x1=-1.11, span 0.217). Se o span correto 0.250
+    melhorar a traseira SEM deslocar o meio, adotar; senao, manter W590D.
+  METODO REFORCADO (skill): antes de atribuir um defeito a um valor do BASE_PARAMS, imprimir o DICT EFETIVO do
+    build (nao o json) e conferir quais chaves existem. Chave ausente -> default do codigo, que pode estar OK.
