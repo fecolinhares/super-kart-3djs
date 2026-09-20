@@ -1128,3 +1128,28 @@ Base: **W429** — IoU 0.821 | pior 0.660 | COR_TV 0.253 | excesso 12.1 | falta 
   5. comparar contra uma versao medida em base diferente (W410 sem exh_dz)
   METODO QUE FUNCIONA: (a) runs por coluna com calibracao propria; (b) ilhas da malha (union-find) para
   nomear a peca; (c) rasterizacao por material como triagem; (d) cruzar bbox com o codigo do builder.
+
+
+## W437 — CONFIRMADO: Rear_Bumper_U baixado (rz1 0.598 -> 0.300) = NOVA BASE
+
+RESULTADO: IoU 0.821 (=), P10 0.762->**0.763**, **pior 0.660->0.668 @side_TRASEIRA** (melhor da serie),
+COR_TV 0.253 (=), excesso 12.1 (=), falta 8.3 (=), <0.80 6 (=).
+  side/TRASEIRA 0.660->**0.668** (excesso 21.8->**20.3**, falta 19.6->19.6)
+  **Os VAOS ABRIRAM**: xf 0.97 saiu de 1 bloco SOLIDO 0.738..0.080 para **2 runs 0.735..0.406 | 0.339..0.080**;
+  xf 0.94 idem: 0.752..0.400 | 0.274..0.029 (antes era solido).
+  (concept xf 0.97: 0.850..0.688 | 0.588..0.450 | 0.369..0.249 — 3 runs; o modelo tem 2, falta separar
+   a asa do corpo: perfil da asa no SIDE = DEFEITO 1, ainda aberto.)
+
+**BASE: W437** — IoU 0.821 | pior **0.668** | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+Parametros ativos: rz1=0.300, rzb=0.050, dfz=0.170, dfh=0.145, wing_sweep=0.253, exh_dz=0.130,
+neck_r0=0.070, neck_r1=0.062.
+
+### CADEIA QUE RESOLVEU (metodo reutilizavel)
+  mask solido numa coluna -> 1) rasterizar por MATERIAL (triagem: REAR/M_Silver)
+  -> 2) ilhas da malha por union-find (bbox exato da culpada) -> 3) casar bbox com o codigo do builder
+  -> 4) parametro exposto (rz1) -> 5) build + audit + runs da coluna para confirmar.
+Os 2 probes por vertice (W419/W433) falharam porque a peca cobre o vao com faces longas, nao com vertices.
+
+PROXIMO: DEFEITO 1 — perfil da asa no SIDE (concept: banda 0.552-0.817 em xf 0.90 afinando ate 0.754-0.853
+em xf 0.99, inclinacao ~31 graus; modelo: 0.659-0.752 fino e horizontal). Agora que os vaos abriram, a asa
+e o proximo ganho. Cuidado: W409 (tilt) falhou medido SEM este contexto — reavaliar com a base W437.
