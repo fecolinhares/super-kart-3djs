@@ -5184,3 +5184,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA NOVA: patch que substitui um statement MULTI-LINHA deve preservar EXATAMENTE a quebra de linha e a indentacao
     da continuacao; alternativa mais segura e mudar um PARAMETRO ja existente (como cowl_k) em vez de reescrever o
     statement. O P46 vai ser refeito como escala do OBJETO apos o build (chinp.scale), que nao mexe na sintaxe.
+
+
+## P46v2 APLICOU LIMPO MAS A MEDICAO ESTAVA MEDINDO A PECA ERRADA ***
+  P46v2 (escala do objeto, single-line: chinp.scale=(1.0, chin_sy, 0.80*chin_sz)) aplicou SEM SyntaxError, QA ok,
+    14 pecas, globais preservadas — a tecnica correta (escala em vez de reescrever statement multi-linha) funcionou.
+  MAS a banda do queixo ficou IDENTICA: 3782 px, 526 px de largura, 59 px de altura, antes e depois.
+  ERRO DE ALVO: 526 px de largura = 0.427 m, MAIOR que a largura do proprio chin_guard (0.332 m). Logo o amarelo que
+    eu venho medindo nao e a mentoneira: e um acento amarelo do COWL (COWL tem mats M_Blue/M_Dark/M_Yellow e z ate 0.718).
+    TODAS as minhas medicoes de 'banda do queixo' desta sessao (3782 px, o 'filete') eram dessa peca errada.
+  CONSEQUENCIA: nao da para concluir nada sobre a mentoneira com esse instrumento. A medicao da mentoneira precisa
+    isolar a peca pelo MATERIAL + posicao do chin_guard, nao apenas por 'amarelo na faixa de z'.
+  LICAO (6a da familia 'instrumento'): ao medir uma peca por COR, confirmar que o resultado e COMPATIVEL com a
+    geometria conhecida da peca (aqui: a largura medida 0.427 m > a largura da peca 0.332 m delatava o erro). Corrigir
+    o instrumento ANTES de ajustar o modelo — senao ajusta-se a peca certa e mede-se a errada, sem efeito visivel.
+  ESTADO: W653D verde (QA ok, 14 pecas, globais preservadas). chin_sy=0.527 e chin_sz=1.60 ficam aplicados.

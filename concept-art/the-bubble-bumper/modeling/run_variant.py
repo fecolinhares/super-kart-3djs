@@ -473,6 +473,11 @@ for _a,_b in zip(_anc,_nw):
     assert _a in SRC or _a in SRC.replace(chr(13),''), 'P43 ancora nao casa: '+_a[:40]
     SRC = SRC.replace(_a,_b,1)
 print('P43 aplicado (pupila oval + sobrancelha fina)')
+if open('/tmp/p46_anchor.txt').read() in SRC:
+    SRC = SRC.replace(open('/tmp/p46_anchor.txt').read(), open('/tmp/p46_new.txt').read(), 1)
+    print('P46v2 aplicado (chin scale)')
+else:
+    print('P46v2 NAO aplicado')
 if open('/tmp/p45_anchor.txt').read() in SRC:
     SRC = SRC.replace(open('/tmp/p45_anchor.txt').read(), open('/tmp/p45_new.txt').read(), 1)
     print('P45 aplicado (cowl_dzt)')
