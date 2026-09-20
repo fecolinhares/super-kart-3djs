@@ -59,10 +59,25 @@ old9="ab=box('Airbox',(XRE+0.360,0,0.585),(0.100,0.118,0.078),bevel=0.032,segs=4
 new9="ab=box('Airbox',(XRE+0.360+P.get('ab2_dx',0.0),0,0.585),(P.get('ab2_x',0.100),0.118,0.078),bevel=0.032,segs=4)"
 if old9 in SRC:
     SRC=SRC.replace(old9,new9,1)
+
+# patch 10: frente dos escapamentos em X (o material em -0.77..-0.84 e o residuo do vao t0.54)
+old10a="ex= tube_round('Exh_C',[(EXC-0.16,0,0.340+P.get('exh_dz',0.130))"
+if old10a in SRC:
+    pass
+
 old9b="ab2=box('Airbox_Top',(XRE+0.360,0,0.655),(0.082,0.094,0.030),bevel=0.016,segs=3)"
 new9b="ab2=box('Airbox_Top',(XRE+0.360+P.get('ab2_dx',0.0),0,0.655),(P.get('ab2_x2',0.082),0.094,0.030),bevel=0.016,segs=3)"
 if old9b in SRC:
     SRC=SRC.replace(old9b,new9b,1)
+# patch 10: frente dos escapamentos em X (residuo do vao t0.54 em -0.77..-0.84)
+old10a="tube_round('Exh_C',[(EXC-0.16,0.0,0.340+_edz),(XR-0.20,0.0,0.382+_edz),(exb,0.0,0.412+_edz)]"
+new10a="tube_round('Exh_C',[(EXC-0.16+P.get('exh_fx',0.0),0.0,0.340+_edz),(XR-0.20,0.0,0.382+_edz),(exb,0.0,0.412+_edz)]"
+if old10a in SRC:
+    SRC=SRC.replace(old10a,new10a,1)
+old10b="(EXC-0.16,sy*0.110,0.392+_edz)"
+new10b="(EXC-0.16+P.get('exh_fx',0.0),sy*0.110,0.392+_edz)"
+if old10b in SRC:
+    SRC=SRC.replace(old10b,new10b,1)
 
 old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"

@@ -2666,3 +2666,27 @@ IoU/P10/COR_TV/excesso/falta/<0.80 identicos nos tres (0.827/0.790/0.252/12.8/7.
 
 ## BASE: **W475** (mantida)
 IoU 0.827 | P10 0.790 | pior 0.688@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## W477 (exh_fx 0.20, frente dos escapamentos recuada) — GANHO PEQUENO LIMPO, mas NAO move a linha
+
+  LINHA row 428: IDENTICA ao w475 (435 px, mesmos runs) => cortar a PONTA DIANTEIRA nao afeta a linha;
+  o material em -0.84..-0.77 vem do MEIO do tubo, nao da ponta.
+  AGREGADO (ganho liquido, zero regressao): IoU 0.827->**0.828** | P10 0.790 (=) | pior 0.688->**0.689** |
+  excesso 12.8 (=) | falta 7.0->**6.9** | <0.80 4 (=) | side/TRASEIRA 0.688->**0.689** (falta 17.8->17.7) |
+  rear/ESCAPES 0.893 (=). **ADOTADO** (nenhuma metrica piorou).
+
+**LEITURA**: a reducao de silhueta aconteceu em OUTRA altura (o tubo da frente sobe menos). Isso confirma a
+regra de medir na LINHA ALVO: o ganho agregado veio de outro lugar, nao do alvo.
+
+**PARA ATINGIR A LINHA** (material em -0.84..-0.77): precisa mexer no MEIO do tubo. Opcoes:
+  (a) `XR-0.20` e o ponto do MEIO no sweep — expor deslocamento nele (sobe/desce e muda z do trecho medio);
+  (b) reduzir o RAIO do trecho medio (o raio e unico por sweep: `exh_c_r` 0.128 / 0.080 nos L/R);
+  (c) deslocar o ponto medio em Y (afasta da silhueta lateral).
+  O z do meio e 0.382+_edz (central) / 0.420+_edz (L/R) -> com exh_dz 0.115 => 0.497 / 0.535 (bem abaixo de
+  0.6265). Logo a silhueta na linha vem do TRECHO TRASEIRO do tubo (proximo de `exb`, z 0.412+0.115=0.527)
+  + o raio 0.128/0.080 => topo ~0.655/0.615. **O raio do tubo e o candidato real para a linha.**
+
+## BASE: **W477** (nova) = W475 + **exh_fx 0.20**
+IoU 0.828 | P10 0.790 | pior 0.689@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 6.9 | <0.80 4 | sep_parts 14.
+Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
