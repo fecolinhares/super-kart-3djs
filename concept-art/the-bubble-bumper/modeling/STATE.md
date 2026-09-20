@@ -3662,3 +3662,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   HISTORICO DA SOMA: 0.7962 -> 0.5468 -> 0.4045 -> 0.4260 (scorecard bugado) -> **0.2071** (instrumento correto)
   PROXIMO: atacar degrau_amp (a quebra da carcaca), e antes de tocar geometria conferir que o auto-teste continua
     dando OK em cada nova medicao.
+
+
+## W532/W533 — ALAVANCAS DO degrau_amp: rzt REFUTADO, cowl_k REFUTADO (com 2 achados)
+  W532 rzt 0.400->0.200 (fundo do tubo): degrau_amp 0.2428 IDENTICO => REFUTADO (so mexeu pod_area 0.0170->0.0164)
+  W533 cowl_k 1.10->0.85: COWL z max 0.7022 -> 0.56 (baixou 0.14m) e degrau_amp 0.2428 IDENTICO => REFUTADO
+  ACHADO 1: o cowl baixou 14cm e a SILHUETA NAO MUDOU UM PIXEL => o cowl esta inteiramente DENTRO do contorno.
+    Refuta definitivamente que o degrau seja a transicao cowl->capacete. A parede de 0.30m em UMA coluna
+    pertence ao CONJUNTO DO PILOTO na altura do capacete (helm_x move o degrau; casca retraida NAO move; M_Face NAO move)
+    => sobra: helm_base / gasket / visor / neck / M_Pilot dentro do conjunto PL.
+  ACHADO 2 (ganho): W533 melhora pod_area_frac 0.0170 -> 0.0107 e a mediana 0.0145 -> 0.0134, soma 0.2064 -> 0.2007
+    sem tocar em nada mais => ** W533 ADOTADO ** (cowl mais baixo e melhor).
+  INSTRUMENTO: auto-teste passou em todas as medicoes (pico ~1.0) — scorecard estavel e confiavel.
+  TABELA DO degrau_amp (todos medidos, 1 build cada): rzt 0.0000 | cowl_k 0.0000 | cockpit_cut 0.0000 |
+    helm_sz quebra L/H | helm_front(bmesh) 0.0000 | helm_x 0.3194 (posicao) — amplitude ainda sem alavanca isolada.
+  PROXIMO: sonda del_mat na banda do degrau (x -0.22..0.02, z 0.50..1.35) para M_Gasket e M_Visor, que sao os
+    candidatos restantes do conjunto PL na altura do capacete.
