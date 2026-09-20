@@ -684,3 +684,24 @@ front/PILOTO NAO moveu (23.8% igual) => o pescoco era UM dos preenchedores; o do
 LICAO DE METODO (registrar): a caixa de probe tinha x -0.35..0.15 e por isso NAO pegou o que esta atras do
 piloto — na vista FRONTAL tudo projeta ao longo de x, entao a caixa de probe precisa cobrir TODO o x.
 Foi a VISION que apontou a barra; a metrica sozinha nao diria.
+
+
+## CORRECAO CRITICA DE INSTRUMENTO — o "vao do PILOTO" era ARTEFATO
+
+Re-medindo o FRONT com o mapeamento de z CORRETO (modelo H=1.175/topo 1.165; concept H=1.207/topo 1.207;
+antes eu usava 1.207 nos dois => z do modelo 2.7% errado):
+
+  z 0.76  concept 3 runs: 0.53..0.47 | **0.22..-0.22 (SOLIDO)** | -0.47..-0.53   |  W418 1 run 0.18..-0.18
+  z 0.80  concept 2 runs: 0.49..0.49 | **0.17..-0.17 (SOLIDO)**                  |  W418 1 run 0.21..-0.21
+  z 0.84  concept 1 run  **0.17..-0.17**                                        |  W418 1 run 0.15..-0.15
+
+=> Com o z certo, o modelo BATE o concept (0.18-0.21 vs 0.17-0.22). **O concept NAO tem vao em
+z 0.76-0.84** — os "3 runs com vao em |y| 0.07-0.11" que motivaram W413/W416/W417 eram leitura errada
+(concept em 0.76-0.80 comparado com o modelo em 0.74-0.78). Por isso TRES experimentos seguidos nao
+moveram front/PILOTO: a premissa estava errada, nao o parametro.
+
+**REGRA NOVA: toda comparacao por z entre concept e modelo TEM de usar H e topo proprios de cada um.**
+O auditor (audit_bb.py) normaliza por bbox e NAO sofre disso — so as sondas manuais.
+
+Consequencia: front/PILOTO (excesso 23.8%) e side/PILOTO (22.7%) precisam de diagnostico NOVO com
+mapeamento correto antes de qualquer outro build. Nao atacar mais por "run count de vao" no FRONT.
