@@ -6889,3 +6889,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PENDENTES (por ordem do vision): (a) borda lateral da viseira em degraus (o serrilhado que ja medi como 1,53 px no contorno
     interno, mas nas LATERAIS pode ser real — medir as laterais separadamente); (b) olhos 2x maiores/afastados (medido: 2,5 cm =
     o alvo que o vision pediu; conferir se e o ESPACAMENTO real ou leitura); (c) mentoneira 'bloco pontudo protuberante'.
+
+
+## *** ACHADO FINAL: ASSIMETRIA REAL ENTRE AS BORDAS DA VISEIRA ***
+  Medicao (/tmp/lat.py, w739d-face.png, os DOIS contornos laterais medidos SEPARADAMENTE):
+    BORDA ESQUERDA: 303 linhas | salto medio 1,52 px | max  98 px | alternacoes 1 (0%%)
+    BORDA DIREITA:  303 linhas | salto medio 3,12 px | max 212 px | alternacoes 5 (2%%)
+  A borda DIREITA tem 2x o salto medio e 5x o maximo da esquerda -> ASSIMETRIA REAL na geometria, nao ruido.
+  Casa com DUAS queixas que eu vinha tratando como ruido da visao: 'olho direito lavado' e 'borda lateral serrilhada'.
+    O lado direito e genuinamente mais rugoso.
+  PROXIMO: achar a origem da assimetria nos passes que tocam a viseira — P61 (projecao), P62 (visor_dz), P63/P84 (U),
+    P74 (clamp por faixa), P77 (arredondamento), P85 (lift), P86 (smooth), P80/P90 (catchlight). Teste: aplicar os passes
+    com o sinal de y espelhado e comparar; ou medir a simetria diretamente: para cada vert de M_Visor, procurar o vert
+    espelhado em -y e comparar z/x. Criterio: max|dz| e max|dx| entre pares espelhados abaixo de ~1 mm.
+  INSTRUMENTO NOVO (13o): medicao de SIMETRIA por pareamento de vertices espelhados. Mede o que nenhum dos outros media.
