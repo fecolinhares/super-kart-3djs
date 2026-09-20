@@ -6817,3 +6817,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     elementos que o concept nao tem. ###QA### True, sep 14, 0 erros.
   DISTINCAO QUE FICA: clamp por faixa = corrige POSICAO de geometria que DEVE existir; reassign de material = corrige
     GEOMETRIA INDEVIDA (o concept nao a tem). Usar a ferramenta certa para o defeito certo.
+
+
+## *** GATE v36: MATERIAL != SILHUETA — AS CUNHAS AINDA PRO TRAEM ***
+  Vision (W736D): (1) 'as duas cunhas continuam visiveis nas laterais, ROMPENDO A SILHUETA — duas protuberancias
+    TRIANGULARES escuras simetricas apontando para fora'. (2) 4/10.
+  LICAO QUE FECHA A SERIE: 'quebrando a silhueta' -> as cunhas PRO TRAEM geometricamente. O P93 so trocou a COR (agora sao
+    azuis, mas continuam saliencias). REATRIBUIR MATERIAL CORRIGE COR; NAO CORRIGE SILHUETA.
+  As tres ferramentas e o que cada uma corrige (registro consolidado):
+    - CLAMP POR FAIXA  -> POSICAO   (P92: 60 mm fora -> 0,8 mm)                    [feito]
+    - REASSIGN MATERIAL-> COR       (P93: M_Dark -> M_Blue)                         [feito]
+    - FORMA/GEOMETRIA  -> SILHUETA  (falta: elas ainda sao protuberancias)          [PENDENTE]
+  FIX PENDENTE: clamp mais FORTE (|y| <= 0.98 * casco, em vez de 1.05) para as faces entrarem DENTRO da superficie do
+    casco, ou achatar a protuberancia em z. Criterio: 0 faces de M_Blue/materiais de casco com |y| > 0.98*y_casco_na_faixa
+    E a silhueta frontal sem picos (verificar por perfil de pixels: contagem de mudancas de largura por linha).
