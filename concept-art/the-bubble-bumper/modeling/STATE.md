@@ -3008,3 +3008,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
    - trecho A (t 0.35-0.40): x 0.210..0.328 m, z acima de ~0.55 m; testar M_Blue, M_Yellow, M_Dark, M_Silver.
    - trecho B (t 0.90-1.00): x -1.19..-0.84 m, z acima de ~0.55 m; testar M_Silver (escapamentos), M_Dark, M_Gold.
   Um build por material; o material cuja remocao muda o perfil E o ocupante daquele trecho.
+
+
+## Z2-A — DELECAO POR TRECHO (t 0.35-0.40, x 0.17..0.38, z 0.48..0.80): M_Blue
+  removidas 335 faces M_Blue => **SO t=0.35 mudou**: 0.439 -> 0.403 (delta -0.036). Os outros 20 pontos: 0.000.
+  => **M_Blue (cowl) E ocupante PARCIAL da silhueta em t 0.35** (responde por 0.036 dos 0.098 que faltam).
+  EMA piorou 0.0393 -> 0.0410 (a remocao afasta do concept, confirma que a peca contribui para o topo).
+  => os ~0.062 restantes em t 0.35 e todo o erro de t 0.40 SAO DE OUTRO MATERIAL/PECA.
+
+**CAUSA PROVAVEL DO DEFICIT DO COWL**: o topo usa `zt=prof_top(xf)*H*0.97` + **SUBSURF levels=1 aplicado**
+  (o subsurf ENCOLHE a superficie: o topo real fica abaixo do zt calculado). O W491 deslocou o cowl em x e
+  nao mudou nada => o perfil do concept e plano nessa faixa de xf, entao transladar nao altera o topo.
+  ALVANCA CANDIDATA: remover o `*0.97` e/ou o SUBSURF do cowl, ou subir o zt explicitamente.
+
+**PROXIMOS TESTES DA MESMA BATERIA (um build cada)**: del_mat M_Yellow, M_Dark, M_Silver no mesmo trecho.
+  Depois o trecho B (t 0.90-1.00, x -1.19..-0.84, z > 0.55): M_Silver, M_Dark, M_Gold.
