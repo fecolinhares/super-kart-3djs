@@ -622,3 +622,25 @@ com VAOS em |y| 0.07-0.11/0.12. O modelo e **1 run solido 0.22..-0.22** => exces
 capacete cheio so a partir de ~z 0.82). PROXIMO: subir/base do capacete e reduzir a largura na base.
 Regioes rankeadas W412: side/TRASEIRA 0.657 | top/ASA 0.701 | side/PILOTO 0.735 | front/PILOTO 0.743 |
 side/COWL 0.776 | top/RODAS_DIANT 0.792 | rear/PILOTO_COSTAS 0.800 | side/BICO 0.800.
+
+
+## W414 (PROBE) — culpado do vao do PILOTO esta DENTRO de PL
+
+Probe no Blender (sep_parts=1 permite consulta por objeto): unico objeto com vertice a <0.09 de
+(x=-0.10, |y|=0.10, z=0.77) = **PL** (piloto), vertice exato (-0.108, 0.094, 0.781).
+Extensoes: CH z 0.057..0.782 | PL z 0.241..1.165 | REAR z 0.022..0.806.
+=> O material que fecha o vao |y| 0.07-0.13 em z 0.76-0.80 e uma sub-peca de PL (nao pads, nao capacete
+puro: o dome do capacete a z 0.80 so tem meia-largura 0.069 = igual ao pescoco do concept; o Helm_Base
+e um anel em z 0.808 com |y| 0.130-0.211, fora do vao).
+PROXIMO: bissectar PL renderizando sub-pecas isoladas (Shoulders / Arm_L/R / Torso / Seat / WEP) no FRONT.
+
+### ERRO DE INSTRUMENTO CONFIRMADO (corrigir em todas as medicoes de z)
+As medicoes FRONT usavam fator 1.207 (altura do CONCEPT) tambem para a mascara do MODELO, cuja altura real
+e 1.175 (z -0.01..1.165) => z do modelo superestimado ~2.7% (0.80 lido = 0.779 real). Fator correto 0.973.
+O auditor (audit_bb.py) normaliza por bbox, entao NAO e afetado — so as minhas sondas de z.
+
+### METODO DE COR NO FLAT PASS — SUSPEITO
+Cor medida no flat pass em z 0.74-0.80 = RGB(106,117,130)..(118,131,146), cinza-azulado claro, que NAO
+bate com nenhuma cor-base (M_Pilot sRGB ~ (35,68,124); M_Gasket (32,32,36)). => o passe FLAT pode ter
+iluminacao/ambient residual. Antes de usar cor-do-flat para identificar peca, validar contra um material
+conhecido de posicao conhecida.
