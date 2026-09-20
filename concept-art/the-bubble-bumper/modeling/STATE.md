@@ -2317,3 +2317,33 @@ Agregado: pior 0.686->**0.687** | side/TRASEIRA 0.686->**0.687** (falta 18.4->**
 
 ## BASE: **W472** (mantida) com o ganho marginal do W473 registrado (rzt 0.400)
 IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## INSIGHT DE INSTRUMENTO CRITICO: O RENDER E EM PERSPECTIVA — row<->z NAO MAPEIA
+
+**CONTRADICAO ENCONTRADA**: no blend do W473, o vao2 (x -0.920..-0.780) em z 0.595-0.655 tem
+**apenas 2 faces** (REAR/M_Dark em x -0.851). Ou seja: a geometria no vao2 esta praticamente VAZIA.
+**Mas o render mostra o run `0.82..0.99` SOLIDO na linha t0.54 (row 192 da mascara cortada).**
+
+**EXPLICACAO**: a mascara/PNG e um render PERSPECTIVO. Uma peca em z 0.62 com **y diferente** (asa,
+endplates, pods, rodas em y +-0.5..0.7) projeta em OUTRA linha da imagem. Portanto:
+  `row = (z_top - z)/(z_top - z_bot) * H` **so vale em projecao ORTOGRAFICA**.
+=> **o probe por faixa de z NAO identifica o ocupante de uma linha da imagem** — e foi por isso que:
+   - a rampa (rzt) deu 0 px na linha (W473)
+   - a asa (W467), escapes (W466), duct x (W469) tambem deram 0-15 px
+   - as 6 primeiras hipoteses falharam: eu media/probava em z, o alvo estava em espaco projetado.
+
+**METODO CORRETO (a partir daqui)**: para achar o ocupante de uma linha da imagem, projetar as faces
+para o espaco da IMAGEM (mesma matriz da camera do render) e checar quais caem na linha alvo — OU
+renderizar com uma vista ORTOGRAFICA de debug (side ortho) para o probe voltar a mapear linearmente.
+
+**O QUE ISSO NAO INVALIDA**: os ganhos do W471/W472 (Airbox ab2_x/ab2_dx) sao REAIS — foram medidos
+diretamente na mascara renderizada (15 px e 10 px na linha alvo, run dividiu 0.78..0.82, e o agregado
+melhorou sem regressao). O que muda e o METODO DE BUSCA: achar o ocupante agora exige projecao.
+
+**PROXIMA ACAO**: (a) adicionar/rodar um render ORTOGRAFICO lateral de debug e refazer o probe por
+faixa de z nele (mapeamento linear), ou (b) projetar as faces com a camera do render e listar as que
+caem na linha 192 / colunas 0.82..0.99. Depois atacar o ocupante real do vao2.
+
+## BASE: **W472** (+ ganho marginal W473: rzt 0.400)
+IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
