@@ -5056,3 +5056,29 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   W642D: QA ok, 14 pecas, globais preservadas, h/w 1.231, viseira fechada.
   PENDENTE: (a) tracinho horizontal da testa (respiro); (b) GATE VISUAL do casco (olhos/pupila/sobrancelha/viseira);
     (c) G31 + auditor independente.
+
+
+## GATE VISUAL DO ROSTO (4 pranchas ate enquadrar certo) - 5.0/10, e 3 achados REAIS ***
+  HISTORICO DAS PRANCHAS (cada uma reprovada pelo vision por ENQUADRAMENTO, nao por modelo):
+    1) crop 'headortho' chutado -> vision: 'so mostra o topo ate a metade dos olhos'
+    2) crop por cor (amarelo) -> pegou so a faixa; 'olhos/pupilas 100%% fora do quadro'
+    3) P44 camera orto 0.50 @z=1.05 -> cobria z 0.80-1.30 e o capacete vai a 0.632 -> CORTOU O QUEIXO
+    4) P44 corrigida: orto 0.70 @z=0.933 (centro/span medidos do CONJUNTO real de pecas: chin_guard 0.6320 a
+       helm_trim 1.2339) -> queixo em y=799 e topo em y=60, margens simetricas de ~60 px -> ENQUADRAMENTO OK
+  ERRO CONCEITUAL QUE CAUSOU 3 E 4: eu usava o z do objeto 'Helmet' (0.7888-1.2277) como 'o capacete', mas a
+    MENTONEIRA e outra peca (chin_guard z 0.6320-0.7232). Medir o conjunto, nao o objeto de nome obvio.
+  VEREDITO: 5.0/10 (subiu de 3.5; 'o enquadramento ortografico melhorou').
+  *** 3 ACHADOS REAIS QUE A MEDICAO NUMERICA NAO PEGOU ***
+    1) O VOLANTE OCLUI A MENTONEIRA no frontal — o vision nao consegue avaliar queixo/sorriso. Nao e enquadramento:
+       e oclusao por outra peca. (O concept mostra o volante bem mais baixo.)
+    2) A VISEIRA le como DISCO/PRATO PLANO e LARGO passando da silhueta, sem bolha nem curvatura lateral.
+       (Minha metrica de posicao/altura esta fechada, mas FORMA/CURVATURA/material translucido nao existem.)
+    3) A FAIXA amarela termina no meio da testa FLUTUANDO e nao encosta na viseira; cor neon saturada vs ouro
+       dessaturado do concept; e o detalhe retangular (tracinho) 100%% ausente.
+  DIVERGENCIAS que mantenho pela MEDICAO (vision estimou, eu medi):
+    - pupila: vision diz '30-35%% do olho'; medido no concept por 'escuro encerrado por branco' = 43%%x55%%, e o modelo
+      esta em 43%%x54%% -> FECHADO. Mantenho o numero.
+    - sobrancelha: vision diz 'colada/grossa'; medido no headortho = 91%% da largura do olho, 24%% de espessura, gap 8 px
+      (era 110%%, 29%%, 1 px). Melhorou de fato; o 'grudada' vem da oclusao da viseira por cima.
+  PRIORIDADES (do vision, em ordem): (1) liberar a vista do queixo (subir/baixar o volante); (2) viseira como bolha
+    curva alta e translucida; (3) sobrancelha como arco fino com folga; (4) faixa ate a viseira + ouro + tracinho.

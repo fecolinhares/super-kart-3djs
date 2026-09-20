@@ -443,6 +443,11 @@ if open('/tmp/p35_anchor.txt').read() in SRC:
     print('P35 aplicado (vent na superficie real)')
 else:
     print('P35 NAO aplicado')
+if open('/tmp/p44_anchor.txt').read() in SRC:
+    SRC = SRC.replace(open('/tmp/p44_anchor.txt').read(), open('/tmp/p44_new.txt').read(), 1)
+    print('P44 aplicado (camera face)')
+else:
+    print('P44 NAO aplicado')
 if open('/tmp/p36_anchor.txt').read() in SRC:
     SRC = SRC.replace(open('/tmp/p36_anchor.txt').read(), open('/tmp/p36_new.txt').read(), 1)
     print('P36 aplicado (head ORTOGRAFICO)')
