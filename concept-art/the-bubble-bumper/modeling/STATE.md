@@ -4371,3 +4371,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     pendente de atribuicao do excesso em 0.713-0.750 antes de adotar.
   METODO (entra na skill): antes de 'reverter para o valor base', LER A DEFINICAO DO DEFAULT e o eixo de cada
     parametro no codigo. Um override meu pode ser a causa do defeito que estou atribuindo ao modelo.
+
+
+## *** ATRIBUICAO DO EXCESSO xf 0.713-0.750: E A RESCALA, NAO A ASA ***
+  O dump ###BBOX### so publica 3 pecas (NOSE/COWL/FBUMP) — sem airbox/piloto. Atribuicao feita pelos valores do
+  codigo (rear(): Airbox0 em xx=-0.470 z=0.652; PL bbox x[-0.5703,0.6488]) convertidos para xf em cada build:
+      peca                         xf W590D   xf W594D   estacao do excesso
+      Airbox0 (xx=-0.470)            0.706      0.741     0.713 / 0.750   <- casa
+      PL piloto (borda traseira)     0.745      0.763     0.750           <- casa
+  MECANISMO: NAO e a geometria da asa. wing_x1 muda len_before 2.5454 -> 2.4844, o scale 0.92323 -> 0.9459, e as
+    pecas do meio ancoradas em x ABSOLUTO PRE-ESCALA (Airbox0/1/2, PL) deslocam-se ~8.3 cm no modelo final.
+    Elas entao caem em estacoes DIFERENTES do grid de 161 estacoes -> o perfil le 'excesso' onde na verdade
+    houve DESLOCAMENTO. Isso explica por que as fracoes normalizadas mudaram ~20%% sem escalonamento uniforme
+    aparente: a normalizacao e uniforme, mas as FEICOES mudam de estacao.
+  DIRECAO DE FIX (escolhida): TRAVAR len_before em vez de reajustar o meio. Se o comprimento pre-escala for
+    preservado (compensando a mudanca da asa em outro elemento de extremidade), o scale fica em 0.92323 e o
+    meio NAO se move — ganha-se o ganho real da traseira (xf 0.900: -0.187 -> -0.030) sem o custo no meio.
+    ALTERNATIVA descartada: reajustar o meio com offsets — corrige o sintoma estacao a estacao e volta a
+    criar dependencia entre parametros (a classe de bug que ja custou varios ciclos).
+  METODO (entra na skill): se uma mudanca em peca de EXTREMIDADE altera metricas de regiao que ela nao toca,
+    suspeitar do recálculo de escala/comprimento ANTES de suspeitar de acoplamento geometrico. Medir xf da peca
+    afetada nas duas builds: se deslocou ~a mesma distancia que o scale mudou, e recálculo, nao forma.
