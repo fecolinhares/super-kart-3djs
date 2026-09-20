@@ -7115,3 +7115,12 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   OCUPACAO MEDIDA: PIL=0.8703 m = 69,50%% de H (alvo 69,5%%) ✓. Proibido rosto/viseira/roupa (respeitado).
   Render das 4 vistas ortograficas gerado pelo instrumento do B001 (cameras congeladas, orto_scale 2.70).
   Proximo B004: tub/cockpit autoral (cage explicita + SubD + recesso real, gate de perfil top/bottom + mascara de vazio).
+
+
+## B003 — RENDER CORRIGIDO (licao de instrumento) ***
+  1o render FALHOU como evidencia: sem cor por peca e com mundo claro => tudo cinza estourado sobre cinza,
+  ILEGIVEL. O vision nao pode julgar o que nao consegue ver (disse: '4 quadrados cinza estourados').
+  FIX: material EMISSION chapado distinto por classe (rodas preto, tub azul, piloto pele), mundo branco, sem luzes.
+  REGRA NOVA (17): evidencia de blockout exige COR CHAPADA POR CLASSE + fundo contrastante. Clay monocromatico
+  sobre fundo claro nao e evidencia valida de massa.
+  B003 segue valido: ocupacao do piloto 69,50%% de H (medida) e rodas D=0.703 m (medido na fonte).
