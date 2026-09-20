@@ -5676,3 +5676,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     imprimir a bbox logo APOS primitive_cube_add, APOS transform_apply e APOS o join, comparando com a bbox lida no
     .blend final. Foi a faltar instrumentacao em CADA passo que permitiu a hipotese errada da escala do PL.
   W676D verde: QA ok, sep_parts=14, globais preservadas.
+
+
+## INSTRUMENTACAO DO P52 FALHOU E FOI REVERTIDA (W679D verde) ***
+  TENTATIVA: inserir 3 prints no P52 (bbox apos primitive_cube_add, apos transform_apply, apos join) por INDICE DE LINHA.
+  FALHA: 'NameError: name _pn is not defined' na linha 1290 do SRC gerado — os prints caíram fora do escopo do bloco
+    'if _px:'. Remover so o print do join nao bastou (erro persistiu).
+  REVERTIDO: todas as linhas P52dbg removidas; W679D verde (0 SyntaxError/Traceback, QA ok, sep_parts=14, globais preservadas).
+  LICAO DE METODO (terceira da familia 'instrumento'): ast.parse() do trecho isolado NAO prova que a linha inserida esta correta
+    no contexto do SRC GERADO pelo runner — o runner marca/embrulha o codigo e a linha final pode cair em outro escopo.
+    E inserir por INDICE DE LINHA invalida os indices seguintes (tres insercoes = tres deslocamentos, um por vez).
+    METODO CERTO: (1) ancorar por TEXTO (extraido do arquivo, com a indentacao real da vizinhanca); (2) validar o SRC FINAL
+      gerado pelo runner (npx: gravar o SRC em arquivo e rodar ast.parse nele), nao o fragmento; (3) inserir UM print por build.
+  ESTADO ATUAL: painel M_ChinPanel mede x 0.050 m CORRETO, y 0.284 m (1,54x) e z 0.1804 m (1,67x) — a causa do inflar
+    segue NAO localizada, mas o espaco de busca esta reduzido: X certo e Y/Z inflados por fatores diferentes, e taper/bevel
+    do P52 apenas encolhem.
+  W679D verde: QA ok, sep_parts=14, globais preservadas.
