@@ -5271,3 +5271,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
        e o deslocamento convergente/divergente sao reais e precisam de checagem de simetria)
     6) SOBRANCELHA: arco afunilado, nao barrinha reta
   W654D verde: QA ok, 14 pecas, globais preservadas.
+
+
+## OCLUSOR CONFIRMADO: O CORPO DO COWL (e o paradoxo do hide_test explicado) ***
+  VARREDURA COM A BBOX ATUAL (mentoneira x[-0.412,-0.080] y+-0.0871 z[0.6045,0.7504]; camera em x=+5):
+    quem tem face na janela (y+-0.095, z 0.6045-0.7504) com x > -0.080 (a frente da mentoneira):
+      COWL/M_Blue  141 faces  x[+0.126,+0.507]
+      CH/M_Dark    108 faces  x[-0.005,+0.152]
+      TOTAL 249 faces
+  PARADOXO DO hide_test EXPLICADO: ao esconder o COWL o amarelo da banda 'nao mudava' porque o amarelo que eu media
+    ERA o proprio M_Yellow do COWL (o COWL tem M_Blue/M_Dark/M_Yellow). Esconder o cowl removia o oclusor E o alvo
+    simultaneamente -> leitura falsa de 'sem efeito'. NUNCA esconder um objeto que pode ser oclusor e alvo ao mesmo tempo
+    sem isolar as duas coisas (usar o magenta para o ALVO e a contagem de faces para o OCLUSOR).
+  POR QUE cowl_k=0.843 NAO RESOLVEU: aquele parametro baixa o TOPO do cowl (prof_top). O que cobre a mentoneira e o
+    CORPO do cowl (M_Blue, x 0.126-0.507) — faces que continuam na faixa z 0.6-0.75 independentemente do topo.
+  FIX (proximo): baixar/escavar o CORPO do cowl na regiao frontal (x 0.126-0.507) para que ele nao alcance z 0.6
+    naquela janela — ou reduzir a altura geral do cowl (zb e zt) e nao so o fator do topo. Alternativa estrutural:
+    o CH (chassi, 108 faces a x -0.005..0.152) tambem invade; avaliar se o cockpit precisa ser mais baixo como um todo.
+  METODO REGISTRADO (/tmp/ocl_all.py): para achar oclusor, contar faces por objeto E por material cujo CENTRO cai na
+    janela projetada da peca alvo. Mais confiavel que hide_test (que nao distingue oclusor de alvo) e que repintura.
+  W654D verde: QA ok, 14 pecas, globais preservadas.
