@@ -5508,3 +5508,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     ->  W667D 7026 / 93 (push_x -0.200)  =  +177%% em area, +55%% em altura
   PROXIMO: continuar o recuo (-0.23) e/ou aumentar chin_sz (1.60) para fechar os ~180 px; depois re-render + gate visual.
   W667D verde: QA ok, 14 pecas, globais preservadas.
+
+
+## *** PLATO DA ALTURA: O LIMITANTE PASSOU A SER A PROPRIA PECA (95 px) ***
+  W668D: push_x=-0.230, |y|<=0.13, z 0.54-0.85 -> 1082 verts recuados (era 203 no push -0.200).
+    AMARELO do queixo: 7.026 -> 7.921 px (+13%%) | ALTURA 93 -> 95 px (+2%%) => PLATO
+  LEITURA: quintuplicar o recuo e alargar a faixa quase nao muda a altura. O limitante deixou de ser vizinho.
+    O amarelo visivel vai de y723 (z=0.693) a y817 (z=0.618), enquanto o M_Yellow do mesh vai de z 0.560 a 0.789.
+    Ou seja: acima de z~0.693 a superficie amarela CURVA PARA TRAS e deixa de encarar a camera frontal, e abaixo de
+    z~0.618 idem. Nenhum recuo de vizinho resolve isso — e FORMA da peca.
+  CONCLUSAO DE MODELAGEM: o que falta e a mentoneira ter uma face frontal mais PLANA/VERTICAL e mais ALTA (para
+    apresentar area a camera), nao apenas transladar vizinhos. chin_sz aumenta a altura total, mas se a superficie
+    continuar curvando para tras a area visivel nao cresce proporcionalmente.
+  SERIE COMPLETA: 2540/60 -> 4724/77 -> 5390/77 -> 7026/93 -> 7921/95  (area +212%%, altura +58%%; alvo ~180 px)
+  PROXIMO (concreto): alterar o PERFIL do chin_guard para uma face frontal mais vertical/alta (nao um revolve fechado
+    que curva para tras), mantendo a largura ja calibrada (0.1742 m, 0.3%% do alvo). Medir depois: altura do amarelo no
+    render (gate >=150 px) e a largura vs concept.
+  W668D verde: QA ok, 14 pecas, globais preservadas.
