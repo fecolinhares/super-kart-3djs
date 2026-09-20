@@ -5925,3 +5925,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     2. TRANSPARENCIA (alpha ~0.80 em M_Visor, blend_method BLEND) + recuar M_Eye em x algum mm para ler 'atras do vidro'.
     Depois: faixa (fina, do topo ao nariz), sobrancelha em arco, vao inferior e pivos laterais. Depois G31 + auditor.
   W694D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## P64: U ACHATADA + ALPHA 0.80 + OLHOS RECUADOS ***
+  [P64a] M_Visor alpha=0.80 blend=BLEND (transparencia que faltava — o vision pedia 'atras de um vidro');
+  [P64b] 182 verts de M_Eye recuados em x por -0.0080 (para dentro da cabeca: o front e +x);
+  U achatada: visor_u_lift 0.045 -> 0.020 e limiar |y| 0.55 -> 0.65 -> span z 0.182 -> 0.162 (o centro fica livre).
+  M_Visor: x 0.221 | y 0.315 = 95,5% do casco | z[0.702,0.864] = 0.162. M_Eye recuada.
+  W695D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas. build 47.7s.
