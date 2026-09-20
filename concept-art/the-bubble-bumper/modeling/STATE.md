@@ -2180,3 +2180,39 @@ REGIAO do diff contem a linha/regiao alvo. Sem isso, 6 testes podem ser gastos e
 
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
+
+
+## DEFINITIVO: A LINHA t0.54 IDENTIFICADA POR PROBE COMPLETO (z 0.600-0.650)
+
+**ERRO DE COORDENADAS CORRIGIDO (meu):** a linha-alvo nos runs vem da mascara CORTADA (H=418 -> row 192),
+mas no diff eu usei a imagem COMPLETA (H=860 -> row 395). Sao linhas DIFERENTES.
+Re-medido corretamente: **nenhuma das 5 mudancas tocou a linha alvo (0 px em todas)**.
+  w468 802px y273..395 | w467 714px y134..189 | w469 497px y138..184 | w466 192px y181..256 | w470 18px y180..185
+=> as 5 mudancas estavam em OUTRAS alturas, nunca na linha.
+
+**MEDIDA DA LINHA:** modelo **498 px** de corpo vs concept **316 px** => remover ~182 px (2 vaos).
+
+**PROBE DEFINITIVO — PECAS com faces em z 0.600-0.650, x -1.18..+0.14 (2434 faces):**
+  REAR  M_Silver  1344  x -1.180..-0.298  y -0.335..+0.335   <== A MASSA DOMINANTE
+  REAR  M_Yellow   280  x -1.080..-0.953
+  PL    M_Yellow   246  x -0.391..-0.094
+  REAR  M_Dark     162  x -1.180..-0.408
+  PL    M_Pilot    127  x -0.221..+0.104
+  REAR  M_Eye      126  x -1.099..-1.057
+  REAR  M_White     90  x -0.452..-0.395
+  REAR  M_BlueDk    34  x -0.690..-0.593
+  CH    M_Dark      23  x -0.298..+0.133
+=> o `M_Silver` do REAR (1344 faces) cobre imagem 0.62..0.99 — e os vaos do concept
+   (x -0.66..-0.73 e -0.75..-0.92) caem DENTRO desse span.
+=> e o conjunto M_Silver da traseira (Engine_Top x-0.558..-0.302 + rampa + collector + bumper,
+   UNIDOS no objeto REAR) que forma a massa. Precisa ser QUEBRADO nos 2 vaos.
+
+**LICAO (3a):** bbox nao decide (probe de faces por faixa de z decide) e a linha-alvo deve ser medida
+na MESMA mascara cortada usada nos runs — nunca misturar mascara cortada com imagem completa.
+
+**PROXIMA ACAO**: quebrar a massa M_Silver do REAR em z0.62 nos vaos x -0.66..-0.73 e -0.75..-0.92.
+Candidatos identificados: o Collector (exb+0.200=-0.990), o Ramp (x-0.81..-1.17) e o Rear_Bumper_U —
+todos com params ja expostos (rzb/rz1/dfz/rzt). Medir o diff NA LINHA ALVO antes do audit.
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
