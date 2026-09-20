@@ -6764,3 +6764,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     descobertas exatamente assim.
   ESTADO: W733D verde (QA True, falhas=[], sep 14). Fechados: mentoneira, faixa, oclusao, abas, viseira rente, dither, olhos,
     catchlight (fonte unica), clipping, fronteira. PENDENTES: rasgos da testa, faixa em T, G31 + auditor independente.
+
+
+## *** RASGOS DA TESTA MEDIDOS: O CONCEPT TEM RESPIROS (A DIFERENCA E A INCLINACAO) ***
+  Medicao (/tmp/vent.py, W733D):
+    RASGO ESQ: 436 faces | larg 0.0341 | alt 0.0509 | z[1.0417,1.0926] | x[-0.2168,-0.1763]
+    RASGO DIR: 436 faces | espelhado (simetria perfeita)
+    CASCO na faixa: z[1.0002,1.1200] | |y|max 0.1561
+  O vision disse 'dois rasgos pretos verticais extras na testa que NAO EXISTEM no concept' — MAS ele mesmo descreve o
+    concept como tendo '2 pequenos respiros laterais inclinados'. Ou seja os respiros EXISTEM no concept; o defeito real e a
+    INCLINACAO (o modelo esta vertical, o concept inclinado) e possivelmente o tamanho (3,4 x 5,1 cm).
+  FIX: inclinar os rasgos (rota-lhos no plano y-z) e conferir o tamanho contra o concept no render. Criterio: o angulo do eixo
+    longo do rasgo em relacao ao eixo z (o concept inclina; o modelo hoje esta a 0 graus).
+  W733D verde: QA True, falhas=[], sep 14, 0 erros.
