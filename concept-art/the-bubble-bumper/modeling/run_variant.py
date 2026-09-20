@@ -458,6 +458,11 @@ if open('/tmp/p40_anchor.txt').read() in SRC:
     print('P40 aplicado (viseira reposicionada por metrica)')
 else:
     print('P40 NAO aplicado')
+if open('/tmp/p42_anchor.txt').read() in SRC:
+    SRC = SRC.replace(open('/tmp/p42_anchor.txt').read(), open('/tmp/p42_new.txt').read(), 1)
+    print('P42 aplicado (face reposicionada)')
+else:
+    print('P42 NAO aplicado')
 
 _oldp26 = "zt=prof_top(xf)*H*P.get('cowl_k',0.97)"
 _newp26 = ("zt=prof_top(xf)*H*P.get('cowl_k',0.97)\n"

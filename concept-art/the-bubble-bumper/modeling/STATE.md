@@ -4951,3 +4951,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   W638D: build limpo, QA ok, 14 pecas, globais preservadas, h/w 1.231.
   PENDENTE: (a) textura do rosto para th 75.6..100.2 e olhos centro +-0.0320/largura 0.0725; (b) tracinho da
     testa (respiro); (c) GATE VISUAL do casco; (d) G31 final + auditor independente.
+
+
+## P42 (FACE) REVERTIDO - OS OLHOS JA ESTAVAM CERTOS ***
+  TENTATIVA P42: mover a regiao da textura do rosto de _T0,_T1=88..142 para 75.6..100.2 (alvo th dos olhos).
+    RESULTADO: QUEBROU os olhos — blobs de 408/406 px viraram 214+37+37 px (a regiao caiu de 54 para 24.6 graus
+    e a textura foi picada/fragmentada).
+  MEDICAO QUE MOSTRA QUE EU IA CONSERTAR O QUE ESTAVA CERTO (blobs brancos no front render):
+    W638D (antes): 408 px larg 34 e 406 px larg 33, centros x 398 e 461
+    contra o concept: largura 34/160 = 20.6%% (concept mede 20%%) e centros +-31.5/160 = +-19.7%% (concept
+    +-16.5%%/+19.3%%)  =>  LARGURA E POSICAO LATERAL DOS OLHOS JA BATIAM.
+    Logo a queixa do vision ('olhos grandes demais, espacados, divergentes; sobrancelhas grossas') e de ESTILO
+    (pupila/highlight/sobrancelha desenhadas na textura), NAO de posicao/tamanho geometricos.
+  REVERTIDO: W640D com face_t0/face_t1 = 88/142 volta a dar EXATAMENTE os blobs do W638D [(408,34),(406,33),(96,16)]
+    -> revert byte-identico, P42 descartado.
+  LICAO: antes de mover uma feature por alvo metrico, MEDIR a feature atual no render com o MESMO instrumento
+    usado no concept. Eu tinha os alvos do concept em maos e nao medi o modelo ANTES de mexer — se tivesse,
+    veria que ja batia e teria ido direto ao estilo (pupilas/sobrancelhas), que e onde o vision apontava.
+  W640D: build limpo, QA ok, 14 pecas, globais preservadas, h/w 1.231, viseira f 0.311..0.678 (fechada).
