@@ -6281,3 +6281,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     0.0216 POSITIVO, pupilas M_Dark centradas em +-0.019, QA True, falhas = [], 0 erros, sep_parts=14.
   PADRAO REGISTRADO: tres gates seguidos (v16->v17->v18) em que a visao descreveu o OPOSTO do que a medicao confirma no
     MESMO render. Antes de aceitar a autoavaliacao da visao, verificar se a geometria medida e a geometria VISIVEL.
+
+
+## *** OLHOS: GEOMETRIA VALIDADA E HIPOTESE REFUTADA — ENCERRAR ESTA ITERACAO ***
+  Janela LARGA (|y|<=0.07) no W711D: M_Eye com 40 faces na faixa e x_max=-0.2156; a frente dos olhos aparecem apenas
+    M_Visor (676 faces, o vidro) e M_ChinPanel (34, o queixo que protrai). M_Face AUSENTE.
+  REFUTADO: as faces antigas reatribuidas para M_Face NAO estao na regiao dos olhos. O render mostra as lentes novas.
+    O 'olhos enormes e afastados' do gate v18 nao corresponde a nenhuma medida — 3 gates contraditorios + refutacao rigorosa.
+  DECISAO: encerrar a iteracao nos olhos. A geometria esta validada por TODAS as medidas (2 lentes 0.025 x 0.040 com aspecto
+    1.60, centroides a 0.0380, vao 0.0216 positivo, pupilas M_Dark centradas, so o vidro a frente, QA True, falhas=[]).
+    Continuar ajustando pelo julgamento da visao seria perseguir um alvo instavel — o instrumento errado para esta grandeza.
+  PROXIMO FOCO (pecas pendentes, cada uma com criterio MENSURAVEL):
+    1. SOBRANCELHA em arco fino (hoje: blocos pretos grossos e retos) — medir espessura e raio do arco;
+    2. CANTOS LATERAIS da viseira (o vision le quina de 90 graus) — medir o raio do canto;
+    3. VAO entre viseira e queixo — medir se ha faces cobrindo a fenda;
+    4. PIVOS laterais visiveis (discos pretos) — medir o diametro exposto.
+  Depois: G31 + auditor independente.
