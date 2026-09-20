@@ -274,6 +274,16 @@ if o28 in SRC:
     print('P28 ep linha:', m.group(0).strip()[:140] if m else 'nao achou')
 else:
     print('P28 sem ancora Wing_Endplate')
+
+# patch 29: x do conjunto Rear_Bumper_* (o Bot em rbz=0.300 caia dentro da ultima banda 5% do extremo
+# recuado e o concept nao tem nada abaixo de 0.583 de H ali). Parametriza _bx = XRE + rb_x_off.
+o29="_bx=XRE+0.010"
+n29="_bx=XRE+P.get('rb_x_off',0.010)"
+if o29 in SRC:
+    SRC=SRC.replace(o29,n29,1); print('P29 rb_x_off OK')
+else:
+    print('P29 NAO ACHOU _bx')
+
 exec(compile(SRC,'bb_'+VER,'exec'),g)
 R=g.get('R',{})
 print(VER,'| QA=',R.get('qa',{}).get('aprovado'),'| z_range=',R.get('z_range'),'| ERRO=',R.get('ERRO'))

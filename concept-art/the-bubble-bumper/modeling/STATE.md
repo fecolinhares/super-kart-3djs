@@ -3410,3 +3410,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Candidatos descartados por leitura do codigo: endplate (ep_s z0.095 => desce so a 0.593m) e
     Wing_Pylon (desce a 0.504m). rear bumper (rz0 0.078) esta em x -1.118 = FORA da ultima banda 5%.
     => PROXIMO: sonda patch 23 com del_x [-1.20,-1.08] para nomear o elemento. Sem especular.
+
+
+## W522 ADOTADO = NOVA BASE (traseira fechada)
+  wing_z 0.570 -> 0.660 | invariantes EXATOS (x_range, len_before 2.3852, scale 0.98523, L/H 1.862, W/H 1.24)
+  R_topo_z erro 0.0711 -> **0.0001** (praticamente exato) | R_base_z 0.0956 -> **0.0243** (dentro do gate 0.05)
+  CADEIA DO MAIOR ERRO: R_topo 0.1535->0.0711->0.0001 (-99.9%%) | R_base 0.5143->0.3450->0.0956->0.0243 (-95%%)
+  **E_mediana 0.0609 -> 0.0339 — PRIMEIRA vez na sessao que a MEDIANA se move** (antes so o pior-landmark via)
+  soma dos erros 0.5468 -> 0.4045
+  FILA ATUAL: degrau_x 0.2071 > pod_area_frac 0.0993 > degrau_amp 0.0704 > L_topo_z 0.0514
+             PASSA: R_base 0.0243, R_topo 0.0001, topo_global_x 0.0074, topo_global_z 0.0003, L_base 0.0435
+
+## W523 — CUTTER REFUTADO como alavanca do degrau (resultado negativo limpo)
+  ch_cut_dx -0.110 -> -0.350 (24cm): degrau_x 0.5132 -> 0.5132 (deslocamento 0.0000) e degrau_amp inalterado.
+  => o Cockpit_Cut NAO cria o degrau do perfil; o degrau vem de OUTRA peca. Nao insistir no cutter.
+  METODO: teste de alavanca barato = mudar o parametro da peca SUSPEITA em amplitude GRANDE (24cm) e ver se a
+    metrica se move; se nao se move, refuta em 1 build sem precisar de sondas de delecao.
+  PROXIMO: identificar a peca do degrau (em 0.5132 do comprimento a partir da frente). Candidatos: capacete
+    (borda frontal do pico), borda traseira do cowl, airbox, encosto. Usar o teste de alavanca grande em cada um.
