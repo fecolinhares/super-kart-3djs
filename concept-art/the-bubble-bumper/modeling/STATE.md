@@ -3678,3 +3678,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     helm_sz quebra L/H | helm_front(bmesh) 0.0000 | helm_x 0.3194 (posicao) — amplitude ainda sem alavanca isolada.
   PROXIMO: sonda del_mat na banda do degrau (x -0.22..0.02, z 0.50..1.35) para M_Gasket e M_Visor, que sao os
     candidatos restantes do conjunto PL na altura do capacete.
+
+
+## W534 — M_Visor REFUTADO (del_n 6984, silhueta identica). 6 refutacoes no degrau_amp.
+  TABELA degrau_amp (todos 1 build): rzt 0.0000 | cowl_k 0.0000 | cockpit_cut 0.0000 | helm_front(bmesh) 0.0000
+    | M_Face 0.0012 | M_Visor 0.0000 | helm_x 0.3194 (posicao, nao amplitude)
+  *** NAO E ARTEFATO (verificado antes de invocar a regra das 6 refutacoes): ***
+    o pico de gradiente do concept e do modelo estao NA MESMA POSICAO (0.5107 vs 0.5132), logo degrau_amp e um
+    landmark ANCORADO e a diferenca e REAL: a parede do modelo mede 0.2428*H = 0.30m e a do concept 0.3242*H = 0.41m.
+    => a parede existe, esta no lugar certo, e e 11cm MAIS BAIXA que a do concept.
+  ONDE ESTA A PAREDE (do perfil, em metros da altura total): desce de z/H 0.8307 (=1.040m) para 0.5880 (=0.736m)
+    em UMA coluna (2.8mm de x) => parede quase vertical de 0.30m na frente-inferior do capacete / topo traseiro do cockpit.
+  Cadeia de evidencia: helm_x MOVE a parede (0.3194, mas move o pico junto) / casca M_Blue retraida NAO move /
+    M_Face NAO move / M_Visor NAO move / cowl NAO move (esta dentro do contorno) => a parede e do conjunto PL
+    na altura do capacete, restando: M_Gasket, M_Pilot, helm_base, neck.
+  HIPOTESE DE CONSERTO (se a ultima sonda refutar): a parede e a silhueta COMBINADA (casca + o que ha atras); para
+    deixa-la 11cm mais alta sem mover o pico, o caminho e AUTORAL (bmesh) na frente-inferior do capacete — mesma familia
+    do P33 que ja esta escrito. Nao insistir em constantes.
+  PROXIMO: sonda del_mat M_Gasket na banda do degrau; se 0.0000 tambem, partir para o ajuste autoral da frente-inferior.
