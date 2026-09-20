@@ -5962,3 +5962,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     viseira passar o do rosto; ou (b) recuar M_Face em x (empurrar o rosto para dentro) preservando os olhos. Depois reconferir
     que x_max(M_Visor) > x_max(M_Face) na faixa z dos olhos, na medicao por material — e so entao o gate visual.
   W696D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## *** HIPOTESE 'ROSTO A FRENTE' REFUTADA: A ORDEM DE PROFUNDIDADE ESTA CORRETA ***
+  Medicao x_max na faixa dos olhos (z 0.735-0.770) no W697D (visor_off 0.050):
+    M_Visor  -0.1585  <- MAIS A FRENTE (correto!)
+    M_Gasket -0.1851
+    M_Eye    -0.2542
+    M_Face   SEM FACES nessa faixa
+  CONCLUSAO: a minha hipotese do gate v14 ('o rosto opaco esta 5 mm a frente') esta ERRADA — o M_Face nem tem
+    faces na faixa dos olhos (o x[-0.323,-0.128] que eu medi e global, de outra parte do rosto). E a ORDEM DE
+    PROFUNDIDADE NA FAIXA DOS OLHOS ESTA CORRETA: viseira > gasket > olhos.
+  LICAO (refina a regra do gate v14): medir por material NA JANELA DA REGIAO, nao pelo bbox global. Eu comparei
+    frontais GLOBAIS e conclui 'rosto a frente'; a janela mostrou que o M_Face nao esta ali. O bbox global mente
+    quando a malha tem partes distantes entre si.
+  CANDIDATOS RESTANTES para o 'topo opaco' do vision: (1) a propria superficie do CASCO (M_Blue) na faixa dos olhos;
+    (2) o M_Gasket (opaco, 7 cm a frente dos olhos). PROXIMO: medir x_max(M_Blue) e a cobertura do M_Gasket na faixa
+    dos olhos; e conferir se o alpha 0.30 do M_Visor realmente atua no render Eevee (blend_method BLEND).
+  W697D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14.
