@@ -4093,3 +4093,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     exec(run_variant.py) nao foram capturados neste job — gravar o resultado DENTRO do dict R (ex.: R['probe']=...)
     antes do marcador ###RESULT###, ou emitir via o proprio R, em vez de depender de stdout.
   NOTA: W573 e a MELHOR base quantitativa do G27 (|dTOP| 0.0498, frente-meio 0.0462) e NAO deve ser regredida.
+
+
+## *** SONDA: TENTATIVA FALHA, REVERTIDA, PIPELINE VERIFICADO ***
+  TENTATIVA: anexar ao runner um hook pos-exec que gravasse R['probe_top'] = topo real por faixa de x + QUAL peca
+    e dona do topo (para resolver a contradicao do degrau xf 0.267).
+  FALHA 1 (W575): o hook usava R antes de R existir (R=g.get('R',{}) vem DEPOIS) -> NameError -> runner morre,
+    resultado vazio.
+  FALHA 2 (W576): trocado para g.setdefault('R',{}) -> mesmo assim ###RESULT###{} vazio. Ou seja, o ponto correto
+    NAO e depois do exec: o marcador ###RESULT### e emitido ao final do SRC, antes do codigo anexado ao runner.
+  REVERT: hook removido de run_variant.py (28627 bytes, sem 'probe_top').
+  VERIFICACAO: W577_VERIFY builda normal e as metricas batem 100%% com W573 (L/H 2.05, W/H 1.171,
+    z_range [-0.01,1.137], 14 pecas, QA aprovado). PIPELINE INTACTO, nenhum dano.
+  CAMINHO CORRETO PARA A SONDA (proximo leaf): o hook tem de ser injetado DENTRO do SRC (patch que edita o proprio
+    script construido, antes do ###RESULT###), nao anexado ao runner. Alternativa mais simples: usar as bboxes por
+    peca que o proprio R ja expoe (part_bbox) e cruzar com a medicao do render, sem tocar no runner.
