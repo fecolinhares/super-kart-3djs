@@ -5112,3 +5112,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   sw_dz REVERTIDO para -0.110 (a mudanca nao teve efeito na oclusao; manter a base limpa).
   LICAO: antes de 'consertar' um oclusor, MUDAR a peca suspeita e RE-MEDIR a banda ocluida. Uma mudanca de 14 cm sem
     efeito nenhum mata a hipotese em um build — mais barato que 3 pranchas de vision.
+
+
+## CAUSA-RAIZ DA OCLUSAO MEDIDA NO CONCEPT + P45 NAO APLICADO ***
+  MEDICAO NO CONCEPT (front, matiz): o corpo (largura cheia 128 px) comeca em y232 e o estreitamento do queixo
+    termina em y228-230 -> O CORPO COMECA IMEDIATAMENTE ABAIXO DO QUEIXO, sem sobreposicao. (y256 = 0: fim do corpo)
+    Mapeando p/ o modelo (capacete z1.2339->0.6320 <-> concept y87->y230): o corpo deveria comecar em z ~0.624.
+  MODELO: COWL topo z 0.718 -> 0.094 ALTO DEMAIS. Isso e a causa raiz da mentoneira sepultada (nao enquadramento,
+    nao material, nao volante). zt do cowl = prof_top(xf)*H*0.97.
+  P45 (zt -= P['cowl_dzt']) NAO APLICADO: a ancora '        zt=prof_top(xf)*H*0.97' existe no bb25.py mas NAO chega
+    intacta ao ponto do P45, porque o P31 (naquele caso 'SPAN do cowl - alvo CORRIGIDO/cowl_xspan') toca esse
+    trecho ANTES. E a TERCEIRA vez na sessao que a ordem dos patches invalida uma ancora (P41->P40, P44->P36, P45->P31).
+    REGRA CONSOLIDADA: ao inserir um patch novo, LER A LISTA DE PATCHES ATIVOS no run_variant e escolher uma ancora
+    que nenhum patch anterior toque — ou embutir a mudanca no patch que ja domina aquele trecho.
+  ALTERNATIVA MAIS SEGURA (proximo): o rebaixamento pode ser feito no objeto COWL depois de montado (translacao dos
+    vertices acima da linha de agua) OU subindo o PILOTO/capacete, que fica em pilot() e nao tem patch conflitante.
+  TRADE-OFF REGISTRADO: baixar o cowl pode abrir vao com a banheira/assento; subir o piloto mexe no z calibrado do
+    capacete e no comprimento/altura globais. Decidir medindo qual dos dois preserva mais os gates ja fechados.
+  W649D: build limpo mas SEM o P45 -> idêntico ao W647D na banda do queixo (0 amarelo / 12369 escuro), como esperado.
