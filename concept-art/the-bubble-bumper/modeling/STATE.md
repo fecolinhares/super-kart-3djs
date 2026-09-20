@@ -2833,3 +2833,32 @@ IoU 0.828 | P10 0.791 | pior 0.690 | COR_TV 0.252 | exc 12.8 | falta 6.9 | <0.80
 
 ## BASE: **W485** (nova, invariantes exatos) — mas excesso +0.1 mantem W480 como referencia conservadora
 IoU 0.828 | P10 0.791 | pior 0.691@side_TRASEIRA | COR_TV 0.251 | exc 12.9 | falta 6.8 | <0.80 4 | sep_parts 14.
+
+
+## TESTE DE DELECAO DOS TUBOS (W485del) — INVALIDO POR RENDER, NAO POR HIPOTESE
+
+  removidas: 304 faces M_Silver cruzando a banda com x<-0.70
+  resultado: linha row 428 = **831 px (de 860), solida em x -1.182..1.154**
+  => uma DELECAO NAO PODE ADICIONAR MATERIAL. 831/860 = fundo praticamente todo opaco =>
+     **o render manual nao reproduziu as settings do pipeline canonico** (film_transparent/alpha).
+     Somado ao recorte, o teste e INVALIDO POR INSTRUMENTO.
+
+**REGRA NOVA (14)**: QUALQUER teste de delecao deve reusar o BLOCO DE RENDER do builder/runner canonico
+  (mesmas settings de alpha, mundo, camera e resolucao). Render manual proprio NAO serve para A/B de pixel.
+  Verificacao obrigatoria antes de medir: o numero de pixels da linha deve ficar na mesma ordem
+  (centenas, nao 831/860). Um valor absurdo = instrumento quebrado, nao resultado.
+
+**O QUE JA E SOLIDO (por A/B validos, com invariantes exatos):**
+  W479: baixar SO o central -0.035 => banda INTACTA
+  W485: baixar SO os L/R -0.045 => banda INTACTA (topo dos L/R ia a 0.604, abaixo da linha)
+  W474: baixar OS TRES -0.06 (exh_dz 0.070) => banda ABRIU (linha 473->399)
+  => o efeito e COMBINADO ou o ocupante nao e um tubo isolado. Os 4 testes de tubo medem a configuracao
+     inteira, nao o ocupante — logo a conclusao "e o tubo" NUNCA foi provada, apenas correlacionada.
+
+**CAMINHO CORRETO PARA PROVAR O OCUPANTE** (sem depender de crop nem de render manual): usar o
+  RUNNER CANONICO com um parametro de delecao que esconda pecas por MATERIAL E FAIXA, gerando o render
+  pelo proprio pipeline. E o proximo passo.
+
+## BASE: **W485**
+IoU 0.828 | P10 0.791 | pior 0.691@side_TRASEIRA | COR_TV 0.251 | exc 12.9 | falta 6.8 | <0.80 4 | sep_parts 14.
+Invariantes EXATOS: x_range [-1.2,1.15] | z_range [-0.01,1.165]. Patches no runner: 1..14.
