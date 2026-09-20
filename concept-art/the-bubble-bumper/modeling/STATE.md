@@ -7082,3 +7082,10 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   B005 nose/bumper | B006 sidepods | B007 piloto conectado | B008 traseira/asa | B009 assinaturas P0 | B010 appearance.
   REGRA: uma hipotese estrutural por build; probe GRANDE primeiro; 3 rejeicoes da mesma classe => troca de representacao.
   Build atual renomeado LEGACY_REFERENCE_ONLY.
+
+
+## B001 EXECUTADO: INSTRUMENTO VAZIO (REBOOT) ***
+  `B001_datums.py` -> /opt/blender-runner/outputs/B001_datums.blend: datums + 4 cameras ortograficas congeladas.
+  Contrato: L=2.35 H=1.1881 W=1.3912 P=0.8257 (69,5%%) X0=-1.175 X1=+1.175 Z1=1.1881.
+  GEOMETRIA: apenas datums (o Sol proibe modelar shell/piloto em B001).
+  Proximo: B002 (rodas e envelopes: 4 centros, diametros, wheelbase, tracks; cilindros-envelope sem tread).
