@@ -6339,3 +6339,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     3. OVAIS PRETOS 'SOLTOS' nas laterais: conferir se sao as pupilas novas flutuando fora da superficie (medir a distancia
        em x entre elas e o painel do rosto) ou as fendas laterais de M_Dark (z 0.941-0.997).
     4. Arco da sobrancelha: deixar mais fino/curto e subir (o vision pediu).
+
+
+## *** AS 'ORELHAS' LOCALIZADAS E MEDIDAS: A VISEIRA ESTOURA NA PARTE DE BAIXO (156%) ***
+  Medicao por faixa de z (/tmp/bands2.py, W712D) — a media global de 98,5% ESCONDIA isto:
+    z 0.725-0.760: casco 0.0837 | viseira 0.1309 = 156,4%%
+    z 0.760-0.795: casco 0.1167 | viseira 0.1427 = 122,3%%
+    z 0.795-0.830: casco 0.1378 | viseira 0.1530 = 111,0%%
+    z 0.830-0.865: casco 0.1532 | viseira 0.1587 = 103,6%% (esta OK)
+  A viseira acompanha o casco em cima e ESTOURA embaixo, onde o casco afina. Esses cantos inferiores sao as 'abas/orelhas'
+    que o vision aponta desde o P60. Dois gates + uma medicao convergem.
+  CAUSA (bug meu, medivel): a projecao na elipsoide (P61) usa os raios fixos (0.231/0.1649/0.205) e uma direcao normalizada.
+    Em z 0.73 a elipsoide NEM EXISTE (z_min = 0.9357-0.205 = 0.7307): o que esta acima de 1 no radical e descartado pela
+    normalizacao, e o vert sai PARA FORA da superficie. Resultado: y grande justamente onde o casco e estreito.
+  FIX PROPOSTO (mensuravel): limitar a viseira ao PERFIL DO CASCO por faixa de z — para cada vert, se
+    |y_viseira| > 1.05 * y_casco(z), trazer para 1.05 * y_casco(z). Criterio de aceite: viseira/casco <= ~105%% em TODAS as
+    faixas (hoje ha 156%%). Re-medir com /tmp/bands2.py.
