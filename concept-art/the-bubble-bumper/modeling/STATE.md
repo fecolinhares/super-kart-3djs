@@ -5291,3 +5291,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   METODO REGISTRADO (/tmp/ocl_all.py): para achar oclusor, contar faces por objeto E por material cujo CENTRO cai na
     janela projetada da peca alvo. Mais confiavel que hide_test (que nao distingue oclusor de alvo) e que repintura.
   W654D verde: QA ok, 14 pecas, globais preservadas.
+
+
+## ALAVANCA DO TOPO NAO REDUZ A OCLUSAO - precisa do CORPO ***
+  TESTE: cowl_k 0.843 -> 0.811 (topo do cowl 0.624 -> 0.600, ou seja ABAIXO do piso da janela da mentoneira 0.6045)
+    RESULTADO: 141 -> 137 faces do COWL na janela (apenas 4 faces, 3%%). Logo as faces que cobrem a mentoneira NAO vem
+    do topo (prof_top) — vem do CORPO/secoes do cowl (ou do resultado pos-SUBSURF n'=1 e pos-boolean do cockpit).
+  O CH tambem e oclusor e nao foi tocado: 108 faces em x[-0.005,+0.152]. Total atual 245 faces.
+  CONCLUSAO DE ENGENHARIA: o problema nao e 'o cowl alto' e sim 'o cowl A FRENTE' (x 0.126-0.507) na faixa z do queixo.
+    A alavanca certa e reduzir a SECAO (zb/zt) ou cavar boolean na regiao frontal acima de z~0.60, nao escalar o topo.
+  PROXIMO (concreto): parametrizar a SECAO do cowl (zb e o par (zt-zb)/2 em sq(...)) com uma reducao frontal — ou fazer
+    um boolean DIFFERENCE com um box cobrindo x>0.10, |y|<0.13, z>0.60 (mesma tecnica do Cockpit_Cut ja usada no builder
+    para escavar a banheira). O boolean e a via de menor risco porque nao altera a silhueta lateral.
+  chin_guard preservado no W655D: y[-0.0871,+0.0871] z[0.6045,0.7504] (o P47 continua valendo).
+  W655D verde: QA ok, 14 pecas, globais preservadas.
