@@ -5787,3 +5787,11 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     3. olhos: verificar a altura — z 0.741-0.760 esta ABAIXO do alvo (o concept tem olhos dentro da viseira, que vai de
        0.862 a 1.011) -> subir os olhos para a faixa da viseira e reduzi-los/ aproxima-los (o vision pediu menores e mais proximos).
   W686D verde: 0 erros, QA ok, sep_parts=14.
+
+
+## P59 APLICADO: CONJUNTO DA VISEIRA ABRACA O CASCO ***
+  [P59] ['M_Face','M_Gasket']: 4312 de 24640 verts trazidos para |y|<=0.168 (clamp em y, x e z preservados).
+    M_Gasket: 0.435 -> 0.336 (132%% -> 102%% da largura do casco).
+    M_Face:   0.436 -> 0.336 (132%% -> 102%%).
+    M_Visor intacta em 0.333 (101%%) e M_Blue intacta em 0.330 — o casco nao mudou.
+  W687D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
