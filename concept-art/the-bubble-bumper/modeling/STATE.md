@@ -6968,3 +6968,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
        Medir: razao altura-do-piloto / altura-total no concept (orto) vs no modelo; subir e escalar.
     2. Velculo: para-choque e LAJE RETA em vez do tubo arredondado com espumas amarelas toroidais.
     3. Viseira opaca sem olhos visiveis na vista orto (os olhos existem e estao medidos, mas nao se leem no render).
+
+
+## *** MEDICAO DECISIVA: PROPORCAO PILOTO/KART ERRADA POR ~1,5x (o maior gap estrutural) ***
+  Medido na MESMA vista orto (/tmp/perpil.py), silhueta total vs capacete azul:
+    CONCEPT  silhueta H=521 | capacete azul H=362 = 69,5%% da altura total
+    MODELO   silhueta H=859 | capacete azul H=388 = 45,2%% da altura total
+  O piloto do concept ocupa 69,5%% da altura (chibi, cabeca dominante); o do modelo 45,2%%. Fator ~1,54x.
+  ISTO e o maior gap estrutural e a causa principal da leitura 'esta ruim / sem fidelidade' — mais que qualquer
+  detalhe do capacete, que eu refinava havia ~65 builds.
+  FIX (grande, visivel, estrutural): escalar o PILOTO ~1,3-1,45x em altura e/ou BAIXAR o kart, de modo que a razao
+  capacete/silhueta va de 45,2%% para ~69,5%%. CRITERIO MENSURAVEL: razao no render orto = 69,5%% +-3%%.
