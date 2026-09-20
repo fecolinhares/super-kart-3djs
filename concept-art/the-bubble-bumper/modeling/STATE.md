@@ -2029,3 +2029,29 @@ x -0.92..-1.06). Uma por build, checando x_range/z_range/scale_factor ANTES do a
 ## BASE: W463 (inalterada)
 IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
 Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
+
+
+## W467 (asa estreitada) — NEUTRO/REGRESSIVO; ocupante real = Rear_Ramp
+
+`wing_x1 -0.935 / wing_x2 -1.130`. Invariantes OK (x[-1.2,1.15] z[-0.01,1.165] scale 0.98568).
+Resultado: t 0.54 continua `0.43..0.99` SOLIDO (nenhum vao). Agregado: IoU 0.826->0.825 | P10 0.790->0.789 |
+pior 0.680->**0.670** | COR_TV 0.252->**0.249** ✓ | falta 7.0->7.1 | <0.80 4 (=) |
+side/TRASEIRA 0.680->**0.670** (falta 18.1->19.4). => leve regressao. NAO adotado.
+
+**BALANCO DAS 3 HIPOTESES PARA A LINHA t 0.54 (todas refutadas):**
+  1. escapamentos L/R encurtados em x (W466): NEUTRO — nao sao eles
+  2. asa estreitada (W467): NEUTRO/regressivo — nao e ela
+  3. -> o ocupante tem de ser outra peca M_Silver da janela
+
+**IDENTIFICADO (pecas M_Silver no bloco rear() que caem em x -0.999..-0.550, z 0.55-0.70):**
+  **Rear_Ramp**: `rp=loft('Rear_Ramp',_rs); assign(rp,'M_Silver')` — a MAIOR peca M_Silver da janela.
+      Parametros JA expostos: `rzb` (0.050) e `rz1` (0.300) — foram mexidos em W427/W429/W437.
+  Collector: `box('Collector',(exb+0.200,0,0.432+_edz),(0.042,0.212,0.072))` -> x -0.990, z 0.490..0.634
+      (8.4 cm de extensao em x — estreito, nao cobre o vao inteiro)
+  (outros M_Silver: Engine/Engine_Top em x -0.558..-0.302 = FORA da janela; Airbox/Airbox_Top em XRE+0.360;
+   Exh_*_lip e Exh_L/R nas pontas; Rear_Bumper_U; fins)
+=> **PROXIMO TESTE: o Rear_Ramp.** Parametro `rzb` (base da rampa) e `rz1` (topo) — abrir ar entre a rampa e
+   o difusor/asa mexendo em `rzb`/`rz1` PRESERVANDO x_range/z_range (checar invariantes antes do audit).
+
+## BASE: W463 (inalterada)
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
