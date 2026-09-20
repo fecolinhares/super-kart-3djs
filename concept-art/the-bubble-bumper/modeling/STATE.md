@@ -6648,3 +6648,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   O 'borda inferior reta, serrilhada e clipando no queixo' do gate v30 esta geometricamente eliminado.
   NOTA: o criterio por FACE (centroide) continua alto (1310) porque faces que misturam verts levantados e nao-levantados
     mantem centroide baixo — nao e o criterio correto para um passe que move VERTICES.
+
+
+## *** GATE v31: CLIPPING RESOLVIDO; O ERRO AGORA E A QUALIDADE DA ARESTA (DEGRAUS) ***
+  Vision (W728D): (1) 'Nao clippa mais o queixo, mas ainda serrilha muito — a borda inferior continua toda em
+    degraus/escalonada nas laterais'. (2) 5.5/10. (3) MAIOR erro: 'a propria TOPOLOGIA/RESOLUCAO da viseira — borda reta e
+    low-poly sem smooth/subdivisao contra a curva suave do concept'.
+  E ele explicou a diferenca de metrica, com precisao: 'A metrica de 0 vertices cruzando a silhueta mede INTERSECAO, mas
+    NAO mede a QUALIDADE da propria aresta — por isso visualmente continua quebrada.'
+  ISSO ESTA CERTO, e os degraus sao AUTO-INFLIGIDOS: meus passes de clamp movem vertices em DEGRAUS de z (P85 levanta
+    'para z>=0.820' por vertice) -> cria escada na aresta. Mesma classe do vao criado pelo P67.
+  PROXIMO: suavizar a ARESTA — aplicar smooth/subdivisao na M_Visor ou suavizar a fronteira depois do clamp (ex.: mover
+    cada vert da borda para a MEDIA z dos vizinhos, ou usar bmesh.ops.smooth_vert so na fronteira). Criterio de QUALIDADE:
+    a diferenca de z entre verts adjacentes da borda deve ser pequena (medir max|dz| entre vizinhos da fronteira).
