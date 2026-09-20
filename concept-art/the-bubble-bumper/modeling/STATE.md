@@ -2745,3 +2745,32 @@ Com raio 0.062 => 0.649 — **ainda acima** => explica a banda intacta no W480 (
 
 ## BASE: **W480** (nova) = W477 + exh_lr_r 0.062
 IoU 0.828 | P10 0.791 | pior 0.690@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 6.9 | <0.80 4 | sep_parts 14.
+
+
+## W481 (exh_lr_dz -0.045) — **INVARIANTE VIOLADO => COMPARACAO INVALIDADA, NAO ADOTADO**
+
+  x_range [-1.201, 1.149]  <-- ESPERADO [-1.2, 1.15]   **VIOLADO**
+  scale_factor 0.98563     <-- ESPERADO 0.98568        **VIOLADO**
+  len_before   2.3843      <-- ESPERADO 2.3841         (mudou)
+
+Baixar os L/R altera a EXTENSAO PROJETADA em x => reescala => A/B contra W480 e INVALIDO.
+E a mesma armadilha do W465 (exh_short). **NAO comparar, NAO adotar.**
+
+**REGRA APLICADA (a que eu tinha formalizado e agora respeitei)**: parametro que mexe em scale_factor/x_range/
+z_range nao entra em A/B sem COMPENSACAO.
+
+**CONSEQUENCIA PARA A BANDA -0.77..-0.84**: a unica alavanca com efeito provado nela (baixar os L/R em Z)
+**tambem mexe no x_range**. Logo:
+  (a) ou se compensa: baixar os L/R E ajustar a geometria que define o extremo x do modelo, para devolver
+      len_before=2.3841 / scale_factor=0.98568 / x_range=[-1.2,1.15];
+  (b) ou se abandona a alavanca e a banda fica como residual CONHECIDO e MEDIDO (7cm, ~40px de 435).
+
+**ESTADO HONESTO DO ALVO t0.54**: vao 1 ABERTO (W471/W472) e vao 2 ABERTO PARCIALMENTE (W475/W477/W480) —
+  concept: material -0.73..-0.75 | VAO -0.75..-0.92 | material -0.92..-1.06
+  w480   : material -0.77..-0.84 | VAO -0.84..-0.95 | material -0.95..-1.18
+  residuo: 7cm de material em -0.77..-0.84 (onde o concept quer vazio) e 12cm de material traseiro a mais.
+  Nenhuma das 7 hipoteses testadas removeu esse residuo sem violar invariante ou piorar o gate.
+
+## BASE: **W480** (mantida; W481 descartado por invariante)
+IoU 0.828 | P10 0.791 | pior 0.690@side_TRASEIRA | COR_TV 0.252 | exc 12.8 | falta 6.9 | <0.80 4 | sep_parts 14.
+Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.

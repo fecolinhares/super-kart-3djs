@@ -88,6 +88,19 @@ old12="d('Exh_'+st,list(pt)[::-1],0.080,26)"
 new12="d('Exh_'+st,list(pt)[::-1],P.get('exh_lr_r',0.080),26)"
 if old12 in SRC:
     SRC=SRC.replace(old12,new12,1)
+# patch 13: Z proprio dos escapamentos L/R (unica alavanca com efeito PROVADO na banda -0.77..-0.84)
+old13a="0.472+_edz)"
+new13a="0.472+_edz+P.get('exh_lr_dz',0.0))"
+if old13a in SRC:
+    SRC=SRC.replace(old13a,new13a,1)
+old13b="0.420+_edz)"
+new13b="0.420+_edz+P.get('exh_lr_dz',0.0))"
+if old13b in SRC:
+    SRC=SRC.replace(old13b,new13b,1)
+old13c="sy*0.110,0.392+_edz)"
+new13c="sy*0.110,0.392+_edz+P.get('exh_lr_dz',0.0))"
+if old13c in SRC:
+    SRC=SRC.replace(old13c,new13c,1)
 
 old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
