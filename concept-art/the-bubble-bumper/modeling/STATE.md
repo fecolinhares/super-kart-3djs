@@ -1466,3 +1466,27 @@ tem ali (deve ser quase nada) e comparar com a roda (topo z 0.379). Se nao houve
 ARCO/FENDER sobre a roda dianteira que o modelo nao tem -> peca AUSENTE (ganho real, nao compromisso).
 
 BASE: **W446** — IoU 0.822 | pior 0.668 | COR_TV 0.255 | excesso 12.3 | falta 8.0 | <0.80 = 6.
+
+
+## W452 — span 0.555 isolado = falta melhora mas o todo piora; SPAN BRACKETED em 0.505
+
+CONCORDANCIA DE DUAS VISTAS (raro e por isso testei): REAR mede a asa +-0.555 (z 0.74 solido) e FRONT mede
+solido ate +-0.748 normalizado (=0.559 m) em t 0.55 => as duas concordam que a asa do concept e mais LARGA.
+W452 testou wing_span 0.505->0.555 com z INTACTO (a mudanca de z do W440 contaminava o teste).
+RESULTADO: **falta 8.0->7.1** ✓✓ (maior queda de falta da serie) e front/PILOTO falta 8.2->**4.2** ✓✓,
+MAS IoU 0.822->**0.817**, **COR_TV 0.255->0.270**, excesso 12.3->**14.0**, <0.80 6->**7**,
+front/NARIZ excesso 7.4->15.7% ✗. **REVERTIDO.**
+
+### SPAN DA ASA: OTIMO BRACKETED EM 0.505 (4 valores testados)
+  0.240 (W420): IoU 0.798 | 0.385 (W421): 0.809 | **0.505 (base): 0.822** | 0.555 (W452): 0.817
+=> o span 0.505 e o MAXIMO do IoU. Estreitar piora muito; alargar piora pouco mas estraga COR_TV e excesso.
+   **Nao mexer mais no span.**
+
+### PADRAO RECORRENTE (5o caso): a ARTE pede X, o modelo com X piora o AGREGADO
+  asa z (W422) | asa tilt (W438/439) | asa span maior (W452) | pods (W448) | z_k proporcao (W441/442)
+Em todos: uma vista ou duas concordam que o concept tem mais material ali, mas ao colocar o material o
+audit piora — porque as vistas do concept sao inconsistentes entre si (medido: fator 2.5) e o agregado
+penaliza as OUTRAS vistas. **O audit ja esta resolvendo o compromisso por nos: se o agregado piora, a
+alteracao esta errada para o conjunto, mesmo que "certa" para uma vista.**
+
+BASE: **W446** — IoU 0.822 | pior 0.668 | COR_TV 0.255 | excesso 12.3 | falta 8.0 | <0.80 = 6.
