@@ -739,3 +739,16 @@ Confirma o que a VISION viu ("barra preta horizontal atras do piloto" cortando a
 
 PROXIMO (concreto): probe no Blender do REAR na faixa z 0.74-0.82 com |y|>0.25 -> material -> identificar a
 peca larga; depois estreitar/recuar essa peca para abrir o vao |y| 0.222-0.469 nessa altura.
+
+
+### REFINAMENTO: a peca larga em z 0.752 esta no CH, nao no REAR
+
+Cruzando com os part_bbox de W418:
+  PODS   y +-0.7026  MAS z 0.1056..0.5279  -> nao alcanca z 0.752
+  FBUMP  y +-0.585   MAS z 0.037..0.3469   -> nao alcanca
+  REAR   y +-0.52    z 0.022..0.8177       -> alcanca, mas...
+  **CH   y +-0.6301  z 0.058..0.7938**     -> alcanca E e o mais largo
+O concept em z 0.752 tem apenas uma faixa estreita 0.469..0.528 (amortecedores/coilover) e VAO entre
+0.222 e 0.469. O modelo esta SOLIDO 0.222..0.490 => a suspensao/chassi nessa altura fecha o vao.
+Candidatos dentro de CH: springs (springL/springR), eixo traseiro (axle_w=0.520 de W407) e suportes.
+PROXIMO: probe do CH na faixa z 0.74-0.80 com |y|>0.25 -> material -> estreitar/recuar a peca.
