@@ -99,5 +99,7 @@
   "g26b_lvs": 0.118,
   "g26b_lvz": -0.04,
   "g26b_lmat": "M_Blue",
-  "_nota_g26d": "G26d VENCEDOR (vision 7.0/10, era 4.0). Tubo = LOFT de secoes com raio variavel (tube_round so aceita raio escalar). TUDO ancorado em _xs = superficie frontal calculada, NUNCA em XFO (era o bug que enterrava coxins e intake 26cm). fbar=0 e g26c_pads=0 DESLIGAM as pecas legadas do front_bumper() do builder base (pad_l/pad_r/fbar) que conviviam com o tubo novo e dominavam o render por 3 iteracoes. Topo nivelado em 0.400, queixo descendo 6.5cm no centro, altura = pneu (0.389 vs 0.388)."
+  "_nota_g26d": "G26d VENCEDOR (vision 7.0/10, era 4.0). Tubo = LOFT de secoes com raio variavel (tube_round so aceita raio escalar). TUDO ancorado em _xs = superficie frontal calculada, NUNCA em XFO (era o bug que enterrava coxins e intake 26cm). fbar=0 e g26c_pads=0 DESLIGAM as pecas legadas do front_bumper() do builder base (pad_l/pad_r/fbar) que conviviam com o tubo novo e dominavam o render por 3 iteracoes. Topo nivelado em 0.400, queixo descendo 6.5cm no centro, altura = pneu (0.389 vs 0.388).",
+  "alvo_L_H_side_provisorio": 1.903,
+  "_nota_alvo_L_H": "CUIDADO: o alvo 1.978 foi RETIRADO do status canonico (sem fonte reproduzivel). Evidencia convergente aponta 1.903: (a) cotas do proprio concept 765/402 px; (b) mask v2 limpa ~1.90-1.93. Validacao do instrumento: mask v2 no FRONT da 1.1675 vs 1.171 canonico (0.26% de erro). NAO recalibrar a altura ate fechar nariz/sidepod — parecer do gpt-5.6-sol (medium). Com L=2.35m, L/H=1.903 implica H=1.230m; o modelo tem 1.147m => falta ~8.3cm."
 }

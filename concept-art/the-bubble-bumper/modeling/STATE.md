@@ -3988,3 +3988,32 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     xtrans, xtrans). Por isso esta em consulta ao modelo forte antes de agir.
   INSTRUMENTO: build_masks.py (mask v2) e o valido para SIDE/FRONT; /tmp/c_side.npy esta CONTAMINADA
     (bbox = imagem inteira) e nao deve ser usada.
+
+
+## *** PARECER DO MODELO FORTE (gpt-5.6-sol, reasoning medium, job 4564abea, exit 0) ***
+  1. ADOTAR 1.903 PROVISORIAMENTE. Duas evidencias reproduziveis convergentes (cotas 765/402 e bbox limpo).
+     1.978 NAO tem fonte reproduzivel -> retirar do status canonico ate ser reproduzido.
+     Confianca nas cotas = MEDIA, nao alta: so promover a canonico depois de provar que os 4 endpoints
+     coincidem com os extremos reais da silhueta (linha grafica pode ter folga/espessura/terminacao decorativa).
+  2. NAO RECALIBRAR AGORA. Fechar nariz e sidepod primeiro com dimensoes globais CONGELADAS. Mexer em H agora
+     move L/H, W/H, bitolas, helm_z e xtrans de uma vez e pode invalidar os 9/9 landmarks. Blast radius grande
+     para um alvo SIDE ainda nao validado. O FRONT esta solido (0.26%% de erro vs 1.171): PRESERVAR.
+  3. SEQUENCIA MENOS DESTRUTIVA: (a) extrair SIDE com filtro explicito contra componentes finos/pontos;
+     (b) sobrepor contorno+bbox e validar numericamente os 4 endpoints; (c) repetir com 2 metodos independentes
+     exigindo estabilidade perto de 1.903; (d) fechar nariz/sidepod com globais congeladas; (e) SO ENTAO
+     recalibrar altura por 2 pontos, RE-MEDINDO (nunca escalando analiticamente) bitolas, helm_z, xtrans e os 9 landmarks.
+  "A convergencia independente do deficit (8,8cm vs 8,2cm) reforca que o modelo esta baixo, mas nao justifica
+   uma recalibracao destrutiva antes de validar o instrumento e fechar as formas estruturais."
+  ACAO TOMADA: alvo 1.978 marcado como NAO-CANONICO (hipotese legada). Globais congeladas. Seguir para G27.
+
+## *** G27 BASELINE: PERFIL SIDE EM FRACOES (instrumento: build_masks.py mask v2, /tmp/c_side.npy ABANDONADA) ***
+  conceito limpo 766x428 (L/H 1.7897) | modelo w569 limpo 834x407 (L/H 2.0491)
+  PICO DO TOPO (fracao de L): concept 0.60 = modelo 0.60 -> posicao longitudinal do capacete esta CORRETA.
+    (Regra: pico batendo = o deslocamento longitudinal NAO e o defeito. O defeito esta na forma do contorno.)
+  dTOP (modelo - concept) por estacao: xf0.20 -0.121 | xf0.30 -0.185 (PIOR) | xf0.35 -0.105 | xf0.40 -0.087 |
+    xf0.90 -0.187 | xf0.45..0.70 dentro de +-0.03 (capacete OK) | xf1.00 +0.178 (modelo ALTO)
+  LEITURA: o TOPO DO CORPO esta sistematicamente BAIXO no trecho frente-meio (xf 0.20-0.40) e perto da traseira
+    (xf 0.90). O capacete e a regiao 0.45-0.70 batem. Consistente com o vision: falta VOLUME na silhueta superior.
+  CAVEAT ABERTO (proximo micro-passo): a orientacao do render SIDE do modelo ainda nao foi confirmada ponto a
+    ponto (o mapeamento xf->x nao fechou com o bbox do piloto). Confirmar a orientacao antes de usar os numeros
+    por estacao como alvo de geometria.
