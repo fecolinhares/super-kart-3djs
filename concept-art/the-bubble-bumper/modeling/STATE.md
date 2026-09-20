@@ -6629,3 +6629,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     E exatamente o 'borda reta, serrilhada e clipando no queixo' do gate v30. Sobreposicao em z = 66 mm (0.690-0.756).
   FIX: aprofundar o U — a borda inferior da viseira com |y| grande deve subir para z >= 0.76 (acima do topo do queixo).
     Criterio: 0 faces de M_Visor com z < 0.76 e |y| > 0.06. Re-medir /tmp/sect.py.
+
+
+## *** P85 DAVA CERTO E O AUTO-SCALE DESFAZIA (CLASSE DE BUG JA REGISTRADA) ***
+  [P85] reportou '1414 verts levantados para z>=0.760'; o .blend final tem 1414 verts com z<0.76 e |y|>0.06 — o MESMO numero.
+  CAUSA: o AUTO-SCALE (scale 0.92651) roda DEPOIS do bloco de patches e multiplica as coordenadas -> 0.760 * 0.92651 = 0.704,
+    que e exatamente o 'pior: z=0.704' que a medicao apontava. E a MESMA classe dos patches pos-escala ja registrados na
+    memoria (P49b tinha de ser pos-escala por isso).
+  FIX: mirar em unidades PRE-scale: visor_lift_z = 0.760 / 0.92651 = 0.8203. (Alternativa: mover o passe para depois do
+    auto-scale, se a cadeia permitir.)
+  LICAO (11a): ao reportar um patch, o numero do print e PRE-scale; o criterio medido no .blend e POS-scale. Converter antes
+    de comparar — senao o patch parece 'nao fazer efeito' exatamente pelo fator da escala.
