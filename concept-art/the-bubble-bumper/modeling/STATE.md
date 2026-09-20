@@ -3512,3 +3512,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     alavanca no CONJUNTO (helm_x, que moveu 0.3194) e depois identificar a sub-peca por MATERIAL dentro do
     conjunto (del_mat por M_Gasket/M_Visor/M_Face/M_Eye numa banda x) — nao por geometria individual.
   PROXIMO: sonda del_mat com del_x na banda do degrau (x -0.22..0.02) para M_Face/M_Eye/M_Gasket/M_Visor.
+
+
+## W530/W531 — SONDA POR MATERIAL NO CONJUNTO DO PILOTO
+  W530 INCONCLUSIVO (nao refutacao!): o probe exige _dm and _dz and _dx e eu passei so del_mat+del_x, entao o
+    bloco foi PULADO (log: del_mat None del_n None). Silhueta identica era consequencia disso, nao evidencia.
+    LICAO: antes de registrar resultado negativo, conferir no LOG que a sonda realmente EXECUTOU (del_n>0).
+  W531 PROBE OK: del_mat M_Face + del_x[-0.22,0.02] + del_z[0.50,1.35] => del_n=15572 faces removidas.
+    degrau_x 0.5132 -> 0.5144 (movimento 0.0012) => **M_Face REFUTADO**
+    degrau_amp 0.2428 -> 0.2517 (erro 0.0704 -> 0.0615): ganho real mas PEQUENO (a face contribui um pouco).
+    topo_global_x e L_topo_z inalterados.
+
+### *** 7 REFUTACOES E O DEGRAU NAO SE MOVE: HORA DE QUESTIONAR A METRICA ***
+  Cockpit_Cut 0.0000 | Assento 0.0000 | Cowl 0.0000 | casca capacete 0.0000 | helm_sz (quebra L/H) |
+  M_Face 0.0012 | e helm_x confirmado (0.3194) mas movendo o pico.
+  REGRA: depois de ~6 refutacoes de pecas diferentes sobre o MESMO numero, a hipotese mais provavel deixa de ser
+    'nao achei a peca' e passa a ser 'esse numero nao mede o que eu penso que mede'. Validar a METRICA antes de
+    mais sondas de peca.
+  PROXIMO: despejar a curva do perfil superior (t[i] por coluna) e o gradiente coluna-a-coluna em torno de
+    0.5132 do comprimento e verificar se o 'degrau' e uma aresta de bbox, uma falha de 1-2 colunas da mascara,
+    ou o topo do pneu dianteiro — e nao uma peca do conjunto do piloto.
