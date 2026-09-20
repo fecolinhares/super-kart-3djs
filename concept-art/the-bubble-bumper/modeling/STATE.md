@@ -1307,3 +1307,28 @@ PROXIMOS ALVOS por falta: (a) top/RODAS_DIANT 13.4% (parachoque dianteiro/rodas 
 (b) side/PARACH_RODA 13.2%; (c) rear/PILOTO_COSTAS 11.3%.
 
 BASE: W437 — IoU 0.821 | pior 0.668 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+
+
+## TOP do concept e ASSIMETRICO (rotacionado) — terceira limitacao da arte de referencia
+
+Medicao TOP faixa RODAS_DIANT (xf 0.18-0.36), runs em |y| normalizado (1.0 = meia-largura da vista):
+  xf 0.19 concept **0.942..-0.801** (centro +0.07, largura 1.743) | W437 0.996..-0.992 (centro 0, largura 1.988)
+  xf 0.22 concept 0.947..-0.806                                | W437 1.000..-0.996
+  xf 0.25 concept 0.947..-0.806                                | W437 1.000..-0.996
+  xf 0.28 concept 0.947..-0.796 (SOLIDO)                       | W437 7 runs (vaos) ✗
+  xf 0.31 concept 0.937..0.592 | 0.505..-0.762 (2 runs)        | W437 5 runs ✗
+  xf 0.34 concept 0.660..-0.670                                | W437 0.636..-0.632 (~)
+=> o concept esta DESLOCADO ~+0.07 (5% da largura) e e assimetrico => a vista TOP nao e ortografica limpa
+   (esta rotacionada/inclinada na prancha). O modelo e simetrico por construcao => erro sistematico
+   irredutivel na comparacao do TOP.
+
+## AS TRES LIMITACOES DA ARTE DE REFERENCIA (todas medidas)
+  1. Proporcao: concept H~1.256 vs contrato H=1.207 (+4%) — razoes de aspecto consistentes em 4 vistas.
+  2. Vistas mutuamente inconsistentes: a mesma peca da +-0.22 no FRONT e +-0.555 no REAR (fator 2.5).
+  3. TOP rotacionado/assimetrico: centro deslocado +0.07 (~5%).
+=> O PISO de erro do audit nao e geometria: e a arte. As vistas SIDE e FRONT sao as confiaveis (simetricas
+   e com razoes coerentes) => **priorizar SIDE e FRONT** para os proximos ajustes.
+
+BASE: W437 — IoU 0.821 | pior 0.668 | COR_TV 0.253 | excesso 12.1 | falta 8.3 | <0.80 = 6.
+PROXIMOS (SIDE/FRONT, por FALTA): side/TRASEIRA 19.3% | side/PARACH_RODA 13.2% | side/BICO 9.9% |
+front/NOSE 9.8% | side/PILOTO 5.9% (a menor falta entre as grandes).
