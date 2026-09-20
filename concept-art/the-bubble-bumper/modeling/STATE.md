@@ -3099,3 +3099,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   visor_band). Se NAO mudar, o ocupante esta em x 0.15..0.18 (frente das luvas/braco).
 **LICAO DE METODO**: ao particionar uma prova por delecao, repetir SEMPRE a sub-faixa exata do que ja foi testado;
   uma faixa larga mistura 2 pecas e o resultado agregado nao identifica nenhuma das duas.
+
+
+## Z2-A RESOLVIDO (particao) — o ocupante de t0.40 e M_Dark ACIMA de z0.65
+  W502 del_mat M_Dark, del_x [0.14,0.30], **del_z [0.65,0.95]** => 209 faces, muda SO t0.40: 0.566 -> 0.519
+  EMA 0.0381 -> 0.0359 (melhor ate agora, sem nenhuma alteracao de geometria — so diagnostico)
+  => LUVAS (252 faces, z<=0.619) INOCENTES. O ocupante esta ACIMA de z0.65 em x 0.14..0.30.
+  Candidatos descartados por x: headrest/vents/helm_intake/visor_band ficam atras (x negativo).
+  Restante: estrutura escura do BRACO/ANTEBRACO estendido ao volante, acima de z0.65 (o comentario do codigo
+  diz 'braco: ombro -> cotovelo -> mao NA MANOPLA do volante').
+  RESIDUO: mesmo removendo tudo, sobra +0.046 de t0.40 (0.519 vs concept 0.473) => ha um SEGUNDO ocupante.
+
+**PROXIMO**: ler `braco`/arm em pilot() para pegar os literais de z (>=0.65) e expor `arm_dz`; depois
+  repetir del_mat restringindo ao que sobra (z<0.65 / x<0.14) para achar o 2o ocupante dos +0.046.
+**FERRAMENTA**: a particao por sub-faixa (mesmo material, faixas disjuntas) identifica o ocupante em 2 builds
+  em vez de inferir por bbox — foi o que faltou nos 3 primeiros testes do trecho A.
