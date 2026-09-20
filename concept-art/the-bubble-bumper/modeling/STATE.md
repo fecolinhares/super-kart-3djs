@@ -5708,3 +5708,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PROXIMO: mover/duplicar o print para DEPOIS do transform_apply e comparar com a bbox do .blend final (medida por
     M_ChinPanel). UM print por build, ancorado por TEXTO, validado no SRC final.
   W681D verde: QA ok, sep_parts=14, globais preservadas.
+
+
+## *** BUG DO PAINEL CORRIGIDO (P57): COORDS DE MUNDO SOBRE VERTS LOCAIS ***
+  ISOLAMENTO (P52dbg apos o transform_apply, W682D): dim=(0.05, 0.184, 0.108) — A CRIACAO E EXATA.
+    Logo o inflar entrava DEPOIS: nos lacos de taper/bevel (ou no join).
+  CAUSA (P57): os lacos usavam _z0 e _zm (=0.694, valores de MUNDO) sobre verts que, apos o transform_apply, estao em
+    coords LOCAIS centrados em 0 (+-0.054). Assim t = (co.z - 0.640)/0.108 ~ -6 e o fator do taper (1-0.40*(1-t)) = -1.96
+    NEGATIVO -> inflava e espelhava y e z. Correcao: usar a altura LOCAL (_h=(z1-z0)/2), t=(co.z+_h)/(2*_h), e escalar z
+    localmente (co.z *= (1-bf)) sem somar _zm.
+  RESULTADO (M_ChinPanel):
+    W682D (bug): y[+-0.142]=0.284 | z 0.694-0.874 = 0.1804 m (222 px)
+    W683D (fix): x[-0.152,-0.102]=0.050 | y[+-0.064]=0.128 | z 0.647-0.741 = 0.0940 m = 115 px
+    Bate com o esperado: 0.108*(1-0.26)=0.080 de encolhimento pela face frontal do bevel + taper -> 0.094 medido.
+  ALVO vs ATUAL: 0.108 m (133 px) alvo; 0.094 m (115 px) atual = 86%% -> ajustar z0/z1 (compensar o bevel) ou reduzir o bevel.
+  LICAO CENTRAL (4a da familia 'instrumento'): APOS transform_apply(scale), os verts estao em coords LOCAIS — nunca aplicar
+    formulas com valores de mundo (centros/limites) sobre eles. Foi isso que fez o painel parecer 'bico' gigante no gate visual.
+  W683D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
