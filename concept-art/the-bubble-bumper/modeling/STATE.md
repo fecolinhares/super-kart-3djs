@@ -7039,3 +7039,12 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   [P106] 15 materiais em modo flat+saturado: roughness 1.0, specular 0, emissao 35%% da propria cor base.
   ###QA### True | falhas=[] | sep 14. Mudanca SO de material (nenhuma geometria tocada, QA intacto).
   CINCO MUDANCAS DE FORMA/ACABAMENTO nesta virada: P102 para-choque, P103 asa, P104 grade, P105 tread, P106 toon.
+
+
+## P107: ESPUMAS LATERAIS DOS SIDEPODS ***
+  [P107] 2 cilindros de eixo Y (r=0.085, d=0.075) em y=+-0.505, x=-0.115, z=0.196, material M_Yellow do proprio PODS,
+  juntados. ###QA### True | falhas=[] | sep 14.
+  SEIS MUDANCAS nesta virada de approach: P102 para-choque (tubo+espumas toroidais), P103 asa (tubo+discos),
+  P104 grade (5 vaos), P105 tread (4 pneus), P106 toon (15 materiais), P107 espumas laterais.
+  FALTA: contorno preto (inverted hull - adiciona geometria, mexe em sep_parts, exige cuidado) e refinamento de
+  proporcao do cockpit/prancha.
