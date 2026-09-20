@@ -6067,3 +6067,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     2. VISEIRA 'caixa': o angulo de 90 graus lido pelo vision esta nos cantos LATERAIS (onde a casca termina). Arredondar a
        borda lateral / aumentar a densidade perto da borda para a silhueta nao ter quina.
   W700D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## *** O VISION ERROU: OS OLHOS SAO PEQUENOS E ENCOSTADOS, NAO GRANDES E AFASTADOS ***
+  Gate v15 dizia: 'olhos gigantes e afastados demais -> reduza ~50% e junte ao centro'. MEDICAO (W700D, /tmp/eyes.py):
+    OLHO ESQ: 56 faces | y[+0.0012,+0.0252] larg=0.0239 (2,4 cm) | z[0.7576,0.8000] alt=0.0424 (4,2 cm) | centroide (y=+0.0156, z=0.7785)
+    OLHO DIR: espelhado (centroide y=-0.0156)
+    DISTANCIA ENTRE CENTROIDES = 0.0311 (3,1 cm)
+    DISTANCIA ENTRE AS BORDAS INTERNAS = 0.0025 -> 2,5 mm: OS OLHOS ESTAO ENCOSTADOS
+    CASCO largura = 0.3299 -> alvo do concept por olho = 20,6% = 6,8 cm. MODELO = 2,4 cm = 35% do alvo.
+  CONCLUSAO: o vision esta ERRADO nos DOIS pontos que apontou. Os olhos sao 65% MENORES que o alvo do concept (nao 'gigantes')
+    e estao praticamente se tocando (2,5 mm entre as bordas internas), ou seja NAO estao 'afastados demais'. O que engana a
+    leitura e o CONTRASTE no render: discos brancos brilhantes sobre capacete azul-escuro, em close, leem como grandes.
+  ACAO CORRETA (oposta a do vision): AUMENTAR os olhos de 2,4 cm para ~6,8 cm (fator ~2,8) e ABRIR um vao entre eles.
+    Manter a altura oval (o concept tem olho mais alto que largo); conferir o aspecto h/w depois.
+  LICAO (5a da familia 'instrumento'): quando o vision propuser uma correcao de PROPORCAO (tamanho/distancia), MEDIR o objeto
+    primeiro. Vision julga CONTRASTE; a medida julga dimensao. Duas vezes nesta sessao o vision descreveu o que o numero negou
+    (o contador de centroides e agora os olhos).
+  W700D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14.
