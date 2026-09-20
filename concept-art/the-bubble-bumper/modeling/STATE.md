@@ -1657,3 +1657,38 @@ build de CONTROLE** antes de comparar: se o controle nao reproduz a base exata, 
 Corolario: quando o vision descreve algo que a mudanca declarada nao explica, **suspeitar do instrumento
 antes de descartar o vision** — nas duas vezes em que isso aconteceu nesta sessao (mascara TOP corrompida e
 o OVR incompleto), o vision estava certo.
+
+
+## BRACKET DO ENDPLATE (ep_s) — 4 valores, otimo identificado
+
+| ep_s z | IoU   | P10   | pior (side/TRASEIRA) | COR_TV | excesso | falta | <0.80 |
+|--------|-------|-------|----------------------|--------|---------|-------|-------|
+| 0.085  | 0.821 | 0.781 | 0.668                | 0.261  | 12.6    | 7.8   | 4     |
+| **0.095** | **0.826** | **0.790** | 0.680        | 0.251  | 12.9    | 7.0   | **4** |
+| 0.120  | 0.825 | 0.788 | **0.690**            | **0.249** | 13.4 | **6.7** | **4** |
+| 0.145  | 0.822 | 0.785 | **0.691**            | **0.249** | 14.0 | 6.6   | 5     |
+
+=> **W457 (ep_s z=0.095) e a base**: melhor IoU E melhor P10, com <0.80 mantido em 4.
+   O ep_s melhora monotonamente a PIOR REGIAO (0.668->0.680->0.690->0.691) e a FALTA (7.8->7.0->6.7->6.6)
+   mas o EXCESSO sobe (12.6->12.9->13.4->14.0) e em 0.145 o <0.80 volta a 5. Compromisso em 0.095.
+
+CONFIRMACAO DA HIPOTESE (medida, SIDE t 0.66, runs por linha):
+  concept:  0.54..0.69 | 0.73 | 0.89..0.99      <- material na asa/endplate
+  W446:     0.42..0.44 | 0.53..0.72             <- FALTAVA 0.89-0.99
+  W457:     0.42..0.44 | 0.53..0.72 | 0.90..0.94 <- **material APARECEU onde o concept tem** (efeito do ep_s)
+E em t 0.68/0.70 o concept tem 0.90-0.99/0.95-0.99 e o modelo ainda nao -> e por isso que o ep_s maior (0.120)
+ainda melhora a pior regiao; mas o custo em excesso/IoU chega primeiro.
+
+## REFUTADO: subir a ASA (wing_z) nao era a resposta
+W458 (wing_z 0.700, testado LIMPO na base canonica): IoU 0.826->**0.749**, P10 0.790->**0.657**,
+pior 0.680->**0.405**, COR_TV ->0.264, excesso 12.9->**20.4**, falta 7.0->**12.2**, <0.80 4->**8**,
+side/TRASEIRA 0.680->0.577, rear/ESCAPES 0.890->0.670 (falta 3.0->28.2%).
+=> wing_z=0.585 CONFIRMADO. Bracket da asa: 0.585 (melhor) | 0.626 (rejeitado, testado contaminado antes) |
+   0.700 (rejeitado, testado LIMPO agora).
+   A t 0.54 eu havia inferido que a asa estava 15cm baixa por causa dos vaos em x -0.75..-0.92 e -1.06..-1.18;
+   a inferencia estava ERRADA — o alvo era o ENDPLATE (altura), nao a asa (posicao).
+
+## BASE ATUAL: W457
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.251 | excesso 12.9 | falta 7.0 |
+N=18 | <0.90 17 | <0.80 4 | sep_parts 14 | 0 non-manifold | QA aprovado.
+Parametros: BASE_PARAMS.json + ep_s=[0.085,0.042,0.095].
