@@ -6868,3 +6868,10 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (ex.: so na textura/normal, ou aprofundando os rasgos para dentro em vez de girar o volume).
   LICAO (12a): antes de 'melhorar' uma feature, medir o efeito dela na SILHUETA (perfil de largura por linha). Um ajuste que
     nao se le na vista que o gate usa pode so criar defeito. Custo zero medido > ganho nao medido.
+
+
+## P96: P91 REVERTIDO (RESPIROS VERTICAIS) + CRITERIO DE SILHUETA POR PIXELS ***
+  vent_tilt 22 -> 0. ###QA### True, sep 14, 0 erros.
+  CRITERIO NOVO DE SILHUETA (/tmp/sil.py): por linha, a largura do azul. PICOS locais (crescimento >6 px de uma linha p/
+    outra) = protuberancias. RESULTADO: 3 picos em 356 linhas -> silhueta LISA (uma silhueta com espinhos teria dezenas).
+  Este e o instrumento que faltava: mede a SILHUETA (o que o vision chama de 'romper a curva'), nao a posicao de vertices.

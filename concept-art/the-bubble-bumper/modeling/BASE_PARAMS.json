@@ -146,7 +146,7 @@
   "vent_sy": 0.023,
   "vent_sz": 0.01,
   "vent_inset": 0.0028,
-  "vent_tilt": 22.0,
+  "vent_tilt": 0.0,
   "_nota_g26_vents": "P35: vents assentados na SUPERFICIE REAL (raycast outside-in, mesmo instrumento da faixa) — antes eram empurrados 11mm PARA DENTRO numa casca de 13mm (enterrados: 'casco liso azul'). W611D (sx .015, sy .034, t=48, f=38, tilt=30) posiciona os vents frontal-superior colados a faixa: VISioN 'SIM, zona correta, colada lateralmente a faixa amarela, foi corrigida a posicao', NOTA 8.5/10. Proximo: aumentar 20-30%% e alongar; render FRONTAL ORTOGRAFICO para confirmar as duas simetricas; depois respiro central na faixa e olhos/sobrancelhas. NOTA: notas de vision NAO sao comparaveis entre boards diferentes (9 -> 5 -> 8.5 com o mesmo capacete); o achado qualitativo por elemento e o sinal.",
   "head_ortho_z": 0.936,
   "head_ortho_s": 0.62,
@@ -312,5 +312,5 @@
   "visor_smooth": 6,
   "wedge_reassign": 1,
   "wedge_form": 0.93,
-  "_nota_g26_p91_reverter": "CAUSA FINAL DAS PONTAS: sao os RESPIROS que eu inclinei no P91. z ~1.05-1.10 e a faixa dos respiros (1.0417-1.0926); girar 22 graus empurrou a quina externa para FORA em y, criando as saliencias que o vision chama de espinhos — e ele mesmo disse que 'de frente os 22 graus quase nao se leem'. Custo/beneficio invertido: ganho nulo, defeito novo. FIX: REVERTER o P91 (respiros verticais); se quiser o respiro inclinado, fazer sem mover a silhueta. LICAO: antes de 'melhorar' uma feature, medir o efeito na SILHUETA (perfil de largura por linha)."
+  "_nota_g26_p96": "P96: P91 revertido (vent_tilt 0). CRITERIO NOVO DE SILHUETA por pixels (/tmp/sil.py): conta PICOS locais no perfil de largura do azul por linha (crescimento >6px). Resultado: 3 picos em 356 linhas = silhueta lisa (com espinhos seriam dezenas). Este instrumento mede a SILHUETA, que e o que o vision chama de 'romper a curva' — nao a posicao de vertices. QA True, sep 14."
 }
