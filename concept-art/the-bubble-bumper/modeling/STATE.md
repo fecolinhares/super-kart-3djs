@@ -2441,3 +2441,33 @@ x -0.74..-0.92 e z 0.6.
 ## BASE: **W472** (+ W473 rzt 0.400)
 IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
 Invariantes: x_range [-1.2,1.15] | z_range [-0.01,1.165] | scale_factor 0.98568.
+
+
+## GRUPO OCUPANTE DO VAO t0.54 ISOLADO (z real por face — 254 faces M_Dark na linha)
+
+   z_min 0.49 :   6 faces  x -0.824..-0.821  y -0.163..+0.163  z 0.495..0.657
+   z_min 0.50 :   8 faces  x -0.811..-0.798  y -0.182..+0.182  z 0.497..0.666
+   z_min 0.51 :  12 faces  x -0.784..-0.761  y -0.182..+0.182  z 0.506..0.677
+   z_min 0.52 :   2 faces  x -0.758..-0.758  y -0.148..+0.148  z 0.517..0.677
+   z_min 0.57 :  28 faces  x -0.440..-0.408  y +0.309..+0.342  z 0.571..0.612
+   z_min 0.59 :  36 faces  x -1.187..-1.156  y -0.303..+0.303  z 0.594..+0.659
+   z_min 0.60 :  32 faces  x -1.195..-1.173  y -0.305..+0.305  z 0.597..0.662
+   z_min 0.61 :  90 faces  x -1.192..-0.408  y -0.300..+0.341  z 0.611..0.630
+   z_min 0.63 :  20 faces  x -1.188..-1.154  y -0.291..+0.291  z 0.627..0.643
+   z_min 0.64 :  20 faces  x -1.184..-1.154  y -0.278..+0.278  z 0.640..0.654
+
+**O GRUPO DO VAO (x -0.758..-0.824, a metade esquerda do vao do concept):**
+  z_min 0.49-0.52 -> **28 faces, x -0.758..-0.824, y +-0.182, z 0.495..0.677**
+  img: x -0.758 -> 0.812 ; x -0.824 -> 0.840  =>  **img 0.812..0.840** = exatamente a metade
+  esquerda do vao do concept (0.81..0.88). **ESTE e o ocupante a remover.**
+  (o grupo z_min 0.59-0.64 x -1.19..-1.15 e a traseira mais extrema, img 0.98..1.0 — fora do vao)
+
+**CANDIDATOS NO CODIGO por y half ~0.18 (busca literal):**
+  Diffuser: box((XRE+dfx 0.200, 0, dfz 0.152), (dfc 0.060, **0.170**, dfh 0.130)) -> x -0.93..-1.05, z 0.02..0.28  => x/z NAO casam
+  Seat_Base: box((-0.060, 0, 0.348), (0.148, **0.188**, 0.052)) -> x -0.208..+0.088               => x NAO casa
+  => nenhum literal casa; a peca e posicionada por TRANSFORM/param (o REAR usa XRE e offsets).
+  **PROXIMO**: no blend, tirar de cada face do grupo a peca de origem por ILHA CONEXA (bmesh
+  linked faces) e reportar o centroide da ilha — isso da o x/y/z da peca sem depender de grep.
+
+## BASE: **W472** (+ W473 rzt 0.400)
+IoU 0.826 | P10 0.790 | pior 0.687 | COR_TV 0.252 | exc 12.8 | falta 7.0 | <0.80 4 | sep_parts 14.
