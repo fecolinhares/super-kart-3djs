@@ -7190,3 +7190,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
        no REAR sao muros engolidos); para-choque em C so existe no TOP — refazer como TUBO em C com espessura
        em TODAS as vistas; afinar o bico descendo.
   META DO GATE: 4 -> 7 exige 1, 2 e 3.
+
+
+## B009 + ACHADOS 22/23 DE INSTRUMENTO ***
+  [B009] sidepods com face interna (y=+-0.24), assoalho escuro, perna fora do tijolo (coxa+canela separadas,
+  canela 48 graus), capacete 18 cm mais baixo (z=0.80), rodas com largura, bico em 3 degraus, para-choque em C
+  como tubo. GATE: 4,0/10.
+  ACHADO 22: render MINUSCULO no quadro — o fundo cinza 0.85 fazia o recorte por 'nao-branco' incluir o fundo
+    inteiro. FIX: film_transparent=True + recorte por ALFA + ortho_scale 2.55 (modelo 2.35 = 92% do quadro).
+  ACHADO 23: a vista TOP tambem estava ESPELHADA (mesma familia do 19). O gate leu a traseira (bitola 0.96,
+    maior) como dianteira e concluiu 'rodas invertidas'. FIX: camera TOP girada 180 em Z (frente +X a ESQUERDA,
+    como o concept).
+  REGRA CONSOLIDADA (19+23): TODAS as vistas de comparacao devem ter a MESMA orientacao do painel de referencia.
+    SIDE e TOP ja custaram veredito falso por espelhamento. Checar as 4 antes de qualquer gate.
+  [B009b] pneus dianteiros alargados 0.16 -> 0.24 (o concept tem pneu gordo) e bitolas 0.78/0.96.
