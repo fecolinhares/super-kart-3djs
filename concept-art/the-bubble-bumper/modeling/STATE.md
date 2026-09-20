@@ -2911,3 +2911,27 @@ Invariantes EXATOS: x_range [-1.2,1.15] | z_range [-0.01,1.165]. Patches no runn
 
 ## BASE: **W485** (W486/W487 sao builds de DIAGNOSTICO — nao entram no audit nem viram base)
 IoU 0.828 | P10 0.791 | pior 0.691@side_TRASEIRA | COR_TV 0.251 | exc 12.9 | falta 6.8 | <0.80 4 | sep_parts 14.
+
+
+## W489 (pyl_dz2 -0.090) — GANHO REAL: VAO ABERTO E PIOR REGIAO +0.008  => NOVA BASE
+
+  CAUSA RAIZ DO ERRO ANTERIOR: `wz = P.get('wing_z',0.570) * H` — o topo do Wing_Pylon e wz-0.030 com
+  wz = 0.585*1.207 ~= 0.706 => topo ~0.676 (exatamente o z 0.655..0.677 da ilha). O patch 16 (`pyl_dz`)
+  baixava o SEGUNDO ponto (0.512 = ponta de BAIXO) => nao mexia na banda. **Mirei no lado errado do tubo.**
+  O patch 17 (`pyl_dz2`) baixa o PRIMEIRO ponto (o topo) => a alavanca correta.
+
+  LINHA row 428 (x mundo): w485 436 px | ... -0.836..-0.765 | -1.185..-0.945
+                           w489 410 px | ... **VAO LIMPO**   | -1.185..-0.945   (o vao t0.54 FECHOU)
+  AGREGADO: IoU 0.828 (=) | P10 0.791 (=) | **pior 0.691->0.699** | COR_TV 0.251->0.253 | **excesso 12.9->12.8** |
+  falta 6.8 (=) | <0.80 4 (=) | **side/TRASEIRA 0.691->0.699** (excesso 19.1->**17.7**, COR 0.234->0.247,
+  falta 17.6->17.7) | rear/ESCAPES 0.893 (=) | rear/ASA_CAPACETE 0.912 (=)
+  => NENHUMA metrica agregada piorou. **ADOTADO como base.**
+
+**METODO QUE FUNCIONOU (para reuso)**: 1) delecao no pipeline canonico (W487) para PROVAR o material
+  ocupante; 2) ilhas conexas bmesh + z distintos por ilha (bimodal 0.49-0.52 / 0.655-0.677) para casar
+  com a peca; 3) leitura do codigo para achar o parametro REAL (cuidado: literais multiplicados por H);
+  4) patch no ponto certo do tubo; 5) A/B na linha fixa + audit.
+
+## BASE: **W489** (nova) = W485 + pyl_dz2 -0.090
+IoU 0.828 | P10 0.791 | pior 0.699@side_TRASEIRA | COR_TV 0.253 | exc 12.8 | falta 6.8 | <0.80 4 | sep_parts 14.
+Invariantes EXATOS: x_range [-1.2,1.15] | z_range [-0.01,1.165]. Patches no runner: 1..17.

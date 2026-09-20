@@ -136,6 +136,16 @@ if _dm and _dz and _dx:
 # --- passe de MASCARA"""
 if old15 in SRC:
     SRC=SRC.replace(old15,new15,1)
+# patch 16: Z do pilar da asa (Wing_Pylon_L/R) — OCUPANTE PROVADO da banda t0.54 (W487)
+old16a="[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)]"
+new16a="[(wx1+0.075,sy*0.150,wz-0.030),"       "(wx1+0.130,sy*0.150,0.512+P.get('pyl_dz',0.0))]"
+if old16a in SRC:
+    SRC=SRC.replace(old16a,new16a,1)
+# patch 17: topo do pilar da asa (ponto ALTO, que vem de wz=wing_z*H) — a alavanca correta
+old17="[(wx1+0.075,sy*0.150,wz-0.030),"
+new17="[(wx1+0.075,sy*0.150,wz-0.030+P.get('pyl_dz2',0.0)),"
+if old17 in SRC:
+    SRC=SRC.replace(old17,new17,1)
 
 old8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
 new8b="py=tube_round('Wing_Pylon_'+('L' if sy>0 else 'R'),[(wx1+0.075,sy*0.150,wz-0.030+P.get('strut_dz',0.0)),(wx1+0.130,sy*0.150,0.512)],0.036,14)"
