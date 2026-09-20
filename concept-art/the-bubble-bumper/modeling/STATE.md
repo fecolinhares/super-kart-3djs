@@ -5795,3 +5795,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     M_Face:   0.436 -> 0.336 (132%% -> 102%%).
     M_Visor intacta em 0.333 (101%%) e M_Blue intacta em 0.330 — o casco nao mudou.
   W687D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
+
+
+## *** GATE VISUAL W687D: 6.5/10 (ERA 3.5) — +3.0 ***
+  Vision (prancha v9, concept | modelo, W687D):
+    (1) 'Sim, largura agora certa, capacete envolve no tamanho certo' -> CONFIRMA o P59;
+    (2) nota 6.5/10 (era 3.5 no W671D: +3.0);
+    (3) maior erro restante: 'viseira caixa reta, sem curva e sem afunilar';
+    (4) 'largura proporcional, mas ainda parece placa chapada'.
+    Reconhece explicitamente: 'você corrigiu a largura. No 3D antigo era 32% mais larga - efeito prato. Agora ~2%, flush
+    lateralmente. E a mentoneira foi arredondada, menos bloco.'
+  PROXIMOS ERROS (na ordem que o vision descreveu, do concept para comparar):
+    1. VISEIRA: o concept e 'cinza translucida, CURVA, que ENVOLVE o rosto, mais larga em cima e AFUNILANDO para baixo ate
+       encaixar na mentoneira SEM VAO'. Modelo: caixa reta, cantos a 90 graus, opaca. -> dar curvatura (casca esferica),
+       taper de cima para baixo, transparencia e encaixe sem vao. MAIOR ERRO.
+    2. FAIXA: 'muito mais larga, curta e grossa que no concept, terminando reta'. Concept: faixa fina do topo ate o nariz,
+       continuando na mentoneira. -> estreitar, alongar e afinar a terminacao.
+    3. OLHOS: 'enormes, muito separados, pupilas grandes, sobrancelhas pretas grossas chapadas'. -> menores, mais proximos,
+       sobrancelha em arco fino.
+    4. VAO entre viseira e queixo ('vão preto/vasado') que NAO existe no concept -> fechar.
+    5. Discos pretos laterais (pivos da viseira) visiveis nas laterais -> remover ou embutir.
+  W687D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
