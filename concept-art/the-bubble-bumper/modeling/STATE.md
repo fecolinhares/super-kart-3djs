@@ -1741,3 +1741,37 @@ uniforme**. Proximo teste: `abt_dz` menor (-0.030) ou z por ponto (ponta alta + 
 IoU 0.826 | P10 0.790 | pior 0.680 | COR_TV 0.251 | exc 12.9 | falta 7.0 | <0.80 4 | sep_parts 14.
 Params: BASE_PARAMS.json + ep_s=[0.085,0.042,0.095].
 Runners/patches disponiveis em run_variant.py: ep_s (endplate), ab_x (airbox x), abt_dz/abt_r (duct).
+
+
+## W463 = NOVA BASE — duct -3cm: estrutura correta SEM custo agregado
+
+`abt_dz=-0.030` (duct: z 0.774/0.704/0.628 -> 0.744/0.674/0.598).
+
+LINHA-ALVO t 0.66 (SIDE):
+  concept: 0.54..0.69 | 0.73..0.73 | 0.89..0.99
+  W457:    0.53..0.72                 | 0.90..0.94    (run continuo)
+  W462:    0.53..0.69                 | 0.90..0.94    (borda certa, sem o vao)
+  W463:    0.53..0.69 | 0.69..0.70    | 0.90..0.94    <- **run SPLIT: o vao ABRIU na posicao certa**
+
+AGREGADO — W463 nao custa NADA:
+  metrica   W457    W463
+  IoU       0.826 = 0.826
+  P10       0.790 = 0.790
+  pior      0.680 = 0.680
+  excesso   12.9  = 12.9
+  falta     7.0   = 7.0
+  <0.80     4     = 4
+  COR_TV    0.251 -> 0.252  (0.001)
+  side/MOTOR 0.840 -> 0.839 (0.001)
+=> **W463 e a nova base**: ganho ESTRUTURAL (vao correto) com metricas identicas.
+
+## BRACKET DO DUCT (abt_dz) — 3 valores
+  0.000 (W457): run continuo 0.53..0.72 | IoU 0.826
+  -0.030 (W463): run split 0.53..0.69 + 0.69..0.70 | IoU 0.826  <- **OTIMO**
+  -0.060 (W462): 0.53..0.69 sem o vao em 0.70 | IoU 0.825 | side/MOTOR falta 11.6% ✗
+=> o duct desceu 3cm: abre o vao certo sem perder a faixa do motor. A 6cm ja perde.
+
+## BASE ATUAL: W463
+IoU 0.826 | P10 0.790 | pior 0.680@side_TRASEIRA | COR_TV 0.252 | exc 12.9 | falta 7.0 | N=18 |
+<0.90 17 | <0.80 4 | sep_parts 14 | 0 non-manifold | QA aprovado.
+Params: BASE_PARAMS.json + ep_s=[0.085,0.042,0.095] + abt_dz=-0.030.
