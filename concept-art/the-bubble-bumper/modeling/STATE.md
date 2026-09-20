@@ -7168,3 +7168,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     3. TOP/FRONT: o U — dois volumes laterais + VAZIO central; traseira 30-40%% mais larga;
        roda dianteira fina / traseira gorda e com bitola para fora
   LICAO 20: 'desenhar o vazio' — cockpit nao se faz somando blocos, se faz SUBTRAINDO (boolean difference).
+
+
+## B006/B007/B008 — EVOLUCAO DOS GATES (2,5 -> 4,0) ***
+  B006: cockpit por boolean difference. ERRO DE ESCALA 2x (size=1.0 + scale=s da dimensao TOTAL s; eu passei
+    metade) -> banheira saiu 0,99 m em vez de 1,95 m e os cortes quase nao a intersectaram. CORRIGIDO.
+  B006b: boolean OK (chassi 14 faces = U real).
+  B007: MATERIAL DIFUSO + 2 luzes. ACHADO 21 (instrumento): evidencia EMISSIVA (cor chapada sem sombra) NAO
+    mostra cavidade — 'cavidade = concavidade + oclusao'. Sem sombreado, um vao e invisivel. Regra: blockout
+    exige material difuso + luz direcional para o recesso escurecer.
+  B008: calha real (assoalho rebaixado z 0.13-0.26 e estreito +-0.22; sidepods ALTOS ate 0.58 e AFASTADOS
+    +-0.22 a +-0.54), para-choque em C, bitolas diferenciadas (dianteira 0.60 / traseira 0.86), piloto afundado,
+    volante inclinado. GATE: 4,0/10 — 'SIDE e a unica vista que se salva: perfil baixo, roda pequena na frente /
+    grande atras, tronco reclinado, bumper na ponta; da para dizer que e um monoposto baixo'.
+  O QUE FALTA (ditado pelo gate, para B009):
+    1. PAREDES SEM PAREDE: os sidepods precisam de espessura e FACE INTERNA vertical que receba sombra;
+       assoalho mais escuro (forjar AO). Hoje sao caixas chapadas.
+    2. PERNA INVISIVEL: tirar a perna de dentro do tijolo amarelo, modelar coxa+canela separadas; BAIXAR o
+       capacete 15-20 cm (hoje z=0.98 com sidepod em 0.58) e inclinar o tronco de verdade.
+    3. RODAS E BUMPER PLACEHOLDER: rodas como CILINDROS deitados com largura e eixo (no FRONT viram risquinhos,
+       no REAR sao muros engolidos); para-choque em C so existe no TOP — refazer como TUBO em C com espessura
+       em TODAS as vistas; afinar o bico descendo.
+  META DO GATE: 4 -> 7 exige 1, 2 e 3.
