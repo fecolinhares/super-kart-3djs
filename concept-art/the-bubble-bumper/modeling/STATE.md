@@ -5838,3 +5838,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     deformar uma CAIXA (taper+offset quadratico) nao produz uma casca esferica; o taper em y com wrap em x criou quinas que
     estouram. Nao insistir na deformacao: construir a viseira como geometria curva de origem (secao de esfera/shrinkwrap).
   P60 REVERTIDO -> W689D volta ao estado do W687D (gate 6.5), que permanece a MELHOR base validada do capacete.
+
+
+## *** VISEIRA: O ERRO E A PROFUNDIDADE (ESTA 22 CM ATRAS DA SUPERFICIE DO CASCO) ***
+  GEOMETRIA MEDIDA (W689D, por material, mw@p.center):
+    CASCO (M_Blue): bbox x[-0.568,-0.107] y[+-0.165] z[0.731,1.141] -> centro (-0.3376, 0.0000, 0.9357)
+                    meia-largura maxima em y = 0.1649, no z 0.940 (equador) -> esfera de raio_y ~0.165
+    VISEIRA (M_Visor): x[-0.347,-0.131] y[+-0.167] z[0.862,1.011]
+      |y| por faixa de z: 0.86-0.90 -> 0.1641 | 0.90-0.94 -> 0.1667 | 0.94-0.98 -> 0.1666 | 0.98-1.02 -> 0.1619
+      (|y| praticamente CONSTANTE -> o CONTORNO da viseira JA acompanha a esfera do casco)
+  DIAGNOSTICO DECISIVO: o frontal da VISEIRA esta em x=-0.347, enquanto o frontal do CASCO esta em x=-0.568.
+    A viseira e uma CAIXA 0.221 m ATRAS da superficie do casco — dentro da cabeca. O contorno esta certo; a
+    PROFUNDIDADE/curvatura e que esta errada. E isso que produz 'caixa reta, frente plana' em todos os gates
+    (inclusive na P60: eu deformei a caixa sem mover a frente para a superficie, e o vision viu apenas quinas novas).
+  P61 PLANEJADO (casca esferica de verdade, nao deformacao):
+    reconstruir os verts de M_Visor na superficie da esfera do casco: centro (-0.3376, 0.0000, 0.9357), raio_y 0.1649;
+    para cada vert, manter z e o angulo horizontal (atan2 em y), recalcular x pela esfera com um offset externo de ~1,2 cm;
+    restringir a faixa z 0.862..1.011 e ao hemisferio frontal (-x). Assim a viseira ABRACA o casco e a frente cai na superficie.
+    Manter M_Visor como material (medicao por material ja validada).
+  W689D verde (revert confirmado): 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, gate 6.5 preservado.
