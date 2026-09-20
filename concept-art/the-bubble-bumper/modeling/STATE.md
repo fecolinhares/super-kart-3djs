@@ -6567,3 +6567,10 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   P71: _xp = _xc + _tk/2 + 0.004 ; P80: _xp4 = eye_x + 0.008.
   Medido: LENTE x=-0.2166 | PUPILA x=-0.2089 | CATCHLIGHT x=-0.2086.
   Criterio atendido: x(pupila) > x(lente) e x(catchlight) > x(pupila). ###QA### True, sep 14, 0 erros.
+
+
+## P82: CATCHLIGHT AUMENTADO (RESOLUCAO DO INSTRUMENTO) ***
+  Gate v28: o vision nao via catchlight mesmo com o brilho na frente (x -0.2086 > pupila -0.2089, medido).
+  CAUSA: r=0.0025 = 5 mm de diametro = ~2-3 px no render de 860x860 onde o casco (0.33 m) ocupa ~600 px.
+    Abaixo do minimo de ~30 px por feature -> invisivel. (A mesma licao de resolucao do headortho x front.)
+  FIX: catch_r 0.0025 -> 0.0045 (9 mm, ~16 px). [P80] confirma r=0.004. ###QA### True, sep 14, 0 erros.
