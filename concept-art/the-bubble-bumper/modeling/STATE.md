@@ -6150,3 +6150,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (lente extrudada, ~5 mm de espessura) formando manifold fechado.
   DECISAO: reverter para manter baseline verde. Registrado que o DESENHO esta validado (2 ilhas, +-0.045, vao positivo,
     0.0446 de largura) e que so falta a topologia fechada para o QA aceitar.
+
+
+## *** CRITERIOS EXATOS DO QA (lidos no codigo, nao inferidos) ***
+  Fonte: /opt/blender-runner/server.py, def qa(ob=None, exigir_manifold=True, min_pct_quads=60.0):
+    falhas = []
+    for nome, m in st.items():
+        if exigir_manifold and m['non_manifold'] > 0: falhas.append('%s: %d non-manifold')
+        if m['pct_quads'] < min_pct_quads:           falhas.append('%s: so %.1f%% quads')
+        if m['loose_verts'] > 0:                     falhas.append('%s: %d verts soltos')
+    return {'aprovado': not falhas, 'falhas': falhas, 'metricas': st}
+  TRES checagens: (1) non_manifold == 0; (2) pct_quads >= 60.0; (3) loose_verts == 0.
+  ANALISE DAS DUAS FALHAS (P70 e P70v2):
+    - pct_quads NAO e a causa: 48 triangulos novos em ~49.467 faces = 0,1%%, nao move a agulha dos 60%%.
+    - loose_verts: a delecao das 112 faces antigas pode ter deixado verts orfaos.
+    - non_manifold: o disco PLANO tem loop de borda aberto -> candidato principal (hipotese confirmada pelos criterios).
+  REQUISITOS DA 3a TENTATIVA (precisos, nao mais por tentativa):
+    a) disco como LENTE FECHADA: fan frontal + fan traseiro compartilhando o aro (manifold fechado, sem borda);
+    b) apos a delecao, remover verts sem faces (bmesh.ops.delete(context='VERTS') nos verts com len(v.link_faces)==0);
+    c) ler o campo 'falhas' do retorno do qa() no log (imprimir qa()['falhas']) — para nunca mais inferir a causa.
+  W706D verde (baseline).
