@@ -429,6 +429,20 @@ assert "cowl_plat_h" not in SRC
 SRC = SRC.replace(_oldp26, _newp26, 1)
 print("G27 patch 26 aplicado: patamar frontal da carena parametrizado")
 
+# patch 27 (G27): substitui os nos da tabela MEDIDA prof_top por valores MEDIDOS na mask v2 (validada por overlay).
+# Causa raiz: a tabela foi medida com a altura INFLADA pela linha de cota embutida na mascara antiga
+# (H=438 em vez de 403 px, fator 1.087), entao TODOS os valores da frente ficaram ~9% baixos
+# (razao media medida 1.106 em xf 0.05-0.25). Substituir numero herdado por medicao e a correcao correta.
+_tb0 = SRC.index("tab=[(0.00,0.204)")
+_tb1 = SRC.index("(0.45,0.575),") + len("(0.45,0.575),")
+_neww = ("tab=[(0.000,0.217),(0.025,0.297),(0.050,0.320),(0.075,0.332),(0.100,0.353),(0.125,0.334),"
+         "(0.150,0.362),(0.175,0.388),(0.200,0.416),(0.225,0.439),(0.250,0.465),(0.275,0.549),"
+         "(0.300,0.551),(0.325,0.549),(0.350,0.540),(0.375,0.479),(0.400,0.509),(0.425,0.621),"
+         "(0.450,0.600),")
+assert len(_neww) > 100 and _tb1 > _tb0
+SRC = SRC[:_tb0] + _neww + SRC[_tb1:]
+print("G27 patch 27: tabela prof_top corrigida com valores medidos (xf 0.00-0.45)")
+
 # patch G26: FBUMP deixa de ser TUBO e vira CARENAGEM FECHADA + LABIO AMARELO EM U + INTAKE LAMELADO.
 # Veredito do vision (IDENTITY-GAPS.md item 1): "barra/tubo prateado horizontal flutuante, fino, reto,
 # separado do chassi, com 2 tocos amarelos. Sem carenagem, sem grade volumosa, sem U amarelo."

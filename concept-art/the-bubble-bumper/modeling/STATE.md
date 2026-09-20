@@ -4061,3 +4061,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     L/H 2.05, W/H 1.171, x_range [-1.158,1.192], z_range [-0.01,1.137], 14 pecas, QA aprovado (identicos).
   RESIDUO NOMEADO: xf 0.417 (dTOP -0.169) — o segundo degrau do concept (+0.126, x=0.212 = borda traseira do
     cowl / zona do cockpit). E zona do G30 (piloto/cockpit), nao da carena. E xf 0.90 (-0.187) e a traseira (G29).
+
+
+## *** G27 FECHADO: A TABELA prof_top ESTAVA ~10%% BAIXA NA FRENTE (altura inflada pela linha de cota) ***
+  DIAGNOSTICO: comparando prof_top com a medicao da mask v2, a razao medido/tabela e 1.106 em xf 0.05-0.25
+    e cai para ~1.04 perto de xf 0.50. Fator 438/403 = 1.087 = H da mascara ANTIGA (que incluia as 12 linhas de
+    pontos da linha de cota) sobre o H real. OU SEJA: a tabela foi medida com a altura inflada pela cota, entao
+    todos os valores da frente ficaram ~9%% baixos. Numero herdado, nao medicao.
+  FIX (patch 27): substitui os 19 nos de xf 0.00-0.45 por valores MEDIDOS na mask v2 validada. Efeito:
+    NOSE z max 0.5073 -> 0.5482 (+4.1cm). Globais IDENTICAS (L/H 2.05, W/H 1.171, x_range, z_range, 14 pecas, QA).
+  SERIE COMPLETA (|dTOP| medio sobre 61 estacoes): W569 0.0652 -> W570 0.0594 -> W571 0.0588 -> W572 0.0537 -> W573
+  TRES CAUSAS DISTINTAS ENCONTRADAS NESTE G27, todas de dado e nao de parametro:
+    (1) fudge <1.0 sobre tabela medida (cowl_k 0.85); (2) feicao MEDIDA ausente da tabela (patamar do concept
+    em xf 0.267-0.350 a 0.551H, implementada via janela trapezoidal + max()); (3) tabela medida com H inflado
+    pela linha de cota (~10%% baixa na frente).
+  RESIDUO RESTANTE NOMEADO: xf 0.417 (-0.169, 2o degrau do concept, zona cockpit -> G30); xf 0.90 (-0.187,
+    traseira -> G29); xf 0.367-0.383 (+0.03 a +0.04, excesso na saida do patamar).
