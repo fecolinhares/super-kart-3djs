@@ -443,6 +443,18 @@ assert len(_neww) > 100 and _tb1 > _tb0
 SRC = SRC[:_tb0] + _neww + SRC[_tb1:]
 print("G27 patch 27: tabela prof_top corrigida com valores medidos (xf 0.00-0.45)")
 
+_o28='        ry=0.098*s+0.030'
+_n28=("        ry=P.get('cowl_ry_k',0.098)*s+P.get('cowl_ry0',0.030)")
+assert _o28 in SRC, 'secao ry da carena nao encontrada'
+SRC=SRC.replace(_o28,_n28,1)
+print('P28: secao ry da carena parametrizada (cowl_ry_k/cowl_ry0)')
+
+_o29='    out=[]; NS=22; secs=[]'
+_n29="    out=[]; NS=int(P.get('cowl_ns',22)); secs=[]"
+assert _o29 in SRC, 'NS da carena nao encontrado'
+SRC=SRC.replace(_o29,_n29,1)
+print('P29: NS da carena parametrizado (cowl_ns)')
+
 # patch G26: FBUMP deixa de ser TUBO e vira CARENAGEM FECHADA + LABIO AMARELO EM U + INTAKE LAMELADO.
 # Veredito do vision (IDENTITY-GAPS.md item 1): "barra/tubo prateado horizontal flutuante, fino, reto,
 # separado do chassi, com 2 tocos amarelos. Sem carenagem, sem grade volumosa, sem U amarelo."

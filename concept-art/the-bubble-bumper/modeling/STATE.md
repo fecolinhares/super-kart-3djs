@@ -4179,3 +4179,28 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Engrossar as SECOES FRONTAIS da carena (o termo '+0.030' em ry=0.098*s+0.030) para que o SUBSURF nao
     colapse o topo ali, e SO ENTAO re-posicionar a janela do patamar. Ordem: primeiro dar sustentacao a secao,
     depois o patamar; fazer o contrario (como em W583D) nao funciona porque a secao nao sustenta o topo novo.
+
+
+## *** G27: W586D E A NOVA MELHOR BASE (ganho no patamar E rampa continua) ***
+  SERIE (|dTOP| medio 61 estacoes | frente-meio | regiao do patamar):
+    W569  0.0652 | 0.0957 | --      (antes do G27)
+    W573  0.0498 | 0.0462 | 0.0285  (patamar curto f=0.12 -> PAREDE vertical)
+    W583D 0.0528 | 0.0558 | 0.0588  (rampa larga -> continua MAS atrasada)
+    W586D 0.0486 | 0.0425 | 0.0176  <-- MELHOR: melhora metrica E mantem rampa continua
+  W586D = janela do patamar deslocada em -0.051 (a 0.215->0.164, b 0.360->0.309), f=0.35, h=0.556.
+    Perfil: model 0.408 -> 0.506 -> 0.543 (continuo) contra concept 0.465 -> 0.549 -> 0.551.
+    Globais INALTERADAS: L/H 2.05, W/H 1.171, x_range [-1.158,1.192], z_range [-0.01,1.137], 14 pecas, QA ok.
+  *** ACHADO: EXISTE UM OFFSET EMPIRICO DE +0.051 ENTRE O xf DO BUILDER E O xf DO RENDER. ***
+    A janela pedida em builder-xf 0.266 produzia patamar em render-xf 0.317. Minha derivacao ANALITICA do
+    mapeamento deu identidade (xf_r = xf_b + 0.001) e estava ERRADA — presumi XFO e L errados. O deslocamento
+    medido (-0.051) e o que funciona. REGRA: para posicionar uma feicao em render-xf, medir o deslocamento
+    empirico com UMA build, nunca derivar analiticamente o mapeamento xf do builder -> xf do render.
+  HIPOTESES REFUTADAS (ambas por medicao, nao por argumento):
+    (a) 'SUBSURF colapsa secao estreita-ALTA' -> W584D engrossou a secao (cowl_ry0 0.030->0.075, COWL y
+        0.1273->0.1721) e o perfil SIDE saiu BYTE-IDENTICO. Motivo: numa vista LATERAL a largura em Y e
+        invisivel. Nunca validar hipotese de secao com a vista que nao a enxerga.
+    (b) 'o degrau nao esta resolvido por falta de estacoes' -> W585D com cowl_ns 22->66 mudou quase nada
+        (0.0528 -> 0.0529).
+  PATCHES NOVOS (run_variant.py): P28 secao ry da carena (cowl_ry_k/cowl_ry0); P29 NS da carena (cowl_ns).
+  PENDENTE: subir W586D para o GATES/BASE_PARAMS como base oficial do G27 e seguir para o degrau de xf 0.417
+    (-0.156, borda traseira do cowl / zona do cockpit -> G30) e a traseira xf 0.90 (-0.187 -> G29).
