@@ -6574,3 +6574,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CAUSA: r=0.0025 = 5 mm de diametro = ~2-3 px no render de 860x860 onde o casco (0.33 m) ocupa ~600 px.
     Abaixo do minimo de ~30 px por feature -> invisivel. (A mesma licao de resolucao do headortho x front.)
   FIX: catch_r 0.0025 -> 0.0045 (9 mm, ~16 px). [P80] confirma r=0.004. ###QA### True, sep 14, 0 erros.
+
+
+## *** ACHADO ESTRUTURAL: A VISEIRA RENDERIZA EM DITHER (SCREEN-DOOR) ***
+  O gate v29 nomeou a causa de varias queixas persistentes: 'a transparencia da viseira em modo DITHERED / screen-door
+    do Eevee, gerando borda inferior toda serrilhada e pixelada'. E o catchlight 'invisivel, engolido pela
+    transparencia/dither da viseira'.
+  CONSEQUENCIA DA CAUSA: o alpha da M_Visor (0.30, blend_method BLEND — P64a) esta renderizando em xadrez. Isso:
+    1. COME o catchlight (16 px de branco viraram pixels alternados, ilegiveis);
+    2. CORTA os olhos ('cortando os olhos no meio');
+    3. produz o SERRILHADO/PIXELADO que o vision cita desde o primeiro gate;
+    4. explica por que 3 correcoes GEOMETRICAS dos olhos nao mudaram a leitura.
+  E MATERIAL/RENDER, NAO GEOMETRIA. Pistas: Blender 5.2 + Eevee Next (nomes sugerem raytraced transmission com dither).
+  PROXIMO (nao ajustar geometria):
+    1. conferir no .blend os settings de transparencia do material M_Visor (blend_method, use_screen_refraction, settings de
+       raytracing/dither do Eevee) e do RENDER (film transparent, taa_render_samples);
+    2. alternativas: aumentar taa_render_samples; trocar o modo de transparencia; ou reduzir a dependencia do alpha
+       (viseira com alpha mais alto e menos camadas);
+    3. so depois reavaliar catchlight e 'olhos cortados'.
+  LICAO (instrumento/robusto, 10a): quando 3 correcoes geometricas da MESMA feature nao mudam a leitura visual, o problema
+    esta no PIPELINE DE RENDER (material/engine), nao na geometria. Medir o render (pixels) revela o que a geometria esconde.
