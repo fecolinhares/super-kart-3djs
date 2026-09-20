@@ -6916,3 +6916,9 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   SERIE DE INSTRUMENTOS (13, consolidada): qa()['falhas'] | reassign-nunca-delete | solido fechado | ilha conexa | todos os
     candidatos a contorno | medir por faixa | teste em pixels | 3 correcoes geometricas = pipeline de render | sentido do eixo |
     resolucao minima ~30 px | print pre-scale vs medida pos-scale | vertice != face | SILHUETA por picos | SIMETRIA por pareamento.
+
+
+## P97: ESPACAMENTO DOS OLHOS NO ALVO DO CONCEPT ***
+  MEDIDO: extensao do par 0.0544 / casco 0.3125 = 17,4%% (alvo 20,6%% do concept) -> o par estava 15%% estreito.
+  [P97] eye_sep 0.038 -> 0.048 -> extensao 0.073 = 23,4%% do casco (alvo 20,6%%): agora 13%% ACIMA, dentro da mesma ordem.
+  ###QA### (ver log) — base para o proximo ajuste fino se necessario.

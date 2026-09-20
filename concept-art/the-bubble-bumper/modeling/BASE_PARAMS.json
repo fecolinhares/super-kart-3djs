@@ -280,7 +280,7 @@
   "eye_scale": 2.85,
   "_nota_g26_eye_ilhas": "M_Eye NAO SAO DOIS OLHOS: medindo por ILHA CONEXA (union-find por vertice compartilhado), sao 2 ilhas AMBAS centradas em y~0, cada uma cobrindo a largura inteira (0.1294 e 0.1280), separadas em z (0.7741 e 0.7770) — duas camadas empilhadas, nao olho esquerdo/direito. Isso INVALIDA a medicao anterior que dividia por y>0/y<0 (media as METADES de um elemento largo e chamava de dois olhos de 2,4 cm com 2,5 mm entre bordas). O vision acertou no tamanho: o elemento tem 12,9 cm de largura. REGRA: antes de medir 'o par', verificar que o par EXISTE como geometria separada — usar ilhas conexas, nunca cortes por sinal de coordenada. PROXIMO: reconstruir M_Eye como dois discos ovais discretos (0.068 de largura cada, vao positivo entre eles).",
   "eye_disc": 0.025,
-  "eye_sep": 0.038,
+  "eye_sep": 0.048,
   "eye_x": -0.2166,
   "eye_z": 0.7745,
   "eye_thick": 0.006,
@@ -312,5 +312,6 @@
   "visor_smooth": 6,
   "wedge_reassign": 1,
   "wedge_form": 0.93,
-  "_nota_g26_simetria_ok": "SIMETRIA MEDIDA (13o instrumento, pareamento de vertices espelhados): 4684 pares, 2 verts sem par, desvio maximo dz=0,02 mm e dx/dy=0,07 mm. A geometria da viseira e SIMETRICA a menos de 0,1 mm — logo a assimetria de PIXELS (borda direita 2x mais rugosa: 3,12 vs 1,52 px) e artefato de RENDER, nao de geometria (mesma classe do dither). O instrumento refutou em UMA medicao a hipotese levantada pela medicao de pixels — sem ele eu cacaria a assimetria nos passes de modelagem e nao acharia nada."
+  "_nota_g26_simetria_ok": "SIMETRIA MEDIDA (13o instrumento, pareamento de vertices espelhados): 4684 pares, 2 verts sem par, desvio maximo dz=0,02 mm e dx/dy=0,07 mm. A geometria da viseira e SIMETRICA a menos de 0,1 mm — logo a assimetria de PIXELS (borda direita 2x mais rugosa: 3,12 vs 1,52 px) e artefato de RENDER, nao de geometria (mesma classe do dither). O instrumento refutou em UMA medicao a hipotese levantada pela medicao de pixels — sem ele eu cacaria a assimetria nos passes de modelagem e nao acharia nada.",
+  "_nota_g26_p97": "P97: espacamento dos olhos. MEDIDO: a extensao do par era 0.0544 contra o casco 0.3125 = 17,4%% (o concept pede 20,6%%), ou seja 15%% estreito. eye_sep 0.038 -> 0.048 leva a extensao a 0.073 = 23,4%%. Este e o instrumento que faltava para o item 'olhos' — medir a EXTENSAO DO PAR como razao da largura do casco, nao o tamanho unitario."
 }
