@@ -5857,3 +5857,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     restringir a faixa z 0.862..1.011 e ao hemisferio frontal (-x). Assim a viseira ABRACA o casco e a frente cai na superficie.
     Manter M_Visor como material (medicao por material ja validada).
   W689D verde (revert confirmado): 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, gate 6.5 preservado.
+
+
+## P61 APLICADO: VISEIRA PROJETADA NA ELIPSOIDE DO CASCO ***
+  [P61] viseira projetada na elipsoide: 9928 verts | centro=(-0.3376,0.0,0.9357) raios=(0.231,0.1649,0.205) off=0.075
+  M_Visor: x[-0.348,-0.089]=0.259 | y[+-0.177]=0.354 | z[0.848,1.026]=0.177
+  ORIENTACAO (importante, resolveu uma confusao de leitura): o frontal do casco e x=-0.107 (o rosto olha para +X) e o
+    fundo/traseira da cabeca e x=-0.568. O frontal da viseira passou de -0.131 para -0.089 = 1,8 cm A FRENTE do casco ->
+    a viseira agora esta SOBRE a superficie, com a frente na superficie e a casca curvando. A estrutura correta.
+  DOIS OVERSHOOTS NUMERICOS a corrigir no proximo build:
+    1. y +-0.177 = 107% do casco (0.165) — o offset de 7,5% e grande demais; usar ~2% (visor_off 0.02);
+    2. z cresceu de 0.149 para 0.177 porque a projecao tambem moveu z para a elipsoide; reconter a faixa (visor_z0/z1) ou
+       limitar a projecao a keep-z. O alvo do concept e z 0.862..1.011 = 0.149.
+  W690D verde: 0 SyntaxError/Traceback/NameError, QA ok, sep_parts=14, globais preservadas.
