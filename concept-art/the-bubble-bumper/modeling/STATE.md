@@ -10619,3 +10619,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     limpeza (sem Solidify, remover o micro de 3 mm, remove_doubles a 0,0008) — os dois ganhos sao
     COMPLEMENTARES, nao alternativos.
   ESTADO: 2 das 5 zonas. MELHOR ESTADO v036/v038 (5,7). OBJETIVO NAO ATINGIDO.
+
+
+## *** REGRA 193 CONFIRMADA: O CAGE FICOU COM ZERO POLOS *** ***
+  ###LIMPEZA### polos(val>5)=0 | maxval=0 | boundary=0 | verts=1822
+  ⟹ ANTES: 23 polos, valencia maxima 20. AGORA: ZERO polos, valencia maxima 4 (TUDO QUAD).
+  ⟹ A CAUSA RAIZ ESTAVA CERTA: a DESCONTINUIDADE NA FRONTEIRA DA ABERTURA criava os 23 polos.
+    Com a transicao continua (smoothstep de 75 mm em fl e yr) + a limpeza na BASE, o cage ficou
+    100%% quad, sem um unico polo.
+  ###MODS### [MIRROR, SUBSURF, WEIGHTED_NORMAL]
+  GATE no avaliado: boundary=0 | NON-MANIFOLD=260 | ZERO-AREA=0 | quase-zero=0 | doubles=913 | fio=1779
+  ⟹ O que sobrou (nonman=260, fio=1779) e gerado pelo SUBSURF sobre o cage NOVO (1822 verts contra
+    1486 do anterior) — e alvo do proximo ciclo, NAO e mais defeito de topologia do cage.
+  LICAO: a causa raiz estava numa LINHA DE CODIGO (a troca brusca de secao na fronteira da abertura),
+    nao numa propriedade do design — e nenhuma quantidade de pos-processamento (dissolve, colapso,
+    desdobrar, merge) resolveria, porque todos eles atacam o SINTOMA.
+  ESTADO: 2 das 5 zonas. MELHOR NOTA 5,7. OBJETIVO NAO ATINGIDO.
