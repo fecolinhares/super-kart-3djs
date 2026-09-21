@@ -9783,3 +9783,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 145: CREASE 1.0 e martelo — cria aresta viva e PINCH especular. Preferir 2-3 LOOPS DE SUPORTE
     espacados + crease 0,5-0,7 (ou bevel) para raio pequeno e controlado.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** TUB v005: RAIRO REAL NO RIM, NARIZ SEM POLO, CAGE 233/233 *** ***
+  (1) CREASE 1.0 -> 0,6 (regra 145: crease 1.0 e martelo, cria pinch) + 2 LOOPS DE SUPORTE
+      espacados nas estacoes adjacentes aos rims. 23 arestas com crease 0,6.
+  (2) NARIZ SEM POLO: em vez de tampa n-gon, leque de QUADS a partir de um vertice central
+      avancado (edge-flow longitudinal limpo).
+  (3) CAGE 3x MAIS DENSO: 233 verts / 233 faces (era 136/130) — 29 estacoes (era 15).
+  (4) ILUMINACAO CORRIGIDA: 3 SUN (key 45 esquerda + fill -60 direita + RIM LIGHT atras 180).
+      O REAR deixou de ser preto: 12,9%% de pixels do objeto (era ilegivel).
+  (5) CHECK DE SINAL (regra 143) em todos: F 14,5%% | S 17,0%% | R 12,9%% | T 19,4%% | CASCA 14,7%%
+  (6) PROVA DE CASCA OCA (regra 144): corte em y=0 + VISTA 3/4 alta (58 de elevacao) que enxerga
+      o INTERIOR — parede externa, parede interna e espessura no mesmo quadro.
+  PERFIL SIDE (topo em m):
+    CONCEPT: 0.364 0.461 0.647 0.651 0.759 1.229 1.233 1.158 0.837 0.878
+    TUB v005: 0.413 0.546 0.598 0.601 0.588 0.580 0.616 0.663 0.767 0.796
+    DELTA:   +0.049 +0.085 -0.049 -0.050 -0.172 -0.650 -0.616 -0.495 -0.070 -0.082
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
