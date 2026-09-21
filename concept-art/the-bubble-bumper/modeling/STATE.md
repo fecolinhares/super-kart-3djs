@@ -8131,3 +8131,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     fornecer largura na cauda, deixando o bumper cuidar so do comprimento.
   MELHOR ESTADO: B087 — FRONT 5,41 | SIDE 3,17 ✓ | REAR 3,24 ✓ | TOP 6,18 | media 4,50%%
     H 1,223 m (-2,3%% do contrato) | L 2,488 m (+5,9%%) | asa acima do capacete ✓ | cor do piloto ✓ | cauda cheia ✓
+
+
+## *** B090-B091: REGRA 66 VALIDADA — E UM PATCH QUE EXISTIA MAS NAO COBRIA A ESTACAO *** ***
+  [B090] criou R_Fairing x[-0,96,-0,62] — objeto EXISTIA (41 objetos no .blend, verificado) mas o perfil NAO mudou
+    (0,420 inalterado) e o contorno ficou IDENTICO ao B088.
+  ⟹ CAUSA: o SubD encolheu o x para dentro de -0,90 e a estacao 88%% esta em x = -0,949 — o objeto existia mas
+    NAO COBRIA a estacao alvo. REGRA 67: depois de criar uma peca, VERIFICAR QUE O BBOX DELA COBRE A REGIAO
+    ALVO — 'o objeto existe' nao e o mesmo que 'o objeto esta onde eu preciso'.
+  [B091] estendeu para x[-1,22,-0,60] compensando o SubD -> VERIFICADO x[-1,170,-0,650] largY=0,739
+    perfil 88%%: 0,420 -> 0,604 ✓✓ | 96%%: 0,420 -> 0,604 ✓✓ (concept 0,666 — quase casou) | TOP 6,54 -> 6,28%% ✓
+    FRONT/SIDE/REAR inalterados (5,41/3,17/3,24) — a delegacao nao mexeu no que ja estava certo ✓
+  ⟹ REGRA 66 VALIDADA: delegar a largura da cauda a uma peca DIFERENTE (R_Fairing) encheu a estacao sem
+    devolver comprimento (L seguiu 2,306 m) — era exatamente o conflito do dono duplo do bumper.
+  ⟹ E o instrumento RESPONDEU a uma mudanca feita no lugar que ele indicou (0,420 -> 0,604): segundo teste de
+    responsividade passando, agora numa peca nova.
+  REGRA 68: 'o objeto existe' e 'o objeto cobre a regiao alvo' sao duas verificacoes diferentes. SubD/offset
+    movem a fronteira efetiva: medir o bbox FINAL contra a coordenada que o instrumento usa.
+  ESTADO: FRONT 5,41 | SIDE 3,17 ✓ | REAR 3,24 ✓ | TOP 6,28 | L 2,306 ✓ | H 1,223 | cauda 0,604 (falta ~0,32)
