@@ -7220,3 +7220,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     banco concha inclinado 22 graus.
   PROXIMO (ditado pelo gate): travar UMA medida de roda (traseira = dianteira x 1.3, nao 2x) e usa-la nas 4
     vistas; escavar o U; viseira frontal larga; botas no pedal.
+
+
+## B013-B016 + ACHADO 25 (falsa precisao) e a ESCADA DE NOTAS ***
+  ACHADO 25: 'FALSA PRECISAO' — os paineis do concept sao ILUSTRACAO com perspectiva e grid decorativo, nao
+    desenho tecnico. Minha 'medicao' do eixo dianteiro em x=+0.355 dava overhang de 0.82 m = 68%% do wheelbase,
+    FISICAMENTE IMPOSSIVEL para kart. O gate provou por sanidade. REGRA: medicao extraida de ilustracao precisa
+    passar por SANIDADE FISICA antes de virar parametro (kart 2.35 m -> wheelbase ~0.58 do comprimento = 1.37 m).
+  ACHADO 26 (orientacao): SIDE e TOP exigem FRENTE A ESQUERDA como o concept. Solucao ROBUSTA: renderizar com
+    camera PADRAO e ESPELHAR a imagem (rotacao de camera em Z gira o eixo 'para cima' e produz vista girada 90).
+  ESCADA DE NOTAS: 2,5 -> 3,0 -> 3,5 -> 4,0 -> 4,5 -> 4,0 -> 6,0 (B015) — o salto veio de aceitar a critica
+    dimensional e respeitar sanidade fisica: wheelbase 1.37, overhang 0.45, vao livre (71%% do comprimento vazio
+    na faixa inferior, medido por pixels), diametro de roda IGUAL 0.407 nas duas, pneus finos 0.15/0.21,
+    bitolas 0.86/1.06.
+  [B016] piloto conectado (cabeca grudada no topo do torso), banco concha 18 graus, traseira explodida (bumper
+    fino em U + 3 escapes finos inclinados 74 graus + motor menor), dianteira travada (nariz ~0.5 da bitola com
+    fundo em 0.24 m, bumper na altura do centro da roda).
