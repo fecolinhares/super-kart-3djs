@@ -10485,3 +10485,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     reconecta, criando non-manifold quando a vizinhanca e irregular. A quina da descida precisa ser
     MODELADA (bridge/grid fill), nao dissolvida.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v032: MERGE DO MIRROR NAO MUDOU NADA — LOCALIZA O CULPADO (regra 182) *** ***
+  ###V32### MIRROR clip=True merge=True threshold=0,0080 (a tolerancia MEDIDA aplicada no modifier)
+              boundary  nonman  zero-area  doubles   faces-fio
+    v030         0        68       0        389       874
+    v032         0        72       0        387       889    <- ruido (mais ou menos 5%%)
+  ⟹ O merge do Mirror com 0,008 NAO ALTEROU os doubles do avaliado. Isso DESCARTA o Mirror como
+    origem e CONFIRMA o SOLIDIFY: os 387 doubles e 72 non-manifold vem da CASCA que o Solidify gera
+    (espessura 0,020 numa peca de 2,35 m), nao da costura central.
+  REGRA 182: quando uma correcao NAO MUDA O NUMERO, ela DESCARTA A ORIGEM — e isso e informacao.
+    Testar por eliminacao e legitimo quando o resultado e medido antes e depois.
+  PROXIMO ALVO: o SOLIDIFY (espessura/offset/qualidade ou substituir por espessura MODELADA).
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
