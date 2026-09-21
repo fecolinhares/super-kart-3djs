@@ -8392,3 +8392,35 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     A solucao e o elemento que satisfaz os dois — nunca escolher um lado.
   MELHOR ESTADO POR VISION: B103 (2,75) — sidepod assentado + asa conectada + 4 vistas <=5%%.
   ESTADO: B107 tem TOP 4,60 e altura 1,03 (fora do contrato). OBJETIVO NAO ATINGIDO.
+
+
+## *** B108-B109: BARRA EM U ABERTA RESOLVE A ALTURA (1,250 m) *** ***
+  [B108] falhou por SyntaxError: minha insercao PARTIU a linha 'esf("P_Head",...); suave("P_Head",1)',
+    deixando o '; suave(...)' orfao. REGRA 81: ao inserir codigo por substituicao de linha, conferir que a
+    linha-alvo NAO tem instrucoes apos o ponto de insercao (aqui havia um '; suave(...)' na mesma linha).
+  [B109] barra em U (2 montantes R_BarL/R em x -0,46..-0,38, |y| 0,10-0,16, z 0,62-1,18 + travessao R_BarTop
+    z 1,14-1,25). VERIFICADO: altura 1,250 m ✓✓ (contrato 1,2523 = -0,2%).
+    contorno: FRONT 5,85 ✓ | SIDE 3,62 ✓ | REAR 9,12 ✗ | TOP 4,60 ✓
+  ⟹ REGRA 80 CONFIRMADA NA PRATICA: o elemento aberto em U satisfaz a MEDICAO (1,250 m) sem fechar anel.
+    A altura voltou de 1,030 para 1,250 m e o SIDE melhorou (8,53 -> 3,62).
+
+
+## *** VISION NO B109: 2,1 (de 1,9) E CORRECAO SOBRE O CONCEPT *** ***
+  FRONT 3 | SIDE 2 | REAR 2,5 | TOP 0,5 | GLOBAL 2,1 (serie: 2,0 -> 2,75 -> 2,25 -> 1,9 -> 2,1)
+  *** CORRECAO DO VISION SOBRE O DESENHO (nao sobre o modelo):
+    'o concept NAO TEM santo-antonio alto. O concept tem uma barra transversal BAIXA, LARGA, na altura dos
+    ombros, da largura total do kart + um mini-spoiler amarelo. O que voce fez e uma torre estreita, central,
+    fina, altissima. Voce inventou um roll-bar de Formula que nao existe no desenho.'
+  ⟹ Meu erro: eu MEDI 'existe algo nos primeiros 15-17%% do topo' e INTERPRETEI como elemento acima do
+    capacete. A barra do concept e LARGA e na altura dos OMBROS — outro elemento. A altura do veiculo vem do
+    mini-spoiler + capacete, nao de uma torre.
+  REGRA 82: uma MEDICAO de existenca nao define a FORMA nem a POSICAO do elemento. 'Existe massa na faixa
+    X' autoriza procurar a peca; nao autoriza inventar uma torre. Perguntar ao vision O QUE a peca e antes
+    de construir a peca.
+  3 divergencias mais graves (vision):
+    1. anel/ovo traseiro em planta — 'enquanto existir, a nota nao passa de 2'
+    2. a barra em U inventada: deveria ser LARGA, BAIXA (ombros), da largura do kart, com tampoes
+    3. AUSENCIA TOTAL DE CHASSI E CONEXOES — 'enquanto houver mais ar que conexao entre pecas, nao e um
+       modelo, e uma explosao de primitivas'
+  ESTADO: melhor por vision = B103 (2,75). B109 = 2,1 (altura 1,250 m ✓ e rodas dianteira<traseria ✓).
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
