@@ -7751,3 +7751,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     1,44): FRONT 5,78%% -> 8,95%% ✗✗ | REAR 4,68%% -> 5,68%% ✗ — a bitola larga estava COMPENSANDO o FRONT.
   ⟹ TRES hipoteses, tres refutacoes medidas, ZERO regressao acumulada (o melhor estado segue valido).
   ══ MELHOR ESTADO: B059 — SIDE 3,46%% ✓ | REAR 4,68%% ✓ | TOP 3,07%% ✓ | FRONT 5,78%% (1,16x)
+
+
+## B064-B066: *** A VIRADA — A RODA ERA PEQUENA, NAO GRANDE *** ***
+  Medicao que destravou: o perfil linha-a-linha mostrou que as feicoes da METADE INFERIOR do modelo estavam
+  ~12%% da altura DESLOCADAS: o concept tem a zona LARGA (1,10 m) em 40-46%% da altura e o modelo em 28-34%%.
+  Hipotese testada: se a zona larga sao as RODAS no concept, entao o pneu dele e MAIOR que o meu.
+    [B064] D=0,50 (topo a 39,2%% da altura): FRONT 5,78 -> 5,56 ✓ (melhor FRONT da serie) | REAR 4,68 -> 4,26 ✓
+           | TOP 3,07 -> 2,95 ✓ | SIDE 3,46 -> 3,67
+    [B065] D=0,56 (topo a 43,9%%): REAR 3,58 ✓✓ (melhor REAR da serie) mas FRONT 5,80 e SIDE 3,69
+    [B066] D=0,53 (meio): FRONT 5,68 | SIDE 3,73 | REAR 4,01 | TOP 2,94  => MELHOR EQUILIBRIO
+  ⟹ EU PASSEI O CICLO INTEIRO ENCOLHENDO A RODA (B060/B061) QUANDO O CERTO ERA AUMENTAR.
+    A causa do erro: eu media a MEDIANA agregada, que nao distingue 'largo onde devia ser estreito' de
+    'estreito onde devia ser largo'. O perfil LINHA-A-LINHA mostrou o deslocamento vertical.
+  REGRA 48: a mediana agregada esconde ERRO DE SINAL. Antes de otimizar tamanho, comparar o PERFIL por
+    faixa de altura e verificar se as feicoes estao ALINHADAS verticalmente.
+  ══ MELHOR ESTADO: B066 — FRONT 5,68 | SIDE 3,73 ✓ | REAR 4,01 ✓ | TOP 2,94 ✓
+     MEDIA DAS 4 VISTAS: 4,09%% (era 4,25%% no B059). Tres vistas com folga no alvo; FRONT a 1,14x.
