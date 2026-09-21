@@ -8225,3 +8225,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     a pista mais barata que existe, e eu ignorei duas vezes (regra 63 e agora).
   MELHOR ESTADO: B094 — FRONT 3,02 ✓ | SIDE 3,17 ✓ | REAR 4,08 ✓ | TOP 5,06 (1,01x) | media 3,83%%
     bitola 1,49 m ✓ (validada pelo FRONT do concept: 1,476 m)
+
+
+## *** B099: O PERFIL POR ESTACAO CORRIGIDO (EIXO CERTO) — O MODELO ESTA MUITO MELHOR *** ***
+  CAUSA RAIZ DO ERRO: no painel TOP do concept o COMPRIMENTO corre na HORIZONTAL (611 px) e a LARGURA e a
+    VERTICAL (371 px) — comprovado: largura/comprimento = 0,613 = 1,4411/2,35 ✓.
+    Meu perfil iterava a VERTICAL, ou seja, varria a LARGURA e chamava cada coluna de 'estacao'. TODOS os
+    numeros 'TOP por estacao' desta sessao mediam outra coisa.
+  PERFIL CORRIGIDO (iterando a horizontal; largura medida na vertical; ambos / COMPRIMENTO):
+    estacao  concept  modelo(B094)   dif
+     0%%     0,044     0,028    -0,016 ✓ |   8%%  0,448  0,413  -0,035 ✓ |  16%%  0,368  0,413  +0,045 ✓
+    24%%     0,576     0,413    -0,163 ✗ |  32%%  0,527  0,356  -0,171 ✗
+    40%%     0,517     0,518    +0,001 ✓✓ | 48%%  0,560  0,518  -0,042 ✓ | 56%% 0,574 0,518 -0,056 ✓
+    64%%     0,576     0,518    -0,058 ✓ |  72%%  0,599  0,642  +0,043 ✓ | 80%% 0,607 0,642 +0,035 ✓
+    88%%     0,563     0,408    -0,155 ✗ |  96%%  0,404  0,408  +0,004 ✓✓
+  ⟹ 10 de 13 estacoes casam dentro de +-0,06. As verdadeiras divergencias sao so 3: 24%% e 32%% (estreito)
+    e 88%% (estreito). Tudo que eu conclui sobre o TOP antes disto era artefato do eixo errado.
+  REGRA 72: antes de varrer um perfil, identificar QUAL EIXO do painel corresponde a grandeza que quero
+    (aqui: no TOP, comprimento=horizontal). Conferir com uma razao conhecida (1,4411/2,35=0,613) — isso
+    teria custado 30 segundos em vez de ~10 builds.
+  INSTRUMENTO: modeling/perfil_estacao.py SUBSTITUIDO pela versao de eixo correto.
+  ESTADO: B094 — FRONT 3,02 ✓ | SIDE 3,17 ✓ | REAR 4,08 ✓ | TOP 5,06 (1,01x) | media 3,83%%
