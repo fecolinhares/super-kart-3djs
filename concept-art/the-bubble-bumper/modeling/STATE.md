@@ -8760,3 +8760,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     ('verificar a assinatura da funcao antes de confiar nas coordenadas'), que ja me custou a regra 93.
   ESTADO: contorno FRONT 7,15 | SIDE 3,18 | REAR 8,80 | TOP 3,10 | altura 1,253 ✓ | MELHOR POR VISION
     B103 (2,75); B121 = 2,1. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** CASO DO PONTAO FECHADO: NAO E UM MODIFICADOR, E A CADEIA — REGRA 95 *** ***
+  TESTE DA ASSINATURA DO HELPER (regra 86): box(n,x0,x1,y0,y1,z0,z1) usa primitive_cube_add(size=1.0)
+    e o.scale=(|x1-x0|,|y1-y0|,|z1-z0|). O cubo unitario com escala = dimensao EXATA -> O HELPER ESTA
+    CORRETO (descartada a suspeita da regra 86 para este caso).
+  PEDIDO no SP_: y 0,20..0,68 = 0,48 | z 0,10..0,50 = 0,40 | suave("SP_",1) UMA VEZ (linha 62).
+  TESTE ISOLADO (caixa 0,48): sem subd 0,480 | 1x subd nivel1 0,403 (0,84) | 2x 0,336 | 3x 0,321.
+  MEDIDO no SP_L: 0,30 (y) e 0,25 (z) -> 0,30/0,48 = 0,625 — NAO bate com 1x, 2x nem 3x.
+  *** CONCLUSAO: o encolhimento NAO vem de um modificador, vem da CADEIA box -> suave -> BEVEL -> CUT.
+    O boolean corta DEPOIS do SubD, agindo sobre a malha ja suavizada; os efeitos nao sao multiplicativos.
+  REGRA 95: o TESTE ISOLADO (regra 94) identifica QUAL modificador encolhe, mas NAO preve o resultado da
+    CADEIA. Para dimensionar objeto com cadeia de modificadores, medir o OBJETO FINAL e ajustar por
+    REALIMENTACAO (medir -> corrigir -> medir), nunca por fator calculado de um teste isolado.
+  ⟹ E isso REABILITA o metodo que funcionou no pod anterior (0,16 -> 0,23 -> 0,30 por medicao iterativa),
+    mas agora com a explicacao correta do porque o calculo direto falhava.
+  ESTADO: contorno FRONT 7,15 | SIDE 3,18 | REAR 8,80 | TOP 3,10 | altura 1,253 ✓ | MELHOR POR VISION
+    B103 (2,75); B121 = 2,1. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
