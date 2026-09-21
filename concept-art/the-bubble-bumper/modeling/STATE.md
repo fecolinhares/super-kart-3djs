@@ -10021,3 +10021,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 155: CAP simples (quad ou fan) na ponta cria PINCH — a terminacao precisa de GRID 3x3 ou
     raio maior, nunca de um unico quad numa malha que sofre SubD.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** TUB v012: CAP DO NARIZ EM 3 ANEIS (mata o pinch) + AS 5 EXIGENCIAS *** ***
+  (3) CAP DO NARIZ (regra 155): em vez de um unico quad, 3 ANEIS pequenos convergindo com raio de
+      hemisferio (frac 0,62 / 0,32 / 0,12 em dx 0,026 / 0,048 / 0,062) + quad final.
+  (4) BEVEL 0,028/4seg -> 0,030/5 SEGMENTOS com angulo 28 (mais resolucao no FUNDO).
+  (5) RENDER DE PROVA: clay claro com metalico + 3 SUN + ZOOM 200%% (ortho 1,05 em vez de 2,60)
+      e WIRE OVERLAY 50%% (use_replace=False) — o thumb antigo era inauditavel.
+  (1)(2) boca interna e loops de suporte na parede: mantidos do v011 (32 pts/anel).
+  2176 verts / 2146 faces. Mods [MIRROR, BEVEL, SUBSURF, WEIGHTED_NORMAL].
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
