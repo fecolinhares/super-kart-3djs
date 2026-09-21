@@ -10386,3 +10386,28 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 175: para eliminar faces-fio, COLAPSAR a aresta curta. Deletar a face abre buraco — a
     operacao simples resolve o que a destrutiva estraga.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v027 = 4,2 — 'NUMERO SEM FORMA NAO E PROGRESSO' (a frase que define 6 ciclos) *** ***
+  (1) 'Os 4 pingos sumiram com o colapso? NAO. O COLAPSO NAO REMOVE FEATURE TOPOLOGICA, SO ENCOLHE.
+    O pingo e um FAN/POLE inteiro — um cone de triangulos que converge para um vertice no rim.
+    Colapsar encurtou as arestas do leque e zerou a area-zero, mas o VERTICE CENTRAL DO LEQUE e os
+    dentes continuam projetando para dentro do vao.'
+  (2) 'O wire continua limpo? NAO. 1058 e melhor que 5700, mas limpo seria loops retangulares
+    paralelos ao redor do cockpit. O zoom mostra fluxo interrompido pelos dentes, esticamento brutal
+    nas paredes internas e ESTRELA PRETA NA PONTA DO BICO onde dezenas de edges colapsadas se
+    encontram.'
+  (3) Frontal 3,5 | Lateral 6,0 (unica passavel) | Traseira 3,5 | Superior 4,0 | ZOOM cockpit 2,5 |
+    GLOBAL 4,2. 'Voce ganhou em METRICA — parabens por 141->0 zero-area e 3x menos non-manifold — mas
+    visualmente o kart NAO AVANCOU 0,1. NUMERO SEM FORMA NAO E PROGRESSO. Essa e a verdade severa.'
+  (4) 'Proximo passo NAO e mais collapse, e EXCISAO + RECONSTRUCAO DO RIM': (a) matar os 4 pingos NA
+    ORIGEM (selecionar o vertice-ponta de cada dente + 1 anel, Delete > Faces, abrir 4 buracos
+    propositais, Bridge/Grid Fill + Loop retangular); (b) rim = 1 loop fechado com 4 cantos com 2-3
+    edge supports; (c) ponta do bico: pole N>6 — abrir e fazer difusao em U; (d) fechar manifold;
+    (e) aproximar do concept (canoa pontuda vs U largo e baixo com sidepods gordos).
+    'Sem Bevel voce esta pedindo ao WEIGHTED_NORMAL para esconder quina de rim ruim. ELE NAO ESCONDE.'
+  REGRA 176: COLAPSO PRESERVA A DOENCA — encolhe a feature, nao a remove. Pingo/fan exige EXCISAO
+    (deletar o vertice-polo + 1 anel) seguida de RECONSTRUCAO (bridge/grid fill).
+  REGRA 177: PROGRESSO se mede em FORMA, nao em metrica de sanidade. Sanidade e pre-requisito; a nota
+    visual e o criterio. Numero sem forma nao e progresso.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
