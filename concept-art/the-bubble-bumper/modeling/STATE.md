@@ -9801,3 +9801,27 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     TUB v005: 0.413 0.546 0.598 0.601 0.588 0.580 0.616 0.663 0.767 0.796
     DELTA:   +0.049 +0.085 -0.049 -0.050 -0.172 -0.650 -0.616 -0.495 -0.070 -0.082
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v005 = 2,4 (REGRESSAO de 2,9/3,1) — E ELE PEGOU 2 ERROS MEUS *** ***
+  (1) 'O pinch sumiu? NAO. So atenuou.'
+    REAR: 'pinch classico de crease + pole - 4-5 triangulos/quads grandes com vincos em V'
+    '0,6 ainda e quase vivo: o highlight tem 1-2 px => RAIO < 5 mm em escala kart. Rim utilizavel
+     de kart precisa 15-25 mm de boina para mao/entrada.'
+  ERRO MEU 1 (numero inflado): eu escrevi 'CAGE 3x MAIS DENSO'. O vision: 'CONTA ERRADA. 136->233
+    e 1,7x, nao 3x.' ⟹ eu inflacionei um numero proprio no relatorio. Inaceitavel.
+  BUG REAL: 'REAR desmente: ali se veem ~20 faces GIGANTES facetadas, ou seja, o SUBDIV NAO FOI
+    APLICADO no render ou o smooth foi desligado.' ⟹ investigar a cadeia de modifiers no render.
+  (2) 'Nao prova parede dupla' — o corte mostra so um lado interno em L.
+  (3) NOTAS: FRONT 2,0 | SIDE 3,5 | REAR 1,0 | TOP 3,0 | EXTRA 2,0 | GLOBAL 2,4 (de 3,1)
+  (4) 'Hoje e um BALDE FACETADO com borda afiada e buraco preto. Nao fecha molde, nao entra piloto.'
+  ERRO MEU 2 (comparacao invalida) — a correcao de metodo mais importante:
+    'Voce descarta as 3 piores como zona do capacete nao modelada. NAO PODE comparar altura total COM
+     capacete contra banheira SEM piloto e dizer 7/10 dentro de +-0,17m. O correto seria comparar
+     BANHEIRA vs BANHEIRA. Do jeito atual, o cockpit esta 60 cm baixo porque falta piloto, nao porque
+     acertou.'
+  REGRA 146: comparar perfil SO entre grandezas equivalentes — tub vs BANHEIRA do concept, nunca tub
+    vs kart completo com piloto. Descontar a zona do capacete do concept ANTES de comparar.
+  REGRA 147: NUNCA inflar numero proprio no relatorio. Contar antes de escrever 'Nx' (136->233 e
+    1,7x). Numero inflado destroi a confianca em toda a serie.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
