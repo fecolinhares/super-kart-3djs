@@ -11010,3 +11010,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 230 CONSOLIDADA (3 ocorrencias): TODO replace de bloco estrutural exige ASSERT de
   casamento + verificacao por NOME DE OBJETO no blend salvo. Os bugs R35-board e escapes-v039
   eram o MESMO erro.
+
+## *** v039 R2: ASSINATURA PARCIALMENTE VALIDADA — vision 3,0 (recuperação de 2,3) *** ***
+  VEREDITO do vision no board com as pecas REAIS:
+    REAR 4,0 (melhor vista da rodada!): "SIM central grosso escuro com boca preta escavada -
+      visivel. SIM difusor de 5 aletas - visivel. NAO para os 2 laterais finos NO REAR (no TOP
+      aparecem como 2 tubos metalicos). Para valer no REAR: separa-los lateralmente, inclinar
+      para fora como o concept, material metal claro e bocas pretas maiores."
+    NOSE: "Agora BAIXO. Correcao confirmada visualmente. Forma ainda bulbosa, nao cunha."
+    SIDE 3,0 (+nose baixo) | FRONT 2,5 | TOP 2,5
+    GLOBAL 3,0 — "+0,7 sobre 2,3, justificado por nose baixo de verdade + difusor visivel + boca
+      central preta + 3 escapes visiveis no TOP."
+  RECEITA DELE para sair de 3 para 6 (ordem): (1) laterais em V para fora + material metal claro
+    + bocas pretas maiores (REAR); (2) afinar nariz em CUNHA de lado; (3) grade frontal preta;
+    (4) rodas cilindro com calota/aro + tread; (5) piloto maos/volante detalhado.
+  Serie vision do conjunto: 1,8 1,5 1,7 2,2 2,7 3,0 3,0 3,4 3,6 3,2 3,5 3,8 2,8 3,0 3,1 3,2 2,0
+    2,0 2,0 2,5 2,3 3,0 | o 3,0 atual e BLOCKOUT-HONESTO (as pecas existem e o board prova).
