@@ -8720,3 +8720,26 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   MEDIDO: contorno FRONT 7,15 | SIDE 3,18 | REAR 8,80 | TOP 3,10 | altura 1,253 ✓
   ESTADO: MELHOR POR VISION B103 (2,75); B121 ainda nao avaliado por vision.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** RETRATACAO DA REGRA 93 — O BEVEL NAO ENCOLHE; A CAUSA E O SUBD *** ***
+  O vision questionou a regra 93 ('bevel nao come 50%% do volume, ele so arredonda aresta') e eu TESTEI:
+    caixa 0,38x0,38x0,34 + BEVEL(0,05, 3 segmentos):
+      ANTES  do bevel: dim(0,380, 0,380, 0,340)
+      DEPOIS do bevel: dim(0,380, 0,380, 0,340)   ⟹ IDENTICO. O bevel NAO encolhe a peca.
+  *** REGRA 93 RETRATADA. CAUSA REAL: o objeto SP_ recebe suave("SP_",1) = SUBSURF nivel 1, e SubD
+    encolhe caixas (~20%% por nivel) — efeito que EU JA TINHA documentado em STATE.md e esqueci na hora
+    de escrever a regra. Eu criei uma regra por SUPOSICAO (vi 0,38 pedido e 0,23 medido e atribui ao bevel
+    sem testar) — exatamente o pecado que este projeto combate.
+  REGRA 94 (substitui a 93): NUNCA escrever regra a partir de correlacao observada sem TESTE ISOLADO da
+    variavel. Antes de atribuir um desvio a um modificador, aplicar SOMENTE ele numa cena limpa e medir.
+    O gate honesto aqui foi o vision questionar — e a correcao veio do teste, nao da autoridade.
+  *** E A CRITICA MAIS GRAVE DO VISION NESTE CICLO (sobre o METODO, nao sobre uma peca):
+    'Voce mediu 7-8mm e 0,30x0,25 na planilha, mas no render continua flutuando, quadrado, fino e ilegivel.
+     Corrigiu parametro e piorou leitura. Isso nao e progresso, e MAQUIAGEM NUMERICA.'
+    'Voce trocou pneu modelado por placeholder e chamou de cilindro.'
+    Notas: FRONT 1,8 | SIDE 2,7 | REAR 2,0 | TOP 1,9 | GLOBAL 2,1 (queda de 2,3).
+    DIAGNOSTICO DELE: 'enquanto nao remodelar roda como cilindro deitado com eixo em X, com largura
+    dianteira < traseira, com bottom em Z=0 EXATO, e pontao como capsula arredondada alta na linha do
+    assento validada em SIDE+TOP+FRONT juntos, a nota nao sai dos 2.x'.
+  ESTADO: MELHOR POR VISION B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
