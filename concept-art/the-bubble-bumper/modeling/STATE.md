@@ -9880,3 +9880,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     3-4 segmentos (0,025) + COAMING LOOP (loop fechado ao redor da abertura + extrusao interna +
     fillet em PLANTA nos 4 cantos). Bevel de perfil sozinho NAO cria raio em vista de cima.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** TUB v007: COAMING COM FILLET EM PLANTA + SEM CREASE + BEVEL 0,025/4seg *** ***
+  (1) SEM CREASE (regra 149: crease congela faceta).
+  (2) BEVEL 0,025 com 4 SEGMENTOS (era 0,020/2) — raio que sobrevive ao SubSurf.
+  (3) FILLET EM PLANTA (o erro de conceito que o vision apontou): a borda INTERNA da abertura
+      (y_rim) AFINA nas extremidades — yr vai de 0,150 no rim dianteiro a 0,340 no meio e volta a
+      0,200 no rim traseiro ⟹ os 4 CANTOS da abertura ficam ARREDONDADOS em vista de cima
+      (nao mais retangulo de cantos a 90).
+  249 verts / 249 faces (cage).
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
