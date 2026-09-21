@@ -10689,3 +10689,33 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   RECEITA v045: redesenhar o contorno do cockpit EM PLANTA com FILLET GRANDE nos 4 cantos; abrir 2-3
     loops de suporte no rim; relaxar a parede; dissolver edges < 3 mm no rim. No bico: nao deixar 5-6
     loops morrerem no mesmo vertice em y=0 — distribuir em leque e puxar 1-2 mm para fora.
+
+## *** CONJUNTO v006: MEDIÇÃO DE VAZIO PROVA A CRÍTICA DO AUDITOR (regra 204) *** ***
+  OCUPACAO (area preenchida / bbox) e VAZIO INTERNO medio por coluna:
+    vista    concept vazio   modelo vazio    delta
+    front       0,215           0,067        -0,148
+    side        0,402           0,044        -0,359   <- 9x menos vazio
+    rear        0,445           0,058        -0,387
+    top         0,342           0,208        -0,133
+  ⟹ O concept e um kart OPEN-WHEEL: 40%% da area lateral e VAZIO (vaos entre rodas, corpo, asa, chassi).
+    O meu modelo tem 4,4%% — e um CASCO CONTINUO. O auditor estava CERTO: "silhueta de banheira fechada,
+    nao de kart open-wheel".
+  REGRA 204: PERFIL DE TOPO E CEgo A VAZIO — um casco fechado passa no gate de contorno. Medir tambem
+    OCUPACAO/VAZIO (area preenchida por coluna). Sem isso, medir contorno e overfitting: voce ajusta a
+    borda de um blob e o numero melhora (delta medio 0,043 m!) enquanto a estrutura esta errada.
+  REGRA 205: RENDER DE QA PRECISA SER CALIBRADO ANTES DE SUBMETER AO VISION. O meu estava ESTOURADO
+    (view transform AgX + area lights 1100 W): o sidepod amarelo (0,94/0,76/0,05) renderizava [208,200,167]
+    = BEGE. Ou seja: "cores pastel erradas" no veredito do vision era DEFEITO DO MEU RENDER, nao do modelo.
+    Correcao: view_transform='Standard' + fundo escuro + sun de energia definida; e VERIFICAR a cor do
+    pixel contra o material antes de submeter.
+  REGRA 206: MASK DE MEDICAO POR LUMINANCIA FALHA — o capacete azul-escuro sobre fundo escuro tem
+    luminancia proxima do fundo e "desaparecia" da medicao (dava como se o piloto nao existisse). Usar
+    DISTANCIA DE COR ao fundo. E: instrumentos diferentes para imagens diferentes (concept tem grade
+    clara -> saturacao; render meu tem fundo escuro -> distancia de cor), VALIDANDO cada um pelo
+    comprimento medido contra o contrato (concept 2,368 e modelo 2,346 vs 2,350).
+  ESTADO FINAL DO CICLO: conjunto v006 com 51 objetos. MEDICOES: bbox L=2,341 (alvo 2,350) / W=1,410
+    (alvo 1,4411) / H=1,252 (alvo 1,2523); perfil de topo delta medio 0,043 m (era 0,261 no v003);
+    VAZIO: 9x menor que o concept (o defeito central). VISION: 1,7/10 — "erro e GEOMETRIA, nao render".
+  PROXIMA ACAO (do auditor, literal): reconstruir como 7 VOLUMES SEPARADOS E VAZADOS — bumper-U fino,
+    bico baixo, 2 pods pequenos, assoalho, banco, motor + 3 cilindros de escape, asa fina em 2 pilones —
+    e EXPOR as 4 rodas.
