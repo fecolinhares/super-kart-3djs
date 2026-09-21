@@ -8692,3 +8692,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     4. piloto capsula sentada com capacete. 'Nao avancar para cor, decalque ou smooth ate travar esses 4.'
   ESTADO: contorno FRONT 7,24 | SIDE 3,18 | REAR 8,94 | TOP 3,16 | altura 1,253 ✓.
     MELHOR POR VISION: B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B120: PONTAO ESCALADO PARA A SECAO MEDIDA — MAS O BEVEL DEVORA 40% *** ***
+  Regra 92 aplicada (a classe estava certa, a escala errada): pedi caixa com 0,38 de largura x 0,34 de
+  altura (o 'maior volume do kart'), com bevel 0,05/3 segmentos.
+  MEDIDO: SP_L dim(0,79x0,23x0,21) — subiu de 0,16x0,15 para 0,23x0,21 ✓ MAS ainda abaixo do alvo
+    (0,30-0,40 x 0,30).
+  *** CAUSA MEDIDA: o BEVEL de 0,05 com 3 segmentos consome ~40%% da secao — pedi 0,38 e o objeto ficou com
+    0,23. REGRA 93: ao dimensionar com bevel, COMPENSAR o raio do bevel na caixa de origem (pedir
+    secao_alvo + 2*raio_bevel), senao a peca sai sistematicamente menor que o alvo — mesma familia do SubD
+    que encolhia ~20%% por nivel (bug sistemico ja registrado).
+  ESTADO: contorno FRONT 7,24 | SIDE 3,18 | REAR 8,94 | TOP 3,16 | altura 1,253 ✓.
+    MELHOR POR VISION: B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
