@@ -9617,3 +9617,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     ortho_scale contra o bbox ANTES de medir perfil.
   ESTADO: MELHOR VISION B132 = 2,3 (legado) | tub v002 nao avaliado por vision ainda.
     AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** ZONA 2: SIDEPODS v001 (planta EXATA, altura baixa) *** ***
+  Metodo do Sol aplicado: caixa-cage em GOTA com 8 estacoes autorais (nao esfera), SUBSURF 1,
+    rebaixo da perna como deslocamento REAL de verts. 64 verts / 58 faces. Auditado reaberto: vazios NENHUM.
+  PLANTA (TOP) vs concept: pod 1,430 m de comprimento ✓ (concept x +0,69..-0,73) e 1,40 m de largura
+    total com o espelho ✓✓ (concept 1,35-1,43) EXATO.
+  SIDE topo (m) por faixa:
+    CONCEPT: 0.364 0.461 0.647 0.651 0.759 1.229 1.233 1.158 0.837 0.878
+    POD:     0.298 0.347 0.373 0.387 0.393 0.396 0.396 0.390 0.376 0.350
+    ⟹ ALTURA BAIXA: o pod esta em 0,30-0,40 e o concept mostra a carroceria em 0,65-0,76 nas faixas
+      3-5 ⟹ falta ~0,27 m de massa amarela (correcao registrada para o v002).
+  base do pod: 0,00-0,03 ✓ (o concept 0,00-0,08 ✓ perto)
+  ESTADO: 2 das 5 zonas modeladas (tub v002 ✓ +-0,10 m; sidepods v001 planta ✓ / altura ✗).
+    AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
