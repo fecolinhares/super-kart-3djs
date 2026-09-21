@@ -9917,3 +9917,13 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 151: FACETA que sobrevive ao SubD e falta de RESOLUCAO LONGITUDINAL no cage — bevel de aresta
     nao resolve. Dobrar os loops ao longo de X antes de qualquer ajuste fino.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** TUB v009: FILLET EM PLANTA COM ARCO + LOOPS DOBRADOS *** ***
+  (a) REGRA 151 (resolucao longitudinal): loops dobrados — 52 estacoes (era 32), 417 verts/417 faces
+      (era 249). Passo de 0,045 m no corpo e 0,018 m nas ZONAS DOS CANTOS.
+  (b) REGRA 150 (taper != fillet): a borda INTERNA da abertura agora segue um STADIUM de verdade —
+      y_abertura(x) = HALF_W - R + sqrt(R^2 - dx^2) nas quinas, com R_CORNER = 0,150 m e tangencia.
+      NAO e mais taper em Y em 3 estacoes.
+  (c) BEVEL 0,022 / 3 segmentos (o raio de aresta continua).
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
