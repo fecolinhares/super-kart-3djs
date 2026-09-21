@@ -10032,3 +10032,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   (1)(2) boca interna e loops de suporte na parede: mantidos do v011 (32 pts/anel).
   2176 verts / 2146 faces. Mods [MIRROR, BEVEL, SUBSURF, WEIGHTED_NORMAL].
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v012 = 5,2 (de 4,8) — SIDE 6,2 (RECORDE) E 'PELA PRIMEIRA VEZ DA PARA VER O ERRO' *** ***
+  (2) 'A faceta de FORMA melhorou? SIM. E O UNICO PONTO CLARAMENTE VENCIDO nesta versao. Bevel
+    0,030/5 vs 0,028/4 FUNCIONOU: SIDE sem facetas em degrau, TOP highlight continuo, REAR chanfros
+    lisos. COMO FORMA GERAL DE FUNDO, ESTA APROVADA A MELHORA.'
+  (3) FRONT 4,0 | SIDE 6,2 (NOVA MELHOR VISTA) | REAR 5,5 | TOP 5,0 | GLOBAL 5,2
+  E SOBRE A PROVA: 'Bom trabalho no render de prova - PELA PRIMEIRA VEZ DA PARA VER O ERRO. Agora
+    tem que corrigir o que ele mostrou.'
+  (1) 'O PINCH morreu? NAO. Morreu 70%%, nao 100%%. O QUAD FINAL ainda e pequeno demais e esta
+    EXATAMENTE NO EIXO DE SIMETRIA DO MIRROR, onde o WEIGHTED NORMAL DOBRA O ERRO.'
+    FIX: deslocar o polo 1 edge para tras (fora da ponta extrema) e transformar a ponta em ARESTA
+    CURTA TRANSVERSAL de 2-3 mm em vez de ponto.
+  (4) 'NAO PASSA como cockpit. Passa so como BLOCKER VOLUMETRICO.' paredes a 90 sem filete; 'MANCHA
+    BRANCA ESFUMACADA na parede = erro de normal / interior sem espessura'; '2 SPIKES TRIANGULARES
+    na borda inferior = vertices sem merge ou normal invertida'.
+    FIX: fillet 0,02-0,025 nos 4 cantos em planta + SOLIDIFY no assoalho + rechecar normais.
+  REGRA 156: o polo de um cap NA PONTA e NO EIXO DE SIMETRIA do Mirror e o pior lugar possivel — o
+    Weighted Normal dobra o erro ali. Mover o polo para tras e terminar com aresta curta.
+  REGRA 157: cockpit exige SOLIDIFY no assoalho (espessura real) — parede interna sem espessura
+    rende 'mancha esfumacada' de normal e nao le como cavidade.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
