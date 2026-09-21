@@ -7351,3 +7351,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA NOVA (30): quando o critico QUALITATIVO contradiz o CONTRATO MEDIDO, o contrato vence. Foi a
     inversao disso que produziu 12 builds de regressao invisivel.
   PENDENTE: W/H 11%% estreito (alargar 0,13 m em Y) e estabilizar a mascara do REAR.
+
+
+## B027/B028: OS 4 RATIOS DO CONTRATO DENTRO DA TOLERANCIA ***
+  ANTES (B024): L +26% | H -48% (!!) | W/H -11% | L/H +28%   — o modelo tinha METADE da altura
+  DEPOIS (B028): L +1,7% | H -1,2% | L/H +2,9% | W/H +6,2%   — 3 dos 4 dentro de +-3%
+  O que fez a diferenca: ancorar no CONTRATO (H=1,2523, L=2,350) em vez de obedecer a opiniao do VLM.
+  MASCARA DO REAR: o painel tem um MERGULHO de arte na linha ~250 (a arte clara abre buraco de ~20 linhas)
+    e o algoritmo de 'faixa contigua' cortava ali, pegando so metade do veiculo. FIX: MERGE de faixas
+    separadas por vazios <= 40 linhas. (Regra 1 de novo: validar a mascara antes de confiar no numero.)
+  ALARGAMENTO: as bitolas estavam em coordenadas HARDCODED (nao havia variavel TF/TR) — por isso meus dois
+    ajustes anteriores nao aplicaram. Corrigido direto nas coordenadas: W 1,290 -> 1,540 m.

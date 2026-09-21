@@ -29,14 +29,20 @@ def mascara_concept(v):
     lim_c = max(5,  int(0.03 * por_col.max()))
     linhas = por_linha > lim_l; colunas = por_col > lim_c
     # a maior faixa CONTIGUA de linhas (o veiculo) — evita pegar reguas soltas
-    melhor=(0,0,0); ini=None
+    # MERGE de faixas separadas por VAZIOS PEQUENOS (a arte clara do painel REAR abre buracos
+    # de ~20 linhas no mask; cortar ali perdia metade do veiculo)
+    GAP = 40
+    ini=None; faixas=[]
     for i,v in enumerate(linhas):
         if v and ini is None: ini=i
-        elif not v and ini is not None:
-            if i-ini > melhor[0]: melhor=(i-ini, ini, i-1)
-            ini=None
-    if ini is not None and len(linhas)-ini > melhor[0]: melhor=(len(linhas)-ini, ini, len(linhas)-1)
-    y0,y1 = melhor[1], melhor[2]
+        elif not v and ini is not None: faixas.append([ini,i-1]); ini=None
+    if ini is not None: faixas.append([ini,len(linhas)-1])
+    juntos=[]
+    for f in faixas:
+        if juntos and f[0]-juntos[-1][1] <= GAP: juntos[-1][1]=f[1]
+        else: juntos.append(f)
+    melhor=max(juntos, key=lambda f: f[1]-f[0]) if juntos else (0,len(linhas)-1)
+    y0,y1 = melhor[0], melhor[1]
     saida = np.zeros_like(r); saida[y0:y1+1, :] = r[y0:y1+1, :]
     # dentro da faixa, mantem so as colunas com arte (remove reguas verticais)
     cs = np.where(saida.sum(axis=0) > lim_c)[0]
