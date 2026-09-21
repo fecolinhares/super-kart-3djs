@@ -7442,3 +7442,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   MELHOR ESTADO MEDIDO (B036): SIDE 4,95%% ✓ | REAR 4,77%% ✓ | TOP 5,33%% ✓ | FRONT 6,68%%
     RATIOS DO CONTRATO: L +1,7%% | H -1,2%% | L/H +2,9%% | W/H +6,2%%
     TRES DE QUATRO VISTAS dentro de 1,07x do alvo do Sol (mediana <=5%%).
+
+
+## B038-B040: TRES VISTAS ABAIXO DO ALVO; FRONT RESISTE ***
+  [B038] SUBIR o bumper frontal de z=0,20 para z=0,50 (o perfil mostrou o elemento LARGO do concept a 44%% da
+    altura, e o meu estava a 33%%). O VLM tinha me mandado BAIXAR — mais uma vez opiniao contra medicao.
+    EFEITO: SIDE 4,95%% -> 3,49%% ✓✓ | TOP 5,33%% -> 4,18%% ✓✓ | REAR 4,77%% -> 4,73%% ✓ | FRONT 6,68%%
+  [B039] sidepods baixados (topo 0,40 -> 0,32): TOP 4,18%% -> 3,99%% ✓✓
+  [B040] diametro de roda 0,407 -> 0,382 (medido no blob da fonte): sem efeito no FRONT; REAR 4,99%% (leve alta)
+  ══> MELHOR ESTADO: B038 — SIDE 3,49%% ✓ | REAR 4,73%% ✓ | TOP 4,18%% ✓ | FRONT 6,68%%
+    TRES VISTAS ABAIXO DO ALVO DO SOL (<=5%%), a quarta a 1,34x.
+  FRONT RESISTE: a faixa pior e 31%% da altura com excesso 14, e minhas hipoteses (sidepods, rodas) foram
+    REFUTADAS por medicao. PROXIMO PASSO: owner map na faixa z~0,384 (feito, ver log) para nomear a peca.
+  RATIOS DO CONTRATO: L +1,7%% | H -1,2%% | L/H +2,9%% | W/H +6,2%%.
