@@ -8743,3 +8743,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     dianteira < traseira, com bottom em Z=0 EXATO, e pontao como capsula arredondada alta na linha do
     assento validada em SIDE+TOP+FRONT juntos, a nota nao sai dos 2.x'.
   ESTADO: MELHOR POR VISION B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** TESTE ISOLADO DO SUBD: ENCOLHE 16%% — E NEM ELE EXPLICA O 0,23 DO PONTAO *** ***
+  Regra 94 aplicada (teste isolado da variavel antes de escrever a regra):
+    caixa 0,50 SEM subd:  dim(0,500)
+    caixa 0,50 COM subd 1: dim(0,420)  ⟹ FATOR 0,840 = encolhe 16%%
+  ⟹ corrige DUAS afirmacoes minhas anteriores: NAO e 20%% (numero que eu had 'documentado') e NAO e 40%%
+    (a regra 93, ja retratada).
+  *** E A CONSEQUENCIA MAIS IMPORTANTE: 0,38 pedido x 0,84 = 0,32, MAS O SP_L MEDIU 0,23 ✗
+    ⟹ nem o bevel (testado: nao encolhe) nem o SubD (testado: 16%%) explicam o 0,23.
+    A CAUSA DO ENCOLHIMENTO DO PONTAO CONTINUA DESCONHECIDA. Eu estive a um passo de escrever uma segunda
+    regra errada em cima da primeira.
+  REGRA 94 REFORCADA (aplicada a mim mesma): nao escrever nova regra enquanto a causa nao for medida.
+    PROXIMO TESTE OBRIGATORIO: medir a assinatura do helper box() — a MESMA suspeita da regra 86
+    ('verificar a assinatura da funcao antes de confiar nas coordenadas'), que ja me custou a regra 93.
+  ESTADO: contorno FRONT 7,15 | SIDE 3,18 | REAR 8,80 | TOP 3,10 | altura 1,253 ✓ | MELHOR POR VISION
+    B103 (2,75); B121 = 2,1. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
