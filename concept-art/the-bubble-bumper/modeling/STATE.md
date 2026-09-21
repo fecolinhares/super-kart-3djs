@@ -10163,3 +10163,13 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     TRANSICAO INTERNA (rim->parede->assoalho), nao procurar borda aberta. Investigar o topologia
     REAL antes de aplicar a receita literal.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** TUB v020: TRANSICAO INTERNA DO ANEL REDESENHADA (regra 163) *** ***
+  Em vez de procurar borda aberta (a malha JA era fechada), redesenhei a TRANSICAO rim->parede:
+    RIM com 8 pontos DENSOS NO GIRO (angulos 0/18/38/58/74/86/96/105) e PAREDE com 8 pontos cujo
+    PRIMEIRO fica colado ao fim do rim (0,04 do caminho) — antes o salto era grande e o Subsurf
+    dobrava ali (os 'pingos' e os tris esticados).
+  RESULTADO: 2329 verts/2313 faces; dim(2,376, 0,754, 0,885) m — o rim ficou mais cheio.
+  MIRROR com clipping + merge 0,001 mantidos.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
