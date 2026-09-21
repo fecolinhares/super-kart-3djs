@@ -10445,3 +10445,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     NON-MANIFOLD de 552 para 68 (8x melhor).
   ⟹ 'COMBINAR rim novo + colapso' foi a acao certa — exatamente o que eu registrei como proximo passo.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v030 = 5,4 — MAIOR SALTO DA SERIE (+1,2) E 'MATOU O FAN DO RIM' *** ***
+  (3) Frontal 5,0 | Lateral 7,0 (MELHOR VISTA DA SESSAO) | Traseira 4,5 | Superior 5,5 | ZOOM 5,0
+    GLOBAL 5,4 (de 4,2) — 'SUBIU +1,2. MAIOR SALTO DA SERIE. Mas continua <6.'
+  RECONHECIDO: 'Voce ACERTOU O DIAGNOSTICO - sao complementares - e MATOU O FAN DO RIM. Falta matar
+    os POLES DAS PAREDES do cockpit.'
+  (1) 'A ESTRELA PRETA do bico SUMIU. Nao ha mais o sunburst. Virou uma LINHA.'
+    MAS: 'os 4 pingos continuam. O rim virou banda de quads no TOPO, mas a PAREDE VERTICAL DO CORTE
+    E O CANTO ainda tem POLE. VOCE ARRUMOU O ANEL DE CIMA, NAO RESOLVEU A QUINA DA DESCIDA.'
+  (2) 'Topo plano: SIM, LIMPO, quads alinhados. Transicao rim->parede->fundo: NAO. No pingo
+    traseiro-direito ha triangulos em leque - sinal classico dos 389 doubles: dois vertices quase
+    coincidentes que o COLLAPSE NAO SOLDOU POR TOLERANCIA.'
+  (4) RECEITA: DISSOLVER os 4 pingos; refazer os 4 CANTOS ARREDONDADOS; MIRROR com Clipping + MERGE
+    com distancia que solde os 389 doubles; refazer a PAREDE como BRIDGE LIMPO da banda ate o fundo
+    sem ngons; e SO AI recolapsar.
+  REGRA 179: consertar METADE de um caminho cria a ILUSAO de conserto - corrigi o ANEL DE CIMA do rim
+    e a QUINA DA DESCIDA continuou com pole. A transicao rim->parede->fundo e UM caminho continuo e
+    precisa ser refeita INTEIRA.
+  REGRA 180: o collapse tem TOLERANCIA - doubles mais afastados que ela nao sao soldados e viram
+    leque. Medir a DISTANCIA dos doubles antes de escolher a tolerancia.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
