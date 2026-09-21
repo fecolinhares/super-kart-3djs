@@ -9036,3 +9036,38 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CONTORNO: FRONT 7,15 | SIDE 3,09 | REAR 7,91 (melhorou de 8,80) | TOP ~3,1.
   ESTADO: MELHOR VISION B132 = 2,3 (recorde). B136 nao avaliado por vision.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION B137 = 2,25 (MICRO-REGRESSAO) — O ERRO ESTRATEGICO NOMEADO PELO VISION *** ***
+  VISION: 'Baixou, sim. Acabou a laje flutuando a meio metro. MAS voce trocou um erro grave por outro:
+  CONCEPT NAO E CAPSULA. Concept e CAIXA ARREDONDADA com TOPO PLANO, LATERAL PLANA, BASE PLANA, frente
+  afunilada. O que voce pos e sALSICHA INFLADA 100%% arredondada em todos os eixos. Em FRONT parece dois
+  donuts. Em SIDE torpedo. Em REAR duas bolas. Em TOP dois dirigiveis.
+  SAiu de laje flutuante para SALSICHA FLUTUANTE BAIXA. Ainda flutua, ainda e inventado.'
+  E: '0,62 de comprimento: no concept o pod vai do MEIO DO KART ATE ENCOSTAR NA RODA TRASEIRA. No seu TOP
+  esta CURTO, GORDO e DESTACADO, com corredor de ar dos dois lados.'
+  NOTAS: FRONT 2,2 | SIDE 2,6 | REAR 1,8 | TOP 2,4 | GLOBAL 2,25 (micro-regressao de 2,3).
+    'O ganho em Z foi ANULADO pela troca de forma.'
+  SERIE: 2,0 > 2,75 > 2,25 > 1,9 > 2,1 > 2,1 > 1,95 > 2,45 > 2,4 > 2,3 > 2,1 > 2,15 > 2,3 > 2,25
+
+  *** ERRO ESTRATEGICO (o padrao que eu preciso nomear) ***
+    torus -> chapa -> elipsoide -> capsula -> ... eu tenho TROCADO PRIMITIVAS em vez de MODELAR a forma.
+    O concept tem UMA morfologia: caixa arredondada, TOPO PLANO, BASE PLANA, chanfro frontal,
+    biparticao amarela/azul. NENHUMA PRIMITIVA ENTREGA ISSO — so modelagem direta (bevel/corte/loft).
+  REGRA 110: quando o vision reprova a MORFOLOGIA 3+ vezes com primitivas diferentes, PARAR de trocar
+    primitiva e MODELAR a forma por operacoes (corte/bevel/loft/boolean) ate obter topo plano + base
+    plana + chanfro. Nenhuma troca de primitiva resolve uma morfologia que nao existe no kit.
+  REGRA 111: 'envolver o nucleo' nao e dimensao — e LEITURA. Se o render mostra DOIS corpos com sombra
+    entre eles, a casca nao envolve, por maior que seja a dimensao. Validar sobreposicao NO RENDER.
+  AS 3 MAIS GRAVES (vision):
+    1. MORFOLOGIA DO POD ('e o coracao do kart e continua cartoon-errado')
+    2. RODAS/CHASSI/TRASEIRA ('dianteiras finas como ANTENAS', eixos em palito, motor = cacho de esferas,
+       escapamentos = furos pretos/tocos brancos, nao 3 tubos metalicos)
+    3. PILOTO ('tronco-caixa, ombros-tabua, cabeca-ovo; no FRONT ombros mais largos que o cockpit; no TOP
+       pernas em V que nao cabem. ENQUANTO O PILOTO FOR ISSO, NENHUMA MEDIDA H, NENHUMA PROPORCAO,
+       NENHUM COCKPIT PODE SER VALIDADO')
+  RECEITA DO VISION: 'PARE DE AJUSTAR NUMEROS DE CAPSULA. Modele o pod como CAIXA COM TOPO PLANO, base
+    plana com saia, chanfro frontal, BIPARTICAO FISICA amarela/azul, comprimento ATE A RODA TRASEIRA,
+    encostado no chassi SEM VAO.'
+  ESTADO: contorno FRONT 7,15 | SIDE 3,09 | REAR ~7,9 | direcionalidade 0,999 vs 0,696 (FALHA).
+    MELHOR VISION: B132 = 2,3. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
