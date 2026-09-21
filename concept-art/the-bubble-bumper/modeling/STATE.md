@@ -8305,3 +8305,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ESTADO: FRONT 4,30 | SIDE 3,53 | REAR 4,67 | TOP 4,49 (4/4 <=5%%) | vision 3/10 | AUDITOR e PRANCHA suspensos.
   PROXIMA ACAO: o DOMO TRASEIRO (crime No1) — a traseira deve ser mecanica COMPACTA e ABERTA (motor, escapes,
     mola, asa fina), nao uma massa unica que funde tudo.
+
+
+## *** B104-B105: DOMO TRASEIRO QUEBRADO EM MECANICA LEGIVEL (CRIME No1 DO VISION) *** ***
+  O vision: 'DOMO TRASEIRO MONOLITICO — balao/iglu cinza unico, liso, gigante, que funde banco+motor+
+  carenagem'. No concept a traseira e MECANICA COMPACTA E ABERTA.
+  [B104] falhou: KeyError 'R_Fairing' — sobrou um suave("R_Fairing") apontando para o objeto removido.
+    REGRA 76: ao trocar/remover uma peca no builder, buscar TODAS as referencias ao nome antigo
+      (suave/material/join) — o erro so aparece no build, nao no patch.
+  [B105] R_Fairing (box unico 1,40 x 0,66 m) -> R_FairL + R_FairR (carenagens laterais com VAO CENTRAL
+    expondo o motor) + R_Spring (mola visivel no vao, elemento do concept). VERIFICADO: 43 objetos.
+    contorno: FRONT 4,62 | SIDE 3,53 | REAR 4,80 | TOP 5,09
+  ESTADO: dome quebrado; vision a re-avaliar.
