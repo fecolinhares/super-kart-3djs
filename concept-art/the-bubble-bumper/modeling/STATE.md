@@ -7590,3 +7590,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
      TRES das quatro vistas em <=5,87%% e DUAS dentro do alvo do Sol (TOP e REAR).
   REGRA 40: quando duas tentativas vizinhas dao o MESMO numero numa vista, o parametro nao e o owner daquela
     vista — parar de mexer nele e procurar o owner real (evita o ciclo de ajuste inutil).
+
+
+## B052: CAMERA DO SIDE CORRIGIDA -> TRES VISTAS NO ALVO DO SOL ***
+  CAUSA RAIZ de builds perdidos: o render do SIDE saia com a FRENTE A DIREITA e o concept tem a frente a
+  ESQUERDA. A comparacao media o modelo ESPELHADO. Prova: a mesma mascara espelhada da 3,68%% contra 5,05%%
+  na orientacao errada (p95 13,3%% vs 26,8%%).
+  FIX: camera SIDE de (0,-6,0,50) rot(90,0,0) para (0,+6,0,50) rot(90,0,180) — a convencao do concept.
+  [B052] ESTADO: FRONT 5,87%% | SIDE 3,68%% ✓ | REAR 4,75%% ✓ | TOP 2,92%% ✓ ✓✓ (3 de 4 no alvo <=5%%)
+  [B053] roda D=0,407->0,355: FRONT 5,99%% | SIDE 3,56%% | REAR 4,96%% | TOP 3,01%% — LIQUIDO NEGATIVO.
+    ⟹ as rodas estavam no tamanho medido na fonte (0,382); REVERTIDO. Regra 41: quando o valor de uma
+    dimensao tem MEDICAO DIRETA na fonte, ela e autoridade — nao mexer nela para satisfazer um erro de
+    contorno que pode ter outra causa.
+  CAUSA DO FRONT (nomeada, medindo): a 32,3%% da altura o modelo tem 1,26 m e o concept 0,31 m. Os objetos
+  que alcancam z=0,40: B_Front (1,478 m), W_RL/W_RR (topo 0,395, y +-0,74), W_FL/W_FR (y +-0,56), R_Motor
+  (0,592), P_Seat (0,480), P_Hips, P_Torso, C_Nose, C_Spine. ⟹ a faixa e a linha do TOPO DAS RODAS +
+  bumper frontal. O concept tem osso VAZIO ali (as rodas dele terminam mais baixo E o bumper e alto).
+  ══ MELHOR ESTADO: B052 — SIDE 3,68%% ✓ | REAR 4,75%% ✓ | TOP 2,92%% ✓ | FRONT 5,87%% (1,17x)
