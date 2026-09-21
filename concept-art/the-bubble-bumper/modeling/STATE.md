@@ -8424,3 +8424,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
        modelo, e uma explosao de primitivas'
   ESTADO: melhor por vision = B103 (2,75). B109 = 2,1 (altura 1,250 m ✓ e rodas dianteira<traseria ✓).
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B110: CHASSI CONSTRUIDO — O VISION COBRAVA ISSO EM TODAS AS 4 VISTAS *** ***
+  Divergencia No3 do vision: 'AUSENCIA TOTAL DE CHASSI E CONEXOES — tudo flutua; enquanto houver mais ar que
+  conexao entre pecas, nao e um modelo, e uma explosao de primitivas'.
+  [B110] CHASSI TUBULAR: C_RailL/C_RailR (longarinas x -1,10..0,92, |y| 0,16-0,26, z 0,12-0,22) +
+    C_CrossF/M/R (3 travessas). 52 objetos.
+  MEDIDO: teste de conexao -> lista de objetos isolados VAZIA ✓ (antes: R_Wing SEM VIZINHO).
+    contorno: FRONT 5,85 ✓ | SIDE 3,57 ✓✓ | REAR 9,12 ✗ | TOP 4,60 ✓ (p95 20,14 -> 18,14 ✓)
+  ⟹ O contorno NAO mede conexao (regra 74): o SIDE melhorou 0,05 e o teste de conexao mudou de 'ha peca solta'
+    para 'nada solto' — o segundo e o que o vision cobrou.
+  ESTADO: contorno FRONT 5,85 | SIDE 3,57 | REAR 9,12 | TOP 4,60 | altura 1,250 m ✓ | conexoes: nenhuma peca
+    isolada ✓ | vision a re-avaliar (serie 2,0-2,75-2,25-1,9-2,1).
