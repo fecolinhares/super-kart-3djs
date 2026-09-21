@@ -8595,3 +8595,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     R_ExhC com boca maior (raio 0,105)
   ESTADO: contorno FRONT 6,95 | SIDE 3,14 | REAR 8,84 | TOP 4,61 | altura 1,253 ✓.
     MELHOR POR VISION: B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION NO B117: 2,45 — REBOTE DE 1,95 E O PARA-CHOQUE SAI DO TOP-3 *** ***
+  FRONT 3,2 | SIDE 1,8 | REAR 2,4 | TOP 2,5 | GLOBAL 2,45   (serie: 2,0-2,75-2,25-1,9-2,1-2,1-1,95-2,45)
+  *** CONFIRMACAO DO MECANISMO: 'pequeno rebote tecnico pela TROCA DA PRIMITIVA frontal e conexao da asa'.
+    FRONT 3,2 = MELHOR NOTA DE VISTA DE TODA A SERIE (era 2,4).
+    *** 'O para-choque dianteiro SAIU DO TOP-3 de tao grave que estavam os outros' — de 'anel/donut em
+    orbita' (reportado em 4 avaliacoes seguidas) para fora da lista, com UMA troca de primitiva.
+    ⟹ REGRA 90 VALIDADA: o defeito era de CLASSE de forma; magnitude (afinar o tubo) nao resolvia;
+      trocar a primitiva (toro -> carenagem) tirou o artefato da lista de problemas.
+  RESSALVA HONESTA do vision: 'trocou a primitiva errada por outra primitiva errada' — a carenagem ainda
+    nao e uma casca em U extrudada com espessura e grade recuada; e uma esfera achatada + box.
+  *** NOVA DIVERGENCIA No1 (a maior de todas): PONTOES LATERAIS + ASSOALHO/CHASSI INEXISTENTES.
+    'No concept sao os MAIORES volumes do kart — gotas volumetricas que definem a SIDE e a TOP. No modelo sao
+    2 facas amarelas finas flutuando fora do chassi, sem parte azul, sem espessura, sem fixacao. O chassi
+    virou 1 regua. Isso sozinho mata SIDE e TOP.'
+    PRESCRICAO DO VISION: 'esculpa os pontoes como VOLUMES FECHADOS COLADOS AO CHASSI, nao como planos' +
+    'faca chassi tubular real com 2 longarinas + assoalho'.
+  OUTRAS DIVERGENCIAS: 2) rodas/bitolas/arquitetura (dianteiras minusculas na TOP, traseiras monstruosas na
+    SIDE, eixos flutuantes, sem mangas/cubos); 3) piloto + cockpit vazio (sem volante/coluna/banco/pedais).
+  ESTADO: contorno FRONT 6,95 | SIDE 3,14 | REAR 8,84 | TOP 4,61 | altura 1,253 ✓. MELHOR POR VISION
+    segue B103 (2,75); B117 (2,45) e o 2o melhor. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
