@@ -8848,3 +8848,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
        REGRA 99: ao substituir uma peca, REMOVER a antiga explicitamente (nome novo + nome velho = 2 objetos).
   ESTADO: MELHOR POR VISION B103 (2,75); B126 nao avaliado. AUDITOR e PRANCHA suspensos.
     OBJETIVO NAO ATINGIDO.
+
+
+## *** B127: PERNAS NO CHAO EXATO (z=0,000) E CONTORNO RECUPERADO — LIMPEZA NAO RODOU *** ***
+  [B127] P_LegL/R: fundo -0,040 -> -0,000 ✓ EXATO no chao (regra 98 aplicada e verificada).
+    CONTORNO RECUPERADO: FRONT 9,62 -> 6,07%% ✓✓ (identico ao B125) | REAR 9,90 -> 7,88%% ✓
+      ⟹ confirma que a piora de B126 era 100%% efeito das pernas abaixo do piso.
+  ✗ A LIMPEZA DAS DUPLICATAS NAO RODOU: P_Seat.001 e P_ShinL.001 persistem. O bloco de remocao foi
+    inserido antes do print('###B017### ok'), que NAO e o fim real do build (deve estar dentro de um
+    condicional ou haver outro print depois). REGRA 100: codigo de limpeza/correcao inserido no builder
+    precisa de CONFIRMACAO DE EXECUCAO (um print proprio que apareca na saida), nao de insercao no arquivo —
+    e a mesma licao da regra 88 (verificar por resultado, nao por intencao) aplicada ao CODIGO do build.
+  ESTADO: contorno FRONT 6,07 | SIDE 3,56 | REAR 7,88 | TOP ~3,2 | altura 1,253 ✓ | pernas no chao ✓
+    MELHOR POR VISION B103 (2,75); B127 nao avaliado por vision. AUDITOR e PRANCHA suspensos.
+    OBJETIVO NAO ATINGIDO.
