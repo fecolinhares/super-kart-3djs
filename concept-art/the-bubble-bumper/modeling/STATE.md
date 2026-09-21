@@ -7386,3 +7386,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   RATIOS DO CONTRATO: L +1,7%% | H -1,2%% | W/H +6,2%% | L/H +2,9%%.
   METODO ATUAL (funcionando): gate quantitativo -> pior faixa + excesso/falta -> OWNER MAP -> corrigir a peca
     -> re-medir. Cada build tem antes/depois numerico e a causa fica registrada.
+
+
+## B031/B032: O GATE PEGOU MEU EXAGERO (e isso e o metodo funcionando) ***
+  [B031] alarguei sidepods (y 0.33->0.42, ry 0.16->0.26) e asa (0.52->0.72 + discos) guiado pelas faixas de 68%%.
+    EFEITO: FRONT 6,68%% -> 14,74%% ✗ e REAR 5,35%% -> 12,24%% ✗ — EXCESSO na faixa de 30-33%% da altura.
+    Ou seja: eu resolvi a falta de cima criando excesso embaixo. O gate mostrou na hora (o metodo novo detecta
+    overshoot em UM build, coisa que o VLM nunca fez).
+  [B032] meio-termo: sidepods y 0.37 / ry 0.19; discos da asa removidos. MELHOR ESTADO DA SERIE:
+    FRONT 6,68%% | SIDE 4,95%% ✓ | REAR 5,05%% ✓ | TOP 6,71%%   (SIDE no alvo; REAR a 1%% do alvo)
+  RATIOS DO CONTRATO: L +1,7%% | H -1,2%% | L/H +2,9%% | W/H +6,2%%.
+  LICAO 32: correcao guiada por faixa pode OVERSHOOTAR — o gate detecta em um build, mas eu preciso corrigir em
+    PASSOS (metade do delta medido) e re-medir, em vez de aplicar o delta inteiro de uma vez.
