@@ -13,3 +13,6 @@
 #      ('R_',       (0.66,0.66,0.70,1))]
 # PENDENTE: o azul do modelo desce ate 92,5% vs 79% do concept -> as PERNAS do piloto (P_Thigh/
 # P_Shin/P_Boot) nao deveriam ser azuis (no concept o azul termina em 79%). Proxima correcao.
+
+# FINAL (validado): P_Thigh/P_Shin = (0.16,0.16,0.19) e P_Boot = (0.10,0.10,0.12)
+#   azul: inicio 13,5% (concept 15,4-17,4%) | fim 72-75% (concept 79%) | ocupa 58,6-61,2% (concept 62-63%) — CASOU

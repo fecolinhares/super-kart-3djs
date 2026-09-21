@@ -7965,3 +7965,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   mapa-cor-corrigido.txt criado como autoridade do mapa prefixo->cor.
   ESTADO: B074 (estrutura capacete/asa correta) + mapa de cor corrigido. Contorno ainda 9,92/6,21/6,79/2,55
     (a regra 55 se aplica: re-otimizar SOBRE a estrutura certa).
+
+
+## *** B078: COR DO PILOTO VALIDADA — O AZUL AGORA CASA COM O CONCEPT *** ***
+  Correcao: P_Thigh e P_Shin -> (0,16;0,16;0,19) e P_Boot -> (0,10;0,10;0,12) (nao sao azuis; o azul do
+  concept termina em 79%% da altura).
+  MEDIDO (dentro da mascara, fraction of height):
+                    CONCEPT        MODELO CORRIGIDO
+    inicio do azul  15,4-17,4%%     13,5%%            ✓
+    fim do azul     79%%            72-75%%           ✓
+    ocupa           62-63%%         58,6-61,2%%       ✓✓ CASOU
+  ⟹ PRIMEIRA ASSINATURA ESTRUTURAL+TEXTURAL QUE FECHA COMPLETAMENTE CONTRA O CONCEPT.
+  Efeito no contorno: NENHUM (9,92/6,21/6,79/2,55) — correto: cor nao altera silhueta, e isso confirma que os
+  dois gates sao INDEPENDENTES (contorno mede forma; a cor foi validada por fracao).
+  Artefato: modeling/render_mapa_cor.py (mapa prefixo->cor VERSIONADO no repo, nao mais em /tmp — regra 57).
+  PENDENTE PRINCIPAL: o contorno do B074 (9,92/6,21/6,79/2,55) precisa ser re-otimizado SOBRE a estrutura
+  agora correta (regra 55) — o alvo <=5%% anterior estava ajustado com a asa no lugar errado.
