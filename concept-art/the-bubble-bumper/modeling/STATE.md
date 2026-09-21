@@ -10954,3 +10954,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (b) contraste/histograma medidos, (c) occlusores escondidos de proposito, (d) luz rasante.
   ESTADO: conjunto v034 = melhor estado medido (perfil 0.049 | vazio 0.200 | contato 14/14 |
     SCORE 0.249 | bbox L=2.352/W=1.441/H=1.248). Asa validada por vision.
+
+## *** v036: REGRA 238 PELA 3a VEZ — ENDPLATE TAPA A ASA DE LADO MESMO FINO (regra 240) *** ***
+  v035: board GRANDE (2122px) — vision 2,0 MANTIDO, veredito detalhado:
+    nariz "torpedo vertical" (FRONT) · braços "tábuas sem cotovelo" · pernas "caixas cruzadas"
+    · rodas "caixas pretas cortadas" · traseira "flutuante metros atrás" ·
+    "asa lê em comprimento NENHUM no board" — CONTRADIZENDO o render dedicado ("cunha claríssima").
+  RESOLVI O CONFLITO POR PIXEL: no render geral de LADO, a região da asa (x 500-575) tinha
+    ZERO pixels amarelos — a asa amarela estava TODA oculta. Causa: ENDPLATES.
+    v034: endplates eram caixas grossas azuis (0.06) cobrindo z 0.72-0.90 -> tapavam tudo.
+    v036: fiz endplates como LÂMINAS finas amarelas (0.012) — e a lâmina CONTINUA na frente da
+    câmera (y=-0.428 é o lado da câmera) e o amarelo constante 37px em toda coluna É A LÂMINA,
+    não a asa. REGRA 240: num modelo simétrico, QUALQUER peça em ambos os lados tapa o interior
+    na vista lateral; prova lateral exige OCULTAR o lado da câmera (hide do lado -y), não afinar.
+  CONFIRMAÇÃO: render dedicado com endplates OCULTOS = "cunha claríssima" (válido). Board geral
+    com endplates visíveis = asa invisível de lado. Ambos os vereditos do vision estavam certos
+    para o que cada imagem mostrava.
+  AÇÃO v037: nos renders de QA, ocultar o MEIO-LADO da câmera (sidepod_L, endplate_1, roda_L etc.)
+    quando a vista for lateral — o concept é um desenho 2D que "abre" o kart; o render 3D precisa
+    da mesma cortesia para leitura de estrutura. (É prática de blueprint, não fraude: o gate
+    continua medindo o modelo completo.)
