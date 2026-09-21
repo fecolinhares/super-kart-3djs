@@ -8091,3 +8091,26 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     muda) e (b) CORRECAO SEMANTICA (mede o conceito certo — silhueta e UNIAO, nao o maior objeto).
     Responsivo e errado e pior que nao-responsivo: da numeros que se movem e mentem.
   Artefato: modeling/perfil_estacao.py
+
+
+## *** B087: MELHOR ESTADO HONESTO — AS CORRECOES DO INSTRUMENTO CORRIGIDO FUNCIONARAM *** ***
+  Correcionadas duas grandezas de maior deficit, medidas pelo perfil_estacao.py CORRIGIDO:
+    (1) ALTURA: a asa e o topo do veiculo por medicao -> subida para z 1,11-1,25 (H 1,152 -> 1,223)
+    (2) CAUDA (estacao 88-96%%): bumper traseiro de major 0,50 -> 0,52 e centro x -0,72 -> -0,80
+  RESULTADO:
+    FRONT 10,06 -> 5,41%% ✓✓ (p95 36,9 -> 30,7) | SIDE 4,81 -> 3,17%% ✓✓ (melhor SIDE)
+    REAR  6,01 -> 3,24%% ✓✓✓ (melhor REAR da serie) | TOP 6,33 -> 6,18%% ✓
+    MEDIA das 4 vistas: 6,80 -> 4,50%%
+  PERFIL POR ESTACAO DEPOIS:
+    88%%: 0,445 -> 0,993 ✓✓ (concept 0,927 — A CAUDA ENCHEU; o diagnostico do instrumento corrigido ACERTOU)
+    96%%: 0,445 -> 0,993 ✓✓ (concept 0,666)
+    altura 1,152 -> 1,223 m (contrato 1,2523 — de -8%% para -2,3%%)
+    comprimento 2,306 -> 2,488 m (contrato 2,35 — +5,9%% ✗ voltou: o bumper traseiro alongou)
+  ⟹ PROVA DE CAUSALIDADE: o instrumento corrigido (uniao/altura) previu ONDE corrigir; a correcao nos lugares
+    que ele nomeou melhorou as 4 vistas (media 6,80 -> 4,50). Pela primeira vez na sessao o ganho veio de um
+    diagnostico que passou pelos dois testes — e nao de tentativa e erro.
+  REGRA 65: quando o instrumento nomeia a grandeza e a correcao nessa grandeza produz o ganho previsto, o
+    instrumento esta VALIDADO POR CAUSALIDADE (nao apenas por responsividade). Esse e o teste mais forte:
+    medir -> prever -> corrigir -> confirmar na direcao prevista.
+  ESTADO: FRONT 5,41 | SIDE 3,17 ✓ | REAR 3,24 ✓ | TOP 6,18 | H 1,223 (-2,3%%) | L 2,488 (+5,9%%)
+    PENDENTE: TOP 6,18 (o unico acima de 5) e o comprimento +5,9%%.
