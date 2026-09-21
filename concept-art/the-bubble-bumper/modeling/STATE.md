@@ -8452,3 +8452,31 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     mini-spoiler amarelo — qual deles esta no TOPO do painel SIDE?
   ESTADO: B110 era melhor (FRONT 5,85 | SIDE 3,57 | REAR 9,12 | TOP 4,60 | H 1,250 ✓). B111 = H 1,030 ✗.
     MELHOR POR VISION: B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** ACHADO DECISIVO: QUEM DEFINE A ALTURA E O CAPACETE DO PILOTO (com faixa amarela) *** ***
+  Medicao do topo dos paineis + vision sobre o recorte ampliado 4x, conclusao textual do vision:
+    'E o CAPACETE DO PILOTO. Nao e asa, roll-bar, snorkel ou parte da carroceria. Capacete integral
+    fechado, azul medio brilhante, com FAIXA CENTRAL LONGITUDINAL AMARELA que passa por cima da cabeca de
+    frente para tras. Viseira cinza-prateado. Olhos cartoon. E EPI do piloto. O fato de ele ser o ponto
+    mais alto prova que e um kart aberto, SEM teto, SEM asa alta e SEM roll-bar mais alto que o piloto.
+    A altura total do desenho e definida pela cabeca do piloto de capacete.'
+  MEDICAO QUE CONFUNDIA E AGORA EXPLICA:
+    topo SIDE 0-4%%: AMARELO, largura 0,104->0,192 da altura  ⟹ e a FAIXA AMARELA do capacete
+    topo FRONT 0-6%%: AMARELO, largura 0,073->0,231 da altura ⟹ a mesma faixa vista de frente
+    SIDE 16%%: AZUL (corpo do capacete) ✓
+  *** OS 3 ERROS ACUMULADOS:
+    1. Eu medi 'massa amarela nos primeiros 15%% do topo' e interpretei como ASA ALTA ✗ — era a FAIXA do capacete
+    2. Construi torre em U, barra alta e asa alta para sustentar 1,2523 m — TUDO INVENCAO ✗ (nada existe la)
+    3. O proprio contrato ja dizia pilot_height_fraction=0,695 (o piloto e 69,5%% da altura) — eu tinha o
+       dado desde o inicio e nao o usei para explicar a altura
+  REGRA 84: quando o contrato tem uma fracao-chave (pilot_height_fraction), MEDIR quanto do H ela explica
+    ANTES de inventar elementos para fechar a altura. Aqui 0,695 x 1,2523 = 0,870 m — o piloto sozinho
+    responde por 69,5%% do H e e o TOPO do veiculo.
+  REGRA 85: 'existe massa da cor X na faixa do topo' nao identifica a peca. Cor + forma + o recorte ampliado
+    no vision identificam (regra 82 levada ao fim: aqui a faixa amarela era o capacete, nao a asa).
+  ACAO: (1) DELETAR toda a torre/barra/asa alta inventada; (2) ESCALAR o piloto/capacete para responder
+    pelos 1,2523 m (piloto 0,870 m, capacete no topo); (3) pintar a FAIXA AMARELA central no capacete;
+    (4) barra larga e baixa nos ombros ✓ (que o vision aprovou) permanece.
+  ESTADO: melhor por vision B103 (2,75); melhor tecnico B110 (H 1,250 ✓ com torre — a torre sai agora).
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
