@@ -10588,3 +10588,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   LICAO DE METODO: quando uma hipotese nasce de um padrao em numeros ARREDONDADOS, MEDIR A TOLERANCIA
     REAL antes de construir a teoria e o plano de correcao.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** REGRA 192: A VALENCIA DO POLO NO AVALIADO E O DOBRO (modelo espelhado) *** ***
+  ###M### polos na costura (|y|<10mm, val>5): 8
+  ###M### polos desdobrados: 0 (faces movidas: 0) ⟹ NENHUMA aresta cruza para y<-0,004
+  ⟹ A MALHA E SO O LADO +Y — o Mirror gera o outro lado. O polo val=20 em y=0,0035 e o ponto onde as
+    estacoes do MEIO-MODELO convergem para a costura; o espelho soma as 20 do outro lado ⟹ VALENCIA 40
+    no avaliado. E por isso que os 20/18/17 do cage viram PICOS no Subsurf.
+  REGRA 192: a valencia de um polo em modelo ESPELHADO e o DOBRO da que se ve no cage. A solucao NAO e
+    desdobrar (nao ha lado negativo): e fazer as estacoes TERMINAREM EM ARESTA PERPENDICULAR a costura,
+    o que exige MUDAR A CONSTRUCAO DO ANEL — nao pos-processar.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
