@@ -9412,3 +9412,29 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   BASE PRESERVADA: comp 2,366 | larg 1,441 | alt 1,260 ✓
   ESTADO: MELHOR VISION B132 = 2,3 | B151 = 1,45. B152 nao avaliado.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B152 = 1,55 (+0,10) — E O VISION CORRIGIU O MEU METODO DE VERIFICACAO *** ***
+  VISION: 'Voce afirma que tratou os 8. NAO PROCEDE VISUALMENTE. Sobreposicao em apenas X NAO PROVA
+  CONTATO. Contato exige INTERSECCAO/VOLUMETRIA CONTINUA em x+y+z E VISIVEL SEM VAO NAS 4 VISTAS.'
+  ⟹ MEU ERRO CONFIRMADO: eu reportei 'verificado: C_Col x[0.39;0.45] sobrepoe C_Wheel x[0.41;0.69]
+    => conectado ✓'. Sobreposicao de bbox em UM eixo nao e contato. Mesma familia dos erros anteriores:
+    medir o que e facil e declarar o que e dificil.
+  ELE DIZ QUE RESTAM 6-7 FLUTUANTES: F1/F2 endplates amarelos (pilulas isoladas); F3/F4 montantes
+    verticais terminando no vazio; volante sem coluna visivel; B2 mao 'blob no peito, centimetros longe
+    do aro'; B3 sidepod 'faixa de fundo preto, luz passa embaixo'; B4 motor+caixa amarela 'pendurados
+    sem longarina'; D8 'voce diz barra HORIZONTAL 0,94 m mas no TOP aparecem 2 OVAIS VERTICAIS -
+    GEOMETRIA INCONSISTENTE ENTRE VISTAS'.
+  NOTAS: FRONT 1,2 | SIDE 1,0 | REAR 1,8 | TOP 2,2 | GLOBAL 1,55 (de 1,45; ele: '+0,10, dentro do ruido')
+  O QUE ELE RECONHECEU: 'delEcao das 2 laminas brancas - limpeza visual CONFIRMADA'; 'intencao correta:
+    decompor disco em barra+endplates+pernas, coletor em Y, aro dentro do pneu, mount do sidepod';
+    'travamento da base manteve envelope, TOP um pouco mais proximo em planta'.
+  A PROVA QUE ELE EXIGE: 'apresente cada peca C_Col, C_PodMount, R_Header, pernas da asa ISOLADA EM
+    VERMELHO, com ZOOM NAS INTERSECOES nas 4 vistas + vista em WIREFRAME CORTADA. Sem isso continua
+    flutuante.'
+  REGRA 127: sobreposicao de bbox em 1 eixo NAO e contato. Contato exige intersecao VOLUMETRICA em
+    x+y+z E ausencia de vao VISIVEL no render — a prova e VISUAL, nunca aritmetica.
+  REGRA 128: geometria inconsistente entre vistas (a mesma peca como barra no SIDE e como 2 ovais no
+    TOP) indica que a peca foi ajustada por vista — o teste e a CONSISTENCIA entre as 4 vistas.
+  ESTADO: MELHOR VISION B132 = 2,3 | B152 = 1,55. CONTRATO/base: 2,366 x 1,441 x 1,260 ✓.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
