@@ -7607,3 +7607,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   (0,592), P_Seat (0,480), P_Hips, P_Torso, C_Nose, C_Spine. ⟹ a faixa e a linha do TOPO DAS RODAS +
   bumper frontal. O concept tem osso VAZIO ali (as rodas dele terminam mais baixo E o bumper e alto).
   ══ MELHOR ESTADO: B052 — SIDE 3,68%% ✓ | REAR 4,75%% ✓ | TOP 2,92%% ✓ | FRONT 5,87%% (1,17x)
+
+
+## B054: FRONT — LIMITE ESTRUTURAL IDENTIFICADO ***
+  Subir o bumper frontal (z 0,50 -> 0,60; B_Front z[0,52,0,68]): FRONT 5,87%% -> 6,22%% ✗ e REAR 4,75%% -> 5,25%% ✗.
+  ⟹ a faixa de 32,3%% da altura do FRONT e dominada pelo TOPO DAS RODAS (z=0,395), e o bumper ja estava na
+    posicao correta. Nao ha alavanca de POSICAO que resolva sem mexer no diametro da roda —
+    e a roda tem medicao DIRETA na fonte (0,382 m) ⟹ e autoridade (regra 41).
+  CONCLUSAO MEDIDA: o FRONT em 5,87%% e o limite do que a geometria atual entrega sob as restricoes da fonte.
+    A diferenca remanescente vem de o concept, naquela faixa, medir 0,31 m (so o NARIZ) enquanto o modelo
+    mede 1,26 m (rodas + bumper) — ou seja, no concept as rodas NAO alcancam essa faixa e no modelo sim,
+    numa diferenca de topo de roda de ~3%% (0,382 vs 0,395) que a AMOSTRAGEM POR FAIXA de 10%% amplifica.
+  ALTERNATIVA ESTRUTURAL (nao testada): reduzir a amostragem do gate de 10 para 20 faixas, para localizar
+    a fronteira real em vez de diluir num bloco de 10%% da altura. Isso e INSTRUMENTO, nao geometria.
+  ══ MELHOR ESTADO FINAL: B052 — SIDE 3,68%% ✓ | REAR 4,75%% ✓ | TOP 2,92%% ✓ | FRONT 5,87%% (1,17x)
