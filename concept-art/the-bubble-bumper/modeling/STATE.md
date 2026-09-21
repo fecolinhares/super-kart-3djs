@@ -7501,3 +7501,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 35: quando uma grandeza e IMUNE a mudancas grosseiras na peca que deveria determina-la, o defeito
     nao esta na peca — esta na RELACAO entre a peca e o instrumento (visibilidade, oclusao ou projecao).
   ESTADO: SIDE 3,49%% ✓ | TOP 4,70%% ✓ | REAR 4,64%% ✓ | FRONT 6,68%% (com causa isolada a investigar)
+
+
+## ACHADO 36 (GRANDE): 38 MALHAS SEM MATERIAL + NORMAIS INVERTIDAS ***
+  Auditoria de cena por objeto revelou dois defeitos reais:
+    1. R_Wing tem bbox CORRETA (x[-1,17,-1,03] y[-0,71,0,71] z[0,72,0,98] = 1,42 m de largura — exatamente o
+       alvo do concept) MAS nao renderiza: 0 px no ID-pass e silhueta identica com hide_render on/off.
+       Causa: normal da face 0 = (-0,996,-0,017,-0,093) apontando para LONGE da camera + o render usa
+       use_backface_culling=True (que eu liguei para matar o dither da viseira) ⟹ peca INVISIVEL.
+    2. 38 malhas SEM MATERIAL: AX_F, AX_R, C_Nose, C_Spine, HOLE_L/R, HUB_FL/FR ... (o render mascara isso
+       atribuindo por PREFIXO, mas a cena entregavel e o export .glb ficam sem material).
+  CORRECAO APLICADA [B045]: recalc_face_normals(outside) em todas as malhas + material M_Rest para as 38 sem.
+  RESULTADO: as medianas NAO mudaram (o render ja mascarava o material por prefixo) — mas o defeito de normais
+  e a ausencia de material sao REAIS para o entregavel e ficam registrados.
+  REGRA 36: auditar MATERIAL e NORMais por objeto, nao so bbox — peca com bbox perfeita pode estar invisivel.
+  REGRA 37: o render nao e o entregavel: validar material/normal na CENA (o .glb sai do que a cena tem).
+  ══ BALANCO: SIDE 3,49%% ✓ | TOP 4,70%% ✓ | REAR 4,64%% ✓ | FRONT 6,68%% — 45 builds, 37 instrumentos/regras.
