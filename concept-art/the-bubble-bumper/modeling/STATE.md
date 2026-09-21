@@ -10173,3 +10173,28 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   RESULTADO: 2329 verts/2313 faces; dim(2,376, 0,754, 0,885) m — o rim ficou mais cheio.
   MIRROR com clipping + merge 0,001 mantidos.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v020 = 5,0 (REGRESSAO de 5,6) — '0 BORDAS ABERTAS != MALHA SA' *** ***
+  (1) 'Os 4 pingos NAO sao problema de ESPACAMENTO - sao GEOMETRIA EXTRA: faces de antepara/loop
+    interno, ou vertices duplicados do mirror que nao fundiram.'
+    'Os tris esticados no Zoom3: NENHUMA transicao com 8+8 pontos gera linhas que atravessam a cena
+    inteira. Aquilo e FACE INTERNA GIGANTE ou N-gon do fundo triangulado.'
+    '0 BORDAS ABERTAS != MALHA SA. Pode ter 0 open edges e ainda ter: NON-MANIFOLD INTERIOR, faces
+    internas, faces zero-area, normais invertidas, doubles nao fundidos. O visual de borda mastigada
+    em TODAS as vistas e tipico de BORDA NON-MANIFOLD, nao de malha fechada limpa.'
+  (2) 'Adensar sem IGUALAR CONTAGEM E ORDEM rim<>parede PIORA a dobra.' E 'o Mirror com clipping +
+    merge esta te traindo: na linha central voce tem COSTURA VISIVEL.'
+  (3) FRONT 4,8 | SIDE 5,8 | REAR 4,9 | TOP 5,5 | ZOOM 4,0 | GLOBAL 5,0 (de 5,6) - 'nao houve
+    limpeza, so REDISTRIBUICAO DA DOBRA.'
+  (4) 'REPROVADO: falha nos 4 criterios.' Receita: (1) DELETE O RIM ATUAL INTEIRO - 'nao ajuste
+    ponto'; (2) CURVA fechada nova em TOP + altura em SIDE + RESAMPLE N=16/32 UNIFORME; (3) mesh
+    por extrude tubo (Solidify) ou extrude+scale, NAO Bridge com contagens diferentes; (4) PAREDE
+    por BRIDGE LOOP-TO-LOOP com MESMO NUMERO DE VERTS e MESMA ORDEM + 2-3 support loops PARALELOS
+    com espacamento progressivo 10/25/50 por cento, tudo quads; (5) delete as 4 anteparas; (6) limpe
+    Select Non-Manifold + Interior Faces + Merge 0,003 + Recalc Outside + Clear Sharp/Crease;
+    (7) SO ENTAO Subsurf 2 + Mirror com clipping.
+  REGRA 164: '0 bordas abertas' != 'malha sa'. Teste de sanidade = Select Non-Manifold + Select
+    Interior Faces + doubles + recalc, nao contagem de boundary.
+  REGRA 165: Bridge exige MESMA CONTAGEM e MESMA ORDEM nas duas loops — adensar um lado so piora.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
