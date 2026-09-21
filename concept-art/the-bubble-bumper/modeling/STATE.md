@@ -8996,3 +8996,26 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     endplates flutuam; rodas com z-fighting ('derretidas').
   ESTADO: contorno FRONT 7,15 | SIDE 3,09 | REAR 8,80 | direcionalidade 0,999 vs 0,696 (FALHA).
     MELHOR POR VISION: B132 = 2,3 (recorde). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** CONFLITO RESOLVIDO POR MEDICAO (E UMA MEDICAO MINHA INVALIDADA PELA REGRA 108) *** ***
+  O vision (2,3) disse: 'TRAVAR ESCALA MESTRE PILOTO=1x - piloto Godzilla 2x maior; isso sozinho
+  destroi FRONT/SIDE/REAR'. Eu apliquei escala 0,70 em 28 pecas P_ (VERIFICADO: piloto z[0.812;1.025]
+  contra z[0.948;1.252] antes) -> e a ALTURA TOTAL CAIU DE 1,253 PARA 1,026 m, QUEBRANDO O CONTRATO.
+  MEDICAO 1 (INVALIDADA pela regra 108): mascara max<245 deu 'kart x[0..1023] largura 1024' = a imagem
+    TODA (a grade de fundo do concept e clara). O numero de 61,7% era a altura da IMAGEM. Regra 108
+    funcionou: um kart ocupando 100% da largura e impossivel -> controle conhecido pegou o erro.
+  MEDICAO 2 (mascara VALIDADA importada de gate_contorno.py): kart y[88..484] H=397 px | x[123..878]
+    largura 756 px — plausivel. ACIMA do ponto mais alto do azul: apenas 2,3% da altura (0,029 m) com
+    10,4% da largura do kart -> elemento PEQUENO e ESTREITO, nao asa larga/torre/roll-bar.
+    ⟹ CONFIRMA: o piloto define a altura (contrato: pilot_height_fraction).
+    RESSALVA: o 'azul' do concept inclui partes azuis do PROPRIO KART -> 86,9% esta contaminado;
+    nao da para isolar a altura do piloto somente por cor.
+  DECISAO TECNICA: o vision falou de PROPORCOES ('cabeca, tronco, coxas 2x maiores'), nao de tamanho
+    total. Encolher o piloto INTEIRO quebra o contrato. O correto e (a) REVERTER a escala 0,70 e
+    (b) corrigir as PROPORCOES (cabeca/tronco/coxas) mantendo a altura total em 1,2523 m.
+  REGRA 109: 'escala mestra' pedida por vision qualitativo precisa ser confrontada com o contrato
+    medido ANTES de aplicar — o piloto e o que define a altura; encolhe-lo move a cota global.
+  ESTADO: B134 altura 1,026 m (CONTRATO QUEBRADO, a reverter) | vision B132 = 2,3 (recorde).
+    contorno FRONT 7,15 | SIDE 3,09 | REAR 8,80 | direcionalidade 0,999 vs 0,696 (FALHA).
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
