@@ -10255,3 +10255,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 169: pingo/flap E GEOMETRIA, nao sujeira — limpar doubles nao remove; so DELETAR o anel do
     rim e refazer o loop.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** GATE v2 COM ASPECT RATIO CONFIRMA A REGRA 168: 135 FACES-FIO QUE O GATE ANTIGO ESCONDIA *** ***
+  ###SANIDADE### aresta_mediana=0,0461 m | boundary=6 NON-MANIFOLD=0 ZERO-AREA=0 quase-zero=0
+    doubles=0 | FACES-FIO (menor/maior aresta < 0,15) = 135
+  ⟹ O gate ANTIGO (so AREA) dizia 'zero-area=0, quase-zero=0' e o vision via 'teia de aranha' no wire.
+    Agora o numero aparece: 135 faces de aspecto extremo = os 'tris esticados' que ele descreveu.
+  ⟹ A frase dele se provou LITERAL: 'um tri de 2 mm de comprimento e 0,01 mm de largura JA TEM
+    AREA >0 e passa no filtro, mas visualmente e um FIO.' 135 deles.
+  ⟹ REGRA 168 VALIDADA nos meus proprios dados. O gate v2 mede: boundary, non-manifold, zero-area,
+    quase-zero, doubles E FACES-FIO (aspect < 0,15). Falha se qualquer um estiver sujo.
+  SITUACAO HONESTA DA SESSAO: 17 ciclos de reboot. O pico '5,6' foi inflado por um filtro quebrado
+    (o vision recalculou para ~4,0). O ultimo numero honesto e 4,3 (v023).
+  O QUE EXISTE DE REAL: contrato metrico, 4 cameras ortograficas, base travada, gate_contorno,
+    gate_contato, gate_direcionalidade, gate_sanidade v2, render de prova com zoom + wire, e o
+    metodo de modelagem por zona (tub+cockpit + sidepods) validado pelo proprio vision em 80%%.
+  O QUE FALTA PARA O OBJETIVO: rim do cockpit em loop fechado (4 pingos/flap + 135 faces-fio),
+    nariz sem pinch, e as zonas 3 (nariz+bumper), 4 (piloto+capacete) e 5 (traseira).
+  ESTADO: AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
