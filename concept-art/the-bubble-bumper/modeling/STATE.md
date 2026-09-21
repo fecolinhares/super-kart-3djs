@@ -9854,3 +9854,29 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
       PASSADA 2 = WIRE sozinho (use_replace=True ⟹ SO o arame: S 4,2%% | T 7,7%%).
       O wire nao contamina mais a leitura da forma.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v006 = 3,0 (de 2,4) — E ELE REFUTOU MEU RAIO COM OS MEUS PROPRIAOS NUMEROS *** ***
+  (1) 'O raio aparece? NAO. SUA PROPRIA PROVA TE CONDENA: rim z [0.601, 0.6011, 0.6021, 0.6022,
+    0.6034...] => 0,6034 - 0,601 = 0,0024 m = 2,4 mm, NAO 20 mm. BEVEL antes do SUBSURF + crease
+    0,35 + 2 segmentos ESMAGA tudo.'
+    ⟹ eu apresentei os niveis de z como PROVA do raio e eles provam 2,4 mm. TERCEIRA vez que eu
+      declaro algo que meu proprio dado contradiz.
+  ERRO DE CONCEITO: 'voce fez bevel de PERFIL (eixo Z) mas nao fez FILLET EM PLANTA (eixo XY). No
+    TOP o cockpit e um RETANGULO DE 4 CANTOS A 90. Raio real exige os dois: rolo na borda +
+    arredondamento de 30-40 mm nos 4 cantos em vista de cima. Voce NAO TEM NENHUM LOOP DE COAMING.'
+  (2) 'O REAR ainda esta facetado? SIM. E o FRONT tambem.' FRONT: 'V central, sombreamento em
+    estrela, 5 zonas planas - e a CAGE DE 233 VERTS APARECENDO ATRAVES DO SUBSURF. Com crease 0,35
+    voce CONGELA a faceta em vez de dissolver.'
+  (3) FRONT 3,0 | SIDE 4,2 (melhor nota de vista de toda a sessao) | REAR 2,0 | TOP 2,8 | GLOBAL 3,0
+  (4) 'NAO PASSA. Reprovado.' Falta: (a) crease do rim para 0-0,1 NUNCA 0,35; bevel 0,025 com 3-4
+    segmentos; (b) CRIAR COAMING DE VERDADE (loop fechado + extrusao interna + fillet em planta nos
+    4 cantos); (c) matar a faceta FRONT/REAR (mais loops de suporte, weld do Mirror a 0,0001,
+    recalc normals, tirar crease das transversais); (d) RECASAR FORMA: '64 mm de media nao e ajuste
+    fino, e BANHEIRA ERRADA - sidepods muito estreitos/retos vs concept gordo amarelo'.
+  RECONHECIDO: 'Voce fez REGRA 148 correta... PONTO PRA VOCE. O metodo esta certo - [MIRROR, BEVEL,
+    SUBSURF] na ordem. MANTENHA ISSO.'
+  REGRA 149: crease CONGELA faceta — para dissolver usar crease 0-0,1 e resolver o raio com BEVEL de
+    3-4 segmentos (0,025) + COAMING LOOP (loop fechado ao redor da abertura + extrusao interna +
+    fillet em PLANTA nos 4 cantos). Bevel de perfil sozinho NAO cria raio em vista de cima.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
