@@ -8341,3 +8341,35 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
   PROXIMA ACAO: reconstruir a traseira como 3 VOLUMES SEPARADOS com vazio real entre eles (pod-L, pod-R,
     bloco motor central), verificando no TOP que NAO existe contorno fechado ao redor do centro.
+
+
+## B106: TRASEIRA RECONSTRUIDA COMO 3 VOLUMES + ROLL HOOP + ASA BAIXA ***
+  Seguindo a receita do vision: R_PodL/R_PodR (laterais, |y| 0,36-0,68) + R_Motor central (|y|<=0,24) com VAO de
+  0,12 m de ar entre eles; asa de volta a LAMINA LARGA E BAIXA (y +-0,52, z 0,60-0,68) com 2 suportes finos;
+  e o elemento acima do capacete virou R_RollHoop (barra protetora fina, z 0,84-1,20) — porque minha MEDICAO
+  dizia que existe algo acima do capacete e o vision dizia que nao era a asa ('asa baixa, logo acima dos
+  escapes'). Os dois conciliam: o que esta no topo e a BARRA PROTETORA.
+  contorno: FRONT 7,64 | SIDE 4,16 | REAR 3,52 (melhorou de 4,80) | TOP 4,71 | vision a re-avaliar.
+
+
+## *** VISION NO B106: 1,9/10 — TERCEIRA REGRESSAO (2,75 -> 2,25 -> 1,9) *** ***
+  FRONT 2 | SIDE 1,5 | REAR 3 (a melhor) | TOP 1 | GLOBAL 1,9
+  CAUSA APONTADA: 'na TOP e um DONUT literalmente em orbita ao redor do motor' e 'a barra protetora no alto
+    virou um HALO OCTOGONAL GIGANTE que coroa tudo' -> O ANEL E O R_ROLLHOOP QUE EU ACABEI DE CRIAR.
+    Eu escrevi a REGRA 77 (verificar o contorno resultante na vista que revela a topologia) e NAO apliquei ao
+    objeto que eu mesmo criei no mesmo ciclo.
+  DIAGNOSTICO DE FUNDO (textual): 'o concept e um kart baixo, aberto, ligado e legivel; o modelo e um casulo
+    fechado com donut em orbita e torpedos flutuantes. Corte o domo pela metade, mate o anel fechado, refaca
+    rodas e chassi antes de detalhar.'
+  ══ PADRAO QUE OS NUMEROS MOSTRAM:
+    mudancas de POSICAO/ESCALA melhoraram o vision:  sidepod assentado (2,0 -> 2,75) ✓, asa conectada ✓,
+      cubos dentro dos pneus ✓ (contorno 5,41 -> 3,02)
+    mudancas de TOPOLOGIA pioraram:  domo quebrado (2,75 -> 2,25), 3 volumes + roll hoop (2,25 -> 1,9)
+  REGRA 79: nao sei fazer TOPOLOGIA com primitivas — cada volume novo cria um artefato na vista que revela a
+    topologia (o TOP). Antes de adicionar qualquer volume, desenhar/medir o CONTORNO NO TOP que ele vai criar.
+    Se eu nao consigo prever o contorno, nao devo adicionar o volume.
+  ESTADO: B106 — contorno FRONT 7,64 | SIDE 4,16 | REAR 3,52 | TOP 4,71 | vision 1,9 (PIOR da serie,
+    que comecou em 2,0 em B100 com um modelo que o vision chamou de blockout).
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+  ACAO IMEDIATA SUGERIDA PELO PROPRIO VISION: (1) REMOVER o roll hoop (o anel e meu), (2) cortar o domo pela
+    metade (altura < capacete, aberto por cima e pelos lados), (3) refazer rodas/chassi — nesta ordem.
