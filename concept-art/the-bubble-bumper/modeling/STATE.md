@@ -10553,3 +10553,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     e e EXATAMENTE esse leque que o Subsurf puxa para dentro produzindo a estrela preta. A cura era
     RECONSTRUIR a boca com loops, nao tapa-la.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v036 DIAGNOSTICO: OS POLOS ESTAO NA LINHA DE SIMETRIA (regra 187) *** ***
+  ###P### vertices com valencia>5 no CAGE: 23 (o vision pediu: NENHUM)
+     val=20  (0.613, 0.000, 0.535)  <- O PIOR - 20 arestas, y=0 = EM CIMA DA COSTURA DO MIRROR
+     val=18  (0.423, 0.000, 0.048)  · val=18 (-0.797, 0.000, 0.764)  <- y=0
+     val=17  (0.121, 0.046, 0.048)  · val=17 (-0.372, 0.046, 0.048)
+     val=14 (0.093,0,0.288) · val=13 (-0.335,0,0.288) · val=11 (1.180,0.054,0.289)
+     por regiao: fundo 13 | rim/topo 8 | parede 2
+  ###P### ngons no cage: 2
+     ngon  7 verts area=0,000289 centro=(1.180, 0.058, 0.267)  <- no NARIZ (residuo do micro)
+     ngon 18 verts area=0,363638 centro=(-1.102, 0.158, 0.501) <- A TAMPA TRASEIRA - fan de 18!
+  ⟹ os polos estao TODOS em y=0,000 (a COSTURA DO MIRROR) e em z=0,048/0,288/0,535/0,764 = as
+    ESTACOES DO ANEL convergindo num unico vertice na linha central.
+  REGRA 187: os polos do meu anel estao NA LINHA DE SIMETRIA porque modelo MEIO-VEICULO e deixo o
+    Mirror soldar. O vertice onde as estacoes convergem em y=0 vira VALENCIA 20 e o Subsurf o puxa
+    para dentro. CORRECAO: as estacoes tem de TERMINAR EM ARESTA PERPENDICULAR a simetria (nao
+    convergir num ponto).
+  REGRA 188: o N-gon de 18 verts com area 0,36 m2 e a TAMPA TRASEIRA que o holes_fill criou — uma
+    tampa por leque vira fan gigante. Tampas tem de ser feitas por BRIDGE/grid, nunca por fill.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
