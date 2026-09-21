@@ -8581,3 +8581,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     vez de 3 bocas circulares).
   ESTADO: contorno FRONT 4,95 | SIDE 3,38 | REAR 7,93 | TOP 5,17 | altura 1,253 ✓ | MELHOR POR VISION
     segue B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B117: REGRA 90 APLICADA — TUBO -> CARENAGEM (troca de primitiva, nao de parametro) *** ***
+  [B117] PARA-CHOQUE DIANTEIRO reconstruido:
+    removido o TORUS EM C (primitive_torus_add major 0,34) e criada CARENAGEM:
+      B_Caren dim(0,32x1,01x0,22) x[0,61;0,93] z[0,26;0,48] — chata, LARGA (1,01 m), baixa
+      B_Nose  dim(0,27x0,34x0,15) — bico central saliente
+      B_Slat0..4 — grade central de 5 lamelas verticais (assinatura do concept)
+      B_StrapL/R MOVIDAS para a superficie frontal (x 0,90-1,00) — antes enterradas em x 0,44-0,60 (por isso
+        o vision dizia 'as cintas nao aparecem')
+    ENDPLATES LIGADOS a asa (y 0,44-0,52 sobrepoe a asa em +-0,50) — antes y 0,50-0,56 sem contato
+    R_ExhC com boca maior (raio 0,105)
+  ESTADO: contorno FRONT 6,95 | SIDE 3,14 | REAR 8,84 | TOP 4,61 | altura 1,253 ✓.
+    MELHOR POR VISION: B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
