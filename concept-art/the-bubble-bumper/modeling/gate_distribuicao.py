@@ -8,7 +8,7 @@ import importlib.util
 spec=importlib.util.spec_from_file_location('g', __file__.replace('gate_distribuicao','gate_contorno'))
 g=importlib.util.module_from_spec(spec); spec.loader.exec_module(g)
 
-def densidade(mask, n=10):
+def densidade(mask, n=20):
     """fracao preenchida por faixa do eixo, normalizada pela LARGURA da propria linha (0=linha vazia, 1=linha cheia)"""
     ys,xs=np.where(mask)
     if not len(ys): return np.zeros(n)
@@ -23,7 +23,7 @@ def densidade(mask, n=10):
         out.append(band.sum()/(band.shape[0]*largura))
     return np.array(out)
 
-def compara(vista, mc, mm, n=10):
+def compara(vista, mc, mm, n=20):
     dc, dm = densidade(mc,n), densidade(mm,n)
     err=np.abs(dc-dm)*100
     return {"vista":vista, "concept":np.round(dc,3).tolist(), "modelo":np.round(dm,3).tolist(),

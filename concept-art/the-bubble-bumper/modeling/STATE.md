@@ -7621,3 +7621,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ALTERNATIVA ESTRUTURAL (nao testada): reduzir a amostragem do gate de 10 para 20 faixas, para localizar
     a fronteira real em vez de diluir num bloco de 10%% da altura. Isso e INSTRUMENTO, nao geometria.
   ══ MELHOR ESTADO FINAL: B052 — SIDE 3,68%% ✓ | REAR 4,75%% ✓ | TOP 2,92%% ✓ | FRONT 5,87%% (1,17x)
+
+
+## B055 + GATE EM 20 FAIXAS: O DEFEITO DO FRONT E DE VAZIO, EM 20-35%% DA ALTURA ***
+  O gate de DISTRIBUICAO em 20 faixas localizou o defeito com precisao:
+    FRONT faixa 6 (z~0,37-0,44): concept 0,30 vs modelo 0,95  ✗✗✗ o pior
+    FRONT faixa 4 (z~0,25-0,31): concept 0,30 vs modelo 0,83  ✗✗
+    FRONT faixa 19 (topo):       concept 0,62 vs modelo 0,31  ✗ (esparso)
+  ⟹ a 20-35%% da altura o CONCEPT E QUASE VAZIO (so o nariz, ~0,30) e o MODELO e SOLIDO de ponta a ponta
+    (0,83-0,95). O concept tem o VAO de kart ali; o meu modelo nao tem.
+  [B055] CENSO de largura na faixa (so 3 objetos passam de 0,5 m): B_Front 1,478 m (z 0,42-0,58 — CORRETO,
+    o concept tem 0,88 nessa altura), R_Bumper 1,048 m (z 0,15-0,29), R_Motor 0,592 m.
+    Estreitei o R_Bumper para 0,751 m (VERIFICADO aplicado): a distribuicao NAO mudou um digito.
+    ⟹ nao era o bumper traseiro. O preenchimento solidO vem de outra fonte (candidatos restantes: a sombra/
+    oclusao entre rodas e chassi, ou a propria interpolacao do gate na largura da faixa).
+  REGRA 42: quando reduzir um objeto LARGO na faixa nao muda a DENSIDADE da faixa, o preenchimento nao vem
+    dos bbox dos objetos — vem de OCLUSAO/sombra ou do proprio metodo de medicao. Medir a DENSIDADE POR
+    OBJETO (ID-pass por faixa) antes de mexer em qualquer peca.
+  ══ MELHOR ESTADO: B052 — SIDE 3,68%% ✓ | REAR 4,75%% ✓ | TOP 2,92%% ✓ | FRONT 5,87%% (1,17x)
