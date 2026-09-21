@@ -9742,3 +9742,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     resultado TEM SINAL. REGRA 143: todo render de prova precisa de CHECK DE SINAL (a imagem tem
     pixels do objeto?) ANTES de ser apresentado como evidencia.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** CORTE LONGITUDINAL PROVA A CAVIDADE NO RENDER (nao so nos verts) *** ***
+  Correcao do corte: (a) o bisect precisa de plane_no=(0,1,0) com clear_inner (o anterior removeu
+    o lado VISIVEL); (b) a face do corte aponta para -Y e o sol a 70 de elevacao NAO a iluminava
+    (face preta em fundo preto = 'vazio'); (c) fundo 0,16-0,19 + SUN frontal de -Y.
+  RESULTADO (corte, topo por faixa em m):
+    [0.796, 0.764, 0.653, 0.611, 0.237, 0.593, 0.601, 0.601, 0.590, 0.408]
+    ⟹ faixa 5 DESCE a 0,237 m = ASSOALHO DA BANHEIRA, vizinhas a 0,59-0,65 (rim).
+    ⟹ A QUEDA DO COCKPIT E VISIVEL NO RENDER — e a prova que o vision exigiu
+      ('numero em vertice nao e prova visual').
+  CHECK DE SINAL (regra 143): pixels do objeto 17,0%% (antes: 0,0%% = imagem vazia).
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
