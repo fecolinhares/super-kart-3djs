@@ -7932,3 +7932,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ESTADO: B074 estruturalmente correto no eixo capacete/asa e metricamente pior no contorno (regra 55).
     PROXIMO: auditar a distribuicao de COR (azul so no piloto, carroceria branca/amarela) — e so depois
     re-otimizar o contorno SOBRE a estrutura certa.
+
+
+## B075-B076: A COR NAO ESTA NO .blend — ESTA NO SCRIPT DE RENDER (achado decisivo) ***
+  Medido no B074.blend: 40 objetos, 40 meshes, **ZERO com material** ('SEM_MATERIAL: 40').
+  ⟹ Os materiais sao aplicados pelo SCRIPT DE RENDER, mapeando PREFIXO DE NOME -> COR (implementado nos
+    builds B012/B045 porque pecas dinamicas renderizavam cinza default).
+  ⟹ CONSEQUENCIA: o defeito de COR (azul ocupa 75%% da altura no modelo contra 62-63%% no concept, e desce
+    ate 88%% vs 79%%) tem UM UNICO ponto de correcao: o MAPA PREFIXO->COR no script de render.
+    NAO e geometria, NAO e material no .blend — e uma tabela de ~10 linhas.
+  REGRA 57: antes de caçar um defeito de COR/aparência, localizar ONDE a propriedade vive (no arquivo ou
+    no pipeline de render). Um script de render que aplica cor por nome e um PONTO UNICO de correcao —
+    e tambem um ponto unico de MENTIRA (a cor do arquivo nao e a cor da imagem).
+  ESTADO: B074 estruturalmente correto no eixo capacete/asa; defeito de cor localizado no mapa prefixo->cor.
+    PROXIMO: ajustar o mapa (azul so no piloto; carroceria branca/amarela) e re-medir o azul (meta 62-63%%).
