@@ -9391,3 +9391,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     bbox nao substituem forma. Reportar sempre a FORMA/leitura junto com a cota.
   ESTADO: MELHOR VISION B132 = 2,3 | B151 = 1,45. CONTRATO altura 1,260 m ✓. BASE TRAVADA ✓.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B152: FLUTUANTES 8 -> 0 (REGRA 125 APLICADA) — TODOS DELETADOS OU CONECTADOS *** ***
+  Trabalho por SUBTRACAO/CONEXAO na metrica do vision ('enquanto houver 1 objeto flutuante nao ha kart').
+  LISTA DELE  ->  ACAO  ->  VERIFICACAO NO ARQUIVO:
+   1. volante toroide + bolinha solta   -> C_Col (coluna solida chassi->volante) + P_Grip nas maos
+        VERIFICADO: C_Col x[+0.39;+0.45] e C_Wheel x[+0.41;+0.69] SOBREPOEM; P_GripL dim 0,096 em
+        x[+0.50;+0.59] z[0.47;0.56] = DENTRO do aro (contato real)
+   2. 2 laminas BRANCAS verticais       -> DELETADAS (B_Boot/B_Slat/B_BarTip)
+   3. 2 esferas amarelas soltas no TOP  -> P_Hand antigo DELETADO; mao refeita no volante
+   4. 3-4 ponteiras brancas sem cano    -> R_Header dim(0,151 x 0,369 x 0,134) = COLETOR ligando os
+        3 escapes ao motor (nao mais 3 pontas soltas)
+   5. tampoes amarelos para fora        -> C_RimF/R = ARO DENTRO do pneu (dentro do diâmetro)
+   6. sidepods com gap de ar            -> C_PodMount dim(0,600 x 0,170 x 0,190) z[0.06;0.25] = chapa
+        ligando o pod ao assoalho (mata o vao)
+   7. asa-disco VERTICAL                -> R_WingBar HORIZONTAL dim(0,118 x 0,940 x 0,055) +
+        R_EndplateL/R (0,180 x 0,040 x 0,220) + R_WingLegL/R ligadas ao chassi
+   8. maos sem volante / pes sem pedal  -> maos agora no aro (P_Grip dentro de C_Wheel)
+  BASE PRESERVADA: comp 2,366 | larg 1,441 | alt 1,260 ✓
+  ESTADO: MELHOR VISION B132 = 2,3 | B151 = 1,45. B152 nao avaliado.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
