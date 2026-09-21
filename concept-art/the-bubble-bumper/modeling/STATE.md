@@ -7559,3 +7559,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     — e re-medir o objeto depois (regra 34).
   ══ ESTADO CONSOLIDADO (B046): SIDE 3,49%% ✓ | TOP 4,07%% ✓ | REAR 4,99%% ✓ | FRONT 6,68%%
      (FRONT: erro de DISTRIBUICAO — alvos nomeados pelo instrumento 39).
+
+
+## B048/B049: PRIMEIRA MELHORA DO FRONT EM 10 BUILDS ***
+  [B048] dois alvos medidos do instrumento 39 atacados:
+    · domo do capacete: raios 0,150 -> 0,176 (editando os RAIOS, nao a posicao — regra 39)
+    · vao entre sidepods e rodas: SP y 0,50->0,40, raios 0,22/0,09 -> 0,15/0,085
+    EFEITO: FRONT 6,68%% -> 6,21%% ✓ (PRIMEIRA melhora do FRONT em 10 builds) | SIDE 3,49%% -> 3,35%% ✓ |
+            REAR 4,99%% -> 4,79%% ✓ | TOP 4,07%% -> 5,26%% ✗ (a cabeca maior quebrou o TOP)
+  [B049] compromisso (cabeca 0,162): FRONT 6,45%% | SIDE 3,44%% | REAR 4,91%% | TOP 5,26%% (IDENTICO ✗)
+    ⟹ o TOP nao depende do tamanho da cabeca: pior faixa em 99,0%% do eixo = a EXTREMIDADE.
+      Isso aponta para enquadramento/mascara do TOP (a mesma familia de defeito do REAR e do TOP antes),
+      NAO para geometria. Pendente: validar o crop/alinhamento do TOP.
+  ══ MELHOR ESTADO: B048 — FRONT 6,21%% | SIDE 3,35%% ✓ | REAR 4,79%% ✓ | TOP 5,26%% (extremo, sob suspeita)
+     SIDE e REAR dentro do alvo do Sol (<=5%%); FRONT e TOP com causa diagnosticada.
