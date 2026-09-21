@@ -8480,3 +8480,32 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (4) barra larga e baixa nos ombros ✓ (que o vision aprovou) permanece.
   ESTADO: melhor por vision B103 (2,75); melhor tecnico B110 (H 1,250 ✓ com torre — a torre sai agora).
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B112-B113: ALTURA VEM DO PILOTO (1,253 m) E O PESCOCO ESTAVA DEITADO EM Y *** ***
+  [B112] Deletada a torre; piloto/capacete escalados para definir a altura; faixa amarela criada; asa baixada.
+    MEDIDO: altura 1,253 m ✓✓ (contrato 1,2523 — erro 0,06%%), capacete no topo z=1,252 ✓, P_Stripe ✓,
+    R_BarTop=None ✓. contorno: FRONT 5,95 | SIDE 2,97 ✓✓ (MELHOR da serie) | REAR 7,84 | TOP 4,60.
+    ⟹ A ALTURA FOI RESOLVIDA SEM NENHUMA PECA INVENTADA — o contrato (pilot_height_fraction=0,695) estava certo.
+  VISION B112 = 2,1 global (FRONT 2,2 | SIDE 2,8 | REAR 2,0 | TOP 1,5) — ESTAGNADO:
+    'Voce fez o diagnostico conceitual certo e executou errado. Deletar a torre foi 100%% correto. Mas o capacete
+    NAO le como capacete porque esta FLUTUANDO em todas as vistas. Em SIDE ha ceu entre ombro e capacete.'
+    'Piloto decapitado e levitante. Enquanto houver ar entre capacete e corpo, NENHUMA cota de altura vale.'
+    'Para sair de 2 para 6 voce nao precisa de detalhe, precisa de CONEXAO e MASSA.'
+  [B113] CAUSA RAIZ ACHADA POR MEDICAO: o pesco e era 'capsula("P_Neck",-0.30,-0.20, 0,0.80,0.080)' — a
+    assinatura e (x0,x1,y0,y1,raio), logo o pescoco ia de y=0 a y=0,80, DEITADO AO LONGO DE Y ✗✗ — entre o
+    torso (topo z=0,94) e o capacete (base z=0,948) nao havia NADA. O vision viu o vao em 3 vistas.
+    CORRIGIDO: cil(P_Neck) vertical em x=-0,24, z 0,82-1,02 + ombros alargados (|y| 0,32, z 0,76-0,94).
+    VERIFICADO POR COORDENADA (cadeia continua):
+      P_Torso    z[0,391;0,909]
+      P_Shoulder z[0,760;0,940]  sobrepoe o torso ✓
+      P_Neck     z[0,824;1,016]  sobrepoe o ombro ✓
+      P_Head     z[0,948;1,252]  sobrepoe o pescoco ✓ e define o topo ✓
+      altura 1,253 m ✓
+  REGRA 86: ao conectar duas pecas, VERIFICAR A ASSINATURA DA FUNCAO antes de confiar nas coordenadas —
+    capsula(nome,x0,x1,y0,y1,raio) monta ao longo de Y; um 'pescoco' com y0,y1 longos e um pescoco deitado.
+    O bug estava no codigo desde o inicio e o vision o viu antes da medicao.
+  REGRA 87: o vision da a HIPOTESE ('ha ar entre capacete e corpo'); a MEDICAO da o FATO ('o pescoco esta na
+    horizontal'). Fechar o caso exige os dois — nenhum sozinho basta.
+  ESTADO: altura 1,253 ✓ | contorno FRONT 7,08 | SIDE 2,97 | REAR 7,84 | TOP 4,60 | cadeia do piloto continua ✓
+    MELHOR POR VISION ainda B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
