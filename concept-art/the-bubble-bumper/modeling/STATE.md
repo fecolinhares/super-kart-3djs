@@ -7488,3 +7488,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
        explicito e medindo a silhueta no render (nao a geometria) — regra 34.
   ══ BALANCO DO CICLO: 3 de 4 vistas dentro do alvo (SIDE 3,49%% | TOP 4,18%% | REAR 4,73%%), FRONT 6,68%%
      com causa nomeada. Ratios do contrato em +-6,2%%. 42 builds, 34 instrumentos.
+
+
+## *** TESTE DE SENSIBILIDADE: A ASA NAO AFETA A SILHUETA DO FRONT ***
+  Testei 3 tamanhos de asa (1,343 / 1,595 / +-0,843 pre-SubD) e DUAS alturas (z 0.78-0.94 e 0.70-1.00):
+  a silhueta do render a 66%% da altura mede EXATAMENTE 1,097 m em TODOS os casos (alvo do concept: 1,440 m).
+  ⟹ A silhueta do FRONT naquela faixa NAO E DETERMINADA PELA ASA. Ela e imune a geometria da asa.
+  TESTE DECISIVO rodado: renderizar com a asa LIGADA e DESLIGADA (hide_render) e comparar a silhueta.
+  Se os valores coincidirem, a asa nao esta contribuindo para a silhueta ali — o que aponta para:
+    (a) a asa estar DENTRO/atras de outra massa que define a silhueta, ou (b) normais invertidas/
+    faces nao renderizando, ou (c) a asa estar em outro lugar do que o bbox sugere.
+  REGRA 35: quando uma grandeza e IMUNE a mudancas grosseiras na peca que deveria determina-la, o defeito
+    nao esta na peca — esta na RELACAO entre a peca e o instrumento (visibilidade, oclusao ou projecao).
+  ESTADO: SIDE 3,49%% ✓ | TOP 4,70%% ✓ | REAR 4,64%% ✓ | FRONT 6,68%% (com causa isolada a investigar)
