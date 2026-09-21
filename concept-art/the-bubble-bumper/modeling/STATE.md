@@ -10290,3 +10290,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     erro de topologia do cage. Solucoes: (a) reduzir a espessura do Solidify no rim; (b) fazer o rim
     com espessura REAL modelada (nao Solidify); (c) aceitar e medir o aspect no AVALIADO como gate.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** DESCOBERTA MAIS IMPORTANTE DA SESSAO: CAGE LIMPO != AVALIADO LIMPO *** ***
+  GATE v3 no AVALIADO (o que o render mostra) no v024:
+    cage=2241 verts  ->  AVALIADO=125454 verts
+    boundary=10 | NON-MANIFOLD=961 | ZERO-AREA=2709 | quase-zero=12637 | doubles=63217
+    FACES-FIO = 56428
+  ⟹ O CAGE ESTA LIMPO (boundary=3, non-manifold=0, zero-area=0) e o OBJETO AVALIADO tem 961 arestas
+    non-manifold, 2709 faces de area zero e 56428 faces-fio.
+  ⟹ ISSO EXPLICA TUDO QUE O VISION DESCREVEU: as teias de aranha no wire, as bordas rasgadas, os
+    flap do rim. Ele estava descrevendo o mesh AVALIADO; eu media o CAGE.
+  ⟹ Durante 3 ciclos eu 'limpei' algo que ja estava limpo enquanto o objeto renderizado tinha 961
+    arestas non-manifold. Bevel + Solidify + Subsurf CRIAM esses defeitos em cadeia.
+  REGRA 170 (confirmada na forma mais dura): gate de sanidade mede o AVALIADO. Medir o cage e medir o
+    que e facil — QUINTA vez na sessao que eu meco a coisa conveniente e declaro a dificil.
+  CONSEQUENCIA PRATICA: as 135 faces-fio do cage nao importam; as 56428 do avaliado importam. O que
+    precisa mudar e a CADEIA (ordem/tipo/espessura), nao a topologia do cage.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
