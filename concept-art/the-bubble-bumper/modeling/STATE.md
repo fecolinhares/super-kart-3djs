@@ -8284,3 +8284,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ESTADO: contorno 4/4 <=5%%, vision 2/10, auditor nao executado, prancha nao enviada. OBJETIVO NAO ATINGIDO.
   PROXIMO (ordem correta): atacar os 3 alvos do vision — sidepods chapados/colados (nao elipsoides suspensos),
     rodas em numero/posicao legivel, e a dianteira (bico+para-choque+grade) — e so entao re-medir e re-olhar.
+
+
+## *** B101-B103: DOIS ALVOS DO VISION ATACADOS (SIDEPOD E OBJETO FLUTUANTE) *** ***
+  [B101] ALVO 1 (sidepod): esf (elipsoide em z=0,62, alto e suspenso) -> box (chapa baixa z 0,15-0,44).
+    VERIFICADO SP_L z[0,17,0,42] x[-0,77,0,11] largY=0,218.
+    VISION: 'SIM, consertou o defeito apontado... agora sao volumes BAIXOS e ASSENTADOS na linha do chassi' ✓
+      porem 'Nao parecem ainda como no concept: concept = feijao gordo, alto, arredondado, volumoso;
+      modelo = torpedo fino, afilado, estreito demais. Posicao 70%% certa, forma 30%% certa.'
+      GLOBAL 2,0 -> 2,75 (FRONT 3 SIDE 4 REAR 2 TOP 2)
+    NOVO CRIME No1 do vision: 'DOMO TRASEIRO MONOLITICO — balao/iglu cinza unico, liso, gigante, que ocupa
+      40%% do kart e funde banco+motor+carenagem'.
+  [B102-B103] ALVO 2 (objeto flutuante): o vision apontou DUAS VEZES um objeto flutuando acima da cabeca
+    (FRONT/REAR) e isolado no canto (SIDE) — 'placeholder esquecido na cena'. Eu racionalizei como 'e a asa'.
+    MEDIDO: R_Wing x[-1,17,-1,03] z[1,12,1,24] centro a 1,18 m SEM VIZINHO a menos de 0,40 m;
+      o poste terminava em z 0,82 => GAP REAL DE 30 cm (a asa estava solta no ar).
+    [B103] poste de 0,44-0,82 -> 0,36-1,16 (encosta na asa). RE-VERIFICADO: lista de objetos isolados VAZIA ✓
+    REGRA 75: 'obj flutuante' apontado pelo vision NAO e artefato de render — e geometria fora de lugar.
+      Eu descartei duas vezes por parecer 'a asa'; o teste de conexao (vizinho a <0,55*dim) resolve em 1 comando.
+  ESTADO: FRONT 4,30 | SIDE 3,53 | REAR 4,67 | TOP 4,49 (4/4 <=5%%) | vision 3/10 | AUDITOR e PRANCHA suspensos.
+  PROXIMA ACAO: o DOMO TRASEIRO (crime No1) — a traseira deve ser mecanica COMPACTA e ABERTA (motor, escapes,
+    mola, asa fina), nao uma massa unica que funde tudo.
