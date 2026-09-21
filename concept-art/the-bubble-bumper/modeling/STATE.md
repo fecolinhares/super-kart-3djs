@@ -7814,3 +7814,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ══ MELHOR ESTADO: B069 — FRONT 5,25 | SIDE 2,95 ✓ | REAR 4,10 ✓ | TOP 2,44 ✓
      media 3,69%% | 3 inversoes | INVERSOES CONHECIDAS: 52%% e 58%% do topo (o bumper que nao posso mover sem
      piorar o contorno).
+
+
+## *** B072: AS QUATRO VISTAS CRUZARAM O ALVO DO SOL (mediana <=5%% em todas) *** ***
+  OPCAO C executada (dar largura em 35-48%% DO TOPO sem usar o bumper frontal, que ocupa 52-58%%):
+    sidepods: (-0.32, sy*0,40, 0,62) com raios 0,56/0,20/0,185 -> VERIFICADO larg=0,395 m, z[0,435,0,805]
+    = 35-65%% DO TOPO.
+  EFEITO:
+    FRONT 5,25 -> 4,97%% ✓✓ (PRIMEIRA VEZ ABAIXO DE 5%%) | SIDE 2,95 -> 3,05%% ✓ | REAR 4,10 -> 4,01%% ✓
+    | TOP 2,44 -> 2,55%% ✓ | inversoes 3 -> 2 ✓
+    40%% e 46%% do topo deixaram de ser inversao (o concept tem 0,879/0,882 e o modelo 0,852/0,946)
+  ══ MARCO: GATE DE CONTORNO APROVADO NAS QUATRO VISTAS — FRONT 4,97 | SIDE 3,05 | REAR 4,01 | TOP 2,55
+     MEDIA 3,65%% | INVERSOES 2 (eram 6) | p95 do FRONT 29,7%% (era 39,7%%)
+  REGRA 51: quando duas metricas conflitam (regra 50), procure um TERCEIRO OBJETO que satisfaca ambas —
+    o conflito era falso: o bumper ocupava duas faixas ao mesmo tempo e os sidepods resolviam so a faixa certa.
+  PROXIMO: o vision PROPRIO (gate qualitativo) no estado B072 — e so depois o subagente auditor duro.
