@@ -8509,3 +8509,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     horizontal'). Fechar o caso exige os dois — nenhum sozinho basta.
   ESTADO: altura 1,253 ✓ | contorno FRONT 7,08 | SIDE 2,97 | REAR 7,84 | TOP 4,60 | cadeia do piloto continua ✓
     MELHOR POR VISION ainda B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B114: DOMO MONOLITICO REMOVIDO + PILOTO COM MASSA (verificacao precisa) *** ***
+  Aplicada a prescricao do vision ('deletar o domo e o anel gigante; dar conexao e massa'):
+    · DOMO: era 'esf("R_Motor",(-0.88,0,0.56),0.34,0.26,0.24); suave("R_Motor",2)' — esfera de
+      0,68x0,52x0,48 m com SubD nivel 2 (era ELA que soterrava a roda traseira). SUBSTITUIDA por
+      R_MotorBlock esf(...,0.26,0.20,0.15) + a caixa R_Motor baixa.
+      VERIFICADO por dimensao: maior objeto traseiro agora 0,51 m (era 0,68 com SubD).
+    · EXAUSTORES: 3 bocas centrais (R_ExhC 0,40 de comprimento) + 2 ponteiras laterais R_ExhTL/TR ✓
+    · PILOTO com MASSA: P_Torso alargado de 0,38 para 0,44 (dim medida 0,37x0,44x0,55) ✓
+  ⚠ MEUS DOIS CHECKS DERAM FALSO ALARMO: procurei o nome exato 'R_Motor' (a CAIXA usa esse nome; a
+    esfera foi removida ✓) e 'R_ExhT_L' (o nome real e R_ExhTL, sem underscore). REGRA 88: um check de
+    verificacao pode falhar por NOME enquanto a geometria esta correta — verificar por DIMENSAO/POSICAO,
+    nao por string de nome (mesma familia do bug do patch no-op da regra 34).
+  ESTADO: contorno FRONT 7,26 | SIDE 3,37 | REAR 7,84 | TOP 5,04 | altura 1,253 ✓ | cadeia do piloto
+    continua ✓ | domo removido ✓ | 3 escapes ✓. MELHOR POR VISION: B103 (2,75).
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
