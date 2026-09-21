@@ -7412,3 +7412,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   RATIOS DO CONTRATO: L +1,7%% | H -1,2%% | L/H +2,9%% | W/H +6,2%%.
   PROXIMO: FRONT pior faixa em 31%% da altura com EXCESSO 10,2 (regiao baixa larga demais — rodas/sidepods)
     e TOP em 63,6%% do comprimento com falta 10,1. Aplicar METADE do delta (regra 32).
+
+
+## ACHADO 34 (O MAIS INSIDIOSO): PATCH QUE NAO APLICA (no-op silencioso) ***
+  Minhas edicoes nos sidepods desde o B030 NUNCA aplicaram: o `str.replace()` buscava uma string que nao existia
+  no arquivo (os valores reais eram 0.30/0.15/0.10 e eu buscava 0.33/0.16/0.11) e o replace virou no-op
+  SILENCIOSO. Todas as 'mudancas de sidepod' foram FANTASMAS — inclusive o 'overshoot do B031' que eu
+  atribui a eles (o overshoot real veio so da asa).
+  PROVA: a cena tinha SP_L y[0.152,0.448] (0,296 de vao) quando eu 'havia alargado para 0.42'.
+  REGRA 34: depois de QUALQUER patch, VERIFICAR QUE APLICOU medindo o objeto na cena (bbox) — nunca assumir.
+    Ja tinha acontecido com as bitolas (TF/TR hardcoded, 2 ajustes perdidos) e agora com os sidepods.
+  [B036] sidepod aplicado de verdade: y de 0,296 -> 0,474 de vao.
+  EFEITO MEDIDO: TOP 6,84%% -> 5,33%% ✓ | REAR 4,98%% -> 4,77%% ✓ | SIDE 4,95%% ✓ | FRONT 6,68%%
+  TRES DE QUATRO VISTAS a 1,07x do alvo ou melhor. RATIOS: L +1,7%% | H -1,2%% | L/H +2,9%% | W/H +6,2%%.
