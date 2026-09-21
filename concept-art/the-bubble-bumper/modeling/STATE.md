@@ -10887,3 +10887,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     angulos depois.
   Fix (v030): HIP -> x=+0.02 (volante x=+0.245, cabeca ~x=-0.10); joelho ALTO dobrado; cotovelo marcado.
   Serie vision: 1,8 1,5 1,7 2,2 2,7 3,0 3,0 3,4 3,6 3,2 3,5 3,8 2,8 3,0 3,1 | melhor 3,8 (v027).
+
+## *** v030/v031: CONFLITO vision x perfil RESOLVIDO POR MEDICAO — vision 3,1 -> 3,2 *** ***
+  CONFLITO: o vision (v029) mandou trazer a cabeca "LOGO ATRAS do volante". Fiz (v030) e o perfil
+    EXPLODIU para 0,183 m — porque no CONCEPT a cabeca esta na estacao 60-65% e o volante na ~40%:
+    a distancia cabeca-volante do concept E ~0,5 m. O vision estava descrevendo IMPRESSAO, nao cota.
+  RESOLUCAO (regra 233): QUANDO vision e perfil CONFLITAM, medir o CONCEPT na mesma grandeza que
+    cada um afirma. O vision via "piloto longe do volante" porque as PERNAS estavam ocultas pelo
+    COWL — nao porque a cabeca estava errada. Corrigido o COWL (cortado em x=+0.10), mantida a
+    posicao medida (quadril -0.26), joelho ACIMA do rim. Perfil voltou a 0,047 m.
+  v031: vision 3,2 — "+0,1 pelo perfil, ZERO ganho plastico. Piloto pregado EM CIMA do chassi.
+    Bico alto-balao. Perna = prancha em L flutuando. Sem pes/maos/volante redondo."
+  Serie vision: 1,8 1,5 1,7 2,2 2,7 3,0 3,0 3,4 3,6 3,2 3,5 3,8 2,8 3,0 3,1 3,2 | melhor 3,8 (v027)
+  APRENDIZADO CENTRAL DO CICLO: o blockout por primitivas SATUROU — 5 builds entre 3,0 e 3,2. Os
+    ganhos agora vem de FORMA AUTORAL (loft) e DETALHE (pes, maos, volante toro, a traseira real),
+    nao de mais cotas.
