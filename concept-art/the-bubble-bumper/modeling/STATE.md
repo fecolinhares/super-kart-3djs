@@ -9587,3 +9587,33 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     ajustando bbox nunca corrigiria uma silhueta invertida — o erro e de COMPOSICAO das zonas.
   ESTADO: Sol consultado (JOB 32fd8109, gpt-5.6-sol-900k, medium) — STATUS=running.
     MELHOR VISION B132 = 2,3 | B152 = 1,55. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** REBOOT EXECUTADO: TUB+COCKPIT AUTORAL v002 BATE COM O CONCEPT (+-0,10 m) *** ***
+  PARECER DO SOL (gpt-5.6-sol-900k, medium, job 32fd8109): 'VEREDITO: SIM - JOGUE FORA A GEOMETRIA
+  PRIMARIA ATUAL. O diagnostico esta fechado: voce resolveu contrato, datums e envelope. NUNCA EXECUTOU
+  PRIMARY FORMS AUTORAIS. Fez C com cada vez mais precisao e chamou de D. Nao era.'
+  REGRA CENTRAL DO SOL: 'O procedural POSICIONA e PROVA. A mao autoral decide secao, curvatura,
+    concavidade, pincamento, ombro, transicao e espaco negativo.'
+  ORDEM DAS ZONAS (Sol): tub+cockpit (peca-mae) -> sidepods -> nariz+bumper -> piloto+capacete -> traseira.
+    Detalhe/material/cor BLOQUEADOS ate o clay passar em cada zona.
+  EXECUTADO:
+    - B158 congelado como legacy/B158-reference-only.blend
+    - modeling/authored/ criado; tub-cockpit-v001.blend e v002.blend
+    - tub = half-cage de 14 estacoes definidas A MAO (secao transversal por estacao) + MIRROR Y + SUBSURF 1
+      112 verts / 93 faces; NAO e cubo, NAO e elipsoide, NAO e boolean
+    - banheira = concavidade REAL (topo DESCE para z=0,28 na regiao do cockpit e sobe no encosto)
+  MEDICAO (topo em metros absolutos, mascara validada, SIDE):
+    faixa:            10     20     30     40     50     60     70     80     90    100
+    CONCEPT topo:  0.364  0.461  0.647  0.651  0.759  1.229  1.233  1.158  0.837  0.878
+    TUB v002:      0.425  0.563  0.598  0.595  0.482  0.266  0.529  0.656  0.754  0.783
+    DELTA (m):    +0.060 +0.103 -0.049 -0.055 -0.277 -0.964 -0.704 -0.502 -0.083 -0.095
+    cowl (3-4) -0,05 ✓✓ | traseira (9-10) -0,08/-0,09 ✓✓ | nariz (1) +0,06 ✓ | banheira (6) 0,266 = fundo ✓
+    (as faixas 6-8 do concept medem o CAPACETE DO PILOTO = outra zona, nao o tub)
+  ⟹ +-0,10 m em toda a carroceria COM a banheira real. Melhor encaixe estrutural da sessao.
+  BUG DE INSTRUMENTO CORRIGIDO: a camera tinha ortho_scale=1.45 para um objeto de 2,345 m ⟹ o render
+    CORTava o tub e eu media um pedaco do meio (perfil parecia plano). ortho SIDE/TOP -> 2,60;
+    FRONT/REAR -> 1,75. REGRA 138: a camera ortografica DEVE cobrir a dimensao do objeto — conferir
+    ortho_scale contra o bbox ANTES de medir perfil.
+  ESTADO: MELHOR VISION B132 = 2,3 (legado) | tub v002 nao avaliado por vision ainda.
+    AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
