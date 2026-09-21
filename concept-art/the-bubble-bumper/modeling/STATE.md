@@ -11067,3 +11067,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     252 (elemento estrutural NUNCA cruza a linha da assinatura).
   Serie vision: 3,0 3,2 3,3 3,2 3,3 2,5 2,6 2,4 2,6 2,7 | REAR: 1,5->2,0->2,0->3,0->3,8
   PROXIMO (vision): bico baixo/achatado c/ grade + piloto com rosto/bracos/volante.
+
+## *** v053-v057: NARIZ/RAMPA RECONSTRUIDOS — SIDE 2,4 -> 4,5 | GLOBAL 3,3 *** ***
+  vision v053=2,5: "ogiva com CORCOVA; rampa inventada nao aparece". Investigacao por raycast:
+    (a) N_Cowl (azul, x 0.10..0.94, topo 0.69) COBRIA a N_Ramp amarela — rampa DENTRO do cowl;
+    (b) sec_U tinha BUG MATEMATICO: cos(ang*0)=1 SEMPRE -> secao colapsada (2 posicoes
+        duplicadas, rampa plana em 0.28 em vez de subir a 0.55).
+  v054: cowl RECADO para tras (nasce x=0.42) | v055: sec_U reescrita como SUPERELIPSE
+    (squircle p=0.55): perfil medido — nariz 0.19/0.28 em x 0.85/0.80, rampa RETA 0.29->0.40
+    em x 0.75->0.60 -> cowl 0.49. A RAMPA SUBIU DE VERDADE.
+  v056: vision 3,0 — "SIDE 4,0: rampa exposta e inclinada, MAS cupula azul/corcova no meio
+    (N_Tank z-topo 0.663 flutuando sobre a rampa) + elipsoide isolado".
+  v057: N_Tank recuado p/ x=0.30 sobre o cowl e descido (topo 0.578 < fim da rampa 0.55).
+    Gate: par obsoleto (F_ArmU,N_Cowl) atualizado para (F_ArmU,N_Ramp) — contato 14/14.
+  *** vision v057 = 3,3 | SIDE 4,5 ("LIMPA. Sem corcova. Linha continua. Fix confirmado") ***
+    Erro #1 agora: FRONT — nariz PILULA VERTICAL estreita-alta vs concept LARGO-BAIXO em U
+    com grade; para-choque fino brinquedo.
+  REGRA 253: raycast no PERFIL (top-first-hit por x) e' o instrumento p/ carenagem —
+    o olho ve a envolvente dos primeiros hits, nao a peca intencional.
+  Serie: 2,5 2,6 2,4 2,6 2,7 2,5 3,0 3,3 | SIDE: 2,4->4,0->4,5 | FRONT travado em 2,0-2,5.
+  PROXIMO: FRONT — nariz largo-baixo em U + grade + para-choque robusto (medir FRONT concept).
