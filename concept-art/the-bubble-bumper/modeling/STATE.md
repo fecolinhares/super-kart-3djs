@@ -7696,3 +7696,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     erro, entao o defeito nao esta no TAMANHO do objeto — esta na POSICAO/RELACAO dele com a faixa. Medir a
     fronteira (em que z exato o arco da roda cruza a faixa) antes de re-escalar.
   ══ MELHOR ESTADO: B059 — SIDE 3,46%% ✓ | REAR 4,68%% ✓ | TOP 3,07%% ✓ | FRONT 5,78%% (1,16x)
+
+
+## ACHADO 45 (ESTRUTURAL): OS PERFIS DO FRONT ESTAO INVERTIDOS NA ZONA DAS RODAS ***
+  Medicao linha-a-linha do FRONT (concept vs modelo), %alt / largura normalizada:
+    %alt   concept   modelo
+     18%%   0,318     0,263
+     26%%   0,312     0,132
+     28%%   0,302     0,815   <<< o modelo ja esta LARGO
+     32%%   0,265     1,076   <<< quase largura total
+     36%%   0,877     —       <<< o CONCEPT fica largo SO AQUI
+     40%%   0,879     —
+  ⟹ LEITURA: no CONCEPT, as rodas dianteiras NAO dominam a silhueta acima de ~18%% da altura (z 0,23 m);
+    o elemento largo (1,10 m) so aparece a partir de 36%% (z 0,45 m) — ou seja, o corpo/bumper fica ACIMA
+    e a zona 18-34%% mostra so o NARIZ (0,30).
+    No MODELO as rodas ficam EXPOSTAS na faixa 28-34%% (z 0,35-0,43) e tomam a largura toda.
+  ⟹ O DEFEITO DO FRONT NAO E TAMANHO NEM DENSIDADE DE PECA: e a RELACAO VERTICAL entre as rodas e o corpo.
+    No concept o corpo cobre as rodas nessa faixa; no modelo nao.
+  REGRA 45: comparar PERFIS LINHA-A-LINHA (nao so a mediana agregada) — a mediana de 5,78%% escondia que
+    o modelo e LARGO onde o concept e ESTREITO e vice-versa. Erro de sinal que a media nao mostra.
+  ══ MELHOR ESTADO: B059 — SIDE 3,46%% ✓ | REAR 4,68%% ✓ | TOP 3,07%% ✓ | FRONT 5,78%%
+     Proximo passo com alvo claro: subir o CORPO/paralama frontal (e o bumper) para cobrir as rodas
+     na faixa 28-34%% da altura, como o concept faz.
