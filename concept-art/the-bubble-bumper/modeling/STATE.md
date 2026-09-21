@@ -9438,3 +9438,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     TOP) indica que a peca foi ajustada por vista — o teste e a CONSISTENCIA entre as 4 vistas.
   ESTADO: MELHOR VISION B132 = 2,3 | B152 = 1,55. CONTRATO/base: 2,366 x 1,441 x 1,260 ✓.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** GATE DE CONTATO CRIADO E RODADO — 11 DE 21 PARES FLUTUANDO (MEDIDO, NAO ESTIMADO) *** ***
+  INSTRUMENTO NOVO: gate_contato.py — mede INTERSECCAO VOLUMETRICA REAL entre pares (BVHTree.overlap).
+    overlap>0 = CONTATO; overlap==0 = FLUTUA. E a prova objetiva que o vision exigiu ('contato exige
+    intersecao volumetrica em x+y+z, nao bbox em 1 eixo').
+  RESULTADO NO B152 (antes do fix, amostra de 12 pares): 4 com contato, 8 FLUTUANDO. O vision estava
+    CERTO em todas: 'aro sem coluna' (C_Col x C_Wheel overlap=0 ✓), 'mao longe do aro' (overlap=0 ✓),
+    'endplates separados da barra' (overlap=0 ✓), 'mount invisivel/luz passa embaixo' (overlap=0 ✓).
+    ⟹ meu 'verificado ✓' por sobreposicao de bbox em 1 eixo estava ERRADO em 8 de 12 conexoes.
+  RESULTADO NO B153 (apos estender as pecas 500%% em extensao): contato=10, flutuantes=11 de 21 pares.
+    CONTINUAM FLUTUANDO: C_Col x C_Floor | P_Grip x C_Wheel | P_Grip x P_Arm | R_WingBar x R_Endplate
+    (L e R) | C_PodMount x SP (L e R) | SP x C_Floor (L e R) | P_Torso x SP_L | P_Helmet x P_Torso
+    ⟹ o POD nao toca o ASSOALHO, o CAPACETE nao toca o TORSO, a MAO nao toca o ARO: o modelo e, medida-
+      mente, um conjunto de pecas soltas. 'Nao ha kart' era LITERALMENTE verdadeiro.
+  REGRA 129: adotar CONTATO=100%% (gate_contato.py) como gate de aceitacao de estrutura, junto com
+    FLUTUANTES=0 (regra 125). As duas sao CONTAGENS verificaveis, sem juizo estetico.
+  ESTADO: MELHOR VISION B132 = 2,3 | B152 = 1,55. CONTRATO/base 2,366 x 1,441 x 1,260 ✓.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
