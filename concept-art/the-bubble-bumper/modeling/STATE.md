@@ -9517,3 +9517,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 134: ao mover um objeto e re-medir na MESMA sessao, chamar view_layer.update() antes — senao
     a leitura pega o matrix_world desatualizado (mesma familia da regra 130: medir o ESTADO real).
   ESTADO: MELHOR VISION B132 = 2,3 | B152 = 1,55. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B158: 17/21 CONTATOS — REGRA 134 VALIDADA E DIAGNOSTICO DOS 4 RESTANTES *** ***
+  REGRA 134 VALIDADA: com bpy.context.view_layer.update() ANTES de re-medir, a coluna passou de
+    overlap=0 para overlap=43 (coluna x aro: CRUZA ✓). Sem o update, a leitura pegava matrix_world
+    desatualizado — era essa a causa de parte dos 'resistentes'.
+  GATE: contato=17 / flutuantes=4 de 21 (B152: 4/8 -> B153: 10/11 -> B156: 16/5 -> B158: 17/4)
+  OS 4 RESTANTES E A CAUSA (medida, nao inferida):
+    SP_L x C_Floor e SP_R x C_Floor: o pod esta em y ~ +-0,415 e o C_Floor NAO SE ESTENDE ate y=0,415
+      ⟹ NAO HA SOBREPOSICAO NO FOOTPRINT XZ. Mover o pod em Z nao pode resolver: o assoalho nao passa
+      embaixo do pod. Correcao: ESTENDER o assoalho em Y ate debaixo dos pods (ou criar longarinas).
+    P_Helmet x P_Torso: o pescoco foi criado entre os dois mas segue 0 — medir o vao REAL (x,y,z) entre
+      capacete e torso antes de posicionar; pode haver deslocamento em X/Y, nao em Z.
+    P_Torso x P_LegL: o encaixe P_Hip foi criado mas segue 0 — mesma causa provavel (X/Y).
+  REGRA 135: antes de corrigir um vao movendo em UM eixo, verificar se existe SOBREPOSICAO DE FOOTPRINT
+    nos OUTROS DOIS eixos. Sem footprint, nenhum deslocamento no eixo escolhido fecha o contato.
+    (Eu tentei corrigir altura um problema de planta.)
+  BASE PRESERVADA: comp 2,366 | larg 1,441 | alt 1,260 ✓
+  ESTADO: MELHOR VISION B132 = 2,3 | B152 = 1,55. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
