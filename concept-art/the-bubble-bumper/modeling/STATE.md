@@ -9665,3 +9665,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     + luz lateral + WIRE das estacoes + cortes. Sem isso a evidencia e nula (o auditor nao consegue
     ver o que foi construido).
   ESTADO: 2 das 5 zonas com v001/v002. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** TUB v003: ABERTURA REAL DO COCKPIT (regra 139) *** ***
+  MUDANCA DE TOPOLOGIA: 8 pontos por secao em vez de 8 com topo fechado —
+    p3 = BORDA EXTERNA (rim) | p4 = borda interna (ESPESSURA) | p5/p6 = PAREDE INTERNA descendo
+    | p7 = CENTRO DO ASSOALHO. Nas estacoes do cockpit o assoalho vai a z=0,282-0,30; nas demais a
+    secao fecha no topo (assoalho = topo). Tampas SO nas extremidades (nariz e traseira).
+  120 verts / 114 faces.
+  VERIFICADO NO ARQUIVO (medido nos verts, nao no render):
+    interior do cockpit (x +0,19..-0,39): CENTRO z = 0,282..0,290 (assoalho da banheira)
+                                          BORDA  z = 0,28..0,63   (rim/parede externa)
+    ⟹ DESNIVEL rim->assoalho medido. A abertura existe em GEOMETRIA.
+  RENDER DE PROVA (regra 140): matcap escuro + metalico + luz lateral forte + WIRE das estacoes
+    (show_wire/show_all_edges) + fundo escuro — para a cavidade criar sombra e o auditor ver as
+    estacoes. Substitui o clay chapado em fundo claro que o vision chamou de 'evidencia nula'.
+  ESTADO: 2 das 5 zonas (tub v003 com abertura real; sidepods v002 com planta exata).
+    AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
