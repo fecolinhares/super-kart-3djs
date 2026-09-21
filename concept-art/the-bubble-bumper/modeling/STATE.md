@@ -9154,3 +9154,31 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Proximo passo imediato: diagnosticar o render e re-olhar B144 — a geometria organica esta no arquivo.
   ESTADO: MELHOR VISION B132 = 2,3. B141 = 1,50 (regressao). B144 nao avaliado (render pendente).
     CONTRATO altura 1,253 m ✓. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** O BUG QUE CEGOU 140 BUILDS: O MAPA DE CORES DO RENDER ERA TODO CINZA *** ***
+  DESCOBERTA (a partir do vision reprovar 'clay cinza, sem cor' em TODAS as avaliacoes):
+    o /tmp/r013_pernas.py tinha:
+      REG=[..., ('C_',(0.90,0.90,0.93,1)), ('B_',(0.60,0.60,0.64,1)), ('R_',(0.66,0.66,0.70,1))]
+      def cor(n): ... return (0.5,0.5,0.52,1)
+    ⟹ TODAS as cores eram CINZA/quase-branco. O render NUNCA teve amarelo nem azul.
+    ⟹ E 81 de 84 meshes nao tinham material algum; o render pintava por prefixo com esse mapa cinza.
+    ⟹ O vision comparava um concept AZUL/AMARELO SATURADO com um render CINZA e listava a COR como
+      primeira divergencia em 4/4 vistas — e eu nunca corrigi porque estava medindo GEOMETRIA.
+  CORRECAO (B146): mapa com o esquema real do concept — SPM_/SPK_/SPB_/SPY_/SPC_ = AMARELO;
+    SP_/B_/C_/R_Wing/P_ = AZUL royal (0.05,0.16,0.62); P_Visor = viseira escura; W_ = pneu preto;
+    HUB_ = metal. VERIFICADO NO PIXEL: pixels mais saturados do render = [54,4 · 106,9 · 172,7] = AZUL ✓
+    e a prancha colorida mostra pods AMARELOS com miolo azul.
+  VISAO B146 = 1,6 (de 1,1), e o vision: 'PRIMEIRO COMPARATIVO UTIL em 140 builds... voce estava CEGO
+    ha 140 builds... progresso de PIPELINE, zero progresso de fidelidade. E expOs o quanto a GEOMETRIA e
+    PIOR do que o cinza escondia. Se descontar o bonus da cor, a nota geometrica pura seria ~0,9.'
+  REGRA 115: um gate de visito visual precisa CONFIRMAR A COR NO PIXEL antes de julgar forma. Julgar
+    forma sobre um render acromático esconde TODOS os defeitos de material e cria um plateau falso.
+  REGRA 116: 'mapa de cor aplicado' nao e 'material atribuido' — verificar quantos meshes tem material
+    (>3 de 84 estava errado) e se o mapa cobre TODOS os prefixos, nao so alguns.
+  AS 3 CAUSAS REAIS (nao sao cor, segundo o vision):
+    1. SISTEMA RODAS+CHASSI COLAPSADO ('4 discos brancos micros flutuando, todos iguais')
+    2. BLOCO TRASEIRO INVENTADO ('3-4 esferas gigantes, 50% do volume, outro objeto')
+    3. NARIZ/PARA-CHOQUE/COCKPIT ('ponta de lanca solida, sem abertura, sem volante, piloto blob')
+  ESTADO: MELHOR VISION B132 = 2,3 | B146 = 1,6 (com cor) | CONTRATO altura 1,253 m ✓.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
