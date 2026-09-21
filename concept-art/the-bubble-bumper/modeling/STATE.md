@@ -10467,3 +10467,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 180: o collapse tem TOLERANCIA - doubles mais afastados que ela nao sao soldados e viram
     leque. Medir a DISTANCIA dos doubles antes de escolher a tolerancia.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v031: TOLERANCIA MEDIDA (regra 180) FUNCIONOU, DISSOLVE CRIOU NON-MANIFOLD (regra 181) *** ***
+  ###FIN### doubles: n=83 | min=0,00155 | mediana=0,00561 | max=0,01000
+  ###FIN### tolerancia escolhida (MEDIDA antes de soldar): 0,008 m
+  ###FIN### vertices-polo dissolvidos no cockpit: 4 (o anel de cima E a quina da descida)
+  ###FIN### cage: verts 1483->1394, faces 1471, boundary 3->2
+              boundary  nonman  zero-area  doubles   faces-fio
+    v030         0        68       0        389       874
+    v031         8       212       0        215       722
+                ^pior   ^pior             ^melhor   ^melhor
+  ⟹ A TOLERANCIA MEDIDA funcionou (doubles 389->215) e os fios cairam (874->722), MAS dissolver os
+    polos criou 212 non-manifold e 8 bordas: o dissolve_verts RECONECTA as faces e isso gera
+    degenerados na vizinhanca irregular.
+  REGRA 181: dissolve_verts NAO substitui a RECONSTRUCAO da regiao — ele remove o vertice e
+    reconecta, criando non-manifold quando a vizinhanca e irregular. A quina da descida precisa ser
+    MODELADA (bridge/grid fill), nao dissolvida.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
