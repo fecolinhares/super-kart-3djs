@@ -7252,3 +7252,13 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     a frente/baixo), eixos cilindricos r=0,035, bico -30% em X, sidepods -20%, volante -30% inclinado 58 graus,
     3 escapes com furo, banco adicionado.
   ESCADA: 2,5 -> 3,0 -> 3,5 -> 4,0 -> 4,5 -> 4,0 -> 6,0 -> 3,5 -> 3,0 -> 4,0 -> 5,5 (B019).
+
+
+## ACHADO 28: SubD EM CILINDRO COLAPSA PARA LENTE/PONTA ***
+  Eu aplicava Subdivision Surface em TUDO, inclusive nos cilindros. SubD num cilindro de baixa contagem
+  colapsa as tampas e o corpo para uma forma de lente/ponta (efeito 'estaca afiada') — foi por isso que o gate
+  viu 'palitos', 'cones pontudos' e 'estacas' onde eu tinha cilindros. FIX: cilindros recebem apenas SHADE
+  SMOOTH (lv=0), nunca SubD. SubD fica para as formas que precisam de superficie livre (gota/elipsoide).
+  OUTRO BUG: o torso era caixa QUASE QUADRADA, entao rotacionar 45 graus nao inclinava nada visualmente.
+    Forma alongada e obrigatoria para a inclinacao LER.
+  [B021] cilindros sem SubD, torso alongado, rodas com CUBO, escapes com furo escuro.
