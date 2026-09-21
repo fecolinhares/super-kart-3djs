@@ -10499,3 +10499,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Testar por eliminacao e legitimo quando o resultado e medido antes e depois.
   PROXIMO ALVO: o SOLIDIFY (espessura/offset/qualidade ou substituir por espessura MODELADA).
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v033/v034: SEM SOLIDIFY = MELHOR EM 3 METRICAS (regra 183) *** ***
+              boundary  nonman  zero-area  doubles   faces-fio   verts_avaliados
+    v030          0        68        0        389       874         24290
+    v033         12        34        0        250       478         12132
+  ⟹ SEM o Solidify: NON-MANIFOLD 68->34 (2x), doubles 389->250, faces-fio 874->478 (1,8x) e METADE
+    da geometria (acabou a PAREDE DUPLA). O custo: boundary 0->12 (o Solidify fechava as 3 bordas
+    orfas do nariz/traseira).
+  ⟹ as 3 bordas resistem ao holes_fill (4 iteracoes) porque NAO formam loop simples.
+  REGRA 183: SOLIDIFY SOBRE MALHA JA FECHADA CRIA PAREDE DUPLA — metade dos verts e a origem dos
+    non-manifold. A espessura tem de estar MODELADA na geometria; o modifier so fecha buraco onde falta.
+  REGRA 184: um modifier que resolve um problema e cria outro NAO e a solucao — e um PALIATIVO
+    LOCALIZAVEL. Achar a origem das 3 bordas e tampa-las na geometria fecha os DOIS criterios.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
