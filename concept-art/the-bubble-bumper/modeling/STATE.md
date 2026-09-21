@@ -10600,3 +10600,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     desdobrar (nao ha lado negativo): e fazer as estacoes TERMINAREM EM ARESTA PERPENDICULAR a costura,
     o que exige MUDAR A CONSTRUCAO DO ANEL — nao pos-processar.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** REGRA 193: O BUG DOS POLOS E A DESCONTINUIDADE NA FRONTEIRA DA ABERTURA *** ***
+  tub29.py linhas 50-53 (o codigo REAL):
+     if X_FRONT > x > X_BACK:
+         fl = 0.282 ... ; yr = y_abertura(x)          <- secao ABERTA
+     else: fl=None; yr=None                            <- secao FECHADA (fl=zt-0,004, yr=yo*0,80)
+  ⟹ A secao muda de FORMA DIFERENTE de um lado para o outro da borda da abertura. As estacoes
+    imediatamente dentro e fora NAO TEM OS VERTICES CORRESPONDENTES — os quads degeneram exatamente
+    ali, e E ISSO que gera os polos de valencia 20 na costura.
+  ⟹ NAO ERA O RIM. Era o SALTO na fronteira da abertura.
+  REGRA 193: fronteiras de feature precisam de TRANSICAO CONTINUA nos parametros da secao (blend de
+    75 mm com smoothstep entre fl=zt-0,004 e fl=0,282, e entre yr=yo*0,80 e yr=y_abertura(x)).
+  APLICACAO: a correcao ESTA implementada (/tmp/tub40.py) e e correta, MAS aplicar num build do ZERO
+    perde a limpeza acumulada (183/185/189): v039 deu boundary=280 e nonman=260 contra 0/20 do v038.
+  ⟹ PROXIMO PASSO CORRETO: aplicar a transicao da regra 193 na BASE tub29 + reaplicar a cadeia de
+    limpeza (sem Solidify, remover o micro de 3 mm, remove_doubles a 0,0008) — os dois ganhos sao
+    COMPLEMENTARES, nao alternativos.
+  ESTADO: 2 das 5 zonas. MELHOR ESTADO v036/v038 (5,7). OBJETIVO NAO ATINGIDO.
