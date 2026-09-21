@@ -7872,3 +7872,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ESTADO: contorno APROVADO (4 vistas <=5%%) + estrutura REPROVADA (2 falhas, 4 avisos) + vision 1,0/10.
     PROXIMA ACAO: reconstruir as pecas reprovadas pelo gate estrutural, comecando pelo B_Front (torus ->
     tubo/loft) e pela R_Wing (lamina -> asa retangular com espessura real).
+
+
+## *** AUTOCRITICA DO GATE ESTRUTURAL: 2 DE 2 FALHAS SAO FALSO-POSITIVO *** ***
+  Lendo o CODIGO-FONTE do modelo antes de agir (regra 34 levada ao nivel do instrumento):
+    · B_Front (linhas 59-67): JA E um ARCO EM C — torus + boolean que remove a metade traseira
+      ('box B_Cut' + DIFFERENCE). NAO e um anel fechado. Ocupar 63%% de L e o CORRETO para um para-choque
+      que abraca o bico, como o concept desenha.
+    · R_Wing (linha 81): e uma CAIXA de 0,16 x 1,44 x 0,16 — uma ASA e legitimamente mais larga que
+      comprida. Meu limiar 'mais largo que comprido = blimp' e invalido para asa.
+  ⟹ AS DUAS FALHAS DO MEU GATE SAO FALSO-POSITIVO. Eu inventei os limiares (40%% de L, 'mais largo que
+    comprido') SEM derivar do concept — o mesmo erro que a regra 53 aponta (confiar em metrica isolada
+    que eu mesmo criei).
+  REGRA 54: um gate novo so vale depois de CALIBRADO contra casos conhecidos bons e ruins. Antes de
+    reprovar um build com ele, rodar o gate no ULTIMO build aprovado por outros meios e conferir que
+    ele NAO dispara. Gate nao calibrado produz trabalho inutil (e eu ia reconstruir a asa por causa dele).
+  O QUE O VISION VIU CONTINUA VALIDO (ele olhou a IMAGEM, nao o codigo): piloto fora de escala/desconectado,
+    pecas flutuantes, ausencia de volante/banco/3 escapes legiveis, carenagens como blobs. Esses sao os
+    alvos reais — e NAO os dois que meu gate inventou.
+  ESTADO: contorno APROVADO (4 vistas <=5%%) | vision 1,0/10 (alvos reais: piloto, conexao, legibilidade
+    funcional) | gate estrutural: PRECISA DE CALIBRACAO antes de ser usado para reprovar.
