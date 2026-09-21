@@ -10133,3 +10133,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Solidify), nao de copiar a ordem. Medir apos CADA alteracao de cadeia.
   ⟹ v016: revertido para a ordem do v013 (medido: objeto san).
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v018 SANO (2,376 x 0,754 x 0,824 m) — SCRIPT REESCRITO DO ZERO + ASSERT NA CADEIA *** ***
+  CAUSA DOS v014/v015/v016/v017 EXPLODIREM: replaces encadeados (~30) deixaram DOIS SUBSURF na
+    cadeia ([MIRROR, BEVEL, SUBSURF, SOLIDIFY, WN, SUBSURF]) e o SOLIDIFY entre eles amplificava a
+    malha para 522 km. O meu replace silenciosamente NAO casava o padrao e eu seguia em frente.
+  CORRECAO REAL: escrever o script DO ZERO (sem replaces) + ASSERT na cadeia de modifiers
+    (`assert tipos==["MIRROR","BEVEL","SUBSURF","SOLIDIFY","WEIGHTED_NORMAL"]` e
+    `assert tipos.count("SUBSURF")==1`) — o assert pega a duplicata na hora do build.
+  VERIFICADO: ###EVAL### 103662 verts, dim(2,376, 0,754, 0,824) m ✓ (comprimento bate com o contrato)
+  REGRA 162: cadeia de modifiers com >4 elos precisa de ASSERT por tipo e CONTAGEM no proprio script
+    de build. Patch por str.replace em script que ja passou por dezenas de replaces deixa de ser
+    confiavel — reescrever do zero.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
