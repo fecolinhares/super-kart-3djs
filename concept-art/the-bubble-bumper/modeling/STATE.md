@@ -9132,3 +9132,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     parede) — a contagem de faces e um TESTE de que o inset tem parede de fato.
   ESTADO: MELHOR VISION B132 = 2,3. B141 = 1,50 (regressao). CONTRATO altura 1,253 m ✓.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B144: RECEITA COMPLETA APLICADA — O POD AGORA E ORGANICO (E A FACE-CONTAGEM PROVA) *** ***
+  Implementei def pod_organico(n, x0,x1, yc, largura, z0,z1, cuts=5, borda=0.055):
+    1) create_cube -> cotas
+    2) LOOP CUTS LONGITUDINAIS: subdivide_edges nas 4 arestas de comprimento com cuts=4..5 +
+       use_grid_fill (o que o vision exigiu: 'create_cube tem 4 vertices laterais, so cisalha reto')
+    3) BARRIGA + TAPER: por vertice, f=(x-x0)/L -> altura escala (0,55 + 0,75 f^2) [frente fina, traseira
+       alta, CURVA e nao reta] e largura escala (0,62 + 0,55 sin(pi*1,15f)) [barriga]
+    4) BEVEL 0,022 em 2 segmentos (arredondar quinas)
+    5) INSET_REGION no topo com thickness 0,048-0,055 E DEPTH 0,018 -> GERA PAREDE
+    6) 2 MATERIAIS no mesmo mesh: amarelo no anel, azul no centro (face de topo de maior area)
+  PROVA POR CONTAGEM DE FACES (o teste que o vision propos):
+    versao REPROVADA (B141): 10 faces -> ele deduziu 'inset flat, sem parede, sem corte para taper'
+    versao CORRIGIDA (B144): SP_L=266 faces e SPM_L=320 faces  (loop cuts + bevel + inset com parede)
+  DIMENSOES conforme a receita dele: SP_ ~0,86 x 0,245 x 0,225 (nucleo) e SPM_ ~0,62 x 0,32 x 0,32
+    (a receita pede ~0,75 x 0,28 x 0,20 — dentro da faixa; dois CUBOS SEPARADOS, um por lado,
+    sem laje unificada: regra 112 respeitada — 4 objetos SP_L/SP_R/SPM_L/SPM_R)
+  BLOQUEIO: o render (/tmp/r013_pernas.py) saiu sem escrever PNG nesta build (o script quitou cedo).
+    Proximo passo imediato: diagnosticar o render e re-olhar B144 — a geometria organica esta no arquivo.
+  ESTADO: MELHOR VISION B132 = 2,3. B141 = 1,50 (regressao). B144 nao avaliado (render pendente).
+    CONTRATO altura 1,253 m ✓. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
