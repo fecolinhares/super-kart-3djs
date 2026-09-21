@@ -10803,3 +10803,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ESTADO: v022 | L=2,350/W=1,441/H=1,252 (exatos) | perfil 0,042 m | vazio 0,138 | contato 14/14 | SCORE 0,180
     vision 3,0 (confirmou os 3 fixes: "as rodas mostram aro/cubo: SIM", "o piloto olha para frente: SIM",
     "o bumper tem curva em planta: SIM") mas nota estagnada em 3,0: "muito simplificado, poucos detalhes"
+
+## *** v023: COWL AUTORAL (loft de estacoes medidas) — perfil 0,042 -> 0,033 m, vision 3,4 *** ***
+  O COWL deixou de ser caixa e virou FORMA CONTINUA: loft de 7 estacoes com secao ELIPTICA
+  (superelipse py=0,78/pz=0,70, 20 pontos) + tanque/defletor no topo.
+  PERFIL por estacao (concept vs modelo, deltas): 10% -0,039 | 20% -0,008 (era -0,030) |
+    30% +0,007 | 40% +0,072 | 50% -0,014 (era -0,091) | 60% +0,002 | 70% +0,096 | 80% -0,036 |
+    90% +0,024  -> erro MEDIO 0,033 m (era 0,042); pior estacao agora e 70% (+0,096, asa/encosto).
+  VISION v023 = 3,4/10 (serie 1,8 -> 1,5 -> 1,7 -> 2,2 -> 2,7 -> 3,0 -> 3,0 -> 3,4):
+    (1) "NAO e caixa. Agora e FORMA CONTINUA COM RAMPA. Em SIDE ve-se loft liso ponta-baixa -> rampa
+        -> cockpit cheio. A elipse esta funcionando."   <- PRIMEIRA VEZ que ele aprova uma zona
+    (2) tanque aparece ("domo azul oval") mas pequeno/liso
+    SIDE 4,5 (melhor vista; "o perfil bate") | FRONT 3,0 | TOP 3,0 | REAR 2,5
+  ERRO #1 AGORA (dele): "AMARELOS EM PRANCHA + RODAS — sidepods e asas sao tabuas retangulares, e
+    pneus sao caixas sem escala (dianteira some, traseira gigante)". Nao e mais o perfil.
+  LICAO: o loft autoral por estacoes medidas + secao supereliptica e O CAMINHO — transformou a pior
+    zona na melhor vista (SIDE 4,5). Aplicar o mesmo metodo em: sidepods (tabua -> forma de gota
+    tridimensional), prancha do bumper (tabua -> U com curvatura), e roda traseira (escala).
