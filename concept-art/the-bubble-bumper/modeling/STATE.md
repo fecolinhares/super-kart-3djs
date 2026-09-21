@@ -9843,3 +9843,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 148: wire e clay em PASSADAS SEPARADAS. Wireframe modifier por cima do SubSURF contamina a
     leitura da forma e faz a malha parecer facetada.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** TUB v006: RAIO REAL (bevel 0,020) + CLAY/WIRE EM PASSADAS SEPARADAS *** ***
+  (1) BEVEL MODIFIER de 0,020 m (2 segmentos, limit ANGLE 28) ANTES do SubSURF — raio de ~20 mm
+      em escala kart, dentro dos 15-25 mm que o vision exigiu. Cobre TAMBEM os cantos verticais da
+      abertura (que estavam 90 graus vivos).
+  (2) CREASE reduzido de 0,6 para 0,35 (o bevel passa a segurar a forma; crease alto criava pinch).
+  (3) REGRA 148 APLICADA: PASSADA 1 = CLAY LIMPO sem wire (F 17,2%% | S 20,0%% | R 17,2%% | T 19,9%%);
+      PASSADA 2 = WIRE sozinho (use_replace=True ⟹ SO o arame: S 4,2%% | T 7,7%%).
+      O wire nao contamina mais a leitura da forma.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
