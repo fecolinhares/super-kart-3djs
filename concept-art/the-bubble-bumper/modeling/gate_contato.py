@@ -12,7 +12,7 @@ PARES=[("C_Col","C_Wheel"),("C_Col","C_Floor"),("P_GripL","C_Wheel"),("P_GripL",
        ("R_WingBar","R_EndplateL"),("R_WingBar","R_EndplateR"),
        ("C_PodMountL","SP_L"),("C_PodMountR","SP_R"),("C_PodMountL","C_Floor"),
        ("C_RimFL","W_FL"),("C_RimRL","W_RL"),("SP_L","C_Floor"),("SP_R","C_Floor"),
-       ("P_Torso","SP_L"),("P_Helmet","P_Torso")]
+       ("P_Torso","P_LegL"),("P_Helmet","P_Torso")]
 def tree(o):
     bm=bmesh.new(); bm.from_mesh(o.data); bm.transform(o.matrix_world)
     t=BVHTree.FromBMesh(bm); bm.free(); return t

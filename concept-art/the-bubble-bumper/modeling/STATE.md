@@ -9497,3 +9497,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     coordenadas estimadas). O gate de contato fecha o loop: criar -> medir overlap -> corrigir.
   ESTADO: MELHOR VISION B132 = 2,3 | B152 = 1,55. CONTRATO/base 2,366 x 1,441 x 1,260 ✓.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B157: GATE DE CONTATO 16/21 (de 4/12) — O LOOP FUNCIONA, 5 RESISTEM *** ***
+  PROGRESSO MEDIDO PELO PROPRIO GATE (nao por opiniao):
+    B152 (minha 'verificacao' por bbox 1 eixo): 4 contatos / 8 flutuantes de 12
+    B153 (1a tentativa de fix):                10 contatos / 11 flutuantes de 21
+    B156 (conectores pelo bbox medido):        16 contatos /  5 flutuantes de 21
+    B157 (2a iteracao):                        16 contatos /  5 flutuantes de 21
+  ⟹ 11 -> 5 flutuantes. O loop criar->medir overlap->corrigir funciona e e mensuravel.
+  RESISTEM (5): C_Col x C_Wheel | SP_L x C_Floor | SP_R x C_Floor | P_Torso x P_LegL |
+    P_Helmet x P_Torso
+  HIPOTESE PARA OS 5: o bbox MEDIDO nao e o volume que o BVH usa (bevel/suave mudam a geometria; e
+    `o.location.z += dz` move o objeto mas a leitura seguinte pode pegar o matrix_world ANTES do
+    update do view_layer). CORRECAO A TESTAR: (1) chamar bpy.context.view_layer.update() antes de
+    re-medir; (2) usar o bbox da MALHA (vertes em world) e nao o do objeto; (3) nos pares com bevel,
+    comparar tambem com a versao pre-bevel.
+  BASE PRESERVADA: comp 2,366 | larg 1,441 | alt 1,260 ✓
+  REGRA 134: ao mover um objeto e re-medir na MESMA sessao, chamar view_layer.update() antes — senao
+    a leitura pega o matrix_world desatualizado (mesma familia da regra 130: medir o ESTADO real).
+  ESTADO: MELHOR VISION B132 = 2,3 | B152 = 1,55. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
