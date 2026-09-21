@@ -8796,3 +8796,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     de forma, nao usar um fator unico (a mesma licao da regra 95, um nivel mais preciso).
   ESTADO: MELHOR POR VISION B103 (2,75); B121 = 2,1. B123 nao avaliado por vision.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B124: O SUBD SOBE O FUNDO DO CILINDRO (5,88%% DO RAIO) — CORRECAO EM Z, NAO NO RAIO *** ***
+  TESTE ISOLADO DO CILINDRO (regra 96 — classe de forma propria, nao usar o fator da caixa):
+    cilindro r=0,25 com fundo em z=0,25:  SEM subd dim=(0,500,0,500) zmin=-0,0000 (toca exato)
+      COM subd nivel1 dim=(0,471,0,471) zmin=+0,0147
+    ⟹ o SubD encolhe o DIAMETRO 5,8%% E SOBE O FUNDO 14,7 mm = 5,88%% DO RAIO (arredonda a quina inferior).
+    ⟹ ISSO EXPLICA EXATAMENTE o vao de 14-17 mm das minhas rodas (r 0,21-0,25).
+  ERRO CORRIGIDO: eu estava ajustando o RAIO ✗ — o que importa e a POSICAO Z.
+    Aplicado z = raio x 0,9412 (baixar 5,88%% do raio):
+      W_FL z[0,014;0,233] (14 mm) -> z[0,007;0,242] (7 mm) ✓ cortou METADE
+      W_RL z[0,018;0,298] (18 mm) -> z[0,008;0,289] (8 mm) ✓
+    ⟹ direcao certa, mas ainda nao fecha em 0 — 1-2 iteracoes mais (regra 95: medir->corrigir->medir).
+      O fator NAO e exatamente 5,88%% para r diferente: medir por raio (o arredondamento depende de r/d).
+  REGRA 97: ao corrigir a altura de contato de um cilindro com SubD, ajustar a POSICAO Z (baixar ~6%% do
+    raio), NAO o raio — mexer no raio muda o tamanho da peca para corrigir um erro de posicao.
+  PONTÃO: SP_L dim(0,37x0,37x0,90) z[0,005;0,905] — capsula arredondada ALTA ✓ (prescricao do vision)
+  CONTORNO: FRONT 6,07 | SIDE 3,48 | REAR 8,04 | TOP 3,20 | altura 1,253 ✓
+  ESTADO: MELHOR POR VISION B103 (2,75); B123/B124 nao avaliados. AUDITOR e PRANCHA suspensos.
+    OBJETIVO NAO ATINGIDO.
