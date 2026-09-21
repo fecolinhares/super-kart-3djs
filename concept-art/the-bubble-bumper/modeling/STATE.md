@@ -9228,3 +9228,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Eu li 'traseira 2x' como diametro quando o concept pede ~1,15x diametro e 2x LARGURA.
   ESTADO: MELHOR VISION B132 = 2,3 | B148 = 1,38. CONTRATO altura 1,253 m ✓.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** O VISION FEZ UMA AFIRMACAO FALSA SOBRE O CONCEPT — A MEDICAO A REFUTOU *** ***
+  VISION (B148, 1,38): 'Proporcao assassina: 0,407/0,266 = 1,53x em DIAMETRO. Kart real e concept:
+  traseira ~1,1-1,2x a dianteira em diametro, e compensa na LARGURA. 40,7 cm de diametro traseiro e
+  roda de MOTO. Isso DESTROI a escala.'
+  MEDIDO NO CONCEPT (mascara validada, SIDE):
+    roda dianteira: largura_x=210 px | ALTURA 210 px
+    roda traseira : largura_x=363 px | ALTURA 363 px
+    ⟹ RAZAO D/T = 1,73x EM DIAMETRO — nao 1,1-1,2x.
+  ⟹ SE EU TIVESSE ACEITO A AFIRMACAO DO VISION, TERIA DESTRUIDO UM VALOR CORRETO (o meu 1,53x esta
+    MAIS PERTO do concept do que o 1,15x que ele pediu).
+  REGRA 120: o vision pode AFIRMAR FATOS SOBRE O CONCEPT e estar errado. Antes de mudar qualquer
+    proporcao por causa de uma afirmacao numerica do vision, MEDIR O CONCEPT e comparar. A medicao do
+    concept e a autoridade; o vision e autoridade apenas sobre o que SE VE do MODELO.
+  REGRA 121: quando vision e medicao divergem sobre uma COTA, a divergencia NAO se resolve por
+    confianca — resolve-se medindo o concept no mesmo eixo. (Aqui: 1,73x medido vs 1,15x afirmado.)
+  ESTADO: MELHOR VISION B132 = 2,3 | B148 = 1,38. CONTRATO altura 1,253 m ✓.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
