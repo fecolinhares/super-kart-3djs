@@ -7373,3 +7373,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ══> estou a 1,07-1,36x do alvo de mediana, com as 4 vistas medidas e ESTAVEIS (nao oscilam entre builds).
   PROXIMO: continuar a reducao guiada por faixa — o pior caso ainda e 37%% em ~68%% do eixo (terco traseiro
   no FRONT/REAR e meio no SIDE), e o 'falta' segue dominando (10-15%%) contra 'excesso' de 4-9%%.
+
+
+## B030: OWNER MAP + POSICAO DA CABECA — SIDE CRUZOU O ALVO (4,95%%) ***
+  INSTRUMENTO 31 (OWNER MAP): dado o eixo, lista os objetos que ocupam a faixa pior — responde 'QUAL PECA'.
+  MEDICAO QUE GUIou O FIX: o concept tem a MASSA ALTA a ~60%% do comprimento; meu modelo tinha a cabeca a
+  72%% (verificado no render cru pelo meu vision: pico a 28%% da esquerda num render com frente a direita).
+  ⟹ cabeca 0,28 m ATRASADA. [B030] avancei todo o grupo do piloto (cabeca, pescoco, torso, ombro, bacia,
+    coxa, canela, braco, banco) em +0,28 m e subi o bico (o concept tem altura 0,34 a 88%%; o meu tinha 0,09).
+  EFEITO MEDIDO: SIDE 5,88%% -> 4,95%% ✓✓  (ALVO DO SOL DE MEDIANA <=5%% ATINGIDO NA PRIMEIRA VISTA)
+    FRONT 6,68%% | REAR 5,35%% | TOP 6,78%% — as outras tres a 1,07-1,36x do alvo.
+  RATIOS DO CONTRATO: L +1,7%% | H -1,2%% | W/H +6,2%% | L/H +2,9%%.
+  METODO ATUAL (funcionando): gate quantitativo -> pior faixa + excesso/falta -> OWNER MAP -> corrigir a peca
+    -> re-medir. Cada build tem antes/depois numerico e a causa fica registrada.
