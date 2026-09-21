@@ -11087,3 +11087,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     o olho ve a envolvente dos primeiros hits, nao a peca intencional.
   Serie: 2,5 2,6 2,4 2,6 2,7 2,5 3,0 3,3 | SIDE: 2,4->4,0->4,5 | FRONT travado em 2,0-2,5.
   PROXIMO: FRONT — nariz largo-baixo em U + grade + para-choque robusto (medir FRONT concept).
+
+## *** v058/v059: FRONTAL DESTRAVADO — FRONT 2,0 -> 6,0 | GLOBAL 4,5 *** ***
+  vision v057: "FRONT 2,0 travado: nariz pilula vs concept U largo-baixo com grade; para-choque
+  fino brinquedo". MEDI a anatomia frontal do concept (vision frontal): para-choque 70% Lk
+  GORDO h~0.21m com CAPS amarelos; grade central 20-24% Lk 5 fendas; pilar central 15% Lk;
+  rodas 100% fora do para-choque.
+  v058: F_Bow de tubo r=0.045 -> BARRA GORDA supereliptica h=0.19 (z 0.10..0.29, y +-0.50),
+    raycast: first-hit F_Bow em toda y 0..0.45. vision 3,8 (+0,5): "para-choque GORDO le;
+    mas 100% AMARELO monolitico (INVERTI A COR), grade ZERO".
+  v059: (1) F_Bow -> M_BODY AZUL (caps F_Pad ficam amarelos); (2) grade NA FACE FRONTAL:
+    N_Grill0..4 x=1.152..1.178 (regra 251: primeiro hit) + N_GrillBG recesso escuro atras;
+    (3) nariz frontal 0.108 half (15% Lk).
+  *** vision v059 = 4,5 | FRONT 6,0 (!) — "Barra AZUL com caps amarelos: SIM. Grade 5
+    fendas: SIM. Le." *** SIDE 3,2 / REAR 3,8 / TOP 2,5.
+  ERRO #1 novo: FORMA GERAL "Minecraft": sidepods batata, piloto tijolo, SIDE lanca frontal,
+    TOP rodas flutuantes. O FRONT resolveu; a INTEGRACAO das outras vistas e' o gargalo.
+  Serie vision: 2,5 2,6 2,4 2,6 2,7 2,5 3,0 3,3 3,8 4,5 | FRONT: 2,0->3,5->6,0.
+  REGRA 254: cor e' assinatura — azular/amarelar na peca CERTA (bow azul + caps amarelos)
+    vale +0,7; a mesma geometria com cor errada le como "monolito".
