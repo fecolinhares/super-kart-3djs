@@ -7798,3 +7798,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     58%% (0,488 vs 1,178). As duas ultimas sao o bumper frontal na faixa errada.
   ══ MELHOR ESTADO: B069 — FRONT 5,25 | SIDE 2,95 ✓ | REAR 4,10 ✓ | TOP 2,44 ✓
      media 3,69%% | 3 inversoes (era 5) | p95 do FRONT 33,3%%
+
+
+## B071: BUMPER FRONTAL — INVERSOES 3->2 MAS CONTORNO PIOR ***
+  [B071] B_Front movido de z 0,418-0,582 (53-66%% do topo) para z 0,638-0,802 (35-48%% do topo), aplicado com a
+    string LIDA do arquivo e VERIFICADO no build:
+      inversoes de perfil: 3 -> 2 ✓ | 40-46%% do topo deixou de ser inversao (virou 'desvio': concept 0,88 vs
+      modelo 1,18)
+      MAS: FRONT 5,25 -> 5,68 ✗ e SIDE 2,95 -> 4,68 ✗✗ (piorou muito o SIDE)
+  ⟹ CONCLUSao: o bumper frontal em z 0,42-0,58 estava servindo de massa na faixa certa para o CONTORNO.
+    Subi-lo reduz a inversao estrutural mas piora a mediana — TRADE-OFF medido, nao assumido.
+  REGRA 50: mediana de contorno e inversao de perfil sao metricas CONFLITANTES aqui. Quando entram em
+    conflito, a decisao e por VISTA: rejeitar a mudanca que piora 2 vistas (FRONT e SIDE) para melhorar
+    1 metrica estrutural. REVERTIDO.
+  ══ MELHOR ESTADO: B069 — FRONT 5,25 | SIDE 2,95 ✓ | REAR 4,10 ✓ | TOP 2,44 ✓
+     media 3,69%% | 3 inversoes | INVERSOES CONHECIDAS: 52%% e 58%% do topo (o bumper que nao posso mover sem
+     piorar o contorno).
