@@ -7470,3 +7470,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   AUSENCIA DE PROVA: enquanto o FRONT nao responder a uma mudanca SABIDAMENTE grande (teste de sensibilidade),
   qualquer numero dele e inutil — e eu me recuso a otimizar contra um numero inutil.
   ESTADO CONSOLIDADO (B038): SIDE 3,49%% ✓ | REAR 4,73%% ✓ | TOP 4,18%% ✓ | FRONT 6,68%% (sob suspeita)
+
+
+## B042: OVERSHOOT NA ASA + BALANCO DO CICLO ***
+  [B042] asa para +-0,95 pre-SubD -> 1,595 pos-SubD (alvo de silhueta 1,44) -> FRONT 6,68%% -> 8,56%% ✗ (piorou).
+  REVERTIDO para o melhor estado (B038).
+  VALIDACAO DO INSTRUMENTO (feita, o Sol pede no Gate A):
+    self-test mascara x ela mesma = 0,0000%% de mediana e p95 em TODAS as 4 vistas ✓
+    os renders sao diferentes entre builds (hashes distintos) ✓
+    os perfis RESPONDEM a mudanca de geometria ✓
+    ⟹ o instrumento e valido. O 6,68%% do FRONT e ERRO REAL, nao artefato.
+  CAUSA REAL DO FRONT (identificada): a faixa de 66%% da altura, onde o concept tem a LARGURA TOTAL (1,44 m =
+    a asa traseira) e o meu modelo tem 1,10 m. A geometria da asa tem 1,343 m mas o RENDER mede 1,097 —
+    o SubD arredonda as extremidades e estreita a silhueta ~0,25 m.
+    ⟹ COMPENSACAO CORRETA = silhueta alvo (1,44) + perda do SubD (~0,25) = geometria ~1,69 m.
+       Meu primeiro teste (1,595) foi um passo INSUFICIENTE e mal localizado em altura. Repetir com o calculo
+       explicito e medindo a silhueta no render (nao a geometria) — regra 34.
+  ══ BALANCO DO CICLO: 3 de 4 vistas dentro do alvo (SIDE 3,49%% | TOP 4,18%% | REAR 4,73%%), FRONT 6,68%%
+     com causa nomeada. Ratios do contrato em +-6,2%%. 42 builds, 34 instrumentos.
