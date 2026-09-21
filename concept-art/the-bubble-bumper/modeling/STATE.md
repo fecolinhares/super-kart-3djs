@@ -10873,3 +10873,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   proximo: piloto por CAIXA-ESQUELETO articulada (quadris fixos, tronco inclinado retangular,
     cabeca, coxa horizontal, canela, braco ao volante) — retas legiveis, nao blobs.
   series vision: 1,8 1,5 1,7 2,2 2,7 3,0 3,0 3,4 3,6 3,2 3,5 3,8 2,8 3,0 | melhor 3,8 (v027).
+
+## *** v029: PILOTO CAIXA-ESQUELETO (14/14) MAS IMPLANTACAO LONGITUDINAL ERRADA — vision 3,1 *** ***
+  O esqueleto articulado FUNCIONA topologicamente (contato 14/14, H=1.247) e a DIAGONAL do tronco
+  leu pela primeira vez ("intencao de diagonal no SIDE vale +0,1").
+  MAS o vision achou o ERRO REAL: IMPLANTACAO LONGITUDINAL — "cockpit dianteiro VAZIO, piloto no
+    compartimento do MOTOR. Cabeca a ~50cm atras do volante, nao LOGO ATRAS. Quadril flutuando alto
+    e recuado."
+  A CAUSA (medida no .blend): HIP em x=-0.26 (volante em x=+0.245!) — o quadril esta 50 cm ATRAS do
+    volante; no concept o piloto senta no MEIO (quadril logo atras do volante).
+  REGRA 232: ANTES DE POSICIONAR O PILOTO, MEDIR ONDE ELE SENTA NO CONCEPT (SIDE: quadril vs
+    volante vs roda). Coxa horizontal curta, cabeca LOGO ATRAS do volante — implantacao primeiro,
+    angulos depois.
+  Fix (v030): HIP -> x=+0.02 (volante x=+0.245, cabeca ~x=-0.10); joelho ALTO dobrado; cotovelo marcado.
+  Serie vision: 1,8 1,5 1,7 2,2 2,7 3,0 3,0 3,4 3,6 3,2 3,5 3,8 2,8 3,0 3,1 | melhor 3,8 (v027).
