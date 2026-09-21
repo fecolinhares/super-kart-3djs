@@ -9088,3 +9088,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CONTRATO: altura 1,253 m ✓. CONTORNO: FRONT 7,15 | SIDE 3,23 | REAR 7,91 | TOP ~3,1.
   ESTADO: MELHOR VISION B132 = 2,3. B139 nao avaliado por vision.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B141: RECEITA DO VISION APLICADA — UMA CAIXA COM INSET (NAO MAIS CAPSULA) *** ***
+  O vision (2,28) reprovou: 'voce colocou UMA SALSICHA EM CIMA DA CAIXA... no concept NAO EXISTE volume
+  azul cilindrico exposto acima do pod. O azul e um INSET PLANO, afundado DENTRO do U amarelo, no mesmo
+  plano do topo'. Prescricao literal dele:
+    'delete o nucleo capsula, faca UMA caixa unica com loop de inset para o azul plano, estique a frente
+     ate atras da roda dianteira com taper progressivo, nao chanfro brusco, e modele o amarelo como borda
+     espessa real, nao skin.'
+  IMPLEMENTADO (def pod_unico): create_cube -> TAPER PROGRESSIVO quadratico na frente (largura e altura)
+    -> bmesh.ops.inset_individual no topo (borda 0,085 + profundidade 0,010) -> 2 materiais no MESMO mesh
+    (topo interno = azul; anel externo = amarelo).
+  VERIFICADO: SP_L dim(1,12 x 0,49 x 0,30) z[0,040;0,340] faces=10 MATERIAIS=2
+    ⟹ UMA caixa, 1,12 m de comprimento (do fim da roda dianteira ate a traseira = o '~70% do entre-eixos'
+      que ele pediu), 10 faces controladas, azul DENTRO do U amarelo coplanar.
+  CONTRATO: altura 1,253 m ✓. ESTADO: MELHOR VISION B132 = 2,3. B141 nao avaliado.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
