@@ -9019,3 +9019,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ESTADO: B134 altura 1,026 m (CONTRATO QUEBRADO, a reverter) | vision B132 = 2,3 (recorde).
     contorno FRONT 7,15 | SIDE 3,09 | REAR 8,80 | direcionalidade 0,999 vs 0,696 (FALHA).
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B136: A 'LAJE' LOCALIZADA E CORRIGIDA (O VISAO TINHA O NUMERO CERTO) *** ***
+  O vision (2,3) disse: 'a casca cinza+amarela dos pods PAIRA sobre o nucleo azul, sem saia, com VAO DE
+  AR embaixo (SIDE); TOP prova: LAJE RETANGULAR; no concept o pod e capsula arredondada entre eixos,
+  nunca retangulo que avanca sobre o pneu'.
+  MEDIDO: box("SPM_"+sn, -0.90, 0.12, ..., 0.50, 0.53)
+    = comprimento 1,02 m (o pod tem 0,61 = 67%% MAIOR) | espessura 0,03 m | ALTURA z[0,50;0,53]
+    = MEIO METRO ACIMA DO CHAO enquanto o pod esta em z[0,04;0,33] -> uma prancha 17 cm ACIMA do
+      pontao que ela deveria envolver. Era literalmente o 'vao de ar embaixo' do vision.
+  FIX: capsula("SPM_"+sn, -0.80, 0.02, sy*0.44, 0.185, 0.145) -> ENVOLVE o nucleo.
+  VERIFICADO: SPM_L dim(0,53 x 0,29 x 0,29) z[0,040;0,330] (antes: 1,02 x 0,36 x 0,03 z[0,50;0,53]).
+  CONTRATO PRESERVADO: altura total 1,253 m ✓ (a escala 0,70 do piloto foi REVERTIDA — o piloto define
+    a altura; a medicao validada mostrou apenas 2,3%% da altura e 10,4%% da largura acima dele).
+  CONTORNO: FRONT 7,15 | SIDE 3,09 | REAR 7,91 (melhorou de 8,80) | TOP ~3,1.
+  ESTADO: MELHOR VISION B132 = 2,3 (recorde). B136 nao avaliado por vision.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
