@@ -9477,3 +9477,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   AÇÃO IMEDIATA: reconstruir SP_L/SP_R como SOLIDOS FECHADOS e re-medir no arquivo salvo.
   ESTADO: MELHOR VISION B132 = 2,3 | B152 = 1,55. CONTRATO/base 2,366 x 1,441 x 1,260 ✓.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B155: PONTOES RECONSTRUIDOS COMO SOLIDOS — VERIFICADOS NO ARQUIVO REABERTO *** ***
+  Reconstrucao: SP_L/SP_R como caixas SOLIDAS FECHADAS (cube -> taper frontal -> 4 bisects -> bevel 2 seg).
+  VERIFICADO NO .blend REABERTO (regra 130 — nao na sessao de build):
+    ###SALVO### VAZIOS: NENHUM ✓
+    SP_L  verts=216 faces=214 dim(0,375 x 0,150 x 0,130) ✓ SOLIDO
+    SP_R  verts=216 faces=214 dim(0,375 x 0,150 x 0,130) ✓ SOLIDO
+    P_Neck verts=194 faces=192 dim(0,117 x 0,733 x 0,117)  ⚠ 0,733 em Y = PESCOCO DEITADO ✗
+    C_Col verts=770 faces=768 dim(0,060 x 0,355 x 0,222) ✓
+    C_PodMountL verts=8 faces=6 dim(0,600 x 0,140 x 0,245) ✓
+  ⟹ o pod agora e GEOMETRIA REAL no arquivo (216 verts), medido reabrindo o .blend.
+  GATE DE CONTATO segue 10 contatos / 11 flutuantes, e os 11 sao POSICIONAIS (vaos de cm):
+    SP_L em z[0,14;0,27] e C_Floor em z~0,05  ⟹ vao de 9 cm — o pod FLUTUA acima do assoalho
+    C_PodMountL em y[0,10;0,28] e SP_L em y[0,34;0,49] ⟹ o mount NAO ALCANCA o pod em Y
+    P_Neck com 0,733 em Y ⟹ DEITADO (deveria ter ~0,12 de altura)
+  ⟹ REGRA 133: conectores devem ser posicionados a partir do BBOX MEDIDO das duas pecas (nao de
+    coordenadas estimadas). O gate de contato fecha o loop: criar -> medir overlap -> corrigir.
+  ESTADO: MELHOR VISION B132 = 2,3 | B152 = 1,55. CONTRATO/base 2,366 x 1,441 x 1,260 ✓.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
