@@ -7317,3 +7317,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     um numero antes/depois comparavel. O VLM fica para o gate qualitativo FINAL (o que o Feco pediu).
   PROXIMO (medido): atacar o CONTORNO FRONT/REAR por faixa de altura — comparar largura-a-cada-altura do meu
     modelo contra o concept e corrigir a peca que produz a faixa pior (nao o bico nem o bumper).
+
+
+## GATE VALIDADO NAS 4 VISTAS + ANOMALIA ISOLADA ***
+  MASCARA ROBUSTA (substitui 'maior componente'): erosao 3x3 + FAIXA CONTIGUA de linhas com arte +
+  colunas com arte. O 'maior componente' fragmentava no painel REAR (a arte clara quebra o mask) e pegava
+  so as rodas -> W/H=2,83 impossivel -> 64,6%% de erro ARTEFATUAL. Com a faixa: REAR 64,6%% -> 30,3%%.
+  VALIDACAO DO INSTRUMENTO (o gate so vale se a referencia valida):
+    FRONT concept W/H = 1,173  (canonico 1,171 -> 0,2%% de acordo) ✓
+    SIDE  concept W/H = 1,877  (= o L/H reemitido) ✓
+    TOP   concept W/H = 1,631  (= 2,35/1,44) ✓
+    REAR  corrigido ✓
+  NUMEROS ATUAIS (B024): FRONT 42,96%% | SIDE 25,23%% | REAR 30,25%% | TOP 7,58%% (medianas).
+  ANOMALIA ISOLADA: o MEU modelo mede W/H = 2,040 no FRONT contra 1,172 do concept. Sao 74%% de diferenca.
+    Duas hipoteses: (a) o modelo esta largo demais na vista frontal; (b) meu recorte/render esta errado.
+    PROXIMO PASSO OBRIGATORIO: resolver a anomalia ANTES de qualquer ajuste de geometria — e exatamente o
+    'validar a mascara antes de confiar no numero' da regra 1.

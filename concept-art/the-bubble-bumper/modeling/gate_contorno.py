@@ -17,26 +17,32 @@ def mascara_concept(v):
     mx, mn = a.max(axis=2), a.min(axis=2)
     sat, lum = mx - mn, a.mean(axis=2)
     m = ((sat > 26) & (lum < 250)) | (lum < 110)
-    # limpeza: erosao 3x3 + maior componente (BFS em escala 1/2)
-    from collections import deque
+    # LIMPEZA ROBUSTA: erosao 3x3 + FAIXA do veiculo (linhas/colunas com arte continua).
+    # NAO usar "maior componente": no painel REAR a arte clara fragmenta o mask e o maior
+    # pedaco e apenas as rodas/para-choque (foi a causa de um W/H=2,83 impossivel).
     r = m.copy()
     for dy in (-1,0,1):
         for dx in (-1,0,1):
             r &= np.roll(np.roll(m, dy, 0), dx, 1)
-    m2 = r[::2,::2]; H, W = m2.shape
-    lab = np.zeros((H,W), int); n = 0; best = (0,0)
-    for i in range(H):
-        for j in range(W):
-            if m2[i,j] and lab[i,j] == 0:
-                n += 1; q = deque([(i,j)]); lab[i,j] = n; sz = 0
-                while q:
-                    y, x = q.popleft(); sz += 1
-                    for dy, dx in ((1,0),(-1,0),(0,1),(0,-1)):
-                        ny, nx = y+dy, x+dx
-                        if 0 <= ny < H and 0 <= nx < W and m2[ny,nx] and lab[ny,nx] == 0:
-                            lab[ny,nx] = n; q.append((ny,nx))
-                if sz > best[0]: best = (sz, n)
-    return np.kron(lab == best[1], np.ones((2,2), bool))
+    por_linha = r.sum(axis=1); por_col = r.sum(axis=0)
+    lim_l = max(20, int(0.06 * por_linha.max()))
+    lim_c = max(5,  int(0.03 * por_col.max()))
+    linhas = por_linha > lim_l; colunas = por_col > lim_c
+    # a maior faixa CONTIGUA de linhas (o veiculo) — evita pegar reguas soltas
+    melhor=(0,0,0); ini=None
+    for i,v in enumerate(linhas):
+        if v and ini is None: ini=i
+        elif not v and ini is not None:
+            if i-ini > melhor[0]: melhor=(i-ini, ini, i-1)
+            ini=None
+    if ini is not None and len(linhas)-ini > melhor[0]: melhor=(len(linhas)-ini, ini, len(linhas)-1)
+    y0,y1 = melhor[1], melhor[2]
+    saida = np.zeros_like(r); saida[y0:y1+1, :] = r[y0:y1+1, :]
+    # dentro da faixa, mantem so as colunas com arte (remove reguas verticais)
+    cs = np.where(saida.sum(axis=0) > lim_c)[0]
+    z = np.zeros_like(saida)
+    if cs.size: z[:, cs.min():cs.max()+1] = saida[:, cs.min():cs.max()+1]
+    return z
 
 def mascara_modelo(png):
     a = np.asarray(Image.open(png).convert("RGBA"))
