@@ -7639,3 +7639,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     dos bbox dos objetos — vem de OCLUSAO/sombra ou do proprio metodo de medicao. Medir a DENSIDADE POR
     OBJETO (ID-pass por faixa) antes de mexer em qualquer peca.
   ══ MELHOR ESTADO: B052 — SIDE 3,68%% ✓ | REAR 4,75%% ✓ | TOP 2,92%% ✓ | FRONT 5,87%% (1,17x)
+
+
+## ACHADO 43 (CRITICO): O GATE DE DISTRIBUICAO INFLA A DENSIDADE ***
+  Medicao limpa por ABLACAO REAL (deletando objetos, nao hide_render) com recorte fixo em z:
+    GRUPO                        faixa4 (z .25-.31)  faixa6 (z .37-.44)
+    TUDO                         dens 0,57           dens 0,37
+    so RODAS                     dens 0,25           dens 0,04
+    so BUMPERS                   dens 0,24           dens 0,17
+    so CHASSI+NARIZ               dens 0,11           dens 0,11
+    so EIXOS+CUBOS               dens 0,07           dens 0,00
+    so SIDE/BANCO/MOTOR/PILOTO   dens 0,40           dens 0,23
+    CONCEPT (alvo)               dens 0,30           dens 0,30
+  O gate_distribuicao.py reportava 0,83 (f4) e 0,95 (f6) — INFLADOS. A densidade real e 0,57 e 0,37.
+  ⟹ Correcao do diagnostico: a faixa 6 (z 0,37-0,44) esta com 0,37 vs concept 0,30 — PRATICAMENTE CORRETA.
+     A faixa 4 (0,57 vs 0,30) e a unica com excesso real, dominada por SIDE/BANCO/MOTOR/PILOTO (0,40).
+  CAUSA PROVAVEL DA INFLACAO: o gate normaliza pela largura do bbox DA FAIXA da mascara, e a mascara do
+    modelo (via mascara_modelo) tem recorte/escala diferente do render direto — a densidade fica relativa a
+    uma largura menor que a real. REGRA 43: validar QUALQUER metrica derivada contra uma medicao direta
+    independente antes de agir; duas implementacoes da mesma grandeza devem concordar.
+  HELPER NOVO: /tmp/del.py (ablacao por DELETE + recorte fixo em z) — o teste de ablacao que FUNCIONA.
+  ══ MELHOR ESTADO: B052 — SIDE 3,68%% ✓ | REAR 4,75%% ✓ | TOP 2,92%% ✓ | FRONT 5,87%% (1,17x)
+     FRONT: o defeito de distribuicao e MENOR que o reportado; a faixa critica e z 0,25-0,31.
