@@ -10719,3 +10719,28 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   PROXIMA ACAO (do auditor, literal): reconstruir como 7 VOLUMES SEPARADOS E VAZADOS — bumper-U fino,
     bico baixo, 2 pods pequenos, assoalho, banco, motor + 3 cilindros de escape, asa fina em 2 pilones —
     e EXPOR as 4 rodas.
+
+## *** CONJUNTO v009 + INSTRUMENTO VALIDADO + P0 = VAZIO (regras 207/208/209) *** ***
+  INSTRUMENTO DE MEDICAO (validado e agora canonico):
+    chao do concept em y=484 px | topo em y=84 | escala 3,13 mm/px (H=1.2523 em 400 px)
+    trim na cota de comprimento x 122..885 (a linha de cota inflava o comprimento em ~8 cm)
+    mask: concept por SATURACAO+luminancia; render por DISTANCIA DE COR ao fundo
+  DATUMS MEDIDOS (do concept): wheelbase 1,3625 (front x=+0.5875 / rear x=-0.775)
+    cowl frontal sobe ate 0,655 na estacao 30% | capacete 1,248 na 60% | asa x[-1.15;-0.90] em 86-96%
+    rodas: front d=0,235 | rear d=0,407 | unicos pontos que tocam o chao (z=0,04)
+  CONJUNTO v009: L=2,330 (alvo 2,350) | W=1,441 (alvo 1,4411) | H=1,252 (alvo 1,2523) | 46 objetos
+  PERFIL (por estacao, instrumento validado): delta MEDIO 0,075 m | MAX 0,304 m
+    10% -0,037 | 20% -0,038 | 30% -0,011 | 40% -0,118 | 50% -0,113 | 60% +0,002 | 70% +0,096
+    80% -0,009 | 90% +0,022 | 100% +0,304   -> 7 de 10 estacoes dentro de 4 cm
+  P0 = VAZIO (o bloqueio atual): concept 0,400 vs modelo 0,141 (2,8x mais solido)
+    deficit por estacao: 20% +0,178 | 30% +0,336 | 40% +0,366 | 80% +0,258 | 100% +0,973
+    deficit medio 0,234 -> o concept tem VAOS reais (roda/chassi/cowl) onde eu tenho massa
+  REGRA 207: ABERTURA MORFOLOGICA (erode/dilate) remove reguas e texto antes de medir o concept.
+  REGRA 208: create_cube(size=1.0) no bmesh tem ARESTA 1 -> o scale e a DIMENSAO, nao dimensao/2.
+    Eu usei /2 e METADE dos objetos saiu com metade do tamanho (Floor 0,925 m em vez de 1,85 m;
+    motor, asa, bumper idem). Caça ao bug: medir o bbox de UM objeto conhecido logo apos criar.
+  REGRA 209: o script de render ABRIA OUTRO .blend (v007 em vez de v009) e eu comparei duas vezes o
+    modelo antigo. Agora o render DECLARA a base e imprime o MD5 + a contagem de objetos dela.
+  ORDEM ADOTADA: contrato/extrator -> datums -> formas primarias por zona -> P0 VAZIO -> secundarios
+    -> vision -> auditor. (O vazio vem antes de refinar perfil: o perfil ja esta em 7,5 cm e 7/10
+    estacoes; o vazio esta 2,8x errado e e o que faz o modelo parecer banheira fechada.)
