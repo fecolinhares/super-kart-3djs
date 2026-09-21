@@ -10117,3 +10117,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ⟹ CORRECAO PARA O v015: SOLIDIFY offset=0 (centrado) ou -1 (para dentro); BEVEL por WEIGHT apenas
     com vertex group definido, nao com width_pct global; re-medir a cobertura antes de renderizar.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v014/v015 EXPLODIRAM (13 m e 348 km) — A MUDANCA DE ORDEM DOS MODIFIERS NAO SE SUSTENTA *** ***
+  v014 [MIRROR, WN, SOLIDIFY 0,035 offset=1,0, BEVEL por WEIGHT width_pct=0,45, SUBSURF]:
+    dim(13,459, 10,440, 8,097) m — cage de 27 m. Causa: width_pct em modo WEIGHT vira width=0,45
+    (um bevel de 45 cm numa peca de 2,35 m).
+  v015 [MIRROR, BEVEL por ANGLE, WN, SOLIDIFY 0,035 offset=-1,0, SUBSURF]:
+    dim(110617, 103484, 348241) m — 348 km. A malha tem BORDA ABERTA (o recorte do cockpit) e o
+    SOLIDIFY sobre malha aberta + BEVEL + SUBSURF gera geometria degenerada cujo Subsurf amplifica.
+  ⟹ EVIDENCIA: o v013 (que o vision deu 5,4 com cobertura 17-21%%) usava [MIRROR, BEVEL, SUBSURF,
+    SOLIDIFY 0,020, WN] — ordem que o vision chamou de errada, mas que produz objeto SANO.
+  ⟹ REGRA 161: prescricao de ordem de modifier so vale se REPRODUZIR o efeito medido. Se a mudanca
+    explode a malha, a prescricao precisa de outra IMPLEMENTACAO (ex.: fechar a malha antes do
+    Solidify), nao de copiar a ordem. Medir apos CADA alteracao de cadeia.
+  ⟹ v016: revertido para a ordem do v013 (medido: objeto san).
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
