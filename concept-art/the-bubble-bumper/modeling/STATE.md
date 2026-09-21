@@ -8555,3 +8555,29 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ESTADO: contorno FRONT 4,95 | SIDE 3,38 | REAR 7,93 | TOP 5,17 | altura 1,253 ✓ | cadeia do piloto ✓ |
     domo removido ✓ | 3 escapes ✓ | endplates ✓ | asa larga e baixa ✓ | cintas ✓.
     MELHOR POR VISION: B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION NO B116: 1,95 (REGRESSAO DE 2,1) — JULGAMENTO DAS 4 MUDANCAS *** ***
+  FRONT 2,4 | SIDE 2,2 | REAR 1,9 | TOP 1,3 | GLOBAL 1,95   (serie: 2,0-2,75-2,25-1,9-2,1-2,1-1,95)
+  *** A MUDANCA QUE MAIS MELHOROU: REMOVER O DOMO TRASEIRO MONOLITICO — 'era uma alucinacao estrutural
+    que tampava motor, escapamentos e asa. Sem ele, pela primeira vez da para avaliar REAR/SIDE traseiro.
+    Foi a UNICA mudanca com impacto na silhueta e na oclusao.'
+  *** A QUE MENOS SERVIU: OS ENDPLATES — '2 palhetas cinza finas como papel, 1/5 da espessura e 1/2 da
+    altura dos topos do concept, cor errada, e o pior: NAO TOCAM A ASA. Em FRONT e REAR flutuam no ar
+    acima das rodas. Geometria decorativa flutuante.'
+  PESCOCO: melhorou de 'deitado/desconectado' para 'conectado' ✓ mas ainda e cilindro sem queixo/viseira.
+  CINTAS: 'as 2 cintas amarelas NAO APARECEM em nenhuma vista' ✗ — promessa nao entregue.
+  *** REGRA 89 PARCIAL: eu identifiquei o 'donut' corretamente (R_Bumper, medido 0,71x1,01x0,10 = 1,01 m
+    de largura = 70%% do kart) MAS corrigi a coisa errada — AFINEI o tubo (0,085 -> 0,052) sem mudar a
+    GEOMETRIA. Um anel de 1,01 m continua lendo como anel, fino ou grosso.
+    E o concept nao tem tubo em C: tem CARENAGEM ('para-choque dianteiro baixo, largo, carenado azul com
+    2 almofadas amarelas e grade central').
+  REGRA 90: identificar a peca certa (regra 89) NAO e corrigir a peca certa. Se o defeito e de CLASSE de
+    forma (tubo que deveria ser carenagem), nenhuma magnitude resolve — trocar a primitiva, nao o parametro.
+    3a vez na sessao que erro isso: forma x escala (regra 77 do donut, torre x piloto, tubo x carenagem).
+  DIVERGENCIAS ATUAIS: 1) asa traseira (o concept: lamina fina de ~5 cm com 2 TOPOS AMARELOS CILINDRICOS
+    GROSSOS nas pontas; modelo: paralelepipedo de 20-25 cm + endplates soltos); 2) volante/rodas (o
+    'torus gigante' no TOP persiste); 3) piloto em cruz de blocos + escapamentos em cacho (5-6 esferas em
+    vez de 3 bocas circulares).
+  ESTADO: contorno FRONT 4,95 | SIDE 3,38 | REAR 7,93 | TOP 5,17 | altura 1,253 ✓ | MELHOR POR VISION
+    segue B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
