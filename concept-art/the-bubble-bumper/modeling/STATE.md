@@ -10635,3 +10635,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     nao numa propriedade do design — e nenhuma quantidade de pos-processamento (dissolve, colapso,
     desdobrar, merge) resolveria, porque todos eles atacam o SINTOMA.
   ESTADO: 2 das 5 zonas. MELHOR NOTA 5,7. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v039 = 6,0 — NOVO RECORDE; CATEGORIA MUDOU PARA 'TOPOLOGIA OK, BORDA RUIM' *** ***
+  (3) FRONT 5,5 | SIDE 7,0 | REAR 4,5 | TOP 5,5 | ZOOM 5,0   GLOBAL 6,0 (de 5,7)
+    'Evolucao real, nao salto. Voce saiu da categoria TOPOLOGIA EXPLODIDA para TOPOLOGIA OK,
+    GEOMETRIA DE BORDA RUIM. Para passar precisaria 8,0+.'
+  (2) 'O Z3 PROVA seu 0 polos no cage: sem leque, sem estrela, grade ortogonal. ANTES ERA IMPOSSIVEL.'
+    MAS: 'a densidade dentro do preto sugere PAREDE INTERNA DUPLA — casa com seus NON-MANIFOLD=260 e
+    1779 faces-fio. O CAGE ESTA 100%% QUAD mas o SOLIDO AVALIADO tem parede fin coincidente.
+    TOPOLOGIA DO CAGE OK, CONSTRUCAO DO VOLUME ERRADA.'
+  (1) 'A estrela preta do bico SUMIU (nao tem mais ponto preto), mas O LUGAR continua — e a CICATRIZ.
+    Antes era polo, agora e costura convergente. Melhorou 90%%. Os 4 pingos CONTINUAM: o smoothstep
+    ESPALHOU o salto, nao criou um rim-loop correspondente.'
+  (4) 'NAO PASSA. Precisa de RIM-LOOP EXPLICITO: polilinha fechada de borda com correspondencia 1:1
+    entre estacoes, corte VERTICAL REAL, e ELIMINAR a parede dupla fl/yr interna. Enquanto o avaliado
+    tiver 1779 faces-fio, nenhum shade liso aprova.'
+  REGRA 194: CAGE LIMPO != VOLUME LIMPO. Os 260 non-manifold + 1779 faces-fio NAO vem do cage (100%%
+    quad) — vem da CONSTRUCAO INTERNA fl/yr: o blend do smoothstep criou uma RAMPA onde devia haver
+    CORTE VERTICAL, e a rampa produz PAREDE INTERNA COINCIDENTE no avaliado.
+  ESTADO: 2 das 5 zonas. MELHOR NOTA 6,0. OBJETIVO NAO ATINGIDO.
