@@ -9356,3 +9356,38 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     que o vision exigiu ('enquanto nao travar track-width + wheelbase + diametro, nenhuma vista fecha').
   ESTADO: MELHOR VISION B132 = 2,3 | B150 = 1,05. B151 nao avaliado. AUDITOR e PRANCHA suspensos.
     OBJETIVO NAO ATINGIDO.
+
+
+## *** B151 = 1,45 (de 1,05) — BASE TRAVADA SOMOU +0,40, E O VISION DEU A REGUA CONTAGEM *** ***
+  VISION: 'Travar numero nao e acertar forma. Voce fez o PRE-REQUISITO. Nao fez o kart.'
+    'Base travada NAO SOMA ponto de forma, so impede desconto de escala.'
+    'Declarar L/H 1,878 = 1,877 com 0,05%% de erro e VANITY METRIC. Nao adianta acertar o retangulo
+     envolvente e errar tudo dentro dele.'
+  NOTAS: FRONT 1,8 | SIDE 1,3 | REAR 1,0 | TOP 1,7 | GLOBAL 1,45 (de 1,05) — a base travada somou +0,40
+
+  *** A REGUA ADOTADA (objetiva e CONTAGEM): 'ENQUANTO HOUVER 1 OBJETO FLUTUANTE EM VISTA
+  ORTOGRAFICA, NAO HA KART. VOCE TEM ~8.' LISTA NOMINAL DO VISION: ***
+    1. volante toroide + bolinha preta solta (sem coluna)
+    2. 2 laminas/facas BRANCAS verticais na FRONT/REAR (onde devia ser carenagem/endplate)
+    3. 2 esferas amarelas minusculas soltas no TOP (entre dianteira e sidepod)
+    4. 3-4 ponteiras brancas traseiras SEM CANO, atravessando o ar
+    5. tampoes amarelos esfericos PARA FORA do pneu, sem cubo
+    6. sidepods ovais SEM SUPORTE, com gap de ar visivel em SIDE e TOP
+    7. maos que nao seguram nada / pes sem pedal
+    8. asa-disco VERTICAL sem perfil aerodinamico e sem suportes
+  ⟹ e CONTAGEM: 8 -> 0. Cada objeto removido ou CONECTADO e uma unidade de progresso verificavel
+    sem depender de juizo estetico. Adotar como metrica principal do proximo ciclo.
+
+  AS 3 MAIS GRAVES (nao e mais escala, e ARQUITETURA):
+    1. CARENAGENS FUNCIONAIS INEXISTENTES ('bico/painel/sidepods/para-choque em C sao VOLUMES DUROS
+       com espessura, entrada e fixacao; no modelo sao elipsoides e laminas flutuantes')
+    2. PILOTO + ERGONOMIA 100%% INVENTADA ('a altura 1,260 m e a altura do CAPACETE no concept vs a
+       BOLA CARECA no modelo — MESMO NUMERO, OBJETO DIFERENTE')
+    3. CHASSI/TRASEIRA/DIRECAO FLUTUANTES ('asa virou DISCO SOLIDO VERTICAL — ERRO DE TIPOLOGIA,
+       nao de tamanho')
+  REGRA 125: adotar FLUTUANTES=0 como metrica primaria — contavel, verificavel por render, sem
+    depender de juizo estetico. Um objeto flutuante em vista ortografica invalida a peca inteira.
+  REGRA 126 (do 'vanity metric'): acertar o retangulo envolvente (base) NAO e fidelidade; numeros de
+    bbox nao substituem forma. Reportar sempre a FORMA/leitura junto com a cota.
+  ESTADO: MELHOR VISION B132 = 2,3 | B151 = 1,45. CONTRATO altura 1,260 m ✓. BASE TRAVADA ✓.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
