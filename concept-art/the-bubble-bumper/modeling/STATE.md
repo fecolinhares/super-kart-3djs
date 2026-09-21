@@ -8667,3 +8667,28 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   MEDIDO: TOP 3,65 -> 3,16%% ✓✓ (melhor planta da sessao) | SIDE 3,18%% ✓ | FRONT 7,24%% | REAR 8,94%%
     altura 1,253 ✓
   ESTADO: MELHOR POR VISION B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION NO B119: 2,3 (de 2,4) — CAMERA GANHOU +0,7 NO TOP, PONTAO PERDEU -0,4 *** ***
+  FRONT 2,0 | SIDE 2,8 | REAR 1,9 | TOP 3,0 | GLOBAL 2,3   (serie: ...,1,95-2,45-2,4-2,3)
+  TOP: 2,2 -> 3,0 ✓✓ (+0,7) — 'sobe so pelo desespelhamento; e a unica vista que agora da para comparar
+    lado a lado'. A CORRECAO DA CAMERA FOI CONFIRMADA: 'bico agora a ESQUERDA nos dois' ✓ (regra 91).
+  GLOBAL: 2,4 -> 2,3. Conta do vision: '+0,3 por corrigir TOP, -0,4 por prometer caixa com bevel + corte e
+    entregar ainda charuto cinza flutuante. Resultado liquido: andou para o lado.'
+  *** CONFLITO MEDICAO x VISION RESOLVIDO POR VERIFICACAO DIRETA:
+    vision: 'o pod prometido como caixa NAO EXISTE na imagem; o que se ve e elipsoide/prancha de surf'.
+    MEDIDO no B119.blend: SP_L dim(0,73x0,16x0,15) z[0,22;0,38] com 208 vertices = BOX COM BEVEL ✓ e
+      render atual (md5 conferido, 23:18). A caixa EXISTE.
+    ⟹ Os dois estavam certos sobre coisas diferentes: a caixa existe (medicao) e NAO LE como pod (vision)
+      porque e PEQUENA DEMAIS. O vision chama o pontao de 'o MAIOR volume do kart' — e eu o construi com
+      0,16 m de largura por 0,15 m de altura.
+  *** DEFEITO CONVERTIDO EM NUMERO (o que faltava ha varias rodadas): a secao do pod deve sair de
+    0,16 x 0,15 m para a ordem de 0,30-0,40 x 0,30 m ('largura <= face externa do pneu' = ~0,30 m).
+    Regra 92: quando o vision diz que uma peca 'nao e' o que eu construi, VERIFICAR a dimensao da peca
+    antes de refazer a geometria — pode ser que a classe esteja certa e a ESCALA esteja errada.
+  ORDEM DADA PELO VISION PARA DESTRAVAR (ele mesmo numerou):
+    1. chassi tubular + cotas reais | 2. 4 cilindros de roda com diametro/largura/bitola do concept
+    PLANTADOS NO CHAO | 3. pod como box de verdade (face interna plana + bevel + corte + topo azul) |
+    4. piloto capsula sentada com capacete. 'Nao avancar para cor, decalque ou smooth ate travar esses 4.'
+  ESTADO: contorno FRONT 7,24 | SIDE 3,18 | REAR 8,94 | TOP 3,16 | altura 1,253 ✓.
+    MELHOR POR VISION: B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
