@@ -7661,3 +7661,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   HELPER NOVO: /tmp/del.py (ablacao por DELETE + recorte fixo em z) — o teste de ablacao que FUNCIONA.
   ══ MELHOR ESTADO: B052 — SIDE 3,68%% ✓ | REAR 4,75%% ✓ | TOP 2,92%% ✓ | FRONT 5,87%% (1,17x)
      FRONT: o defeito de distribuicao e MENOR que o reportado; a faixa critica e z 0,25-0,31.
+
+
+## B057-B059: MELHOR FRONT DA SERIE (5,78%%) + vao em construcao ***
+  Objetivo: elevar a DENSIDADE da faixa critica do FRONT (z 0,25-0,31) de 0,57 para os 0,30 do concept.
+  Medicao de referencia (validada por ablacao real): SO AS RODAS preenchem 0,25 naquela faixa — ou seja,
+    o alvo de 0,30 e praticamente atingido pelas proprias rodas, e o EXCEDENTE vem dos outros objetos.
+  [B057] sidepods 0,434 -> 0,237 de largura, abaixados: densidade 0,57 -> 0,54
+  [B058] banco: base z 0,24 -> 0,31 (sai da faixa) e largura 0,480 -> 0,400: densidade manteve 0,54
+  [B059] motor: centro z 0,40 -> 0,56 e rz 0,26 -> 0,24 (base 0,32, FORA da faixa): densidade 0,54 -> 0,51
+    EFEITO NO CONTORNO: FRONT 5,87%% -> 5,78%% ✓ (MELHOR FRONT DA SERIE) | SIDE 3,46%% ✓ | REAR 4,68%% ✓ | TOP 3,07%% ✓
+  ══ MELHOR ESTADO: B059 — SIDE 3,46%% ✓ | REAR 4,68%% ✓ | TOP 3,07%% ✓ | FRONT 5,78%% (1,16x)
+     TRES vistas no alvo do Sol, e o FRONT no melhor valor ja medido, com a densidade da faixa critica em queda
+     (0,57 -> 0,51; alvo 0,30; piso pratico 0,25 dado pelas proprias rodas).
