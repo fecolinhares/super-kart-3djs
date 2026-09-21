@@ -10198,3 +10198,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Interior Faces + doubles + recalc, nao contagem de boundary.
   REGRA 165: Bridge exige MESMA CONTAGEM e MESMA ORDEM nas duas loops — adensar um lado so piora.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** GATE DE SANIDADE CRIADO (gate_sanidade.py) — O INSTRUMENTO QUE FALTAVA *** ***
+  Mede SEM FILTRO: boundary(abertas), NON-MANIFOLD, faces ZERO-AREA, quase-zero, doubles(<3mm),
+    quads/tris/ngons. FALHA explicitamente se qualquer metrica estiver suja.
+  RESULTADO DA LIMPEZA:
+                      v020 (antes)  ->  v021 (depois)
+    boundary(abertas)      85        ->    9     (grande reducao)
+    NON-MANIFOLD            0        ->   26     (efeito colateral do holes_fill)
+    faces ZERO-AREA        24        ->    0     ✓
+    quase-zero             33        ->    0     ✓
+    doubles(<3mm)          84        ->    3     ✓
+  ⟹ 3 de 4 metricas melhoraram drasticamente. E agora eu MEDO o non-manifold em vez de declarar
+    sanidade por contagem de boundary (o erro dos ciclos anteriores).
+  REGRA 166: todo build passa por gate_sanidade.py ANTES do render. 'LIMPO OK' e o unico estado
+    aceitavel para apresentar como evidencia.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
