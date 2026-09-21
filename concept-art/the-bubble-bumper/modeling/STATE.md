@@ -8653,3 +8653,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     metrica de contorno (que e simetrica a espelhamento na FRONT/REAR).
   ESTADO: contorno FRONT 7,24 | SIDE 3,18 | REAR 8,94 | TOP 3,65 | altura 1,253 ✓.
     MELHOR POR VISION: B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B119: CAMERA TOP CORRIGIDA (regra 91) + PONTAO VIRA CAIXA COM BEVEL E CORTE *** ***
+  (1) CAMERA TOP: 'cam(CT,(0,0,6),(0,0,0))' -> '(0,0,math.radians(180))'. A Z=0 punha o +X (bico) a
+    DIREITA da imagem; o concept aponta o bico a ESQUERDA. O vision apontou o espelhamento em B118 e ele
+    era REAL (regra 91 validada). VERIFICADO: a correcao foi aplicada no script de render.
+  (2) PONTAO: elipsoide (esf 0,585/0,175/0,155) -> CAIXA COM BEVEL + CORTE BOOLEAN, conforme a prescricao
+    do vision ('caixa com bevel + corte, face interna plana, largura <= face externa do pneu, comprimento =
+    entre eixos menos folga'):
+      SP_L dim(0,73x0,16x0,15) x[-0,74;-0,02] — face interna RETA, bevel 0,05/3 segmentos, corte traseiro
+      SPM_L dim(0,90x0,18x0,04) — MIOLO AZUL de topo (a 'borda amarela em U + miolo azul' do concept)
+  MEDIDO: TOP 3,65 -> 3,16%% ✓✓ (melhor planta da sessao) | SIDE 3,18%% ✓ | FRONT 7,24%% | REAR 8,94%%
+    altura 1,253 ✓
+  ESTADO: MELHOR POR VISION B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
