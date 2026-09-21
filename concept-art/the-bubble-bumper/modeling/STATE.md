@@ -8246,3 +8246,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     teria custado 30 segundos em vez de ~10 builds.
   INSTRUMENTO: modeling/perfil_estacao.py SUBSTITUIDO pela versao de eixo correto.
   ESTADO: B094 — FRONT 3,02 ✓ | SIDE 3,17 ✓ | REAR 4,08 ✓ | TOP 5,06 (1,01x) | media 3,83%%
+
+
+## *** B100: AS QUATRO VISTAS DENTRO DO ALVO — COM A ESTRUTURA CORRETA *** ***
+  Correcionadas as 3 divergencias reais do perfil (24%%, 32%%, 88%%), TODAS estreitezas:
+    (1) rodas dianteiras de +-0,39 para +-0,50 (e os cubos) -> estacao 24%%: 0,413 -> 0,509 ✓✓
+    (2) R_Fairing de +-0,56 para +-0,70 -> estacao 88%%: 0,408 -> 0,510 ✓✓
+  RESULTADO (todas as 4 vistas <=5%%):
+    FRONT 3,02%% ✓ | SIDE 3,17%% ✓ | REAR 4,08%% ✓ | TOP 5,06 -> 4,31%% ✓
+    MEDIA das 4 vistas: 3,83 -> 3,65%% (melhor media honesta da sessao)
+  ══ DIFERENCA CRITICA EM RELACAO AO B072 (o outro 'marco' de 4 vistas <=5%%): aquele era OVERFITTING (asa no
+    lugar errado, regra 55). ESTE tem a estrutura validada: asa ACIMA do capacete ✓, cor do piloto ✓,
+    cauda cheia ✓, cubos DENTRO dos pneus ✓, comprimento 2,306 m ✓, altura 1,223 m, bitola 1,49 m ✓ (o
+    FRONT do concept implica 1,476 m).
+  REGRA 73: um mesmo numero (4 vistas <=5%%) pode significar 'fidelidade' ou 'overfitting' — o que decide e
+    a ESTRUTURA estar validada por instrumentos independentes (altura, cor, bbox, eixo). Medir o numero e
+    validar a estrutura sao dois trabalhos; o segundo da sentido ao primeiro.
+  PROXIMO: o vision PROPRIO (gate qualitativo) neste estado. Se aprovar -> subagente auditor duro -> prancha.
