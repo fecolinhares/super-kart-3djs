@@ -9949,3 +9949,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     NAO da quantidade de estacoes. Aumentar estacoes em X NAO suaviza a secao — e preciso subdividir
     o ANEL.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** TUB v010: ANEL SUBDIVIDIDO 8 -> 20 PONTOS (a direcao que o vision prescreveu) *** ***
+  REGRA 152 aplicada: a faceta e de PERIMETRO. O ANEL passou de 8 para 20 PONTOS:
+    fundo (3) -> lateral externa (4) -> rim arredondado (3) -> borda interna (3) -> parede (2)
+    -> assoalho (4) -> centro (1). 1171 verts/1171 faces (era 521), 65 estacoes.
+  Tambem: BEVEL 0,022/3seg -> 0,035/5 SEGMENTOS (pedido do vision); smooth por angulo 30;
+    stadium em planta mantido (R=0,150 medido em 144 mm em X).
+  ERRO MEU REGISTRADO: eu enviei um MEDIA: apontando para /tmp/board_TUB_v010.png ANTES de gerar o
+    arquivo — declarei evidencia que nao existia. Mesma familia dos erros de prova anteriores.
+    REGRA 153: NUNCA referenciar um arquivo de evidencia sem conferir que ele existe no disco.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
