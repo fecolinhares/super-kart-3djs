@@ -8437,3 +8437,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     para 'nada solto' — o segundo e o que o vision cobrou.
   ESTADO: contorno FRONT 5,85 | SIDE 3,57 | REAR 9,12 | TOP 4,60 | altura 1,250 m ✓ | conexoes: nenhuma peca
     isolada ✓ | vision a re-avaliar (serie 2,0-2,75-2,25-1,9-2,1).
+
+
+## *** B111: A BARRA LARGA E BAIXA NAO SUSTENTA A ALTURA — MEDICAO x VISION EM CONFLITO REAL *** ***
+  Aplicada a prescricao do vision (remover a torre; barra larga e baixa nos ombros):
+    torre removida ✓ | C_BarWide (y +-0,62, z 0,80-0,88) + tampoes ✓
+    MAS: altura 1,223 -> 1,030 m ✗ e contorno DESABOU: FRONT 5,85 -> 15,11%% ✗✗ | REAR 9,12 -> 11,49%% ✗✗
+  ⟹ CONFLITO REAL E MEDIDO: o contrato exige H=1,2523 m. Com a barra nos ombros (0,84) e a asa baixa (0,68),
+    o modelo chega a 1,03 m. Faltam 0,22 m — e eles TEM que estar em algum elemento do veiculo.
+  REGRA 83: quando o contrato exige uma GRANDEZA (H=1,2523) e a leitura visual do desenho nao tem elemento que
+    a atinja, a discrepancia e uma INFORMACAO — significa que eu ainda nao identifiquei corretamente QUAL peca
+    do concept define a altura. Nao e para escolher entre o numero e o desenho: e para MEDIR a peca no desenho.
+    Hipoteses a medir no concept (proximo passo): (a) o capacete do piloto, (b) a asa traseira, (c) o
+    mini-spoiler amarelo — qual deles esta no TOPO do painel SIDE?
+  ESTADO: B110 era melhor (FRONT 5,85 | SIDE 3,57 | REAR 9,12 | TOP 4,60 | H 1,250 ✓). B111 = H 1,030 ✗.
+    MELHOR POR VISION: B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
