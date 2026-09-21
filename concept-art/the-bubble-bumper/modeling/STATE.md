@@ -10764,3 +10764,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Mask: concept por SATURACAO, render por DISTANCIA DE COR ao fundo.
   VISION v013 = 2,2/10 (serie 1,8 -> 1,5 -> 1,7 -> 2,2); reprovou: pods gordos, piloto-esfera,
     frente/traseira sem cara, "7 blobs desconectados".
+
+## *** CONJUNTO v019: SHADING DAS RODAS + CONTATO 13/13 + CHASSI VISIVEL *** ***
+  REGRA 218: cilindro com SMOOTH SHADING em TODA a malha vira "esfera" — a quina do pneu some.
+    O auditor chamou as rodas de "esferas/caixas" DUAS vezes; era defeito REAL de shading, nao de
+    dimensao. Correcao: rodas com 48 segmentos e FLAT shading (quina nitida). Confirmado por vision:
+    "discos pretos chapados, de CILINDRO visto de lado. Nao sao esferas".
+  REGRA 219: peca com base alta (pod a 0,185, medido do concept) precisa de SUPORTE explicito ate a
+    estrutura; sem isso o BVH acusa flutuante e a peca parece solta no render.
+  CONTATO: 13/13 pares (era 4/10 no v014, 7/10 no v013). Grafo real: piloto->ombro->pescoco->capacete,
+    torso->banco->assoalho, pod->SUPORTE->assoalho, motor->suporte->para-choque tubular, asa->pilone,
+    cowl->parede->assoalho, bumper->nariz.
+  MEDIDAS DO CONCEPT (novas): pneu TRASEIRO d=0,41 m (o meu: 0,407 - exato) | frente d~0,17-0,28 m
+    (medicoes conflitam: blob 0,174 vs coluna 0,28; mantido 0,235 como meio-termo defensavel)
+  GATE 3 EIXOS v019: perfil 0,045 m | vazio 0,116 | contato 0/13 | SCORE 0,161 (melhor da serie)
+  VISION: 2,7/10 (serie 1,8 -> 1,5 -> 1,7 -> 2,2 -> 2,7). Aprovou: barra de largura total, para-choque
+    tubular + 3 escapes legiveis, rodas como cilindros. Reprovou: chassi "inexistente" (tubos
+    escondidos), piloto sem membros, pods que nao abracam nada.
+  PROXIMO: chassi visivel (longarinas aparentes), membros do piloto (bracos/pernas legiveis),
+    pods ligando bumper-eixo, e os 3 bolsoes de vazio (10% +0,115 | 30% +0,097 | 50% +0,112).
