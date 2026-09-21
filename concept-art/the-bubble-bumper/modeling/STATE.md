@@ -9202,3 +9202,29 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (capsula prometia X e dava Z; cil recebia Y onde ia Z).
   ESTADO: MELHOR VISION B132 = 2,3 | B146 = 1,6 (primeiro com cor). B148 nao avaliado.
     CONTRATO altura 1,253 m ✓. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISAO B148 = 1,38 (QUEDA de 1,6) — ERRO DE MEDIDA MEU E 'CONTAGEM DE FACES NAO CRIA FORMA' *** ***
+  VISION: '(b) Proporcao assassina: 0,407/0,266 = 1,53x em DIAMETRO. Kart real e concept: traseira
+  ~1,1-1,2x a dianteira em diametro, e compensa na LARGURA. Voce fez um dragster/trator. 40,7 cm de
+  diametro traseiro e roda de MOTO, nao de kart infantil. Isso DESTROI a escala.'
+  E: 'Pod 266/320 faces: CONTAGEM DE FACES NAO CRIA FORMA. Continua elipsoide escalado, sem loop que
+  segure forma em planta em gota, sem barriga lateral que abrace a roda traseira, sem inset com parede
+  visivel em nenhuma vista.'
+  ⟹ 2 licoes: (1) eu confundi DIAMETRO com LARGURA ao 'acertar' a proporcao das rodas — o concept da
+    ~1,15x em diametro e a diferenca REAL esta na largura; (2) eu declarei o pod 'organico' por
+    CONTAGEM DE FACES — mas a contagem prova TOPOLOGIA, nunca FORMA ('numero nao cria forma').
+  AS 3 MAIS GRAVES (vision):
+    1. PILOTO NAO EXISTE ('boneco de neve azul: capsula+caixa, sem rosto, sem viseira, sem bracos no
+       volante, sem pernas. Sem piloto nao ha escala humana. Sozinho vale -4 pontos')
+    2. DIANTEIRA COMPLETA INVENTADA/AUSENTE ('nariz baixo largo + spoiler em U com botas amarelas +
+       coluna + volante; modelo: espatula azul fina + nada. E por isso que FRONT e 1,0')
+    3. TRASEIRA + POD DESCONECTADO ('escapamentos sao 3 palitos FINOS e LONGOS; deveriam ser 3 canos
+       CURTOS e GROSSOS inclinados, um central enorme preto; pods flutuam com vao de ar')
+  NOTAS: FRONT 1,0 | SIDE 1,3 | REAR 1,4 | TOP 1,8 | GLOBAL 1,38
+  REGRA 118: 'CONTAGEM DE FACES NAO CRIA FORMA' — a contagem prova que a TOPOLOGIA existe (loop cuts,
+    parede), nunca que a SILHUETA esta certa. Validar forma por SILHUETA/renders, nao por extrato do mesh.
+  REGRA 119: ao corrigir uma proporcao, identificar QUAL dimensao a referencia mede (diametro x largura).
+    Eu li 'traseira 2x' como diametro quando o concept pede ~1,15x diametro e 2x LARGURA.
+  ESTADO: MELHOR VISION B132 = 2,3 | B148 = 1,38. CONTRATO altura 1,253 m ✓.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
