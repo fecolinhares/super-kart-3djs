@@ -7738,3 +7738,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (Mesma familia dos achados 6 (perspectiva/orto), 12 (cubo default), 33 (SubD), 34 (patch no-op),
      38 (hide_render), 43 (densidade inflada), 46 (escala).)
   ══ MELHOR ESTADO: B059 — SIDE 3,46%% ✓ | REAR 4,68%% ✓ | TOP 3,07%% ✓ | FRONT 5,78%%
+
+
+## B061-B063: TRES HIPOTESES TESTADAS E REFUTADAS (o metodo funciona: nenhuma regressao acumulada) ***
+  [B061] roda 0,407 -> 0,282 (topo a 23,5%%): FRONT 5,78%% -> 6,09%% ✗ — a largura de 1,07 a 32%% da altura nao
+    vem das rodas dianteiras.
+  [B062] REVISAO DO MEU PROPRIO ACHADO 46: recalculei e o frame do render e 1100 px (nao 900) com ortho 2,55
+    ⟹ o modelo DEVE ocupar 534 px e mede 536 px. NAO HAVIA BUG DE ESCALA — era erro de aritmetica meu.
+    REGRA 47: quando um 'bug' e encontrado por calculo, refazer o calculo com os parametros LIDOS DO SCRIPT
+    (nao de memoria) antes de declarar o achado.
+  [B063] bitola traseira 0,62 -> 0,50 (as rodas traseiras chegavam a +-0,74 = 1,48 m, acima da largura total
+    1,44): FRONT 5,78%% -> 8,95%% ✗✗ | REAR 4,68%% -> 5,68%% ✗ — a bitola larga estava COMPENSANDO o FRONT.
+  ⟹ TRES hipoteses, tres refutacoes medidas, ZERO regressao acumulada (o melhor estado segue valido).
+  ══ MELHOR ESTADO: B059 — SIDE 3,46%% ✓ | REAR 4,68%% ✓ | TOP 3,07%% ✓ | FRONT 5,78%% (1,16x)
