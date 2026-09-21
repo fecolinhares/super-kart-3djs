@@ -10783,3 +10783,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     escondidos), piloto sem membros, pods que nao abracam nada.
   PROXIMO: chassi visivel (longarinas aparentes), membros do piloto (bracos/pernas legiveis),
     pods ligando bumper-eixo, e os 3 bolsoes de vazio (10% +0,115 | 30% +0,097 | 50% +0,112).
+
+## *** CONJUNTO v022: TRES BUGS REAIS ACHADOS CRUZANDO AUDITOR x MEDICAO *** ***
+  O auditor disse "REAR mostra a cara, FRONT mostra a nuca" e eu tratei como erro dele. NAO ERA:
+    1) VISEIRA ATRAS: x[-0,548;-0,408] com capacete centro -0,350 e nariz em +X -> o piloto olhava
+       PARA TRAS. Corrigido para x[-0,292;-0,152] = frente. (regra 221)
+    2) BUMPER INVERTIDO: centro x_max=1,070 e EXTREMOS x_max=1,120 -> o C abria para FRENTE.
+       Corrigido: centro 1,125 > extremos 1,075. (regra 222)
+    3) RODAS INVISIVEIS POR DENTRO: o pneu era cilindro MACICO, entao aro/anel/cubo ficavam DENTRO
+       e nao apareciam em nenhuma vista. Corrigido: pneu como ANEL (annulus, r_in=0,60 r_out) e o aro
+       (r_aro=0,62 r) + anel amarelo + cubo aparecem no centro. (regra 223)
+  REGRA 220: as pecas de acabamento da roda (aro/anel/cubo) precisam ficar DENTRO da largura do pneu —
+    colocar o cubo a w*0,48 empurrou W para 1,446 (alvo 1,4411).
+  REGRA 221: viseira/olhar do piloto aponta para a FRENTE do veiculo (+X quando o nariz esta em +X).
+    Vision dizendo "a vista REAR mostra a cara" e um SINTOMA de viseira invertida, nao de camera errada.
+  REGRA 222: bumper frontal em C tem o CENTRO mais avancado que os extremos; se os extremos avancam
+    mais, o C esta invertido (abre para a frente).
+  REGRA 223: pneu como cilindro macico esconde TODO o acabamento interno. Pneu = ANEL (annulus).
+  ESTADO: v022 | L=2,350/W=1,441/H=1,252 (exatos) | perfil 0,042 m | vazio 0,138 | contato 14/14 | SCORE 0,180
+    vision 3,0 (confirmou os 3 fixes: "as rodas mostram aro/cubo: SIM", "o piloto olha para frente: SIM",
+    "o bumper tem curva em planta: SIM") mas nota estagnada em 3,0: "muito simplificado, poucos detalhes"
