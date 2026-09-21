@@ -10147,3 +10147,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     de build. Patch por str.replace em script que ja passou por dezenas de replaces deixa de ser
     confiavel — reescrever do zero.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v019: INVESTIGACAO DO RIM — A MALHA JA E FECHADA (0 arestas de borda aberta) *** ***
+  ###RIM### arestas de borda abertas no cockpit (z>0,42): 0
+  ⟹ os meus aneis sao LOOPS FECHADOS de 32 pontos, entao o cockpit NAO e um recorte com borda livre:
+    a sequencia rim -> parede -> assoalho e geometria INTERNA do proprio anel.
+  ⟹ CONSEQUENCIA PARA O DIAGNOSTICO DO VISION: os '4 pingos' e os 'tris esticados' NAO vem de
+    borda aberta (nao ha borda). Vem da TRANSICAO INTERNA rim->parede->assoalho dentro do anel —
+    os pontos de rim (3) e as bordas interna/parede (7) tem passos muito diferentes, e o Subsurf
+    interpola entre eles gerando as dobras.
+  CORRECAO APLICADA: MIRROR com CLIPPING e merge_threshold 0,001 (mata a cicatriz do eixo) +
+    remove_doubles/recalc no fim do build.
+  REGRA 163: 'refazer o rim com loop fechado' quando a malha JA e fechada significa REFAZER A
+    TRANSICAO INTERNA (rim->parede->assoalho), nao procurar borda aberta. Investigar o topologia
+    REAL antes de aplicar a receita literal.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
