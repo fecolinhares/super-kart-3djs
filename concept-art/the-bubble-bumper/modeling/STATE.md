@@ -7573,3 +7573,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
       NAO para geometria. Pendente: validar o crop/alinhamento do TOP.
   ══ MELHOR ESTADO: B048 — FRONT 6,21%% | SIDE 3,35%% ✓ | REAR 4,79%% ✓ | TOP 5,26%% (extremo, sob suspeita)
      SIDE e REAR dentro do alvo do Sol (<=5%%); FRONT e TOP com causa diagnosticada.
+
+
+## B050: MELHOR QUADRO DA SERIE — TOP 2,92%% e FRONT 5,87%% ***
+  Causa do TOP nomeada e corrigida: no TOP, a 1-2%% do comprimento (ponta dianteira) o concept tem largura
+  0,36-0,43 e o modelo 0,21-0,29 ⟹ a PONTA DIANTEIRA era estreita demais. W/H do TOP: concept 1,647 vs
+  modelo 1,553 (5,7%% estreito).
+  [B050] bumper frontal alargado (major 0,52 -> 0,66):
+    FRONT 6,21%% -> 5,87%% ✓ (melhor FRONT da serie, abaixo de 6%%)
+    TOP   5,26%% -> 2,92%% ✓✓✓ (melhor TOP da serie; o erro caiu 45%%)
+    REAR  4,79%% -> 4,75%% ✓
+    SIDE  3,35%% -> 5,05%% ✗ (regressao)
+  [B051] compromisso (0,62): FRONT 5,97%% | SIDE 5,05%% (NAO recuperou) | REAR 4,72%% | TOP 4,02%%
+    ⟹ a regressao do SIDE NAO vem da largura do bumper (0,62 e 0,66 dao o mesmo 5,05%%). Investigar depois.
+  ══ MELHOR ESTADO: B050 — FRONT 5,87%% | TOP 2,92%% ✓ | REAR 4,75%% ✓ | SIDE 5,05%% (leve)
+     TRES das quatro vistas em <=5,87%% e DUAS dentro do alvo do Sol (TOP e REAR).
+  REGRA 40: quando duas tentativas vizinhas dao o MESMO numero numa vista, o parametro nao e o owner daquela
+    vista — parar de mexer nele e procurar o owner real (evita o ciclo de ajuste inutil).
