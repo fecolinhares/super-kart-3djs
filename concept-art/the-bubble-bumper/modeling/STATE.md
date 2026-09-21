@@ -9755,3 +9755,31 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
       ('numero em vertice nao e prova visual').
   CHECK DE SINAL (regra 143): pixels do objeto 17,0%% (antes: 0,0%% = imagem vazia).
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v004 = 3,1 (de 2,9) — E O DEFEITO QUE EU NAO VI: O CORTE MOSTRA SOLIDO, NAO CASCA *** ***
+  (1) 'O corte prova uma DEPRESSAO, nao uma BANHEIRA. Um corte de casca deveria mostrar DUAS LINHAS
+    FINAS - fundo externo + assoalho interno + a ESPESSURA DA PAREDE. O que voce mostra e um SOLIDO
+    BRANCO CHAPADO, provavelmente CAPPED. Isso esconde a espessura e sugere que e SOLIDO, nao tubo oco.'
+    ⟹ meu bisect deixou a secao TAMPADA — mesma familia do 'cockpit tampado', agora na prova.
+  (2) wire: 'SIM, mas mal' — ilegivel como engenharia (sem numeros, sem posicao em X, clusters de
+    suporte mascarando as estacoes principais)
+  (3) NOTAS: FRONT 2,5 (era 2) | SIDE 4,0 (era 3) | REAR 1,0 (era 2 — REGRESSAO: render PRETO) |
+    TOP 5,0 (era 4,5) | GLOBAL 3,1 (de 2,9). +0,2 pelo wire + normais.
+  (4) FALTA:
+    1. CREASE 1.0 -> RAIO REAL: 2-3 loops espacados + crease 0,5-0,7 ou bevel. 'Crease 1.0 e MARTELO
+       - criou aresta viva e PINCH especular no TOP. Rim de kart precisa de RAIO PEQUENO, nao lamina.'
+    2. Refazer a topologia do NARIZ (tem tri/polo central; edge-flow longitudinal limpo)
+    3. '130 faces e POUCO para segurar curvatura + rim' — subdividir o cage nas duas direcoes
+    4. Re-render REAR/FRONT com exposicao correta
+    5. PROVAR CASCA OCA: cortes transversais cotados (parede externa/interna/espessura) + manifold
+    6. PROVAR PROPORCAO: overlay TOP tub vs concept — 'seu tub e TUBO CONSTANTE, o concept e CINTURADO'
+    7. Corte longitudinal em ALTA com 10 faixas desenhadas e numeradas, cotas visiveis
+  RECONHECIDO COMO GANHO: 'WIRE: corrigido sim' | 'NORMAIS: avanco real' | 'Loops+crease: segurou o
+    rim para o SubD nao derreter'
+  REGRA 144: corte de prova em casca deve mostrar PAREDE DUPLA (externa + interna + espessura).
+    Bisect com secao tampada esconde a espessura e faz a casca parecer solida — remover as faces do
+    plano de corte ou usar Solidify visivel.
+  REGRA 145: CREASE 1.0 e martelo — cria aresta viva e PINCH especular. Preferir 2-3 LOOPS DE SUPORTE
+    espacados + crease 0,5-0,7 (ou bevel) para raio pequeno e controlado.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
