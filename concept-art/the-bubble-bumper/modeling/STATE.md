@@ -10529,3 +10529,27 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 185: bordas orfas resistentes a holes_fill sao DEGENERADOS MINUSCULOS — localizar por
     COORDENADA (como aqui: 3 verts num raio de 5 mm) e o caminho, nao insistir no fill.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v035 = 5,7 — NOVO RECORDE; FRONT 8,5 E SIDE 8,0 (PERTO DO CONCEPT) *** ***
+  (3) FRONT 8,5 | SIDE 8,0 | REAR 3,0 | TOP 3,5 | ZOOM 3,0   GLOBAL 5,7 (de 5,4)
+    'Voce ganhou +2,0 em SAUDE/INTEGRIDADE — cage fechado, metade do peso, zero-area=0 e otimo — mas
+    +0,0 em shading do cockpit. Saiu de BLOCKOUT QUEBRADO para BLOCKOUT SOLIDO COM DEFEITO LOCALIZADO.'
+    'Vista SIDE 8,0 — perfil bate 95%% com o concept. Liso, crease correta.'
+    'Vista FRONT 8,5 — silhueta, simetria, shading liso.'
+  ELOGIO: 'voce fez o diagnostico certo e a cirurgia certa — tirar Solidify duplo e matar o
+    micro-triangulo foi BRILHANTE. Mas isso so LIMPOU O TERRENO. A casa — o cockpit — continua com
+    fundacao em leque.'
+  (1) 'A estrela do bico e os 4 pingos mudaram? NAO. Zero. Porque A CAUSA NUNCA FOI O SOLIDIFY NEM O
+    MICRO-TRIANGULO: o FECHAMENTO foi feito com um FAN DE NGON com valencia 12-20+ convergindo num
+    ponto. FECHAR BURACO != RESOLVER POLO.'
+  (4) 'O cockpit PASSA? NAO. Falta RETOPOLOGIA, nao polimento. Serve so para validar proporcao.'
+    Receita: 1) DISSOLVER o fan (a estrela do bico e os 4 leques) — nao adianta merge a 0,01;
+    2) RECONSTRUIR a boca com 2 EDGE LOOPS PARALELOS (outer + inner wall, como pista de corrida);
+    3) nenhum vertice da boca com valencia >5 (polos de 8+ vao para area PLANA);
+    4) 2 loops de CONTENCAO manuais na borda para segurar o Subsurf sem Bevel;
+    5) zerar os 34 non-manifold (Select All by Trait > Non Manifold).
+  REGRA 186: FECHAR BURACO != RESOLVER POLO — o holes_fill fechou com um leque N-gon de valencia 20+
+    e e EXATAMENTE esse leque que o Subsurf puxa para dentro produzindo a estrela preta. A cura era
+    RECONSTRUIR a boca com loops, nao tapa-la.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
