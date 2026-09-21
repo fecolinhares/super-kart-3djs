@@ -9891,3 +9891,29 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
       (nao mais retangulo de cantos a 90).
   249 verts / 249 faces (cage).
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v007 = 3,5 (de 3,0) — MELHOR PLACAR AUTORAL. TAPER NAO E FILLET *** ***
+  (1) 'O raio aparece agora? Aparece TIMIDAMENTE. Pela PRIMEIRA VEZ ha um highlight continuo ao
+    redor do coaming, sem a linha preta congelada do crease 0,35.'
+    MAS: '51 mm medido por Kasa NAO e um fillet modelado - e o raio APARENTE gerado por Bevel 25mm
+    + smoothing do Subdiv. No SHADED TOP le-se como 2-3 pixels.'
+    E O ALVO: '51 mm nao e demais, e DE MENOS. Abertura de ~600 mm com 51 mm de canto continua
+    parecendo RETANGULO DE ENGENHARIA. O conceito pede STADIUM/BANHEIRA: raio 120-180 mm nos cantos,
+    com as bordas dianteira/traseira TOTALMENTE CURVAS em planta.'
+  (2) 'Os cantos em PLANTA arredondaram? NAO. O que voce fez foi TAPER EM Y, NAO FILLET. Taper +
+    bevel pequeno da QUINA VIVA CHANFRADA vista de cima. Para arredondar em planta precisa
+    REDESENHAR A LOOP INTERNA COMO SPLINE COM CURVA, nao so mover verts em Y em 3 estacoes.'
+  (3) 'FRONT/REAR ainda facetados? SIM, brutalmente. Tirar crease nao adiantou porque o CAGE NAO TEM
+    RESOLUCAO LONGITUDINAL para segurar a curvatura. Bevel de 4 segmentos arredonda a arestinha,
+    nao apaga a FACETA DE 200 MM entre loops.'
+  (4) FRONT 3,2 | SIDE 3,8 | REAR 3,0 | TOP 4,0 | WIRE 3,5 | GLOBAL 3,5 (de 3,0)
+  (5) 'REPROVADO. Ainda falta.' (a) fillet em planta DE VERDADE: canto como ARCO com 10+ verts NO
+    CAGE (nao no avaliado), alvo >100 mm; (b) matar a faceta: DOBRAR os loops longitudinais,
+    checar normals, shade smooth; (c) borda dianteira/traseira do cockpit CURVA em planta.
+  RECONHECIDO: 'Reconheco as 4 exigencias executadas, e MEDIR NO AVALIADO FOI CERTO.'
+  REGRA 150: TAPER != FILLET. Estreitar a abertura nao arredonda o canto — o canto em PLANTA precisa
+    de ARCO com 10+ vertices NO CAGE (spline, com tangencia). Alvo 120-180 mm para leitura cartoon.
+  REGRA 151: FACETA que sobrevive ao SubD e falta de RESOLUCAO LONGITUDINAL no cage — bevel de aresta
+    nao resolve. Dobrar os loops ao longo de X antes de qualquer ajuste fino.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
