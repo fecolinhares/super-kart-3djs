@@ -9457,3 +9457,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     FLUTUANTES=0 (regra 125). As duas sao CONTAGENS verificaveis, sem juizo estetico.
   ESTADO: MELHOR VISION B132 = 2,3 | B152 = 1,55. CONTRATO/base 2,366 x 1,441 x 1,260 ✓.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** CAUSA RAIZ ENCONTRADA PELO GATE DE CONTATO: OS PONTOES (SP_L/SP_R) ESTAO VAZIOS NO ARQUIVO *** ***
+  ###VAZIOS### ['SP_L','SP_R']  ⟹ 0 VERTICES. As malhas dos pontões nao existem no .blend salvo.
+  CONTEXTO: por 15+ builds eu reportei 'SP_L faces=266 / SPM_L faces=320' como prova de modelagem
+    organica (loop cuts + barriga + bevel + inset com parede, regra 114). ESSES NUMEROS ERAM DA SESSAO
+    DE BUILD EM MEMORIA — o arquivo SALVO tem malha VAZIA. O vision reprovou o sidepod em 5+ avaliacoes
+    ('ovais sem suporte', 'charuto com vao embaixo', 'luz passa embaixo', 'ovais isolados', 'sidepods
+    destacados no TOP') e ele estava vendo a VERDADE: o pod nao existe no que foi renderizado.
+  QUEM ACHOU: gate_contato.py (BVHTree.overlap) — em 1,5 s, ao reportar SP_L x C_Floor = FLUTUA. O
+    instrumento que o vision EXIGIU pegou o que 15 builds de inspecao visual nao pegaram.
+  ⟹ REGRA 130: NUNCA reportar contagem de faces/dimensao da SESSAO DE BUILD. Medir SEMPRE no ARQUIVO
+    SALVO (reabrir o .blend). Um objeto vazio passa por qualquer verificacao que so le o nome.
+  ⟹ REGRA 131: contagem de faces NAO prova geometria — pode provar apenas que o build rodou. Medir o
+    salvo, sempre (irma da regra 114, que ela corrige).
+  ⟹ REGRA 132: o gate de contato (overlap==0) e um DETECTOR DE MALHA AUSENTE/VAZIA, nao so de vao.
+    Rodar SEMPRE antes de renderizar: 1,5 s de custo contra 15 builds de engano.
+  AÇÃO IMEDIATA: reconstruir SP_L/SP_R como SOLIDOS FECHADOS e re-medir no arquivo salvo.
+  ESTADO: MELHOR VISION B132 = 2,3 | B152 = 1,55. CONTRATO/base 2,366 x 1,441 x 1,260 ✓.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
