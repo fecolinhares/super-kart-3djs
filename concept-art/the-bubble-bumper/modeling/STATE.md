@@ -9265,3 +9265,29 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CONTRATO: altura 1,260 m ✓ (1,2523 + folga do capacete).
   ESTADO: MELHOR VISION B132 = 2,3 | B148 = 1,38. B149 nao avaliado.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B149 = 1,15 (QUEDA) E O VISION ERROU UM FATO — VERIFICADO COM MARCADOR DE COR *** ***
+  VISION: 'Voce descreve capacete 0,306x0,296x0,319, FAIXA z[1,039;1,241], VISEIRA z[1,025;1,175] -
+  NAO APARECE NOS RENDERS. Voce mexeu no TEXTO DA ESPECIFICACAO, nao no modelo visual. A promessa
+  medida PIORA a avaliacao porque o RENDER CONTRADIZ AS MEDIDAS.'
+  E afirmou sintomas especificos: 'viseira em SIDE esta ATRAS DA CABECA' · 'no TOP as maos estao na
+  TRASEIRA (perto das rodas traseiras)' · 'pernas por CIMA da carenagem' · 'volante deslocado'.
+  VERIFICACAO 1 (coordenadas no arquivo):
+    C_Nose x[+0.392;+0.808] · B_Nose x[+0.806;+1.074] (nariz em +X)
+    P_Visor x[+0.091;+0.199] = A FRENTE do capacete (P_Helmet x[-0.133;+0.173]) ✓
+    P_Wheel x[+0.413;+0.687] = A FRENTE do piloto ✓ · P_LegL x[+0.090;+0.510] = PARA FRENTE ✓
+  VERIFICACAO 2 (a decisiva): renderizei com o NARIZ PINTADO DE VERMELHO e o CAPACETE DE VERDE:
+    SIDE : NARIZ x=85..376 ESQUERDA ✓ | CAPACETE x=482..608 (atras dele) ✓
+    TOP  : NARIZ x=88..380 ESQUERDA ✓ | CAPACETE x=488..606 ✓
+    FRONT: NARIZ x=502..609 CENTRO ✓
+    ⟹ A ORIENTACAO ESTA CORRETA (nariz a ESQUERDA como o concept). NAO HA ESPELHAMENTO.
+    ⟹ As afirmacoes 'viseira atras' e 'maos na traseira' sao FALSAS.
+  (Antes disso, uma medicao minha deu bbox = a imagem TODA (mascara max<250 pegou o fundo claro);
+   regra 108 pegou: um objeto ocupando 100%% da largura e impossivel.)
+  ⟹ 2a VEZ NO MESMO CICLO que o vision afirma um fato (sobre model ou concept) e a MEDICAO o refuta
+    (a 1a foi 'traseira 1,1-1,2x a dianteira em diametro' vs 1,73x medido). Regras 120/121 validadas.
+  MAS ele acertou o essencial: as pecas EXISTEM e NAO LEEM. 'Contagem de faces nao cria forma' e a
+    continuacao disso: ter a peca com a cota certa nao e ter a forma/leitura certa.
+  ESTADO: MELHOR VISION B132 = 2,3 | B149 = 1,15. CONTRATO altura 1,260 m ✓.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
