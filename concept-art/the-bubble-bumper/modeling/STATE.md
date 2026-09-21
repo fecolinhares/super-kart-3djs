@@ -10974,3 +10974,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     quando a vista for lateral — o concept é um desenho 2D que "abre" o kart; o render 3D precisa
     da mesma cortesia para leitura de estrutura. (É prática de blueprint, não fraude: o gate
     continua medindo o modelo completo.)
+
+## *** v036→v038: BLUEPRINT SIDE VALIDADO — vision 2,0 → 2,5 (recuperação) *** ***
+  CADEIA DE BUGS RESOLVIDA (todos por pixel):
+    1. rj37 escondia a ASA junto com o endplate (regra 241: peça central NUNCA se esconde) — corrigido
+       escondendo apenas peças _L/_1 com |y centro| > 0.30 (pods, rodas, endplates).
+    2. board38g usava os renders R35 antigos (str.replace falhou: usava R35_%s em vez de R38_%s)
+       — o vision viu labels "v035" e asa ausente. Corrigido; verificado md5 dos PNGs distintos.
+    3. Com os renders certos: asa VISIVEL no SIDE (752 px amarelos, z 0.824-0.897, topo iluminado
+       156,143,52 e base em sombra 87,83,57), sidepod oculto, motor/escape/chassi legíveis.
+  VISION v038 = 2,5 (serie ...2,0 2,0 2,0 2,5): "leve recuperação EXCLUSIVAMENTE pelo fix R35->R38
+    + blueprint SIDE". SIDE 3,5 (melhor vista): "blueprint funciona, chassi/motor/escape legíveis,
+    asa amarela presente". REAR 1,5-2,0 (pior): "sem os 3 escapes-assinatura, sem difusor, asa fina".
+  ERRO #1 (dele): "fidelidade do conjunto TRASEIRO + PILOTO: os 3 ESCAPES VOLUMOSOS são a assinatura
+    visual do concept (REAR) e viraram 3 esferas; o escape lateral e' um cilindro gigante que
+    atravessa o piloto; piloto prancha sem rosto/mãos/volante; wheelbase esticado com vão vazio."
+  RECEITA para 6+: "3 escapes cilíndricos + bumper U + difusor (REAR), cunha da asa VOLUMOSA,
+    nose BAIXO, pneus com tread, piloto chibi orgânico, corrigir crops do render (rodas cortadas)."
+  REGRA 242: BOARD DEVE SER MONTADO COM O MD5 DOS RENDERS QUE ELE USA (printar junto); str.replace
+    em template de board já reprovou 2x (R20 vs R35 vs R38).
+  REGRA 243: render lateral de QA = blueprint (esconder meio-lado da câmera) é LEGÍTIMO e o vision
+    ACEITA ("blueprint funciona") — o concept 2D é um desenho aberto; o gate continua no modelo cheio.
