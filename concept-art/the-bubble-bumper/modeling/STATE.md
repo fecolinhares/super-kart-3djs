@@ -10820,3 +10820,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   LICAO: o loft autoral por estacoes medidas + secao supereliptica e O CAMINHO — transformou a pior
     zona na melhor vista (SIDE 4,5). Aplicar o mesmo metodo em: sidepods (tabua -> forma de gota
     tridimensional), prancha do bumper (tabua -> U com curvatura), e roda traseira (escala).
+
+## *** v023→v026: LOFT AUTORAL FUNCIONA (3,4) / TRAVA MAL APLICADA (3,2) / TUBO EM ARCO (3,5) *** ***
+  METODO VALIDADO: cowl por loft de estacoes medidas + superelipse -> vision 3,4 e PRIMEIRA zona
+  aprovada ("NAO e caixa, a elipse esta funcionando"). Aplicar em toda zona.
+  v024 (pods em gota): vision 3,6 — "SIM NA FORMA, NAO NA ESCALA. 2x mais largos/altos.
+    Erro #1: FALTA DE CONTROLE DIMENSIONAL."
+  v025 (trava no papel): vision 3,2 — CAIU. A trava de largura/topo do pod era NUMERO, mas o bevel
+    de 3 cm em 23 caixas F_U* EXPANDIA cada caixa -> a "prancha" virou LAJE ainda maior. Regra 224:
+    trava dimensional precisa ser verificada NO RENDER/mesh, nao no parametro.
+  v026 (tubo em arco r=0.045, raio 0.50): vision 3,5 — "SIM fino, NAO mais laje. Mas NAO le C:
+    le BARRA RETA. Curvatura r=0.50 invisivel." + "pads = bolas soltas com vão".
+  ERRO #1 DO AUDITOR AGORA: "INVERSAO DE ESCALA: roda traseira PAREDE / dianteira RODINHA +
+    piloto POSTE DE BONECO DE NEVE + sidepods SALSICHA. Mata o kart baixo e largo."
+  MEDIÇÕES QUE FALTAM (proximas): razao de diametros das rodas no concept (SIDE: ele diz
+    "dianteira ~80% da traseira" — eu tenho 0.28/0.41 = 68%; e as POSIÇOES: roda dianteira
+    "bem avancada, exposta"), altura do piloto sentado (concept: "sentado BAIXO"), perfil do nariz
+    (concept: "baixo, fino, quase no chao" vs meu torpedo alto).
+  SCORE 3 eixos: v026 perfil 0,033 | vazio 0,172 | contato 14/14 | SCORE 0,205.
