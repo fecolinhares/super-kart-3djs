@@ -8778,3 +8778,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     mas agora com a explicacao correta do porque o calculo direto falhava.
   ESTADO: contorno FRONT 7,15 | SIDE 3,18 | REAR 8,80 | TOP 3,10 | altura 1,253 ✓ | MELHOR POR VISION
     B103 (2,75); B121 = 2,1. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B122-B123: PONTAO VIRA CAPSULA ALTA (0,90 m) E RODAS COM LARGURAS DISTINTAS *** ***
+  [B122] PONTAO: box -> capsula("SP_", -0.86, 0.04, sy*0.44, 0.40, 0.185) = capsula arredondada em X
+    (prescricao do vision: 'capsula arredondada alta na linha do assento').
+    MEDIDO: SP_L dim(0,37x0,37x0,72) z[-0,050;0,665] — afundava 5 cm ✗
+    RODAS: dianteiras com largura 0,15 e traseiras 0,24 (larguras distintas, antes iguais)
+    MEDIDO: W_FL 0,24x0,14x0,24 z[0,015;0,250] | W_RL 0,28x0,22x0,28 z[0,018;0,298]
+  [B123] ITERACAO (regra 95: medir->corrigir->medir): pontao +5 cm e rodas -6,7%% no raio
+    MEDIDO FINAL: SP_L dim(0,37x0,37x0,90) z[0,005;0,905] ✓✓ (capsula ALTA 0,90 m ACIMA do chao)
+      W_FL 0,22x0,14x0,22 z[0,014;0,233] | W_RL 0,26x0,22x0,26 z[0,017;0,278]
+      ⟹ as rodas AINDA pairam 14-17 mm ✗ (o fator 0,933 nao bastou; precisa 1-2 iteracoes mais)
+    CONTORNO MELHOROU: FRONT 7,15 -> 6,07%% ✓ | SIDE 3,48 | REAR 8,80 -> 8,04%% ✓ | TOP 3,20 ✓
+  REGRA 96: o SubD encolhe cilindros de forma diferente de caixas (o cilindro encolhe pelo RAIO de forma
+    nao uniforme com o eixo) — o fator 0,84 medido em CAIXA nao se aplica a CILINDRO. Medir por classe
+    de forma, nao usar um fator unico (a mesma licao da regra 95, um nivel mais preciso).
+  ESTADO: MELHOR POR VISION B103 (2,75); B121 = 2,1. B123 nao avaliado por vision.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
