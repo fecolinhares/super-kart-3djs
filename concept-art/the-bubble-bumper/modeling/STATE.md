@@ -10325,3 +10325,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     modelar a espessura/raio na propria geometria, ou aceitar bevel so com clamp_overlap e geometria
     propria. Medir a cadeia no AVALIADO antes de adotar.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v025 (CADEIA SEM BEVEL): AVALIADO 10x MAIS LIMPO — boundary=0 *** ***
+                      v024 (com Bevel)  ->  v025 (sem Bevel)
+    boundary                   10        ->    0      ✓✓
+    NON-MANIFOLD              961        ->  552      ✓ (43%% menos)
+    ZERO-AREA                2709        ->    1      ✓✓
+    quase-zero              12637        ->  141      ✓✓ (90x)
+    doubles                 63217        -> 4339      ✓✓ (15x)
+    FACES-FIO               56428        -> 5700      ✓✓ (10x)
+  cadeia: [MIRROR, SUBSURF, SOLIDIFY, WEIGHTED_NORMAL] com assert | 2192 cage -> 34302 avaliado
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
