@@ -9712,3 +9712,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     bpy.ops.render.opengl(write_still=True) ou Wireframe modifier. Declarar 'wire' sem wire =
     evidencia falsa.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** A HIPOTESE DO VISION CONFIRMADA: NORMais INVERTIDAS (33 faces) + WIRE MODIFIER *** ***
+  ###NORMAL### faces com normal para DENTRO no lado y+: 33 (esperado ~0) ✗
+  ⟹ o vision havia dito: 'as duas paredes tem o MESMO cinza; isso denuncia ou rampa suave, ou face
+    tampando, ou NORMAL INVERTIDA'. Era NORMAL INVERTIDA — 33 faces. Ele acertou a causa por leitura
+    de render, sem ver o arquivo.
+  CORRECAO: bmesh.ops.recalc_face_normals + re-medicao no arquivo.
+  REGRA 142b: render.opengl NAO funciona em background ('Cannot use OpenGL render in background mode')
+    ⟹ para WIRE em render headless usar WIREFRAME MODIFIER (thickness ~0,0035, use_replace=False).
+  LOOPS DE SUPORTE (regra 141): estacoes extra coladas nos rims dianteiro/traseiro da abertura +
+    CREASE 1.0 em 21 arestas de rim ⟹ a borda sobrevive ao SubD. tub v004: 136 verts / 130 faces.
+  CORTE LONGITUDINAL: bisect em y=0 + camera ortografica no plano XZ ⟹ mostra o perfil descendo
+    (prova que o vision exigiu, em vez de 'numero em vertice nao e prova visual').
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
