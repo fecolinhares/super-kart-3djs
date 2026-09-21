@@ -7892,3 +7892,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     alvos reais — e NAO os dois que meu gate inventou.
   ESTADO: contorno APROVADO (4 vistas <=5%%) | vision 1,0/10 (alvos reais: piloto, conexao, legibilidade
     funcional) | gate estrutural: PRECISA DE CALIBRACAO antes de ser usado para reprovar.
+
+
+## *** REGRA 55 (A MAIS IMPORTANTE): O MARCO DAS 4 VISTAS <=5%% ERA OVERFITTING *** ***
+  MEDICAO QUE ORIGINOU (feita no concept, nao no modelo):
+    azul (capacete+macacao) no concept: SIDE de 17,4%% a 79,4%% da altura (62,0%%); FRONT de 15,4%% a 78,9%% (63,4%%)
+    ⟹ os primeiros 15-17%% da altura NAO sao azuis → ha um elemento ACIMA do capacete = a ASA TRASEIRA.
+    ⟹ o topo do capacete do concept fica em ~1,04 m.
+  [B074] aplicou a verdade estrutural: cabeca topo 1,26 -> 1,03 m; asa 0,62-0,78 -> 1,03-1,20 (ACIMA da cabeca).
+    VERIFICADO: P_Head z[0,73,1,03] | R_Wing z[1,04,1,19] | azul de 13,5%% a 88,3%% (concept 15,4%%-78,9%%) — o inicio
+    do azul CASOU.
+    E o CONTORNO DESABOU: FRONT 4,97 -> 9,92%% | SIDE 3,05 -> 6,21%% | REAR 4,01 -> 6,79%%
+  ⟹ CONCLUSAO: o marco de 4 vistas <=5%% (B072) NAO era fidelidade — era OVERFITTING. A metrica de contorno
+    estava COMPENSANDO o erro estrutural (asa no lugar errado) e por isso 'melhorava' com a estrutura errada.
+  REGRA 55: uma metrica otimizada ANTES de a estrutura estar correta ENTRENCHA o erro estrutural. Se corrigir
+    a estrutura PIORA a metrica, a metrica estava medindo fidelidade a pose errada e o numero anterior e
+    INVALIDO como evidencia (nao como dado).
+  CONSEQUENCIA METODOLOGICA: a ordem correta e ESTRUTURA PRIMEIRO, depois contorno sobre a estrutura certa.
+    Foi o que o Sol disse no reboot (ordem de dependencias invertida) e eu repeti o erro em escala menor.
+  ESTADO: B074 e ESTRUTURALMENTE mais fiel (asa acima do capacete, azul alinhado) e metricamente pior.
+    O baseline METRICO (B072) deve ser DESCARTADO como referencia de fidelidade.
