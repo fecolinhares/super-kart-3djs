@@ -10838,3 +10838,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     "bem avancada, exposta"), altura do piloto sentado (concept: "sentado BAIXO"), perfil do nariz
     (concept: "baixo, fino, quase no chao" vs meu torpedo alto).
   SCORE 3 eixos: v026 perfil 0,033 | vazio 0,172 | contato 14/14 | SCORE 0,205.
+
+## *** v027: INVERSAO DE ESCALA CORRIGIDA POR MEDICAO — vision 3,8 (recorde) *** ***
+  MEDIÇÕES NOVAS (ajuste de circulo no SIDE, mask lum<60 tocando o chao):
+    d_front=0.266 m (x=+0.602) | d_rear=0.330 (x=-0.818) | wheelbase=1.420 | RAZAO 83%%
+    (o auditor tinha dito "~80%" — confirmado por medicao)
+  CORRIGIDO: rodas 83%% | nariz ACHATADO (ponta z 0.155..0.270 -> 0.095..0.185) | torso alargado
+  VISION v027 = 3,8/10 (serie 3,4 -> 3,6 -> 3,2 -> 3,5 -> 3,8):
+    (1) rodas: "diametro no SIDE MELHOROU" (+0,8 por "diametro ~80%% e nariz no chao")
+    (2) nariz: "SIM NA ALTURA" — mas virou "agulha de F1 longa e estreita com overhang enorme;
+        concept e' curto, largo, rombo em U logo a frente da roda. Acertou Z, errou XY"
+    (3) piloto: "NAO. ZERO. Continua poste/girafa/periscopio" — coluna vertical, pesco comprido
+  ERRO #1 AGORA: PILOTO-TORRE. "Baixar capacete ~0,30 m, RECLINAR TRONCO ~45 graus, alargar ombros,
+    trazer para tras do volante" + #2: rodas traseiras em BLOCO (fazer toroide) + nariz LANCa (curto/rombo).
+  SCORE 3 EIXOS: perfil 0,033 | vazio 0,219 | contato 14/14 | SCORE 0,252 (o vazio PIOROU porque as
+    pecas agora maiores ocupam mais — conflito instrumento x auditor ja documentado)
+  CONFLITO DO GATE: o eixo VAZIO penaliza o progresso (rodas maiores = menos vazio). O auditor manda
+    ALARGAR; o gate manda AFINAR. RESOLUCAO: o vazio por estacao e' o que vale (deficit local), nao a media.
