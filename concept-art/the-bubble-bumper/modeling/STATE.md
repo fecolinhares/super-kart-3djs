@@ -8916,3 +8916,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
       (modelo simetrico frente-tras)
   ESTADO: MELHOR POR VISION B103 (2,75); B129 = 2,15. AUDITOR e PRANCHA suspensos.
     OBJETIVO NAO ATINGIDO.
+
+
+## *** RAÍZ ENCONTRADA: O HELPER capsula() ESTAVA QUEBRADO (cilindro SEM rotacao = corpo VERTICAL) *** ***
+  O vision reportou 'cilindro azul vertical no SIDE, no meio do kart: invencao total. Parece PERNA EM PE no
+  meio do chassi' em TRES avaliacoes. Eu atribui a design. ERA BUG:
+    def capsula(n,x0,x1,y,z,r):
+        # 'capsula orientada em X'
+        primitive_cylinder_add(radius=r, depth=L-2r, location=(cx,y,z))   <- SEM ROTACAO
+        primitive_uv_sphere_add(..., location=(cx+L/2-r, y, z))            <- esferas em X
+    ⟹ primitive_cylinder_add cria o cilindro com EIXO EM Z (em pe). O helper posicionava as esferas em X
+      mas NUNCA girava o cilindro -> o CORPO de toda 'capsula' era um cilindro VERTICAL.
+    ⟹ É a raiz de: pontao de 90 cm (era o comprimento virado altura), 'pernas' em pe, o 'cilindro azul
+      vertical' que o vision viu 3x, e parte da simetria/estranheza geral.
+  FIX: rot=(0, radians(90), 0) no primitive_cylinder_add (cilindro deitado em X).
+  VERIFICADO: SP_L dim(0,61x0,28x0,29) z[0,040;0,326] -> CAPSULA DEITADA de 29 cm de altura ✓✓
+    (o concept: ~25 cm, ate o joelho — o vision descreveu exatamente isso).
+  REGRA 105: helper com comentario que promete uma orientacao ('orientada em X') precisa de TESTE DE
+    ORIENTACAO — medir a dimensao no eixo PROMETIDO, nao no eixo que o objeto assumiu. Eu construi ~10
+    pecas com capsula() e todas tinham o corpo em pe desde o inicio do reboot.
+  REGRA 106: quando o vision reporta o MESMO artefato 3+ vezes e eu o justifico como 'design', parar e
+    MEDIR o codigo que o produz. O vision nao erra o sintoma; eu errei a atribuicao 3 vezes.
