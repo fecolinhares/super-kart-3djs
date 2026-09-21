@@ -8019,3 +8019,31 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ESTADO (B082): FRONT 10,06 (p95 36,9) | SIDE 4,81 ✓ | REAR 6,01 ✓ | TOP 6,33 ✗
     comprimento 2,306 m (-1,9%% do contrato) ✓ | asa acima do capacete ✓ | cor do piloto ✓
     PENDENTE: devolver largura ao TOP sem devolver comprimento ao veiculo (sidepods/carroceria na estacao).
+
+
+## *** B083: PERFIL DO TOP POR ESTACAO — O DEFEITO ESTA NA METADE TRASEIRA *** ***
+  Metodo: largura normalizada por estacao do COMPRIMENTO (frente=0%%, traseira=100%%) na mascara do TOP.
+  estacao  concept  modelo   dif
+     0%%     0,073    0,038   -0,035
+     8%%     0,739    0,290   -0,448   (frente estreita)
+    16%%     0,606    0,895   +0,288   (e logo depois larga demais)
+    24%%     0,949    1,000   +0,051   ✓
+    32%%     0,868    0,913   +0,045   ✓
+    40%%     0,852    0,774   -0,077   ✓
+    48%%     0,922    0,756   -0,165
+    56%%     0,946    0,702   -0,244
+    64%%     0,949    0,317   -0,631   ✗✗ MEIO-TRASEIRO quase vazio
+    72%%     0,987    0,498   -0,489   ✗✗
+    80%%     1,000    0,805   -0,195
+    88%%     0,927    0,805   -0,123
+    96%%     0,666    0,086   -0,580   ✗✗ TRASEIRA quase vazia (so o poste da asa)
+  ⟹ O modelo esta CERTO do 24%% ao 40%% e VAZIO do 64%% ao 96%%: falta massa na metade traseira
+    (carenagem traseira, bumper traseiro largo, asa com envergadura, difusor).
+  ⟹ E o achado reconcilia o B082: o bumper frontal que estreitei era o '8%%' (0,44 de falta) — o concept TEM
+    bumper frontal largo (0,739 norm = 0,92 m). Logo o B082 estreitou DEMAIS (0,74 m) — mas o ganho de
+    comprimento (+8,3%% -> -1,9%%) era real. O caminho e bumper largo E curto, nao estreito.
+  REGRA 61: perfil por ESTACAO do comprimento e o complemento do perfil por faixa de ALTURA. Um cobre o eixo
+    vertical (onde a massa esta na altura), o outro o eixo longitudinal (onde a massa esta no comprimento).
+    Os dois juntos nomeiam a peca; so altura nao acha defeito de distribuicao longitudinal (e vice-versa).
+  PENDENTE: encher a metade traseira (64-96%%) com bumper traseiro largo+curto, asa com envergadura real
+    (concept 0,666 norm na traseira) e carenagem — e manter o comprimento em ~2,35 m.
