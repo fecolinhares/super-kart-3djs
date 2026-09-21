@@ -10215,3 +10215,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 166: todo build passa por gate_sanidade.py ANTES do render. 'LIMPO OK' e o unico estado
     aceitavel para apresentar como evidencia.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v023: MALHA QUASE LIMPA (6 bordas resistentes; resto ZERO) *** ***
+                      v020 (antes)  ->  v023 (agora)
+    boundary(abertas)      85        ->    6      (resistente a 4 iteracoes de holes_fill)
+    NON-MANIFOLD            0        ->    0      ✓
+    faces ZERO-AREA        24        ->    0      ✓
+    quase-zero             33        ->    0      ✓
+    doubles(<3mm)          84        ->    0      ✓
+    quads/tris/ngons    2295/17/1    -> 2214/21/4  (99,7%% quads)
+  ⟹ as 6 bordas NAO formam loop simples (sobraram da remocao das faces duplicadas) e o holes_fill
+    nao as fecha. Defeito LOCALIZADO, nao estrutural.
+  REGRA 167: holes_fill nao fecha arestas que nao formam loop simples (bordas orfas de faces
+    deletadas). Diagnosticar a ORIGEM (qual face foi removida) antes de tentar preencher.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
