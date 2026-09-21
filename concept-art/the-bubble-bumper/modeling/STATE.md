@@ -10274,3 +10274,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   O QUE FALTA PARA O OBJETIVO: rim do cockpit em loop fechado (4 pingos/flap + 135 faces-fio),
     nariz sem pinch, e as zonas 3 (nariz+bumper), 4 (piloto+capacete) e 5 (traseira).
   ESTADO: AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** GATE v3: MEDIR O OBJETO AVALIADO, NAO O CAGE (regra 170) *** ***
+  SINTOMA: eu tentei colapsar as arestas curtas do CAGE para matar as 135 faces-fio e o numero
+    quase nao mudou (135 -> 134) e o boundary so caiu de 6 para 3.
+  CAUSA: as faces-fio NAO estao no cage — vem dos MODIFICADORES. O SOLIDIFY de 0,020 m cria a parede
+    interna do rim como uma FAIXA FINA de 20 mm numa peca de 2,35 m, e e essa faixa que aparece como
+    'fio' no wire.
+  CORRECAO NO INSTRUMENTO: o gate passa a medir o objeto AVALIADO (evaluated_get(depsgraph)), nunca
+    o cage — porque Bevel, Solidify e Subsurf CRIAM a geometria que o render mostra.
+  REGRA 170: gate de sanidade mede o AVALIADO. Medir o cage e medir o que e facil (mesma familia dos
+    erros anteriores: bbox em 1 eixo, boundary com filtro, area sem aspect).
+  CONSEQUENCIA: as 135 faces-fio sao CONSEQUENCIA GEOMETRICA da espessura de 20 mm no rim, nao um
+    erro de topologia do cage. Solucoes: (a) reduzir a espessura do Solidify no rim; (b) fazer o rim
+    com espessura REAL modelada (nao Solidify); (c) aceitar e medir o aspect no AVALIADO como gate.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.

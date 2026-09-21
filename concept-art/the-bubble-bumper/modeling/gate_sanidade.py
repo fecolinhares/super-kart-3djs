@@ -8,7 +8,11 @@ args=[a for a in sys.argv if not a.startswith("-") and a.endswith((".blend",)) i
 NOME = sys.argv[-1] if len(sys.argv)>1 and sys.argv[-1].startswith("T") else "TubCockpit"
 o = bpy.data.objects.get(NOME) or bpy.data.objects.get("TubCockpit")
 if not o: print("###SANIDADE### objeto AUSENTE"); sys.exit(1)
-bm=bmesh.new(); bm.from_mesh(o.data)
+# REGRA 170: medir o objeto AVALIADO (o que o render mostra), nao o cage
+dg=bpy.context.evaluated_depsgraph_get()
+ev=o.evaluated_get(dg)
+bm=bmesh.new(); bm.from_mesh(ev.to_mesh())
+print("###SANIDADE### (medindo o AVALIADO: cage=%d verts -> avaliado=%d verts)"%(len(o.data.vertices),len(ev.to_mesh().vertices)))
 bound=sum(1 for e in bm.edges if len(e.link_faces)==1)
 nonman=sum(1 for e in bm.edges if len(e.link_faces)>2)
 arestas=[e.calc_length() for e in bm.edges]
