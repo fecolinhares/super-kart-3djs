@@ -10230,3 +10230,28 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 167: holes_fill nao fecha arestas que nao formam loop simples (bordas orfas de faces
     deletadas). Diagnosticar a ORIGEM (qual face foi removida) antes de tentar preencher.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v023 = 4,3 — E A RECALIBRACAO: O 5,0 DO v020 ERA INFLADO PELO MEU FILTRO QUEBRADO *** ***
+  (3) 'NAO E QUE VOCE PIOROU DO v020 PARA O v023. E QUE O 5,0 DO v020 ESTAVA INFLADO PELO FILTRO
+    ERRADO. Com o gate verdadeiro, o v020 valia ~4,0. Voce subiu para 4,3 pela limpeza de
+    doubles/zero-area, mas continua reprovado.'
+  ⟹ SÉRIE RECALIBRADA: os ultimos numeros (5,2/5,4/5,6/5,0) foram medidos com o gate errado. O ponto
+    honesto de partida real era ~4,0 e o v023 esta em 4,3.
+  (1) 'O wire ainda mostra tris esticados? SIM, e feio. Doubles=0 e ZERO-AREA=0 NAO eliminam isso,
+    porque um tri de 2 mm de comprimento e 0,01 mm de largura JA TEM AREA >0 e passa no filtro, mas
+    visualmente E UM FIO.'
+  (2) 'Os 4 pingos sumiram? NAO. Eles NUNCA FORAM doubles. PINGO E FLAP MANIFOLD REAL: uma aba de
+    faces pendurada na borda do rim. Limpar doubles nao remove flap. TEM QUE DELETAR MANUALMENTE O
+    ANEL DO RIM E REFAZER O LOOP.'
+  (4) 'Mudou ESTATISTICA, nao TOPOLOGIA FUNCIONAL. Voce apenas APAROU A GRAMA EM VOLTA DO BURACO.'
+    '99,7%% quads NAO VALE NADA - os 21 tris + 4 ngons estao TODOS concentrados exatamente onde importa.'
+  Notas: frontal 3,0 | lateral 5,5 | traseira 6,0 | TOP/cockpit 4,0 | ZOOM 2,5 | GLOBAL 4,3
+  Para passar: (1) isolar as 6 arestas e deletar 1 anel em volta do nariz e da travessa; (2) refazer
+    o cap com grid-fill + retopo manual do rim em loop fechado; (3) DELETAR OS 4 PINGOS NA FACA
+    (nao no merge); (4) recalcular normals fora.
+  REGRA 168: boundary=0 + zero-area=0 + doubles=0 NAO garantem wire limpo — um tri de 2 mm x 0,01 mm
+    passa no filtro de AREA e le como FIO. O gate precisa de ASPECT RATIO (tri > 4x o tamanho medio).
+  REGRA 169: pingo/flap E GEOMETRIA, nao sujeira — limpar doubles nao remove; so DELETAR o anel do
+    rim e refazer o loop.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
