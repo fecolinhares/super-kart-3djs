@@ -10574,3 +10574,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 188: o N-gon de 18 verts com area 0,36 m2 e a TAMPA TRASEIRA que o holes_fill criou — uma
     tampa por leque vira fan gigante. Tampas tem de ser feitas por BRIDGE/grid, nunca por fill.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** REGRA 187 REFUTADA PELA MEDICAO (regra 190) *** ***
+  v036/v037: boundary=0 | nonman=20 | zero-area=0 | quase-zero=0 | doubles=236 | fio=460  <- MELHOR ESTADO
+  ###F189### polos na costura (|y|<0,0025, val>5): 0 ⟹ NENHUM
+  ⟹ os 23 polos apareceram na 1a medicao com y=0,000 SO PORQUE o bbox arredondou; com o filtro
+    |y|<0,0025 NENHUM cai. A ORIGEM NAO ESTA NA LINHA DE SIMETRIA.
+  REGRA 187 REFUTADA. REGRA 190: correlacao por COORDENADA ARREDONDADA nao e LOCALIZACAO — vi 'y=0,000'
+    em 14 polos e construi uma teoria inteira (estacoes convergindo na simetria); a medicao com tolerancia
+    real descartou a teoria em UMA LINHA. Regra 182 aplicada de novo: um teste que devolve zero DESCARTA
+    a origem.
+  LICAO DE METODO: quando uma hipotese nasce de um padrao em numeros ARREDONDADOS, MEDIR A TOLERANCIA
+    REAL antes de construir a teoria e o plano de correcao.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
