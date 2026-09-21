@@ -8114,3 +8114,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     medir -> prever -> corrigir -> confirmar na direcao prevista.
   ESTADO: FRONT 5,41 | SIDE 3,17 ✓ | REAR 3,24 ✓ | TOP 6,18 | H 1,223 (-2,3%%) | L 2,488 (+5,9%%)
     PENDENTE: TOP 6,18 (o unico acima de 5) e o comprimento +5,9%%.
+
+
+## B088-B089: O DONO DUPLO ATRAS CONTINUA — ENCHER A CAUDA x MANTER O COMPRIMENTO ***
+  [B088] duas correcoes previstas pelo instrumento:
+    (1) bitola dianteira 0,47 -> 0,39 (1,11 -> 0,93 m): estacao 8%% 0,910 -> 0,779 ✓ (aproximou do 0,739 do
+        concept) — mas a estacao 16%% ficou em 1,014 ✗ (outro objeto e largo ali)
+    (2) bumper traseiro de volta para x -0,66: comprimento 2,488 -> 2,306 m ✓✓ (contrato 2,35)
+        E a cauda esvaziou de novo: 0,993 -> 0,420 ✗ (concept 0,927)
+    TOP 6,18 -> 6,54%% ✗ | FRONT/SIDE/REAR inalterados (5,41/3,17/3,24)
+  ⟹ O bumper traseiro e dono de DUAS grandezas conflitantes: a LARGURA na cauda (estacao 88-96%%) e o
+    COMPRIMENTO total. Ele so pode estar ao mesmo tempo 'recuado para alargar a cauda' e 'avancado para
+    nao alongar' se OUTRA peca assumir uma das duas funcoes.
+  REGRA 66: quando uma peca e dona de duas grandezas conflitantes (regra 60), a solucao NAO e achar o ponto
+    medio — e DELEGAR uma das grandezas a uma peca DIFERENTE. Aqui: a carenagem/carroceria traseira deve
+    fornecer largura na cauda, deixando o bumper cuidar so do comprimento.
+  MELHOR ESTADO: B087 — FRONT 5,41 | SIDE 3,17 ✓ | REAR 3,24 ✓ | TOP 6,18 | media 4,50%%
+    H 1,223 m (-2,3%% do contrato) | L 2,488 m (+5,9%%) | asa acima do capacete ✓ | cor do piloto ✓ | cauda cheia ✓
