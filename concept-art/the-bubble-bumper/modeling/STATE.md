@@ -9927,3 +9927,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
       NAO e mais taper em Y em 3 estacoes.
   (c) BEVEL 0,022 / 3 segmentos (o raio de aresta continua).
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v009 = 3,6 — E ELE ACHOU QUE EU DOBREI A RESOLUCAO NA DIRECAO ERRADA *** ***
+  (2) 'A faceta FRONT/REAR morreu com a resolucao dobrada? NAO. Dobrar loops LONGITUDINAIS nao mata
+    faceta TRANSVERSAL. A faceta e de PERIMETRO — falta segmento em volta da SECAO — e de normals
+    flat. Precisaria dobrar a SECAO TRANSVERSAL, nao o X.'
+    ⟹ ELE ESTA CERTO: as minhas secoes tem OITO pontos (p0..p7). O perimetro da secao e grosseiro
+      (8 lados). Eu dobrei 32->65 estacoes (eixo X) e deixei a SECAO em 8 pontos. A faceta vem dos
+      8 lados, nao da falta de loops em X.
+  (1) 'O canto em PLANTA agora e ARCO ou quina? AINDA QUINA.'
+    Prova: 'Se fosse R=0,150 de verdade, o raio ocuparia ~300 mm em X. No render a zona curva ocupa
+    ~30-40 mm. Ou a escala foi CLAMPADA ou voce fez fillet pequeno.'
+  (3) FRONT 3,0 | SIDE 4,0 | REAR 3,0 | TOP 4,2 | GLOBAL 3,6 (de 3,5) — 'micro-evolucao, nada que
+    mude patamar. Longe de 6,0.'
+  (4) Para o v010: (a) reconstruir a abertura como SKETCH 2D STADIUM parametrizado por arco e depois
+    projetar em X; (b) AUMENTAR OS SEGMENTOS TRANSVERSAIS 2x + smooth shading + AUTOSMOOTH 30;
+    (c) bevel 0,035 / 5 segmentos com weight por angulo; (d) CONFERIR A ESCALA — 'R=0,150 m tem que
+    medir 150 mm no viewport, nao 30 mm'.
+  REGRA 152: a faceta de uma secao extrudada vem do PERIMETRO DA SECAO (numero de pontos do anel),
+    NAO da quantidade de estacoes. Aumentar estacoes em X NAO suaviza a secao — e preciso subdividir
+    o ANEL.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
