@@ -9825,3 +9825,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 147: NUNCA inflar numero proprio no relatorio. Contar antes de escrever 'Nx' (136->233 e
     1,7x). Numero inflado destroi a confianca em toda a serie.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** COMPARACAO HONESTA (regra 146 aplicada): MEDIA 0,064 m / MAX 0,085 m *** ***
+  BANHEIRA vs BANHEIRA — so as faixas onde a CARROCERIA define o topo (10, 20, 30, 40, 90, 100):
+    DELTA (m): [+0,049, +0,085, -0,049, -0,050, -0,070, -0,082]
+    MEDIA |delta| = 0,064 m | MAX |delta| = 0,085 m
+  EXCLUIDAS (50, 60, 70, 80): nelas o topo do concept e o CAPACETE DO PILOTO (1,23 m), nao a banheira.
+  ⟹ O NUMERO HONESTO E MELHOR QUE O MEU INFLADO ('7 de 10 dentro de +-0,17'): 6,4 cm de media e
+    8,5 cm de maximo. O erro era da COMPARACAO, nao do tub.
+  BUG DO REAR ESCLARECIDO (hipotese medida): NAO e falta de SubD —
+    ###EVAL### verts avaliados com modifiers = 1685 (faces 1741) e 233/233 faces com smooth ✓
+    ###MODS### [MIRROR, SUBSURF levels=1] ✓
+    A causa provavel e o WIREFRAME MODIFIER empilhado DEPOIS do SubSURF (thickness 0,0028): a malha
+    de arame domina a vista escura e as 'faces gigantes facetadas' sao os segmentos do wire.
+    CORRECAO: renderizar clay SEM wire e o wire numa passada SEPARADA.
+  REGRA 148: wire e clay em PASSADAS SEPARADAS. Wireframe modifier por cima do SubSURF contamina a
+    leitura da forma e faz a malha parecer facetada.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
