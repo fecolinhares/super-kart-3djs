@@ -9071,3 +9071,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     encostado no chassi SEM VAO.'
   ESTADO: contorno FRONT 7,15 | SIDE 3,09 | REAR ~7,9 | direcionalidade 0,999 vs 0,696 (FALHA).
     MELHOR VISION: B132 = 2,3. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B139: O POD FOI MODELADO (REGRA 110 APLICADA) *** ***
+  Deixei de trocar primitiva e MODELEI a forma com bmesh:
+    def pod(n, x0,x1, y0,y1, z0,z1, chanfro=0.18, bevel=0.035):
+        create_cube -> escala para as cotas -> CHANFRO FRONTAL (puxa os 4 verts da frente de x1 para
+        x1-c nos z extremos) -> bevel 2 segmentos
+    ⟹ TOPO PLANO, LATERAIS PLANAS, BASE PLANA + chanfro frontal = a morfologia do concept
+  TODO PLANO (vision: 'topo plano, lateral plana, base plana, frente afunilada')
+  DUAS PECAS FISICAS (vision: 'biparticao FISICA amarela/azul, nao cor pintada'):
+    SP_  (nucleo azul) : 0,64 x 0,28 x 0,26  z[0,075;0,335]
+    SPM_ (casca amarela): 0,66 x 0,33 x 0,28  z[0,030;0,315]  (MAIOR + SAIA ate 3 cm)
+  COMPRIMENTO (vision: 'o pod vai do meio do kart ATE ENCOSTAR NA RODA TRASEIRA'):
+    x -0,58..0,24 (nucleo) e -0,62..0,20 (casca) = do meio do kart para tras, 0,64 m
+  CONTRATO: altura 1,253 m ✓. CONTORNO: FRONT 7,15 | SIDE 3,23 | REAR 7,91 | TOP ~3,1.
+  ESTADO: MELHOR VISION B132 = 2,3. B139 nao avaliado por vision.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
