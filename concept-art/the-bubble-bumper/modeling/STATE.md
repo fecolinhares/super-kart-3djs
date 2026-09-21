@@ -10354,3 +10354,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 172: remover o Bevel RESOLVE a teia mas TIRA O RAIO — o raio tem de ser substituido por
     HOLDING EDGES (loops de suporte reais na geometria), nao deixado de existir.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v026 (CIRURGIA NA CAGE): MELHOROU AS FACES-FIO, ABRIU BORDAS — TRADE-OFF *** ***
+                      v025      ->   v026 (cirurgia)
+    faces-fio            5700      ->   1536    ✓ (3,7x menos)
+    zero-area               1      ->      0    ✓
+    quase-zero            141      ->      0    ✓
+    doubles              4339      ->    622    ✓ (7x menos)
+    NON-MANIFOLD          552      ->    991    ✗ (piorou)
+    boundary                0      ->     34    ✗ (abriu buracos)
+  O QUE ACONTECEU: removi 243 faces-fio do cage (limpou 4164 no avaliado) mas deixei 34 bordas
+    abertas ao remove-las, e o holes_fill nao fechou todas.
+  REGRA 173: remover faces-fio do cage EXIGE RECONSTRUCAO imediata da regiao (nao so holes_fill) —
+    senao a troca e FIO por BORDA ABERTA, que e pior (borda aberta le como BURACO no render).
+  REGRA 174: aceitar o trade-off so com numero: fio 5700->1536 (melhor) vs boundary 0->34 (pior).
+    Nenhum dos dois esta LIMPO OK; a decisao exige uma variante que resolva OS DOIS.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
