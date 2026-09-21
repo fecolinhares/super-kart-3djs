@@ -7398,3 +7398,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   RATIOS DO CONTRATO: L +1,7%% | H -1,2%% | L/H +2,9%% | W/H +6,2%%.
   LICAO 32: correcao guiada por faixa pode OVERSHOOTAR — o gate detecta em um build, mas eu preciso corrigir em
     PASSOS (metade do delta medido) e re-medir, em vez de aplicar o delta inteiro de uma vez.
+
+
+## ACHADO 33 (SISTEMICO): SubD ENCOLHE CAIXAS ~20%% POR NIVEL ***
+  R_Wing: criei a caixa com y=+-0,72 e a cena tinha y=+-0,577 — 20%% menor. Causa: `suave()` aplica Subdivision
+  Surface, e SubD encolhe caixa ~20%% POR NIVEL. Pior: eu havia chamado suave() DUAS vezes na mesma peca
+  (encolheu duas vezes: 0,72 -> 0,577).
+  Isso afeta TODA caixa com SubD no modelo (bico, banco, asa, ombro...) — ou seja, eu ajustava tamanhos no
+  codigo e o SubD encolhia por baixo. E a causa de varias 'faltas' medidas que eu nao conseguia explicar.
+  FIX: aplicar SubD UMA vez e COMPENSAR o tamanho (dividir pelo fator de encolhimento), ou medir depois.
+  [B034] asa compensada (0,80 -> mede 1,343 m apos SubD) e REAR cruzou o alvo: 5,05%% -> 4,98%% ✓
+  ESTADO: SIDE 4,95%% ✓ | REAR 4,98%% ✓ | FRONT 6,68%% | TOP 6,84%%  (2 de 4 vistas no alvo <=5%%)
+  RATIOS DO CONTRATO: L +1,7%% | H -1,2%% | L/H +2,9%% | W/H +6,2%%.
+  PROXIMO: FRONT pior faixa em 31%% da altura com EXCESSO 10,2 (regiao baixa larga demais — rodas/sidepods)
+    e TOP em 63,6%% do comprimento com falta 10,1. Aplicar METADE do delta (regra 32).
