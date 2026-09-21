@@ -8630,3 +8630,26 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     SIDE 3,18%% ✓ | FRONT 7,24%% | REAR 8,94%% | altura 1,253 ✓
   ESTADO: MELHOR POR VISION B103 (2,75); B117 (2,45) reavaliar depois destas mudancas.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION NO B118: 2,4 (queda leve de 2,45) — 'TROCOU UM ERRO POR OUTRO' + ERRO DE CAMERA *** ***
+  FRONT 2,4 | SIDE 2,9 | REAR 1,8 | TOP 2,2 | GLOBAL 2,4   (serie: ...,1,95 -> 2,45 -> 2,4)
+  *** DIAGNOSTICO: 'trocou um erro (chapa fina) por outro erro (elipsoide generico superdimensionado).
+    Ganhou fechamento volumetrico, PERDEU proporcao, forma e cor. Ganho de assoalho + cubos foi anulado
+    pelo aumento do bulk errado. Para sair do 2 e preciso acertar FORMA, nao so fechar volume.'
+  *** A FORMA CORRETA DO POD (dada pelo vision, agora explicitamente):
+    'face interna RETA E VERTICAL colada ao chassi, face externa facetada, topo relativamente PLANO onde
+     apoia a perna, corte dianteiro AFUNILADO e recorte traseiro para nao pegar no pneu traseiro, borda
+     AMARELA EM U + MIOLO AZUL visto de cima.'
+    O meu: 'elipsoide perfeito, simetrico frente-tras, secao toda arredondada, AMARELO CHAPADO EM CIMA e
+     AZUL EMBAIXO — divisao INVENTADA que nao existe no concept.'
+    PRESCRICAO: 'jogue fora o elipsoide. Modele pod como CAIXA COM BEVEL + CORTE, com face interna plana,
+     largura = nao ultrapassar a face externa do pneu, comprimento = entre eixos menos folga.'
+  *** ERRO DE CAMERA (regressao): o vision le o TOP do modelo com NARIZ PARA DIREITA enquanto o concept
+    aponta para ESQUERDA. Eu ja havia corrigido a orientacao SIDE em B052; o TOP regrediu. CONFERIR a
+    camera TOP antes da proxima avaliacao — um painel espelhado invalida a leitura daquela vista.
+  REGRA 91: antes de cada rodada de vision, CONFERIR a orientacao de todas as 4 camaras contra o concept
+    (frente a esquerda em SIDE e TOP). Uma vista espelhada condena a avaliacao inteira e nao aparece na
+    metrica de contorno (que e simetrica a espelhamento na FRONT/REAR).
+  ESTADO: contorno FRONT 7,24 | SIDE 3,18 | REAR 8,94 | TOP 3,65 | altura 1,253 ✓.
+    MELHOR POR VISION: B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
