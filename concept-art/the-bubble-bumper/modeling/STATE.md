@@ -7852,3 +7852,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     ESTRUTURAL (por objeto: contagem, forma, conexao) junto com o de contorno.
   ESTADO: B072 tem a MELHOR metrica de contorno da serie e REPROVA no qualitativo — os dois fatos sao
     verdadeiros e a metrica nao substitui o olho.
+
+
+## *** INSTRUMENTO 53: GATE ESTRUTURAL — CONFIRMA O VISION NUMERICAMENTE *** ***
+  gate_estrutura.py roda sobre o .blend e checa FORMA, CONTAGEM e CONEXAO por objeto (nao silhueta):
+    PRIMITIVA: torus/diametro > 40%% de L (falha acima de 48%%) | FORMA: mais largo que comprido e > 0,45 L
+    CONTAGEM: 3 escapes, volante, banco, 2 eixos, 4 rodas | CONEXAO: peca grande que nao toca nenhuma outra
+    RODAS: dianteira vs traseira (o concept tem a traseira maior)
+  RESULTADO NO B072 (o build com a MELHOR metrica de contorno):
+    FALHA | B_Front com diametro 1,48 m (63%% de L) — torus/anel gigante (o vision viu como 'anel no TOP')
+    FALHA | R_Wing e mais LARGO (1,21) que COMPRIDO (0,13) — 'nao e um kart, e um blimp'
+    AVISO | R_Bumper 1,05 m (45%% de L) | SP_L/SP_R 1,11 m (47%% de L)
+    AVISO | rodas dianteira == traseira (0,499) — o concept tem a TRASEIRA MAIOR
+    VEREDITO: REPROVADO
+  ⟹ CONFIRMACAO INDEPENDENTE: o gate ESTRUTURAL reproduz numericamente o que o vision disse em prosa.
+    Os dois instrumentos concordam; a metrica de contorno (4,97%%) e que estava sozinha e enganada.
+  REGRA 53: instrumentos independentes que CONCORDAM sao a prova; uma metrica isolada que passa
+    enquanto dois outros gates reprovam nao e aprovacao — e cegueira.
+  ESTADO: contorno APROVADO (4 vistas <=5%%) + estrutura REPROVADA (2 falhas, 4 avisos) + vision 1,0/10.
+    PROXIMA ACAO: reconstruir as pecas reprovadas pelo gate estrutural, comecando pelo B_Front (torus ->
+    tubo/loft) e pela R_Wing (lamina -> asa retangular com espessura real).
