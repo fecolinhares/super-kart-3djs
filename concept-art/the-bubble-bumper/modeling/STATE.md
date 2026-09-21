@@ -8543,3 +8543,15 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ESTADO: contorno FRONT 4,95 | SIDE 3,37 | REAR 7,93 | TOP 5,17 | altura 1,253 ✓ | cadeia do piloto ✓ |
     domo removido ✓ | 3 escapes ✓ | endplates criados ✓. MELHOR POR VISION: B103 (2,75).
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B116: PARA-CHOQUES AFINADOS (O "DONUT" DEIXA DE LER COMO ANEL) + 2 CINTAS AMARELAS *** ***
+  Causa do 'donut' tratada: os torus estavam GROSSOS.
+    R_Bumper: torus major 0,48 / minor 0,085 -> major 0,46 / minor 0,052
+    B_Front : torus major 0,34 / minor 0,075 -> major 0,34 / minor 0,048
+  VERIFICADO por dimensao: B_Front dim(0,77x0,77x0,09) e R_Bumper dim(0,71x1,01x0,10) — 9 e 10 cm de
+    espessura (antes ~15-17). Um tubo fino le como barra; o tubo grosso lia como anel.
+  Criadas as 2 CINTAS AMARELAS (B_StrapL/R) do para-choque dianteiro — assinatura do concept que faltava.
+  ESTADO: contorno FRONT 4,95 | SIDE 3,38 | REAR 7,93 | TOP 5,17 | altura 1,253 ✓ | cadeia do piloto ✓ |
+    domo removido ✓ | 3 escapes ✓ | endplates ✓ | asa larga e baixa ✓ | cintas ✓.
+    MELHOR POR VISION: B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
