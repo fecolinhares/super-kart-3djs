@@ -7718,3 +7718,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ══ MELHOR ESTADO: B059 — SIDE 3,46%% ✓ | REAR 4,68%% ✓ | TOP 3,07%% ✓ | FRONT 5,78%%
      Proximo passo com alvo claro: subir o CORPO/paralama frontal (e o bumper) para cobrir as rodas
      na faixa 28-34%% da altura, como o concept faz.
+
+
+## ACHADO 46 (DECISIVO): MISMATCH DE ESCALA ENTRE RENDER E MODELO NO FRONT ***
+  [B061] rodei com a roda em D=0,282 (topo a 23,5%% da altura, bem abaixo da faixa critica):
+    FRONT 28%% -> 0,814 (era 0,815) | FRONT 32%% -> 1,074 (era 1,076) — IDENTICOS.
+    ⟹ a largura de ~1,07 m a 32%% da altura NAO sao as rodas, e NENHUM objeto do modelo tem 1,07 m em
+      z=0,40 (o mais largo ali e R_Motor com 0,592).
+  MISMATCH MEDIDO:
+    frame 900 px, ortho_scale 2,60 -> 1 px = 0,00289 m
+    altura do modelo 1,228 m -> deveria ocupar 425 px
+    bbox REAL do alfa no render   -> 536 px (1,26x maior)
+  ⟹ o bbox do render inclui pixels que NAO sao o modelo (sombra/plano/outro elemento). Consequencia:
+    a faixa '32%% da altura' mapeia para um z ERRADO e o perfil linha-a-linha compara ALTURAS DIFERENTES
+    entre concept e modelo. Isso explica a 'inversao' de perfil (achado 45) e por que o FRONT resistiu a
+    SETE tentativas geometricas: eu media a faixa errada.
+  REGRA 46: antes de qualquer comparacao por FAIXA, validar a escala — a altura do bbox da mascara do modelo
+    DEVE corresponder a altura fisica x pixels_por_metro. Se nao corresponder, corrigir o RECORTE.
+    (Mesma familia dos achados 6 (perspectiva/orto), 12 (cubo default), 33 (SubD), 34 (patch no-op),
+     38 (hide_render), 43 (densidade inflada), 46 (escala).)
+  ══ MELHOR ESTADO: B059 — SIDE 3,46%% ✓ | REAR 4,68%% ✓ | TOP 3,07%% ✓ | FRONT 5,78%%
