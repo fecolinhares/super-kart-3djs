@@ -9536,3 +9536,31 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (Eu tentei corrigir altura um problema de planta.)
   BASE PRESERVADA: comp 2,366 | larg 1,441 | alt 1,260 ✓
   ESTADO: MELHOR VISION B132 = 2,3 | B152 = 1,55. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** MAPA DE ZONAS DO CONCEPT (medido por faixas) — O QUE EU NUNCA TINHA FEITO *** ***
+  Perfil por 10 faixas ao longo do comprimento (mascara validada, SIDE e TOP):
+  SIDE (H=396 px, L=755 px):
+    faixa  1 ( 0-10%% NARIZ):     alt  95 px = 24%% de H   ⟹ nariz MUITO BAIXO
+    faixa  2 (10-20%%):           alt 137 px = 35%%
+    faixa  3 (20-30%%):           alt 209 px = 53%%
+    faixa  4 (30-40%%):           alt 195 px = 49%%
+    faixa  5 (40-50%%):           alt 219 px = 55%%
+    faixa  6 (50-60%%):           alt 370 px = 93%%   ⟹ SALTO 55%% -> 93%% (cockpit/piloto)
+    faixa  7 (60-70%%):           alt 370 px = 93%%
+    faixa  8 (70-80%%):           alt 358 px = 90%%
+    faixa  9 (80-90%%):           alt 270 px = 68%%
+    faixa 10 (90-100%% TRASEIRA): alt 275 px = 69%%   ⟹ traseira ALTA (69%%, nao baixa)
+  TOP (largura):
+    faixa  1 (nariz): 78%% da largura (o para-choque em U)
+    faixas 2-7 (20-80%%): 95%% ⟹ os PODS sao quase LARGURA TOTAL
+    faixas 8-9 (70-90%%): 100%% ⟹ MAIS LARGO (rodas traseiras + asa)
+    faixa 10: 67%%
+  ⟹ A PLANTA DO CONCEPT: frente BAIXA (24-55%% da altura), SALTO para 93%% no cockpit (50-70%% do
+    comprimento), traseira 69%%, e LARGURA MAXIMA NA TRASEIRA (nao no meio).
+  ⟹ Meu modelo era o INVERSO: alto/pernalta no meio e sem o salto do cockpit. Isso explica 'estreito,
+    alto, pernalta' e por que as 4 vistas nunca fechavam: eu nao tinha o mapa de zonas.
+  REGRA 136: antes de modelar, levantar o MAPA DE ZONAS do concept (perfil de altura e largura por
+    faixa ao longo do comprimento, em SIDE e TOP). E o blueprint; sem ele a modelagem e as cegas.
+  ESTADO: Sol consultado (JOB 32fd8109, gpt-5.6-sol-900k, medium) — STATUS=running.
+    MELHOR VISION B132 = 2,3 | B152 = 1,55. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
