@@ -9182,3 +9182,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     3. NARIZ/PARA-CHOQUE/COCKPIT ('ponta de lanca solida, sem abertura, sem volante, piloto blob')
   ESTADO: MELHOR VISION B132 = 2,3 | B146 = 1,6 (com cor) | CONTRATO altura 1,253 m ✓.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B148: RODAS E ESCAPES CORRIGIDOS (A ASSINATURA DO HELPER ERA A CAUSA) *** ***
+  A CAUSA (regra 117): def cil(n,x,y,z,r,d,rot=...) — o 6o argumento e o DEPTH, nao o raio, e o rot
+    padrao (90,0,0) poe o eixo em Y. Eu chamei cil("W_FL", x-0.001, x+0.001, y, r*0.9412, r, rot)
+    ⟹ x=x-0.001, y=x+0.001 (0,80!), z=y (0,52!) — passei o Y DO KART onde ia o Z.
+    Resultado medido: roda em z[0,387;0,653] = FLUTUANDO 39 cm (o defeito nº1 do vision).
+  MESMA FAMILIA da capsula quebrada (helper que nao faz o que o comentario/nome promete).
+  CORRECAO: ARGUMENTOS NOMEADOS (cil(n, x=, y=, z=, r=, d=, rot=)). MEDIDO:
+    W_FL dim(0,266 Ø x 0,163 larg) z[0,008] NO CHAO ✓
+    W_RL dim(0,407 Ø x 0,269 larg) z[0,013] 13 mm ✓
+    ⟹ traseira 1,53x o diametro e 1,65x a largura da dianteira (o vision pediu '2x') ✓
+    R_Motor dim(0,250 x 0,216 x 0,216) z[0,092;0,308] MOTOR COMPACTO (o bloco de esferas gigantes
+      foi deletado: R_MotorBlock/R_FairL/R_FairR/R_Mast/R_RollHoop removidos) ✓
+    R_Exh0/1/2 dim(0,384 x 0,079 x 0,079) = TRES TUBOS CILINDRICOS (r 0,042) ✓
+  REGRA 117: NUNCA chamar helper com mais de 3 argumentos posicionais sem conferir a ORDEM na
+    definicao. Usar argumentos NOMEADOS em helpers geometricos — a ordem e a fonte nº1 de bug aqui
+    (capsula prometia X e dava Z; cil recebia Y onde ia Z).
+  ESTADO: MELHOR VISION B132 = 2,3 | B146 = 1,6 (primeiro com cor). B148 nao avaliado.
+    CONTRATO altura 1,253 m ✓. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
