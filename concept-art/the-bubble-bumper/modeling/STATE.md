@@ -10091,3 +10091,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 159: ENCOLHIMENTO de secao NAO e cap. Convergir N aneis numa aresta de 2,5 mm ainda e um
     PONTO para o Subsurf: o cap precisa de aresta de 12-15 mm + loops recuando 30-50 mm.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** TUB v014: ORDEM DOS MODIFIERS CORRIGIDA + GRID FILL NO NARIZ *** ***
+  (regra 158) ORDEM NOVA: [MIRROR, WEIGHTED_NORMAL, SOLIDIFY 0,035 (Quality Normals + Even
+    Offset), BEVEL por WEIGHT 0,45, SUBSURF]. Antes era [MIRROR, BEVEL, SUBSURF, SOLIDIFY, WN]
+    — Solidify depois do Subsurf gerava micro-overlap e o WN por ultimo 'congelava o erro'.
+  (regra 159) NARIZ: ponta com ultimo anel de 10,5%% do raio (~15 mm de altura) + GRID FILL
+    (aneis internos paralelos, sem polo unico e sem aresta degenerada de 2,5 mm).
+  (3) as 4 tetinhas: a abertura do cockpit nao recebe mais convergencia no recorte.
+  2192 verts / 2177 faces.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
