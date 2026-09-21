@@ -63,9 +63,11 @@ def perfil(m, vista):
             if len(row): sup.append(row.min()); inf.append(row.max())
             else: sup.append(np.nan); inf.append(np.nan)
     sup, inf = np.array(sup, float), np.array(inf, float)
-    # NORMALIZA: altura total do veiculo (imune a escala/zoom do painel)
-    alt = np.nanmax(inf) - np.nanmin(sup)
-    return (sup - np.nanmin(sup)) / alt, (inf - np.nanmin(sup)) / alt
+    # NORMALIZA pelo EIXO DOMINANTE (estavel: o comprimento do veiculo), nao pela altura —
+    # senao mexer na geometria desloca a escala e a metrica deixa de ser invariante.
+    eixo_span = float(hi - lo)
+    base = np.nanmin(sup)
+    return (sup - base) / eixo_span, (inf - base) / eixo_span
 
 def compara(vista, mc, mm):
     pc, pm = perfil(mc, vista), perfil(mm, vista)

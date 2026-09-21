@@ -7301,3 +7301,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA (Sol): o gate nao pode exigir precisao maior que a referencia permite. Os paineis tem 5-10%% de
     inconsistencia interna, entao a MEDIANA e o sinal confiavel e p95/MAX sao indicativos de ONDE OLHAR.
   PROXIMO: corrigir o bico (reduzir ~30%% na ponta) guiado pela faixa 0-10%% do SIDE, e dar massa a traseira.
+
+
+## GATE QUANTITATIVO EM USO — ACHADOS ***
+  O gate mede o CONTORNO (envelope) por 100 estacoes, normalizado pelo eixo dominante. Achados:
+  1. Os numeros sao REPETIVEIS entre builds (FRONT 43,66%% / REAR 64,64%% identicos em 3 builds) — ao contrario
+     das notas do VLM, que oscilaram 3,0-6,0. Isso e o que o Sol chama de observabilidade causal.
+  2. O MAIOR erro nao esta no bico nem na traseira: esta no FRONT/REAR, com mediana de 43,7%% e 64,6%% e
+     excesso de 65%% na meia-altura. Ou seja: meu CONTORNO frontal/traseiro por faixa de altura esta muito
+     diferente do concept — e essa e a maior distancia do modelo, medida.
+  3. TOP e a vista mais proxima: mediana 8,1%%. SIDE em 26,7%% (pior na ponta dianteira).
+  4. O gate e IMUNE a mudancas que nao alteram o envelope (baixar o bumper nao mudou nada, porque o envelope
+     frontal e ditado pelas rodas) — isso e correto e evita otimizar o que nao aparece.
+  REGRA: enquanto o VLM era a funcao objetivo, a serie nao convergia. Com o contorno por faixa, cada build tem
+    um numero antes/depois comparavel. O VLM fica para o gate qualitativo FINAL (o que o Feco pediu).
+  PROXIMO (medido): atacar o CONTORNO FRONT/REAR por faixa de altura — comparar largura-a-cada-altura do meu
+    modelo contra o concept e corrigir a peca que produz a faixa pior (nao o bico nem o bumper).
