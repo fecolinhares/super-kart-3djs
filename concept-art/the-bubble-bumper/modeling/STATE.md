@@ -8317,3 +8317,27 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     expondo o motor) + R_Spring (mola visivel no vao, elemento do concept). VERIFICADO: 43 objetos.
     contorno: FRONT 4,62 | SIDE 3,53 | REAR 4,80 | TOP 5,09
   ESTADO: dome quebrado; vision a re-avaliar.
+
+
+## *** VISION NO B105: 2,25/10 — REGRESSAO (era 2,75). MINHA CORRECAO PIOROU *** ***
+  FRONT 3->2 | SIDE 4->3 | REAR 2->3 | TOP 2->1 | GLOBAL 2,75 -> 2,25
+  DIAGNOSTICO DO VISION (textual): 'Voce quebrou a INTENCAO, nao a geometria. No SIDE continua um ovo
+    fechado, liso, sem corte. No TOP — prova definitiva — ao inves de duas carenagens laterais separadas
+    + vazio central, voce criou um ANEL/TORUS FECHADO. Isso e ainda mais monolitico que antes: agora e um
+    DONUT.'
+  E ele nomeia a CLASSE do erro: 'Erro TOPOLOGICO, nao e ajuste de escala. Tem que DELETAR e RECONSTRUIR do
+    zero com 3 volumes: pod-L, pod-R, bloco motor.'
+  ⟹ MEU ERRO CONCEITUAL: tratei 'quebrar o domo' como trocar 1 peca por 2. Duas laterais + o motor entre
+    elas FECHAM um contorno quando vistas de cima — o vazio central que eu queria nao existe porque as
+    laterais e o motor formam um anel. Nao era problema de pecas; era de TOPOLOGIA do volume.
+  REGRA 77: 'quebrar uma massa' exige verificar o CONTORNO RESULTANTE na vista que revela a topologia (o
+    TOP, para volume traseiro) — dois volumes separados podem fechar um anel ao redor de um terceiro.
+    Contagem de pecas nao e separacao topologica.
+  ══ REGRA 78 (metodo): o vision REPROVOU uma correcao minha e me deu a classe do erro e a receita
+    ('deletar e reconstruir com 3 volumes'). Isso e mais valioso que um numero melhor: significa que eu
+    ainda trato um problema de TOPOLOGIA com ferramentas de ESCALA/POSICAO. As correcoes anteriores (asa,
+    cor, cauda, cubos) eram de posicao/escala e funcionaram; esta e de topologia e falhou.
+  ESTADO: B105 — FRONT 4,62 | SIDE 3,53 | REAR 4,80 | TOP 5,09 | vision 2,25 (PIOR que B103: 2,75)
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+  PROXIMA ACAO: reconstruir a traseira como 3 VOLUMES SEPARADOS com vazio real entre eles (pod-L, pod-R,
+    bloco motor central), verificando no TOP que NAO existe contorno fechado ao redor do centro.
