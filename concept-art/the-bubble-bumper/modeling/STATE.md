@@ -11026,3 +11026,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (4) rodas cilindro com calota/aro + tread; (5) piloto maos/volante detalhado.
   Serie vision do conjunto: 1,8 1,5 1,7 2,2 2,7 3,0 3,0 3,4 3,6 3,2 3,5 3,8 2,8 3,0 3,1 3,2 2,0
     2,0 2,0 2,5 2,3 3,0 | o 3,0 atual e BLOCKOUT-HONESTO (as pecas existem e o board prova).
+
+## *** v040/v041: ESCAPES NA ESCALA MEDIDA (0.237 m) MAS vision 3.3 — "MEDIDA SEM LEITURA" *** ***
+  v040: vision 3,2 — "escapes = 3 botões minúsculos". MEDI por pixel: boca central 0.088 m
+    vs 0.23 do concept (2.6x menor). ELE ESTAVA CERTO de novo.
+  v041: escalei por MEDIÇÃO — boca central r=0.115 (render mediu 0.237 m = alvo 0.23 EXATO),
+    laterais 0.109 m em V 22°, comprimento 0.46, grade maior, cunha pz 0.26-0.35.
+  vision v041 = 3,3: "MEDIDA SEM LEITURA. Voce modelou NUMEROS que o render OCULTA."
+    FRONT 4,0 (melhor: grade+barra leem) | SIDE 2,5 | REAR 2,0 | TOP 3,0.
+    "3 escapes sem PRESENCA: continuam 2 botões + buraco escondido. Sem cromo, sem V, sem escala."
+  CONTRADICAO APARENTE resolvida por pixel: as bocas EXISTEM e são ESCURAS (lum 14-45) no
+    R41_REAR nas posições certas — mas o vision lê "escondidos" porque:
+    (a) o material M_VIS escuro dos tubos faz o CONJUNTO (tubo+boca) ler como um buraco
+        no cinza do motor, sem CONTRASTE com o corpo — o concept tem CROMO BRILHANTE
+        (as bocas escuras emolduradas por metal claro);
+    (b) a V 22° é lida de trás como "quase reto" — precisam SAIR PARA FORA do envelope
+        do motor (mais y=±0.30+) para o V ler;
+    (c) o nariz-pod-motor em cinza SÓLIDO atrás deles dá fundo baixo contraste.
+  REGRA 245: assinatura visual = CONTRASTE + ENQUADRAMENTO, não só diâmetro medido.
+    Escala certa + fundo errado = "medida sem leitura". O próximo passo é METERIAL/ENVELOPE
+    (tubos cromados claros saindo PARA FORA do corpo do motor), não mais diâmetro.
+  Serie vision do conjunto: ...2,0 2,0 2,0 2,5 2,3 3,0 3,2 3,3 | teto do blockout confirmado ~3.3.
