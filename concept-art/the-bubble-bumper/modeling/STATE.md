@@ -8064,3 +8064,30 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Precisa ser re-medido com um instrumento responsivo antes de orientar novas correcoes.
   ESTADO: B084 tem o bumper traseiro mais largo (1,157 vs 1,048) mas isso NAO aparece na metrica — entao
     nao ha evidencia de ganho. Comprimento 2,306 m. Contorno: FRONT 10,06 | SIDE 4,81 | REAR 6,01 | TOP 6,33.
+
+
+## *** B086: O INSTRUMENTO RESPONSIVO TINHA BUG PROPRIO — E O DIAGNOSTICO MUDOU OUTRA VEZ *** ***
+  BUG: o perfil geometrico usava larg=max(larg, y1-y0) POR OBJETO = largura do OBJETO MAIS LARGO.
+  A silhueta e a UNIAO (min y0, max y1 entre todos os objetos que cruzam a estacao).
+  PROVA: sidepods y em [0,20;0,60] e [-0,60;-0,20] => o MODELO tem 1,20 m ali, mas o maior objeto tem 0,40 m.
+    O instrumento reportava 0,319 (0,39 m) onde o modelo tem 0,52 (1,20 m).
+  ⟹ 'meu corpo e estreito no cockpit (0,39 vs 1,05)' ERA FALSO — artefato do instrumento, nao do modelo.
+  CORRIGIDO (perfil_estacao.py versionado no repo, normalizado pela ALTURA como o concept):
+    estacao  concept  modelo   dif
+     0%%     0,073    0,056   ✓
+     8%%     0,739    0,966   +0,227 ✗ largo demais
+    16%%     0,606    1,076   +0,470 ✗✗ largo demais
+    24%%     0,949    0,966   +0,017 ✓✓
+    32%%     0,868    0,713   -0,155 ✗
+    40%%     0,852    1,037   +0,185 ✗
+    48-64%%  0,92-0,95 1,037  ✓~ CASOU
+    72%%     0,987    1,336   +0,349 ✗✗
+    80%%     1,000    1,285   +0,285 ✗
+    88%%     0,927    0,445   -0,482 ✗✗ VAZIO (a cauda)
+    96%%     0,666    0,445   -0,221 ✗
+  ⟹ DIAGNOSTICO CORRETO: modelo LARGO DEMAIS na frente (8-16%%) e no meio-traseiro (72-80%%), e VAZIO na
+    cauda (88-96%%). O meio (48-64%%) esta CERTO. H=1,152 m medido (contrato 1,2523 — -8%%).
+  REGRA 64: instrumento novo exige DOIS testes antes de decidir: (a) RESPONSIVIDADE (muda quando a grandeza
+    muda) e (b) CORRECAO SEMANTICA (mede o conceito certo — silhueta e UNIAO, nao o maior objeto).
+    Responsivo e errado e pior que nao-responsivo: da numeros que se movem e mentem.
+  Artefato: modeling/perfil_estacao.py
