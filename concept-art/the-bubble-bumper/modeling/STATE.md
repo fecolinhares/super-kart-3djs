@@ -8373,3 +8373,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
   ACAO IMEDIATA SUGERIDA PELO PROPRIO VISION: (1) REMOVER o roll hoop (o anel e meu), (2) cortar o domo pela
     metade (altura < capacete, aberto por cima e pelos lados), (3) refazer rodas/chassi — nesta ordem.
+
+
+## *** B107: REMOVER O ELEMENTO DO TOPO DERRUBA A ALTURA — MEDICAO x VISION CONCILIADOS *** ***
+  Prescricao do vision aplicada: (1) removido o R_RollHoop, (2) pods/motor cortados para z 0,20-0,52 (abaixo do
+  capacete), (3) rodas refeitas (dianteiras menores R*0,82, traseiras maiores R*1,05).
+  RESULTADO: R_RollHoop removido ✓ e pods z[0,23,0,49] ✓ — MAS:
+    altura total 1,223 -> 1,030 m ✗ (-18%%; contrato 1,2523)
+    contorno: FRONT 7,64 -> 10,74%% ✗✗ | SIDE 4,16 -> 8,53%% ✗✗ | REAR 3,52 -> 7,75%% ✗✗ | TOP 4,71 -> 4,60%% ✓
+  ⟹ CONCILIACAO DOS DOIS INSTRUMENTOS (ambos certos em termos proprios):
+    · a MEDICAO exige um elemento acima do capacete (contrato H=1,2523; capacete chega a 1,03) — sem ele a
+      altura cai 18%% e o contorno desaba.
+    · o VISION exige que esse elemento PAREÇA peca de kart (barra em U aberta), nao um anel fechado.
+    EU ERREI AS DUAS VEZES: com o roll hoop (anel fechado ✗) e sem ele (perdi a altura ✗).
+    A CORRECAO CERTA nao e nenhum dos dois: e um elemento ABERTO EM U que chegue a z~1,25.
+  REGRA 80: quando a MEDICAO e o VISION discordam sobre a presenca de um elemento, os dois podem estar certos:
+    a medicao fala da GRANDEZA (altura no contrato) e o vision fala da FORMA do elemento (barra em U, nao anel).
+    A solucao e o elemento que satisfaz os dois — nunca escolher um lado.
+  MELHOR ESTADO POR VISION: B103 (2,75) — sidepod assentado + asa conectada + 4 vistas <=5%%.
+  ESTADO: B107 tem TOP 4,60 e altura 1,03 (fora do contrato). OBJETIVO NAO ATINGIDO.
