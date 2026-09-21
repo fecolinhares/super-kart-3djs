@@ -8705,3 +8705,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     que encolhia ~20%% por nivel (bug sistemico ja registrado).
   ESTADO: contorno FRONT 7,24 | SIDE 3,18 | REAR 8,94 | TOP 3,16 | altura 1,253 ✓.
     MELHOR POR VISION: B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B121: PONTAO NO ALVO (0,30 m) E RODAS PLANTADAS NO CHAO — 2 ITENS DA ORDEM DO VISION *** ***
+  (1) REGRA 93 APLICADA E CONFIRMADA: compensando 2*raio de bevel (0,05) na caixa de origem,
+    SP_L saiu dim(0,83x0,30x0,25) = 0,30 m de largura EXATO (o alvo medido).
+    Trajetoria do pontao: 0,16 -> 0,23 -> 0,30 m. A compensacao deu o numero previsto — regra 93 e
+    quantitativa, nao qualitativa (preve e acerta).
+  (2) ITEM 2 DA ORDEM DO VISION ('4 cilindros de roda com diametro/largura/bitola do concept PLANTADOS
+    NO CHAO'): dianteiras RF=R*0,42 e traseiras RR=R*0,50, com eixo Z = raio.
+    VERIFICADO por coordenada: W_FL/FR dim(0,21x0,16x0,21) z[0,007;0,216] chao_ok=True;
+    W_RL/RR dim(0,25x0,22x0,25) z[0,008;0,257] chao_ok=True. Dianteiras MENORES que traseiras ✓
+    e as 4 tocando o chao (7-8 mm) ✓.
+  MEDIDO: contorno FRONT 7,15 | SIDE 3,18 | REAR 8,80 | TOP 3,10 | altura 1,253 ✓
+  ESTADO: MELHOR POR VISION B103 (2,75); B121 ainda nao avaliado por vision.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
