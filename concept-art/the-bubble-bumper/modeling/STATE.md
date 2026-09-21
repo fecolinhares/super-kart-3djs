@@ -8526,3 +8526,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ESTADO: contorno FRONT 7,26 | SIDE 3,37 | REAR 7,84 | TOP 5,04 | altura 1,253 ✓ | cadeia do piloto
     continua ✓ | domo removido ✓ | 3 escapes ✓. MELHOR POR VISION: B103 (2,75).
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B115: O "DONUT" DO VISION IDENTIFICADO POR MEDICAO — E O PARA-CHOQUE DIANTEIRO (torus em C) *** ***
+  [B115] criados os 2 ENDPLATES verticais que faltavam (R_EndPL/R dim 0,17x0,05x0,25, z 0,52-0,78 ✓) e
+    baixada/engrossada a asa (R_Wing dim 0,14x0,84x0,08, z[0,53;0,61] ✓ larga e baixa).
+  *** DESCOBERTA: o 'ANEL/DONUT EM ORBITA' que o vision reporta em B106, B109, B112 e B115 NAO e o volante.
+    P_Wheel dim(0,14x0,20x0,19) = volante PEQUENO ✓ (medido).
+    O anel e o R_Bumper/B_Front — um TORUS EM C (arco do para-choque dianteiro). VISTO DE CIMA ele le como
+    um anel envolvendo o bico. O concept TEM para-choque dianteiro em C (o vision o descreve: 'para-choque
+    dianteiro envolvente azul com 2 cintas amarelas') — a CLASSE de forma esta certa; a APRESENTACAO e que
+    esta errada: grosso e alto demais e sem as 2 cintas amarelas.
+  REGRA 89: quando o vision reporta repetidamente o mesmo artefato ('anel/donut') e a peca suspeita NAO bate
+    por dimensao, procurar o artefato entre as pecas de CLASSE compativel (aqui: todo torus/arco do modelo),
+    em vez de insistir na suspeita. O donut era o para-choque dianteiro visto de cima, nao o volante.
+  ESTADO: contorno FRONT 4,95 | SIDE 3,37 | REAR 7,93 | TOP 5,17 | altura 1,253 ✓ | cadeia do piloto ✓ |
+    domo removido ✓ | 3 escapes ✓ | endplates criados ✓. MELHOR POR VISION: B103 (2,75).
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
