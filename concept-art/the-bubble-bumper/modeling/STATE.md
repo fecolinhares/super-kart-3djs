@@ -10855,3 +10855,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     pecas agora maiores ocupam mais — conflito instrumento x auditor ja documentado)
   CONFLITO DO GATE: o eixo VAZIO penaliza o progresso (rodas maiores = menos vazio). O auditor manda
     ALARGAR; o gate manda AFINAR. RESOLUCAO: o vazio por estacao e' o que vale (deficit local), nao a media.
+
+## *** v028 (2 rounds): REPLACE SILENCIOSO + RECLINE QUE NAO LE — vision 2,8 -> 3,0 *** ***
+  ROUND 1 (2,8): O ENCURTAMENTO DO NARIZ tinha FALHADO SILENCIOSAMENTE no script (o str.replace
+    nao casou — o trecho tinha parametros diferentes dos que eu procurei). O .blend real ainda tinha
+    o nariz em x=1,175. E o "recline" do torso era so' a FORMA do elipsoide, sem ROTACAO (rot=0).
+    LICAO (regra 230): REPLACE que nao casa = NO-OP silencioso. VERIFICAR O ARTEFATO (bbox/rot no
+    .blend salvo) DEPOIS DE CADA EDIT, nao confiar no "v28.py OK".
+  ROUND 2 (3,0): nariz verificado x[0.78;0.96] (overhang 0.358), torso rot Y=32°, capacete x=-0.330.
+    MAS o vision reprovou IGUAL: "elipsoide SIMETRICO rodado 32° NAO LE COMO RECLINE" — um blob
+    oval inclinado le' como blob oval, nao como PESSOA sentada. "Tronco+pescoço-totem. Robô sentado
+    SOBRE o kart. Cabeça a 2x da altura do concept."
+  REGRA 231: POSTURA le' por SILHOUETA DE CANTOS (cabeca A FRENTE do tronco, queixo, angulo tronco-
+    coxa ~90°), nao por blob girado. O concept tem: tronco ~45°, cabeca logo ATRAS do volante,
+    pescoço quase inexistente, perna esticada ~horizontal com pe no pedal — sao RETAS/ANGULOS, nao
+    elipsoides.
+  proximo: piloto por CAIXA-ESQUELETO articulada (quadris fixos, tronco inclinado retangular,
+    cabeca, coxa horizontal, canela, braco ao volante) — retas legiveis, nao blobs.
+  series vision: 1,8 1,5 1,7 2,2 2,7 3,0 3,0 3,4 3,6 3,2 3,5 3,8 2,8 3,0 | melhor 3,8 (v027).
