@@ -8816,3 +8816,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CONTORNO: FRONT 6,07 | SIDE 3,48 | REAR 8,04 | TOP 3,20 | altura 1,253 ✓
   ESTADO: MELHOR POR VISION B103 (2,75); B123/B124 nao avaliados. AUDITOR e PRANCHA suspensos.
     OBJETIVO NAO ATINGIDO.
+
+
+## *** B125: RODAS CONVERGINDO PARA O CHAO — VAO 14-17 -> 7-8 -> 3-4 mm *** ***
+  Iteracao por realimentacao (regra 95) apos o achado do fator 5,88%% do raio (regra 97):
+    B123: W_FL z[0,0140] (14 mm) | W_RL z[0,0177] (18 mm)
+    B124 (z *= 0,9412): W_FL z[0,0071] (7 mm) | W_RL z[0,0084] (8 mm)
+    B125 (z *= 0,968):  W_FL z[0,0031] (3 mm) | W_RL z[0,0037] (4 mm)   ✓ convergindo
+    ⟹ o fator de encolhimento NAO e constante (depende de r/d do cilindro) — a realimentacao converge
+      mas a passos decrescentes; mais 1-2 iteracoes para 0,000.
+  CONTORNO ESTAVEL: FRONT 6,07 | SIDE 3,48 | REAR 8,04 | TOP 3,20 (nao mexeu com a posicao das rodas ✓ —
+    confirma que o contorno NAO mede contato com o chao, regra 74).
+  ESTADO: MELHOR POR VISION B103 (2,75); B123-B125 nao avaliados por vision.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
