@@ -10431,3 +10431,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 178: ao construir variante, VERIFICAR A BASE com assert (modifiers E conteudo) — nao assumir
     que o script herdado tem as correcoes. A cadeia correta tem que estar na BASE, nao no replace.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v030: RIM NOVO + COLAPSO = MELHOR ESTADO DA SESSAO EM TODAS AS METRICAS *** ***
+              boundary  nonman  zero-area  doubles   faces-fio
+    v025         0       552       1       4339      5700
+    v027         8       188       0       1011      1058
+    v029         0       548       0       2986      4718
+    v030         0        68       0        389       874   <- MELHOR EM TUDO
+  cage: faces-fio 324 -> 1 (4 iteracoes) e boundary 70 -> 3
+  ⟹ O rim novo (banda de quads) e o colapso NAO ERAM ALTERNATIVAS - ERAM COMPLEMENTARES: o rim
+    removeu os fios estruturais (5700->4718) e o colapso os residuais (4718->874), levando o
+    NON-MANIFOLD de 552 para 68 (8x melhor).
+  ⟹ 'COMBINAR rim novo + colapso' foi a acao certa — exatamente o que eu registrei como proximo passo.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
