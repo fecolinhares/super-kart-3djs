@@ -7981,3 +7981,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Artefato: modeling/render_mapa_cor.py (mapa prefixo->cor VERSIONADO no repo, nao mais em /tmp — regra 57).
   PENDENTE PRINCIPAL: o contorno do B074 (9,92/6,21/6,79/2,55) precisa ser re-otimizado SOBRE a estrutura
   agora correta (regra 55) — o alvo <=5%% anterior estava ajustado com a asa no lugar errado.
+
+
+## B079-B081: ASA NO TOPO — DIMENSAO VALIDADA, MAS NAO ERA O DONO DO ERRO ***
+  [B079] estreitou a asa (-0,72..0,72 -> -0,32..0,32): FRONT 9,92 -> 10,62%% ✗
+  [B080] owner map do topo: SÓ a R_Wing esta acima de 1,10 m | bbox 0,537 m = 0,434 normalizado
+    (contra 0,17-0,31 do concept) — e eu havia pedido 0,64 m: O SubD encolheu ~16%% DE NOVO.
+  [B081] compensou o SubD: -0,19..0,19 -> VERIFICADO bbox 0,319 m = 0,258 normalizado ✓ DENTRO da faixa do
+    concept (0,17-0,31). A dimensao da asa agora esta CORRETA.
+    E o FRONT quase nao mudou: 10,62 -> 10,06%% (a 'falta' ate PIOROU 7,17 -> 7,63).
+  ⟹ A asa esta certa e NAO era o dono do erro de 10%% do FRONT.
+  REGRA 59: confirmar a DIMENSAO de uma peca (bbox medido dentro da faixa do concept) nao prova que ela era
+    o dono do erro. Owner map identifica QUEM esta na faixa; a ablacao identifica QUEM CAUSA o erro.
+    Quando a correcao da peca certa nao muda a metrica, o dono e outro — e a estacao pior ('50,4%% na
+    estacao 58%% do comprimento') aponta para ONDE procurar.
+  ESTADO ATUAL (B081): FRONT 10,06 | SIDE 6,58 | REAR 6,06 | TOP 2,63
+    Estrutura: asa acima do capacete ✓ (0,258 norm dentro de 0,17-0,31) | cor do piloto ✓ (58,6-61,2%%)
+    PENDENTE: FRONT 10,06 — o dono esta na ESTACAO 58%% do comprimento (nao na altura) — proximo owner map por ESTACAO.
