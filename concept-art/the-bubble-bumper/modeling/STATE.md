@@ -7768,3 +7768,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     faixa de altura e verificar se as feicoes estao ALINHADAS verticalmente.
   ══ MELHOR ESTADO: B066 — FRONT 5,68 | SIDE 3,73 ✓ | REAR 4,01 ✓ | TOP 2,94 ✓
      MEDIA DAS 4 VISTAS: 4,09%% (era 4,25%% no B059). Tres vistas com folga no alvo; FRONT a 1,14x.
+
+
+## B067-B068: *** CONVENCAO DO PERFIL (k%% DO TOPO) + SIDEPODS ALTOS = MELHOR ESTADO *** ***
+  DESCOBERTA DE CONVENCAO: o k%% do perfil e medido DO TOPO, nao da base. Logo 'o concept e largo em 40-46%%'
+  significa z 0,68-0,75 m (ALTURA DOS OMBROS), nao z 0,50-0,58. Reinterpretacao de todos os perfis anteriores.
+  [B067] sidepods para z 0,36-0,58 (29-47%% do topo): TOP 2,94 -> 2,50 ✓ mas FRONT sem mudanca (a faixa certa
+    era outra).
+  [B068] sidepods para z 0,445-0,755 (39-64%% DO TOPO) com 0,434 m de largura — cobrindo a zona onde o concept
+    tem 1,10 m e o modelo tinha 0,28:
+      FRONT 5,68 -> 5,25 ✓✓ (MELHOR FRONT: 1,05x do alvo) | SIDE 3,73 -> 2,83 ✓✓ (MELHOR SIDE)
+      REAR 4,01 (mantido) ✓ | TOP 2,55 ✓
+      FALTA acumulada do FRONT: 12,3 -> 8,06 (-35%%) — o deficit caiu de verdade.
+  ══ MELHOR ESTADO: B068 — FRONT 5,25 | SIDE 2,83 ✓ | REAR 4,01 ✓ | TOP 2,55 ✓
+     MEDIA DAS 4 VISTAS: 3,66%% (era 4,25%% no B059 e 4,09%% no B066).
+  REGRA 49: definir e DOCUMENTAR a convencao de medida (do topo ou da base) na docstring do instrumento —
+    eu medi 4 builds com a convencao invertida na cabeca.
