@@ -10655,3 +10655,37 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     quad) — vem da CONSTRUCAO INTERNA fl/yr: o blend do smoothstep criou uma RAMPA onde devia haver
     CORTE VERTICAL, e a rampa produz PAREDE INTERNA COINCIDENTE no avaliado.
   ESTADO: 2 das 5 zonas. MELHOR NOTA 6,0. OBJETIVO NAO ATINGIDO.
+
+## *** v044: WATERPROOF E MANIFOLD — boundary=0, NON-MANIFOLD 260->0, ZERO-AREA=0, quase-zero=0 *** ***
+              boundary  nonman  zero-area  quase-zero  faces-fio  doubles
+    v039          0        260        0         0         1779       -
+    v043b/v044    0          0        0         0         1644      979    <- NONMAN ZERADO
+    14372 quads | 0 tris | 0 ngons
+
+  COMO (5 passos, todos medidos):
+   1) MEDI onde estavam os 264 non-manifold: TODOS em y=0,0000 (a costura do Mirror), 3 faces por
+      aresta. Causa: o ANEL FECHADO do meu builder criava um QUAD PLANO SOBRE o plano de simetria,
+      que o Mirror duplicava. NAO era rampa, nao era parede dupla (hipotese do vision refutada).
+   2) tira ABERTA em y=0 (o Mirror sela) -> nonman 260 -> 0
+   3) o meu bloco de limpeza fazia holes_fill e RE-FECHAVA a costura (recriando as faces planas)
+      -> filtrar a costura do fill
+   4) a limpeza por DELECAO abria buraco no nariz -> COLAPSO (regra 175 aplicada)
+   5) o buraco restante era um CAMINHO ABERTO (graus 1-2), nao loop -> contextual_create + fill
+
+  REGRA 195: o anel NAO deve ser fechado — fechar cria face plana sobre o plano de simetria que o
+    Mirror duplica (3 faces por aresta = non-manifold). Meio-veiculo se modela com TIRA ABERTA.
+  REGRA 196: watertight != correto. O vision separou GATE A (tecnico: watertight/manifold/quads) de
+    GATE B (visual) — corrigir non-manifold e OBRIGATORIO E INVISIVEL: vale +0,3, nao +1,0.
+
+## *** VISION v044 = 6,3 — 'GATE A TECNICO PASSOU; FALTA A GUERRA DO RAIO' *** ***
+  (3) FRONT 6,0 | SIDE 7,2 | REAR 5,5 | TOP 5,3 | ZOOM 6,0   GLOBAL 6,3 (de 6,0)
+  (4) 'PASSA no GATE A TECNICO: watertight, boundary 0, manifold 0, all-quads. Isso era ELIMINATORIO
+    e passou. REPROVA no Gate B/C: 4 cantos em planta SEM RAIO (concept e todo redondo, o cockpit e
+    caixa com dardos); transicao chao->parede->rim sem raio generoso (daí o whiteout); 1644 quads fio
+    concentrados JUSTAMENTE ONDE O OLHO OLHA.'
+  (1) 'Voce CURou a infeccao, mas a CICATRIZ GEOMETRICA ficou' — a estrela preta sumiu como pixel preto
+    ('prova que seu fix de normais funcionou') mas virou VINCO de topologia; os 4 pingos viraram Vs cinza.
+  FRASE-CHAVE: 'VOCE VENCEU A GUERRA DO MIRROR. AGORA FALTA A GUERRA DO RAIO.'
+  RECEITA v045: redesenhar o contorno do cockpit EM PLANTA com FILLET GRANDE nos 4 cantos; abrir 2-3
+    loops de suporte no rim; relaxar a parede; dissolver edges < 3 mm no rim. No bico: nao deixar 5-6
+    loops morrerem no mesmo vertice em y=0 — distribuir em leque e puxar 1-2 mm para fora.
