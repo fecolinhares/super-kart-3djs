@@ -9105,3 +9105,30 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
       que ele pediu), 10 faces controladas, azul DENTRO do U amarelo coplanar.
   CONTRATO: altura 1,253 m ✓. ESTADO: MELHOR VISION B132 = 2,3. B141 nao avaliado.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION B141 = 1,50 (REGRESSAO MINHA, DE 2,28) — E O VISION PROVOU O ERRO POR GEOMETRIA *** ***
+  VISION: 'Voce fez 1 LAJE TRANSVERSAL UNICA que liga esquerda-direita por baixo do piloto. O TOP
+  denuncia: retangulo macico continuo. Isso e INVERSao ARQUITETURAL, nao e pod.'
+  '10 FACES DESMENTE TUDO: cubo = 6 faces. Inset quad no topo = 5 (anel 4 + centro 1) = 10 faces SE A
+   PROFUNDIDADE FOR ZERO. Com profundidade 0,010 e paredes seriam 14 faces. Seu numero 10 PROVA que o
+   inset foi FLAT, SEM PAREDE. E sem NENHUM corte para taper.'
+  'Nao tem taper quadratico: create_cube tem 4 vertices laterais, so CISALHA RETO.'
+  'Deletou a capsula e trocou por um COLCHAO.'
+  NOTAS: FRONT 1,5 | SIDE 2,0 | REAR 1,3 | TOP 0,7 | GLOBAL 1,50 (regressao de 2,28)
+  SERIE: ... 2,3 > 2,25 > 2,28 > 1,50
+  *** O ERRO EM NUMEROS (dimensoes que eu errei) ***
+    EU FIZ   : 1,12 x 0,49 x 0,30  = os DOIS pods fundidos numa laje (0,49 de largura) e 0,30 de altura
+    ELE PEDE : DOIS cubos SEPARADOS, cada um ~0,75 x 0,28 x 0,20
+  *** RECEITA LITERAL DO VISION (para sair de 1,5) ***
+    'apague essa laje. Crie DOIS cubos separados SP_L e SP_R, cada um ~0,75 x 0,28 x 0,20, com 4-5 LOOP
+     CUTS LONGITUDINAIS, modele a barriga com proportional editing, arredonde com bevel, ai sim inset no
+     topo com material amarelo no anel e azul no centro. Enquanto for UMA caixa de 10 faces, a nota
+     ficara <2.'
+  REGRA 112: UM objeto so pode ocupar o volume de UMA peca do concept. Se a caixa abrange os dois lados,
+    nao e pod — e assoalho. Sempre uma peca por volume nomeado.
+  REGRA 113: 4 vertices laterais NAO fazem taper curvo (so cisalha reto). Curva exige LOOP CUTS antes de
+    deslocar. Alem disso: inset com profundidade aumenta a contagem de faces (cubo 6 -> 10 flat / 14 com
+    parede) — a contagem de faces e um TESTE de que o inset tem parede de fato.
+  ESTADO: MELHOR VISION B132 = 2,3. B141 = 1,50 (regressao). CONTRATO altura 1,253 m ✓.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
