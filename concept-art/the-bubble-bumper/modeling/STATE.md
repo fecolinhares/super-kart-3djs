@@ -10371,3 +10371,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 174: aceitar o trade-off so com numero: fio 5700->1536 (melhor) vs boundary 0->34 (pior).
     Nenhum dos dois esta LIMPO OK; a decisao exige uma variante que resolva OS DOIS.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v027: COLAPSAR (nao deletar) — MELHOR ESTADO AVALIADO DE TODA A SESSAO *** ***
+                      v025      ->  v026 (deletar) ->  v027 (COLAPSAR)
+    faces-fio            5700      ->   1536         ->   1058    ✓ (5,4x menos)
+    NON-MANIFOLD          552      ->    991         ->    188    ✓ (3x melhor)
+    zero-area/quase       141      ->      0         ->      0    ✓
+    doubles              4339      ->    622         ->   1011
+    boundary                0      ->     34         ->      8
+  NO CAGE: faces-fio 346 -> 1 (iteracao 4) e boundary 80 -> 7.
+  ⟹ COLAPSAR FUNCIONA, DELETAR NAO. O colapso funde dois verts e PRESERVA a manifoldness; deletar
+    a face ABRE BURACO. E o oposto do que eu fiz no v026.
+  REGRA 175: para eliminar faces-fio, COLAPSAR a aresta curta. Deletar a face abre buraco — a
+    operacao simples resolve o que a destrutiva estraga.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
