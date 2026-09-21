@@ -7455,3 +7455,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   FRONT RESISTE: a faixa pior e 31%% da altura com excesso 14, e minhas hipoteses (sidepods, rodas) foram
     REFUTADAS por medicao. PROXIMO PASSO: owner map na faixa z~0,384 (feito, ver log) para nomear a peca.
   RATIOS DO CONTRATO: L +1,7%% | H -1,2%% | L/H +2,9%% | W/H +6,2%%.
+
+
+## *** SINAL DE INSTRUMENTO: O FRONT NAO RESPONDE A GEOMETRIA ***
+  O FRONT marca EXATAMENTE 6,68%% em SEIS builds seguidos (B036, B037, B038, B039, B040, B041) apesar de
+  mudancas reais de geometria em cada um (sidepods, rodas, bumper traseiro, bumper frontal).
+  Uma mediana que nao responde a mudanca de geometria NAO E MEDICAO — e artefato (mesma classe do bug do REAR,
+  onde o maior componente pegava so metade do veiculo).
+  HIPOTESES A TESTAR (proxima sessao, ANTES de qualquer ajuste de peca):
+    1. a mascara do concept FRONT inclui reguas/linhas de cota (o BRUTO dava W/H 0,949 vs 1,173 no limpo)
+    2. o perfil do FRONT usa o eixo Y (altura) e a normalizacao pelo eixo pode saturar nas pontas
+    3. o render do FRONT pode estar com enquadramento diferente do concept (o render mede W/H 1,245 = geometria ✓,
+       mas o ALINHAMENTO entre os dois (base/topo) pode estar deslocado e gerar erro constante)
+  AUSENCIA DE PROVA: enquanto o FRONT nao responder a uma mudanca SABIDAMENTE grande (teste de sensibilidade),
+  qualquer numero dele e inutil — e eu me recuso a otimizar contra um numero inutil.
+  ESTADO CONSOLIDADO (B038): SIDE 3,49%% ✓ | REAR 4,73%% ✓ | TOP 4,18%% ✓ | FRONT 6,68%% (sob suspeita)
