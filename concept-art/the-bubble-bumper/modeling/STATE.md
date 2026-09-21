@@ -10514,3 +10514,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 184: um modifier que resolve um problema e cria outro NAO e a solucao — e um PALIATIVO
     LOCALIZAVEL. Achar a origem das 3 bordas e tampa-las na geometria fecha os DOIS criterios.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v035: MELHOR ESTADO DA SESSAO EM TODAS AS METRICAS (regras 183 + 185) *** ***
+              boundary  nonman  zero-area  quase-zero  doubles   faces-fio   verts
+    v030          0        68        0        12        389       874      24290
+    v035          0        34        0         0        236       470      12092   <- MELHOR EM TUDO
+  cage boundary = 0 SEM Solidify | mods [MIRROR, SUBSURF, WEIGHTED_NORMAL]
+    NON-MANIFOLD 68->34 (2x) | quase-zero 12->0 | doubles 389->236 | faces-fio 874->470 (1,86x) |
+    verts 24290->12092 (METADE — a parede dupla morreu)
+  ⟹ DUAS REGRAS produziram isso: 183 (Solidify sobre malha fechada cria parede dupla) e 185 (as 3
+    bordas orfas eram um MICRO-TRIANGULO DEGENERADO de 3 mm na ponta do nariz). Removi os dois e
+    TUDO melhorou junto.
+  REGRA 185: bordas orfas resistentes a holes_fill sao DEGENERADOS MINUSCULOS — localizar por
+    COORDENADA (como aqui: 3 verts num raio de 5 mm) e o caminho, nao insistir no fill.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
