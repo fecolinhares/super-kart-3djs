@@ -10902,3 +10902,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   APRENDIZADO CENTRAL DO CICLO: o blockout por primitivas SATUROU — 5 builds entre 3,0 e 3,2. Os
     ganhos agora vem de FORMA AUTORAL (loft) e DETALHE (pes, maos, volante toro, a traseira real),
     nao de mais cotas.
+
+## *** v032/v033: "FORMA AUTORAL" QUE ERA ILUSORIA — vision 2,0 -> correcao medida *** ***
+  v032 (vision 2,0, QUEDA): o vision reprovou DURAMENTE: "voce descreveu loft/toro/superelipse que
+    NAO EXISTEM NA IMAGEM". E ele estava CERTO — medi no .blend:
+    - R_Wing tinha 30 faces e espessura ~CONSTANTE (anel(y0,y1,z1-esp,z1) com esp minima em t=0.5
+      -> o "perfil alar" era uma PRANCHA com bordas opostas) — prancha mesmo.
+    - P_Wheel tinha z constante (0.655..0.655) = ANEL PLANO SEM ESPESSURA, nao toro.
+    - N_Nose: secao py=0.90 mas aneis de 16 pontos com bbox estreito — "bico de lapis".
+  v033: REFEITO por MEDICAO no .blend: asa em GOT A (espessura 0.096 verificada, 42 faces, afinando
+    de 0.858 para 0.830 ao longo da corda), volante TORO 3D (espessura 0.032 verificada), contato 14/14.
+  REGRA 234: "FORMA AUTORAL" so' conta se a MEDICAO DO MESH confirmar (faces, espessura variavel,
+    bbox por secao). Descrever loft no commit sem medir a espessura real = alegacao falsa — e o
+    vision detectou ("alegacao falsa agrava").
+  REGRA 235: anel fechado com z1-esp onde esp -> 0 em alguma estacao gera PRANCHA mesmo "em loft".
+    O perfil precisa variar de VERDADE: medir espessura por secao e imprimir.
+  Serie vision: 1,8 1,5 1,7 2,2 2,7 3,0 3,0 3,4 3,6 3,2 3,5 3,8 2,8 3,0 3,1 3,2 2,0 | melhor 3,8 (v027).
+  Score 3 eixos v033: perfil 0,049 | vazio 0,199 | contato 14/14 | SCORE 0,248.
