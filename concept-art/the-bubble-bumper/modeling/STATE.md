@@ -10411,3 +10411,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 177: PROGRESSO se mede em FORMA, nao em metrica de sanidade. Sanidade e pre-requisito; a nota
     visual e o criterio. Numero sem forma nao e progresso.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v028/v029: RIM REDESENHADO EM BANDA DE QUADS — E O ERRO DA BASE DO SCRIPT *** ***
+  ERRO MEU: construi o v028 a partir do script v018 (que AINDA TEM O BEVEL) em vez do v025 (limpo).
+    Com o Bevel de volta e o rim novo, o avaliado deu NON-MANIFOLD=790, ZERO-AREA=27243 (o PIOR da
+    sessao) e fio=55722. TERCEIRA vez que eu perco o controle de qual script tem o que.
+  CORRECAO: reconstrui a partir da base certa (tub25, sem Bevel) com asserts: 'bevel ausente',
+    '1 subsurf', 'rim novo presente'.
+  v029 (base certa + rim em BANDA DE QUADS): [MIRROR, SUBSURF, SOLIDIFY, WEIGHTED_NORMAL]
+    boundary=0 ✓ | NON-MANIFOLD=548 | ZERO-AREA=0 ✓ | quase-zero=113 | doubles=2986 | fio=4718
+  COMPARACAO DOS TRES MELHORES:
+                boundary  nonman  zero-area  fio
+    v025           0       552       1      5700
+    v027           8       188       0      1058   <- melhor em nonman e fio
+    v029           0       548       0      4718   <- melhor em boundary e zero-area
+  ⟹ o rim em banda de quads derrubou as faces-fio (5700 -> 4718) e fechou o boundary, mas o v027
+    (colapso) segue melhor em non-manifold e fio. O ideal e COMBINAR: rim novo + colapso.
+  REGRA 178: ao construir variante, VERIFICAR A BASE com assert (modifiers E conteudo) — nao assumir
+    que o script herdado tem as correcoes. A cadeia correta tem que estar na BASE, nao no replace.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
