@@ -8970,3 +8970,29 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     (b) a regra 107 (mudar bico/asa/motor nao move a silhueta FRONT/REAR; e preciso mudar o que PROJETA).
   ESTADO: contorno FRONT 7,72 | SIDE 3,09 | REAR 9,93 | direcionalidade 0,999 vs 0,696 (FALHA).
     MELHOR POR VISION B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION B132 = 2,3/10 (+0,15) — A RAIZ FOI CONFIRMADA PELO VISION *** ***
+  VISION (texto dele):
+    '(1) O cilindro azul vertical sumiu? SIM. O bug que eu denunciei 3x sumiu. Agora em SIDE e TOP o
+     azul esta HORIZONTAL, baixo, longitudinal. Em FRONT nao ha mais totem azul. RAIZ CORRIGIDA.
+     PONTO PARA VOCE.'
+    '(2) O nucleo azul 0,61 x 0,29 x 0,28 base a 4 cm: em SIDE ele finalmente tem proporcao de salsicha
+     baixa ate o joelho. CORRETO em orientacao e altura.'
+    '(3) notas: FRONT 2,0 | SIDE 3,2 (melhor da serie - mostra a capsula horizontal corrigida) |
+     REAR 2,1 | TOP 1,8 | GLOBAL 2,3. Voce consertou a fundacao e expos o resto podre.'
+  SERIE DE VISION: 2,0 > 2,75 > 2,25 > 1,9 > 2,1 > 2,1 > 1,95 > 2,45 > 2,4 > 2,3 > 2,1 > 2,15 > 2,3
+  PRESCRICAO DO VISION (priorizada por ele):
+    1. APAGAR OS MASTROS ('2 mastros finos verticais INVENTADOS, nao existem no concept; a asa virou
+       disco voador fino a 2x altura') -> APLICADO e VERIFICADO (R_Mast removido; asa z[0,50;0,62])
+    2. TRAVAR ESCALA MESTRE PILOTO=1x ('piloto Godzilla, 2x maior; em SIDE a cabeca esta na altura da
+       asa; no concept esta ENCAIXADO. Isso sozinho destroi FRONT/SIDE/REAR') -> NAO APLICADO
+       (o meu replace buscou '# ###FIM###', que NAO EXISTE no script -> NO-OP silencioso; P_Head
+       z[0.948;1.252] identico; altura total 1,253 m; regra 34/100 novamente)
+    3. REFAZER A CASCA DOS PONTOES como capsula real e nao laje ('a casca anula o fix do nucleo:
+       prismatica, sem round, flutuante, larga e comprida demais; TOP prova: laje retangular') -> ABERTO
+  O QUE FLUTUA/INVENTADO segundo ele: barra de direcao atravessa o piloto; bico solto a frente; casca
+    dos pods paira; barras do chassi flutuam; motor-bola; mastros (removidos); asa-disco (baixada);
+    endplates flutuam; rodas com z-fighting ('derretidas').
+  ESTADO: contorno FRONT 7,15 | SIDE 3,09 | REAR 8,80 | direcionalidade 0,999 vs 0,696 (FALHA).
+    MELHOR POR VISION: B132 = 2,3 (recorde). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
