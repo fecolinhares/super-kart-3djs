@@ -8937,3 +8937,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     pecas com capsula() e todas tinham o corpo em pe desde o inicio do reboot.
   REGRA 106: quando o vision reporta o MESMO artefato 3+ vezes e eu o justifico como 'design', parar e
     MEDIR o codigo que o produz. O vision nao erra o sintoma; eu errei a atribuicao 3 vezes.
+
+
+## *** B132: A SIMETRIA NAO SE MOVE COM PECAS QUE NAO PROJETAM *** ***
+  Tentei quebrar a simetria mudando carenagem, bico, asa, motor e criando 2 mastros. O gate NAO se moveu:
+    IoU MODELO 0,999 -> 0,999 (identico) | CONCEPT 0,696
+  CAUSA: as pecas que mudei ficam ATRAS do piloto na projecao FRONT/REAR ou a frente do bico — nao
+    aparecem na silhueta. O que define FRONT e REAR e o conjunto RODAS + PILOTO + CARROCERIA LATERAL,
+    e esse conjunto e o MESMO dos dois lados.
+  MEDIDO (perfil de largura por coluna, fracao preenchida):
+    MODELO  front vs rear: diferenca media 0.001 (max 0.026)
+    CONCEPT front vs rear: diferenca media 0.000 (max 0.000)
+  ⟹ REGRA 107: para quebrar a simetria frente-tras e preciso mudar o que PROJETA: largura das rodas
+    traseiras, largura/altura da carroceria traseira, presenca das asas/endplates. Mudar a FORMA do bico
+    nao muda a silhueta frontal.
+  ESTADO: contorno FRONT 7,72 | SIDE 3,09 | REAR 9,93 | direcionalidade 0,999 vs 0,696 (FALHA).
