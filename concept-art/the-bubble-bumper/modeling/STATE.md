@@ -9291,3 +9291,26 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     continuacao disso: ter a peca com a cota certa nao e ter a forma/leitura certa.
   ESTADO: MELHOR VISION B132 = 2,3 | B149 = 1,15. CONTRATO altura 1,260 m ✓.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B150 = 1,05 (queda) E O VISION DEU O DIAGNOSTICO ESTRUTURAL DECISIVO *** ***
+  VISION: 'Voce NAO CORRIGIU a dianteira, voce REDECOROU O ERRO. Voce atacou o SINTOMA, nao a
+  ARQUITETURA: largura total, altura, posicao das rodas. Enquanto nao travar TRACK-WIDTH + WHEELBASE +
+  DIAMETRO, nenhuma vista vai fechar.'
+  E a frase mais importante da sessao: 'Isso prova que o MODELO FOI MONTADO POR VISTA, NAO EM 3D
+  COERENTE' (a partir de ver no TOP a asa traseira VERTICAL, sidepods soltos e 'arcos de direcao'
+  inventados).
+  LISTA DE INVENTADO/FLUTUANTE (5a vez que ele lista): chifres verticais cinza com ponta amarela;
+    cubos brancos SOBRE os pneus (nao aros dentro); barra cinza espetando; volante torus sem coluna;
+    2 bolinhas amarelas soltas no TOP; arcos brancos duplos da direcao; DISCO AZUL VERTICAL como asa;
+    sidepods ovais sem juncao.
+  NOTAS: FRONT 1,2 | SIDE 1,3 | REAR 1,0 | TOP 0,7 | GLOBAL 1,05
+  ⟹ PADRAO DO CICLO: eu trato a vista que ele reclamou (FRONT), adiciono pecas com cota correta, e a
+    nota NAO sobe porque a BASE nao esta travada. Dois ciclos seguidos: mais pecas, mesma divergencia.
+  REGRA 123: ANTES de modelar detalhe para satisfazer uma vista, TRAVAR a base (track-width, wheelbase,
+    diametros, altura, comprimento) e provar coerencia 3D entre as 4 vistas. Detalhe em base nao travada
+    apenas 'redecora o erro' e pode PIORAR a nota (1,15 -> 1,05).
+  REGRA 124: toda peca deve ter orientacao verificada nos 3 eixos (a asa do concept e HORIZONTAL e
+    transversal: y >> x,z). Verificar por dim() antes de render.
+  ESTADO: MELHOR VISION B132 = 2,3 | B150 = 1,05. CONTRATO altura 1,260 m ✓.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
