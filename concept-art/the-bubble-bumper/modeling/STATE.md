@@ -9314,3 +9314,27 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     transversal: y >> x,z). Verificar por dim() antes de render.
   ESTADO: MELHOR VISION B132 = 2,3 | B150 = 1,05. CONTRATO altura 1,260 m ✓.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** BASE TRAVADA (REGRA 123): ENTRE-EIXOS DO CONCEPT MEDIDO = 1,269 m (EU USO 1,60 m) *** ***
+  Execucao da prescricao estrutural do vision ('travar track-width + wheelbase + diametro').
+  MEDIDO NO CONCEPT (mascara VALIDADA, SIDE):
+    kart 756 px comprimento x 397 px altura  ⟹ L/H = 1,904
+      ⟹ CONFIRMA o contrato (1,877) com 0,15%% de diferenca — o contrato fonte esta solido.
+    centro roda dianteira 296 px | traseira 704 px  ⟹ ENTRE-EIXOS = 408 px = 0,540 do comprimento
+      ⟹ WHEELBASE DO CONCEPT = 0,540 x 2,35 m = 1,269 m
+  MEDIDO NO MEU MODELO: W_FL x=+0,80, W_RL x=-0,80 ⟹ ENTRE-EIXOS = 1,60 m
+    ⟹ ERRO DE +26%% (1,60 vs 1,269 m) — o meu kart e mais LONGO entre eixos que o concept.
+    ⟹ E por isso que ele le 'estreito, alto, pernalta' e porque as 4 vistas nao fecham: a distancia
+      entre eixos define onde caem rodas, pods, cockpit e traseira. Com a base errada, cada peca
+      posicionada 'pela vista' cria uma incoerencia.
+  NOTA DE METODO: a mascara do TOP pelo criterio de cor deu bitola = 590 de 612 px (a imagem toda) — a
+    grade de fundo contamina; usar SEMPRE gc.mascara_concept (validada) e desconfiar de valor que
+    ocupa a dimensao inteira (regra 108). A medicao do SIDE e valida (mascara validada).
+  BASE A TRAVAR (numero do concept -> numero do modelo):
+    altura total  1,2523 m  -> 1,260 ✓
+    comprimento   2,35 m    -> 2,31 (medir e ajustar)
+    largura       1,4411 m  -> 1,48 (medir)
+    ENTRE-EIXOS   1,269 m   -> 1,60  ✗ CORRIGIR
+    diant/tras diam raz 1,73x medido no concept -> 1,53x (aceitavel)
+  ESTADO: MELHOR VISION B132 = 2,3 | B150 = 1,05. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
