@@ -9247,3 +9247,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     confianca — resolve-se medindo o concept no mesmo eixo. (Aqui: 1,73x medido vs 1,15x afirmado.)
   ESTADO: MELHOR VISION B132 = 2,3 | B148 = 1,38. CONTRATO altura 1,253 m ✓.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B149: PILOTO MODELADO (A PRIORIDADE Nº1 DO VISION — 'VALE -4 PONTOS') *** ***
+  O vision cobrou: 'PILOTO NAO EXISTE. No concept o piloto e 40%% da leitura - capacete grande, corpo,
+  bracos, pernas. Modelo e um boneco de neve azul: capsula+caixa, sem rosto, sem viseira, sem bracos no
+  volante, sem pernas. Sem piloto nao ha escala humana, nao ha kart infantil.'
+  CONSTRUIDO (medido):
+    P_Torso    0,185 x 0,339 x 0,366  z[0,397;0,763]  torso sentado, inclinado 14 graus
+    P_Shoulder 0,16 x 0,52 x 0,16    z[0,76;0,92]    ombros
+    P_Helmet   0,306 x 0,296 x 0,319  z[0,940;1,260]  CAPACETE liso, define a altura
+    P_Stripe   0,201 x 0,047 x 0,201  z[1,039;1,241]  FAIXA AMARELA central
+    P_Visor    0,109 x 0,227 x 0,150  z[1,025;1,175]  VISEIRA escura na frente
+    P_ArmL/R   bracos dos ombros ATE as maos no volante + P_HandL/R
+    P_LegL/R   0,421 x 0,125 x 0,117  z[0,322;0,438]  pernas indo para frente dentro do pod
+    P_Wheel    0,274 x 0,153 x 0,247  z[0,637;0,883]  VOLANTE (torus) + P_Column
+  CONTRATO: altura 1,260 m ✓ (1,2523 + folga do capacete).
+  ESTADO: MELHOR VISION B132 = 2,3 | B148 = 1,38. B149 nao avaliado.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
