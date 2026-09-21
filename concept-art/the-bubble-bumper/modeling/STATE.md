@@ -8047,3 +8047,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Os dois juntos nomeiam a peca; so altura nao acha defeito de distribuicao longitudinal (e vice-versa).
   PENDENTE: encher a metade traseira (64-96%%) com bumper traseiro largo+curto, asa com envergadura real
     (concept 0,666 norm na traseira) e carenagem — e manter o comprimento em ~2,35 m.
+
+
+## *** B084-B085: METRICA NAO RESPONSIVA — O PERFIL DO TOP NAO VE O BUMPER TRASEIRO *** ***
+  TESTE DE RESPONSIVIDADE (deve ser rotina para TODO instrumento novo):
+    mudanca de geometria REAL: R_Bumper largY 1,048 -> 1,157 (bbox medido no .blend) ✓
+    render: md5 b1f83b50... -> a126a68a... (imagens DIFERENTES) ✓
+    metrica: perfil do TOP por estacao -> 0,317 / 0,498 / 0,086 IDENTICO ✗✗
+  ⟹ A metrica NAO responde ao objeto que deveria medir. Familia de defeito: hide_render que nao aplicava,
+    densidade inflada, escala do frame errada, patch no-op. Um instrumento que nao mede o que eu penso.
+  REGRA 62: TODO instrumento novo deve passar por um TESTE DE RESPONSIVIDADE antes de ser usado para decidir:
+    mudar deliberadamente a grandeza que ele mede e conferir que o numero MUDA na direcao esperada.
+    Metrica que nao responde nao e evidencia — e ruido com formato de numero. (Mesma classe do teste de
+    ablação por delecao real, que ja me salvou do hide_render.)
+  CONSEQUENCIA: o diagnostico 'metade traseira vazia' (B083) NAO esta confirmado — ele veio desta metrica.
+    Precisa ser re-medido com um instrumento responsivo antes de orientar novas correcoes.
+  ESTADO: B084 tem o bumper traseiro mais largo (1,157 vs 1,048) mas isso NAO aparece na metrica — entao
+    nao ha evidencia de ganho. Comprimento 2,306 m. Contorno: FRONT 10,06 | SIDE 4,81 | REAR 6,01 | TOP 6,33.
