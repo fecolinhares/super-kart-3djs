@@ -8263,3 +8263,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     a ESTRUTURA estar validada por instrumentos independentes (altura, cor, bbox, eixo). Medir o numero e
     validar a estrutura sao dois trabalhos; o segundo da sentido ao primeiro.
   PROXIMO: o vision PROPRIO (gate qualitativo) neste estado. Se aprovar -> subagente auditor duro -> prancha.
+
+
+## *** VISION PROPRIO NO B100: 2,0/10 — REPROVADO (auditor e prancha suspensos) *** ***
+  FRONT 3 | SIDE 3 | REAR 2 | TOP 1 | GLOBAL 2,0/10 — 'blockout de primitivas, nao um kart'.
+  3 divergencias mais graves (do vision):
+    1. SIDEPODS como BALOES FLUTUANTES: no concept sao volumes baixos/chapados colados ao chassi; no modelo
+       sao elipsoides grandes, altos e SUSPENSOS no ar, em todas as 4 vistas.
+    2. RODAS: quantidade/posicao — o vision conta 8 massas de roda onde deveriam ser 4; na TOP as dianteiras
+       aparecem soltas e minusculas.
+    3. DIANTEIRA INVENTADA: sumiu bico+para-choque+grade; no lugar, barra flutuante (FRONT) e um ARCO do
+       tamanho do kart (TOP).
+  ABSURDOS ESTRUTURAIS apontados: arco/torus gigante na dianteira; disco flutuando acima da cabeca;
+    esfera solta no canto da cena; rodas duplas por eixo.
+  ⟹ CONTRAPONTO IMPORTANTE: o CONTORNO das 4 vistas esta <=5%% (3,02/3,17/4,08/4,31) e o vision da 2/10.
+    Confirma a regra 52/73 em escala maior: metrica de silhueta aprovada NAO e fidelidade percebida.
+  REGRA 74: as 4 vistas de contorno <=5%% medem a BORDA da silhueta. Elas nao medem: forma interna, volume,
+    conexao entre pecas, nem se uma peca e um balao onde deveria ser uma chapa. Enquanto a definicao de
+    'fidelidade' for contorno, o gate pode aprovar o que o olho reprova.
+  ESTADO: contorno 4/4 <=5%%, vision 2/10, auditor nao executado, prancha nao enviada. OBJETIVO NAO ATINGIDO.
+  PROXIMO (ordem correta): atacar os 3 alvos do vision — sidepods chapados/colados (nao elipsoides suspensos),
+    rodas em numero/posicao legivel, e a dianteira (bico+para-choque+grade) — e so entao re-medir e re-olhar.
