@@ -7517,3 +7517,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 36: auditar MATERIAL e NORMais por objeto, nao so bbox — peca com bbox perfeita pode estar invisivel.
   REGRA 37: o render nao e o entregavel: validar material/normal na CENA (o .glb sai do que a cena tem).
   ══ BALANCO: SIDE 3,49%% ✓ | TOP 4,70%% ✓ | REAR 4,64%% ✓ | FRONT 6,68%% — 45 builds, 37 instrumentos/regras.
+
+
+## *** ACHADO 38: O TESTE DE BISSECCAO ESTAVA INVALIDO (hide_render nao aplica) ***
+  Refiz o teste de bisseccao com RECORTE FIXO em z (imune a mudanca de bbox — o vicio que eu mesmo
+  identifiquei no primeiro teste): camera ortografica centrada em z=0,62 com ortho_scale fixo, medindo as
+  linhas correspondentes a z=0,387 e z=0,69 em pixels.
+  RESULTADO: TODOS os casos identicos (1,303 m e 0,298 m) — inclusive escondendo rodas, sidepods, bumpers,
+  chassi, motor e piloto. ⟹ o hide_render NAO esta aplicando no render. Os testes de bisseccao anteriores
+  (que apontaram 'rodas e bumpers') tambem estavam contaminados por esse defeito + pela mudanca de bbox.
+  REGRA 38: um teste de ABLACAO so vale se for provado que a ablacao ACONTECEU — verificar que o objeto
+  realmente sumiu (ex.: contar pixels do objeto antes/depois), nunca assumir que hide_render funcionou.
+  ── DIAGNOSTICO DO FRONT (o que sobreviveu a validacao):
+    · o instrumento e valido (self-test 0,0000%% nas 4 vistas) ✓
+    · as mascaras NAO estao contaminadas (sem reguas/cotas; densidade normal nas colunas de borda) ✓
+    · o alinhamento e proximo: W/H concept 1,178 vs modelo 1,245 (5,7%% de diferenca) ✓
+    · a DENSIDADE por linha difere muito: a 33%% e 55%% o modelo e ~5x mais denso que o concept
+      (0,498 vs 0,093) — o concept tem VAZIO ali (o vao classico de kart entre rodas e corpo) e o meu e solido
+    · a 44%% e 66%% o inverso: o concept e mais denso (0,329/0,375) e o meu e vazio (0,116/0,233)
+    ⟹ o FRONT nao e um erro de TAMANHO, e um erro de DISTRIBUICAO de massa/vazios — o gate de contorno
+      (que mede so a silhueta externa) nao consegue expressar isso, e por isso o numero fica travado em 6,68%%.
+  ══ ESTADO: SIDE 3,49%% ✓ | TOP 4,07%% ✓ | REAR 4,99%% ✓ | FRONT 6,68%% (erro de DISTRIBUICAO, nao de silhueta)
