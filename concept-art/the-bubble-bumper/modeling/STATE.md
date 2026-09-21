@@ -8149,3 +8149,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 68: 'o objeto existe' e 'o objeto cobre a regiao alvo' sao duas verificacoes diferentes. SubD/offset
     movem a fronteira efetiva: medir o bbox FINAL contra a coordenada que o instrumento usa.
   ESTADO: FRONT 5,41 | SIDE 3,17 ✓ | REAR 3,24 ✓ | TOP 6,28 | L 2,306 ✓ | H 1,223 | cauda 0,604 (falta ~0,32)
+
+
+## *** B092: CAUDA 0,604 -> 0,769 E TOP 6,28 -> 5,81%% — A DELEGACAO (REGRA 66) CONTINUA RENDENDO *** ***
+  [B092] (1) R_Fairing alargado de +-0,44 para +-0,56 (compensando o SubD)
+         (2) R_Bumper traseiro major 0,52 -> 0,48 (estacao 72-80%% estava larga: 1,26/1,21 vs 0,99/1,00)
+  RESULTADO:
+    estacao 88%%: 0,604 -> 0,769 ✓✓ (concept 0,927) | 96%%: 0,604 -> 0,769 ✓✓ (concept 0,666)
+    estacao 56-64%%: 0,994 -> 0,977 ✓ (aproximou de 0,92-0,95)
+    TOP 6,28 -> 5,81%% ✓✓ | FRONT/SIDE/REAR inalterados (5,41/3,17/3,24) ✓
+  ⟹ SEQUENCIA DO TOP: 6,54 -> 6,28 -> 5,81%% — tres correcoes consecutivas na direcao que o instrumento
+    indicou e tres quedas. O ganho nao veio de tentativa: veio de medir->prever->corrigir->confirmar.
+  ESTADO: FRONT 5,41 | SIDE 3,17 ✓ | REAR 3,24 ✓ | TOP 5,81 | media 4,41%% | L 2,306 ✓ | H 1,223
+    cauda 0,769 (concept 0,927/0,666) — falta pouco.
+  PENDENTE: TOP 5,81 (unico >5%%) e FRONT 5,41 (pior faixa 37,5%% na estacao 63%% do comprimento).
