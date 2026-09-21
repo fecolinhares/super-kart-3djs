@@ -8879,3 +8879,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     saida do build (a memoria do Blender ja foi descartada quando o .blend e aberto depois).
   ESTADO: altura 1,253 ✓ | pernas no chao ✓ | rodas 1,3-1,5 mm ✓ | pontao capsula alta ✓ | viseira/banco ✓
     MELHOR POR VISION B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** O FATO QUE NENHUM DOS 129 BUILDS MEDIU: O KART E SIMETRICO FRENTE-TRAS *** ***
+  O vision (B129, 2,15) apontou: 'FRONT ≈ REAR, o que ja e gravissimo - o modelo e simetrico
+  frente-tras. Concept e direcional: bico em C na frente, motor + 3 escapes + asa atras. Modelo e
+  BIDIRECIONAL: TOP tem nariz pontudo nos DOIS extremos. ENQUANTO FRONT FOR IGUAL A REAR, A NOTA NAO
+  SAI DO 2.'
+  MEDIDO (instrumento novo, gate_direcionalidade.py):
+    FRONT vs REAR do MODELO  : IoU = 0,999  (99,9%% identicos!)
+    FRONT vs REAR do CONCEPT : IoU = 0,696  (69,6%% - claramente direcional)
+  ⟹ E a causa-raiz de uma familia inteira de reprovacoes: eu construi frente e traseira com as MESMAS
+    primitivas e MESMAS dimensoes, entao os dois extremos sao o mesmo objeto espelhado. Todo o resto
+    (cunha, C, grade, escapes, asa) nao muda isso: sem ASSIMETRIA frente-tras o kart nao le como kart.
+  REGRA 102: o gate de contorno NAO detecta simetria frente-tras (ele mede cada vista isolada). Incluir
+    SEMPRE o gate de direcionalidade (IoU FRONT vs REAR) — e o unico instrumento que mede se o veiculo
+    tem FRENTE e TRASEIRA distintas. O concept e a referencia: IoU 0,696.
+  REGRA 103: 'capsula arredondada ALTA' — eu mesmo introduzi 'alta' e construi um pontao de 90 cm (o
+    concept tem ~25 cm, ate o joelho). Alvo de forma deve vir do DESENHO medido, nunca de um adjetivo
+    que eu acrescento a descricao do vision.
+  ESTADO: contorno FRONT 6,07 | SIDE 3,56 | REAR 7,88 | TOP ~3,2 | altura 1,253 ✓ | ioU_modelo 0,999 vs
+    concept 0,696. MELHOR POR VISION B103 (2,75); B129 = 2,15. AUDITOR e PRANCHA suspensos.
+    OBJETIVO NAO ATINGIDO.
