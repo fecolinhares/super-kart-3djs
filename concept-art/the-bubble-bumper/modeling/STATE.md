@@ -7912,3 +7912,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Foi o que o Sol disse no reboot (ordem de dependencias invertida) e eu repeti o erro em escala menor.
   ESTADO: B074 e ESTRUTURALMENTE mais fiel (asa acima do capacete, azul alinhado) e metricamente pior.
     O baseline METRICO (B072) deve ser DESCARTADO como referencia de fidelidade.
+
+
+## B074-B075: VERIFICACAO ESTRUTURAL DENTRO DAS MASCARAS (metodo correto) ***
+  ERRO MEU CORRIGIDO: medi o azul na PRANCHA INTEIRA (que tem titulo/fundo) e deu 8,5-43,7%% — sem valor.
+    A mascara do gate_contorno JA recorta a vista certa (1 regiao por prancha, verificada). REFIZ dentro da mascara.
+  RESULTADO (autoridade estrutural):
+                      CONCEPT              MODELO (B074)
+    FRONT azul:    15,4%% -> 78,9%%        13,5%% -> 88,3%%
+    SIDE  azul:    17,4%% -> 79,4%%        13,5%% -> 88,7%%
+                    (ocupa 62-63%%)       (ocupa 75%%)
+  ✓ O INICIO do azul CASOU (13,5%% vs 15,4-17,4%%) => a ASA ACIMA DO CAPACETE esta confirmada: o B074 corrigiu
+    a relacao capacete/asa de fato. Essa parte da estrutura esta CERTA.
+  ✗ O FIM do azul DIVERGE (concept 79%% vs modelo 88-89%%): o meu azul desce demais. Hipoteses:
+    (a) o macacao do piloto e longo demais; (b) a CARROCERIA esta pintada de azul onde o concept e branco/amarelo.
+    (b) e mais provavel: o azul ocupa 75%% no modelo contra 62-63%% no concept — minha distribuicao de COR esta errada.
+  REGRA 56: antes de medir uma FRACAO dentro da imagem, medir dentro da MASCARA (o recorte) — medir na prancha
+    inteira inclui titulo/fundo e produz numero sem valor (erro meu neste ciclo).
+  ESTADO: B074 estruturalmente correto no eixo capacete/asa e metricamente pior no contorno (regra 55).
+    PROXIMO: auditar a distribuicao de COR (azul so no piloto, carroceria branca/amarela) — e so depois
+    re-otimizar o contorno SOBRE a estrutura certa.
