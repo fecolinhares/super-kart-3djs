@@ -7784,3 +7784,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
      MEDIA DAS 4 VISTAS: 3,66%% (era 4,25%% no B059 e 4,09%% no B066).
   REGRA 49: definir e DOCUMENTAR a convencao de medida (do topo ou da base) na docstring do instrumento —
     eu medi 4 builds com a convencao invertida na cabeca.
+
+
+## B069-B070: AS INVERSOES DE PERFIL CAINDO (5 -> 3) ***
+  [B069] asa traseira baixada (z 0,78-0,94 -> 0,62-0,78, agora em 38-49%% DO TOPO):
+    inversoes 5 -> 3 ✓ | TOP 2,55 -> 2,44 ✓ (melhor TOP) | p95 do FRONT 39,7 -> 33,3 ✓ (cauda menor)
+    MAX do FRONT 44,2 -> 40,7 ✓. FRONT 5,25 (mantido) | SIDE 2,95 ✓ | REAR 4,10 ✓
+  [B070] tentei subir o bumper frontal — PATCH NAO APLICOU (busquei '0,60' e a linha tinha '0,50'):
+    o objeto ficou em z 0,418-0,582 (53-66%% do topo) onde o concept e ESTREITO (0,49) — continua sendo a
+    inversao de 52-58%%. REGRA 34 outra vez: imprimir a linha ANTES de substituir E verificar o objeto
+    DEPOIS do build (eu imprimi mas usei a string errada na substituicao).
+  INVERSOES RESTANTES (3): 40%% do topo (concept 0,879 vs modelo 0,455), 52%% (0,486 vs 1,028),
+    58%% (0,488 vs 1,178). As duas ultimas sao o bumper frontal na faixa errada.
+  ══ MELHOR ESTADO: B069 — FRONT 5,25 | SIDE 2,95 ✓ | REAR 4,10 ✓ | TOP 2,44 ✓
+     media 3,69%% | 3 inversoes (era 5) | p95 do FRONT 33,3%%
