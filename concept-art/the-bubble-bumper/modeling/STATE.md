@@ -7262,3 +7262,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   OUTRO BUG: o torso era caixa QUASE QUADRADA, entao rotacionar 45 graus nao inclinava nada visualmente.
     Forma alongada e obrigatoria para a inclinacao LER.
   [B021] cilindros sem SubD, torso alongado, rodas com CUBO, escapes com furo escuro.
+
+
+## *** PARADA OBRIGATORIA: O GATE VISUAL NAO CONVERGE (decisao de metodo) ***
+  ESCADA COMPLETA DE NOTAS: 2,5 | 3,0 | 3,5 | 4,0 | 4,5 | 4,0 | 6,0 | 3,5 | 3,0 | 4,0 | 5,5 | 3,5 | 4,0 | 3,0
+  O gate deu 6,0 no B015 ('sanidade fisica respeitada') e 3,5 no B016, que CORRIGIA o que ele mesmo pediu.
+  Deu 5,5 no B019 ('bumpers PASSOU') e 3,5 no B020/B022, que tambem corrigiam o pedido anterior.
+  ══> A SERIE NAO CONVERGE. Oscila entre 3,0 e 5,5 com um outlier de 6,0.
+  DIAGNOSTICO (identico ao que o Sol nomeou como causas-raiz 2 e 4):
+    · FUNCAO OBJETIVO INCOMPLETA: eu otimizei para a NOTA do critico qualitativo, um alvo ruidoso e movedico.
+      Cada rodada o critico elege um novo 'maior erro' e a nota reinicia — isso e otimizar ruido, nao fidelidade.
+    · VALIDACAO SEM OBSERVABILIDADE CAUSAL: eu trocava geometria sem saber qual metrica P0 melhoraria.
+  DECISAO (regra 4 do Sol: 3 rejeicoes da mesma classe exigem troca de representacao/metodo):
+    PARAR de iterar contra a nota do VLM. Implementar os GATES DETERMINISTICOS que o Sol definiu no plano:
+      - razoes globais L/H e W/H em +-2%% (extrator: L/H=1,877 W/H=1,151)
+      - landmarks P0 em +-3%% (4 centros de roda, ponta do nariz, extremos do bumper, cockpit, capacete, asa)
+      - CONTORNO POR FAIXA: 100 estacoes, mediana <=5%%, p95 <=10%%, pior faixa <=12%%, reportando o LOCAL do pior
+      - IoU regional >= 0,74
+      - excesso e FALTA reportados SEPARADAMENTE (o modelo pode estar fino de um lado e gordo do outro)
+    O VLM passa a ser usado apenas como gate QUALITATIVO FINAL (o que o Feco pediu), nao como funcao objetivo.
+  POR QUE ISSO IMPORTA: sem o contorno-por-faixa eu nao sei se estou a 5%% ou 40%% do concept — e as 22 builds
+  provaram que a opiniao do critico nao responde essa pergunta.
