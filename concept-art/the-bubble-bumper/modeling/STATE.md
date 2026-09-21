@@ -8952,3 +8952,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     traseiras, largura/altura da carroceria traseira, presenca das asas/endplates. Mudar a FORMA do bico
     nao muda a silhueta frontal.
   ESTADO: contorno FRONT 7,72 | SIDE 3,09 | REAR 9,93 | direcionalidade 0,999 vs 0,696 (FALHA).
+
+
+## *** CORRECAO: O PERFIL AD-HOC ESTA QUEBRADO (CONCEPT DEU 0,000 = IMPOSSIVEL) *** ***
+  Medicao ad-hoc do perfil de largura por coluna:
+    MODELO front vs rear: diferenca media 0,001 (max 0,026) ✓ plausivel
+    CONCEPT front vs rear: diferenca media 0,000 (max 0,000) ✗✗ IMPOSSIVEL (o concept e direcional)
+  CAUSA: o perfil() ad-hoc usa im<245 na IMAGEM INTEIRA; a GRADE MILIMETRADA do concept e escura -> a
+    'mascara' vira a imagem toda e as duas vistas dao o mesmo perfil.
+  ⟹ REGRA 104 aplicada a mim MESMO pela 2a vez em 2 ciclos (e a 3a contando o gate de direcionalidade):
+    a MINHA copia do instrumento divergiu em silencio; o instrumento validado (mascara_concept de
+    gate_contorno.py) esta certo. O gate de direcionalidade (que IMPORTA) da 0,696 ha builds.
+  REGRA 108: qualquer medicao improvisada precisa de um CASO DE CONTROLE conhecido antes de ser usada
+    para decidir. Aqui o controle era o proprio concept (sabidamente direcional): se ele da 0,000, a
+    medicao esta errada — nao o objeto.
+  O QUE FICA VALIDO: (a) o gate de direcionalidade 0,999 vs 0,696 (FALHA) — instrumento importado;
+    (b) a regra 107 (mudar bico/asa/motor nao move a silhueta FRONT/REAR; e preciso mudar o que PROJETA).
+  ESTADO: contorno FRONT 7,72 | SIDE 3,09 | REAR 9,93 | direcionalidade 0,999 vs 0,696 (FALHA).
+    MELHOR POR VISION B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
