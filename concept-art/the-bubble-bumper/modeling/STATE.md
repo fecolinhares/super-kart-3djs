@@ -7829,3 +7829,26 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 51: quando duas metricas conflitam (regra 50), procure um TERCEIRO OBJETO que satisfaca ambas —
     o conflito era falso: o bumper ocupava duas faixas ao mesmo tempo e os sidepods resolviam so a faixa certa.
   PROXIMO: o vision PROPRIO (gate qualitativo) no estado B072 — e so depois o subagente auditor duro.
+
+
+## *** VISION PROPRIO (GATE QUALITATIVO) NO B072: 1,0/10 — REPROVADO *** ***
+  O gate de contorno passou nas 4 vistas (4,97/3,05/4,01/2,55) e o VISION reprovou com 1,0/10 global
+  (FRONT 1,0 | SIDE 1,0 | REAR 2,0 | TOP 0,5).
+  ⟹ A CONTRADICAO E O ACHADO: o gate mede a SILHUETA EXTERNA e e CEGO para estrutura interna.
+    Exemplo que o vision pegou e a metrica nao: o bumper frontal e um TORUS de 1,24 m de diametro que, na
+    vista TOP, aparece como um ANEL gigante dominando a imagem ("anel que nao existe no concept").
+    O torus esta DENTRO da silhueta — o gate nao ve. O olho ve imediatamente.
+  3 DIVERGENCIAS GRAVES (do vision, ordenadas):
+    1. Estrutura de para-choque/chassi inventada: tubo dianteiro gigante + laje lateral + lamina + anel
+       traseiro no TOP — destroi footprint, balancos e largura.
+    2. Piloto fora de escala e desconectado (cabeca-esfera em haste, flutuando) — quebra a altura de
+       referencia em FRONT/SIDE/REAR.
+    3. Carenagens como blobs flutuantes + ausencia funcional: volante, banco, 3 escapes, difusor com
+       lamelas, asa retangular e diferenca de diametro entre rodas.
+  VEREDITO: NAO APROVADO no gate qualitativo. O subagente auditor NAO deve ser executado (regra do Feco:
+    auditor so depois do vision proprio aprovar). A prancha final NAO deve ser enviada para aprovacao.
+  REGRA 52: o gate de contorno e NECESSARIO mas NAO SUFICIENTE. Uma metrica de silhueta pode passar 100%%
+    enquanto o objeto contem estrutura absurda (torus gigante) invisivel a ela. Sempre rodar o gate
+    ESTRUTURAL (por objeto: contagem, forma, conexao) junto com o de contorno.
+  ESTADO: B072 tem a MELHOR metrica de contorno da serie e REPROVA no qualitativo — os dois fatos sao
+    verdadeiros e a metrica nao substitui o olho.
