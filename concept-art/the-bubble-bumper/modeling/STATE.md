@@ -10054,3 +10054,12 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 157: cockpit exige SOLIDIFY no assoalho (espessura real) — parede interna sem espessura
     rende 'mancha esfumacada' de normal e nao le como cavidade.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** TUB v013: PONTA COM ARESTA TRANSVERSAL + SOLIDIFY (as 3 correcoes) *** ***
+  (1) PONTA DO NARIZ (regra 156): o polo NAO fica mais no eixo do Mirror — 2 aneis convergindo +
+      uma ARESTA TRANSVERSAL vertical de 2,5 mm na ponta (leque plano terminando na aresta).
+  (2) SOLIDIFY de 0,020 no assoalho (regra 157): espessura real na parede interna.
+  (3) BEVEL 0,030/5 mantido + WEIGHTED NORMAL.
+  MODS = [MIRROR, BEVEL, SUBSURF, SOLIDIFY, WEIGHTED_NORMAL] | 2146 verts / 2145 faces.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
