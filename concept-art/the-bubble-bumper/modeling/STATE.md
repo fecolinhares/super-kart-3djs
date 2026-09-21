@@ -9564,3 +9564,26 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     faixa ao longo do comprimento, em SIDE e TOP). E o blueprint; sem ele a modelagem e as cegas.
   ESTADO: Sol consultado (JOB 32fd8109, gpt-5.6-sol-900k, medium) — STATUS=running.
     MELHOR VISION B132 = 2,3 | B152 = 1,55. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** DELTA DE PERFIL: O MODELO ESTA INVERTIDO — A MEDICAO DECISIVA DA SESSAO *** ***
+  Altura por faixa (%% da altura do kart), 10 faixas ao longo do comprimento, mascara validada:
+    faixa:     10   20   30   40   50   60   70   80   90  100
+    CONCEPT:   24   35   53   49   55   93   93   90   68   69
+    MODELO:    20   58   58   74  100   75   27   31   36   44
+    DELTA:     -4  +23   +5  +25  +45  -18  -66  -59  -32  -25
+  ⟹ O MODELO ESTA INVERTIDO:
+    faixa 40-50%%: modelo 100%% da altura vs concept 55%% (+45%%) — MONTANHA ONDE O CONCEPT TEM VALE
+    faixa 60-70%%: modelo  27%% vs concept 93%% (-66%%) — VAZIO ONDE O CONCEPT TEM O PILOTO ALTO
+    traseira 90-100%%: modelo 44%% vs concept 69%% (-25%%)
+  ⟹ L/H NO RENDER: concept 1,907 | modelo 1,566 (o perfil desenhado e 17%% mais curto/quadrado, mesmo
+    com o bbox medindo 1,878). O retangulo envolvente estava certo; o DESENHO dentro dele, invertido.
+  ⟹ E POR ISSO o vision dizia 'montado por vista, nao em 3D coerente': eu nunca comparei o PERFIL
+    (altura por faixa), so o bbox. O bbox e a unica metrica que eu tinha — e e insensivel a isto.
+  REGRA 137: o PERFIL POR FAIXA (altura/largura em 10 fatias ao longo do comprimento) e o gate de
+    FORMA. O bbox nao detecta silhueta invertida; o perfil detecta. Rodar em SIDE e TOP antes de
+    qualquer render final.
+  ⟹ CONSEQUENCIA PARA O PLANO: isto CONFIRMA a necessidade do reboot de metodo. Montar primitiva
+    ajustando bbox nunca corrigiria uma silhueta invertida — o erro e de COMPOSICAO das zonas.
+  ESTADO: Sol consultado (JOB 32fd8109, gpt-5.6-sol-900k, medium) — STATUS=running.
+    MELHOR VISION B132 = 2,3 | B152 = 1,55. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
