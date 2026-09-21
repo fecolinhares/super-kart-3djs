@@ -9961,3 +9961,28 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     arquivo — declarei evidencia que nao existia. Mesma familia dos erros de prova anteriores.
     REGRA 153: NUNCA referenciar um arquivo de evidencia sem conferir que ele existe no disco.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v010 = 4,2 (de 3,6) — MAIOR SALTO DA SERIE. 'REPROVADO MAS NO CAMINHO CERTO' *** ***
+  (3) FRONT 3,8 | SIDE 5,8 (MELHOR VISTA DE TODA A SESSAO) | REAR 3,6 | TOP 4,0 | WIRE 5,0 | GLOBAL 4,2
+    'Evolucao real +0,6 pelo dobro de verts e bevel de 5 segmentos. NAO E ERRO DE X - VOCE ATACOU
+    CERTO. E insuficiencia de resolucao transversal onde importa + shading errado + planta sem arco.'
+  (1) 'A faceta morreu? NAO. DIMINUIU, nao morreu.' 3 causas isoladas por ele:
+    (a) 'voce distribuiu pontos na vertical mas deixou GRANDES VAOS PLANOS: assoalho + fundo ainda
+        sao RETAS LONGAS. Faceta de perimetro nao se mata so com NUMERO - se mata com DISTRIBUICAO
+        ONDE A CURVATURA E ALTA.'
+    (b) 'SMOOTH POR ANGULO 30 TE TRAI: ele quebra a normal em todo diedro >30. O rim, a juncao
+        fundo/lateral e o labio do cockpit tem >30 => o renderer VOLTA A MOSTRAR FLAT. Voce PEDIU
+        SMOOTH mas MANDOU FLAT.'  ⟹ ERRO MEU, e verificavel
+    (c) 'tampas front/rear em n-gon/polo criam leque de triangulos'
+  (2) 'O canto em planta e arco? NAO. 65 ESTACOES EM X NAO CRIAM RAIO EM PLANTA. Estacao em X resolve
+    PERFIL LONGITUDINAL, nao raio em planta. Para arco em planta precisa de ESTACOES EM Y ao redor do
+    centro do arco.'
+  (4) 'REPROVADO, mas no caminho certo.' Para o v011: manter 65 em X; subir o ANEL UTIL para ~32
+    concentrando no RIM + FUNDO (nao no assoalho plano); modelar o ARCO EM PLANTA de verdade (5-7
+    estacoes em arco ao redor do centro R=0,150); trocar smooth 30 por SHADE SMOOTH + AUTOSMOOTH
+    60-80 + WEIGHTED NORMAL; engrossar o rim para 0,05-0,06; eliminar o polo da ponta com CAP QUAD.
+  REGRA 154: 'smooth by angle 30' NAO e shade smooth — quebra a normal em todo diedro >30 e o rim/
+    fundo/labio do cockpit sao >30. Para forma organica: SHADE SMOOTH + WEIGHTED NORMAL (ou
+    autosmooth 60-80), nunca split de 30.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
