@@ -7362,3 +7362,14 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     separadas por vazios <= 40 linhas. (Regra 1 de novo: validar a mascara antes de confiar no numero.)
   ALARGAMENTO: as bitolas estavam em coordenadas HARDCODED (nao havia variavel TF/TR) — por isso meus dois
     ajustes anteriores nao aplicaram. Corrigido direto nas coordenadas: W 1,290 -> 1,540 m.
+
+
+## B029: MASSA NO TERCO TRASEIRO — O GATE GUIANDO ***
+  O gate apontou pior faixa em 62-68%% do eixo SEMPRE com FALTA (10-16%%) -> falta massa no terco traseiro.
+  [B029] motor maior (0.34/0.30/0.26), banco maior, ASA TRASEIRA ELEVADA (lamina em z 0.78-0.90 + montante).
+  EFEITO MEDIDO: REAR 6,31%% -> 5,35%% ✓ | TOP 7,60%% -> 6,78%% ✓ | pior caso 43,5%% -> 37,7%% ✓ | SIDE 5,27%% -> 5,88%% (leve alta)
+  RATIOS DO CONTRATO (estaveis): L +1,7%% | H -1,2%% | W/H +6,2%% | L/H +2,9%%
+  ESTADO ATUAL DOS MEDIANS: FRONT 6,68%% | SIDE 5,88%% | REAR 5,35%% | TOP 6,78%%  (alvo do Sol: <=5%%)
+  ══> estou a 1,07-1,36x do alvo de mediana, com as 4 vistas medidas e ESTAVEIS (nao oscilam entre builds).
+  PROXIMO: continuar a reducao guiada por faixa — o pior caso ainda e 37%% em ~68%% do eixo (terco traseiro
+  no FRONT/REAR e meio no SIDE), e o 'falta' segue dominando (10-15%%) contra 'excesso' de 4-9%%.
