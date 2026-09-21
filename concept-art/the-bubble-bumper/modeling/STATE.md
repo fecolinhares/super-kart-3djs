@@ -8617,3 +8617,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     SIDE, eixos flutuantes, sem mangas/cubos); 3) piloto + cockpit vazio (sem volante/coluna/banco/pedais).
   ESTADO: contorno FRONT 6,95 | SIDE 3,14 | REAR 8,84 | TOP 4,61 | altura 1,253 ✓. MELHOR POR VISION
     segue B103 (2,75); B117 (2,45) e o 2o melhor. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B118: PONTOES COMO VOLUMES FECHADOS + ASSOALHO REAL + CUBOS (prescricao do vision) *** ***
+  Aplicada a prescricao do vision para a divergencia No1 ('esculpa os pontoes como VOLUMES FECHADOS colados ao
+  chassi, nao como planos' + 'faca chassi tubular real com 2 longarinas + assoalho'):
+    · PONTOES: 'box(SP_, -0.86..0.20, |y| 0,34-0,60, z 0,15-0,44)' (chapa) -> esf(SP_) raios 0,585/0,175/0,155
+      + esf(SPB_) parte inferior 0,50/0,165/0,10 — VOLUMES FECHADOS.
+    · ASSOALHO: C_Floor dim(1,52x0,50x0,05) + C_Bulk dim(0,15x0,40x0,29)
+    · CUBOS: HUB_FL/FR/RL/RR dim(0,20x0,07x0,20) ligando as rodas aos eixos
+  MEDIDO: contorno TOP 4,61 -> 3,65%% ✓✓ (o assoalho preencheu o vazio da planta),
+    SIDE 3,18%% ✓ | FRONT 7,24%% | REAR 8,94%% | altura 1,253 ✓
+  ESTADO: MELHOR POR VISION B103 (2,75); B117 (2,45) reavaliar depois destas mudancas.
+    AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
