@@ -7333,3 +7333,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Duas hipoteses: (a) o modelo esta largo demais na vista frontal; (b) meu recorte/render esta errado.
     PROXIMO PASSO OBRIGATORIO: resolver a anomalia ANTES de qualquer ajuste de geometria — e exatamente o
     'validar a mascara antes de confiar no numero' da regra 1.
+
+
+## *** A CAUSA-RAIZ FINAL: EU BAIXEI A CABECA OBEDECENDO O VLM E O MODELO FICOU COM METADE DA ALTURA ***
+  MEDIDO NA GEOMETRIA REAL (bbox dos objetos, nao no render): B024 tinha H=0,648 m quando o CONTRATO manda
+  1,2523 m. Metade da altura. Eu fui baixando a cabeca (0,80 -> 0,60 -> 0,54) porque o critico qualitativo
+  dizia 'a cabeca esta alta demais' — e o critico qualitativo sobrepujou o CONTRATO MEDIDO.
+  Isso e a causa-raiz 2 do Sol em acao (funcao objetivo incompleta): eu otimizei a OPINIAO, nao o contrato.
+  FIX [B025/B026]: cabeca com centro em z=1,10 e raio 0,150 (topo = 1,25 = o contrato), pescoco, torso,
+  ombro e bracos reposicionados na escala real; bumpers recuados para CABER nos extremos do contrato.
+  RESULTADO (medido):
+    L   = 2,390 / 2,350  (+1,7%%) ✓    H = 1,238 / 1,252  (-1,2%%) ✓
+    L/H = 1,931 / 1,877  (+2,9%%) ✓    W/H = 1,042 / 1,172  (-11,1%%) ✗ (unica fora)
+  CONTORNO POR FAIXA (o gate quantitativo, antes -> depois):
+    FRONT 42,96%% -> 10,74%%   SIDE 25,23%% -> 5,27%%   TOP 8,12%% -> 8,12%%   REAR 30,25%% -> 69,15%% (instavel)
+  SIDE ja esta DENTRO do alvo do Sol (mediana <=5%%). FRONT perto (alvo <=5%%, p95<=10%%).
+  REGRA NOVA (30): quando o critico QUALITATIVO contradiz o CONTRATO MEDIDO, o contrato vence. Foi a
+    inversao disso que produziu 12 builds de regressao invisivel.
+  PENDENTE: W/H 11%% estreito (alargar 0,13 m em Y) e estabilizar a mascara do REAR.
