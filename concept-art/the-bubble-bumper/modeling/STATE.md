@@ -10102,3 +10102,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   (3) as 4 tetinhas: a abertura do cockpit nao recebe mais convergencia no recorte.
   2192 verts / 2177 faces.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** v014 EXPLODIU: RENDER 83-96%% DE OBJETO (esperado 17-20%%) — DIAGNOSTICO *** ***
+  O objeto avaliado passou a ocupar quase todo o quadro nas 4 vistas (F 83,1%% | S 39,6%% | R 30,3%% |
+  T 86,4%%) contra ~17-20%% nas versoes anteriores. A prancha saiu com 1056 px de largura (vs ~1800),
+  sinal de que os recortes mudaram de escala.
+  HIPOTESE: a combinacao [WEIGHTED_NORMAL, SOLIDIFY 0,035 offset=1.0, BEVEL por WEIGHT width_pct=0,45]
+  antes do SUBSURF nao se comporta como Bevel por ANGLE — o BEVEL por WEIGHT em cima de uma malha
+  ja SOLIDIFICADA e aberta (com bordas livres do recorte) pode ter inflado/estendido as bordas,
+  e o Solidify com offset=1,0 empurra a casca para FORA.
+  ⟹ REGRA 160: mudar a ORDEM dos modifiers exige RE-MEDIR o objeto final (bbox + cobertura em %%)
+    imediatamente; comportamento de Bevel/Solidify depende da malha que CHEGA neles.
+  ⟹ CORRECAO PARA O v015: SOLIDIFY offset=0 (centrado) ou -1 (para dentro); BEVEL por WEIGHT apenas
+    com vertex group definido, nao com width_pct global; re-medir a cobertura antes de renderizar.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
