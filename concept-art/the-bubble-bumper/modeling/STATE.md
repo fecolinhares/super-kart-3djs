@@ -7204,3 +7204,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA CONSOLIDADA (19+23): TODAS as vistas de comparacao devem ter a MESMA orientacao do painel de referencia.
     SIDE e TOP ja custaram veredito falso por espelhamento. Checar as 4 antes de qualquer gate.
   [B009b] pneus dianteiros alargados 0.16 -> 0.24 (o concept tem pneu gordo) e bitolas 0.78/0.96.
+
+
+## B010-B012 + ACHADO 24 (o mais caro de todos) ***
+  ACHADO 24: o render atribuia material por NOME EXATO de objeto. As pecas NOVAS (P_ShinL, P_BootL, P_ArmL,
+    R_Exh1...) nao estavam no dicionario -> recebiam o CINZA default -> o PILOTO INTEIRO renderizava cinza sobre
+    fundo cinza e ficava INVISIVEL. Isso explica os gates dizendo 'nao tem piloto' por 3 rodadas.
+    FIX: atribuir cor por PREFIXO (W_ rodas, P_ piloto, SP_ sidepod, C_ chassi, B_/R_ para-choques).
+    REGRA: em blockout, a cor de evidencia NAO pode depender de enumerar nomes — usar prefixo/classe.
+  AUDITORIA DA CENA provou que TODAS as pecas do piloto existiam e estavam posicionadas (P_Hips z0.24-0.46,
+    P_Thigh z0.28-0.44, P_Shin z0.13-0.38, P_Boot z0.13-0.21, P_Torso z0.36-0.78, P_Head 0.30 m de diametro).
+  GATE apos o fix: 4,5/10 (melhor ate agora). CONCEDIDO: 'bug cinza-sobre-cinza RESOLVIDO, piloto se destaca';
+    coxa/canela/volante/banco no lugar; TOP com orientacao correta.
+  [B012] para-choques 50% mais finos, viseira como faixa frontal larga (aparece de frente), botas separadas,
+    banco concha inclinado 22 graus.
+  PROXIMO (ditado pelo gate): travar UMA medida de roda (traseira = dianteira x 1.3, nao 2x) e usa-la nas 4
+    vistas; escavar o U; viseira frontal larga; botas no pedal.
