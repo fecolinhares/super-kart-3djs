@@ -7538,3 +7538,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     ⟹ o FRONT nao e um erro de TAMANHO, e um erro de DISTRIBUICAO de massa/vazios — o gate de contorno
       (que mede so a silhueta externa) nao consegue expressar isso, e por isso o numero fica travado em 6,68%%.
   ══ ESTADO: SIDE 3,49%% ✓ | TOP 4,07%% ✓ | REAR 4,99%% ✓ | FRONT 6,68%% (erro de DISTRIBUICAO, nao de silhueta)
+
+
+## INSTRUMENTO 39: GATE DE DISTRIBUICAO (o que o defeito do FRONT exigia) ***
+  gate_distribuicao.py: mede a DENSIDADE por faixa (px preenchidos / largura do bbox da faixa) — 0 = faixa
+  vazia, 1 = faixa totalmente solida. Diferente do gate de contorno, que mede so a silhueta externa.
+  BASELINE (B046):
+    front  mediana 12,78%%  pior faixa 10 (40,0%%)   concept 0.74 0.60 0.33 0.45 0.78 0.39 0.66 0.85 1.00 0.80
+                                                   modelo  0.75 0.95 0.38 0.68 0.63 0.70 0.76 0.79 0.97 0.40
+    side   mediana  7,52%%  pior faixa 2  (35,2%%)
+    rear   mediana  5,47%%  pior faixa 3  (53,6%%)
+    top    mediana 13,26%%  pior faixa 7  (34,9%%)
+  ALVOS MEDIDOS DO FRONT: faixa 10 (topo, z 1,11-1,24) concept 0,80 vs modelo 0,40 ⟹ domo do capacete esparso;
+    faixas 3 e 5 concept 0,45/0,39 vs modelo 0,68/0,70 ⟹ solido onde o concept tem VAO (o vao de kart entre
+    rodas e corpo).
+  [B047] TENTATIVA: aumentar o domo do capacete — FALHOU por erro de regex (peguei a POSICAO (-0,24,0,1,10)
+    em vez dos RAIOS (0,150,0,150,0,150)) e movi a cabeca em vez de aumentar. Tudo piorou
+    (FRONT 7,26%%, SIDE 5,88%%, REAR 9,48%%) ⟹ REVERTIDO para o B046.
+  REGRA 39: ao editar uma linha por regex, VERIFICAR qual grupo numerico foi capturado (posicao vs dimensao)
+    — e re-medir o objeto depois (regra 34).
+  ══ ESTADO CONSOLIDADO (B046): SIDE 3,49%% ✓ | TOP 4,07%% ✓ | REAR 4,99%% ✓ | FRONT 6,68%%
+     (FRONT: erro de DISTRIBUICAO — alvos nomeados pelo instrumento 39).
