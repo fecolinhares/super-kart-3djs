@@ -10936,3 +10936,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     ("ainda barra") sobre um mesh que TEM a cunha.
   APROXIMACAO PELO PERFIL GERAL: no R34_SIDE a estacao 90% (asa) deu modelo 0.900 vs concept
     0.852 (+4.8 cm ok) — a asa existe e esta' no lugar. A questao e' so' a PROVA do perfil.
+
+## *** v034 FIM: PROVA DA ASA VALIDADA — "SIM. CLARISSIMO. A CUNHA LE-SE EM TODO O COMPRIMENTO" *** ***
+  O MISTERIO DOS 3 RENDERS FALSOS RESOLVIDO: os ENDPLATES (Body_Blue em y=+-0.40..0.46, z 0.72-0.90)
+  TAPAVAM a asa inteira no render lateral — o "retangulo azul chapado" que o vision descreveu 3x
+  era o ENDPLATE, nao a asa. Nao era contraste nem enquadramento.
+  PROVA FINAL (render_asa4): endplates ocultos + luz rasante + fundo escuro + verificacao por
+  projecao de pontos (u=0.15..0.80) e por pixels da silhueta (altura 132px esquerda -> 211px direita,
+  cor media amarela [172,160,75]).
+  VEREDITO: "(1) CUNHA? SIM. CLARISSIMO. Esquerda fina e baixa, crescendo para direita alta e grossa.
+    (2) Extradorso curvo? NAO claramente. (3) Aerofolio? SIM PARCIAL — le como asa em cunha com
+    orientacao correta."
+  REGRA 238: quando um render dedicado mostra "retangulo chapado" sem relacao com o mesh medido,
+    LISTAR O QUE ESTA NO FRAME por bbox antes de culpar luz/contraste — pode haver OCCLUSOR
+    (aqui: endplates) tapando o alvo.
+  REGRA 237 consolidada: prova de detalhe = (a) camera verificada por projecao de cantos,
+    (b) contraste/histograma medidos, (c) occlusores escondidos de proposito, (d) luz rasante.
+  ESTADO: conjunto v034 = melhor estado medido (perfil 0.049 | vazio 0.200 | contato 14/14 |
+    SCORE 0.249 | bbox L=2.352/W=1.441/H=1.248). Asa validada por vision.
