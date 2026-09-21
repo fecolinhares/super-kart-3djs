@@ -7674,3 +7674,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ══ MELHOR ESTADO: B059 — SIDE 3,46%% ✓ | REAR 4,68%% ✓ | TOP 3,07%% ✓ | FRONT 5,78%% (1,16x)
      TRES vistas no alvo do Sol, e o FRONT no melhor valor ja medido, com a densidade da faixa critica em queda
      (0,57 -> 0,51; alvo 0,30; piso pratico 0,25 dado pelas proprias rodas).
+
+
+## ACHADO 44 (DECISIVO): O EXCEDENTE DE DENSIDADE DO FRONT SAO AS PROPRIAS RODAS ***
+  LEAVE-ONE-OUT na faixa critica (z 0,25-0,31) do B059 — removendo UM grupo por vez:
+    BASE (tudo)                  0,507
+    sem SIDEPODS                 0,507  (contribui 0,000)
+    sem BANCO                    0,507  (0,000)
+    sem MOTOR                    0,507  (0,000)
+    sem PILOTO                   0,507  (0,000)
+    sem EIXOS                    0,507  (0,000)
+    sem CHASSI+NARIZ             0,507  (0,000)
+    sem RODAS                    0,356  (contribui 0,151)  <<< A UNICA CONTRIBUICAO REAL
+    sem BUMPERS                  0,463  (0,044)
+    sem CUBOS DAS RODAS          0,484  (0,023)
+  ⟹ sem as rodas a densidade cai para 0,356 ~ 0,30 do concept. TODO o excedente sao as rodas.
+  [B060] reduzi o pneu para o valor da FONTE (D 0,407 -> 0,382; geometria deu 0,359):
+    densidade 0,507 -> 0,489 (quase nada) MAS o FRONT piorou 5,78%% -> 6,10%% e a pior faixa MUDOU para
+    70,7%% do eixo. ⟹ TRADE-OFF: reduzir a roda conserta a faixa baixa e quebra a faixa do arco da roda.
+  REGRA 44: quando a ablacao mostra que UM objeto responde por todo o defeito, e mexer nele apenas DESLOCA o
+    erro, entao o defeito nao esta no TAMANHO do objeto — esta na POSICAO/RELACAO dele com a faixa. Medir a
+    fronteira (em que z exato o arco da roda cruza a faixa) antes de re-escalar.
+  ══ MELHOR ESTADO: B059 — SIDE 3,46%% ✓ | REAR 4,68%% ✓ | TOP 3,07%% ✓ | FRONT 5,78%% (1,16x)
