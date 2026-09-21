@@ -7283,3 +7283,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     O VLM passa a ser usado apenas como gate QUALITATIVO FINAL (o que o Feco pediu), nao como funcao objetivo.
   POR QUE ISSO IMPORTA: sem o contorno-por-faixa eu nao sei se estou a 5%% ou 40%% do concept — e as 22 builds
   provaram que a opiniao do critico nao responde essa pergunta.
+
+
+## *** GATE QUANTITATIVO IMPLEMENTADO — A DISTANCIA EM NUMEROS (o instrumento que faltava) ***
+  `gate_contorno.py`: contorno por 100 estacoes, modelo x concept, normalizado pela altura do veiculo (imune a
+  zoom). Reporta mediana, p95, MAX, o LOCAL do pior erro e EXCESSO/FALTA separados. Primeira medicao (B022):
+    FRONT  mediana  5,10%%  p95 28,59%%  MAX 31,63%%  pior em 57,6%%  excesso 10,95  falta  7,84  FALHA
+    SIDE   mediana 13,88%%  p95 58,92%%  MAX 62,70%%  pior em  0,0%%  excesso 32,77  falta 16,07  FALHA
+    REAR   mediana  3,02%%  p95 34,11%%  MAX 34,47%%  pior em 37,4%%  excesso  0,00  falta 13,19  FALHA
+    TOP    mediana  7,61%%  p95 35,74%%  MAX 39,15%%  pior em 59,6%%  excesso  5,87  falta 14,48  FALHA
+  LEITURA ACIONAVEL (o que eu nunca tive):
+    · SIDE pior faixa 62,7%% na ESTACAO 0%% = a PONTA DIANTEIRA (o bico) com EXCESSO de 32,8%% — meu bico e ~1/3
+      maior que o do concept naquela faixa.
+    · REAR excesso 0,00 e FALTA 13,2%% -> a traseira nao tem massa DEMAIS em lugar nenhum; falta volume.
+    · FRONT/TOP medianas de 5-8%% ja estao na ordem da tolerancia do Sol (mediana <=5%%) — o problema esta nas
+      FAIXAS, nao no corpo inteiro.
+  REGRA (Sol): o gate nao pode exigir precisao maior que a referencia permite. Os paineis tem 5-10%% de
+    inconsistencia interna, entao a MEDIANA e o sinal confiavel e p95/MAX sao indicativos de ONDE OLHAR.
+  PROXIMO: corrigir o bico (reduzir ~30%% na ponta) guiado pela faixa 0-10%% do SIDE, e dar massa a traseira.
