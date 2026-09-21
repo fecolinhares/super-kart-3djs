@@ -9338,3 +9338,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     ENTRE-EIXOS   1,269 m   -> 1,60  ✗ CORRIGIR
     diant/tras diam raz 1,73x medido no concept -> 1,53x (aceitavel)
   ESTADO: MELHOR VISION B132 = 2,3 | B150 = 1,05. AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B151: A BASE FOI TRAVADA E COINCIDE COM O CONCEPT EM TODOS OS EIXOS *** ***
+  Correcao do entre-eixos (1,60 -> 1,269 m) + bitolas derivadas do contrato. VERIFICADO NO ARQUIVO:
+                      concept      modelo      status
+    altura total      1,2523 m     1,260 m     OK
+    comprimento       2,35 m       2,366 m     OK (+0,7%%)
+    largura           1,4411 m     1,441 m     OK EXATO
+    ENTRE-EIXOS       1,269 m      1,269 m     OK EXATO
+    L/H               1,877        1,878       OK EXATO
+  bitola traseira = 2 x 0,721 = 1,441 m = A LARGURA MAXIMA DO KART (o vision: 'bitola traseira =
+    largura maxima do kart' no concept) ✓
+  bitola dianteira = 2 x 0,600 = 1,20 m (menor que a traseira, como no concept) ✓
+  rodas no chao: W_FL zmin=0,0083 | W_RL zmin=0,0128 ✓
+  ⟹ PELA PRIMEIRA VEZ a base esta travada e confere com o concept em TODOS os eixos. E o pre-requisito
+    que o vision exigiu ('enquanto nao travar track-width + wheelbase + diametro, nenhuma vista fecha').
+  ESTADO: MELHOR VISION B132 = 2,3 | B150 = 1,05. B151 nao avaliado. AUDITOR e PRANCHA suspensos.
+    OBJETIVO NAO ATINGIDO.
