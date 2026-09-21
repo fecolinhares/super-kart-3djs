@@ -9632,3 +9632,36 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   base do pod: 0,00-0,03 ✓ (o concept 0,00-0,08 ✓ perto)
   ESTADO: 2 das 5 zonas modeladas (tub v002 ✓ +-0,10 m; sidepods v001 planta ✓ / altura ✗).
     AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION NAS ZONAS AUTORAIS: METODO ✓ / PROVA ✗ — O COCKPIT ESTA TAMPADO *** ***
+  VISION (severa, so o que existe): FRONT 2 | SIDE 3,5 | REAR 2 | TOP 4 | GLOBAL 3/10
+  (1) BANHEIRA: 'MASSA SOLIDA. 100% solida. Se existe um z=0,28 no seu .blend, ele NAO APARECE AQUI.'
+    Prova: FRONT/REAR deveriam mostrar um U ESCURO no centro com 2 paredes + espessura + sombra
+      interna; o modelo e massa clara fechada.
+    TOP: 'um cockpit real teria FURO/LOOP; aqui o centro cinza e TOTALMENTE PREENCHIDO'.
+    SIDE: linha superior quase reta, sem mergulho.
+  ⟹ CAUSA RAIZ: as minhas meia-secoes TEM FACE DE TOPO FECHANDO a secao inteira ⟹ o cockpit e um
+    AFUNDAMENTO, nao uma ABERTURA. Eu desci verts mas TAMPEI o topo.
+  (3) AS 3 MAIS GRAVES:
+    1. SEM CAVIDADE LEGIVEL — 'nao basta descer o topo. Falta paredes internas verticais, raio de
+       borda com espessura, assoalho mais escuro no fundo, corte em U no FRONT/REAR. ENQUANTO O TOP
+       NAO TIVER UM BURACO DE VERDADE, NADA MAIS ADIANTA.'
+    2. PODS DESCOLADOS — 'no concept o pod e GRUDADO, envolve, tem rebaixo da perna em cima por
+       dentro; no modelo e um caroco bege flutuante ao lado, baixo demais no FRONT, laje uniforme no
+       SIDE, retangulo reto no TOP'
+    3. TUB COM PERFIS TROCADOS — 'frente pontuda e estreita demais, meio largo demais e cheio,
+       traseira fechada igual a frente. No concept: frente LARGA/CHATA para receber nariz/assoalho,
+       meio ESTREITO E FUNDO para pernas, traseira ABERTA e mais larga para banco'
+  (4) DIRECAO: 'No METODO: sim — e exatamente o parecer do Sol. Na PROVA: nao. Parece que voce
+    trabalhou no mesh mas apresentou como se fosse massa primitiva de novo.'
+  RECEITA DE PROVA QUE ELE EXIGE: matcap escuro + luz lateral FORTE + WIRE por cima mostrando as
+    estacoes; TOP/FRONT/REAR solidos escuros para a cavidade criar sombra; corte longitudinal SIDE e
+    2 cortes transversais FRONT/REAR mostrando o U e a cota z=0,28 + espessura; overlay de silhueta
+    com as 10 faixas e cotas.
+  REGRA 139: cockpit exige ABERTURA REAL — NENHUMA face de topo na regiao do cockpit, paredes
+    laterais e assoalho. Descer verts com o topo fechado e afundamento, nao cavidade.
+  REGRA 140: render de prova para forma NAO pode ser clay chapado em fundo claro: usar matcap escuro
+    + luz lateral + WIRE das estacoes + cortes. Sem isso a evidencia e nula (o auditor nao consegue
+    ver o que foi construido).
+  ESTADO: 2 das 5 zonas com v001/v002. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
