@@ -8186,3 +8186,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     14 cm fora do pneu depois de 90+ builds.
   ESTADO: FRONT 3,02 ✓ | SIDE 3,17 ✓ | REAR 4,08 ✓ | TOP 5,06 (1,01x do alvo) | media 3,83%%
     L 2,306 ✓ | H 1,223 | cauda 0,769 (concept 0,927/0,666) | estrutura: asa acima do capacete ✓, cor ✓
+
+
+## B095-B096: BITOLA ESTREITA — CONFLITO ENTRE VISTAS (TOP quer estreito, FRONT/REAR querem largo) ***
+  [B095] tentei estreitar as rodas traseiras de centro +-0,62 para +-0,50 (o TOP por estacao pedia: 1,21 norm
+    contra 0,987 do concept) -> sem efeito (a linha ja estava 0,62).
+  [B096] descobri a causa real: cil("W_RL",-0,65,0,62,R,R,0,250) — o 0,62 e o CENTRO e a LARGURA do pneu
+    (0,250) faz a face externa chegar a 0,745 => pneu de 1,49 m contra 1,21 m do concept.
+    Ajustei centro para 0,50 e a dianteira de 0,39 para 0,33 (mais os 4 cubos):
+      perfil 72-80%%: 1,210 -> 1,014 ✓✓ (concept 0,987/1,000 — CASOU)
+      MAS: FRONT 3,02 -> 10,94%% ✗✗ | REAR 4,08 -> 12,82%% ✗✗ | TOP 5,06 -> 6,82%% ✗ | SIDE 3,17 ✓
+  ⟹ CONFLITO ENTRE VISTAS, medido: o TOP por estacao quer bitola estreita (casa com o concept em 1,21 m) e
+    as vistas FRONT/REAR querem a bitola que eu tinha (1,49 m). As duas leem o MESMO concept.
+  REGRA 70: quando duas vistas apontam para lados opostos da MESMA grandeza, nao existe valor que agrade as
+    duas — existe um ERRO EM OUTRA GRANDEZA que faz as duas lerem diferente. Antes de escolher um lado,
+    procurar a terceira grandeza (aqui: a largura do PNEU vs a BITOLA — 0,25 m de pneu e muito para uma
+    bitola de 1,21 m; talvez o erro seja a LARGURA DO PNEU, nao a bitola).
+  MELHOR ESTADO: B094 — FRONT 3,02 ✓ | SIDE 3,17 ✓ | REAR 4,08 ✓ | TOP 5,06 (1,01x do alvo) | media 3,83%%
+    L 2,306 ✓ | H 1,223 | cauda 0,769 | estrutura toda validada
