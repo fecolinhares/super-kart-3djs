@@ -10995,3 +10995,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     em template de board já reprovou 2x (R20 vs R35 vs R38).
   REGRA 243: render lateral de QA = blueprint (esconder meio-lado da câmera) é LEGÍTIMO e o vision
     ACEITA ("blueprint funciona") — o concept 2D é um desenho aberto; o gate continua no modelo cheio.
+
+## *** v039: ESCAPES ASSINATURA + DIFUSOR MEDIDOS E VALIDADOS NO ARTEFATO (regra 230, 3a vez) *** ***
+  MEDICAO no REAR do concept: escape CENTRAL e' GROSSO (boca ~0.23 m, escuro por dentro [68,70,76])
+  + 2 LATERAIS finos em y=+-0.145 (prata [95,100,110]) — a assinatura visual.
+  v039: R_ExhC (r=0.058, escuro) + R_ExhL_1/-1 (r=0.036, metal) + bocas escavadas pretas +
+    DIFUSOR de 5 aletas azuis (R_Dif0..4).
+  RODADA 1 FALHOU SILENCIOSAMENTE (regra 230 de novo): o str.replace dos escapes NAO CASOU
+  (alvo r=0.042/lista antiga; real r=0.068) — o blend NAO TINHA as pecas; vision viu "3 bolinhas
+  sem boca, difusor invisivel" (nota 2,3) e estava certo. CORRECAO: replace com ASSERT + CHECK
+  por NOME no blend salvo (agora R_Dif0..4, R_ExhC CONFIRMADOS no .blend).
+  Estado rodada 2: contato 14/14 | perfil 0.047 | SCORE 0.247 | renders re-feitos (md5 novos) |
+  board v039 G re-montado com md5 impresso.
+  REGRA 230 CONSOLIDADA (3 ocorrencias): TODO replace de bloco estrutural exige ASSERT de
+  casamento + verificacao por NOME DE OBJETO no blend salvo. Os bugs R35-board e escapes-v039
+  eram o MESMO erro.
