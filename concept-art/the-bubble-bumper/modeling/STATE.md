@@ -10063,3 +10063,31 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   (3) BEVEL 0,030/5 mantido + WEIGHTED NORMAL.
   MODS = [MIRROR, BEVEL, SUBSURF, SOLIDIFY, WEIGHTED_NORMAL] | 2146 verts / 2145 faces.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v013 = 5,4 — SIDE 7,5 (RECORDE ABSOLUTO) MAS FRONT 3,0: 'BONITO DE LADO, QUEBRADO DE FRENTE' *** ***
+  (3) FRONT 3,0 (pior) | SIDE 7,5 (RECORDE DA SESSAO) | REAR 4,0 | TOP 5,5 | ZOOM 3,0 | GLOBAL 5,4
+    'Hoje e um TUB BONITO DE LADO, QUEBRADO DE FRENTE E DE CIMA. NAO CONGELA.'
+  (1) PINCH: 'Matou o PONTO, mas nao matou o PINCH. 2,5 mm e, para Subsurf + Bevel 0,030/5, AINDA
+    UM PONTO. Sao 2 aneis convergindo em ~2 mm com arestas quase coincidentes. O Bevel tenta chanfrar
+    arestas quase coincidentes e SE AUTO-INTERSECTA, o Subsurf puxa tudo para o centro, o Mirror
+    solda com micro-gap e a dobra aparece.'
+    FIX: aresta transversal de 12-15 mm + 2-3 loops de suporte recuando 30-50 mm.
+  (2) SOLIDIFY: 'Avanco parcial - agora se le linha dupla no rail. Mas a mancha esta no MESMO lugar.
+    SUA ORDEM DE MODIFICADORES ESTA ERRADA: SOLIDIFY DEPOIS DO SUBSURF gera casca de 0,020 sobre
+    malha ja subdividida e bevelada => micro-overlap. E 0,020 e fino demais. O WEIGHTED_NORMAL por
+    ultimo so CONGELA O ERRO: BONITO POR FORA, PODRE POR DENTRO.'
+    FIX: Solidify ANTES do Subsurf, 0,035, High Quality Normals + Even Thickness; Bevel por WEIGHT.
+    E os spikes: 'os 4 cantos do cockpit COSPEM SPIKES - tetinhas sao BURACOS COM POLOS de 6-8
+    arestas, provavelmente arestas soltas do recorte NAO SOLDADAS apos o Mirror.'
+  (4) 'REPROVADO. Ainda falta.' Para o v014: (1) refazer o nariz: deletar 2 aneis da ponta, GRID FILL
+    com aresta de 12 mm+, loops de controle; (2) refazer a abertura do cockpit: deletar as 4 tetinhas,
+    recorte com loop fechado quad sem polos >5, recalcular Outside, SOLIDIFY ANTES do Subsurf com
+    0,035 + High Quality + Even Thickness, depois BEVEL POR WEIGHT (nao por Angle); (3) separar o
+    assoalho como casca solida real.
+  REGRA 158: ORDEM dos modificadores e GEOMETRIA, nao preferencia. SOLIDIFY ANTES do Subsurf (casca
+    sobre malha subdividida gera micro-overlap); WEIGHTED_NORMAL ANTES do Solidify, nunca depois —
+    por ultimo ele so congela o erro ('bonito por fora, podre por dentro').
+  REGRA 159: ENCOLHIMENTO de secao NAO e cap. Convergir N aneis numa aresta de 2,5 mm ainda e um
+    PONTO para o Subsurf: o cap precisa de aresta de 12-15 mm + loops recuando 30-50 mm.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
