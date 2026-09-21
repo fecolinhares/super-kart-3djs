@@ -9999,3 +9999,25 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   (5) CAP QUAD na ponta do nariz (anel reduzido + face quad, SEM fan/polo).
   2104 verts / 2098 faces (era 1171). 65 estacoes.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v011 = 4,8 (de 4,2) — TOP 6,2 E O ARCO APARECEU PELA PRIMEIRA VEZ *** ***
+  (2) 'O arco em planta apareceu? SIM. PELA PRIMEIRA VEZ. O smoothstep fez efeito, tem tangencia.
+    Mas ainda nao e o arco do concept: seu arco esta simetrico demais, tipo garrafa de vinho,
+    comprido e estreito. O concept e mais curto, com ombro mais cheio e dianteira mais em U.
+    VOCE ACERTOU A MATEMATICA, ERROU A PROPORCAO.'
+  (1) 'A faceta morreu? NAO TOTALMENTE. Morreu onde importava, sobreviveu onde denuncia.'
+    'faceta de SHADING morreu. Faceta de FORMA nao.'
+    E o defeito NOVO: 'Aquela CICATRIZ PRETA VERTICAL NO NARIZ e normal esmagada do CAP QUAD +
+    Mirror. NAO E FACETA, E PIOR: E PINCH.'
+  (3) FRONT 4,8 | SIDE 4,5 | REAR 3,8 | TOP 6,2 (MELHOR VISTA DA SESSAO) | GLOBAL 4,8 (+0,6)
+    'Voce corrigiu SHADING e METODO, nao corrigiu FORMA. E progresso tecnico, nao artistico.'
+  (4) 'REPROVADO. Nem perto.' Para o v012: (1) boca interna com BEVEL REAL + FILLET nos cantos do
+    cockpit (nao extrusao reta); (2) corrigir NORMAIS INTERNAS + 2 loops de suporte na parede;
+    (3) CAP do nariz em GRID 3x3 (nao quad unico) - dai vem o pinch do FRONT; (4) aumentar os
+    segmentos do BEVEL no FUNDO (e la que a faceta sobreviveu); (5) render: clay com MATCAP +
+    wire overlay 50%% em ZOOM 200%% (o thumb atual e inauditavel).
+  RECONHECIDO: 'v011 matou o flat split e criou o arco. PARABENS PELO METODO.'
+  REGRA 155: CAP simples (quad ou fan) na ponta cria PINCH — a terminacao precisa de GRID 3x3 ou
+    raio maior, nunca de um unico quad numa malha que sofre SubD.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
