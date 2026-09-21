@@ -8829,3 +8829,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     confirma que o contorno NAO mede contato com o chao, regra 74).
   ESTADO: MELHOR POR VISION B103 (2,75); B123-B125 nao avaliados por vision.
     AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** B126: PILOTO VIRou CAPSULA SENTADA (viseira + banco + pernas) — E AS PERNAS AFUNDAM *** ***
+  ITEM 4 da ordem do vision atacado. Criados:
+    P_Visor dim(0,21x0,24x0,07) z[1,051;1,119] ✓ — viseira sobre o capacete
+    P_Seat + P_SeatBack z[0,30;0,79] ✓ — banco concha (o vision: 'sem banco')
+    P_LegL/R dim(0,19x0,19x0,68) + P_ShinL/R dim(0,42x0,18x0,49) ✓ — pernas (o vision: 'sem pernas')
+    Capacete mantem o topo em 1,252 m ✓ (contrato preservado)
+  DEFEITOS MEDIDOS:
+    1. P_LegL z[-0,040;0,640] ⟹ AS PERNAS AFUNDAM 4 CM ABAIXO DO CHAO ✗ (mesma classe do bug do pontao
+       em B122 — peca nova nasce abaixo do piso; REGRA 98: toda peca nova deve ser medida contra o chao
+       no mesmo build, antes do render)
+    2. contorno PIOROU: FRONT 6,07 -> 9,62%% ✗ | REAR 8,04 -> 9,90%% ✗ (as pernas somam massa na faixa
+       baixa) — o contorno cobra o preco das pernas, e o vision PEDIU as pernas: sinal de que o alvo
+       intermediario <=5%% do contorno conflita com a fidelidade estrutural (a licao de B072/regra 52).
+    3. P_Seat.001 / P_ShinL.001 — duplicatas por colisao de nome (a peca antiga nao foi removida).
+       REGRA 99: ao substituir uma peca, REMOVER a antiga explicitamente (nome novo + nome velho = 2 objetos).
+  ESTADO: MELHOR POR VISION B103 (2,75); B126 nao avaliado. AUDITOR e PRANCHA suspensos.
+    OBJETIVO NAO ATINGIDO.
