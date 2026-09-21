@@ -7998,3 +7998,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ESTADO ATUAL (B081): FRONT 10,06 | SIDE 6,58 | REAR 6,06 | TOP 2,63
     Estrutura: asa acima do capacete ✓ (0,258 norm dentro de 0,17-0,31) | cor do piloto ✓ (58,6-61,2%%)
     PENDENTE: FRONT 10,06 — o dono esta na ESTACAO 58%% do comprimento (nao na altura) — proximo owner map por ESTACAO.
+
+
+## *** B082: O PARA-CHOQUE ERA 2x LARGO DEMAIS — E ELE ERA O DONO DO *COMPRIMENTO* *** ***
+  OWNER MAP POR ESTACAO (metodo novo, regra 59): listar os objetos que cruzam a estacao 58%% do
+  comprimento, ordenados por largura. Resultado:
+    B_Front   largura 1,478 m (0,581 norm) x[-0,16,1,32]  <- O DONO (cruzava a estacao e era o mais largo)
+    R_Bumper  largura 1,048 m (0,412 norm)
+    SP_L/R    0,395 m | P_Torso 0,319 | P_Head 0,316 | C_Spine 0,301
+  E o comprimento MEDIDO estava em 2,545 m contra 2,35 m do contrato (+8,3%%!) — o owner map revelou isso de graca.
+  [B082] bumper frontal: major_radius 0,66 -> 0,34 (1,478 -> ~0,74 m de largura)
+    comprimento: 2,545 -> 2,306 m ✓✓ (+8,3%% -> -1,9%% do contrato)
+    SIDE  6,58 -> 4,81%% ✓✓ | FRONT p95 47,5 -> 36,9%% ✓ e MAX 50,4 -> 45,7%% ✓ (mediana igual 10,06%%)
+    REAR  6,06 -> 6,01%% ✓ | TOP 2,63 -> 6,33%% ✗✗ (a largura que o TOP usava vinha do bumper)
+  ⟹ O bumper era o dono de DUAS coisas ao mesmo tempo: da largura na estacao 58%% E do comprimento total.
+    Estreitar acertou o comprimento e a cauda do FRONT, e tirou largura que o TOP precisava de outro lugar.
+  REGRA 60: um owner map por ESTACAO revela donos que o owner map por ALTURA nao ve — e uma peca pode ser
+    dona de DUAS metricas ao mesmo tempo (largura E comprimento). Corrigir um dono duplo exige reinvestir o
+    que ele fornecia para a outra metrica.
+  ESTADO (B082): FRONT 10,06 (p95 36,9) | SIDE 4,81 ✓ | REAR 6,01 ✓ | TOP 6,33 ✗
+    comprimento 2,306 m (-1,9%% do contrato) ✓ | asa acima do capacete ✓ | cor do piloto ✓
+    PENDENTE: devolver largura ao TOP sem devolver comprimento ao veiculo (sidepods/carroceria na estacao).
