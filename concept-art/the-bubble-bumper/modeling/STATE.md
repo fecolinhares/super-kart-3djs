@@ -7946,3 +7946,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     e tambem um ponto unico de MENTIRA (a cor do arquivo nao e a cor da imagem).
   ESTADO: B074 estruturalmente correto no eixo capacete/asa; defeito de cor localizado no mapa prefixo->cor.
     PROXIMO: ajustar o mapa (azul so no piloto; carroceria branca/amarela) e re-medir o azul (meta 62-63%%).
+
+
+## *** B077: O MAPA DE COR — DOIS VAZAMENTOS ENCONTRADOS E CORRIGIDOS *** ***
+  Mapa prefixo->cor lido de /tmp/r013s.py (regra 57: a cor vive no pipeline de render):
+    ('C_',  (0.15,0.25,0.75))  ← CHASSI INTEIRO AZUL ✗ (concept: bico/carroceria BRANCO)
+    ('P_',  (0.90,0.35,0.15))  ← PILOTO LARANJA ✗ (concept: macacao AZUL, igual ao capacete)
+  EFEITO MEDIDO (azul por fracao da altura, dentro da mascara):
+                      CONCEPT         ANTES     DEPOIS (C_ branco + P_ azul)
+    inicio do azul    15,4-17,4%%     13,5%%     13,5%% ✓ CASOU
+    fim do azul       79%%            88%%       92,5%% ✗
+    ocupa             62-63%%         75%%       78-79%%
+  ⟹ as duas correcoes estavam CERTAS (o inicio do azul casou e o piloto agora e azul como no concept),
+    e revelaram o proximo defeito: o azul DESCE DEMAIS (92,5%% vs 79%%) => as PERNAS do piloto
+    (P_Thigh/P_Shin/P_Boot) nao deveriam ser azuis.
+  REGRA 58: uma correcao certa REVELA o proximo defeito — quando o numero nao fecha mesmo depois de
+    acertar o alvo principal, medir as SUBPARTES antes de duvidar da correcao.
+  mapa-cor-corrigido.txt criado como autoridade do mapa prefixo->cor.
+  ESTADO: B074 (estrutura capacete/asa correta) + mapa de cor corrigido. Contorno ainda 9,92/6,21/6,79/2,55
+    (a regra 55 se aplica: re-otimizar SOBRE a estrutura certa).
