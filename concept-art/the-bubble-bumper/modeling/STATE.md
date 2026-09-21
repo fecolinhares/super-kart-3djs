@@ -8901,3 +8901,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ESTADO: contorno FRONT 6,07 | SIDE 3,56 | REAR 7,88 | TOP ~3,2 | altura 1,253 ✓ | ioU_modelo 0,999 vs
     concept 0,696. MELHOR POR VISION B103 (2,75); B129 = 2,15. AUDITOR e PRANCHA suspensos.
     OBJETIVO NAO ATINGIDO.
+
+
+## *** GATE DE DIRECIONALIDADE: CORRIGIDO (REGRA 104) E VALIDO *** ***
+  O gate novo deu CONCEPT IoU 1,000 (falso). DIAGNOSTICADO: eu REIMPLEMENTEI a funcao
+  mascara_concept dentro do gate (versao ingenua im<245) em vez de IMPORTAR a validada do
+  gate_contorno.py. Verificado: as mascaras do concept sao DIFERENTES (sum 85207 vs 115155, mesma
+  matriz? False) e o metodo ad-hoc com a funcao importada da 0,696 (reproduzido).
+  REGRA 104: NUNCA reimplementar um instrumento ja validado — IMPORTAR. Uma copia local divergiu em
+  silencio e deu um numero que teria aprovado o defeito (a mesma familia da regra 34/patch no-op e da
+  regra 88/nome vs dimensao: o erro esta sempre na minha copia, nunca no instrumento original).
+  GATE CORRIGIDO (importa a mascara validada):
+    FRONT vs REAR — MODELO IoU 0,999 | CONCEPT IoU 0,696 | diferenca +0,303 -> FALHA
+      (modelo simetrico frente-tras)
+  ESTADO: MELHOR POR VISION B103 (2,75); B129 = 2,15. AUDITOR e PRANCHA suspensos.
+    OBJETIVO NAO ATINGIDO.
