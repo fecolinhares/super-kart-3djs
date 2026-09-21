@@ -7425,3 +7425,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   [B036] sidepod aplicado de verdade: y de 0,296 -> 0,474 de vao.
   EFEITO MEDIDO: TOP 6,84%% -> 5,33%% ✓ | REAR 4,98%% -> 4,77%% ✓ | SIDE 4,95%% ✓ | FRONT 6,68%%
   TRES DE QUATRO VISTAS a 1,07x do alvo ou melhor. RATIOS: L +1,7%% | H -1,2%% | L/H +2,9%% | W/H +6,2%%.
+
+
+## B037: HIPOTESE REFUTADA + MELHOR ESTADO CONSOLIDADO (B036) ***
+  Hipotese: o excesso de 10,4 na faixa de 31%% da altura do FRONT vinha dos sidepods largos (chegavam a
+  y=+-0,757, mais que as rodas em +-0,556).
+  TESTE [B037]: sidepods estreitados para y=+-0,558 (patch VERIFICADO aplicado).
+  RESULTADO: FRONT 6,68%% -> 6,68%% (NAO MUDOU) e TOP 5,33%% -> 6,12%% (PIOROU).
+  ⟹ HIPOTESE REFUTADA: o excesso do FRONT nao vem dos sidepods. E o TOP precisa dos sidepods largos.
+  DECISAO: manter o B036 como melhor estado (nao acumular regressao).
+  MEDICAO PENDENTE (para a proxima sessao): o FRONT mede largura 0,699 na faixa de 33%% da altura, mas a
+  geometria ali (spine y+-0,151 + nariz y+-0,152 + topo das rodas em z=0,407) sugere ~0,30 — que e o que o
+  concept tem (0,247). Medicao e geometria discordam ⟹ VALIDAR O INSTRUMENTO DO FRONT antes de mexer em peca
+  (regra 1: nunca agir sobre numero cuja mascara/perfil nao foi validado).
+  ══════════════════════════════════════════════════════════════════════════════════════════════════
+  MELHOR ESTADO MEDIDO (B036): SIDE 4,95%% ✓ | REAR 4,77%% ✓ | TOP 5,33%% ✓ | FRONT 6,68%%
+    RATIOS DO CONTRATO: L +1,7%% | H -1,2%% | L/H +2,9%% | W/H +6,2%%
+    TRES DE QUATRO VISTAS dentro de 1,07x do alvo do Sol (mediana <=5%%).
