@@ -9986,3 +9986,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     fundo/labio do cockpit sao >30. Para forma organica: SHADE SMOOTH + WEIGHTED NORMAL (ou
     autosmooth 60-80), nunca split de 30.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** TUB v011: AS 5 EXIGENCIAS DO VISION APLICADAS *** ***
+  (1) ANEL de 32 PONTOS concentrados no RIM e no FUNDO (curvatura alta), nao no assoalho plano:
+      fundo 6 + lateral 7 + RIM 7 (raio 0,055) + borda interna/parede 7 + assoalho 5.
+  (2) ARCO EM PLANTA COM TANGENCIA: y_out(x) agora usa SMOOTHSTEP (t*t*(3-2t)) em vez de reta +
+      vertice duro no ombro.
+  (3) SHADE SMOOTH + WEIGHTED NORMAL (regra 154) — sem o split de 30 que mandava flat.
+      MODS = [MIRROR, BEVEL, SUBSURF, WEIGHTED_NORMAL]
+  (4) RIM mais grosso: 0,055 (era ~0,02).
+  (5) CAP QUAD na ponta do nariz (anel reduzido + face quad, SEM fan/polo).
+  2104 verts / 2098 faces (era 1171). 65 estacoes.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
