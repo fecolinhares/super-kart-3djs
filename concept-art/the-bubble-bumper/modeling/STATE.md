@@ -10308,3 +10308,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CONSEQUENCIA PRATICA: as 135 faces-fio do cage nao importam; as 56428 do avaliado importam. O que
     precisa mudar e a CADEIA (ordem/tipo/espessura), nao a topologia do cage.
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** EXPERIMENTO DE CADEIA: O BEVEL E O PRINCIPAL CULPADO (medido no AVALIADO) *** ***
+  Mesma cage, 4 cadeias, medindo o AVALIADO (regra 170):
+                                      boundary  nonman  zero-area  faces-fio
+    A) MIRROR+BEVEL+SUBSURF              648      460      2685     34383
+    B) MIRROR+BEVEL+SOLIDIFY+SUBSURF    1672     1154      6719     82996  <- ERA A MINHA: A PIOR
+    C) MIRROR+SUBSURF+SOLIDIFY (s/bevel)   0      520         0      2311  <- MELHOR
+    D) Solidify 0,050 offset 0            10      961        18     39355
+  ⟹ O BEVEL E O PRINCIPAL CULPADO: sem ele, boundary 10->0, zero-area 2709->0 e faces-fio
+    56428->2311 (24x menos). A cadeia que o vision mandou manter inclui o BEVEL — que e justamente
+    a origem das teias.
+  ⟹ v025 ADOTA a cadeia C: [MIRROR, SUBSURF, SOLIDIFY, WEIGHTED_NORMAL] com assert.
+  REGRA 171: o raio do rim NAO vira via BEVEL modifier (ele gera 82 mil faces-fio no avaliado) —
+    modelar a espessura/raio na propria geometria, ou aceitar bevel so com clamp_overlap e geometria
+    propria. Medir a cadeia no AVALIADO antes de adotar.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
