@@ -8204,3 +8204,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     bitola de 1,21 m; talvez o erro seja a LARGURA DO PNEU, nao a bitola).
   MELHOR ESTADO: B094 — FRONT 3,02 ✓ | SIDE 3,17 ✓ | REAR 4,08 ✓ | TOP 5,06 (1,01x do alvo) | media 3,83%%
     L 2,306 ✓ | H 1,223 | cauda 0,769 | estrutura toda validada
+
+
+## *** B098: A CAUSA DO 'CONFLITO ENTRE VISTAS' ERA MEU NORMALIZADOR DE NOVO (REGRA 63) *** ***
+  VERIFICACAO FEITA NO PROPRIO CONCEPT:
+    concept front: largura/altura = 1,178 -> com H=1,2523 implica largura 1,476 m (contrato 1,4411) ✓ close
+    concept rear : 1,242 -> 1,555 m | concept top: 1,647 -> 2,062 m
+    MAS no TOP a dimensao vertical do painel e o COMPRIMENTO, nao a altura: 2,35/1,4411 = 1,631 ✓✓
+    => o TOP do concept e CONSISTENTE (1,647 ~ 1,631). O concept NAO e inconsistente.
+  ══ O ERRO ERA MEU: o perfil por estacao normalizava o concept pela ALTURA DO PAINEL do TOP (= o
+    COMPRIMENTO, 2,35 m) e o modelo pela ALTURA DO VEICULO (1,223 m) — fator ~1,9x.
+    Prova que o numero se denunciava: 0,987 x 2,35 = 2,32 m de largura — MAIOR que a largura total do
+    veiculo (1,44 m). Eu nao conferi a unidade antes de concluir 'o TOP pede bitola estreita'.
+  ⟹ CONSEQUENCIA: o 'conflito entre vistas' (regra 70) NAO EXISTE. A bitola LARGA (1,49 m) esta CERTA:
+    o FRONT do concept implica 1,476 m ✓✓ e o meu B094 tem 1,49 ✓✓ CASOU.
+    As tentativas B095/B096/B097 de estreitar a bitola e afinar o pneu estavam corrigindo um defeito
+    INEXISTENTE, criado pelo meu normalizador.
+  REGRA 71: conferir a UNIDADE do numero antes de concluir — se uma largura normalizada, multiplicada pela
+    altura, da MAIOR que a largura total do veiculo, o normalizador esta errado. Numeros impossiveis sao
+    a pista mais barata que existe, e eu ignorei duas vezes (regra 63 e agora).
+  MELHOR ESTADO: B094 — FRONT 3,02 ✓ | SIDE 3,17 ✓ | REAR 4,08 ✓ | TOP 5,06 (1,01x) | media 3,83%%
+    bitola 1,49 m ✓ (validada pelo FRONT do concept: 1,476 m)
