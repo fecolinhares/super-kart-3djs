@@ -10337,3 +10337,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     FACES-FIO               56428        -> 5700      ✓✓ (10x)
   cadeia: [MIRROR, SUBSURF, SOLIDIFY, WEIGHTED_NORMAL] com assert | 2192 cage -> 34302 avaliado
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** VISION v025 = 4,4 — WIRE RESOLVIDO ('PROBLEMA RESOLVIDO') E A DESCOBERTA CONFIRMADA *** ***
+  (1) 'O wire no Zoom ainda mostra teias? NAO. TEIA SUMIU. Malha ordenada, quads, sem tris aleatorios.
+    DO PONTO DE VISTA DE TOPOLOGIA VISUAL, PROBLEMA RESOLVIDO.' (ZOOM shading 6,0 | wire 7,5)
+    Sobre a descoberta: 'Faz total sentido. Voce media o CAGE e eu descrevia o AVALIADO. 961
+    non-manifold / 2709 zero-area / 56428 fio no avaliado = EXATAMENTE a teia que eu via.'
+  (2) 'Os 4 pingos sumiram? NAO. O Bevel so mascarava. A CAUSA RAIZ E NA CAGE: vertice/corner da
+    abertura com double/triangulo/polo puxando para dentro. Ate refazer os 4 cantos com LOOP FECHADO
+    EM QUAD, vao persistir.'
+  (3) Frontal 4,2 | Lateral 4,8 | Traseira 3,5 | TOP 4,5 | ZOOM 6,0/7,5 | GLOBAL 4,4
+    'NAO HOUVE GANHO DE LIKENESS, HOUVE GANHO DE LIMPEZA.'
+  (4) 'Proximo passo NAO e mexer em cadeia, e CIRURGIA NA CAGE do cockpit: merge doubles nos 4
+    cantos, fechar loop, criar HOLDING EDGE MANUAL para substituir o Bevel removido.'
+  REGRA 172: remover o Bevel RESOLVE a teia mas TIRA O RAIO — o raio tem de ser substituido por
+    HOLDING EDGES (loops de suporte reais na geometria), nao deixado de existir.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
