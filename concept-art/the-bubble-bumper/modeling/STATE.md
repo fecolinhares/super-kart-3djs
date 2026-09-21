@@ -10919,3 +10919,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     O perfil precisa variar de VERDADE: medir espessura por secao e imprimir.
   Serie vision: 1,8 1,5 1,7 2,2 2,7 3,0 3,0 3,4 3,6 3,2 3,5 3,8 2,8 3,0 3,1 3,2 2,0 | melhor 3,8 (v027).
   Score 3 eixos v033: perfil 0,049 | vazio 0,199 | contato 14/14 | SCORE 0,248.
+
+## *** v034: ASA EM GOTA MEDIDA (0.105->0.042) — MAS O RENDER DEDICADO SAIU BRANCO ESTOURADO *** ***
+  A asa v034 tem a cunha REAL medida no mesh: esp 0.105 (x=-0.900, bordo) -> 0.0905 -> 0.0735 ->
+    0.042 (x=-1.160, saida) = 2,5x. 14 verts por anel, 42 faces.
+  MAS a PROVA VISUAL falhou 3 vezes seguidas:
+    1) crop do render geral: borrado, ilegivel ("ainda barra");
+    2) render dedicado 1: fundo claro + amarelo + sun 60W = IMAGEM BRANCA ESTOURADA;
+    3) render dedicado 2 (fundo 0.16, sun 3.0): histograma mostra 2 tons dominantes
+       (96-128 e 128-160) e a SILHUETA NAO APARECE — a camera orto com rotation (90,0,0) em
+       location y=-3 olha para +Y mas a asa esta' em x[-1.16,-0.90]: o ORTHO_SCALE 0.40 e
+       o enquadramento pegaram so' parte; e o fundo (0.16) renderizou como 114 — mais claro.
+    CONCLUSAO de instrumento (regra 237): PROVA DE DETALHE precisa de (a) camera COM A CORDA
+    INTEIRA no quadro verificada por bbox projetado, (b) contraste medido ANTES de submeter
+    (min/max/histograma), (c) luz rasante calibrada. Tres provas fracas = tres vereditos falsos
+    ("ainda barra") sobre um mesh que TEM a cunha.
+  APROXIMACAO PELO PERFIL GERAL: no R34_SIDE a estacao 90% (asa) deu modelo 0.900 vs concept
+    0.852 (+4.8 cm ok) — a asa existe e esta' no lugar. A questao e' so' a PROVA do perfil.
