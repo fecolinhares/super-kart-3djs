@@ -11047,3 +11047,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     Escala certa + fundo errado = "medida sem leitura". O próximo passo é METERIAL/ENVELOPE
     (tubos cromados claros saindo PARA FORA do corpo do motor), não mais diâmetro.
   Serie vision do conjunto: ...2,0 2,0 2,0 2,5 2,3 3,0 3,2 3,3 | teto do blockout confirmado ~3.3.
+
+## *** v048-v052b: TRIANGULO DE ESCAPES DESTRAVADO — REAR 1,5 -> 3,8 *** ***
+  v048: medi o TRIANGULO no concept REAR por componente conexo (mm/px=1.80):
+    central (y=0, z=0.33, boca r=0.05 diam 0.10) | laterais (y=±0.31, z=0.39, r=0.032, V~10°)
+    Meus v047 tinham z=0.56-0.585: 50-70cm ALTOS. Corrigido para as cotas medidas.
+  vision v048=2,5 "FRAUDE DE COTA" — mas raycast provou bocas nas cotas certas; o problema
+    era LEITURA: coroa de 8mm=4px invisivel + motor na frente da boca.
+  v049/v050: engrossei coroa r=0.075 + tentei emission 2.2 (ESTOUROU: "olhos de coruja")
+    -> regra 250: emission alto mata hierarquia; 2.2 -> 0.35 com mix 0.25.
+  v051: boca a frente do motor (x=-0.955) — vision 2,6 porem "NOVA afogacao: a BARRA azul
+    cruza na frente da boca" (barra em z=0.30, boca em z=0.33!).
+  v052/v052b: barra DESCIDA para z=0.14 (base do parachoque, como no concept) + suportes
+    descidos (contato 14/14 re-verificado).
+  *** vision v052b = 2,7 | REAR 3,8 — "Triangulo LE LIMPO. SEM barra atravessando.
+    Afogacao resolvida." *** Erro #1 agora: BICO ogiva alta bulbosa + PILOTO sem rosto/bracos.
+  REGRA 248 (pixel = primeiro hit do raio) + 249 (hierarquia de tamanho e' assinatura) +
+    250 (emission estoura leitura) + 251 (boca = primeiro hit, nada na frente) +
+    252 (elemento estrutural NUNCA cruza a linha da assinatura).
+  Serie vision: 3,0 3,2 3,3 3,2 3,3 2,5 2,6 2,4 2,6 2,7 | REAR: 1,5->2,0->2,0->3,0->3,8
+  PROXIMO (vision): bico baixo/achatado c/ grade + piloto com rosto/bracos/volante.
