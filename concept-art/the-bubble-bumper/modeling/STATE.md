@@ -7236,3 +7236,19 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   [B016] piloto conectado (cabeca grudada no topo do torso), banco concha 18 graus, traseira explodida (bumper
     fino em U + 3 escapes finos inclinados 74 graus + motor menor), dianteira travada (nariz ~0.5 da bitola com
     fundo em 0.24 m, bumper na altura do centro da roda).
+
+
+## B017-B020: MUDANCA DE REPRESENTACAO (caixa -> superficie curva) ***
+  B017: troca de representacao prescrita pelo Sol (regra: 3 rejeicoes da mesma classe). Elipsoide no bico,
+    perfil eliptico no chassi, GOTA nos sidepods (esfera+SubD), TORO EM C nos bumpers (boolean para cortar),
+    elipsoide no motor, piloto articulado com pescoco. GATE 3,0 — o gate achou o BUG: modelei os toros no plano
+    XZ (viraram POSTE VERTICAL empalando o piloto); o toro default esta no plano XY.
+  B018: eixo dos toros corrigido (plano horizontal XY) + tubo mais grosso + pescoco + cabeca 8 cm mais baixa.
+    VERIFICADO por bbox: B_Front 1,16 m em Y x 0,12 m em Z = arco horizontal ✓. GATE 4,0.
+  B019: cabeca -25 cm e -20% encostando no torso; toros com tubo 0,090 m (dobro); CONECTAR tudo.
+    INSTRUMENTO 27: verificacao de CONECTIVIDADE por bbox — 0 objetos isolados ✓ (criterio objetivo para 'sem ar').
+    GATE 5,5 — CONCEDIDO: 'bumpers leem como arco gordo. PASSOU'; zero pecas isoladas; cabeca nao voa mais.
+  B020: piloto articulado (coxa horizontal + canela 42 graus + BOTA; joelho alto; tronco 45 graus; cabeca -15% e
+    a frente/baixo), eixos cilindricos r=0,035, bico -30% em X, sidepods -20%, volante -30% inclinado 58 graus,
+    3 escapes com furo, banco adicionado.
+  ESCADA: 2,5 -> 3,0 -> 3,5 -> 4,0 -> 4,5 -> 4,0 -> 6,0 -> 3,5 -> 3,0 -> 4,0 -> 5,5 (B019).
