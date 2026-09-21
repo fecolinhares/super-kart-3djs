@@ -8163,3 +8163,26 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ESTADO: FRONT 5,41 | SIDE 3,17 ✓ | REAR 3,24 ✓ | TOP 5,81 | media 4,41%% | L 2,306 ✓ | H 1,223
     cauda 0,769 (concept 0,927/0,666) — falta pouco.
   PENDENTE: TOP 5,81 (unico >5%%) e FRONT 5,41 (pior faixa 37,5%% na estacao 63%% do comprimento).
+
+
+## *** B094: OS CUBOS ESTAVAM FORA DOS PNEUS — DEFEITO GEOMETRICO QUE O OWNER MAP POR ESTACAO ACHOU *** ***
+  OWNER MAP na estacao 16%% (a mais larga da frente: 1,014 norm contra 0,606 do concept):
+    HUB_FL/HUB_FR  |y|max = 0,620   <- os cubos eram os MAIS EXTERNOS
+    W_FL/W_FR      |y|max = 0,476
+    ⟹ o CUBO ficava 0,144 m FORA do proprio pneu (cil HUB y=0,585 com raio 0,07 = 0,655;
+      pneu y=0,39 com raio 0,18 = 0,57) — um cubo de roda NAO PODE passar por fora do pneu.
+    O mesmo nos traseiros: HUB y=0,735 (0,805 com raio) contra o pneu 0,62 (0,86) —
+      e as rodas traseiras em |y|max 0,740 (1,48 m total).
+  [B094] cubos para dentro do pneu (0,585 -> 0,415 e 0,735 -> 0,555) e roda traseira 0,62.
+  RESULTADO:
+    FRONT 5,41 -> 3,02%% ✓✓✓ (melhor FRONT da serie; p95 30,65 -> 28,33, MAX 37,47 -> 35,00)
+    TOP   5,81 -> 5,06%% ✓✓ (a 0,06 pp do alvo <=5%%) | estacao 16%%: 1,014 -> 0,779 ✓✓
+    SIDE  3,17%% ✓ (inalterado) | REAR 3,24 -> 4,08%% ✗ (a mexida na roda traseira custou)
+    MEDIA das 4 vistas: 4,41 -> 3,83%% (melhor media honesta da sessao)
+  ⟹ O defeito nao era de SILHUETA (o contorno nao distingue cubo de pneu) nem de ALTURA: era de
+    RELACAO ENTRE PECAS na mesma estacao longitudinal — exatamente o que o perfil por estacao mede.
+  REGRA 69: perfil por estacao revela defeitos de RELACAO ENTRE PECAS (quem passa por fora de quem),
+    que tanto o contorno quanto o perfil por altura nao veem. Foi assim que apareceu um cubo de roda
+    14 cm fora do pneu depois de 90+ builds.
+  ESTADO: FRONT 3,02 ✓ | SIDE 3,17 ✓ | REAR 4,08 ✓ | TOP 5,06 (1,01x do alvo) | media 3,83%%
+    L 2,306 ✓ | H 1,223 | cauda 0,769 (concept 0,927/0,666) | estrutura: asa acima do capacete ✓, cor ✓
