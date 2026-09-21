@@ -8862,3 +8862,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ESTADO: contorno FRONT 6,07 | SIDE 3,56 | REAR 7,88 | TOP ~3,2 | altura 1,253 ✓ | pernas no chao ✓
     MELHOR POR VISION B103 (2,75); B127 nao avaliado por vision. AUDITOR e PRANCHA suspensos.
     OBJETIVO NAO ATINGIDO.
+
+
+## *** B129: LIMPEZA ORDENADA CORRETAMENTE E VERIFICADA NO ARQUIVO SALVO *** ***
+  BUG DA ORDEM ENCONTRADO (regra 100 funcionou como projetado): o bloco de limpeza foi inserido DEPOIS de
+  bpy.ops.wm.save_as_mainfile -> rodava na memoria e NUNCA chegava ao arquivo. O marcador acusou:
+    '###LIMPEZA### removidos=3 | ###FIM### total=78' no build, MAS o B128.blend salvo ainda tinha as
+    duplicatas. Sem o marcador eu teria concluido que a limpeza falhou; com ele, vi que ela RODOU e que o
+    ARQUIVO foi salvo antes.
+  [B129] limpeza movida para ANTES do save. VERIFICADO NO ARQUIVO SALVO:
+    P_Seat SEM P_Seat.001 ✓ | P_ShinL SEM P_ShinL.001 ✓ (duplicatas eliminadas de fato)
+    P_LegL/R z[-0,000;0,680] ✓ | P_Visor z[1,051;1,119] ✓ | W_FL z[0,0013;0,237] chao=True ✓
+    W_RL z[0,0015;0,282] chao=True ✓
+  REGRA 101: em script de build, a ORDEM importa: modificacoes de cena (limpeza, remocao, renome) DEVEM vir
+    ANTES de save_as_mainfile; depois, so render/export. Verificar sempre lendo o ARQUIVO salvo, nunca a
+    saida do build (a memoria do Blender ja foi descartada quando o .blend e aberto depois).
+  ESTADO: altura 1,253 ✓ | pernas no chao ✓ | rodas 1,3-1,5 mm ✓ | pontao capsula alta ✓ | viseira/banco ✓
+    MELHOR POR VISION B103 (2,75). AUDITOR e PRANCHA suspensos. OBJETIVO NAO ATINGIDO.
