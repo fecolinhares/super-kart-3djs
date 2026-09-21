@@ -10744,3 +10744,23 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   ORDEM ADOTADA: contrato/extrator -> datums -> formas primarias por zona -> P0 VAZIO -> secundarios
     -> vision -> auditor. (O vazio vem antes de refinar perfil: o perfil ja esta em 7,5 cm e 7/10
     estacoes; o vazio esta 2,8x errado e e o que faz o modelo parecer banheira fechada.)
+
+## *** CONJUNTO v015: GATE DE 3 EIXOS (perfil + vazio + contato) — SCORE 0,179 vs 0,457 *** ***
+  ORDEM EXECUTADA: contrato/extrator -> datums -> formas primarias -> P0 vazio -> CONTATO
+  FUNCAO OBJETIVO (gate_conjunto.py, nova): SCORE = perfil + vazio + 0.05*flutuantes
+    v013: perfil 0,042 | vazio 0,065 | contato 7/10 FLUTUANDO | SCORE 0,457
+    v015: perfil 0,042 | vazio 0,087 | contato 1/10 FLUTUANDO | SCORE 0,179   <- MELHOR
+  ⟹ v013 tinha MELHOR silhueta e era PIOR no conjunto: 7 de 10 pares estruturais flutuando.
+    Foi o gate de CONTATO que desempatou — exatamente o defeito "blobs desconectados" do vision.
+  CONJUNTO v015: L=2,350 (alvo 2,350 EXATO) | W=1,441 (1,4411) | H=1,252 (1,2523) | 49 objetos
+  REGRA 213: a funcao objetivo do modelo precisa de TRES eixos medidos: PERFIL (contorno),
+    VAZIO (estrutura aberta) e CONTATO (integridade volumetrica, BVH overlap, nao bbox).
+    Perfil sozinho permite overfitting de contorno; vazio sozinho permite "esqueleto solto";
+    contato sozinho nao mede forma. Os tres juntos, na mesma vista, sao o gate.
+  REGRA 214: conselho do auditor sobre ESCALA deve ser checado contra o contrato: ele pediu para
+    "baixar o capacete 25-30 cm", mas o topo do capacete E a altura total (1,2523 = 100% H) por
+    medicao do concept. O defeito real era o CORPO abaixo dele (torso curto), nao a altura da cabeca.
+  INSTRUMENTO: chao do concept y=484 px | topo y=84 | escala 3,13 mm/px | trim na cota x 122..885.
+    Mask: concept por SATURACAO, render por DISTANCIA DE COR ao fundo.
+  VISION v013 = 2,2/10 (serie 1,8 -> 1,5 -> 1,7 -> 2,2); reprovou: pods gordos, piloto-esfera,
+    frente/traseira sem cara, "7 blobs desconectados".
