@@ -9727,3 +9727,18 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   CORTE LONGITUDINAL: bisect em y=0 + camera ortografica no plano XZ ⟹ mostra o perfil descendo
     (prova que o vision exigiu, em vez de 'numero em vertice nao e prova visual').
   ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
+
+
+## *** INSTRUMENTOS DE PROVA CORRIGIDOS: NORMAIS OK / CORTE COM LUZ FRONTAL *** ***
+  ###NORM### (teste CORRETO — radial em YZ, nao 'normal.y<0'):
+    faces com normal para FORA: 88 de 130 (68%) OK
+    faces da PAREDE EXTERNA viradas para dentro: 0 OK
+    As '20 invertidas' do teste anterior eram as PAREDES INTERNAS DO U (apontam para dentro
+    corretamente). REGRA 108 confirmada: teste sem caso de controle inventa defeito.
+  ###CORTE### o bisect produz 170 verts (o corte EXISTE). O render saiu vazio porque a FACE DO CORTE
+    aponta para -Y e o sol (70 de elevacao) NAO incidia nela: face preta em fundo preto = 'vazio'.
+    CORRECAO: fundo 0,16-0,19 + SUN frontal (rot X=90, de -Y) + SUN secundaria.
+  TERCEIRO BUG DE INSTRUMENTO DO CICLO, todos da mesma familia: medir/renderizar sem conferir se o
+    resultado TEM SINAL. REGRA 143: todo render de prova precisa de CHECK DE SINAL (a imagem tem
+    pixels do objeto?) ANTES de ser apresentado como evidencia.
+  ESTADO: 2 das 5 zonas. AUDITOR e PRANCHA FINAL suspensos. OBJETIVO NAO ATINGIDO.
