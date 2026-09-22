@@ -11196,3 +11196,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Serie vision: 4,2 4,3 5,4 5,7 5,0 5,3 6,8 8,0 **9,2**
   REGRA 258: quando o vision lista N problemas, MEDIR CADA UM no concept antes de mexer —
     metade dos numeros dele (2x, 33%) e' aproximacao de leitura; a medicao corrige.
+
+## *** v075-v077: FACE + MOLAS + CANOS — vision 9,2 -> 9,4 -> 9,6 -> 9,7 *** ***
+  v075 (9,4): FACE CARTOON (gap nomeado do v074) — 2 olhos brancos c/ pupila preta na frente
+    do visor + sorriso em arco de 3 segmentos. vision: "a face le claramente" (FRONT 9,5).
+  v076 (9,6): MOLAS AMARELAS sobre o eixo traseiro (cilindro+2 discos, z0.32..0.50, visiveis
+    ACIMA do pneu no SIDE); BRACO RELAXADO (cotovelo -0.34z -> -0.25z, +0.16x -> +0.21x);
+    LUVAS amarelas no volante. vision: SIDE 9,2 -> 9,6, 3 dos 4 gaps fechados.
+  v077 (9,7): 3 RAIOS no volante (laminas no plano inclinado 0/120/240) + AROS CROMADOS
+    GROSSOS nas 3 bocas (r0.064 central/r0.056 laterais, 22mm) -> canos leem como TUBOS.
+    vision: "spokes ✓ | rings fix exhaust ✓" FRONT 9,8 REAR 9,8 SIDE 9,7 TOP 9,6.
+  Erro nomeado restante: capacete "generic smooth head" (mas o vision JA confirmou a face
+    no v075/v076 — leitura oscila entre rodadas; conferir no render antes de mexer).
+  Serie vision: 4,2 4,3 5,4 5,7 5,0 5,3 6,8 8,0 9,2 9,4 9,6 **9,7**
+  Contato 14/14 em TODAS as rodadas de v072 a v077. H=1.252/preservado sempre.
