@@ -12560,3 +12560,18 @@ ERROS REAIS RESTANTES (6, pois (0.96,-0.15) tem concept='.' = fundo, nao defeito
 PROXIMO: (2) achatar a faixa rasante; (1) fechar o buraco de 3 px do casco; (5) teto -0.006 em -0.15;
   (6) reestender a linha preta ate x=-0.15; (3)(4) medir a fenda por RGB absoluto.
   Depois: FRONT/REAR/TOP (ainda SEM validacao), vision proprio, auditor independente, prancha + MD5.
+
+## v167 — ACHATAMENTO DO BULBO: PARCIAL. O BULBO NAO E (TODO) DO P_Helmet
+Acao: achatar (y<=0.112) os vertices do P_Helmet em x -0.226..-0.194, z 0.985..1.045.
+  RESULTADO: 22 vertices achatados (y antes 0.054..0.129).
+  GRADE DEPOIS: z=0.99 -> ny +1.00 (era 0.25/0.34/0.25) CORRIGIDO; z=1.04 -> ny +1.00 CORRIGIDO;
+  z=1.00 -> y+0.119 ny+0.25 | y+0.128 ny+0.34 | y+0.113 ny+0.25  NAO MUDOU (y identico ao v166);
+  z=1.02 -> y+0.146 ny+0.65 etc. NAO MUDOU.
+  LEITURA: os y IDENTICOS ao v166 provam que a superficie rasante em z=1.00/1.02 NAO vem do cage do
+  P_Helmet -> vem do BEVEL AVALIADO ou de OUTRO OBJETO. O grid do v166 imprimia material mas nao o
+  NOME do objeto (falha de instrumentacao): o proximo diagnostico TEM de imprimir o nome do objeto.
+ACEITE v167: borda 48/60 = 80% | dentro 53/59 = 90% | CLARO 31/33 acerto 30 | 7 erros. GATE 1/0/520 |
+  md5 6d18442b1e. Ou seja: NEUTRO na metrica (os pontos corrigidos nao sao celulas da grade), mas
+  PROVA que a hipotese 'bulbo do cage' e insuficiente — o que tambem e informacao util.
+LICAO DE INSTRUMENTO: grade de raycast precisa imprimir OBJETO + material + y + ny. Sem o nome do
+  objeto, um y inalterado nao diz ONDE a superficie vive e a hipotese seguinte vira chute.
