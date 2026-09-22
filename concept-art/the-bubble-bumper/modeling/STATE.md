@@ -11686,3 +11686,23 @@ REGRA 300: o concept side.jpg NAO serve para medir o topo do nariz por coluna �
 PROXIMO PASSO: suavizar a juncao nariz->rampa para o topo virar uma curva monotonica
   (ex.: nariz 0.900 zt 0.320 -> 0.305, 0.840 -> 0.295, 0.780 -> 0.278 e ramp comecando em 0.278).
 v115: 1 componente (198 obj) | 0 non-manifold | contato 33/34 | contrato intacto
+
+## v116-v117: topo do nariz em ARCO (o "topo reto" do vision, resolvido por medicao)
+v116: primeira tentativa de suavizar a juncao nariz->rampa (0.305/0.295/0.278 + rampa em 0.278).
+  O perfil medido mostrou que o V do degrau sumiu, mas o topo ainda tinha um TRECHO PLANO em 0.318
+  (do x=1.06 ao 0.98 com o mesmo zt) — "mudancas de direcao na frente: 1".
+v117: topo refeito como ARCO com CULMINANCIA (um so' ponto alto): 1.178:0.190 -> 1.168:0.230 ->
+  1.150:0.268 -> 1.115:0.300 -> 1.060:0.322 -> 0.980:0.316 -> 0.900:0.302 -> 0.840:0.292 ->
+  0.780:0.278.
+METRICA DE ACEITE (nova, objetiva): z do topo da silhueta a cada 2% do comprimento; contar
+  MUDANCAS DE DIRECAO na metade da frente. 0 = arco puro (concept), 1+ = degrau/topo plano.
+  v116: 1 mudanca, topo [0.253 0.303 0.313 0.318 0.313 0.303 0.293 0.283 0.283 ...]
+  v117: 0 mudancas, topo [0.243 0.298 0.313 0.313 0.308 0.298 0.293 0.283 0.283 ...]
+REGRA 301: "topo reto" e' uma medida, nao uma opiniao — contar mudancas de direcao no perfil de
+  topo transforma a reclamacao do vision ("aresta dura/plano") em um numero que se pode perseguir
+  ate' 0. Sem essa metrica eu teria continuado a mexer na largura do nariz sem tocar no que
+  incomodava (o trecho plano do zt).
+PENDENCIA: o vale em z=0.283 (~15-17% do comprimento, juncao nariz-rampa) permanece; no concept
+  ele existe (o bico e' mais baixo que o cockpit), entao NAO e' defeito por si — confirmar com o
+  crop antes de tentar remove-lo.
+v116/v117: 1 componente (198 obj) | 0 non-manifold | contato 33/34 | contrato intacto
