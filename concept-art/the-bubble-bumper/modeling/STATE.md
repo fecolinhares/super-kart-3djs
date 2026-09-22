@@ -11963,3 +11963,24 @@ REGRA: NUNCA calibrar painel por bbox da mascara bruta. Antes de qualquer medida
 FERRAMENTA: modeling/label_side.py (remocao de grade + rotulagem BFS sem scipy) e calib_side.py.
 PENDENTE IMEDIATO: reexecutar as comparacoes concept-vs-modelo da vista SIDE com KX=0.002968,
   KZ=0.003107, antes de qualquer novo ajuste de geometria baseado na SIDE.
+
+## SIDE REEXECUTADA com a calibracao correta (regra 312)
+CONCEPT side: maior componente = 136134 px, x 110..902, y 84..486 -> KX=0.002968 KZ=0.003107
+MODELO v136:  maior componente = 52378 px, x 71..545, y 183..435 -> KX=0.004956 KZ=0.004950
+GRADE DE CORES (B=azul Y=amarelo D=escuro C=cromado o=outro .=fundo), x -0.46..-0.14, z 1.05..0.80:
+  CONCEPT z=1.05: Y B B B B D B B B | z=1.00: Y B B B B B B C C | z=0.95: D D B B B B B B C
+          z=0.90: . C D D D D D D B | z=0.85: . . D D D D D D D | z=0.80: o . o Y B D . D D
+  MODELO  z=1.05: o B B B B D D D . | z=1.00: . B B B B B D D D | z=0.95: B B B B B B B B .
+          z=0.90: o B B B B B B B . | z=0.85: o B B B B B D D . | z=0.80: o o D D B B D . .
+LEITURA:
+  - z=1.05 casa BEM (B de -0.42 a -0.30 nos dois) -> capacete alinhado.
+  - z=1.00: o concept tem C C (CROMADO/claro) em x=-0.18/-0.14; o modelo tem D D (escuro).
+    => O VISOR DO CONCEPT E CLARO/CROMADO e o meu e ESCURO. Desvio limpo e acionavel.
+    (Bate com a pendencia registrada: "capacete escuro em x -0.26..-0.14 z 1.00-1.05".)
+  - z=0.95: concept tem D D em -0.46/-0.42 (massa escura atras) que o modelo nao tem.
+  - z=0.90/0.85: concept D de -0.38 a -0.18; modelo B (azul). CUIDADO: o classificador marca
+    r+g+b<200 como D, entao azul-escuro em sombra tambem cai em D — NAO concluir "encosto" sem
+    separar azul-escuro de preto (medir matiz, nao soma).
+REGRA 313: o classificador de cor por SOMA (r+g+b<200 = escuro) confunde azul-escuro com preto.
+  Antes de decidir "encosto/massa escura" medir o MATIZ (b-r) da regiao; so entao separar.
+PROXIMO ALVO MEDIDO: visor claro/cromado (concept C em x -0.18..-0.14 z 1.00).
