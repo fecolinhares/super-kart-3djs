@@ -11610,3 +11610,32 @@ REGRA 294: o modelo pode ser medido por componentes porque o render tem fundo un
    separavel; o CONCEPT e' um desenho com grade, linhas-guia E sombra -> medir forma nele exige
    remover a sombra por cor/posicao (faixa mais baixa, abaixo da linha de contato) antes de medir.
 RODA: nada foi alterado neste passo (nenhuma correcao aplicada sem medicao confiavel).
+
+## v112 — ROLLBACK do desvio v107-v111 e TRASEIRA EXATA
+*** A ORIENTACAO NUNCA ESTEVE INVERTIDA — o erro foi meu, no v107 ***
+Confirmacao por VISAO nas duas extremidades do side.jpg (crop ampliado das duas pontas):
+   ESQUERDA = FRENTE (nariz arredondado/bulboso, sem escape/asa)
+   DIREITA  = TRASEIRA (asa/spoiler amarelo no alto, cilindro do escape, motor, roda traseira)
+=> o side.jpg tem o MESMO sentido do meu render (nariz a esquerda, traseira a direita). A
+   comparacao por faixa estava CORRETA desde o inicio; o "teste de pneu" do v107 deu "maior a
+   esquerda" porque a ESQUERDA tinha um elemento escuro vertical de 0.49 m (impossivel para pneu)
+   que contaminou a medida. Dois testes depois concordaram: o pneu de 0.354 m (== traseiro do
+   contrato 0.355) esta na DIREITA.
+=> o v107 INVENTOU uma inversao que nao existia e "corrigiu" a peca certa ao CONTRARIO, piorando
+   nariz (21% -> 57%) e traseira (76% -> 50%). REGRA 295: antes de reverter/espelhar uma leitura,
+   confirmar com VISAO nas duas extremidades; um numero sozinho (max de altura escura) nao decide.
+   REGRA 296: flip-flop de premissa e' o pior erro possivel aqui — cada reversao invalidou um
+   ciclo inteiro de correcoes (v101->v105->v107->v112). Nao tocar em cor/geometria por faixa sem
+   a orientacao confirmada por visao E validada contra o contrato.
+MEDICAO (razao amarelo/(am+az), banda comparada com a MESMA extremidade nos dois):
+                 CONCEPT            v106 (antigo)     v111 (desvio)     v112
+   NARIZ         22% (am1665 az5726) 21% (am 761 az2754) 57% (am1691 az1231) 21% (am 761 az 2754)  delta 0
+   meio          38%                 27%                27%                27%                 delta -10
+   TRASEIRA     100% (am3598 az   0) 76% (am1369 az 410) 51% (am1405 az1346) 100% (am1391 az 0)  delta 0
+FIX v112: R_Wing M_BODY -> M_ACC. Justificativa do PROPRIO vision no crop: "a peca amarela curva
+   no alto e' a asa traseira/spoiler" — a asa do concept e' AMARELA, nao azul (a "regra 254 - asa
+   azul" estava errada; ela nasceu da mesma leitura invertida). A asa amarela zerou o azul da
+   traseira (410 -> 0 px) e levou a faixa de 76% para 100%, sem tocar em mais nada.
+PENDENCIA: MEIO 27% vs 38% (delta -10). Proximo passo e' isolar o azul excedente do meio
+   (cockpit/pods), medindo por faixa vertical depois de confirmar a orientacao.
+v112: 1 componente (198 obj) | 0 non-manifold | contrato intacto
