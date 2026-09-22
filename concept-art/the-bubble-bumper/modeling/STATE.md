@@ -11143,3 +11143,26 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 256: overlap BVH de elipse rotacionada NAO e' calculavel por regra de bbox —
     SONDAR empiricamente (loc/rot/scale por probe ate' os dois pares darem >0 tri).
   Serie: 3,0 3,3 3,8 4,5 3,9 2,8 3,1 4,2 4,3 5,4 | SIDE: ...4,5 5,2 3,2 6,1.
+
+## *** v069-v072: FRENTE DESTRAVADA — vision 5,7 -> 5,0 -> 5,3 -> 6,8 | FRONT 7,0 / SIDE 7,1 *** ***
+  v069 (5,7): F_Bow abaixado (topo 0.29 -> 0.20, ABAIXO do nariz) + nariz blunt (ponta 0.15).
+    FRONT 6,5 mas SIDE 4,8: "2 trilhos finos com vão; concept NAO tem parachoque exposto —
+    o PROPRIO BLOCO faz a funcao; overhang enorme".
+  v070 (5,0 REGRESSAO): bloco unico proposto mas regex/overlap nao fechou — "ainda 2 camadas,
+    focinho F1, grade no lugar errado". Lição: unificar exige OVERLAP volumetrico REAL.
+  v071 (5,3): frente VERTICAL ROMBA (topo 0.185 na ponta) + F_Bow CURTO x[0.98..1.175].
+    Ainda "2 camadas com fenda" + "overhang 1.5 diâmetro".
+  CONFLITO medido: cotas diziam geometria certa, vision lia overhang longo. REMEDI o concept
+    (regra 120): pneu dianteiro x_m[0.526..0.869] centro ~0.70 (meu: 0.602!) e a traseira
+    -0.818 — a RODA estava 0.10 ATRAS DEMAIS, nao o nariz a frente.
+  v072: (1) RODA +0.10 (overhang 0.44 -> 0.34 = 1.26d); (2) F_ArmU bracos amarelos EMBUTIDOS
+    na cinta (z 0.035..0.135); (3) caps p/ dentro y±0.435 (fugir da roda nova);
+    (4) overlap cinta-bloco aumentado (cinta topo 0.19, bloco base 0.03).
+  *** vision v072 = 6,8 — PRIMEIRA VEZ >6 (+1,5 MAIOR SALTO DA SESSAO):
+    "overhang compact ✓ | gap eliminado ✓ | wheel correct ✓"
+    FRONT 7,0 | SIDE 7,1 | REAR 6,5 | TOP 6,8 ***
+  ERRO #1 NOVO: asa TRASEIRA com barras amarelas finas SOLTAS (repete o trilho, agora atras);
+    secundario: escapes leem "single port" (devem ser 3 legiveis).
+  REGRA 257: quando cotas e' leitura visual CONFLITAM, REMEDIR o concept — a "cota" pode ter
+    sido calibrada num objeto errado (a roda estava 0.10 fora).
+  Serie: ...4,2 4,3 5,4 5,7 5,0 5,3 **6,8** | FRONT: 2,0->7,0 | SIDE: 6,1->7,1.
