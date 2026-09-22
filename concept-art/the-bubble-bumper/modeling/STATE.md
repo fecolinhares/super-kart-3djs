@@ -11891,3 +11891,33 @@ PENDENTE REAL: (a) capacete escuro em x -0.26..-0.14 z 1.05-1.00 (concept: azul)
   (b) frente do piloto x=-0.16 com vaos de 45 e 103 mm; (c) ~10 mm de vao em x=-0.44 e -0.22
   (comparar com o concept, que tambem tem fundo atras da cabeca);
   (d) ainda: 4 vistas rerenderizadas + auditor independente + prancha final com MD5.
+
+## v135: PERFIL DE LARGURA (FRONT) — corrigido com UMA mudanca
+METODO NOVO: perfil de MEIA-LARGURA da silhueta por altura z (0.05..1.25 passo 0.05), comparando
+  concept front.jpg e render FRONT com a mesma calibracao (KX=1.4411/npix). Isso mede a DISTRIBUICAO
+  de largura por altura, que bbox unico nao revela. Script: modeling/prof_front.py
+DESVIOS MEDIDOS (v134) e o que o concept diz:
+  z 0.05..0.30: 1.43 largo (rodas, largura total) -> modelo bate
+  z 0.35..0.45: concept 0.706..0.716 | modelo 0.624..0.644 -> PENDENTE (-0.06..-0.08): rodas curtas
+  z 0.50..0.60: concept 0.333..0.343 | modelo 0.269..0.397
+  z 0.65:       concept 0.537 | modelo 0.269 -> DEFICIT 0.268
+  z 0.70..0.80: concept 0.534..0.540 | modelo 0.476
+  z 0.85..0.90: concept 0.167..0.190 | modelo 0.476 -> EXCESSO 0.29
+  z 0.95..1.20: concept 0.142..0.209 | modelo 0.121..0.200 (capacete levemente estreito em 1.00-1.10)
+CULPADO NOMEADO no .blend (script wide_objs.py): R_Endp_1 / R_Endp_-1 (endplates da asa traseira)
+  |y|max=0.478 z=0.700..0.930
+  => um UNICO objeto explicava os DOIS desvios opostos: por subir ate z=0.93 causava o excesso em
+     0.85-0.90, e por nao descer ate 0.65 causava o deficit em 0.65.
+v135: R_Endp_%d -> y 0.478->0.537 e z 0.70..0.93 -> 0.65..0.81
+RESULTADO MEDIDO (v135):
+  z=0.65: 0.269 -> 0.535 (concept 0.537) | delta -0.268 -> -0.002
+  z 0.70/0.75/0.80: 0.476 -> 0.535 (concept 0.540/0.540/0.534) | delta <0.006
+  z=0.85: 0.476 -> 0.195 (concept 0.167) | +0.309 -> +0.028
+  z=0.90: 0.476 -> 0.215 (concept 0.190) | +0.287 -> +0.025
+  => CONVERGENCIA 100x no deficit de 0.65 e 10x no excesso de 0.85/0.90.
+ESTADO v135: 1 componente (199 obj) | 0 non-manifold | contato 33/34 | contrato intacto (L/W/H ok)
+REGRA 311: antes de editar geometria por um desvio de silhueta, MEDIR O PERFIL (largura por altura) e
+  NOMEAR o objeto no .blend. Um objeto pode ser responsavel por dois desvios opostos ao mesmo tempo;
+  corrigir o objeto certo resolve ambos. Nao ajustar "global" nem por tentativa.
+PENDENTE (medido, proximos alvos): z 0.35-0.45 rodas curtas (-0.06..-0.08); z 0.50 e 0.60;
+  capacete estreito em z 1.00-1.10 (-0.05); depois: 4 vistas + vision calibrado + auditor + prancha.
