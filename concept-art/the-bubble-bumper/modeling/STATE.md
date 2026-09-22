@@ -12183,3 +12183,30 @@ REGRA 319: matrix_world e CACHE. Depois de mover/rotacionar/escalar objeto no me
   bpy.context.view_layer.update() ANTES de qualquer leitura de matrix_world (ou usar location
   diretamente). Sem isso, patches de material/medicao usam coordenadas defasadas e produzem
   no-op silencioso que passa em asserts.
+
+## v148/v149 — REDUNDANTES (provado por medicao) + BUG NO MEU DIAGNOSTICO
+FERRAMENTA NOVA: gap147.py — perfil de superficie por raio na camera SIDE em passos de 0.01 m de z,
+  por coluna x. Imprime OBJETO[MATERIAL] ou VAZIO e os INTERVALOS VAZIOS exatos. Separa
+  "falta geometria" de "material errado/ausente".
+RESULTADO do perfil v147 (x / faixas): -0.30: Pilot_Suit .90-.98 | Visor_Light .99-1.10 |
+  Helmet_Blue 1.11-1.16 ::: -0.26: igual, claro em .99 ::: -0.22: Pilot_Suit .90-.96 | '-' .97-.99 |
+  Visor_Grey 1.00-1.03 | Visor_Light 1.04-1.10 ::: -0.18: Pilot_Suit .90-.95 | '-' .96-1.09 ::: -0.14:
+  VAZIO .90-.95 | '-' .96-1.09 | VAZIO 1.10-1.13.
+NAO EXISTE VAO NA ZONA (so em x=-0.14, .90-.95 e 1.10-1.13, que sao os limites legitimos da silhueta).
+HIPOTESE QUE LEVANTEI: o '-' seria P_FacePlate SEM MATERIAL (cinza padrao do Blender lido como fundo).
+v148: material na DATA do P_FacePlate. v149: slot de nivel OBJETO. GATE OK nos dois.
+MEDICAO QUE REFUTOU: aceite pixel a pixel IDENTICO ao v147 nos dois builds (63% / 19/30, linhas
+  iguais). Ou seja a mudanca foi NO-OP: o P_FacePlate ja tinha Visor_Light desde o v137.
+BUG NO MEU DIAGNOSTICO (registrar para nao repetir): ray_side.py/ray_why.py leem
+  obj.material_slots[mi].material. Quando o slot tem link='DATA', .material devolve o material do
+  NIVEL OBJETO (None) -> imprimia '-' mesmo com material correto por DATA. Para ler o material que
+  o RENDER usa, com link='DATA' e preciso obj.data.materials[mi].
+REGRA 320: antes de atribuir "sem material" a um objeto, checar sl.link ('DATA' x 'OBJECT'). O '-'
+  do raycast nao e prova de ausencia de material. E: se dois builds consecutivos dao o MESMO aceite
+  pixel a pixel, a mudanca foi no-op -> parar e medir o canal, nao insistir.
+PENDENCIA ABERTA (proxima medicao): em x=-0.14 o RENDER mostra '.' em z 0.96..1.12 enquanto o
+  raycast diz que ha geometria (Helmet_Blue 1.11-1.16 e P_FacePlate .96-1.09). Render e raycast
+  discordam NA MESMA COLUNA -> antes de mexer em geometria e preciso CRUZAR o mapeamento
+  mundo->pixel do render com o raycast (validar o mapeamento contra um marco conhecido, ex. o x do
+  ponto mais frontal do capacete), porque a discrepancia pode ser de calibracao da amostra e nao
+  de modelo.
