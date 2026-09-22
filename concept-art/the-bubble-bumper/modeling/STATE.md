@@ -12210,3 +12210,24 @@ PENDENCIA ABERTA (proxima medicao): em x=-0.14 o RENDER mostra '.' em z 0.96..1.
   mundo->pixel do render com o raycast (validar o mapeamento contra um marco conhecido, ex. o x do
   ponto mais frontal do capacete), porque a discrepancia pode ser de calibracao da amostra e nao
   de modelo.
+
+## v149+ — MAPEAMENTO MUNDO->PIXEL VALIDADO (exato) E ACHADO REAL: OLHOS FORA DO CAPACETE
+FERRAMENTA NOVA: mapA.py — lado A independente do render. Varre x em z fixo (passo 0.005 m) com raio
+  da camera SIDE e imprime as FAIXAS OCUPADAS e o nome do objeto de cada uma, mais a FRENTE e a
+  TRAS da silhueta em mundo. Serve para validar o mapeamento contra um lado que nao depende de PIL.
+VALIDACAO (z=1.05): RENDER -> a coluna mais a esquerda ocupada e 322, que pela formula
+  xw=(X1-col)*KX-1.178 da x=-0.065. RAIO -> a frente da silhueta em mundo e x=-0.065.
+  CONCORDANCIA EXATA (3 casas) => O MAPEAMENTO ESTA CORRETO. Nao havia erro de calibracao.
+CONSEQUENCIA: o '.' em x=-0.14 na faixa z 0.96..1.12 NAO e defeito de modelo: x=-0.14 e exatamente a
+  FRONTEIRA do P_FacePlate (vai de -0.190 a -0.140) -> a amostra cai no pixel de BORDA
+  (antialiasing misturando com o fundo). AMOSTRA RUIM, nao modelo errado. Regra 321: antes de acusar
+  geometria/material num ponto, verificar se o ponto nao esta a menos de ~1 px da borda de um objeto.
+ACHADO REAL (novo alvo): em z=1.05 a geometria MAIS A FRENTE do modelo e P_Eye_1/P_Pup_1
+  (x -0.130..-0.065), com P_FacePlate de -0.190 a -0.140 e P_Helmet ate -0.195. Ou seja OS OLHOS
+  ESTAO FORA DA CABECA, ~0.075 m a frente do face plate e ~0.13 m a frente da frente do capacete.
+  No concept, na altura do visor, a frente da silhueta e o capacete/visor, nao os olhos.
+  PROXIMO: medir bbox de P_Eye_±1/P_Pup_±1 contra a frente do P_Helmet/P_FacePlate na mesma faixa de
+  z e RECOLHER os olhos para dentro do capacete EM X (nao em z: a subida de z ja quebrou contato no
+  v140/v141). Validar contato P_Eye_1<->P_FacePlate no gate depois da mudanca.
+  Faixas completas do raio em z=1.05: P_Helmet -0.400..-0.195 | P_FacePlate -0.190..-0.140 |
+  VAZIO -0.135 | P_Eye_1 -0.130..-0.075 | P_Pup_1 -0.070..-0.065 | VAZIO -0.060..-0.050.
