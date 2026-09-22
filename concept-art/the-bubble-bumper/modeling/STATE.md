@@ -12504,3 +12504,34 @@ OS 7 ERROS REAIS, DECOMPOSTOS:
 PROXIMO: (iii) geometria do topo-traseiro do capacete + face edge-on do P_Visor; (iv) reduzir a
   linha preta mais 0.008; (ii) aceitar/medir a fenda por RGB absoluto. Depois: 4 vistas, vision
   proprio, auditor independente, prancha com MD5.
+
+## v165 + DIAGNOSTICO DE VIZINHANCA — CORRIGE A CONCLUSAO ANTERIOR (5 de 7 sao DEFEITO, nao artefato)
+NOVO INSTRUMENTO: vizinhanca 5x5 px em cada celula que falha (defeito real = REGIAO CONTIGUA;
+  artefato = celula ISOLADA). Resultado:
+  (1.12,-0.15) concept BBBBB em toda a vizinhanca | modelo ...B/...BB -> BURACO REAL (3 px) no
+    casco: a casca termina ~3 px antes em x.
+  (1.10,-0.30) concept BBBBB com LL embaixo | modelo LLLLL -> o claro do modelo sobe ~2 px DEMAIS.
+  (1.10,-0.15) concept BBBBB | modelo ...BB/.LLBB/oLLLL -> claro alto DEMAIS + buraco.
+  (1.08,-0.26) concept ooooo (fenda) | modelo '.....' em cima e DD embaixo -> fenda escura + buraco.
+  (1.06,-0.26) concept o/D misto | modelo DDDD -> MESMA FAMILIA de classe (tom proximo).
+  (1.06,-0.18) concept LLLLL | modelo DDDLL -> minha linha preta INVADE x=-0.18 (concept so tem
+    preto em -0.17..-0.14).
+  (1.00,-0.22) concept LLLLL | modelo ....L no meio -> BURACO isolado (face edge-on do P_Visor).
+  RETIFICACAO: a conclusao anterior ("2 provados artefato por raycast") estava ERRADA. O raycast no
+  ponto EXATO diz Helmet_Blue, mas o pixel renderizado e claro: a pintura e por CENTRO DE FACE, entao
+  uma face cujo centro esta abaixo do teto cobre pixels ACIMA dele. Efeito real, ainda que de 1 px.
+  LICAO: raycast pontual NAO decide sobre pintura por centro de face — a VIZINHANCA decide.
+v165: teto POR COLUNA MEDIDO na repintura (o v161 usava TETO_PAINEL=1.110 fixo; -0.30 mede 1.095,
+  -0.15 mede 1.085) -> -16 faces claras removidas; linha preta encurtada para x -0.163..-0.145 (24
+  faces ajustadas). GATE 1/0/520 | md5 b7fe874222.
+ACEITE v165 (med_fair.py): borda 47/60 = 78% | dentro 52/59 = 88% | CLARO concept=31 modelo=34
+  acerto=30 (era 29). Metrica sustentada, acerto +1.
+  As 2 celulas de teto ((1.10,-0.30) e (1.10,-0.15)) sao diferenca de 1 PIXEL: o claro do modelo
+  termina em ~1.098 e o do concept em 1.095 (0.003 m = 1 px com KZ=1.2523/403). Baixar o teto mais
+  0.006 nessas colunas e o ajuste fino que falta.
+ITENS REAIS RESTANTES: (a) BURACO no casco em x=-0.15, z=1.12 (3 px) — geometria; (b) BURACO em
+  x=-0.22, z=1.00 (face edge-on do P_Visor, ny=0.25) — geometria; (c) teto 1 px alto em x=-0.30 e
+  x=-0.15 — pintura; (d) tom da fenda (RGB proximo: modelo 203..260 vs concept 225..229).
+PROXIMO: (c) teto -0.006 nessas 2 colunas; (a)(b) geometria dos 2 buracos; (d) medir a fenda por RGB
+  absoluto. Depois: 4 vistas (FRONT/REAR/TOP ainda sem validacao), vision proprio, auditor
+  independente, prancha final com MD5.
