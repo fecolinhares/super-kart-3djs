@@ -11758,3 +11758,38 @@ REGRA 304: usar o HELPER (sec_U) em vez de escrever a secao a mao. O sec_U usa s
   unica peca com anel escrito a mao (v078) e foi a unica a degenerar.
 SECOES AINDA CORRETAS por varredura: linhas 120, 523 e 530 usam pares cos/sin proprios.
 v122-v124: 1 componente (198 obj) | 0 non-manifold | contato 33/34 | contrato intacto
+
+## v124: ACHADO — AS VISTAS DO CONCEPT NAO SAO MUTUAMENTE CONSISTENTES (calibracao)
+Acao: medir o piloto no concept para corrigir o modelo. A medicao expos um problema de CALIBRACAO.
+EVIDENCIA DURA (side.jpg): as linhas y=60..63 tem 1024 px de grade e ZERO pixel colorido
+  -> sao linhas de grade horizontais de LARGURA TOTAL, nao geometria.
+  Primeiro conteudo real (colorido): y~86. Chao: y=519. Altura real do kart = 433 px.
+  Com a escala do contrato (L=992 px = 2.350 m -> 0.0023690 m/px): H_real = 1.026 m.
+CONTRATO DIZ H=1.2523 m -> 22% de diferenca. Logo 1.2523 NAO pode ter saido desta escala.
+RAZOES DE ASPECTO MEDIDAS (bbox de objeto, excluindo preto/grade/branco):
+  front.jpg  W/H = 1.171   | contrato 1.4411/1.2523 = 1.151  -> 1.7% de erro  (CONSISTENTE)
+  side.jpg   L/H = 2.168   | contrato 2.350/1.2523  = 1.877  -> 15.5% de erro
+  top.jpg    L/W = 1.880   | contrato 2.350/1.4411  = 1.631  -> 15.3% de erro
+  rear.jpg   ratio 1.825 (vista largura x altura, contaminada por linhas)
+NOTA: os erros de side (1.155) e top (1.153) sao O MESMO FATOR ~1.154 -> os paineis side/top
+  estao ESTICADOS ~15% na horizontal em relacao ao front, ou seja CADA PAINEL TEM ZOOM PROPRIO
+  (regra ja conhecida) E a calibracao nao pode usar a mesma escala para vistas diferentes.
+CONSEQUENCIA PARA O MODELO: o contrato (H=1.2523) e sustentado pelo FRONT, que e' a unica vista
+  internamente consistente (W/H 1.171 vs 1.151). O SIDE sozinho daria H~1.03-1.09.
+  => Toda comparacao VERTICAL entre render SIDE e side.jpg precisa de CALIBRACAO POR EIXO:
+     x escalado por L=2.350/992px; z escalado por H=1.2523/(altura do objeto no side).
+  Sem isso, qualquer comparacao de proporcao vertical fica ~20% errada. Isto explica os
+  desencontros persistentes de altura (capacete, asa, cowl) que eu vinha tratando como defeito de
+  geometria.
+MEDIDO TAMBEM no concept (parametro do piloto, com a escala antiga, a recalibrar):
+  blob azul (capacete+torso): 7406 px | W 0.265 m | H 0.302 m | x -0.378..-0.115 | z 0.785..1.084
+MODELO v124 (P_Helmet): x -0.320..0.000 | z 0.938..1.252 | profundidade 0.320 m
+  -> 21% mais fundo que o concept (0.265), 0.12 m a frente e 0.15 m mais alto (na escala antiga).
+REGRA 305: antes de comparar qualquer vista com o concept, verificar a consistencia de aspecto do
+  painel (ratio medido vs ratio do contrato). Divergencia >5% = a comparacao precisa de calibracao
+  por eixo, nao de ajuste na geometria.
+REGRA 306: linhas de grade de largura total (>=95% dos px da linha sao grade) devem ser removidas
+  ANTES de qualquer bbox/altura; uma unica linha pode inflar a altura em 20% e criar "pecas"
+  inexistentes no topo.
+ACAO PENDENTE IMEDIATA: recalibrar por eixo e refazer o perfil de topo do side; depois medir o
+  piloto de novo. NAO ajustar o capacete com a escala antiga (seria ajustar contra numero errado).
