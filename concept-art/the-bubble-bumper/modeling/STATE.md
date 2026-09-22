@@ -11591,3 +11591,22 @@ REGRA 292 — ao medir FORMA (pneu, sombra, contorno) no concept, excluir tambem
    ~0.355 m, dianteiro ~0.266 m); valor muito fora = contaminacao, nao geometria.
 A roda ainda NAO foi remedida com o filtro de linhas-guia — o proximo passo e' refazer a medicao
 da roda e so' entao comparar aro/pneu/cubo com o modelo.
+
+## Medicao da roda: o MODELO valida, o CONCEPT ainda funde (blob)
+Metodo: escuro(media<80) E nao-grade -> EROSAO 5x5 (mata linhas-guia finas) -> restricao a faixa
+inferior (z<0.45 m) -> componentes conexos por propagacao. Resultado:
+  MODELO v111 (17 comp.): #4 DISC 0.253 x 0.248 m em x=+0.70  <= FRENTE confere (contrato 0.266)
+                          #17 DISC 0.402 x 0.407 m em x=-0.85  <= TRAS confere (contrato 0.355)
+  CONCEPT      (34 comp.): nenhum DISCO com o diametro esperado; os maiores sao blobs largos
+                          (0.472x0.325, 0.603x0.266, 0.451x0.361) -> o pneu, o vao escuro e a
+                          sombra embaixo do kart estao CONECTADOS no desenho e fundem as rodas.
+=> As rodas do MODELO estao dimensionalmente corretas (0.253 vs 0.266 e 0.402 vs 0.355).
+   O que NAO esta medivel ainda e' o concept: a roda de la' so' sera comparavel quando a sombra
+   for removida (a sombra e' o elo que conecta os blobs).
+REGRA 293: validar TODA medida de roda contra o contrato ANTES de usar (frente ~0.266, tras ~0.355).
+   Se o valor nao chega perto, e' contaminacao (linha-guia, grade ou sombra), nunca geometria.
+   Neste passo a sanidade pegou 0.947 m (linha-guia) e os blobs de 0.60 m (sombra conectando).
+REGRA 294: o modelo pode ser medido por componentes porque o render tem fundo uniforme e sombra
+   separavel; o CONCEPT e' um desenho com grade, linhas-guia E sombra -> medir forma nele exige
+   remover a sombra por cor/posicao (faixa mais baixa, abaixo da linha de contato) antes de medir.
+RODA: nada foi alterado neste passo (nenhuma correcao aplicada sem medicao confiavel).
