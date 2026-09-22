@@ -11728,3 +11728,33 @@ METRICA DE ACEITE da asa (objetiva, no lugar da nota do vision): contorno latera
   duas pontas (lente) e topo com curvatura nao-nula no centro (segunda derivada != 0), medivel pelo
   perfil de topo como no nariz (regra 301).
 v118-v121: 1 componente (198 obj) | 0 non-manifold | contato 33/34 | contrato intacto
+
+## v122-v124: CAUSA RAIZ DA ASA — SECAO TRANSVERSAL DEGENERADA (era chapa sem volume)
+Sintoma que resistiu a 4 ciclos: vision dizendo "asa retangular/plana" apesar de 8/9 estacoes,
+  camber, topo eliptico, corda e posicao ajustados. Nenhum ajuste de PERFIL mudava o veredito.
+MEDICAO que finalmente localizou o concept como referencia (corrigindo um bug meu: eu havia usado o
+  span VERTICAL como comprimento na conversao px->m, o que deu corda 0.388 em vez de 0.192):
+  asa do concept (blob amarelo em side.jpg, maior componente conexa do recorte traseiro-alto,
+  confirmado por vision como a ASA): corda 0.192 m | altura 0.079 m | H/C 0.395 | plenitude 0.751
+  (= pi/4 = ellipse) | x_world -0.889..-0.700 | z 0.731..0.810.
+  MEU v121: corda 0.260 | altura 0.105 | x -0.900..-1.160 -> 35% mais longo, 33% mais grosso e
+  0.3-0.5 m deslocado para tras.
+CAUSA RAIZ (achada ao investigar por que o contato asa<->pylon falhava assimetricamente):
+  a secao transversal da asa era
+      zz = ztop - esp*0.5*(1-cos(a))
+  que e' LINEAR em cos(a), portanto NAO e' elipse: a curva degenera (em a=pi/2 e a=3pi/2 os dois
+  pontos caem no MESMO lugar) e a peca e' uma CHAPA DE AREA ~ZERO.
+  PROVA OBJETIVA: BVHTree.overlap deu 0 pares de um lado e 48 do outro (assimetria impossivel em
+  peca simetrica) — geometria degenerada, nao problema de posicionamento.
+  CORRECAO (v124): zc=ztop-esp*0.5 ; zz=zc+esp*0.5*sin(a)  -> elipse real.
+  RESULTADO: contato [asa<->pylon] 0 -> 24 pares; gate volta a 33/34 com 1 componente e 0
+  non-manifold; vision da asa 4/10 -> 9/10 ("definitely has volume, it is not a flat sheet").
+REGRA 303: em loft circular, z NECESSITA de sin(a) e y de cos(a). Uma coordenada linear em cos(a)
+  produz chapa degenerada que RENDERIZA como forma plausivel mas nao tem volume, nao colide de
+  forma simetrica e nunca melhora por ajuste de perfil. Sintoma de diagnostico: vision repetindo
+  "plano/retangular/chapa" apesar de mudancas reais de contorno + contato BVH assimetrico.
+REGRA 304: usar o HELPER (sec_U) em vez de escrever a secao a mao. O sec_U usa superelipse correta
+  (|cos|^p, sin^p) e foi por isso que nariz, casco e pods nunca tiveram esse defeito; a asa foi a
+  unica peca com anel escrito a mao (v078) e foi a unica a degenerar.
+SECOES AINDA CORRETAS por varredura: linhas 120, 523 e 530 usam pares cos/sin proprios.
+v122-v124: 1 componente (198 obj) | 0 non-manifold | contato 33/34 | contrato intacto
