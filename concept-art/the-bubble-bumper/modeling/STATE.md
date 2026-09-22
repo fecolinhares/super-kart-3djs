@@ -13020,3 +13020,32 @@ DECISAO: o alvo nao e "menos erros na grade" mas "um modelo que ao ser medido na
   Y em x=-0.10..-0.06 z=1.12..1.18, entao ou (a) a banda alta tem que ser mais larga (+x) ou (b) e um
   terceiro elemento. Proximo passo: medir o concept em z 1.12..1.18, x -0.10..-0.04 e comparar com
   a geometria do modelo naquela janela.
+
+## v181 + BOOT ESTRUTURAL MEDIDO: o conceito usa amarelo como BORDE SUPERIOR FINAL; o modelo tem uma CALOTA AZUL ACIMA
+MEDICAO POR COLUNA (concept vs v181, z topo + classe do topo):
+  x=-0.28 C 1.249 D | M 1.247 Y  (diff -0.002)  <- azuleira/tampa do capacete (sombra no desenho)
+  x=-0.22 C 1.240 o | M 1.247 Y  (diff +0.008)
+  x=-0.18 C 1.227 D | M 1.188 o  (diff -0.039) <- modelo MAIS BAIXO aqui (falta)
+  x=-0.16 C 1.215 D | M 1.208 B  (diff -0.007)
+  x=-0.14 C 1.199 D | M 1.223 B  (diff +0.024) <- MODELO MAIS ALTO que o concept
+  x=-0.12 C 1.180 D | M 1.218 B  (+0.038)
+  x=-0.10 C 1.158 o | M 1.193 B  (+0.035)
+  x=-0.08 C 1.117 D | M 1.183 o  (+0.066)      <- SUPEROU em 6.6 cm
+  x=-0.06 C 1.060 D | M 0.604 B  (-0.456)      <- a ABA traseira alta do concept e sobra na janela medida
+LEITURA DAS CLASSES: o topo do concept em x -0.28..-0.08 e D (sombra/lowlight sobre a linha amarela) — o
+  amarelo e a BORDA FINAL; o modelo (M) tem o topo AZUL (B) na maior parte, com a faixa amarela vindo
+  abaixo. O VISION (board181_topo.png) confirmou o mesmo: "no concept, a linha amarela e a BORDA SUPERIOR
+  FINAL; no modelo, ha uma CALOTA AZUL INTEIRA acima dela". CONSEQUENCIA: v173 cumpriu a missao (fechou o
+  degrau de 0,198 m) mas CRIOU um excesso de massa acima da faixa amarela.
+ONDE A CALOTA TEM QUE DESAPARECER: altura medida por coluna v179: teto do conjunto 1.185 (x=-0.18)
+  1.220 (-0.14..-0.12) 1.205 (-0.10). Devendo ser recortado ao nivel do topo do amarelo do concept
+  (1.196 em x=-0.14 -> 1.148 em x=-0.10 -> 1.098 em x=-0.08 (rampa)).
+RESTRICAO ESTRUTURAL (IMPORTANTE): o ja-estabelecido "solido fechado" e uma esfera UV completa (v173).
+  Achatar o TOPO com corte em z (secar a esfera) cria NON-MANIFOLD se a malha ficar aberta; a regra 8 diz
+  "cada objeto deve ser FECHADO/MANIFOLD". Para resolver o excesso sem violar o gate a tecnica certa e
+  ESCALAR A COLETA NO EIXO Z com centro no plano de corte (achatamento top-hat mantendo fecho), NAO cortar
+  faces. Permanece com 1 componente / 0 non-manifold.
+ACAO PENDENTE (v182): achatar a P_RearTop em Z com centro ~z=1.075 (INFERIOR da faixa), de forma que o
+  topo caia de 1.225 para ~1.15..1.20 seguindo a rampa do concept — SEMPRE com o solido FECHADO — e
+  medir antes/depois. Alvo por coluna medido do concept: 1.199 (x=-0.14), 1.180 (-0.12), 1.158 (-0.10),
+  1.117 (-0.08). Reposicionar P_StripeF na nova borda superior.
