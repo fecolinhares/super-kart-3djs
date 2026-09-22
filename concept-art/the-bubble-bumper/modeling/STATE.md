@@ -12027,3 +12027,26 @@ DESVIOS QUE A MEDICAO NOMEOU (proximo ciclo):
      modelo tem escuro em z 1.00..1.02 (x -0.22..-0.26). SUBIR olhos/visor ~0.05 m.
 REGRA 314: para pintar zona curva de um solido, o teste pelo CENTRO da face vaza nas faces
   grandes. Restringir a regiao com margem ou subdividir a malha na zona ANTES de reatribuir.
+
+## v140 — olhos/visor +0.05 m e zona de pintura fechada: resultado MEDIDO e o que falta
+PATCH: zona de pintura do casco z 0.960..1.100 -> 0.960..1.060 e x -0.307..-0.137 -> -0.300..-0.140;
+       P_Eye_±1, P_Pup_±1, P_Visor subidos 0.050 m (5 objetos).
+MEDIDO: faces repintadas 870/6048 (era 1160 -> 290 faces sairam ao fechar a zona).
+        diff SIDE 1476 px | blend md5 5a44a9940a.
+ACEITE (grade de cores SIDE, 10 alturas x 6 abscissas = 60 celulas):
+        acerto global 25/60 = 42% (v139 tinha 39% - MELHOROU)
+        celulas CLARAS concept = 30 | modelo v140 = 12 | acerto do claro = 9/30 (PIOROU de 13)
+LEITURA HONESTA: o fechamento de z removeu pintura NECESSARIA. No concept z=1.10 tem L em
+  x=-0.26/-0.22; no v140 ha B. E o vao escuro que sobrou (D em x=-0.26/-0.22, z 1.02..1.08) e o
+  P_Visor (raio 0.078 = 0.156 m de altura) que virou uma massa escura GRANDE no meio do casco.
+  No concept essa regiao e CLARA com apenas uma FENDA FINA escura (x -0.28..-0.26, z 1.06..1.08)
+  + preto pequeno em x -0.16..-0.14. Ou seja: o visor do modelo e grande e escuro demais.
+PROXIMO (causa medida, nao chute):
+  1) P_Visor: reduzir a altura/raio (0.078 -> ~0.030) para virar FENDA, nao massa; manter claro.
+  2) rever a zona de pintura: reabrir z ate 1.100 com margem maior em x (x0 -0.300 -> -0.290) para
+     nao pegar as faces grandes do alto, OU subdividir a zona (bmesh.ops.subdivide_edges) e
+     entao pintar — resolve vazamento E cobertura de uma vez (regra 314).
+REGRA 315: fechar a regiao de pintura para evitar vazamento pode REMOVER cobertura legitima.
+  Sempre medir os DOIS lados: celulas pintadas A MAIS (vazamento) e A MENOS (falta). Aqui o
+  vazamento caiu mas a cobertura tambem -> saldo pior no claro, melhor no global. Nao otimizar so
+  a metrica global: a metrica que representa a FEATURE (celulas claras do capacete) manda.
