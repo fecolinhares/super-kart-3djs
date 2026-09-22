@@ -11301,3 +11301,28 @@ REGRA 267: material escuro "some" contra fundo escuro no render de QA: visor/det
 v086: 1 componente (152 obj) | 0 non-manifold | contato 33/34 | L/W/H no contrato
 Pendente p/ o proximo ciclo (vision): volante visivel, capacete menos "boxy" (mais suavizacao),
   borda/moldura do visor, e detalhes de luvas/suit.
+
+## v087/v088: auditoria de visao (5,4) — ARO DO CONCEPT e' GRANDE (revertido) + grade + pods
+Auditor v084 REPROVOU (5,4) medindo por pixel: face da roda 29-31% no modelo vs 55-75% no concept.
+CONFLITO com o vision do meu crop (que dizia "hub ~25% no concept"). ARBITRAGEM:
+  o vision no side.jpg CORRETAMENTE ORIENTADO confirmou: "borracha 40% do diametro, aro/cubo
+  PRATEADO 60%, com detalhes amarelos ~10%" -> O AUDITOR ESTAVA CERTO e o meu valor ORIGINAL
+  (v081: furo 0.60r, RIM 0.62r) estava CERTO. O v082 "corrigiu" para errado por causa de um crop
+  em que eu aplicava rotate(-90) no side.jpg — que JA' ESTA' deitado (1024x559, bbox 992x489).
+  Um kart EM PE foi comparado com o deitado.
+FIX v087: furo do pneu volta a 0.60r | RIM 0.62r (aro prateado grande) | RING amarelo pequeno (0.14r)
+  MEDICAO LIMPA no meu render: traseira borracha 43% / aro 57% (concept 40% / 60%) ✔
+  (a 1a medicao deu 21% porque o "tot" do meu script somava runs FORA da roda)
+FIX v087: escapes mais altos (central z 0.36->0.40, laterais 0.415->0.47; concept: metade/topo da roda)
+FIX v088: GRADE frontal 8.7% de W (medido) -> 9 slats cobrindo ~29% de W + 2 blocos amarelos ladeando
+  (concept 30-35%); pods estreitados 0.73x (concept TOP: corpo 0.938 m; o modelo tinha 1.17 m)
+REGRA 268: NUNCA rotacionar referencia ortografica sem CHECAR o bbox: side.jpg/top.jpg JA' estao
+  deitados (1024x559); front.jpg/rear.jpg sao frontais. Rotacionar -90 poe o concept EM PE e
+  invalida toda comparacao (foi a origem do falso "hub de 25%" que gerou o v082 errado).
+REGRA 269: o aro visivel do concept e' ~60% do DIAMETRO (aro grande prateado) com borracha 40%;
+  "face" grande != "hub gigante" — comparar SEMPRE com o dado medido, nao com a impressao do crop.
+REGRA 270: ao medir razao por runs de pixel, o total TEM de ser o run DENTRO do objeto (do 1o ao
+  ultimo run da roda); somar todos os runs de P/A/M da linha contamina com objetos vizinhos (21% falso).
+REGRA 271: no render SIDE o nariz pode estar a DIREITA (a roda esquerda era a DIANTEIRA) — confirmar
+  por diametro medido (0.257 = dianteira) antes de nomear a roda.
+v088: 1 componente (158 obj) | 0 non-manifold | contato 33/34 | L/W/H no contrato
