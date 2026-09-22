@@ -12600,3 +12600,28 @@ ERROS RESTANTES (5 reais + 1 que e fundo do concept):
   6. (0.96,-0.15) '.' vs L — concept='.' = FUNDO, nao e defeito (ja excluido dos contadores).
 PROXIMO: (1) fechar o buraco de 3 px; (2) teto -0.006 em -0.15; (5) reestender a linha preta;
   (3)(4) fenda por RGB absoluto. Depois FRONT/REAR/TOP, vision proprio, auditor, prancha + MD5.
+
+## MEDICAO DE SILHUETA POR COLUNA (concept vs modelo R168) — ACHADO NOVO E GRANDE
+Instrumento: z do PRIMEIRO pixel nao-fundo de cima para baixo, por coluna, mesma escala nos dois.
+  x      | concept | modelo | delta
+  -0.10  |  1.218  |  1.020 | -0.198   <-- DEGRAU
+  -0.11  |  1.218  |  1.020 | -0.198   <-- DEGRAU
+  -0.12  |  1.218  |  1.020 | -0.198   <-- DEGRAU
+  -0.13  |  1.218  |  1.228 | +0.010
+  -0.14  |  1.218  |  1.233 | +0.015
+  -0.15  |  1.218  |  1.233 | +0.015
+  -0.16  |  1.221  |  1.233 | +0.012
+  -0.17  |  1.224  |  1.233 | +0.009
+  -0.18  |  1.231  |  1.233 | +0.002
+  -0.19  |  1.234  |  1.233 | -0.001
+  -0.20  |  1.240  |  1.233 | -0.007
+LEITURA 1: o concept tem o topo QUASE PLANO (1.218..1.240) de x=-0.20 a x=-0.10. O modelo acompanha
+  bem ate x=-0.13 (delta <= 0.015, dentro de 5 px) mas em x=-0.12..-0.10 DESPENCA para 1.020:
+  DEGRAU DE 0.198 m. Ou seja: falta o topo-traseiro do capacete nas 3 ultimas colunas.
+LEITURA 2 (importante): em x=-0.15 o topo do modelo e 1.233, ACIMA da celula (1.12). Logo o '.' que a
+  grade acusa em (1.12,-0.15) NAO e ausencia de geometria — e SUPERFICIE ESCURA (dentro de 40 do fundo)
+  ou seja o defeito ali e de MATERIAL/SOMBREAMENTO, nao de silhueta. Separa os dois casos.
+METRICA ATUAL: borda 82% (49/60) | dentro 92% (54/59) | claro concept 31 = modelo 31 acerto 31.
+PROXIMO: (a) fechar o degrau de 0.198 m em x -0.12..-0.10 (topo-traseiro do capacete) — defeito MAIOR
+  que qualquer celula da grade; (b) identificar a superficie escura em (1.12,-0.15); (c) teto -0.006 em
+  -0.15; (d) linha preta ate x=-0.15; (e) fenda por RGB absoluto.
