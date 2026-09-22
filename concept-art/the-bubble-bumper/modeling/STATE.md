@@ -12339,3 +12339,27 @@ PROXIMOS: (1) overshoot da placa: 0.905 -> ~0.918 (fundo 0.013 mais alto); (2) z
   modelo 'D' vs concept 'L'; (3) z=0.94 em x=-0.22 modelo 'B' vs concept 'L'; (4) z=1.12 em x=-0.15
   modelo '.' vs concept 'B'; (5) pneus z=0.25/0.45 (-0.040) e z=0.50 (+0.064); (6) ombro do pneu
   |y| 0.66..0.70. Depois: 4 vistas -> vision proprio -> auditor independente -> prancha com MD5.
+
+## v155 — AJUSTE DO OVERSHOOT DA PLACA (0.905 -> 0.918) + MAPA DOS 13 ERROS RESTANTES
+v155 (script incremental): fundo do P_FacePlate 0.905 -> 0.918. GATE OK: 1 componente | 0
+  non-manifold | 520 contatos | md5 1809a8e337.
+ACEITE v155: borda 68% / dentro 78% | CLARO 31/31 | acerto 25 -> IGUAL ao v154 (nenhuma celula da
+  grade virou). MAS a BORDA melhorou no instrumento fino: x=-0.18 0.905 -> 0.915 (concept 0.920) e
+  x=-0.16 0.900 -> 0.915 (concept 0.910). Borda v155: -0.30 1.040(exato) | -0.26 0.975(0.980) |
+  -0.22 0.950(0.940) | -0.18 0.915(0.920) | -0.16 0.915(0.910) | -0.15 0.900(0.915).
+  LICAO: mudanca correta e comprovada pela BORDA pode nao mover a GRADE (a grade amostra z de 0.02
+  em 0.02 e nao pega 0.013). Nao concluir "sem efeito" so pela grade: usar o instrumento mais fino.
+MAPA DOS 13 ERROS RESTANTES (amostra "dentro -0.15", concept vs modelo):
+  GRUPO VISOR (5 dos 13, o maior): a fenda escura esta DESLOCADA.
+    z=1.08 x=-0.26 concept 'o' modelo 'L' | z=1.06 x=-0.26 'o' vs 'L' | z=1.02 x=-0.26 'L' vs 'o' |
+    z=1.06 x=-0.22 'L' vs 'o' | z=1.04 x=-0.22 'L' vs 'o' | z=1.00 x=-0.22 'L' vs 'D'
+    => fenda do concept em (x -0.26, z 1.06..1.08); fenda do modelo em (x -0.22, z 1.00..1.06).
+    => MOVER P_Visor em dx = -0.04 e dz = +0.04 (medido, nao estimado).
+  GRUPO TETO DA FAIXA: z=1.10 x=-0.30 'B' vs 'L' e z=1.10 x=-0.15 'B' vs 'L' -> o modelo pinta
+    CLARO ALTO DEMAIS nesses dois extremos (limite z<=1.100 da condicao). z=0.96 x=-0.15 concept '.'
+    vs modelo 'L' -> claro um pouco BAIXO demais nessa coluna.
+  GRUPO GEOMETRIA: z=1.12 x=-0.15 concept 'B' vs modelo '.' -> sem geometria no topo-traseiro do
+    capacete nessa coluna. z=0.94 x=-0.22 concept 'L' vs modelo 'B' -> o ombro ainda oclui (topo
+    0.950 ali, precisa ~0.940). z=1.00 x=-0.26 'L' vs 'B' -> mancha azul onde o concept tem claro.
+PROXIMO: mover P_Visor (dx -0.04, dz +0.04) — resolve ~5 dos 13 erros. Depois: teto da faixa
+  (z<=1.100 -> limite por coluna medido), ombro em x=-0.22, geometria do topo-traseiro do capacete.
