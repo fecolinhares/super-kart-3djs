@@ -11106,3 +11106,22 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Serie vision: 2,5 2,6 2,4 2,6 2,7 2,5 3,0 3,3 3,8 4,5 | FRONT: 2,0->3,5->6,0.
   REGRA 254: cor e' assinatura — azular/amarelar na peca CERTA (bow azul + caps amarelos)
     vale +0,7; a mesma geometria com cor errada le como "monolito".
+
+## *** v062-v066: PILOTO CHIBI E POD GOTA — vision 2,8 -> 4,2 | SIDE 5,2 (RECORDE) *** ***
+  vision v061 (2,8): "Número sem forma = 0. Render manda" — os números dos vectores NAO
+    viravam forma (primitivas esticadas entre pontos).
+  v062: piloto reconstruido como FORMA CHIBI: torso pear-shape, membros ELIPSOIDES TAPERED
+    (coxa 0.13->0.075), pescoco encaixado (BVHTree). Contato caiu 14->11 (neck/seat soltos).
+  v063-v065: corrigido contato 11->13->14/14 por overlap de pescoco com shoulder E helmet
+    ao mesmo tempo (v65: neck r=0.05/0.09/0.14 deep dentro dos dois).
+  vision v065 (3,1): "torso palito vertical (esfera ESTATICA nao rotacionada! charuto
+    simétrico (pod subia-e-descia simetrico), braço regua 180".
+  v066: (1) torso reclinado 50° e barril ROTACIONADO ao eixo tronco; (2) cotovelo caiu 0.30
+    abaixo do ombro; (3) pod gota ASSIMETRICA (topo sobe ate' a traseira 0.49).
+  *** vision v066 = 4,2 | SIDE 5,2 (RECORDE): "SIM tronco... SIM GOTA. Fim do charuto
+    simétrico. Tipologia gota atingida." ***
+  ERRO NOVO: cabeca FLUTUANTE 1 cabeca atras/acerca do volante, pescoco vertical desconectado,
+    braço sem dobra de cotovelo legivel.
+  REGRA 255: vetor de posicao NAO e' forma — elipsoide ESTATICO nao rotacionado le como
+    palito. Toda parte alongada precisa de rotation_euler alinhado ao eixo do membro.
+  Serie: 3,0 3,3 3,8 4,5 3,9 2,8 3,1 4,2 | SIDE: 2,4 4,0 4,5 5,2.
