@@ -12670,3 +12670,24 @@ CONCLUSAO TECNICA (2 tentativas, 2 regressoes): o degrau de 0.198 m em x -0.12..
 PROXIMO: (a) criar a geometria do topo-traseiro com bmesh (extrusao+bridge), medindo a silhueta por
   coluna ANTES/DEPOIS; (b) superficie rasante do P_Helmet em (1.12,-0.15) ny 0.13..0.49;
   (c) teto -0.006 em x=-0.15; (d) linha preta ate x=-0.15; (e) fenda por RGB absoluto.
+
+## v171 REVERTIDO — GATE VERMELHO (54 arestas non-manifold) + BUG DE ESPACO DE COORDENADAS
+Acao: CRIAR geometria por bmesh — extrude_face_region na tampa traseira-alta do casco (144 faces,
+  x >= -0.1587) + translacao (0.050, 0, 0.110). Criou 172 verts; o x maximo da parte alta foi de
+  -0.1467 para ~-0.097 (cobriria x -0.12..-0.10).
+DOIS DEFEITOS:
+  (1) GATE: NON-MANIFOLD total 54 arestas em 1 objeto (era 0). Extrudar uma REGIAO de faces nao
+      delimitada pela topologia da malha deixa paredes internas/abertas. A extrusao de regiao so e
+      segura se a regiao for uma TAMPA real (loop de fronteira fechado), nao um recorte arbitrario.
+  (2) BUG MEU: transladei 'v.co' somando o vetor do MUNDO. v.co esta em espaco LOCAL e o objeto tem
+      matrix_world nao-identidade -> o deslocamento real nao foi o pretendido. Prova: a silhueta em
+      x -0.12..-0.10 continuou 1.020 (topo = P_Mouth_1). Regra: transladar SEMPRE via
+      inv = matrix_world.inverted(); v.co = inv @ (mw @ v.co + delta).
+DECISAO: REVERTER (gate vermelho nao se aceita). Candidato valido CONTINUA conjunto-v168.blend
+  (md5 f722340a49 | borda 82% | dentro 92% | claro 31 = concept 31, 31 acertos).
+CONTAGEM DO CICLO: 3 tentativas de fechar o degrau (v169 mover, v170 esticar, v171 extrudar),
+  3 revertidas. O degrau de 0.198 m segue ABERTO e agora esta caracterizado: exige criar tampa com
+  loop de fronteira real + translacao no espaco correto, ou aceitar como divergencia conhecida.
+PROXIMO: (a) refazer a criacao com espaco correto e regiao-tampa; (b) superficie rasante do P_Helmet
+  em (1.12,-0.15) ny 0.13..0.49 (esta e mais simples: achatar como no v168, que funcionou);
+  (c) teto -0.006 em x=-0.15; (d) linha preta ate x=-0.15; (e) fenda por RGB absoluto.
