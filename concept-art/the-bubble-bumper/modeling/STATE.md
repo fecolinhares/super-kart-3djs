@@ -13049,3 +13049,30 @@ ACAO PENDENTE (v182): achatar a P_RearTop em Z com centro ~z=1.075 (INFERIOR da 
   topo caia de 1.225 para ~1.15..1.20 seguindo a rampa do concept — SEMPRE com o solido FECHADO — e
   medir antes/depois. Alvo por coluna medido do concept: 1.199 (x=-0.14), 1.180 (-0.12), 1.158 (-0.10),
   1.117 (-0.08). Reposicionar P_StripeF na nova borda superior.
+
+## v182 + v183 — EXCESSO DE CALOTA AZUL ELIMINADO (soma |desvio| 0.219 -> 0.153 m)
+v182: achatei P_RearTop (90 de 266 verts) com o topo alvo = rampa do concept por coluna.
+  z_topo 1.225 -> 1.209. GATE 1/0/527. Medicao: x=-0.14 +0.024 -> +0.003 | -0.12 +0.038 -> +0.003 |
+  -0.16 +0.066 -> -0.012 | MAS -0.10 +0.035 -> +0.025 e -0.08 +0.066 -> +0.066 (inalterado).
+  RAYCAST identificou o culpado: em x=-0.10..-0.08 quem sustenta o topo e P_StripeF — a MESMA
+  extensao que eu fiz no v181 criou aquele excesso (nao o P_RearTop).
+v183: achatei TAMBEM P_StripeF (32 verts), P_Stripe (2) e P_RearTop (100) pela rampa do concept.
+  GATE 1/0/527.
+MEDICAO v183 (topo por coluna, concept vs modelo):
+  x=-0.18 C 1.227 D | M 1.183 L  (-0.044)
+  x=-0.16 C 1.215 D | M 1.198 B  (-0.017)
+  x=-0.14 C 1.199 D | M 1.188 B  (-0.011)
+  x=-0.12 C 1.180 D | M 1.168 L  (-0.012)
+  x=-0.10 C 1.158 o | M 1.134 o  (-0.024)
+  x=-0.09 C 1.136 D | M 1.114 o  (-0.022)
+  x=-0.08 C 1.117 D | M 1.094 o  (-0.023)
+  SOMA |desvio| = 0.153 m (era 0.219 em v181) -> ganho de 30%.
+  TODOS OS SINAIS AGORA NEGATIVOS: acabou o overshoot (o excesso de +0.066 virou -0.023).
+LEITURA: o excesso de calota azul acima da faixa amarela FOI ELIMINADO. O padrao remanescente e um
+  SUB-ESTIMULO SISTEMATICO de 1..4 cm (modelo um pouco baixo) — estado muito melhor que o anterior
+  (excesso), porque nao ha mais volume fantasma. Nota: a correcao do v182 foi identificada por RAYCAST
+  (quem sustenta a superficie), nao por suposicao — foi o que evitou corrigir o objeto errado.
+PENDENTE: (a) subir a faixa amarela ~1.5..2 cm em x -0.18..-0.14 para fechar o deficit e fazer o
+  AMARELO virar o topo (hoje ainda ha 'B' azul acima em -0.16/-0.14); (b) x=-0.18 esta 4.4 cm baixo
+  (maior deficit da janela); (c) os 4 elementos do vision (sobrancelha, esclera, oval, rebite);
+  (d) FRONT/REAR/TOP, vision proprio, auditor independente, prancha final.
