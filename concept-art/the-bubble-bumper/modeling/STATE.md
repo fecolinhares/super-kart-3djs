@@ -12129,3 +12129,28 @@ CAUSA RAIZ DA OCLUSAO (agora MEDIDA, nao suposta) — light_objs.py:
 REGRA 318: antes de pintar superficie, verificar QUAL OBJETO ocupa o pixel. Objeto mais largo/mais
   proximo da camera oclui o que se pretende pintar. Listar bbox+material dos objetos na faixa
   (light_objs.py) e comparar |y|max entre eles. Pintar o ocluso nao produz pixel.
+
+## v145/v146 — OMBRO CORRIGIDO PELA CAUSA MEDIDA (regra 318) e a FEATURE sobe
+LINHA PATCHADA: esf("P_Shoulder", SHO + (0.005,0,0.075), 0.170, 0.222, 0.140)
+  -> esf("P_Shoulder", SHO + (0.005,0,0.0555), 0.170, 0.222, 0.1195)
+  Calculo medido: topo = SHO.z(0.824) + 0.075 + rz(0.140) = 1.039. Para topo 1.000 com FUNDO
+  preservado em 0.761: centro -0.0195 E rz -0.0195 (0.140 -> 0.1195). Nao basta baixar: baixar
+  sozinho elevaria o fundo e arriscaria o contato com o tronco.
+v145 = v143 (pintura por vertices) + ombro: GATE 1 comp/0 non-manifold/33-34 -> contato preservado.
+  (ERRO DE BASE: derivei do v143 e perdi a pintura por NORMAL do v144. Corrigido no v146.)
+v146 = v144 (pintura por NORMAL lateral, 632 faces) + ombro: GATE 1 comp/0 non-manifold/33-34 OK.
+  blend md5 e111443940.
+ACEITE COMPARATIVO (60 celulas, azul antes de escuro):
+  GLOBAL:    v139 39% | v140 42% | v141 47% | v143 50% | v144 47% | v146 45%
+  CLARO:     concept 30 | v139 3 | v140 12 | v141 14 | v143 18 | v144 20 | v146 24
+  ACERTO DO CLARO: v144 12/30 -> v146 15/30
+LEITURA (regra 315 manda): o GLOBAL caiu 50->45 mas a FEATURE (celulas claras, que e o que define
+  "capacete com painel claro") subiu 18->24 e o acerto do claro 12->15. A metrica global mistura
+  tudo e penaliza mudancas corretas localizadas. Nao escolher versao pelo global.
+  z=0.96 melhorou para 5/6 (era 4/6) -> a correcao do ombro fez efeito onde era previsto.
+DESVIO RESIDUAL (medido): em z 1.02..1.08 o modelo tem B em x -0.26..-0.22 e o concept tem L/o.
+  Ou seja o painel claro do casco ainda nao alcanca essa faixa; e em z=1.00 o claro VAZA para
+  x=-0.34 (teste por CENTRO pinta faces que se estendem para fora da zona).
+PROXIMO: (a) restringir o centro com margem (ou usar o vertice mais externo) para matar o vazamento;
+  (b) medir qual objeto ocupa x -0.26..-0.22 z 1.02..1.08 agora (regra 318 de novo: o P_Torso? o
+  proprio P_Helmet sem faces pintadas ali?) via raycast da camera SIDE, nomeando o objeto do hit.
