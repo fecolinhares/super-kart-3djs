@@ -11125,3 +11125,21 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 255: vetor de posicao NAO e' forma — elipsoide ESTATICO nao rotacionado le como
     palito. Toda parte alongada precisa de rotation_euler alinhado ao eixo do membro.
   Serie: 3,0 3,3 3,8 4,5 3,9 2,8 3,1 4,2 | SIDE: 2,4 4,0 4,5 5,2.
+
+## *** v067-v068: GIR AFA ELIMINADA — vision 4,2 -> 4,3 -> 5,4 | SIDE 6,1 (NOVO RECORDE) *** ***
+  v067 (4,3): cabeca avancada dx 0.40 + cotovelo + pescoco SONDADO por BVH probe
+    (a) SONDA: rot +Y da 0 tri, rot -Y da 20-42 tri — BVH precisa de teste empirico,
+        calculo manual de elipse rotacionada NAO basta (regra 256);
+    (b) vision: "MEIO-SIM... Erro #1 = GIRAFA: ombro x=-0.50 vs concept -0.25; a CABECA
+        esta' certa, o OMBRO esta' longe demais; concept tem ZERO pescoço".
+  v068: (1) OMBRO movido p/ frente (HIP-0.05, ombro->cabeca 0.11 ~ concept 0.10);
+    (2) pescoco MINIMO (vao 0.26 -> 0.04m); (3) cabeca mantida x=-0.15 (estava certa);
+    (4) tronco leve recline. H=1.2523, contato 14/14 DE PRIMEIRA.
+  *** vision v068 = 5,4 (MAIOR SALTO: +1,1) | SIDE 6,1 — "Girafa sumiu? SIM. Cabeca
+    sobre volante? SIM. fix girafa funciona, tronco recline ok." ***
+  ERRO #1 NOVO: KART DIANTEIRO — nariz CONE hiper-longo pontiagudo, parachoque triangular
+    gigante, bitola cropada, rodas minimas vs concept curto arredondado compacto;
+    + piloto sem joelhos altos, braço varão, colar-donut largo; REAR sem 3 escapes legiveis.
+  REGRA 256: overlap BVH de elipse rotacionada NAO e' calculavel por regra de bbox —
+    SONDAR empiricamente (loc/rot/scale por probe ate' os dois pares darem >0 tri).
+  Serie: 3,0 3,3 3,8 4,5 3,9 2,8 3,1 4,2 4,3 5,4 | SIDE: ...4,5 5,2 3,2 6,1.
