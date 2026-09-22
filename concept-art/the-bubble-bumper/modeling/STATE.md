@@ -11280,3 +11280,24 @@ REGRA 263: pneu malha ANEL — o aro visivel e' o FURO do pneu: furo 0.60r faz "
 REGRA 264: peca CONTIDA dentro de outra nao gera interseccao de superficie (BVH) -> ilha. Precisar
   ATRAVESSAR (offset parcial), nao apenas "estar dentro".
 v084: 1 componente (151 obj) | 0 non-manifold | contato 33/34 | L/W/H no contrato.
+
+## v085/v086: PILOTO — regressao da face corrigida
+O auditor de visao reprovou o piloto ("no visor, no proper face, only a tiny white dot").
+CAUSA: a P_FacePlate que eu criei no v078 p/ dar CONTATO ficou com a frente em x=0.048 e os
+  OLHOS (centro x=0.030, r=0.033) ficaram CONTIDOS/atras dela -> a placa ESCURA cobriu o rosto
+  que eu tinha feito no v075. Regressao de contato virou regressao visual.
+FIX v085: placa recuada (x -0.040..0.010), olhos em x=0.045 (r 0.038), pupilas x=0.072, sorriso
+  de x=0.000 a 0.082 (atravessa a placa -> contato mantido e os 3 elementos visiveis).
+  vision: olhos/sorriso RESOLVIDOS.
+FIX v086: faixa amarela frontal estava DENTRO da casca (P_StripeF em x+0.045..+0.185 com o
+  capacete de raio 0.163) -> movida p/ a CASCA (x+0.138..+0.176, acima dos olhos); visor trocado
+  p/ cinza medio M_VISL (o M_VIS escuro sumia no fundo). vision: faixa e visor RESOLVIDOS.
+REGRA 265: peca criada para dar CONTATO nao pode ser maior/mais externa que o detalhe visual que
+  ela deve suportar — o suporte tem de ficar ATRAS (recuado), senao cobre o detalhe no render.
+REGRA 266: detalhe embutido na casca (faixa/visor) precisa ficar NA SUPERFICIE (x = raio da casca),
+  nao dentro do volume — dentro do volume ele nao existe para a camera.
+REGRA 267: material escuro "some" contra fundo escuro no render de QA: visor/detalhe precisa de
+  contraste (cinza medio), senao o auditor conclui "nao existe".
+v086: 1 componente (152 obj) | 0 non-manifold | contato 33/34 | L/W/H no contrato
+Pendente p/ o proximo ciclo (vision): volante visivel, capacete menos "boxy" (mais suavizacao),
+  borda/moldura do visor, e detalhes de luvas/suit.
