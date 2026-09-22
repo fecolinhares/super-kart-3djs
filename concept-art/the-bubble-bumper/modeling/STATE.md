@@ -11661,3 +11661,28 @@ PENDENCIA MEDIDA: o que ainda faz a lateral do nariz ler "topo reto" e' o F_Bow 
   topo plano dele vira a leitura de "topo do nariz". Proximo passo: dar ao F_Bow o mesmo perfil de
   ovo do N_Nose (ou estreita-lo em y) para o nariz dominar a silhueta lateral.
 v113/v114: 1 componente (198 obj) | 0 non-manifold | contato 33/34 | contrato intacto
+
+## v115: nariz em bulbo + a origem do "topo reto" medida no PERFIL
+v115: nariz alargado em bulbo (yo 0.165 -> 0.515, acima do F_Bow 0.50) apenas A FRENTE das rodas
+  (x>=0.98; em 0.900 cai para 0.300 e em 0.780 para 0.150 para nao invadir as rodas dianteiras
+  x 0.526..0.869). Gates: 1 componente, 0 non-manifold, 33/34, contrato intacto.
+VERIFICACAO OBRIGATORIA (regra 289): diff R114->R115 = 1690 px -> a mudanca CHEGOU ao pixel
+  (diferente dos no-ops de 49-69 px do v108/v109). Sem isso eu nao saberia se o vision insistia
+  em "topo reto" por inercia ou porque nada mudou.
+PERFIL DE TOPO medido (z do topo da silhueta a cada 4% do comprimento, a partir da FRENTE):
+  MODELO v115: 0.238 (ponta) | 0.318 | 0.318 | 0.308 | 0.283 | 0.333 | 0.397
+  => ha' uma CONCAVIDADE entre 12% e 16% (0.308 -> 0.283) que depois sobe de novo.
+  A causa: a JUNCAO NARIZ->RAMPA. O nariz termina em x=0.900 com zt=0.320 e o N_Ramp comeca em
+  x=0.78 com zt=0.275 -> o topo DESCE 0.045 m num vao curto e forma um V. E ESSE V que o vision
+  le como "topo reto com aresta dura", nao o nariz.
+  CONCEPT: o mesmo perfil e' monotonico (uma curva so', sem V) — topo desce continuamente do alto
+  do bico ate' a rampa.
+REGRA 299: quando o vision insiste num defeito apos mudancas reais, MEDIR O PERFIL da silhueta
+  (z do topo por coluna) em vez de repetir a mudanca. Defeito de FORMA aparece como
+  nao-monotonicidade no perfil (V, degrau, notch) e nomeia exatamente qual juncao esta' errada.
+REGRA 300: o concept side.jpg NAO serve para medir o topo do nariz por coluna — nas colunas do
+  cockpit quem aparece no topo e' o CAPACETE do piloto (1.170 m), nao o bico; e as linhas-guia
+  entram como 1.114. Perfil de topo: usar SO as colunas da frente (0-10% do comprimento).
+PROXIMO PASSO: suavizar a juncao nariz->rampa para o topo virar uma curva monotonica
+  (ex.: nariz 0.900 zt 0.320 -> 0.305, 0.840 -> 0.295, 0.780 -> 0.278 e ramp comecando em 0.278).
+v115: 1 componente (198 obj) | 0 non-manifold | contato 33/34 | contrato intacto
