@@ -11452,3 +11452,30 @@ REGRA 282: ANTES de adicionar/corrigir COR, grepar as pecas daquela zona e confe
   cada uma. Amarelo/azul de suspensao passou por 8 builds sem ser notado e virava "amarelo demais"
   no diagnostico — o defeito estava na peca, nao na paleta.
 v102: 1 componente | 0 non-manifold | 33/34 | contrato intacto
+
+## v103/v104 + CORRECAO METODOLOGICA CRITICA da medicao de cor
+v103: amortecedores cromados + haste + chassi prata na regiao do meio-alto.
+v104: dampers y=+-0.205 raio 0.060 e molas raio 0.058 (molas GROSSAS como no concept).
+  A MEDICAO NAO MUDOU (meio cinza 10%) -> investiguei PORQUE em vez de adicionar mais peca.
+*** REGRA 283 — BUG NO MEU PROPRIO METODO (encontrado por verificacao, nao por intuicao) ***
+  O concept e' um desenho sobre GRADE QUADRICULADA cinza [144..227]. O mask de "nao-fundo"
+  (d>45 do pixel de canto) NAO excluia a grade: a faixa do topo da imagem tem 312 px que passam
+  o mask e 100% deles sao classificados "CINZA".
+  => TODAS as medicoes de CINZA do concept estavam CONTAMINADAS pela grade. As conclusoes
+     "o modelo e' cinza de menos / o concept tem 55% de cinza na frente" eram ARTEFATO.
+  => amarelo e azul NAO sao contaminados (a grade tem r=g=b, nao passa em b>r+25 nem em b<110).
+  => as FRACOES amarelo/azul tambem nao eram comparaveis: o denominador do concept incluia a grade.
+METRICA CORRETA (imune ao denominador): RAZAO amarelo/(amarelo+azul) por faixa, com mask que
+  exclui a grade (|r-g|<12 E |g-b|<12 E 120<media<240).
+  RESULTADO (SIDE):
+    CONCEPT: FRENTE 23% | meio 38% | TRAS 100% (azul 0 px)
+    v104   : FRENTE 22% | meio 28% | TRAS  56%
+  => A FRENTE ESTA CORRETA (23% vs 22%) — as correcoes de grade/caps/ductos chegaram ao ponto.
+  => MEIO: falta amarelo (38% vs 28%) = azul em excesso no cockpit/pods.
+  => TRAS: 1074 px de azul onde o concept tem ZERO (candidatos: R_Wing azul (regra 254) e Shld).
+REGRA 284: peca adicionada DENTRO de outra (mesmo y menor que a peca externa) fica INVISIVEL no
+  render e nao muda a medicao — os dampers em y=0.160 ficaram dentro da carenagem (y 0.175).
+  Ao adicionar peca de detalhe, conferir se a metrica MUDA; se nao mudar, ela nao esta aparecendo.
+REGRA 285: o "meio" (35-65% do comprimento) e' o COCKPIT (x +-0.4 m), nao a regiao do motor
+  (x -0.585) — mapear a fracao para o x_world ANTES de posicionar peca para corrigir aquela faixa.
+v103/v104: 1 componente (198 obj) | 0 non-manifold | 33/34 | contrato intacto
