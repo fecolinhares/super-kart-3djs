@@ -12835,3 +12835,35 @@ PROXIMO PASSO OBRIGATORIO (instrumento antes do objeto): CALIBRAR O MAPEAMENTO P
   LANDMARK conhecido dos dois lados (ex.: a ponta do nariz, a borda traseira, o topo do capacete),
   medindo o offset em px entre concept e modelo para cada faixa de x. So depois reavaliar a linha preta.
   Sem essa calibracao, as conclusoes sobre features estreitas (<=5 px) nao sao confiaveis.
+
+## CALIBRACAO DO MEDIDOR (ciclo v176) — VEREDITO: MAPEAMENTO CONSISTENTE; A MASCARA DO CONCEPT E QUE ESTA SUJA
+1) BUG NO MEU PROPRIO SCRIPT DE CALIBRACAO (achado): em cal176.py o print final usou KZ do escopo
+   externo (shadowing) e reportou H=0.786 para o modelo. O valor REAL e 253 px * KZ(0.004950) =
+   1.2523 m — EXATAMENTE o contrato. Ou seja: os anchors do medidor estao certos e o "H errado"
+   era bug do calibrador, nao do medidor.
+   ANCORES CONFIRMADOS: concept comp 793x403 px -> KX=0.002968 KZ=0.003107 (=L 2.354 / H 1.2523);
+                        modelo  comp 478x253 px -> KX=0.004925 KZ=0.004950 (=L 2.354 / H 1.2523).
+2) LANDMARK DECISIVO (qual extremidade e a traseira) — topo/altura por coluna:
+   CONCEPT: "x=-1.00" col=842 -> z_topo=0.876 altura=0.957 m (ALTO)  | "x=+1.00" col=168 -> 0.357 / 0.438 (BAIXO)
+   MODELO : "x=-1.00" col=512 -> z_topo=0.807 altura=0.762 m (ALTO)  | "x=+1.00" col=106 -> 0.312 / 0.282 (BAIXO)
+   -> A extremidade ALTA esta do MESMO lado nas duas imagens. Isso confirma o raycast em coordenadas
+      de mundo (world x=-0.26 = P_FacePlate/P_Visor = a FRENTE). PORTANTO: O MAPEAMENTO NAO ESTA
+      ESPELHADO e concept/modelo estao alinhados entre si. A hipotese de "offset 4-7px" nao se
+      sustenta como espelhamento global.
+3) POR QUE A CORRELACAO DE PERFIL FALHOU (erros 66..93 px): a MASCARA DO CONCEPT ESTA CONTAMINADA
+   pela grade cinza de guias, que TOCA o objeto e entra no MESMO componente conexo. Prova: na coluna
+   da ponta do nariz o concept mede 0.957 m de altura — inflado; o modelo mede 0.762. Nao da para
+   calibrar landmark contra uma mascara suja.
+   (Confirmado o que ja estava na memoria: "a grade cinza [144..227], linhas-guia, sombras e massas
+   escuras contaminam mascaras genericas".)
+DECISAO: NAO ajustar o modelo por causa da linha preta enquanto o medidor nao estiver calibrado.
+  v176 segue revertido; candidato segue conjunto-v174.blend (md5 75457f3e5c; borda 85% 51/60;
+  dentro 95% 56/59; claro 31/31/31).
+PROXIMO PASSO OBRIGATORIO (nesta ordem):
+  (a) LIMPAR A MASCARA DO CONCEPT: remover grade/linhas-guia/sombras por cor e por topologia
+      (componentes que tocam o objeto mas cuja cor e a da grade), e revalidar os anchors do concept
+      contra L=2.354 / H=1.2523 (os mesmos do modelo);
+  (b) re-rodar a calibracao por zona com a mascara limpa e decidir por MEDICAO se a linha preta e
+      defeito real ou artefato;
+  (c) so entao voltar a tocar a geometria/pintura;
+  (d) depois FRONT/REAR/TOP (ainda SEM validacao), vision proprio, auditor independente, prancha MD5.
