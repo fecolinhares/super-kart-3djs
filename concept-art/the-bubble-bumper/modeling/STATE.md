@@ -11412,3 +11412,21 @@ REGRA 279 — METODO DE AVALIACAO QUE FUNCIONA (substitui a nota global, ver reg
   deu diagnostico preciso e comparavel entre versoes.
 REGRA 280: sidepod do concept = corpo AMARELO com TOPO AZUL; o azul e' espinha dorsal continua
   (nariz -> cockpit -> topo dos tanques -> traseira). Amarelo so' nas bordas externas/nariz.
+
+## v100/v101: ombro cockpit->tanque + MEDICAO DE COR POR FAIXA (metodo objetivo novo)
+v100: o crop A/B do TOP apontou "salto de altura/fenda entre a espinha central azul e os blocos
+  dos tanques" -> adicionados 2 blocos azuis de OMBRO (Shld_L/R) ligando cockpit e topo dos pods.
+  Reavaliado pelo MESMO crop: "(1) o degrau foi FECHADO; (2) MELHOROU; (3) ainda: a fusao do
+  nariz amarelo com o cockpit azul e' abrupta e a conexao do motor cinza traseiro e' simples."
+REGRA 281 — METODO OBJETIVO (substitui a nota E o crop quando o alvo e' COR): medir a FRACAO de
+  amarelo/azul/cinza por FAIXA (frente/meio/traseira, 0-25/35-65/75-100% da largura) no concept e
+  no render, usando a MESMA regra de limiar. Resultado do v100 (SIDE):
+    CONCEPT  frente am 7% az 24% ci 55% | meio am 22% az 32% ci 23% | tras am 11% az  0% ci 62%
+    v100     frente am19% az 43% ci 13% | meio am 22% az 57% ci 10% | tras am 11% az 13% ci 52%
+  -> dado duro: o modelo era AZUL DEMAIS e CINZA DE MENOS, e a traseira do concept NAO tem azul.
+v101: carenagem do motor (R_MCowl_*, R_MCowlTop, R_MCowlBack) de M_BODY (azul) -> M_METAL (cinza):
+    v101     tras am 11% az  8% ci 56%   -> azul 13%->8% e cinza 52%->56% (alvo az 0% ci 62%) ✔
+PENDENTE MEDIDO: frente az 43% (alvo 24%) e meio az 57% (alvo 32%) — investigar se e' azul real em
+  excesso ou se o ARO prateado das rodas nao esta sendo lido como "cinza-claro" pelo limiar.
+  (o limiar de cinza exige |r-g|<28 E |g-b|<28 E media>70; cromo com reflexo azulado pode escapar)
+v100/v101: 1 componente | 0 non-manifold | 33/34 | contrato intacto
