@@ -11498,3 +11498,30 @@ REGRA 286: peca LONGA que atravessa varias faixas (chassi, longarina, cowl) NAO 
 REGRA 287: identificar peca por cor de render e' chute; LISTAR no .blend as pecas com o material
   alvo (material_slots[0].material.name) e filtrar por bbox. Foi o que achou o difusor azul.
 v106: 1 componente (198 obj) | 0 non-manifold | 33/34 | contrato intacto
+
+## v107 — *** ERRO GRAVE ENCONTRADO: A ORIENTACAO DA REFERENCIA ESTAVA INVERTIDA ***
+O side.jpg tem o pneu TRASEIRO (maior) a ESQUERDA; o meu render tem o traseiro a DIREITA.
+MEDIDO por altura de pneu escuro por coluna: concept esquerda 208 px vs direita 147 px (maior=ESQUERDA)
+                                            modelo  esquerda  40 px vs direita  66 px (maior=DIREITA)
+=> TODAS as comparacoes de faixa FRENTE/TRAS que eu fiz ate aqui estavam INVERTIDAS: o que eu
+   chamei de "frente do concept" era a TRASEIRA dele. Consequencias nos dados anteriores:
+     "concept TRAS = 100% amarelo, 0 azul"  era a FRENTE  -> o NARIZ do concept e' AMARELO
+     "concept FRENTE = 22%"                 era a TRASEIRA -> a traseira tem 77% de AZUL
+   O vision tinha dito "yellow nose" no crop do TOP e eu DESCARTEI por confiar na medicao invertida.
+REGRA 288 — CONFERIR A ORIENTACAO ANTES DE COMPARAR FAIXAS: medir o pneu maior (tras) e o menor
+  (frente) por altura de pixels escuros por coluna; nunca assumir que o nariz esta de um lado. Um
+  unico erro de orientacao contamina TODAS as medicoes e faz corrigir a peca certa ao contrario
+  (foi o que aconteceu no v101, quando pintei de cinza o motor que deveria ser AZUL).
+CORRECAO v107: N_Nose -> M_ACC (NARIZ AMARELO) | motor/carenagem de volta a M_BODY (AZUL) |
+  difusor e R_Grille de volta a AZUL (a traseira e' 77% azul) | Chassis DIVIDIDO: ChassisF amarelo
+  (x 0.50..1.12) + Chassis azul (x -0.51..0.51) com sobreposicao (regra 286).
+MEDICAO COM ORIENTACAO CORRIGIDA (razao amarelo/(am+az)):
+    FRENTE   concept 100% vs v106 21% -> v107 52%   (melhorou 31 pts)
+    meio     concept  39% vs v107 27%                (delta -12)
+    TRASEIRA concept  22% vs v106 76% -> v107 56%   (melhorou 34 pts)
+ADICIONAL (concept FRONT por altura, com mask corrigido): o azul DOMINA em todas as faixas
+    TOPO 44% | meio 52% | BASE (bumper) 54% -> o F_Bow AZUL esta CORRETO; o "0 azul" no SIDE era
+    efeito do limiar (azul escuro com b<60 nao entra na conta de "azul").
+GATE: STRUT_F_1 toca ChassisF_1 (verificado por BVH) — o "32/34" era a lista de pares com o nome
+    antigo do chassi; a lista do gate foi atualizada.
+v107: 1 componente (200 obj) | 0 non-manifold | contrato intacto
