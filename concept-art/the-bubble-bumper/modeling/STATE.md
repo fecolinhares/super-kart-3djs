@@ -12903,3 +12903,31 @@ PROXIMO: re-rodar o side-score (med_fair / per-colormap / faixas) com a mascara 
   A' (KX=KZ=0.003146, X1=886, Y0=85, Y1=482) e ver SE a linha preta/fenda vira defito VISIVEL ou
   artefato do instrumento. Se for artefato, devemos estar dentro do objetivo no SIDE; se for defito
   real, a medicao passa a ser confiavel e a correcao pode ser feita de uma vez.
+
+## MEDIDOR CORRIGIDO (final_side2.py) — E ELE MOSTRA DEFEITOS REAIS QUE A MASCARA SUJA ESCONDIA
+BUG ENCONTRADO NO MEU PROPRIO MEDIDOR NOVO (final_side.py): apliquei os ancoras do CONCEPT
+(X1=886, KX=0.003146) ao render do MODELO, que mede 478x253 px -> o modelo deu '.' em toda a grade.
+REGRA (a mesma de sempre, aplicada a medicao de pixel): CADA IMAGEM TEM ESCALA DE PIXEL PROPRIA.
+  Cada uma usa SEUS proprios ancoras (o medidor antigo med_fair.py ja fazia isso; o que estava sujo
+  era a MASCARA do concept, nao os ancoras).
+ANCORAS CORRETOS:
+  CONCEPT: bbox col 122..886 row 85..482 (765x398) KX=0.003077 KZ=0.003146 razao L/H=1.922
+  MODELO : bbox col  71..548 row 183..435 (478x253) KX=0.004925 KZ=0.004950 razao L/H=1.889
+LIMITE DE INSTRUMENTO QUE RESTA (declarado): a razao L/H do painel SIDE do concept e 1.922 e o
+  contrato diz 1.877 -> 2.4% de discordancia (equivale a H=1.2247 se L=2.354). Isso desloca features
+  em ate ~18 px na horizontal e cria erro sistematico em fronteiras de cor. NAO corrigir geometria
+  por isso; usar como tolerancia declarada.
+RESULTADO COM O MEDIDOR CORRIGIDO (grade SIDE x=-0.30..-0.10, z=0.90..1.20, 66 celulas nao-fundo):
+  dentro=66 | claro concept=4 modelo=3 acerto=3 | ERROS=25 (era 4 com o medidor sujo)
+  -> O medidor sujo COMPENSAVA erros: ele amostrava pixels errados dos dois lados e o erro aparecia
+     "pequeno". O numero bom era o numero MENTIROSO.
+PADRAO DOS ERROS REAIS (o mais importante): em z=1.10..1.20, x=-0.18..-0.10 o CONCEPT e AMARELO (Y)
+  e o MODELO e AZUL (B). Ex.: z=1.12 x=-0.12 concept (204,191,63) vs modelo (31,56,104);
+  z=1.14 x=-0.12 (218,198,65) vs (34,61,111); z=1.18 x=-0.16 (228,217,137) vs (52,86,150).
+  Ou seja: a FAIXA AMARELA do topo-traseiro esta AUSENTE/PEQUENA no modelo. O modelo so tem Y em
+  z=1.18..1.20 numa coluna (x=-0.18). Isso e DEFEITO VISIVEL REAL, nao artefato.
+OUTROS ERROS REAIS: z=1.08 x=-0.12 concept (0,0,7) PRETO vs modelo (47,55,77) B; z=1.10 x=-0.30
+  concept L (130,147,167) vs modelo B; z=1.14/1.16 x=-0.14..-0.16 concept D vs modelo B.
+ACAO: corrigir a FAIXA AMARELA (P_StripeF) no topo-traseiro: ela precisa cobrir z 1.10..1.20 em
+  x -0.18..-0.10 (hoje cobre quase nada). Medir a extensao da faixa em px antes e depois (feature
+  larga, entao ponto-a-ponto serve; ainda assim medir a FAIXA, regra 3).
