@@ -12050,3 +12050,26 @@ REGRA 315: fechar a regiao de pintura para evitar vazamento pode REMOVER cobertu
   Sempre medir os DOIS lados: celulas pintadas A MAIS (vazamento) e A MENOS (falta). Aqui o
   vazamento caiu mas a cobertura tambem -> saldo pior no claro, melhor no global. Nao otimizar so
   a metrica global: a metrica que representa a FEATURE (celulas claras do capacete) manda.
+
+## v141 — visor vira fenda + pintura por VERTICES: MEDIDO, melhorou nos dois lados
+PATCH: 1) P_Visor (0.078, 0.156, 0.082) -> (0.030, 0.156, 0.030): de massa escura para FENDA fina,
+          preservando o eixo largo (0.156).
+       2) condicao de pintura passou do CENTRO da face para TODOS os vertices dentro da zona,
+          zona reaberta para x -0.307..-0.137 e z 0.960..1.100. Isso elimina VAZAMENTO (face so
+          e pintada se estiver inteira dentro) sem perder cobertura e SEM mexer na topologia.
+RESULTADO: 996/6048 faces pintadas (v140: 870) | diff SIDE 889 px | blend md5 ed61eb1114.
+ACEITE (60 celulas):
+   acerto global 28/60 = 47%  (v140 42%, v139 39%) -> MELHOROU
+   celulas claras: concept 30 | modelo 14 (v140: 12) -> MELHOROU
+   acerto do claro 11/30
+DESVIO NOVO NOMEADO PELA GRADE: o claro do modelo aparece em x -0.34..-0.30 (concept e B ali) e
+   FALTA em x -0.26..-0.22 (concept e L). Ou seja: a cobertura visivel esta ~0.05 m ATRAS do alvo,
+   apesar de a zona de pintura estar certa (-0.307..-0.137). Suspeita medida a seguir: algum OUTRO
+   objeto de material claro (P_HVent / P_HCrest / P_HSpoil usam M_VISL) esta ocupando x -0.34..-0.30
+   e o claro pintado no casco esta sendo OCLUIDO na frente por P_Visor/P_Eye (D em -0.26..-0.22).
+   PROXIMO: listar no .blend do v141 quais objetos com material claro existem na faixa x -0.36..-0.16
+   e z 0.94..1.12, imprimindo nome + material + bbox — nomear antes de mover.
+ERRO OPERACIONAL CORRIGIDO NESTE CICLO: ao gerar o v141 esqueci de trocar o caminho do save e o
+   conjunto-v140.blend foi SOBRESCRITO. Corrigido: blends SAO rastreados no git (355 arquivos) e o
+   v140 foi regerado executando authored/v140.py. REGRA: ao derivar vN+1 de vN, SEMPRE trocar o
+   caminho do save com assert (s.count==1) ANTES de rodar o blender.
