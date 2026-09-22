@@ -11179,3 +11179,20 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
      erro #1 CORRIGIDO (asa + escapes secundario)." ***
   Serie vision: ...5,4 5,7 5,0 5,3 6,8 **8,0** | REAR: 1,5 -> 8,2 | FRONT: 2,0 -> 7,9.
   PROXIMO: pedir ao vision o que falta p/ 9-10 (ele nao nomeou novo erro #1).
+
+## *** v074: VISION 9,2 (FRONT 9,0 | SIDE 9,3 | REAR 9,5 | TOP 9,0) *** ***
+  vision v073 (8,0) listou: "asa 50%W (concept 33%) sem endcaps; side skirt longa; volante ausente
+    com 2 circulos como FAROIS; grade 3 fendas verticais largas; bumper amarelo 1x o nariz".
+  v074 MEDIU o concept antes (regra 120/256 — o FRONT tem zoom proprio, usei o REAR cuja
+    calibracao bate com o capacete 0.20):
+    (1) ASA 0.88 -> 0.58 m (61%W -> 40%W — medido por perfil de cor no REAR);
+    (2) endplates nas pontas y±0.28; (3) pylons dentro da asa;
+    (4) F_Pad esferas (liam como FAROIS) -> SECOES AMARELAS LARGAS chanfradas
+        y0.15..0.49 cada = 0.68 total = 2x o nariz azul (0.33);
+    (5) VOLANTE 0.196 -> 0.245 m (17%W medido) + INCLINADO 25 (era disco fino deitado).
+  *** vision v074 = 9,2 (+1,2): "asa 40%W correct ✓ | farois sumiram ✓ | volante visivel ✓
+    erro #1 CORRIGIDO | FRONT 9,0 SIDE 9,3 REAR 9,5 TOP 9,0" ***
+  UNICO GAP NOMEADO: "simplified non-cartoon driver face" (o concept tem OLHOS + SORRISO).
+  Serie vision: 4,2 4,3 5,4 5,7 5,0 5,3 6,8 8,0 **9,2**
+  REGRA 258: quando o vision lista N problemas, MEDIR CADA UM no concept antes de mexer —
+    metade dos numeros dele (2x, 33%) e' aproximacao de leitura; a medicao corrige.
