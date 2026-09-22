@@ -12255,3 +12255,27 @@ PROXIMOS ALVOS (da tabela com coluna dentro): z=0.94 modelo 'B B B B B .' vs con
   -> o claro tem de DESCER mais no modelo (faixa clara nao alcanca a base). z=1.00 em x=-0.30/-0.26:
   modelo 'o .' vs concept 'B B' -> falta superficie azul atras/em cima do ombro nessa altura.
   z=0.98 em x=-0.34: modelo '.' vs concept 'B'.
+
+## v151 — BORDA INFERIOR DA FAIXA CLARA: DIAGONAL MEDIDA NO CONCEPT (+5 pontos)
+MEDICAO (borda inferior do claro, varredura de z de 0.005 em 0.005):
+  CONCEPT: x=-0.30 -> 1.040 | -0.26 -> 0.980 | -0.22 -> 0.940 | -0.18 -> 0.920 | -0.15 -> 0.915 | -0.12 -> 0.900
+  MODELO v150: 1.015 | 0.975 | 0.935 | 0.960 | 0.960 | -- (sem claro)
+  Ou seja o modelo errava NOS DOIS SENTIDOS: pintava BAIXO DEMAIS atras (-0.025 em x=-0.30) e
+  PARAVA CEDO na frente (+0.040 em x=-0.18 e -0.15). Limite fixo z>=0.960 era o erro.
+  AJUSTE LINEAR (com o sinal correto): z_min(x) = 0.924 - 0.778*(x + 0.15).
+  Conferido nos extremos: x=-0.307 -> 1.046 (concept 1.040) | x=-0.137 -> 0.914 (concept 0.915).
+v151: condicao de pintura do casco passa a usar essa diagonal em vez de 0.960 fixo. Faces pintadas
+  516 -> 366 (menos = removeu o excesso de tras). GATE OK: 1 componente | 0 non-manifold | 520 contatos.
+  blend md5 60cd161eee.
+ACEITE v151: amostra de BORDA (x=-0.14) 40/60 = 67% (v150 62%) | amostra DENTRO 45/60 = 75%
+  (v150 70%) -> MELHOROU NAS DUAS. CLARO: concept 31 | modelo 29 | acerto 23.
+  Borda final v151: -0.30 -> 1.040 (EXATO, era 1.015) | -0.26 -> 0.975 (concept 0.980) |
+  -0.22 -> 0.935 (0.940). Os tres pontos de tras ficaram exatos ou a 0.005.
+  Evolucao do aceite (amostra correta): v150 70% -> v151 75%.
+PENDENTE MEDIDO: em x=-0.18 e -0.15 o modelo ainda para em 0.960 (concept 0.920/0.915) -> falta
+  -0.040 m de claro. A condicao diagonal passa a permitir essas faces (z_min=0.947 em x=-0.18), logo
+  o bloqueio restante NAO e o limite de z: SUSPEITA (a medir) = o filtro de normal abs(_n.y) > 0.60,
+  porque na borda inferior da faixa a superficie do casco curva para baixo e ny cai. PROXIMO:
+  raycast nessa faixa lendo a NORMAL da face atingida + material, e decidir o limiar por MEDICAO.
+  Em x=-0.12 o concept tem claro (0.900) e o modelo nao tem GEOMETRIA (P_Helmet termina em x=-0.147)
+  -> e problema de geometria (traseira do casco curta), nao de pintura.
