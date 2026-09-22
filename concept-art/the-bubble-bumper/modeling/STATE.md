@@ -11938,3 +11938,28 @@ PENDENTE DESTE CICLO: o ombro entre |y| 0.66 e 0.70 ainda fica 0.068-0.074 m bai
   ombro quase RETO (perde 0.007 m em 0.06) e o modelo perde 0.079 m em 0.04 -> a secao do pneu
   precisa ficar mais retangular (reduzir/alisar rborda=0.046 do anel traseiro). Proximo alvo.
 ESTADO v136: 1 componente (199 obj) | 0 non-manifold | contato 33/34 | contrato intacto.
+
+## REGRA 312 (CALIBRACAO POR PAINEL — erro metodologico meu, encontrado e medido)
+O QUE ACONTECEU: montei o perfil de topo por x na vista SIDE e apareceram valores impossiveis
+  (concept com topo z=1.250 em x=-0.95 e z=1.112 em x=+0.95, base 0.000/0.092). Investigando:
+  a MASCARA do side.jpg (tinta = distancia de cor ao fundo > 45, excluindo grade cinza) cobre
+  x 0..992 y 30..519 = 993 x 490 px. Mas a MAIOR COMPONENTE CONEXA (o kart) mede 793 x 403 px.
+  As linhas de grade/anotacao atravessam a imagem e entram no bbox -> Y0/Y1 errados.
+MEDIDO:
+  KX correto = 2.354/793 = 0.002968 | KZ correto = 1.2523/403 = 0.003107 (razao KX/KZ = 0.955)
+  KX usado nos scripts recentes = 2.354/993 = 0.002371 | KZ = 1.2523/490 = 0.002556
+  => ERRO: KX 20% menor e KZ 18% menor.
+CONSEQUENCIA (honesta): as comparacoes recentes DO CONCEPT na vista SIDE (grade de cores em
+  x=-0.33/-0.40, "concept continuo em x=-0.33", perfil de topo) estavam deslocadas ~20% -> as
+  conclusoes sobre o concept na SIDE precisam ser REEXECUTADAS com a calibracao correta.
+  NAO afetou: (a) as medicoes DO MODELO (o render nao tem grade; mascara 71..547 x 183..435 ->
+  KX=0.004935 KZ=0.004950, corretos); (b) o teste "9 de 9 pixels sao objeto azul" no render;
+  (c) o perfil de largura da FRONT, onde a largura bateu 1.4411 = contrato exato em z 0.05..0.30.
+REGRA: NUNCA calibrar painel por bbox da mascara bruta. Antes de qualquer medida, tirar a MAIOR
+  COMPONENTE CONEXA (o objeto) e calibrar pelo bbox DELA. Grade e linhas de chamada entram na
+  mascara e inflam o bbox; o erro entra direto na escala e contamina TODA medida derivada.
+  Conferir sempre: KX/KZ devem ficar proximos entre si (aqui 0.955) e o aspecto do kart deve
+  fechar com o contrato (L/H = 1.877).
+FERRAMENTA: modeling/label_side.py (remocao de grade + rotulagem BFS sem scipy) e calib_side.py.
+PENDENTE IMEDIATO: reexecutar as comparacoes concept-vs-modelo da vista SIDE com KX=0.002968,
+  KZ=0.003107, antes de qualquer novo ajuste de geometria baseado na SIDE.
