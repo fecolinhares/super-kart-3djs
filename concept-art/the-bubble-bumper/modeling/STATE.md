@@ -12575,3 +12575,28 @@ ACEITE v167: borda 48/60 = 80% | dentro 53/59 = 90% | CLARO 31/33 acerto 30 | 7 
   PROVA que a hipotese 'bulbo do cage' e insuficiente — o que tambem e informacao util.
 LICAO DE INSTRUMENTO: grade de raycast precisa imprimir OBJETO + material + y + ny. Sem o nome do
   objeto, um y inalterado nao diz ONDE a superficie vive e a hipotese seguinte vira chute.
+
+## v168 — OBJETO CERTO IDENTIFICADO: A FAIXA RASANTE E DO P_Visor (nao do P_Helmet)
+g168 (grade COM nome do objeto) RESOLVEU a causa: em z 1.00..1.03, x -0.22..-0.20 a superficie e
+  P_Visor[Visor_Light], NAO P_Helmet. O P_Visor (115 verts, |y|max 0.156) PROTAI ate y=0.153 enquanto
+  a P_FacePlate vizinha esta em y=0.108 -> flancos ny 0.25..0.34 (quase edge-on) -> renderizam escuros
+  -> viram '.' no classificador. O v167 achatou o objeto ERRADO (P_Helmet) e por isso os y nao mudaram.
+  CONFIRMACAO: lista de objetos com verts na janela -> P_Visor verts=115 |y|max=0.1560 mods=sem-mod.
+v168: achatado o bulbo do P_Visor ao nivel da placa (|y| <= 0.112) -> 36 verts (y antes 0.028..0.156).
+  GRADE DEPOIS: z=1.00 -> ny 0.56/1.00/0.32 (era 0.25/0.34/0.25); z=1.01 -> 1.00/1.00/0.51;
+  z=1.02 -> 1.00/1.00/0.70; z=1.03 -> 1.00/1.00/1.00. FAIXA RASANTE ELIMINADA.
+  GATE 1/0/520 | md5 f722340a49.
+ACEITE v168: borda 80% -> 82% (49/60) | dentro 90% -> 92% (54/59) | CLARO concept=31 modelo=34
+  acerto=31 -> O ACERTO DE CLARO IGUALA O CONCEPT (31 = 31). Erros 7 -> 6.
+LICAO CENTRAL DESTE CICLO: antes de deformar, identificar o OBJETO — nao basta o material. Dois builds
+  (v167 e v168) fazendo a MESMA deformacao: o do objeto errado foi NEUTRO, o do objeto certo subiu
+  2 pontos percentuais e zerou uma celula. Grade de raycast SEMPRE com nome do objeto.
+ERROS RESTANTES (5 reais + 1 que e fundo do concept):
+  1. (1.12,-0.15) B vs '.' — buraco de 3 px no casco (unico caso de ausencia real de geometria).
+  2. (1.10,-0.15) B vs L — teto 1 px alto nessa coluna.
+  3. (1.08,-0.26) o vs '.' — fenda: tom/rasancia.
+  4. (1.06,-0.26) o vs 'D' — fenda: tom proximo (RGB modelo 203..260 vs concept 225..229).
+  5. (1.06,-0.15) D vs L — linha preta nao cobre x=-0.15 (encurtamento do v165 passou do ponto).
+  6. (0.96,-0.15) '.' vs L — concept='.' = FUNDO, nao e defeito (ja excluido dos contadores).
+PROXIMO: (1) fechar o buraco de 3 px; (2) teto -0.006 em -0.15; (5) reestender a linha preta;
+  (3)(4) fenda por RGB absoluto. Depois FRONT/REAR/TOP, vision proprio, auditor, prancha + MD5.
