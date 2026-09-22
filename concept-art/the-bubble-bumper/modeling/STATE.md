@@ -12307,3 +12307,35 @@ PROXIMO (cirurgia em 2 partes, atomicas): (A) descer o topo do ombro na frente (
   z 0.92..0.96 (o P_Helmet comeca em 0.938 e a faixa esta vazia) -> estender a casca inferior do
   capacete para baixo, sem cobrir o pescoco. Gate apos cada uma (manter 1 componente, non-manifold 0
   e >=520 contatos).
+
+## v152/v153/v154 — SURGERY A (ombro) + SURGERY B (placa) -> CLARO EMPATA EM CONTAGEM (31/31)
+v152: SURGERY A — rebaixar o TOPO do ombro so na frente por deformacao explicita de vertices
+  (nao pelos parametros do esf, regra 323). Peso por altura GLOBAL deu so 63% no vertice mais alto
+  (0.035 pedido -> 0.020 real).
+v153: peso corrigido para a ALTURA LOCAL da coluna (topo da coluna = 1.0, elevado ao quadrado).
+  Topo do ombro: x=-0.22 0.960 | -0.20 0.945 | -0.18 0.905 (alvo 0.920, overshoot leve) |
+  -0.16 0.910 (alvo 0.918) | -0.15 0.910 (alvo 0.915). bbox do ombro INALTERADO
+  (x -0.469..-0.141, z 0.762..0.999) -> contatos preservados.
+  ERRO DE PROCESSO: inverti a ancora do replace e o v153 sobrescreveu conjunto-v152.blend; o gate
+  rodou em arquivo inexistente e a saida ficou VAZIA (nao confundir saida vazia com aprovacao).
+  Corrigido copiando para conjunto-v153.blend.
+v154: SURGERY B — medido que em x=-0.18/-0.16 os pixels de z=0.92..0.96 eram FUNDO ('.') = SEM
+  GEOMETRIA (nao era material nem oclusao). A placa (P_FacePlate) terminava em z=0.960 e o concept
+  tem CLARO ate 0.920/0.910. FUNDO DA PLACA 0.960 -> 0.905 (4 verts movidos, delta -0.055).
+  REGRA 324 (ordem das causas): antes de acusar OCLUSAO ou MATERIAL num pixel, checar se ha
+  GEOMETRIA ali. Nesta sessao a mesma regiao foi primeiro atribuida ao ombro (A) e o bloqueio real
+  era AUSENCIA DE GEOMETRIA (B). A surgery A estava certa mas era insuficiente.
+GATE v154: 1 componente (199) | 0 non-manifold | 520 contatos | blend md5 e639668236.
+ACEITE v154: BORDA 41/60 = 68% (v151 67%) | DENTRO 47/60 = 78% (v151 75%) |
+  CLARO: concept 31 | modelo 31 (!!) | acerto 25 (era 23). Faixa clara agora EMPATA em contagem.
+  Evolucao do aceite (amostra correta): v150 70% -> v151 75% -> v154 78%.
+  Borda por coluna v154: -0.30 1.040 (exato) | -0.26 0.975 (0.980) | -0.22 0.950 (0.940) |
+  -0.18 0.905 (0.920, overshoot de 0.015) | -0.16 0.900 (0.910) | -0.15 0.900 (0.915).
+NOTA DE ESTRUTURA DE SCRIPTS: v152/v153/v154 sao scripts INCREMENTAIS sobre o .blend (nao o build
+  completo). Por isso nao contem as linhas do build e nao se pode patchá-las como se fossem o
+  v135-base. Ao mudar geometria que veio do build base, ou editar o build, ou fazer script
+  incremental que abre o .blend e salva em caminho novo.
+PROXIMOS: (1) overshoot da placa: 0.905 -> ~0.918 (fundo 0.013 mais alto); (2) z=1.00 em x=-0.22
+  modelo 'D' vs concept 'L'; (3) z=0.94 em x=-0.22 modelo 'B' vs concept 'L'; (4) z=1.12 em x=-0.15
+  modelo '.' vs concept 'B'; (5) pneus z=0.25/0.45 (-0.040) e z=0.50 (+0.064); (6) ombro do pneu
+  |y| 0.66..0.70. Depois: 4 vistas -> vision proprio -> auditor independente -> prancha com MD5.
