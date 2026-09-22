@@ -12867,3 +12867,21 @@ PROXIMO PASSO OBRIGATORIO (nesta ordem):
       defeito real ou artefato;
   (c) so entao voltar a tocar a geometria/pintura;
   (d) depois FRONT/REAR/TOP (ainda SEM validacao), vision proprio, auditor independente, prancha MD5.
+
+## DOCUMENTACAO SPREAD (2026-09-22, final do dia)
+DESPLOI (nesta ordem, tudo conferido nesta sessao):
+  1. skill instrument-gates-3d-validation (novas 8 regras: pixel como juiz, hide_render/harness,
+     faixa-vs-ponto, landmark-vs-correlacao, shadowing-no-calibrador, grade-contamina-mascara,
+     nunca-ajustar-por-medidor-torto, solido-fechado-vs-extrude, subdivide_edges-dedup)
+  2. vault: Bubble-Bumper-Medidor-vs-Pixel-2026-09-22.md (nota de ruptura: "o medidor estava torto,
+     nao o modelo" + tecnica do solido fechado sobreposto com tabela v173/v174)
+  3. wiki: concepts/bubble-bumper-metrologia.md (secao "Licoes de INSTRUMENTO" + tecnica + estado)
+     + index.md (nota nova linkada) + log.md (resumo da cadeia v173-v176)
+  4. doc do projeto: modeling/MEDICAO-INSTRUMENTO.md (9 regras com custo).
+  5. memoria do perfil: entrada "Bubble Bumper conjunto" reescrita para incluir a regra central
+     (pixel-e-o-juiz) e o estado do candidato v174.
+  commits: 9605c8e (calibracao/medidor) -> ed138e0 (v176 revertido) -> fechamento deste.
+Decisao de hoje (texto): o problema da "linha preta" estava no INSTRUMENTO (mask contaminada pela grade
+de guias + feature <= 5px medida ponto-a-ponto), nao na geometria. v174 segue como candidato; o seguinte
+e limpar a mascara da referencia e revalidar os anchors antes de qualquer nova decisao sobre features
+estreitas. FRONT/REAR/TOP seguem sem validacao; prancha final pendente.
