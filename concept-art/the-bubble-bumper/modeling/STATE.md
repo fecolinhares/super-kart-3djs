@@ -12625,3 +12625,16 @@ METRICA ATUAL: borda 82% (49/60) | dentro 92% (54/59) | claro concept 31 = model
 PROXIMO: (a) fechar o degrau de 0.198 m em x -0.12..-0.10 (topo-traseiro do capacete) — defeito MAIOR
   que qualquer celula da grade; (b) identificar a superficie escura em (1.12,-0.15); (c) teto -0.006 em
   -0.15; (d) linha preta ate x=-0.15; (e) fenda por RGB absoluto.
+
+## v169 — DEGRAU DE 0.198 m: SUBIR O CASCO RESOLVEU SO PARCIALMENTE (falta ADICIONAR geometria)
+Acao: subir o topo-traseiro do P_Helmet em x -0.150..-0.090 com peso por coluna (1.0 em x<=-0.12,
+  0 em x=-0.09), alvo z=1.218. Resultado: 45 verts subidos, dz max 0.198.
+  MEDIDO ANTES: o topo PROPRIO do P_Helmet na janela era apenas 1.121 (o 1.233 da medicao de silhueta
+  era a FAIXA P_StripeF, nao o casco). Ou seja a silhueta alta vinha da faixa amarela, nao do casco.
+  DEPOIS: x=-0.14 e -0.13 tem P_StripeF em z=1.15 (a faixa seguiu a subida); x=-0.12, -0.11, -0.10
+  seguem VAZIO. CONCLUSAO: nessas colunas NAO EXISTE casco do P_Helmet para subir — o shell termina
+  em x~-0.13. Corrigir o degrau exige ADICIONAR geometria (extrusao da casca para tras/cima), nao
+  mover vertices existentes. GATE 1/0/520 mantido.
+LICAO: 'silhueta do modelo' inclui TODOS os objetos. Medir silhueta nao diz QUAL objeto a sustenta;
+  antes de mover vertices de um objeto, confirmar que ELE existe naquelas colunas (topo proprio).
+  Erro simetrico ao do v167 (deformar objeto errado), agora com a variante 'nao existe geometria ali'.
