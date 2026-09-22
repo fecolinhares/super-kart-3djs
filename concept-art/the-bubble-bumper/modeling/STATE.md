@@ -11525,3 +11525,31 @@ ADICIONAL (concept FRONT por altura, com mask corrigido): o azul DOMINA em todas
 GATE: STRUT_F_1 toca ChassisF_1 (verificado por BVH) — o "32/34" era a lista de pares com o nome
     antigo do chassi; a lista do gate foi atualizada.
 v107: 1 componente (200 obj) | 0 non-manifold | contrato intacto
+
+## v108-v110: fechando a frente (cor) com a orientacao ja corrigida
+Diagnostico da frente por AMOSTRAGEM DE PIXEL, nao por suposicao:
+  - os pixeis "azuis" da faixa da frente estao em x_px 72..140, y_px 398..431 = a BASE do nariz
+    (x_world 0.98..1.18, z 0.02..0.18) -> o bbox casa EXATAMENTE com o loft "F_Bow" (M_BODY),
+    secoes x 0.980..1.175, meia-largura ate 0.500, z 0.025..0.192.
+  - amostra de cor: (72,93,159) / (54,78,145) / (32,50,100) = azul ESCURO do bow na sombra, e
+    (255,243,148) = o pad amarelo acima -> o pad estava la, mas o bow continua aparecendo na base.
+v108/v109: estender o F_Pad (x 0.855->1.160, y 0.490->0.580) NAO resolveu: o pad e' mais largo
+  (0.580 > 0.500 do bow) mas o bow o faz aparecer porque ambos ocupam z 0.03..0.19 e o bow e' o
+  mais AVANCADO em x (1.175); a diferenca em y (0.08 m = ~16 px) nao ocluia de fato.
+  (diff de render v107->v108: 69 px; v108->v109: 49 px -> conferir o DIFF e' o que revela que a
+   peca nao esta surtindo efeito; sem isso eu teria "medido" um no-op duas vezes)
+v110: estreitar o F_Bow (meia-largura 0.50 -> 0.35, 6 secoes) para as carenagens amarelas
+  (y 0.580) o cobrirem no SIDE, mantendo-o como peca mais avancada em x (1.175) para o FRONT:
+  FRENTE 53% -> 57% (am 1564->1691, az 1364->1231) ✔ ganho real, porem parcial.
+MEDICAO FINAL (razao amarelo/(am+az), orientacao verificada, mask sem grade):
+    FRENTE   concept 100% vs v110 57%  (d -43)   [era 21% no v106]
+    meio     concept  39% vs v110 27%  (d -12)
+    TRASEIRA concept  22% vs v110 56%  (d +34)   [era 76% no v106]
+REGRA 289: conferir o DIFF entre o render antigo e o novo ANTES de medir a metrica. Se o diff for
+  de dezenas de px, a peca nao esta aparecendo (fica dentro/atras de outra) e a metrica "nao mudar"
+  nao significa que a correcao falhou na cor — significa que ela nao chegou ao pixel.
+REGRA 290: o FRONT e o SIDE do concept mostram coisas diferentes para a mesma peca (o bumper azul
+  aparece no FRONT com 54% de azul na base e ZERO azul no SIDE). A solucao nao e' escolher uma das
+  leituras: e' a geometria — a peca azul fica ATRAS em x e as amarelas mais LARGAS em y, de modo
+  que o SIDE mostra amarelo e o FRONT mostra azul. Corrigir cor sem resolver esse par nao converge.
+v110: 1 componente (200 obj) | 0 non-manifold | contrato intacto
