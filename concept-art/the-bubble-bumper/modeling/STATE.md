@@ -11639,3 +11639,25 @@ FIX v112: R_Wing M_BODY -> M_ACC. Justificativa do PROPRIO vision no crop: "a pe
 PENDENCIA: MEIO 27% vs 38% (delta -10). Proximo passo e' isolar o azul excedente do meio
    (cockpit/pods), medindo por faixa vertical depois de confirmar a orientacao.
 v112: 1 componente (198 obj) | 0 non-manifold | contrato intacto
+
+## v113-v114: FORMA do nariz (a cor ja' batia; agora e' volume)
+v112 deixou a COR do nariz certa (21% vs 22%), mas o vision reprovou a FORMA: "nariz plano e
+angular, topo reto, frente vertical plana; no concept e' um OVO com o amarelo formando um arco
+circular". Causa medida no codigo: as secoes do N_Nose usavam sec_U(..., p=0.45) — com p<1 o
+expoente ENCORPA os cantos e a secao vira um QUADRADO arredondado, nao uma elipse.
+v113: N_Nose p=0.45 -> p=0.88 nas 6 secoes (secao quadrada -> eliptica). Resultado do vision:
+  "houve melhora, a ponta agora tem arredondamento parcial; antes era totalmente reta/angular",
+  MAS o topo continuava quase reto.
+v114: perfil do nariz refeito como OVO (8 secoes): a ponta AFUNILA (yo 0.165 -> 0.055) em vez de
+  terminar num plano vertical cheio, e o bico SOBE ate z=0.325 (acima do bumper, que fica em 0.192).
+  Vision: "melhora real e parcial — o bico ja' nao e' chapado, a ponta arredonda; mas ainda nao
+  tem a curva de ovo completa, o topo segue reto".
+REGRA 297: p<1 em sec_U produz secao QUADRADA (cantos encorpados) — para leitura ORGANICA usar
+  p~0.88-1.0 (eliptica). Isso vale para toda peca que devia ser arredondada e sai "blocky".
+REGRA 298: (licao do Feco ja' registrada) micro-calibracao nao muda leitura — o que mudou o nariz
+  foi VOLUME (afunilar a ponta de 0.165 para 0.055 e subir o bico 0.19 -> 0.325), nao constante.
+PENDENCIA MEDIDA: o que ainda faz a lateral do nariz ler "topo reto" e' o F_Bow (azul, z 0.025..0.192,
+  y+-0.50): ele e' MAIS LARGO que o nariz (y+-0.16), entao de lado ele OCLUI a base do bico e o
+  topo plano dele vira a leitura de "topo do nariz". Proximo passo: dar ao F_Bow o mesmo perfil de
+  ovo do N_Nose (ou estreita-lo em y) para o nariz dominar a silhueta lateral.
+v113/v114: 1 componente (198 obj) | 0 non-manifold | contato 33/34 | contrato intacto
