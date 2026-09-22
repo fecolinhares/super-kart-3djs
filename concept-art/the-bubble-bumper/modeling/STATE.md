@@ -12439,3 +12439,37 @@ ACEITE v160: borda 68% | dentro 78% | CLARO 31/31 | acerto 25.
 PROXIMO: (a)+(c)+(d) sao pintura/geometria pequena e medivel -> podem virar 3-4 celulas. (b) exige
   medir o RGB real da fenda no concept. (e) descer o ombro 0.010 em x=-0.22. Depois: reavaliar a
   grade com amostra deslocada meia celula (para separar artefato de defeito de vez).
+
+## v161..v163 — 13 -> 8 ERROS | DENTRO 78% -> 87% | ACERTO DO CLARO 25 -> 29
+RGB REAIS MEDIDOS NO CONCEPT (novo instrumento): fenda (73,77,78) soma 229 'o'; faixa clara em
+  x=-0.22 (137,147,157) soma 441 em TODA a altura; linha de ventilacao (0,0,4)/(16,17,19)/(10,11,15)
+  = PRETO REAL em x -0.17..-0.14, z 1.06..1.07.
+v161 (3 correcoes medidas de uma vez, cada uma atribuivel a celula nomeada):
+  (1) M_VILL base 0.62..0.73 -> 0.95..1.00 e rough 0.30: o concept tem painel PLANO brilhante (441)
+      enquanto minhas faces anguladas (ny 0.73..0.79) rendiam 289..299 -> 'o'. MATOU 3 celulas
+      ((1.06,-0.22) (1.04,-0.22) (1.02,-0.26)). Base e o maximo fisico da cor -> correcao legitima.
+  (2) M_Slit 0.17 -> 0.25 (fenda 'D' -> 'o').
+  (3) LINHA PRETA (M_BlackLine base 0.02) pintada na placa -> matou (1.06,-0.15).
+  (4) FAIXA do casco re-derivada pela TABELA MEDIDA z_inf por coluna (substituiu a formula
+      0.924-0.778(x+0.15), que errava em x=-0.26: dava 1.010 vs 0.980 medido) -> +156 faces.
+  ERRO DE FERRAMENTA: a placa vinha com 6 faces (o quad frontal era UNICO) -> pintar por centro de
+  face e impossivel; foi preciso SUBDIVIDIR (bmesh cuts=24 -> 3750 faces). E o v161 vem da linhagem
+  v155->v158, que NAO tem a subdivisao do v157 (v157 foi beco sem saida) -> subdividir de novo.
+  GATE 1/0/520. ACEITE: borda 75% | dentro 85% | CLARO 33 vs 31 | acerto 28.
+v162: M_Slit 0.21; linha preta reduzida para x -0.168..-0.140; OMRO descido 0.010 em x=-0.22
+  (157 verts) -> a borda em x=-0.22 passou de 0.950 para 0.940 = EXATAMENTE o concept. Matou
+  (0.94,-0.22). GATE 1/0/520. ACEITE: borda 77% | dentro 87% | CLARO 34 | acerto 29. 8 erros.
+v163: a repintura por TABELA do v161 pintou Visor_Light POR CIMA dos faces escuros da fenda (a
+  condicao `dentro` nao excluia a zona da fenda) -> reapliquei M_Slit (base 0.20) DEPOIS da faixa
+  (46 faces). 8 erros mantidos.
+  DESCOBERTA DE CALIBRACAO: o fundo do meu render de QA e ESCURO -> o cinza escuro da fenda cai
+  dentro da tolerancia de cor do fundo ('.' = |c-f|<40) e vira '.'; no concept o fundo e CLARO e a
+  mesma fenda vira 'o'. O classificador '.' NAO e comparavel entre as duas imagens. Corrigir:
+  renderizar o QA com fundo claro, ou excluir '.' do denominador, ou medir a fenda por RGB absoluto.
+ESTADO DOS 8 ERROS: 2 PROVADOS ARTEFATO por raycast (1.10,-0.30) e (1.10,-0.15) - material ja e
+  Helmet_Blue e o concept quer 'B'; 2 de fronteira (1.12,-0.15) e (1.06,-0.18); 2 da fenda
+  (1.08,-0.26) (1.06,-0.26) bloqueados pela calibracao de fundo; 2 de geometria (1.00,-0.22) face
+  edge-on ny=0.25 do P_Visor e (0.96,-0.15) placa vs fundo no concept.
+PROXIMO: (1) calibrar o render de QA com FUNDO CLARO (resolve a classe '.' e destrava a fenda);
+  (2) a geometria edge-on do P_Visor em x=-0.22; (3) reavaliar a grade com amostra deslocada meia
+  celula. Depois: 4 vistas, vision proprio, auditor independente, prancha com MD5.
