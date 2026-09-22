@@ -11356,3 +11356,13 @@ e P_Chest + cintura estreitada (0.145 -> 0.118 em y) para dar a curva do sueter.
 CUIDADO medido: a crista subiu o H para 1.255 (+3mm do contrato 1.2523) -> topo da crista
   HEA.z+0.169 (era +0.172). SEMPRE re-medir o bbox depois de adicionar peca no TOPO do modelo.
 v095: 1 componente (162 obj) | 0 non-manifold | contato 33/34 | L=2.354/W=1.441/H=1.252
+
+## v096: crista visivel no TOP + aero frontal amarela (2 divergencias do v095)
+- P_HCrest alargada de y+-0.020 para +-0.038 (com 0.020 ela desaparecia na vista TOP) e alongada
+- AERO FRONTAL: 2 defletores amarelos (F_Aero) + 2 pontas de asa (F_AeroTip) ladeando o nariz
+REGRA 275: ANTES de ancorar peca nova, MEDIR o bbox da peca de destino no .blend (nao no script):
+  o ducto em z 0.300-0.352 flutuava porque o N_Nose termina em z=0.279 (medido). Duas iteracoes
+  perdidas por nao medir o alvo primeiro.
+REGRA 276: bevel de 0.016 nas duas pecas que se encontram cria um GAP (as faces arredondam e nao
+  tocam): sobrepor 10 mm (y 0.318 em vez de 0.330) resolveu; sem isso ficaram 2 ilhas.
+v096: 1 componente (166 obj) | 0 non-manifold | contato 33/34 | L=2.354/W=1.441/H=1.252
