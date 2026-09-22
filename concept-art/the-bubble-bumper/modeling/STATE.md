@@ -11576,3 +11576,18 @@ FIX v111: R_UBendTop metal r=0.038 -> AMARELO r=0.022 (o concept tem barra amare
 MEDICAO: TRASEIRA 56% -> 50% (azul 1047 -> 1357 px; delta +34 -> +28). FRENTE 57% (inalterada).
    meio 27% (inalterado).
 v111: 1 componente (200 obj) | 0 non-manifold | contrato intacto | gate 32/34 (STRUT_F<->ChassisF ok)
+
+## CONTAMINANTE NOVO IDENTIFICADO: linhas-guia e grade do desenho
+Ao tentar medir a RODA traseira do concept por "coluna com maior corrida escura", o resultado foi
+x_px=83 com 399 px de altura escura = 0.947 m de diametro — impossivel (a roda tem ~0.355 m).
+A causa: o desenho do concept TEM LINHAS-GUIA (vertical preta de referencia + grade de proporcao),
+e as amostras ao lado dessa coluna deram (220,220,220) = a GRADE, nao o kart.
+=> A grade [144..227] ja' havia contaminado as medicoes de CINZA (regra 283); agora descobrimos que
+   as LINHAS-GUIA pretas contaminam a deteccao de FORMA (pneu/mancha escura).
+REGRA 292 — ao medir FORMA (pneu, sombra, contorno) no concept, excluir tambem as linhas-guia:
+   linhas finas (1-3 px) e longas, ou pixels escuros cujo vizinhamento imediato e' a grade clara
+   (220,220,220). Sem isso a deteccao "gruda" numa linha-guia e devolve um diametro absurdo (0.95 m).
+   SANIDADE OBRIGATORIA: antes de aceitar uma medida de roda, comparar com o contrato (pneu tras
+   ~0.355 m, dianteiro ~0.266 m); valor muito fora = contaminacao, nao geometria.
+A roda ainda NAO foi remedida com o filtro de linhas-guia — o proximo passo e' refazer a medicao
+da roda e so' entao comparar aro/pneu/cubo com o modelo.
