@@ -11921,3 +11921,20 @@ REGRA 311: antes de editar geometria por um desvio de silhueta, MEDIR O PERFIL (
   corrigir o objeto certo resolve ambos. Nao ajustar "global" nem por tentativa.
 PENDENTE (medido, proximos alvos): z 0.35-0.45 rodas curtas (-0.06..-0.08); z 0.50 e 0.60;
   capacete estreito em z 1.00-1.10 (-0.05); depois: 4 vistas + vision calibrado + auditor + prancha.
+
+## v136: RODAS — diametro do pneu traseiro (medido por |y| na FRONT)
+METODO: topo do objeto medido por |y| (isolando o pneu na vista FRONT) no concept e no modelo.
+CONCEPT (front.jpg): |y|=0.72 -> topo z=0.344 | 0.70 -> 0.428 | 0.68 -> 0.448 | 0.66 -> 0.454
+  | 0.62 -> 0.461 | 0.58 -> 0.461  => coroa do pneu traseiro em z=0.461 -> D=0.461 (r=0.230)
+  e ombro QUASE RETO: perde so 0.007 m de 0.62 para 0.68 (pneu com secao quase retangular).
+MODELO v135: r=0.1775 (D=0.355) -> |y|=0.72 topo 0.197 (delta -0.147) | 0.66 -> 0.316 (-0.138)
+  => pneu traseiro 0.106 m MENOR em diametro e ombro REDONDO (toroidal).
+v136: TIRE_RL/RR r 0.1775 -> 0.2300 (4 ocorrencias: pneu + aneis de sulco)
+RESULTADO MEDIDO:
+  |y|=0.72: 0.197 -> 0.316 (concept 0.344) | delta -0.147 -> -0.028  (5x melhor)
+  |y|=0.70: 0.296 -> 0.389 (concept 0.428) | delta -0.132 -> -0.039
+  |y|=0.62: 0.449 -> 0.459 (concept 0.461) | delta -0.012 -> -0.002
+PENDENTE DESTE CICLO: o ombro entre |y| 0.66 e 0.70 ainda fica 0.068-0.074 m baixo — o concept tem
+  ombro quase RETO (perde 0.007 m em 0.06) e o modelo perde 0.079 m em 0.04 -> a secao do pneu
+  precisa ficar mais retangular (reduzir/alisar rborda=0.046 do anel traseiro). Proximo alvo.
+ESTADO v136: 1 componente (199 obj) | 0 non-manifold | contato 33/34 | contrato intacto.
