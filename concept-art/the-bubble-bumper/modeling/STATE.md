@@ -12105,3 +12105,27 @@ REGRA 316 (operacional, violada 2x hoje): ao derivar vN+1 de vN, trocar o caminh
   (355 arquivos) e a recuperacao e "git checkout HEAD -- .../conjunto-vN.blend".
 REGRA 317: nao empilhar mudancas nao-provadas. A subida dos olhos foi feita por inferencia
   ("parece baixo") sem medicao de ganho, quebrou a estrutura e custou 3 versoes.
+
+## v144 — pintura por NORMAL (superficie visivel) e a CAUSA RAIZ DA OCLUSAO, medida
+PATCH: condicao de pintura do casco passou a ser CENTRO na zona E |normal.y| > 0.60 (faces laterais,
+  que sao a superficie visivel na vista SIDE). O teste anterior (todos os vertices dentro) pintava
+  faces que nao sao a superficie visivel.
+RESULTADO: 632/6048 faces | GATE: 1 componente (199), 0 non-manifold, 33/34 -> ESTRUTURA OK.
+  blend md5 5227512ba7 | render ok.
+ACEITE: GLOBAL 28/60 = 47% (v143 50% -> leve piora) | CELULAS CLARAS modelo 20 (v143 18) com
+  acerto do claro mantido em 12/30. Vazamento: o claro aparece em x -0.34 (concept B) porque o
+  teste por CENTRO pinta faces que se estendem para fora da zona.
+CAUSA RAIZ DA OCLUSAO (agora MEDIDA, nao suposta) — light_objs.py:
+  P_Shoulder: z 0.761..1.039, |y|max = 0.215
+  P_Helmet  : z 0.938..1.252, |y|max = 0.167
+  => O ombro do piloto e MAIS LARGO que o casco e sobe ate z=1.039. Na vista lateral ele fica NA
+     FRENTE do casco e portanto a superficie VISIVEL em z 1.00..1.04 naquela faixa de x e o OMBRO
+     (azul), nao o casco. Pintar o casco nao muda o pixel -> era isso que fazia "pintar e nao
+     aparecer".
+  CONCEPT (medido por altura): z=0.96 x -0.26 = B (azul) e z=1.02 x -0.26 = L (claro) -> a
+     transicao azul->claro no concept esta em ~z 0.98..1.00. No modelo o azul do ombro vai ate 1.039.
+  => CORRECAO A MEDIR: baixar o TOPO do P_Shoulder ~0.04 m (1.039 -> ~1.00), preservando o contato
+     com P_Neck/P_Torso (o v129/v130 ja quebrou esse contato uma vez: medir o gate no mesmo build).
+REGRA 318: antes de pintar superficie, verificar QUAL OBJETO ocupa o pixel. Objeto mais largo/mais
+  proximo da camera oclui o que se pretende pintar. Listar bbox+material dos objetos na faixa
+  (light_objs.py) e comparar |y|max entre eles. Pintar o ocluso nao produz pixel.
