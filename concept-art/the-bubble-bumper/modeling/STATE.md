@@ -11793,3 +11793,43 @@ REGRA 306: linhas de grade de largura total (>=95% dos px da linha sao grade) de
   inexistentes no topo.
 ACAO PENDENTE IMEDIATA: recalibrar por eixo e refazer o perfil de topo do side; depois medir o
   piloto de novo. NAO ajustar o capacete com a escala antiga (seria ajustar contra numero errado).
+
+## v125-v131: PILOTO — medido com a calibracao POR EIXO (regra 305)
+CALIBRACAO VALIDADA: segmentando o side por tinta, removendo 160 linhas + 267 colunas de grade e
+  tomando a maior componente conexa -> kart = 754 x 398 px -> aspecto 1.894 vs contrato 1.877 =
+  1.0% de erro. A conclusao anterior de "painel esticado 15%" estava ERRADA: era artefato de bbox
+  com grade. KX=0.003117 m/px, KZ=0.003146 m/px (praticamente iguais: o painel side E' uniforme).
+MEDICOES de referencia (concept, calibrado):
+  capacete (blob azul z>1.05): x -0.480..-0.134 (centro -0.307, profundidade 0.346 m), topo z 1.224
+  ombros/tronco (0.86<z<1.05): x -0.480..-0.137 -> o TRONCO vai tao a frente quanto o capacete
+  -> o tronco do concept tem x -0.480..-0.137 e topo z ~1.05
+v125: cabeca transladada -0.147 m (P_Helmet centro -0.160 -> -0.307 = EXATAMENTE o centro medido).
+v126: pescoco alargado 0.075->0.115, centro z 0.92->0.945. (Depois medido: esta mudanca PIOROU o
+  vao de 85 mm para 85 mm no eixo errado - alargar pescoco em Y nao serve para vista SIDE.)
+DESCOBERTA: o vision insistia em "cabeca flutuando". Medi o vao COLUNA A COLUNA em z 0.698..1.099:
+  x=-0.450 -> capacete 1.010..1.099 | VAO 0.876..1.010 (134 mm) | ombro 0.787..0.876
+  x=-0.350 e -0.310 -> continuo (e' por onde passa o pescoco)
+  -> o vao grande e' TRASEIRO (o elipsoide do capacete sobe na traseira) e o FRONTAL
+  -> o vision estava CERTO e minha leitura de "2.2 cm" estava errada.
+v127: adicionado ENCOSTO DO BANCO (box P_SeatBack, M_VISL, x -0.520..-0.400, z 0.600..1.030):
+  no concept quem preenche esse vazio e' o encosto escuro. vao medio 85 -> 55 mm.
+v128: P_Shoulder rx 0.140->0.170 e centro +0.025 -> tronco x -0.475..-0.135 (= concept).
+v129: P_Shoulder rz 0.082->0.140 e centro z +0.065 -> ombro z 0.77..1.05 (= concept ~1.05).
+  vao 55 -> 31 mm (max 163 -> 74 mm). REGRESSAO: contato P_Shoulder<->P_Neck caiu para 0.
+INVESTIGACAO DA REGRESSAO (importante): bboxes claramente sobrepostos (ombro x -0.469..-0.141
+  z 0.761..1.039; pescoco x -0.395..-0.197 z 0.834..1.026) mas BVHTree.overlap = 0 pares.
+  CAUSA: P_Shoulder e uma superficie FECHADA e o pescoco ficou INTEIRO DENTRO dela.
+  BVH.overlap mede INTERSECCAO DE SUPERFICIES, nao contencao. Antes o pescoco atravessava o topo do
+  ombro (que era 0.916) -> havia intersecao; ao elevar o ombro para 1.039 o pescoco passou a ficar
+  contido -> 0 pares.
+  v130 tentou aumentar o pescoco para 0.098 (nao bastou, topo 1.026 < 1.039).
+  v131: rz 0.125 -> topo 1.055 ATRAVESSA o ombro -> overlap 152 pares, gate 33/34 restaurado.
+REGRA 307: para contato por BVH entre pecas, a peca menor precisa ATRAVESSAR a superficie da maior;
+  uma peca totalmente contida da' 0 pares e o gate acusa "sem contato" com bboxes sobrepostos.
+  Este e' o sintoma exato: bbox sobrepoe + overlap 0 => contenção, nao afastamento.
+REGRA 308: alargar peca em Y nao fecha vao em vista SIDE; medir o vao na vista que se esta julgando.
+ESTADO v131: 1 componente (199 obj) | 0 non-manifold | contato 33/34 | contrato intacto
+  vao cabeca-tronco: 85 mm (v126) -> 31 mm (v131), max 163 -> 74 mm (2.7x melhor)
+  P_Helmet centro x = -0.307 (concept: -0.307)
+PENDENTE: o vision continua dando 3/10 e repetindo "cabeca flutuando" mesmo com o vao 2.7x menor —
+  a nota qualitativa nao acompanha a metrica; o vao residual de 31 mm (medido) e' o proximo alvo.
