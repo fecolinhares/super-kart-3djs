@@ -12714,3 +12714,31 @@ PROXIMO: (a) altura do topo-traseiro: criar volume real (tampa com loop de front
   correto, como especificado apos o v171); (b) teto -0.006 em x=-0.15; (c) linha preta ate x=-0.15;
   (d) fenda por RGB absoluto. DEPOIS: FRONT/REAR/TOP (ainda sem validacao), vision proprio, auditor
   independente, prancha com MD5.
+
+## v173 — DEGRAU DE 0.198 m FECHADO. NOVO CANDIDATO.
+ESTRATEGIA QUE FUNCIONOU (5a tentativa, apos 4 revertidas): em vez de mexer no casco existente
+  (mover/esticar/extrudar regiao/piso de largura — todas refutadas), CRIAR UM SOLIDO FECHADO NOVO
+  (uv sphere 24x12) SOBREPOSTO ao casco no topo-traseiro:
+    P_RearTop em (-0.115, 0, 1.155), raios (0.030, 0.058, 0.062), material Helmet_Blue.
+  POR QUE E SEGURO POR CONSTRUCAO: o gate mede non-manifold POR OBJETO e uma esfera e manifold;
+  o contato com o casco mantem 1 componente. Foi exatamente onde a extrusao de REGIAO falhou (v171,
+  54 arestas non-manifold) — criar solido novo nao depende de loop de fronteira.
+SILHUETA POR COLUNA (concept | modelo v168 | modelo v173):
+  x=-0.12: 1.218 | 1.020 | 1.215  (delta -0.003)
+  x=-0.11: 1.218 | 1.020 | 1.215  (delta -0.003)
+  x=-0.10: 1.218 | 1.020 | 1.205  (delta -0.013)
+  x=-0.09: ---   | ---   | 1.185
+  DEGRAU FECHADO (delta residual 3..13 mm = 1..4 px). GATE: 1 componente (200 objetos) | 0
+  non-manifold | 522 contatos.
+ACEITE v173 (med_fair.py): borda 82% -> 83% (50/60, MELHOR BORDA ATE AGORA) | dentro 92% (54/59) |
+  CLARO concept 31 = modelo 31 com 31 acertos | 6 erros. md5 8bfd33f108.
+DECISAO: ADOTAR como candidato (melhor borda, degrau fechado, gate verde). conjunto-v173.blend.
+LICAO (a mais util do arco): quando 4 abordagens de DEFORMACAO falham por motivo estrutural (nao por
+  calibragem), a resposta pode ser CRIAR GEOMETRIA NOVA em vez de reesculpir a existente. Solido
+  fechado sobreposto satisfaz o gate sem tocar na topologia do casco.
+ERROS RESTANTES (5 reais + 1 fundo do concept): (1.12,-0.15) B vs '.' (altura do topo do casco);
+  (1.10,-0.15) B vs L (teto 1 px); (1.08,-0.26) o vs '.' e (1.06,-0.26) o vs 'D' (fenda, tom);
+  (1.06,-0.15) D vs L (linha preta nao cobre x=-0.15); (0.96,-0.15) '.' vs L (concept=fundo, nao e defeito).
+PROXIMO: (a) subir o topo do casco em x=-0.15 (mesma tecnica do P_RearTop, ajustando posicao/raios);
+  (b) teto -0.006 em x=-0.15; (c) linha preta ate x=-0.15; (d) fenda por RGB absoluto.
+  DEPOIS: FRONT/REAR/TOP (ainda SEM validacao), vision proprio, auditor independente, prancha + MD5.
