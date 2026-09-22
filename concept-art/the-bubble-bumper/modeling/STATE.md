@@ -12931,3 +12931,38 @@ OUTROS ERROS REAIS: z=1.08 x=-0.12 concept (0,0,7) PRETO vs modelo (47,55,77) B;
 ACAO: corrigir a FAIXA AMARELA (P_StripeF) no topo-traseiro: ela precisa cobrir z 1.10..1.20 em
   x -0.18..-0.10 (hoje cobre quase nada). Medir a extensao da faixa em px antes e depois (feature
   larga, entao ponto-a-ponto serve; ainda assim medir a FAIXA, regra 3).
+
+## v177 + v178 — FAIXA AMARELA: causa encontrada (era OCLUSAO, nao ausencia)
+MEDICAO ANTES (R174): P_Stripe em z 1.178..1.235 (concept pede 1.10..1.20 -> 0.05 m ALTO) e P_StripeF
+  terminando em x=-0.121 (concept pede -0.10 -> CURTO). Alem disso, medindo a extensao da faixa por
+  coluna no render, o modelo TINHA amarelo em x=-0.18..-0.16 (z 1.23..0.17) mas quase nada em x=-0.12..-0.10.
+v177: P_Stripe desceu 0.045 (z -> 1.133..1.190); P_StripeF estendida em +x ate -0.098 (x -> -0.159..-0.098).
+  GATE 1/0/526. SCORE: 26 erros (era 25) -> praticamente neutro, porque o render continuou mostrando 'B'
+  em z=1.12..1.20 x=-0.12..-0.10.
+CAUSA RAIZ (medida no render + confirmada por bbox): o blob P_RearTop (Helmet_Blue, x -0.175..-0.085,
+  z 1.075..1.225) OCLUIA a faixa amarela exatamente naquela janela. A faixa nao estava ausente: estava
+  ATRAS do blob. (Mesma licao de sempre: antes de acusar ausencia de material, checar oclusao.)
+v178: repintei 192 das 288 faces do P_RearTop abaixo de z=1.19 para Accent_Yellow (topo segue azul).
+  GATE 1/0/526. SCORE: 26 erros -> os erros se MOVERAM: o modelo agora tem amarelo em z=1.12..1.18
+  (padrao visivelmente mais proximo do concept: C z=1.14 'BBBBB.DYY' vs M 'BBBBoYYoY'), mas o amarelo
+  passa do ponto em z=1.16..1.18 (M 'BBBBYYYYY' vs C 'BBB.D.oY.') e aparecem celulas 'o' e 'L' novas.
+VEREDITO DO VISION (recorte x -0.34..-0.06, z 0.88..1.26, concept em cima / modelo embaixo; board em
+  authored/board178_region.png): a regiao e o CAPACETE. Defeitos concretos apontados:
+   (1) FAIXA AMARELA do modelo e mais CURTA verticalmente e mais ESTREITA (no concept sobe quase ate o
+       topo da esfera; no modelo termina na metade superior);
+   (2) topo da faixa mais BAIXO no modelo;
+   (3) SOBRANCELHA preta arqueada AUSENTE no modelo;
+   (4) OLHO distorcido: concept = oval com esclera branca + pupila preta + brilho; modelo = retangulo
+       preto pixelado sem esclera clara;
+   (5) OVAL/VENTILACAO escura sobre a faixa amarela AUSENTE no modelo;
+   (6) REBITE circular cinza metalico na zona da orelha AUSENTE no modelo.
+  (vision da hipotese qualitativa; a MEDICAO decide — mas estes 4 itens (3)(4)(5)(6) sao elementos
+   discretos e verificaveis por medicao de presenca/bbox.)
+DECISAO: v178 fica como CANDIDATO (a faixa amarela agora existe na regiao correta — ganho visual real),
+  com a ressalva declarada de que o contador de erros NAO melhorou (26) porque o amarelo passou do ponto
+  em z 1.16..1.18 e surgiram celulas de fronteira 'o'/'L'. Nao empilhar mais mudancas de cor sem medir a
+  EXTENSAO da faixa por coluna antes/depois.
+PROXIMO: (a) ajustar a extensao da faixa amarela por COLUNA (medir antes/depois, regra 3) para casar com
+  o concept; (b) implementar os 4 elementos ausentes apontados pelo vision (sobrancelha, esclera do olho,
+  oval de ventilacao, rebite da orelha) — cada um com bbox medido no concept; (c) so entao re-rodar o
+  score e seguir para FRONT/REAR/TOP, vision proprio, auditor independente e prancha final.
