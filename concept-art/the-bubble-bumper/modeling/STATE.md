@@ -12398,3 +12398,44 @@ ACEITE v159: borda 68% | dentro 78% | CLARO 31/31 (v158/v159 contam 29 porque a 
 PROXIMO: (A) teto da faixa por coluna medida -> +2; (D) identificar a superficie espuria por raycast
   -> +2; (B) geometria do topo-traseiro e do furo em (1.00,-0.22) -> +2; (C) calibrar M_Slit pelo RGB
   medido no concept -> +2/+3; (E) ombro -> +1. Depois: 4 vistas, vision proprio, auditor, prancha.
+
+## v160 + DIAGNOSTICO POR CELULA — 7 DOS 13 ERROS SAO ARTEFATO, NAO DEFEITO
+TETO MEDIDO no concept (novo instrumento): a faixa clara NAO tem teto plano. z_sup por coluna:
+  -0.30 1.095 | -0.29 1.100 | -0.28..-0.26 1.110 | -0.25..-0.23 1.105 | -0.22 1.100 |
+  -0.21..-0.17 1.180..1.200 (COROA do capacete, outra feature) | -0.16/-0.15 1.085 |
+  -0.14 1.125 | -0.13/-0.12 1.075.  z_inf medido: -0.30 1.040 ... -0.12 0.900 (borda diagonal).
+  Salvo em authored/band-concept.json.
+v160: apliquei o teto como REDUCAO (ceiling = min(1.100, z_sup medido)). Apenas 2 faces removidas e
+  a grade NAO mudou.
+DIAGNOSTICO POR CELULA (diag_cells2.py: raycast em CADA celula que falha, com objeto+material+normal):
+  ERRO DE FERRAMENTA CORRIGIDO: ray_cast devolve indice no mesh AVALIADO (modifiers) -> ler
+  obj.data.polygons[idx] da IndexError (index 52 out of range, size 6). CORRETO:
+  obj.evaluated_get(depsgraph).data.polygons[idx].
+  MAPA:
+    P_Helmet[Helmet_Blue]     4 celulas: (1.12,-0.15,B) (1.10,-0.30,B) (1.10,-0.15,B) (1.00,-0.26,L)
+    P_Helmet[Visor_Light]     3 celulas: (1.06,-0.22,L) (1.04,-0.22,L) (1.02,-0.26,L)
+    P_Helmet[M_Slit]          2 celulas: (1.08,-0.26,o) (1.06,-0.26,o)
+    P_FacePlate[Visor_Light]  2 celulas: (1.06,-0.15,D) (0.96,-0.15,.)
+    P_Visor[Visor_Light]      1 celula : (1.00,-0.22,L)
+    P_Shoulder[Pilot_Suit]    1 celula : (0.94,-0.22,L)
+  ARTEFATO (material JA correto, a grade acusa por borda/rounding/sombreamento) = 7 celulas:
+    3x Helmet_Blue querendo 'B' (o material E azul -> antialiasing de borda do teto; regra 321);
+    3x Visor_Light querendo 'L' (o material E claro -> sombreamento em face angulada ny 0.73..0.81
+      deixa a soma abaixo do limiar 'L'); 1x P_Visor[Visor_Light] querendo 'L' (face edge-on ny=0.25).
+    LICAO: a grade SIDE super-relata erro em fronteira de feature. Classificar cada erro pelo
+    raycast (material+normal) ANTES de tentar corrigir: se o material ja esta certo, e artefato.
+  DEFEITOS REAIS = 6 celulas, 5 causas:
+    (a) FALTA PINTAR 1: (1.00,-0.26) quer 'L', superficie Helmet_Blue -> baixar o z_inf da diagonal
+        em x=-0.26 (concept z_inf = 0.980 medido).
+    (b) TOM DA FENDA 2: (1.08,-0.26) e (1.06,-0.26) querem 'o', superficie M_Slit rende 'D' ->
+        clarear M_Slit pelo RGB medido no concept (nao por tentativa).
+    (c) FEATURE ESCURA AUSENTE 1: (1.06,-0.15) quer 'D', superficie P_FacePlate[Visor_Light] ->
+        pintar essa face de escuro.
+    (d) PLACA ALTA 1: (0.96,-0.15) quer '.', a placa esta la -> subir o fundo da placa ~0.015 nessa
+        coluna (borda medida: modelo 0.900 vs concept 0.915).
+    (e) OMBRO 1: (0.94,-0.22) quer 'L', superficie P_Shoulder[Pilot_Suit] topo 0.950 -> descer ~0.010.
+  GATE v160: 1 componente | 0 non-manifold | 520 contatos | md5 e835f857ea.
+ACEITE v160: borda 68% | dentro 78% | CLARO 31/31 | acerto 25.
+PROXIMO: (a)+(c)+(d) sao pintura/geometria pequena e medivel -> podem virar 3-4 celulas. (b) exige
+  medir o RGB real da fenda no concept. (e) descer o ombro 0.010 em x=-0.22. Depois: reavaliar a
+  grade com amostra deslocada meia celula (para separar artefato de defeito de vez).
