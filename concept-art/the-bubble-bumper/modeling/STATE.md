@@ -11347,3 +11347,12 @@ REGRA 274: o teto deste pipeline (primitivas+loft) e' o acabamento fino do conce
   consistente em "geometria rudimentar nas costas/rodas/mecanica" em TODAS as versoes. Fechar esse
   gap exige modelagem por ESCULTURA/retopologia peca-a-peca, nao ajuste de primitiva.
 v094: 1 componente (158 obj) | 0 non-manifold | contato 33/34 | L/W/H no contrato
+
+## v095: capacete aerodinamico (crista + spoiler + tomada de ar) e sueter com peito/cintura
+O vision (v094) reclamou especificamente: "capacete e' uma esfera simples, nao replica o desenho
+aerodinamico do concept" e "torso blocky, sem a curvatura do sueter".
+FIX v095: P_HCrest (crista central no topo), P_HSpoil (carenagem na nuca), P_HVent (tomada de ar)
+e P_Chest + cintura estreitada (0.145 -> 0.118 em y) para dar a curva do sueter.
+CUIDADO medido: a crista subiu o H para 1.255 (+3mm do contrato 1.2523) -> topo da crista
+  HEA.z+0.169 (era +0.172). SEMPRE re-medir o bbox depois de adicionar peca no TOPO do modelo.
+v095: 1 componente (162 obj) | 0 non-manifold | contato 33/34 | L=2.354/W=1.441/H=1.252
