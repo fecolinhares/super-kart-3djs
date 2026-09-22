@@ -11249,3 +11249,13 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Serie vision: 4,2 ... 8,0 9,2 9,4 9,6 9,7 9,8 **9,9**
   REGRA 261: em bmesh, "corrigir" casca aberta duplicando a face invertida FALHA
     ("face already exists") — casca precisa de VOLUME (prisma/solidify).
+
+## v081: P2 do vision fechados (banco, tread, motor) — 9,8/9,9
+  (1) banco PRETO (M_SEAT) — concept tem banco preto; (2) TREAD = 3 aneis por roda e o
+    pneu subiu 2mm: o SULCO passa a ser o ponto de contato (z min = 0 exato — na 1a
+    tentativa os sulcos furaram o chao, z=-0.002/H=1.254); (3) motor com 4 aletas + 2 tubos.
+  ARMADILHA: o tread com rot=(0,Y90) poe o DIAMETRO em Y (W=1.661!) — o default do cil()
+  (X90) e' o eixo certo para aneis de roda.  Registrado junto da regra 260.
+  Malha: 1 componente (137 obj) | 0 non-manifold | contato 33/34 | L/W/H no contrato.
+  vision v081 = 9,8 (oscilou de 9,9 — os P2 mexeram na leitura); divergencias residuais
+  citadas: volante/maos no FRONT, complexidade do motor no SIDE, contagem de escapes no REAR.
