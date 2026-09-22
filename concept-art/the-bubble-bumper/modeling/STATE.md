@@ -12535,3 +12535,28 @@ ITENS REAIS RESTANTES: (a) BURACO no casco em x=-0.15, z=1.12 (3 px) — geometr
 PROXIMO: (c) teto -0.006 nessas 2 colunas; (a)(b) geometria dos 2 buracos; (d) medir a fenda por RGB
   absoluto. Depois: 4 vistas (FRONT/REAR/TOP ainda sem validacao), vision proprio, auditor
   independente, prancha final com MD5.
+
+## v166 — TETO -0.006 FUNCIONOU; GRADE DE RAYCAST REFUTA A HIPOTESE DE "BURACO" EM (1.00,-0.22)
+(c) teto -0.006 em -0.30/-0.29/-0.15 -> -4 faces. ACEITE: borda 78% -> 80% (48/60); dentro 88% -> 90%
+    (53/59); erros 8 -> 7. A celula (1.10,-0.30) DESAPARECEU. GATE 1/0/520 | md5 0fea17f6df.
+DIAGNOSTICO EM GRADE (7 colunas x 9 alturas, x -0.25..-0.19, z 0.96..1.04): NAO HA VAZIO em nenhum
+  ponto — todas as amostras batem em Visor_Light. Portanto a hipotese "buraco/ausencia de geometria"
+  em (1.00,-0.22) esta REFUTADA.
+  A CAUSA REAL: em (x=-0.22, z=1.00) a superficie existe (y=+0.119, material Visor_Light) mas com
+  ny=+0.25, isto e, QUASE EDGE-ON. Face rasante recebe pouca luz -> renderiza escura -> o
+  classificador le como fundo ('.'). Existe uma FAIXA RASANTE em x -0.22..-0.20, z 0.99..1.04 com
+  ny 0.25..0.34 (vizinhos: x=-0.24 ny=0.67, x=-0.23 ny=1.00, x=-0.21 ny=0.34, x=-0.20 ny=0.25).
+  O concept nessa zona e um painel FRONTAL PLANO (claro). Ou seja: o defeito e GEOMETRICO (excesso de
+  bisel/inclinacao), nao de material e nao de ausencia de geometria.
+  LICAO: 'pixel escuro' != 'sem geometria' != 'material errado'. Terceira causa possivel: face
+  RASANTE. A grade de raycast com ny distingue as tres.
+ERROS REAIS RESTANTES (6, pois (0.96,-0.15) tem concept='.' = fundo, nao defeito):
+  1. (1.12,-0.15) B vs '.' — buraco de 3 px no casco (unico caso confirmado de ausencia de geometria).
+  2. (1.00,-0.22) L vs '.' — faixa rasante ny 0.25..0.34; precisa ACHATAR a superficie nessa zona.
+  3. (1.08,-0.26) o vs '.' — fenda: tom/rasancia.
+  4. (1.06,-0.26) o vs 'D' — fenda: familia de classe correta, tom proximo (RGB 203..260 vs 225..229).
+  5. (1.10,-0.15) B vs L — teto ainda 1 px alto nessa coluna.
+  6. (1.06,-0.15) D vs L — linha preta nao cobre x=-0.15 (o encurtamento do v165 passou do ponto).
+PROXIMO: (2) achatar a faixa rasante; (1) fechar o buraco de 3 px do casco; (5) teto -0.006 em -0.15;
+  (6) reestender a linha preta ate x=-0.15; (3)(4) medir a fenda por RGB absoluto.
+  Depois: FRONT/REAR/TOP (ainda SEM validacao), vision proprio, auditor independente, prancha + MD5.
