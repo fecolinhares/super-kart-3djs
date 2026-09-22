@@ -12279,3 +12279,31 @@ PENDENTE MEDIDO: em x=-0.18 e -0.15 o modelo ainda para em 0.960 (concept 0.920/
   raycast nessa faixa lendo a NORMAL da face atingida + material, e decidir o limiar por MEDICAO.
   Em x=-0.12 o concept tem claro (0.900) e o modelo nao tem GEOMETRIA (P_Helmet termina em x=-0.147)
   -> e problema de geometria (traseira do casco curta), nao de pintura.
+
+## v151+ — A FAIXA QUE FALTA: OMBRO AZUL OCLUI; ALVOS POR COLUNA MEDIDOS
+FERRAMENTA NOVA: norm151.py — raio na faixa com NORMAL da face atingida, material lido por
+  ob.data.materials (regra 320) e veredito "PINTARIA / falta Z / falta NORMAL". REFUTOU a minha
+  suspeita: o filtro |ny|>0.60 NAO era o bloqueio (em z 0.97..1.00 a face da PINTARIA).
+CAUSA MEDIDA: em (x -0.20..-0.16, z 0.92..0.95) a superficie visivel na SIDE e P_Shoulder
+  [Pilot_Suit] -> o OMBRO AZUL oclui a faixa inferior do capacete. Em x=-0.15 a mesma faixa esta
+  VAZIA (buraco), e o ombro sobe ate 0.915 ali.
+FERRAMENTA NOVA: shld152.py — TOPO do ombro por coluna (1o hit descendo de z=1.08 filtrando
+  P_Shoulder). Medido: -0.30 0.980 | -0.26 0.975 | -0.22 0.960 | -0.20 0.955 | -0.18 0.955 |
+  -0.16 0.935 | -0.15 0.915 | -0.14 ausente.
+  ALVO (borda do concept = onde o claro comeca): -0.30 1.040 | -0.26 0.980 | -0.22 0.940 |
+  -0.18 0.920 | -0.16 0.918 | -0.15 0.915 | -0.14 0.912.
+  ACOES reais (colunas onde o claro FALTA): x=-0.18 descer ombro -0.035 | x=-0.16 -0.017.
+  Em x=-0.15/-0.14 o ombro JA esta no lugar (0.915/ausente) e o que falta e GEOMETRIA (a faixa
+  0.92..0.96 esta VAZIA e o P_Helmet comeca em z=0.938).
+CORRECAO DE REFERENCIA (erro meu): NAO usar "borda do claro do concept" como se fosse "topo do ombro
+  do concept". Em x=-0.30 o modelo JA acerta (concept B B em 1.00/1.02 e L acima) e comparar o topo
+  do ombro (0.980) com 1.040 produziu um falso "-0.060". Sempre comparar o MESMO objeto/fenomeno.
+REGRA 323: os parametros do esf (rx, ry, rz) NAO mapeiam linearmente no bound_box. Medido no
+  P_Shoulder: esf(...,0.170,0.222,0.140) deu bbox x -0.469..-0.141 (2*0.164), y +-0.215, z
+  0.762..0.999 (2*0.118). Editar rx/rz "por calculo" da erro; medir o bbox DEPOIS do build e
+  iterar por medicao (ou usar transformacao explicita: location/scale/rotacao no objeto).
+PROXIMO (cirurgia em 2 partes, atomicas): (A) descer o topo do ombro na frente (x -0.20..-0.16) em
+  ~0.02..0.035 usando transformacao explicita + medir bbox; (B) fechar o buraco em x -0.16..-0.14,
+  z 0.92..0.96 (o P_Helmet comeca em 0.938 e a faixa esta vazia) -> estender a casca inferior do
+  capacete para baixo, sem cobrir o pescoco. Gate apos cada uma (manter 1 componente, non-manifold 0
+  e >=520 contatos).
