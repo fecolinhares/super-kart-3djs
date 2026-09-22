@@ -11866,3 +11866,28 @@ ESTADO v134: 1 componente (199 obj) | 0 non-manifold | contato 33/34 | contrato 
   (L=2.354 W=1.441 H=1.252) | encosto sem ocluir pescoco | tronco azul como o concept
 PENDENTE: capacete ainda escuro em x -0.26..-0.14 z 1.05-1.00 (concept: azul) -> investigar visor;
   frente em x=-0.16 com vaos; ainda falta ciclos visuais + auditor independente + prancha final.
+
+## REGRA 310 (CRITICA — calibracao do BOARD, nao do modelo)
+SINTOMA: o vision deu 3/10 (v126), 2/10 (v132) e 3/10 (v134) repetindo "cabeca flutuando / vao
+  preenchido com FUNDO", enquanto a medicao de silhueta dizia CONTINUO em x=-0.45/-0.40/-0.35
+  (e o concept tambem e continuo em -0.33 e -0.28).
+TESTE DECISIVO (pixel a pixel, 9 pontos em x -0.40..-0.33, z 0.99..1.05):
+  rgb = (43,77,139) (38,69,125) (64,100,152) (42,75,135) (37,67,122) (68,108,165) (39,70,127)
+        (34,62,113) (75,117,179)
+  fundo real (canto) = (78,79,83). Distancia dos pontos ao fundo = 91..137 (limiar 40)
+  => 9 de 9 pontos sao OBJETO AZUL. NAO existe fundo entre o capacete e o tronco.
+CAUSA DO ERRO DO VISION: o board que eu enviava era um painel duplo REDUZIDO (altura 380 px) em que
+  a regiao do pescoco ocupa poucos pixels e o azul escuro se confunde com o fundo (78,79,83).
+  Ao enviar um ZOOM alto (altura 560, so cabeca+tronco, x -0.52..-0.10 / z 0.72..1.20) o MESMO
+  vision respondeu: "There is a continuous, uninterrupted blue surface connecting the bottom edge
+  of the blue helmet and the top edge of the blue torso. There is no visible empty background/gap
+  between them."
+REGRA: antes de aceitar "vao/falta/desconectado" do vision, entregar um ZOOM de alta resolucao da
+  regiao exata. Um veredito negativo em board reduzido NAO e evidencia de defeito: pode ser
+  artefato de escala/contraste do proprio board. Board calibrado = parte obrigatoria do QA.
+  (Isto e o mesmo tipo de falha que as regras 278/294 ja registravam para o vision global.)
+ESTADO v134 (verificado 3 vezes): cabeca-tronco CONTINUO e AZUL, igual ao concept.
+PENDENTE REAL: (a) capacete escuro em x -0.26..-0.14 z 1.05-1.00 (concept: azul) - visor;
+  (b) frente do piloto x=-0.16 com vaos de 45 e 103 mm; (c) ~10 mm de vao em x=-0.44 e -0.22
+  (comparar com o concept, que tambem tem fundo atras da cabeca);
+  (d) ainda: 4 vistas rerenderizadas + auditor independente + prancha final com MD5.
