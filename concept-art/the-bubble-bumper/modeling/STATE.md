@@ -11706,3 +11706,25 @@ PENDENCIA: o vale em z=0.283 (~15-17% do comprimento, juncao nariz-rampa) perman
   ele existe (o bico e' mais baixo que o cockpit), entao NAO e' defeito por si — confirmar com o
   crop antes de tentar remove-lo.
 v116/v117: 1 componente (198 obj) | 0 non-manifold | contato 33/34 | contrato intacto
+
+## v118-v121: FORMA DA ASA TRASEIRA (contorno arredondado em vez de cunha retangular)
+Ponto de partida: asa com 4 estacoes e topo LINEAR; vision: "retangular/plana, 4/10" e, no concept,
+  "oval achatado, semi-circulo; bordas completamente curvas, sem reta nenhuma".
+v118: 8 estacoes + camber no topo (0.855 -> 0.819 em curva convexa). diff 345 px. vision: 4/10
+  ("retangular/plana") — o camber nao bastou porque a espessura ainda era maxima no BORDO DE ATAQUE
+  (esp=0.105*(1-0.60t)), ou seja a peca continuava uma CUNHA com aresta viva na frente.
+v119: contorno de LENTE — esp=0.105*max(1-(2t-1)^2,0)^0.55, isto e' espessura ZERO nas DUAS pontas
+  e maxima no meio (9 estacoes). diff 606 px. vision: 4/10 -> 6/10 ("borda de baixo curvou, o topo
+  ainda tem trecho reto").
+v120: topo tambem curvado — ztop=0.838-0.020t+0.024*(1-(2t-1)^2)^0.55. diff 528 px. vision: 5/10,
+  agora apontando DIRETAMENTE o defeito: "o MEIO do topo e' reto" — porque o expoente 0.55 achata
+  o centro da funcao (1-x^2)^0.55 (derivada ~0 em x=0).
+v121: expoente 0.55 -> sqrt (arco ELIPTICO puro): ztop=0.836-0.018t+0.026*sqrt(1-(2t-1)^2).
+  diff 100 px (ajuste fino, so' no centro do topo).
+REGRA 302: uma funcao de perfil com expoente q>0.5 em (1-x^2)^q ACHATA o meio da peca -> le como
+  "trecho reto" no topo. Para contorno oval usar q=0.5 (elipse pura). Foi o que o vision nomeou em
+  tres ciclos seguidos ("topo reto") sem eu perceber que era o EXPOENTE, nao a altura.
+METRICA DE ACEITE da asa (objetiva, no lugar da nota do vision): contorno lateral = espessura 0 nas
+  duas pontas (lente) e topo com curvatura nao-nula no centro (segunda derivada != 0), medivel pelo
+  perfil de topo como no nariz (regra 301).
+v118-v121: 1 componente (198 obj) | 0 non-manifold | contato 33/34 | contrato intacto
