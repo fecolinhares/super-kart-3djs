@@ -11166,3 +11166,16 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   REGRA 257: quando cotas e' leitura visual CONFLITAM, REMEDIR o concept — a "cota" pode ter
     sido calibrada num objeto errado (a roda estava 0.10 fora).
   Serie: ...4,2 4,3 5,4 5,7 5,0 5,3 **6,8** | FRONT: 2,0->7,0 | SIDE: 6,1->7,1.
+
+## *** v073: ASA+ESCAPES CORRIGIDOS — vision 6,8 -> 8,0 (TODAS as vistas >=7,8) *** ***
+  vision v072 (6,8) erro #1: "asa TRASEIRA barras amarelas SOLTAS; escapes single port".
+  v073: (1) R_Wing M_ACC -> M_BODY (asa AZUL — regra 254: cor e' assinatura; o concept
+    tem asa AZUL + endplates amarelos); (2) endplates palito 12mm -> PLACA 25mm (z0.70..0.93);
+    (3) pylons 80mm -> 180mm (y0.13..0.31) suportes solidos; (4) escapes laterais tubo
+    0.045->0.055, boca 0.032->0.044 (1.4x), mais fora y±0.345.
+  *** vision v073 = 8,0 — MAIOR SALTO (+1,2) E TODAS VISTAS >=7,8:
+    REAR 8,2 | SIDE 8,0 | FRONT 7,9 | TOP 7,8
+    "Asa le lamina AZUL integrada com endplates solidos. Os 3 escapes leem.
+     erro #1 CORRIGIDO (asa + escapes secundario)." ***
+  Serie vision: ...5,4 5,7 5,0 5,3 6,8 **8,0** | REAR: 1,5 -> 8,2 | FRONT: 2,0 -> 7,9.
+  PROXIMO: pedir ao vision o que falta p/ 9-10 (ele nao nomeou novo erro #1).
