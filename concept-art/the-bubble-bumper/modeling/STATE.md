@@ -12812,3 +12812,26 @@ ACAO PENDENTE: alargar a faixa preta para >= 0.030 m (z 1.055..1.072) — provav
 ESTADO: candidato conjunto-v174.blend (md5 75457f3e5c) | borda 85% (51/60) | dentro 95% (56/59) |
   claro concept 31 = modelo 31 com 31 acertos | 4 erros na grade (3 reais: 2 fenda = artefato de
   classe com RGB equivalente a 10%, 1 linha preta = este defeito).
+
+## v176 — REJEITADO (regressao medida). CONFIRMA QUE O PROBLEMA E O MAPEAMENTO, NAO A PINTURA
+Acao: subdividir a P_FacePlate na zona (3750 -> 44793 faces; zona 651 -> 41784) e repintar a faixa
+  preta em x -0.170..-0.140, z 1.052..1.075 (>= 0.030 m de altura) -> 1820 faces pretas.
+GATE: 1 componente | 0 non-manifold | 525 contatos  (passou)
+ACEITE: PIOROU. claro borda concept=30 modelo=25 acerto=25 (era 31/31/31) | dentro concept=31 modelo=32
+  acerto=31 | erros 4 -> e apareceu ERRO NOVO em z=1.10 x=-0.15 (concept=B, modelo='.').
+MEDICAO DA FAIXA: a janela x -0.17..-0.14 continua SEM nenhum preto no MODELO, exatamente igual ao v175.
+  MAS o claro caiu 31->25, ou seja: A FAIXA PRETA RENDERIZOU — so nao onde eu estou medindo.
+BORDA INFERIOR DO CLARO (concept vs modelo R176):
+  x=-0.30: 1.040 vs 1.025 | x=-0.26: 0.980 vs 0.975 | x=-0.22: 0.940 vs 0.940 | x=-0.18: 0.920 vs 0.915
+  x=-0.16: 0.910 vs 0.915 | x=-0.15: 0.915 vs 0.900
+CONCLUSAO DECISIVA: a pintura foi aplicada em coordenadas do MODELO e renderizou; o que esta errado e
+  o MEU MAPEAMENTO x->coluna (offset de 4..7 px nesta zona, ja medido no ciclo anterior). Ou seja:
+  a linha preta pode JA ESTAR no lugar certo no modelo e a "divergencia" ser artefato do meu medidor.
+  Nao posso corrigir o modelo com base num medidor nao calibrado — seria ajustar o objeto para agradar
+  um instrumento torto.
+ACAO: v176 REVERTIDO (regressao real de claro na borda 31->25 + erro novo em z=1.10). Candidato
+  continua conjunto-v174.blend (md5 75457f3e5c; borda 85% 51/60; dentro 95% 56/59; claro 31/31/31).
+PROXIMO PASSO OBRIGATORIO (instrumento antes do objeto): CALIBRAR O MAPEAMENTO POR ZONA com um
+  LANDMARK conhecido dos dois lados (ex.: a ponta do nariz, a borda traseira, o topo do capacete),
+  medindo o offset em px entre concept e modelo para cada faixa de x. So depois reavaliar a linha preta.
+  Sem essa calibracao, as conclusoes sobre features estreitas (<=5 px) nao sao confiaveis.
