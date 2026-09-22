@@ -11259,3 +11259,24 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
   Malha: 1 componente (137 obj) | 0 non-manifold | contato 33/34 | L/W/H no contrato.
   vision v081 = 9,8 (oscilou de 9,9 — os P2 mexeram na leitura); divergencias residuais
   citadas: volante/maos no FRONT, complexidade do motor no SIDE, contagem de escapes no REAR.
+
+## v082-v084: AUDITORIA DE VISAO REPROVOU (5,3) — P0 do aro, para-choque e escapes
+Auditor independente de visao deu 5,3 ao v081 (meu vision dava 9,8/9,9). Arbitragem por MEDICAO:
+ P0 REAL (confirmado 3x): no render SIDE a roda TRASEIRA aparecia com 0.193 m de 0.330 (58%)
+  — causa RAIZ: (1) furo do pneu = 0.60r (o aro metal de 0.62r preenchia tudo = "hub gigante");
+  (2) o TREAD que criei no v081 era CILINDRO CHEIO -> visto de lado virava DISCO cinza sobre o pneu
+  ("pneus tratados como paineis fechados" — exatamente o que o auditor descreveu).
+  FIX: furo 0.28r, RIM 0.32r (preenche o furo), RING amarelo 0.22r centrado, tread = anel3d VAZADO.
+  Resultado medido: traseira 0.193 -> 0.247 -> (v082d) e hub 60-70% -> 20-25% (vision confirmou
+  "reads as an exposed rubber tire now, not a panel/disc").
+ REAR: para-choque ganhou U-bend tubular cinza (2 verticais + barra superior) + painel azul c/ 5 slats
+  protrusos (23 mm) + 3 bocas escuras (os laterais NAO tinham oco) + escapes maiores/prateados/protrusos.
+  Medido no concept REAR: boca central Ø0.13 em z~0.53 e laterais Ø0.09 em z~0.60 (escala da imagem).
+ Pneu traseiro: Ø0.330x0.285 -> 0.355x0.320 (concept: pneus dominantes; W segue 1.4411, pneu cresce p/ dentro).
+REGRA 262: "cilindro cheio visto de lado = DISCO" — detalhe de roda/tread tem de ser ANEL (anel3d) ou
+  ficar dentro do raio; senao cobre o pneu inteiro no render.
+REGRA 263: pneu malha ANEL — o aro visivel e' o FURO do pneu: furo 0.60r faz "hub" de 60%; furo 0.28r
+  com RIM 0.32r da' hub de ~25% (concept). Sempre casar r_in do pneu com r do aro, senao o aro fica ILHA.
+REGRA 264: peca CONTIDA dentro de outra nao gera interseccao de superficie (BVH) -> ilha. Precisar
+  ATRAVESSAR (offset parcial), nao apenas "estar dentro".
+v084: 1 componente (151 obj) | 0 non-manifold | contato 33/34 | L/W/H no contrato.
