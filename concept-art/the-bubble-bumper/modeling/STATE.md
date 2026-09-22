@@ -12691,3 +12691,26 @@ CONTAGEM DO CICLO: 3 tentativas de fechar o degrau (v169 mover, v170 esticar, v1
 PROXIMO: (a) refazer a criacao com espaco correto e regiao-tampa; (b) superficie rasante do P_Helmet
   em (1.12,-0.15) ny 0.13..0.49 (esta e mais simples: achatar como no v168, que funcionou);
   (c) teto -0.006 em x=-0.15; (d) linha preta ate x=-0.15; (e) fenda por RGB absoluto.
+
+## v172 REVERTIDO — HIPOTESE "FACE RASANTE = ESCURA" REFUTADA POR MEDICAO DE PIXEL
+Acao: piso de largura (|y| >= 0.060) no topo-traseiro do P_Helmet/P_StripeF/P_HVent (124+2+52 verts)
+  na janela x -0.190..-0.130, z 1.080..1.170. Usado o espaco local CORRETO (regra do v171).
+EFEITO GEOMETRICO (confirmado por raycast): ny em x=-0.15 subiu de 0.19/0.13 para +1.00; em x=-0.16
+  de 0.34 para 0.71. A rampa virou parede. GATE 1/0/520. METRICA: NEUTRA (borda 82%, dentro 92%,
+  claro 31 = concept 31 com 31 acertos) — nenhuma celula pontuada mudou.
+EFEITO NOS PIXELS (medido, zona x -0.19..-0.13, z 1.08..1.17, n=202 px nao-fundo):
+  v168: luminancia media 125.0 | maximo 232.3
+  v172: luminancia media 118.5 | maximo 166.0   -> A ZONA FICOU MAIS ESCURA
+DECISAO: REVERTER. Candidato valido CONTINUA conjunto-v168.blend (md5 f722340a49).
+LICAO CENTRAL (esta vale mais que o ciclo): "face rasante => renderiza escura" era HIPOTESE, nao lei.
+  A orientacao melhorou (ny 0.13 -> 1.00) e a zona ESCURECEU. Nesta cena a luz nao e frontal simples;
+  a relacao orientacao->luminancia tem de ser MEDIDA, nao assumida. Corolario: o '.' em (1.12,-0.15)
+  nao e problema de orientacao nem de material — e de ALTURA da silhueta (o topo do casco em x=-0.15
+  fica em ~1.121 e o concept chega a 1.218), ou seja, e o MESMO defeito-familia do degrau.
+CONTAGEM ACUMULADA DO DEFEITO "TOPO-TRASEIRO": 4 tentativas (v169 mover, v170 esticar, v171 extrudar,
+  v172 piso de largura), 4 revertidas. Todas as hipoteses de superficie/orientacao foram testadas e
+  refutadas por medicao. O que resta e ALTURA: falta volume de casco no topo-traseiro.
+PROXIMO: (a) altura do topo-traseiro: criar volume real (tampa com loop de fronteira + espaco local
+  correto, como especificado apos o v171); (b) teto -0.006 em x=-0.15; (c) linha preta ate x=-0.15;
+  (d) fenda por RGB absoluto. DEPOIS: FRONT/REAR/TOP (ainda sem validacao), vision proprio, auditor
+  independente, prancha com MD5.
