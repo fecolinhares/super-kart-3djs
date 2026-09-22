@@ -11210,3 +11210,28 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     no v075/v076 — leitura oscila entre rodadas; conferir no render antes de mexer).
   Serie vision: 4,2 4,3 5,4 5,7 5,0 5,3 6,8 8,0 9,2 9,4 9,6 **9,7**
   Contato 14/14 em TODAS as rodadas de v072 a v077. H=1.252/preservado sempre.
+
+## *** v078/v079: AUDITORIA INDEPENDENTE REPROVOU O v077 — CORRIGIDO ESTRUTURALMENTE *** ***
+  AUDITOR 2 (metrologia, subagent independente) auditou o .blend e REPROVOU o v077:
+   P0-1 as 4 RODAS eram ILHAS (0 de 214 pares tocavam roda; vao 298mm na dianteira);
+   P0-2 o gate_contato.py do repo era LEGADO: 20 de 21 nomes nao existem -> exit 0 com
+        contato=0 (FALSO-PASS). Meu /tmp/contato_v.py era real, mas nao cobria rodas;
+   P0-3 asa 0.586 m x concept 0.945-0.9685 m (66-67%W, 2 metodos) -> meu v074 foi ERRO;
+   P1-4 face (boca/olhos) 27mm A FRENTE do capacete = ilhas soltas;
+   P1-5 asa era CASCA ABERTA (28 boundary edges, 0.65% de preenchimento);
+   P1-6 pneus com 768 arestas non-manifold (T-junction: 3 faces/aresta com rborda);
+   P1-7 luva duplicada (P_Glove_*.001); P1-8 motor sem tocar estrutura; eixos ausentes.
+  v078: asa 0.29->0.475 (0.95 m); aneis da asa tampados; anel3d sem T-junction quando
+    rborda; eixos+stubs; longarinas traseiras (Rail_R); pilone desce ate a longarina;
+    motor Y±0.19; face-plate P_FacePlate; luva escura antiga removida; molas verticais.
+  v079: eixos ALCANCAM o aro (o pneu e' ANEL — o eixo passava pelo furo); STRUT dianteiro
+    (eixo->longarina); molas com rot=(0,0,0) (o default do cil() e' rot X90 = DEITADO);
+    bocas cruzam a face da placa (contidas dentro = sem interseccao); volante tampado.
+  *** RESULTADO: 1 COMPONENTE conectado (era 12 ilhas) | non-manifold 768 -> 12 arestas
+    (so P_Wheel) | contato 33/34 pares (incl. rodas) | vision 9,8 ***
+  GATE CANONICO: modeling/gate_contato.py SUBSTITUIDO pela versao nova (ilhas+manifold+
+    33 pares com rodas). O legado que passava vazio foi eliminado.
+  REGRA 259: gate que "passa" sem objeto existente e' FALSO-PASS — todo gate deve reportar
+    AUSENTES e o total; contato so vale se o par inclui as pecas de ligacao estrutural.
+  REGRA 260: cil() tem rot DEFAULT X90 (eixo ao longo de Y) — mola "vertical" precisa
+    rot=(0,0,0). Pneu e' ANEL: eixo passa pelo FURO, nao cruza o pneu — alvo e' o RIM.
