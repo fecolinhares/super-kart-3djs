@@ -11553,3 +11553,26 @@ REGRA 290: o FRONT e o SIDE do concept mostram coisas diferentes para a mesma pe
   leituras: e' a geometria — a peca azul fica ATRAS em x e as amarelas mais LARGAS em y, de modo
   que o SIDE mostra amarelo e o FRONT mostra azul. Corrigir cor sem resolver esse par nao converge.
 v110: 1 componente (200 obj) | 0 non-manifold | contrato intacto
+
+## v111: traseira — barra amarela fina + carenagem azul maior
+Medicao espacial do azul na faixa traseira (SIDE), por altura, com mask corrigido:
+   CONCEPT (x 0-25%): TOPO 0 | 25-50% 0 | meio 50-75% 1033 px (31%) | BASE 75-100% 4770 px (61%)
+   MODELO  v110     : TOPO 0 | 25-50% 410 (19%) | meio 50-75% 504 (24%) | BASE 75-100% 157 px (5%)
+ => o azul do concept esta' no MEIO e na BASE; o meu so' no alto (410 px a 19%).
+Amostra de cor na base traseira do concept: (0,40,80) 27.9% + (0,0,40) 14.6% + (40,80,120) 7.4% +
+   (40,40,80) 5.2% => AZUIS ESCUROS ~55%. ATENCAO: (0,0,40) tem b=40 < 60 e o meu limiar NAO o
+   conta como azul -> o meu "azul" subestima sistematicamente o concept em areas de sombra.
+   REGRA 291: o limiar b>60 descarta azul escuro; para MEDIR forma usa-lo, mas ao comparar com um
+   desenho com sombreado, saber que o concept real tem mais azul do que o medido.
+VISION no crop A/B (concept | modelo) da traseira+base:
+   concept TEM: painel traseiro AZUL ARREDONDADO com filete amarelo curvo; barra amarela FINA
+     inclinada + suporte prateado fino ligando ao eixo; aro detalhado com cubo amarelo.
+   modelo TEM: TUBO CINZA GROSSO atravessado no alto (que o concept NAO tem); paineis chapados;
+     eixo espesso; pecas cromadas extras ao lado da roda; aro liso sem detalhe.
+FIX v111: R_UBendTop metal r=0.038 -> AMARELO r=0.022 (o concept tem barra amarela fina, nao tubo
+   cinza grosso) | R_UBend_+-1 r 0.038 -> 0.024 (suporte fino) | carenagem azul ampliada:
+   R_MCowl_+-1 0.185/0.062/0.150 -> 0.205/0.078/0.180, R_MCowlTop 0.160/0.180/0.055 ->
+   0.185/0.205/0.075, R_MCowlBack 0.055/0.175/0.145 -> 0.072/0.198/0.170.
+MEDICAO: TRASEIRA 56% -> 50% (azul 1047 -> 1357 px; delta +34 -> +28). FRENTE 57% (inalterada).
+   meio 27% (inalterado).
+v111: 1 componente (200 obj) | 0 non-manifold | contrato intacto | gate 32/34 (STRUT_F<->ChassisF ok)
