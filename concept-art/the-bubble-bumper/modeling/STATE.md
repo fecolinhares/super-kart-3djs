@@ -12073,3 +12073,35 @@ ERRO OPERACIONAL CORRIGIDO NESTE CICLO: ao gerar o v141 esqueci de trocar o cami
    conjunto-v140.blend foi SOBRESCRITO. Corrigido: blends SAO rastreados no git (355 arquivos) e o
    v140 foi regerado executando authored/v140.py. REGRA: ao derivar vN+1 de vN, SEMPRE trocar o
    caminho do save com assert (s.count==1) ANTES de rodar o blender.
+
+## v142/v143 — REGRESSAO ESTRUTURAL QUE EU DEIXEI PASSAR + RESTAURACAO (numeros honestos)
+FATO GRAVE: o gate no v141 acusou COMPONENTES: 3 [195,2,2] e CONTATO 31/34, com falhas NOVAS
+  P_Eye_1<->P_FacePlate e P_FacePlate<->P_Visor. A subida de 0.05 m dos olhos/visor no v140
+  DESCONECTOU os olhos da face. Eu NAO rodei o gate no v140 nem no v141: renderizei, medi cor e
+  commitei DUAS versoes com regressao estrutural sem ver. O gate e obrigatorio em TODO build,
+  ANTES de render/medir cor. Medir cor nao substitui medir estrutura.
+v142 (RESULTADO NEGATIVO, honesto): hipotese = "as faces do casco sao grandes demais e por isso
+  nao passam no teste de todos-os-vertices". Subdividi 2454 arestas na zona (cuts=2). RESULTADO:
+  faces pintadas continuaram 996 (de 6048 -> 6076). A hipotese NAO se confirmou. A subdivisao nao
+  foi a solucao e o v142 nao deve ser usado como base.
+  DIVIDA PAGA: a lista de objetos na zona (light_objs.py) mostrou que o UNICO objeto claro ali e o
+  P_FacePlate (base 0.62,0.66,0.73, L=0.67) e que o claro pintado no casco fica OCLUIDO porque o
+  P_FacePlate tem |y|=0.108 e o casco tem 0.167 no meio. O claro so aparece onde o casco afina.
+v143: revertida a subida dos olhos (-0.050, 4 objetos) e baixado SO o visor (-0.080, pois o v141
+  o havia posto em z 1.117..1.177, no alto do casco; o concept tem a fenda em z 1.06..1.08).
+  GATE: COMPONENTES 1 (199) | NON-MANIFOLD 0 | CONTATO 33/34 (so R_Spring_1<->TIRE_RL) -> RESTAURADO.
+  blend md5 4aebf0161f.
+ACEITE (grade de cores, 60 celulas, classificador com AZUL ANTES DE ESCURO - regra 313):
+  GLOBAL v139 39% -> v140 42% -> v141 47% -> v143 50%  (30/60)
+  CELULAS CLARAS: concept 30 | v139 3 -> v140 12 -> v141 14 -> v143 18
+  acerto do claro 12/30
+DESVIO QUE PERMANECE (medido, nao suposto): em z 1.04..1.06 o concept tem L em x -0.26..-0.22 e o
+  modelo tem B (azul). Causa JA NOMEADA por light_objs.py: o claro pintado/painel esta OCLUIDO
+  pelo casco (|y| 0.167 no meio vs painel 0.108). SOLUCAO A MEDIR: levar o painel claro ATE a
+  superficie do casco (|y| ~0.170 na faixa media) OU estreitar o casco naquela faixa OU pintar
+  faces da superficie EXTERNA por RAYCAST a partir da camera (garante que a face visivel e a pintada).
+REGRA 316 (operacional, violada 2x hoje): ao derivar vN+1 de vN, trocar o caminho do save COM
+  ASSERT ANTES de rodar o blender. Nas duas vezes o vN foi sobrescrito; os blends estao no git
+  (355 arquivos) e a recuperacao e "git checkout HEAD -- .../conjunto-vN.blend".
+REGRA 317: nao empilhar mudancas nao-provadas. A subida dos olhos foi feita por inferencia
+  ("parece baixo") sem medicao de ganho, quebrou a estrutura e custou 3 versoes.
