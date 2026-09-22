@@ -12154,3 +12154,32 @@ DESVIO RESIDUAL (medido): em z 1.02..1.08 o modelo tem B em x -0.26..-0.22 e o c
 PROXIMO: (a) restringir o centro com margem (ou usar o vertice mais externo) para matar o vazamento;
   (b) medir qual objeto ocupa x -0.26..-0.22 z 1.02..1.08 agora (regra 318 de novo: o P_Torso? o
   proprio P_Helmet sem faces pintadas ali?) via raycast da camera SIDE, nomeando o objeto do hit.
+
+## v147 — CAUSA RAIZ DAS 4 TENTATIVAS DE PINTURA: matrix_world OBSOLETO (ganho de 63%)
+FERRAMENTA NOVA: ray_side.py + ray_why.py — lancam o raio da camera SIDE (de +y para -y) nas
+  amostras (x,z) e imprimem OBJETO, MATERIAL, indice da FACE, centro da face em mundo e o
+  resultado das 3 condicoes de pintura. Isso separa "falta geometria" de "falta material".
+MEDICAO QUE REFUTOU A HIPOTESE DE OCLUSAO: em x -0.28..-0.22, z 1.02..1.08 a superficie visivel e
+  P_Helmet[Helmet_Blue] (nao o ombro). Todas as faces atingidas davam inX=1 inZ=1 inNY=1
+  ("PINTARIA") e continuavam Helmet_Blue.
+CAUSA RAIZ: o bloco final do build move location.x do P_Helmet (_DX_HEA) e EU LI matrix_world
+  DEPOIS disso SEM chamar bpy.context.view_layer.update(). matrix_world e cache: ficou 0.147 m
+  defasado -> a zona -0.307..-0.137 foi aplicada em x -0.454..-0.284 em mundo. Era por isso que
+  "pintar nao aparecia" e que o claro surgia na regiao errada (x=-0.30) em v144/v146.
+CORRECAO v147: bpy.context.view_layer.update() antes de ler matrix_world. Faces pintadas 632->516
+  (o numero BAIXOU porque a zona finalmente caiu no lugar certo).
+PROVA POR RAYCAST (v147): x=-0.28, -0.26, -0.24 -> P_Helmet[Visor_Light] (era Helmet_Blue).
+GATE v147: 1 componente (199) | 0 non-manifold | 33/34 -> OK. blend md5 455c5ee27e.
+ACEITE: GLOBAL 38/60 = 63%  (v146 45%, v143 50%, v141 47%, v139 39%) -> MAIOR SALTO DA SESSAO.
+  CLARO: concept 30 | modelo 24 | ACERTO DO CLARO 19/30 (v146 15/30).
+  z=1.08 5/6, z=0.96 5/6, z=1.10 4/6, z=1.04 4/6, z=0.98 4/6.
+DEFEITO NOVO NOMEADO (efeito colateral do rebaixamento do ombro): em z=1.00 o modelo mostra
+  FUNDO (".") em x=-0.26 e x=-0.14 e escuro em -0.22/-0.14. Ou seja abriu um VAO entre a base do
+  casco e o topo do ombro nessa faixa (1.02..1.08 ficou claro e 1.00 ficou vazio). O concept tem
+  claro em z=1.00. PROXIMO: medir o perfil de superficie por z em x=-0.26 (raycast em passos de
+  0.01 m de z) para achar o intervalo VAZIO exato e fechar, mantendo a transicao azul->claro
+  em ~z 0.98..1.00 (nao subir o ombro de volta: isso reintroduz a oclusao).
+REGRA 319: matrix_world e CACHE. Depois de mover/rotacionar/escalar objeto no mesmo script, chamar
+  bpy.context.view_layer.update() ANTES de qualquer leitura de matrix_world (ou usar location
+  diretamente). Sem isso, patches de material/medicao usam coordenadas defasadas e produzem
+  no-op silencioso que passa em asserts.
