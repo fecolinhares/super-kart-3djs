@@ -11376,3 +11376,20 @@ v096: 1 componente (166 obj) | 0 non-manifold | contato 33/34 | L=2.354/W=1.441/
 REGRA 277: a receita que esta funcionando a +0,5/0,75 por ciclo: o vision aponta 2 divergencias
   CONCRETAS -> corrigir as duas -> gate (1 componente/0 non-manifold/33-34) -> board -> reavaliar.
   Trocar hipotese generica por correcao especifica e o que move a nota (5,0 -> 6,5 -> 7,0 -> 7,5).
+
+## v098: detalhe real do escape + ALERTA METODOLOGICO sobre o vision
+FIX v098 (divergencias do v097): juntas cromadas e abracadeiras nos 3 tubos, protecao termica
+  (R_HeatShield) e 4 slats REAIS no difusor com placa base (R_DifBase).
+  O slat 3 ficou ilha solta -> a placa base liga os 4 (identificado imprimindo as ilhas, nao chutando).
+v098: 1 componente (185 obj) | 0 non-manifold | contato 33/34 | contrato intacto.
+*** ALERTA 278 — O VISION NAO E' UM MEDIDOR CONFAVEL DE NOTA ***
+  O mesmo pipeline avaliou: v094=5,0 | v095=6,5 | v096=7,0 | v097=7,5 | v098=3,0!!! As mudancas
+  entre v097 e v098 foram 8 pecas de detalhe (juntas/abracadeiras/slats) e NENHUMA regressao
+  estrutural foi medida (dimensoes, componentes, non-manifold e contato identicos).
+  Pior: o avaliador AFIRMOU "pneus cubicos / prismas retangulares" quando as rodas sao geradas por
+  cil() — e a medicao de pixels da silhueta no SIDE confirma roda circular (L/A ~ 1,0 com contorno
+  curvo, borracha 43% / aro 57%).
+  CONSEQUENCIA: a nota do vision OSCILA ~2-4 pontos para o MESMO board (ruido do avaliador).
+  CRITERIO CORRETO de convergencia = (a) metricas objetivas do gate + (b) comparacao A/B de CROPS
+  ESPECIFICOS na mesma vista + (c) medicao de pixel do fenomeno. NUNCA usar a nota global como
+  criterio de aceite nem de regressao — foi o ruido que gerou o ciclo errado do v082.
