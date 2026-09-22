@@ -12638,3 +12638,17 @@ Acao: subir o topo-traseiro do P_Helmet em x -0.150..-0.090 com peso por coluna 
 LICAO: 'silhueta do modelo' inclui TODOS os objetos. Medir silhueta nao diz QUAL objeto a sustenta;
   antes de mover vertices de um objeto, confirmar que ELE existe naquelas colunas (topo proprio).
   Erro simetrico ao do v167 (deformar objeto errado), agora com a variante 'nao existe geometria ali'.
+
+## v169 REVERTIDO — REGRESSAO MEDIDA (candidato volta a ser v168)
+ACEITE v169: borda 82% -> 78% (47/60) | dentro 92% -> 88% (52/59) | claro acerto 31 -> 30. PIOROU nos
+  tres. GATE continuou 1/0/520, portanto o gate estrutural NAO detecta regressao visual — quem decide
+  e a metrica de pixels.
+DECISAO: REVERTER. Candidato valido = conjunto-v168.blend (md5 f722340a49, borda 82%, dentro 92%,
+  claro 31 = concept 31 com 31 acertos). v169 fica no repo como EXPERIMENTO DOCUMENTADO (nao e o
+  candidato) para nao repetir a hipotese.
+REGRA CONFIRMADA: mudanca que piora a metrica volta atras no MESMO ciclo; nao se empilha mudanca nao
+  comprovada. E: gate estrutural verde NAO significa melhora visual.
+PROXIMO (com v168 como base): (1) degrau de 0.198 m em x -0.12..-0.10 exige ADICIONAR geometria
+  (extrusao da casca do capacete para tras/cima) — mover verts nao serve, ja provado; (2) superficie
+  escura/rasante do P_Helmet em (1.12,-0.15) ny=0.13..0.49; (3) teto -0.006 em x=-0.15;
+  (4) reestender a linha preta ate x=-0.15; (5) fenda por RGB absoluto.
