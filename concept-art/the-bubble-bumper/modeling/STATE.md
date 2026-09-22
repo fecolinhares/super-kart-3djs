@@ -11366,3 +11366,13 @@ REGRA 275: ANTES de ancorar peca nova, MEDIR o bbox da peca de destino no .blend
 REGRA 276: bevel de 0.016 nas duas pecas que se encontram cria um GAP (as faces arredondam e nao
   tocam): sobrepor 10 mm (y 0.318 em vez de 0.330) resolveu; sem isso ficaram 2 ilhas.
 v096: 1 componente (166 obj) | 0 non-manifold | contato 33/34 | L=2.354/W=1.441/H=1.252
+
+## v097: carenagem do motor + torso/ombros do piloto (divergencias do v096) -> vision 7,5
+- SIDE era 6,0 com "massa blocky sem refinamento" no motor: FIX = carenagem azul envolvendo o bloco
+  (2 laterais em y=+-0.185, tampa superior z=0.500, traseira) + 3 aletas amarelas. SIDE -> 8,0
+- FRONT era "torso largo demais/sem forma": FIX = torso y 0.155->0.126, ombros 0.255->0.222
+- v097: 1 componente (173 obj) | 0 non-manifold | contato 33/34 | contrato intacto
+- vision: FRONT 7,5 | SIDE 8,0 | REAR 7,0 | TOP 7,5 | GLOBAL 7,5
+REGRA 277: a receita que esta funcionando a +0,5/0,75 por ciclo: o vision aponta 2 divergencias
+  CONCRETAS -> corrigir as duas -> gate (1 componente/0 non-manifold/33-34) -> board -> reavaliar.
+  Trocar hipotese generica por correcao especifica e o que move a nota (5,0 -> 6,5 -> 7,0 -> 7,5).
