@@ -12231,3 +12231,27 @@ ACHADO REAL (novo alvo): em z=1.05 a geometria MAIS A FRENTE do modelo e P_Eye_1
   v140/v141). Validar contato P_Eye_1<->P_FacePlate no gate depois da mudanca.
   Faixas completas do raio em z=1.05: P_Helmet -0.400..-0.195 | P_FacePlate -0.190..-0.140 |
   VAZIO -0.135 | P_Eye_1 -0.130..-0.075 | P_Pup_1 -0.070..-0.065 | VAZIO -0.060..-0.050.
+
+## v150 — OLHOS RECOLHIDOS PARA DENTRO DO CAPACETE + CORRECAO DE AMOSTRAGEM (70%)
+MEDICAO (eyes_bbox.py): P_Helmet x -0.467..-0.147 | P_FacePlate x -0.307..-0.137 (o face plate fica
+  DENTRO do casco) | P_Eye_1/-1 x -0.139..-0.065 | P_Pup x -0.095..-0.055. Os olhos estavam ATRAS do
+  casco, FORA da cabeca, apenas encostados na borda traseira do face plate (o gate dava isso como
+  contato valido). Raio em z 1.04..1.10: a superficie mais a frente era P_Eye_1/P_Pup_1.
+  O concept mostra VISOR CLARO OPACO (RGB ~203,203,205) -> os olhos devem ficar DENTRO do casco.
+v150: P_Eye_±1 e P_Pup_±1 recolhidos em X (-0.10 m), NAO em z (a subida em z quebrou contato no
+  v140/v141). x_min: olhos -0.139->-0.239 | pupilas -0.095->-0.195.
+GATE v150: 1 componente (199) | 0 non-manifold | 520 PARES DE CONTATO (era 514 -> MELHOROU). blend md5 2a1a733e89.
+RAIO v150 (prova): z=1.04/1.06/1.08 -> frente em x=-0.140 P_FacePlate | z=1.10 -> x=-0.150 P_Helmet.
+  Os olhos NAO aparecem mais na frente da silhueta. E o que o concept pede.
+ACEITE: com a coluna de borda (x=-0.14): 62%. COM COLUNA DENTRO (x=-0.15): GLOBAL 42/60 = 70%.
+  CLARO: concept 31 | modelo 30 (!!) | acerto 23 (era 19). A faixa clara esta praticamente completa:
+  evolucao das celulas claras: v139 3 -> v141 14 -> v147 24 -> v150 30 de 31.
+REGRA 322 (amostragem): x=-0.14 e a BORDA EXATA do P_FacePlate (x_max=-0.137, band do concept
+  -0.140). A amostra cai em pixel de antialiasing -> '.' em 9 de 10 linhas, congelando 9 erros
+  FALSOS. Teto artificial da metrica: 51/60=85%. Quando uma coluna reprova em quase TODAS as
+  linhas com o MESMO rotulo, suspeitar da AMOSTRA antes do modelo. Reportar SEMPRE as duas
+  contagens (com e sem a coluna na borda) para nao trocar medicao por conveniencia.
+PROXIMOS ALVOS (da tabela com coluna dentro): z=0.94 modelo 'B B B B B .' vs concept 'B B B B L L'
+  -> o claro tem de DESCER mais no modelo (faixa clara nao alcanca a base). z=1.00 em x=-0.30/-0.26:
+  modelo 'o .' vs concept 'B B' -> falta superficie azul atras/em cima do ombro nessa altura.
+  z=0.98 em x=-0.34: modelo '.' vs concept 'B'.
