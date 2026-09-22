@@ -12790,3 +12790,25 @@ PROXIMO: (a) resolver a linha preta pelo PIXEL (nao pelo raycast): localizar por
   onde o modelo tem claro e o concept tem preto (janela x -0.17..-0.14, z 1.05..1.08) e agir ali;
   (b) entao as 3 vistas restantes FRONT/REAR/TOP (ainda SEM validacao), vision proprio, auditor
   independente, prancha final com MD5.
+
+## MEDICAO EM PIXELS DA LINHA PRETA — DEFEITO REAL IDENTIFICADO (v175, instrumento novo)
+O raycast e o pixel discordavam; fui ao PIXEL (o juiz correto, licao do v175) e medi a FAIXA, nao o ponto.
+JANELA x -0.17..-0.14 (passo 0.005), z 1.03..1.09 (passo 0.005); marca '#' onde soma RGB < 120 (preto):
+  CONCEPT: z=1.060  #######  (7/7 colunas!)  | z=1.065 ..##### | z=1.070 ..#####
+           -> FAIXA PRETA LARGA (>= 0.030 m) com ~3 linhas de altura (z 1.055..1.072)
+  MODELO : NENHUM '#' em toda a janela
+VIZINHANCA 9x5 px no ponto (z=1.06, x=-0.15):
+  CONCEPT: DDDDDDDDD em 3 linhas (soma 52..108) e depois oLLLLLLLo (a faixa clara)
+  MODELO : ..oLLDDDD (soma ~313 no centro) -> o preto EXISTE, mas ~4..7 px a DIREITA e mais ESTREITO
+         (DDDD = 4 px ~ 0.012 m, contra >= 0.030 m do concept)
+DIAGNOSTICO FINAL: (a) a linha preta do modelo e ~2.5x MAIS ESTREITA que a do concept;
+  (b) ha um OFFSET DE REGISTRO de ~4..7 px no mapeamento x->coluna NESTA zona, o que desloca a
+      comparacao ponto-a-ponto. Ambos medidos no render, nao inferidos.
+LICAO (instrumento): para FEATURES ESTREITAS (<= 5 px) a comparacao ponto-a-ponto NAO e confiavel.
+  Medir a EXTENSAO DA FAIXA em pixels e calibrar o offset de registro POR ZONA. Foi exatamente por
+  isso que a linha preta sobreviveu a 3 tentativas de correcao "por coordenada".
+ACAO PENDENTE: alargar a faixa preta para >= 0.030 m (z 1.055..1.072) — provavelmente exige subdividir
+  mais a P_FacePlate naquela zona, porque a pintura atual cobre poucas faces (4 px renderizados).
+ESTADO: candidato conjunto-v174.blend (md5 75457f3e5c) | borda 85% (51/60) | dentro 95% (56/59) |
+  claro concept 31 = modelo 31 com 31 acertos | 4 erros na grade (3 reais: 2 fenda = artefato de
+  classe com RGB equivalente a 10%, 1 linha preta = este defeito).
