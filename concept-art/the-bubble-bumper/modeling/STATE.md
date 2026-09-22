@@ -12000,3 +12000,30 @@ RESULTADO (grade de cores na SIDE, calibracao correta):
   => o painel claro agora EXISTE e esta na altura certa, mas ~0.04 m A FRENTE/ALTO do concept.
 PENDENTE: deslocar o painel claro ~0.02-0.04 m para tras (diminuir x) e fazer chegar a -0.14.
 ESTADO ESTRUTURAL v137: 199 objetos, md5 do blend d14d45eb4c, 4 vistas renderizadas (620x620).
+
+## v138/v139 — PAINEL CLARO DO CAPACETE: do escuro ao medido, via MATERIAL (nao geometria)
+v138: P_FacePlate x -0.040..0.010 -> -0.160..0.010 e z 0.995..1.142 -> 0.960..1.100.
+  MEDICAO CONFIRMOU a posicao: P_FacePlate mundo = x -0.307..-0.137, |y|max 0.108, z 0.960..1.100
+  = exatamente a faixa medida no concept (x -0.30..-0.14, z 0.96..1.10). "ancora certa".
+  MAS o diff foi de apenas 197 px -> o painel estava OCLUIDO.
+  CAUSA MEDIDA (helm_w.py): P_Helmet tem |y|max = 0.167 em x -0.307..-0.287 e 0.125/0.104 mais
+  atras. O painel com +-0.108 ficava 0.059 m DENTRO do casco -> so aparecia onde o casco afina.
+  LICAO: caixa dentro de solido nao aparece. Nao resolver inflando y (isso faz a caixa furar a
+  superficie nas duas pontas) -> REATRIBUIR MATERIAL das faces existentes (regra ja conhecida:
+  nunca apagar faces de superficie fechada). Painel cinza = pintura do casco, nao peca solta.
+v139: bloco no build que percorre P_Helmet.data.polygons, testa o CENTRO em mundo
+  (-0.307 <= x <= -0.137 e 0.960 <= z <= 1.100) e troca material_index para M_VILL.
+  RESULTADO: 1160 de 6048 faces repintadas | diff SIDE 717 px (v138->v139) | blend md5 a011656097.
+MEDICAO DE ACEITE (grade de cores SIDE, calibracao correta):
+  celulas CLARAS na zona do capacete: concept 18 | modelo v139 13 | (v137 tinha 3)
+  acerto celula-a-celula na zona do capacete: 14/36 = 39%.
+  z=1.00 acertos 4/6; z=1.06 acertos 3/6; z=0.96 4/6.
+DESVIOS QUE A MEDICAO NOMEOU (proximo ciclo):
+  1) a pintura VAZA: modelo com L em x=-0.34 z=1.10 (concept B) e x=-0.30 z=1.10 (concept D).
+     Causa: o teste usa o CENTRO da face, e no alto do casco as faces sao grandes -> a face cujo
+     centro cai na zona estende-se para fora dela. CORRIGIR: restringir z para 0.96..1.06 e/ou
+     subdividir (bmesh.ops.subdivide_edges) a zona antes de testar.
+  2) OLHOS ~0.05 m BAIXOS: o concept tem a fenda escura em z 1.06..1.08 (x -0.28..-0.26) e o
+     modelo tem escuro em z 1.00..1.02 (x -0.22..-0.26). SUBIR olhos/visor ~0.05 m.
+REGRA 314: para pintar zona curva de um solido, o teste pelo CENTRO da face vaza nas faces
+  grandes. Restringir a regiao com margem ou subdividir a malha na zona ANTES de reatribuir.
