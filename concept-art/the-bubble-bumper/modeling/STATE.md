@@ -11479,3 +11479,22 @@ REGRA 284: peca adicionada DENTRO de outra (mesmo y menor que a peca externa) fi
 REGRA 285: o "meio" (35-65% do comprimento) e' o COCKPIT (x +-0.4 m), nao a regiao do motor
   (x -0.585) — mapear a fracao para o x_world ANTES de posicionar peca para corrigir aquela faixa.
 v103/v104: 1 componente (198 obj) | 0 non-manifold | 33/34 | contrato intacto
+
+## v105/v106: TRASEIRA sem azul + FRENTE exata (metrica de razao amarelo/azul)
+v105 (identificacao por LISTAGEM no .blend, nao por chute no render): as pecas azuis na traseira eram
+  R_Dif0..4 (DIFUSOR), R_Grille, Chassis_+-1 e Rail_R_+-1 — todas Body_Blue.
+  FIX: R_Dif e R_Grille -> M_TIRE (preto; o concept tem fundo escuro e ZERO azul na traseira);
+       Chassis e Rail_R -> M_METAL (prata).
+v105: TRAS azul 1074 -> 410 px (razao 56% -> 76%) MAS a FRENTE subiu 22% -> 32% (o Chassis e' LONGO,
+  x -0.51..1.11, e o prata dele tirou azul da frente, que estava EXATA).
+v106: chassis revertido para M_BODY (azul) -> FRENTE volta a 21%.
+MEDICAO FINAL (razao amarelo/(amarelo+azul) por faixa, mask sem grade):
+    FRENTE  concept 22%  vs v106 21%   -> delta -1 pt  ✔ EXATA
+    meio    concept 38%  vs v106 27%   -> delta -11 pts (falta amarelo no cockpit/pods)
+    TRAS    concept 100% vs v106 76%   -> delta -24 pts (era -44; melhorou 20)
+REGRA 286: peca LONGA que atravessa varias faixas (chassi, longarina, cowl) NAO deve ser usada para
+  corrigir cor de UMA faixa: mudar o material dela move a metrica de todas as faixas. Medir apos a
+  troca e conferir o DELTA EM TODAS — foi assim que a frente "quase perfeita" foi recuperada.
+REGRA 287: identificar peca por cor de render e' chute; LISTAR no .blend as pecas com o material
+  alvo (material_slots[0].material.name) e filtrar por bbox. Foi o que achou o difusor azul.
+v106: 1 componente (198 obj) | 0 non-manifold | 33/34 | contrato intacto
