@@ -11833,3 +11833,36 @@ ESTADO v131: 1 componente (199 obj) | 0 non-manifold | contato 33/34 | contrato 
   P_Helmet centro x = -0.307 (concept: -0.307)
 PENDENTE: o vision continua dando 3/10 e repetindo "cabeca flutuando" mesmo com o vao 2.7x menor —
   a nota qualitativa nao acompanha a metrica; o vao residual de 31 mm (medido) e' o proximo alvo.
+
+## v132-v134: PILOTO — COR VISIVEL vs SILHUETA (o vision estava certo, a silhueta me enganou)
+METODO NOVO (decisivo): grade de CORES comparando concept e modelo nas MESMAS colunas world
+  (x de -0.46 a -0.14) e MESMAS alturas (z 1.05..0.80), classificando B=azul Y=amarelo D=escuro
+  .=fundo. Isso revela o que a vista SIDE mostra de fato, nao so a silhueta.
+CONCEPT (medido):
+  z=1.05: fundo ate x=-0.38, B de -0.30 a -0.18, Y em -0.14
+  z=1.00: Y em -0.38, B de -0.34 a -0.14
+  z=0.95: B de -0.38 a -0.14 (AZUL em toda a faixa)
+  z=0.90: D em -0.38, B de -0.34 a -0.14
+  z=0.85: D em -0.34, B -0.30..-0.22, D -0.18, B -0.14
+  z=0.80: D de -0.30 a -0.14
+  => o piloto do concept e um MACACAO AZUL com amarelo apenas como FRISO (x=-0.14 z=1.05 e
+     x=-0.38 z=1.00). Nao existe ombro amarelo grande.
+v132 (ERRADO, mesmo fechando a silhueta): estendi P_SeatBack (M_VISL cinza) para x -0.52..-0.29 e
+  topo z 1.045. A silhueta ficou continua em x=-0.45/-0.40 (batendo o concept), MAS o encosto cinza
+  passou a OCULTAR o pescoco na vista SIDE -> a grade de cores mostrou CINZA (97,101,107) em
+  x=-0.33 z 1.00-1.02 entre o capacete AZUL e o ombro AMARELO. O vision leu essa faixa como VAO e
+  caiu de 3/10 para 2/10 dizendo "cabeca flutuando".
+REGRA 309 (a mais importante deste ciclo): SILHUETA CONTINUA NAO GARANTE LEITURA CONTINUA. Quando
+  o vision diz "vao/flutuando" e a medicao de silhueta diz "continuo", medir a COR visivel na
+  mesma coluna: se for FUNDO e' vao real; se for OUTRA PECA e' OCLUSAO. Corrigir ocluindo-peca,
+  nao fechando buraco. Antes disso eu estava tratando um problema de COR como problema de GEOMETRIA.
+v133: P_SeatBack topo 1.045->0.920 e frente -0.290->-0.380 (no concept o encosto so aparece em
+  z<=0.84 naquele x). A faixa cinza DESAPARECEU: x=-0.40 z 1.05..1.00 agora e AZUL (pescoco) e o
+  amarelo vem abaixo. Mas em x=-0.33 o concept era azul ate 0.87 e o modelo era AMARELO em 0.90-1.00.
+v134: P_Shoulder M_ACC (amarelo) -> M_SUIT (azul). A grade de cores passou a mostrar AZUL em
+  z=0.95 de x=-0.46 a -0.18 e em z=0.90 idem, casando com o concept (azul -0.38..-0.14).
+  => o ombro amarelo grande era invencao minha; o concept nao tem isso.
+ESTADO v134: 1 componente (199 obj) | 0 non-manifold | contato 33/34 | contrato intacto
+  (L=2.354 W=1.441 H=1.252) | encosto sem ocluir pescoco | tronco azul como o concept
+PENDENTE: capacete ainda escuro em x -0.26..-0.14 z 1.05-1.00 (concept: azul) -> investigar visor;
+  frente em x=-0.16 com vaos; ainda falta ciclos visuais + auditor independente + prancha final.
