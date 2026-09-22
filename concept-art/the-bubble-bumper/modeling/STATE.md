@@ -12762,3 +12762,31 @@ ERROS RESTANTES — 3 REAIS + 1 FUNDO:
 PROXIMO: (1)(2) fenda por RGB absoluto (a classe nao e comparavel com fundos diferentes; comparar
   RGB); (3) reestender a linha preta ate x=-0.15. DEPOIS: FRONT/REAR/TOP (ainda SEM validacao),
   vision proprio, auditor independente, prancha com MD5.
+
+## v175 — NEUTRO. E A DESCOBERTA MAIS IMPORTANTE DO ARCO: RAYCAST != PIXEL RENDERIZADO
+Acao: reestender a linha preta na P_FacePlate para x -0.170..-0.142, z 1.050..1.080 (+8 faces pretas).
+ACEITE: IDENTICO ao v174 (borda 85%, dentro 95%, claro 31=31 com 31 acertos, 4 erros). GATE 1/0/525.
+CORES MEDIDAS DOS MATERIAIS: M_BlackLine (0.020,0.020,0.020) CORRETO | M_Slit (0.200,0.200,0.220) |
+  Visor_Light (0.950,0.970,1.000) | Helmet_Blue (0.060,0.200,0.700) | Accent_Yellow (0.940,0.760,0.050).
+  Obs: M_VILL nao existe mais (nome antigo).
+RGB REAL NOS 3 PONTOS QUE FALHAM (concept vs modelo R175):
+  (1.08,-0.26): concept (70,79,76) soma 225 | modelo (66,67,70) soma 203  -> DELTA 22 (~10%)
+  (1.06,-0.26): concept (69,71,70) soma 210 | modelo (62,62,66) soma 190  -> DELTA 20 (~10%)
+  (1.06,-0.15): concept (16,17,19) soma 52  | modelo (102,104,106) soma 312 -> DELTA 260 (erro REAL)
+LEITURA:
+  (a) A FENDA esta com tom EQUIVALENTE (delta ~10% em RGB absoluto). As 2 celulas da fenda sao
+      ARTEFATO DE CLASSE (fundo escuro do QA vs fundo claro do concept), NAO defeito visual.
+      Conclusao: aceitar a fenda por RGB ABSOLUTO (203/190 vs 225/210), nao por classe.
+  (b) A LINHA PRETA e o UNICO defeito real restante: o modelo tem 312 onde o concept tem 52.
+      E AQUI ESTA O ACHADO: o raycast em (x=-0.15, z=1.06) retorna P_FacePlate[M_BlackLine] com
+      material preto CORRETO (0.020) — e MESMO ASSIM o pixel renderizado e CLARO (102,104,106).
+      Ou seja: RAYCAST NO PONTO EXATO NAO PREVE O PIXEL RENDERIZADO. A camera do render (projecao,
+      distancia, direcao) e o raycast ortografico de y=+5 nao sao o mesmo instrumento.
+LICAO CENTRAL: para fidelidade VISUAL, a VERDADE e O PIXEL RENDERIZADO, nao o raycast. O raycast
+  serve para saber O QUE EXISTE na cena; para saber O QUE APARECE, mede-se o render. Vou usar
+  exclusivamente o pixel como juiz e o raycast apenas como pista de existencia.
+DECISAO: candidato segue conjunto-v174.blend (v175 neutro, sem ganho medido). md5 v174=75457f3e5c.
+PROXIMO: (a) resolver a linha preta pelo PIXEL (nao pelo raycast): localizar por medicao de render
+  onde o modelo tem claro e o concept tem preto (janela x -0.17..-0.14, z 1.05..1.08) e agir ali;
+  (b) entao as 3 vistas restantes FRONT/REAR/TOP (ainda SEM validacao), vision proprio, auditor
+  independente, prancha final com MD5.
