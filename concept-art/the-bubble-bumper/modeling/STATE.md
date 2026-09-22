@@ -11235,3 +11235,17 @@ METRICA DE ACEITE: EMA do perfil superior (21 pontos) = 0.0393
     AUSENTES e o total; contato so vale se o par inclui as pecas de ligacao estrutural.
   REGRA 260: cil() tem rot DEFAULT X90 (eixo ao longo de Y) — mola "vertical" precisa
     rot=(0,0,0). Pneu e' ANEL: eixo passa pelo FURO, nao cruza o pneu — alvo e' o RIM.
+
+## *** v080: MALHA LIMPA — 0 non-manifold | 1 componente | vision 9,9 *** ***
+  v080: os 3 RAIOS do volante eram laminas de FACE UNICA (12 boundary) -> agora sao
+    PRISMAS fechados (8 verts, 6 faces). bmesh recusa face duplicada com os mesmos verts
+    ("face already exists") — a correcao e' dar VOLUME, nao duplicar a face.
+  ESTADO FINAL DA MALHA: 0 arestas non-manifold (era 768) | 1 componente conectado
+    (era 12 ilhas) | contato 33/34 pares | L=2.355 W=1.441 H=1.252.
+  vision v080 = 9,9 global (FRONT 9,9 | SIDE 9,7 | REAR 9,9 | TOP 10,0).
+  Divergencias residuais (P2, cosmeticas): (a) SIDE: motor/escapes simplificados vs
+    o concept (molas/tubos) e o BANCO e' cinza claro onde o concept tem preto;
+    (b) FRONT: pneus lisos, sem os sulcos (tread) do concept.
+  Serie vision: 4,2 ... 8,0 9,2 9,4 9,6 9,7 9,8 **9,9**
+  REGRA 261: em bmesh, "corrigir" casca aberta duplicando a face invertida FALHA
+    ("face already exists") — casca precisa de VOLUME (prisma/solidify).
