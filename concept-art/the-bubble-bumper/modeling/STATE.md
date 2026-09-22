@@ -12966,3 +12966,32 @@ PROXIMO: (a) ajustar a extensao da faixa amarela por COLUNA (medir antes/depois,
   o concept; (b) implementar os 4 elementos ausentes apontados pelo vision (sobrancelha, esclera do olho,
   oval de ventilacao, rebite da orelha) — cada um com bbox medido no concept; (c) so entao re-rodar o
   score e seguir para FRONT/REAR/TOP, vision proprio, auditor independente e prancha final.
+
+## v179 + v180 — BANDA AMARELA MEDIA (faltava um elemento inteiro) e RAMPA do topo
+MEDICAO POR COLUNA DA FAIXA AMARELA (runs contiguos, antes de mexer):
+  CONCEPT: x=-0.18 1.193..1.218 | -0.16 1.180..1.205 | -0.15 1.174..1.199 | -0.14 1.167..1.196
+           -0.13 1.142..1.183 | -0.12 1.104..1.174 | -0.11 1.082..1.164 | -0.10 1.076..1.148
+           + banda MEDIA em x=-0.13..-0.09: z 0.802..0.846 / 0.805..0.881 / 0.812..0.884 / 0.824..0.881
+  MODELO (R178): alta UNIFORME em z 1.14..1.18 (sem rampa) e SEM a banda media.
+LEITURA: o concept tem DUAS faixas amarelas naquela janela: a do CAPACETE (rampa descendente em +x,
+  1.19 -> 1.08) e uma banda MEDIA (z 0.80..0.88) que e um ELEMENTO INTEIRO AUSENTE no modelo.
+  Verificado por bbox: nenhum objeto do conjunto cobria z 0.80..0.88 em x -0.13..-0.09 (Sidepods param
+  em 0.480; P_Stripe/P_StripeF/P_RearTop ficam acima de 1.075).
+v179: (a) medi o TETO do conjunto por coluna por raycast (x=-0.18 -> 1.185 ... -0.14..-0.12 -> 1.220 ...
+  -0.09 -> 1.180); (b) repintei P_StripeF com a rampa do concept limitada pelo teto (so 2 faces casaram,
+  as faces da stripe sao grandes); (c) criei o SOLIDO FECHADO novo `P_MidBand` (UV sphere 24x12,
+  x -0.170..-0.060, y +-0.120, z 0.800..0.890, Accent_Yellow). GATE 1 componente (201) / 0 non-manifold
+  / 527 contatos.
+v180: medi que P_MidBand estava LARGA em +x (o concept so tem amarelo em x=-0.14 e -0.12) e escalei para
+  x -0.148..-0.112. GATE 1/0/527. SCORE 26 (inalterado - a banda media fica ABAIXO da grade z>=0.90).
+VERIFICACAO DA BANDA MEDIA (7 amostras por coluna em z 0.78..0.90, x -0.20..-0.08):
+  CONCEPT 0000430   (x=-0.14: 4 amostras | x=-0.12: 3)
+  MODELO  0002300   (x=-0.14: 2 amostras | x=-0.12: 3)
+  -> MESMAS COLUNAS, MESMA EXTENSAO. Elemento agora existe e esta no lugar.
+DECISAO: v180 e o CANDIDATO (ganho medido real: a banda media existe e casa por coluna). O contador de
+  erros da grade NAO se move porque a grade comeca em z=0.90 e a banda media esta em 0.80..0.89 -
+  o contador precisa de uma segunda faixa de z para cobrir o corpo.
+PROXIMO: (a) estender a grade de medicao para z 0.70..1.26 (hoje 0.90..1.20) para o contador enxergar
+  corpo/banda media; (b) rampa do topo: as faces de P_StripeF sao grandes e so 2 casaram - subdividir a
+  stripe na zona x -0.18..-0.10 e repintar a rampa; (c) os 4 elementos do vision (sobrancelha, esclera,
+  oval de ventilacao, rebite da orelha); (d) depois FRONT/REAR/TOP, vision proprio, auditor, prancha.
