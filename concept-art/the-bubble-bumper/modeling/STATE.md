@@ -11326,3 +11326,24 @@ REGRA 270: ao medir razao por runs de pixel, o total TEM de ser o run DENTRO do 
 REGRA 271: no render SIDE o nariz pode estar a DIREITA (a roda esquerda era a DIANTEIRA) — confirmar
   por diametro medido (0.257 = dianteira) antes de nomear a roda.
 v088: 1 componente (158 obj) | 0 non-manifold | contato 33/34 | L/W/H no contrato
+
+## v090-v094: acabamento organico (subsurf) — onde funciona e onde DESTROI
+O vision v088: 6,0 com "formas primitivas/blocky, sem as curvas organicas do concept".
+Tentativas:
+- v089 (subsurf por PREFIXO: N_, Sidepod, P_, R_Bump, F_, CH_, S_) -> 2 componentes e contato 30/34:
+  encolheu pecas ESTRUTURAIS (PodSup, Rail, R_BumpSup) que se encaixam por contato exato.
+- v090 (lista branca ampla: casco+nariz+rampa+motor+asa+barra) -> PIOR: 5 componentes, 31/34.
+- v091 (so' piloto: Helmet/Torso/Neck/Shoulder) -> 1 componente, 33/34, dimensoes intactas ✔
+- v092/v093 (+ casco N_Cowl/N_Tank/N_Nose/N_Ramp e sidepods) -> gate OK (1 comp, 33/34) MAS
+  o vision CAIU de 6,0 para 3,5: o subsurf AFIOU o nariz/rampa ("espiga pontiaguda").
+- v094 (piloto + sidepods, SEM casco/nariz) -> nariz volta ao bulbo correto; vision 5,0.
+REGRA 272: NUNCA subdividir (subsurf) pecas de casco/loft que TERMINAM EM PONTA: o subsurf puxa a
+  ponta e transforma bulbo em espiga (medido: v093 3,5 vs v088 6,0). Subsurf so' em pecas
+  CONVEXAS e fechadas (capacete, tronco, ombros, sidepods).
+REGRA 273: subsurf ENCOLHE a peca ~2-4%: qualquer peca que faca contato por ENCAIXE exato
+  (PodSup, Rail, R_BumpSup, R_Spring) perde o contato e cria ilha — rodar o gate DEPOIS de cada
+  peca adicionada a lista, nunca em lote.
+REGRA 274: o teto deste pipeline (primitivas+loft) e' o acabamento fino do concept: o vision e'
+  consistente em "geometria rudimentar nas costas/rodas/mecanica" em TODAS as versoes. Fechar esse
+  gap exige modelagem por ESCULTURA/retopologia peca-a-peca, nao ajuste de primitiva.
+v094: 1 componente (158 obj) | 0 non-manifold | contato 33/34 | L/W/H no contrato
