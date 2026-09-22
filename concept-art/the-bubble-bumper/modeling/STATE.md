@@ -12363,3 +12363,38 @@ MAPA DOS 13 ERROS RESTANTES (amostra "dentro -0.15", concept vs modelo):
     0.950 ali, precisa ~0.940). z=1.00 x=-0.26 'L' vs 'B' -> mancha azul onde o concept tem claro.
 PROXIMO: mover P_Visor (dx -0.04, dz +0.04) — resolve ~5 dos 13 erros. Depois: teto da faixa
   (z<=1.100 -> limite por coluna medido), ombro em x=-0.22, geometria do topo-traseiro do capacete.
+
+## v156..v159 — FENDA DO CAPACETE: LOCALIZADA, PINTADA NO OBJETO CERTO (mas tom e pixels espurios pendentes)
+MEDICAO DA FENDA NO CONCEPT (novo instrumento, python do sistema): varredura de colunas em
+  x -0.32..-0.18 procurando 'o' -> FENDA = x -0.280..-0.250, z 1.055..1.090 (22 amostras).
+  So existe em x=-0.28 e x=-0.26 (fenda ESTREITA, nao uma faixa larga).
+v156: movi P_Visor em (dx -0.04, dz +0.04). Neutro-para-pior: o pixel escuro migrou de z=1.00 para
+  z=1.02 em x=-0.22 e o dx NAO pegou (a placa cobria a coluna). Total de erros 13 -> 13.
+  ERRO DE FERRAMENTA: usei obj.material_slots[idx] com idx = INDICE DE FACE do ray_cast ->
+  IndexError -> o script morreu ANTES de salvar e o gate rodou em arquivo inexistente (Assertion).
+  CORRETO: obj.data.polygons[idx].material_index -> obj.material_slots[mi].material.
+v157: subdividi P_FacePlate (6 -> 3750 faces) e pintei 72 faces na zona medida com M_Slit.
+  Render IDENTICO ao v155 -> a placa esta DENTRO do casco (mesma licao do v138/v148).
+v158: RAYCAST DECIDIU O OBJETO (regra 324): na fenda (x=-0.265 z=1.073) a superficie externa e
+  P_Helmet com material Visor_Light, y=0.159 -> NAO e a placa. Pintei 50 faces do CASCO com M_Slit.
+  A FENDA APARECEU: (1.08,-0.26) e (1.06,-0.26) passaram de 'L' para 'D'. Gate 1/0/520.
+v159: M_Slit 0.10 -> 0.17 (o concept classifica a fenda como 'o', nao 'D') e P_Visor Visor_Grey ->
+  Visor_Light (a fenda agora vem do casco, o visor era redundante). Resultado: 13 -> 13 erros
+  (composicao mudou: (1.00,-0.22) foi de 'D' para '.', e a fenda continua 'D').
+  LICAO: o sombreamento NAQUELA face e escuro; base 0.17 ainda rende soma<200. O tom da fenda nao
+  fecha com o mesmo preset de luz que calibrou a faixa clara -> ou medir a cor do concept na fenda
+  (RGB real) e calibrar o material por ela, ou aceitar a fenda como 'escura' e nao como 'o'.
+MAPA DOS 13 ERROS POR CAUSA (amostra "dentro -0.15", v159):
+  (A) TETO DA FAIXA 2 erros: z=1.10 em x=-0.30 e x=-0.15 -> concept 'B', modelo 'L'. O limite fixo
+      z<=1.100 pinta claro alto demais nos extremos -> precisa TETO POR COLUNA MEDIDO.
+  (B) GEOMETRIA AUSENTE 2 erros: z=1.12 x=-0.15 ('B' vs '.') e z=1.00 x=-0.22 ('L' vs '.').
+  (C) FENDA/TOM 3 erros: (1.08,-0.26) e (1.06,-0.26) 'o' vs 'D'; (1.02,-0.26) 'L' vs 'o'.
+  (D) PIXELS ESCUROS ESPURIOS 2 erros: (1.06,-0.22) e (1.04,-0.22) 'L' vs 'o' — NAO eram o visor
+      (v159 trocou o material e eles persistiram) -> procurar a superficie por raycast.
+  (E) OMBRO 1 erro: (0.94,-0.22) 'L' vs 'B' (topo do ombro 0.950 ali, precisa ~0.940).
+  (F) DIVERSOS 3 erros: (1.06,-0.15) 'D' vs 'L'; (1.00,-0.26) 'L' vs 'B'; (0.96,-0.15) '.' vs 'L'.
+ACEITE v159: borda 68% | dentro 78% | CLARO 31/31 (v158/v159 contam 29 porque a fenda escureceu 2
+  celulas) | acerto 25. Borda inalterada (1.040 | 0.975 | 0.950 | 0.915 | 0.915 | 0.900).
+PROXIMO: (A) teto da faixa por coluna medida -> +2; (D) identificar a superficie espuria por raycast
+  -> +2; (B) geometria do topo-traseiro e do furo em (1.00,-0.22) -> +2; (C) calibrar M_Slit pelo RGB
+  medido no concept -> +2/+3; (E) ombro -> +1. Depois: 4 vistas, vision proprio, auditor, prancha.
