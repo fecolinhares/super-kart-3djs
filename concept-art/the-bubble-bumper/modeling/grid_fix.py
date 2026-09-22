@@ -67,4 +67,4 @@ xs = [-0.46, -0.42, -0.38, -0.34, -0.30, -0.26, -0.22, -0.18, -0.14]
 zs = [1.05, 1.00, 0.95, 0.90, 0.85, 0.80]
 CP = '/mnt/storage2TB/Coding-Projects/super-kart-3djs/concept-art/the-bubble-bumper/assets/reference-orthographic/side.jpg'
 grid(CP, True, xs, zs, 'CONCEPT side CORRIGIDO')
-grid('/tmp/R136_SIDE.png', False, xs, zs, 'MODELO v136')
+grid('/tmp/R137_SIDE.png', False, xs, zs, 'MODELO v137')

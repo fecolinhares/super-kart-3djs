@@ -11984,3 +11984,19 @@ LEITURA:
 REGRA 313: o classificador de cor por SOMA (r+g+b<200 = escuro) confunde azul-escuro com preto.
   Antes de decidir "encosto/massa escura" medir o MATIZ (b-r) da regiao; so entao separar.
 PROXIMO ALVO MEDIDO: visor claro/cromado (concept C em x -0.18..-0.14 z 1.00).
+
+## v137 — VISOR CLARO (medido no concept)
+MEDICAO NO CONCEPT (varredura do capacete, regra 312 aplicada):
+  faixa CLARA/PRATEADA em x -0.300..-0.140, z 0.96..1.10, RGB medidos 100..203 em R, 108..204 em G,
+  118..208 em B (cinza claro com leve azul). Exemplos: (203,203,205) (199,204,208) (170,171,173).
+  Fenda ESCURA em x -0.28..-0.26 z 1.06..1.08 (64..79) e preto (0,0,4)/(0,0,0) em x -0.16..-0.14 z 1.06.
+  => o capacete do concept NAO e azul uniforme: tem painel claro/plataformado no alto-frente.
+CAUSA NO MODELO: box("P_FacePlate", ..., m=M_VIS) com M_VIS = (0.04,0.05,0.07) = quase preto.
+PATCH v137: novo material M_VILL = mat("Visor_Light", (0.62,0.66,0.73), 0.28) e P_FacePlate -> M_VILL.
+PROVA DE QUE CHEGOU AOS PIXELS: diff R136_SIDE vs R137_SIDE = 6620 px.
+RESULTADO (grade de cores na SIDE, calibracao correta):
+  z=1.00: concept C em x=-0.18 e -0.14 | v137 C em x=-0.18 (era D no v136) -> acertou 1 dos 2 pontos.
+  z=1.05: concept B B em -0.18/-0.14 | v137 tem D em -0.22, C em -0.18, fundo em -0.14
+  => o painel claro agora EXISTE e esta na altura certa, mas ~0.04 m A FRENTE/ALTO do concept.
+PENDENTE: deslocar o painel claro ~0.02-0.04 m para tras (diminuir x) e fazer chegar a -0.14.
+ESTADO ESTRUTURAL v137: 199 objetos, md5 do blend d14d45eb4c, 4 vistas renderizadas (620x620).
