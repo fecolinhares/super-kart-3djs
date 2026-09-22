@@ -12473,3 +12473,34 @@ ESTADO DOS 8 ERROS: 2 PROVADOS ARTEFATO por raycast (1.10,-0.30) e (1.10,-0.15) 
 PROXIMO: (1) calibrar o render de QA com FUNDO CLARO (resolve a classe '.' e destrava a fenda);
   (2) a geometria edge-on do P_Visor em x=-0.22; (3) reavaliar a grade com amostra deslocada meia
   celula. Depois: 4 vistas, vision proprio, auditor independente, prancha com MD5.
+
+## v164 (RENDER COM FUNDO CLARO) — EXPERIMENTO FALHOU, COM CAUSA MEDIDA
+Hipotese: o fundo escuro do QA torna a classe '.' incomparavel com o concept (fundo claro).
+Teste: rj164.py com world background (0.55,0.55,0.57) em vez de (0.075,0.078,0.085).
+RESULTADO MEDIDO: PIOROU (8 -> 14 erros). Causa: o mundo cinza CLARO age como LUZ AMBIENTE forte
+  -> a faixa clara saltou de (155,160,168) para (194..255) e passou a colidir com o fundo (196):
+  dist_ao_fundo caiu para 4..39 em celulas que eram 'L'. Ex: (-0.22,1.06) modelo (207,209,214) com
+  fundo 196 -> dist 39 -> '.'; (-0.22,1.00) modelo (194,196,201) -> dist 4 -> '.'.
+  LICAO: nao trocar o fundo do render de QA sem refazer a calibracao de luz. O fundo escuro estava
+  certo. FUNDO CLARO = LUZ AMBIENTE, nao apenas cor de fundo.
+CORRECAO METODOLOGICA (med_fair.py): em vez de mudar o render, EXCLUIR da metrica as celulas em que
+  o CONCEPT e fundo ('.') — elas nao fazem parte do kart e nao sao defeito. Tambem corrigido o
+  denominador do 'claro' (antes contava celulas de fundo como modelo claro).
+ACEITE JUSTO (v163, R163_SIDE.png, med_fair.py):
+  borda -0.14: 46/60 = 77% (0 celulas excluidas)
+  dentro -0.15: 52/59 = 88% (1 celula excluida)  CLARO concept=31 modelo=31 acerto=29
+  -> CONTAGEM DE CLARO EMPATA EXATAMENTE (31 vs 31) com 29 acertos.
+OS 7 ERROS REAIS, DECOMPOSTOS:
+  (i) 2 PROVADOS ARTEFATO por raycast: (1.10,-0.30) e (1.10,-0.15) — o material JA e Helmet_Blue e
+      o concept quer 'B'; a grade acusa por antialiasing na borda do teto da faixa.
+  (ii) 3 DE CLASSE DE FUNDO (fenda): (1.08,-0.26) 'o' vs '.' e (1.06,-0.26) 'o' vs 'D' — em RGB
+      ABSOLUTO a fenda do modelo (203..260) esta PROXIMA da do concept (225..229); a diferenca de
+      classe vem do fundo diferente. Comparar a fenda por RGB absoluto, nao por classe.
+  (iii) 2 DEFEITOS REAIS DE GEOMETRIA: (1.12,-0.15) concept 'B' vs modelo '.' = FALTA GEOMETRIA no
+      topo-traseiro do capacete nessa coluna; (1.00,-0.22) concept 'L' vs modelo '.' = o P_Visor
+      ocupa o pixel com face edge-on (ny=0.25) e nao cobre.
+  (iv) 1 SOBRE-EXTENSAO: (1.06,-0.18) concept 'L' vs modelo 'D' — a linha preta pintada alcanca
+      x=-0.18 e o concept so tem preto em x -0.17..-0.14.
+PROXIMO: (iii) geometria do topo-traseiro do capacete + face edge-on do P_Visor; (iv) reduzir a
+  linha preta mais 0.008; (ii) aceitar/medir a fenda por RGB absoluto. Depois: 4 vistas, vision
+  proprio, auditor independente, prancha com MD5.
