@@ -12742,3 +12742,23 @@ ERROS RESTANTES (5 reais + 1 fundo do concept): (1.12,-0.15) B vs '.' (altura do
 PROXIMO: (a) subir o topo do casco em x=-0.15 (mesma tecnica do P_RearTop, ajustando posicao/raios);
   (b) teto -0.006 em x=-0.15; (c) linha preta ate x=-0.15; (d) fenda por RGB absoluto.
   DEPOIS: FRONT/REAR/TOP (ainda SEM validacao), vision proprio, auditor independente, prancha + MD5.
+
+## v174 — NOVO CANDIDATO. DENTRO 95%, BORDA 85%, 4 ERROS (3 reais).
+Acao: recriar o P_RearTop MAIOR — centro (-0.130, 0, 1.150), raios (0.045, 0.062, 0.075) -> cobre
+  x -0.175..-0.085, |y|<=0.062, z 1.075..1.225. Mesma tecnica do v173 (solido fechado novo).
+EFEITO: a celula (1.12,-0.15) passou a ser P_RearTop[Helmet_Blue] com ny=+0.83 (era superficie escura).
+  GATE: 1 componente (200 objetos) | 0 non-manifold | 525 contatos.
+ACEITE v174 (med_fair.py): borda 83% -> 85% (51/60) | dentro 92% -> 95% (56/59) |
+  CLARO concept 31 = modelo 31 com 31 acertos | 4 erros (era 6). md5 75457f3e5c.
+  As DUAS celulas do topo (-0.15) sumiram: (1.12,-0.15) e (1.10,-0.15).
+DECISAO: ADOTAR conjunto-v174.blend como candidato.
+ERROS RESTANTES — 3 REAIS + 1 FUNDO:
+  1. (1.08,-0.26) concept 'o' vs modelo '.'  — FENDA: tom/rasancia.
+  2. (1.06,-0.26) concept 'o' vs modelo 'D'  — FENDA: familia de classe certa, tom proximo
+     (RGB modelo 203..260 vs concept 225..229).
+  3. (1.06,-0.15) concept 'D' vs modelo 'L'  — linha preta nao cobre x=-0.15 (o encurtamento do v165
+     passou do ponto).
+  4. (0.96,-0.15) concept '.' vs modelo 'L'  — concept='.' = FUNDO, NAO e defeito (fora dos contadores).
+PROXIMO: (1)(2) fenda por RGB absoluto (a classe nao e comparavel com fundos diferentes; comparar
+  RGB); (3) reestender a linha preta ate x=-0.15. DEPOIS: FRONT/REAR/TOP (ainda SEM validacao),
+  vision proprio, auditor independente, prancha com MD5.
