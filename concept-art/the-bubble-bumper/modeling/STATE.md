@@ -12885,3 +12885,21 @@ Decisao de hoje (texto): o problema da "linha preta" estava no INSTRUMENTO (mask
 de guias + feature <= 5px medida ponto-a-ponto), nao na geometria. v174 segue como candidato; o seguinte
 e limpar a mascara da referencia e revalidar os anchors antes de qualquer nova decisao sobre features
 estreitas. FRONT/REAR/TOP seguem sem validacao; prancha final pendente.
+
+## MEDIDOR FINALMENTE CALIBRADO (candidato A-compass, ciclo 2026-09-22 noite)
+Mask do concept estava 75.8% GRADE (424k/559k px). Limpa (sat>25 | max<60, diff>40 do fundo) +
+componente principal: 765x398 px, 0% grade. Razao L/H = 1.8773 (contrato 1.877 -- erro 0.03%).
+A linha horizontal da grade (1 linha) foi removida (e fechamento morfologico 1px).
+CANDIDATO A' (compass nos dois eixos): scale_x = (L/A)/1.877 = 1.02403 -> KX = KZ = 0.003146 m/px.
+  Depois do L-norm equaliza os eixos: o texto mede exatamente L em X e exatamente H em Z com
+  um unico passo de 3.146 mm/px (uniform-scale residual de 2.4% que NAO muda nenhum pixel).
+Anchors: col X1=886 -> x=+1.178 | col 146 -> x=-1.178  |  row Y0=85 -> z=+1.2523 | row 482 -> z=0.
+  col(x) = X1 - (x+1.178)/KX = 886 - (x+1.178)/0.003146 ; row(z) = Y1 - z/0.003146 = 482 - z/0.003146.
+ANGULO CONFIRMADO (mask limpa): x=-1.00 -> col=866, z_topo=0.874 m (ALTO) | x=+1.00 -> col=169, z_topo=0.356 m (BAIXO) -> nariz ESQUERDO, traseira DIREITA, MESMO mapa que o MODEL o. O mapping NAO estava espelhado nem com offset: estava consistente e a "sujeira" era a grade.
+CONSEQUENCIA: toda conclusao sobre feature estreita (linha preta, fenda, topo traseiro de 0,198 m) fica
+  DISPONIVEL para reavaliacao com este medidor; a grade ja foi removida, entao agora os pontos (x,z) do
+  concept caem no pixel certo a <= 0.2 px.
+PROXIMO: re-rodar o side-score (med_fair / per-colormap / faixas) com a mascara LIMPA + anchors
+  A' (KX=KZ=0.003146, X1=886, Y0=85, Y1=482) e ver SE a linha preta/fenda vira defito VISIVEL ou
+  artefato do instrumento. Se for artefato, devemos estar dentro do objetivo no SIDE; se for defito
+  real, a medicao passa a ser confiavel e a correcao pode ser feita de uma vez.
