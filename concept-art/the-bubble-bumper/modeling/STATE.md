@@ -11393,3 +11393,22 @@ v098: 1 componente (185 obj) | 0 non-manifold | contato 33/34 | contrato intacto
   CRITERIO CORRETO de convergencia = (a) metricas objetivas do gate + (b) comparacao A/B de CROPS
   ESPECIFICOS na mesma vista + (c) medicao de pixel do fenomeno. NUNCA usar a nota global como
   criterio de aceite nem de regressao — foi o ruido que gerou o ciclo errado do v082.
+
+## v099: faixa azul dorsal nos pods (divergencia do TOP que sobreviveu a todo o ruido)
+Diagnostico por CROP A/B dedicado (TOP_AB_v099.png: concept vs modelo, lado a lado, mesma escala):
+  o vision respondeu COERENTE e acionavel: "no concept o AZUL e' espinha dorsal continua cobrindo
+  o TOPO dos tanques laterais; o amarelo fica nas bordas/nariz; no modelo o topo dos pods e'
+  amarelo em blocos rigidos desalinhados".
+FIX v099: 3 blocos azuis (M_BODY) por lado no topo de cada sidepod (PodBlue_L/R_0..2),
+  acompanhando a curva do pod.
+v099: 1 componente (191 obj) | 33/34 | contrato intacto. Os 6 blocos conectaram de primeira.
+REAVALIACAO pelo MESMO crop A/B: "(1) sim, o azul agora cobre o topo dos tanques, linhas mais
+  simetricas; (2) ainda ha salto de altura/fenda entre a espinha central azul e os blocos dos
+  tanques, e a fusao do bico amarelo com o cockpit azul e' abrupta; (3) MELHOROU."
+REGRA 279 — METODO DE AVALIACAO QUE FUNCIONA (substitui a nota global, ver regra 278):
+  crop A/B da MESMA vista (concept | modelo, mesma escala, altura fixa), UMA pergunta especifica
+  sobre o defeito relatado, e pedir "melhorou/igual/piorou" + "o que ainda esta errado".
+  Com o board completo o avaliador alucinou ("pneus cubicos", nota 7,5->3,0); com o crop focado
+  deu diagnostico preciso e comparavel entre versoes.
+REGRA 280: sidepod do concept = corpo AMARELO com TOPO AZUL; o azul e' espinha dorsal continua
+  (nariz -> cockpit -> topo dos tanques -> traseira). Amarelo so' nas bordas externas/nariz.
