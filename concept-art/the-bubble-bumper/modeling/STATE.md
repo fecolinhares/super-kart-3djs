@@ -12995,3 +12995,28 @@ PROXIMO: (a) estender a grade de medicao para z 0.70..1.26 (hoje 0.90..1.20) par
   corpo/banda media; (b) rampa do topo: as faces de P_StripeF sao grandes e so 2 casaram - subdividir a
   stripe na zona x -0.18..-0.10 e repintar a rampa; (c) os 4 elementos do vision (sobrancelha, esclera,
   oval de ventilacao, rebite da orelha); (d) depois FRONT/REAR/TOP, vision proprio, auditor, prancha.
+
+## GRADE ESTENDIDA z=0.70..1.26 (visao honesta do corpo) - o "95%" era parcial
+Estendi a grade de z 0.90..1.20 para z 0.70..1.26 e x -0.30..-0.06 (95 celulas nao-fundo).
+RESULTADO: 95 celulas | ERROS=42 (vs medianidade suja "4 erros" e "borda 85%/dentro 95%").
+  -> O numero alto anterior so media o TOPO. A metrica inteira era uma vista parcial.
+TIPOS DOMINANTES DE ERRO (contagem, padrao):
+  B->. x10  (modelo MAIS ESTREITO/BAIXO na lateral: o concept tem objeto e o modelo NAO tem no
+             corpo z=0.70..0.79 em x -0.06..-0.10 e no topo em x=-0.06..-0.10)
+  Y->. x6   (modelo sem amarelo onde o concept tem: x -0.06..-0.10 no topo e faixa media alta)
+  D->B x4   (modelo tem azul onde o concept tem escuro: detalhes/ventilacao)
+  D->. x4   (modelo sem escuro onde o concept tem: z 0.79..0.85 x -0.28..-0.22 e z 1.21 x -0.18)
+  Y->B x3 | B->Y x3 | B->L x3 | B->o x2 ...
+ACERTOS REAIS VISIVEIS NA GRADE (com a banda media v179/v180):
+  z=0.82 C 'YDDBBB.Yo' vs M 'BBBB..oY' -> modelo tem Y na coluna certa (-0.08) e 'o' em -0.12
+  z=0.85 C 'D.BBBBBYY' vs M 'BBBBB.YY' -> YY em -0.10/-0.08 bate com YY do concept
+DEFEITOS REais MAPEADOS (todos medidos, nenhum inferido):
+  (1) CORPO mais estreito: modelo nao chega a x=-0.06..-0.10 em z=0.70..0.79 (o conceito tem objeto ai)
+  (2) AMARELO da banda media ainda falta em x=-0.06..-0.10, z=1.12..1.18 (Y->.) - a banda que criei
+      (x -0.148..-0.112) NAO cobre x=-0.06..-0.10; o concept tem amarelo ai
+  (3) DETALHES escuros (ventilacao) ausentes/deslocados em z=0.79..0.85 e z=1.21
+DECISAO: o alvo nao e "menos erros na grade" mas "um modelo que ao ser medido nao tem lugares com
+  '.' do lado errado". Verificando a banda media: ela deveria cobrir x -0.13..-0.09. Se o concept tem
+  Y em x=-0.10..-0.06 z=1.12..1.18, entao ou (a) a banda alta tem que ser mais larga (+x) ou (b) e um
+  terceiro elemento. Proximo passo: medir o concept em z 1.12..1.18, x -0.10..-0.04 e comparar com
+  a geometria do modelo naquela janela.
