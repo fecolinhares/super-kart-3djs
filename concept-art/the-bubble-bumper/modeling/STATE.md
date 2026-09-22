@@ -11430,3 +11430,25 @@ PENDENTE MEDIDO: frente az 43% (alvo 24%) e meio az 57% (alvo 32%) — investiga
   excesso ou se o ARO prateado das rodas nao esta sendo lido como "cinza-claro" pelo limiar.
   (o limiar de cinza exige |r-g|<28 E |g-b|<28 E media>70; cromo com reflexo azulado pode escapar)
 v100/v101: 1 componente | 0 non-manifold | 33/34 | contrato intacto
+
+## v102: ACHADA A CAUSA do "amarelo demais / cinza de menos" — suspensao e molas estavam AMARELAS
+Investigacao (a pedido da regra 281, antes de mudar cor): medi os runs na coluna da roda dianteira
+  e vi Z16 A28 M2 P9 M13 A8 M13 P9 Z42 -> muito AMARELO e AZUL na regiao da frente.
+GREP nas pecas de suspensao revelou o defeito real:
+  - F_ArmU_+/-1 (braco da suspensao DIANTEIRA) = M_ACC (AMARELO)  -> no concept sao PRATEADOS
+  - R_Spring_+/-1 (MOLAS traseiras)          = M_ACC (AMARELO)  -> no concept sao CROMADAS/prata
+FIX v102: F_ArmU -> M_METAL | R_Spring -> M_CHROME.
+MEDICAO (SIDE, mesma regra de limiar da regra 281):
+            FRENTE                meio                 TRAS
+  CONCEPT   am  7% az 24% ci 55%  am 22% az 32% ci 23%  am 11% az  0% ci 62%
+  v101      am 19% az 43% ci 13%  am 22% az 57% ci 10%  am 11% az 13% ci 52%
+  v102      am 12% az 43% ci 23%  am 22% az 57% ci 10%  am 11% az  8% ci 57%
+  -> amarelo da frente 19%->12% (alvo 7%) | cinza da frente 13%->23% (alvo 55%) | meio amarelo 22%=22% OK
+PENDENTE (medido, nao chutado): azul 43% (frente) e 57% (meio) vs 24% e 32% do concept. A causa e'
+  GEOMETRIA, nao cor: o N_Cowl azul ocupa 0.53 m de altura na lateral; no concept aquela area e'
+  majoritariamente cinza (suspensao/bumper/aros). Corrigir reduzindo a area do casco azul ou
+  adicionando mecanica prateada visivel na frente/meio — medir a AREA do casco antes de mexer.
+REGRA 282: ANTES de adicionar/corrigir COR, grepar as pecas daquela zona e conferir o MATERIAL de
+  cada uma. Amarelo/azul de suspensao passou por 8 builds sem ser notado e virava "amarelo demais"
+  no diagnostico — o defeito estava na peca, nao na paleta.
+v102: 1 componente | 0 non-manifold | 33/34 | contrato intacto
